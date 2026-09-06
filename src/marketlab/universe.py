@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from typing import Any, Callable
+from datetime import UTC, datetime
+from typing import Any
 
 
 class UniverseError(ValueError):
@@ -120,10 +121,10 @@ def build_universe_snapshot(
     if selection_size <= 0:
         raise UniverseError("selection_size must be positive")
 
-    captured_at = captured_at or datetime.now(timezone.utc)
+    captured_at = captured_at or datetime.now(UTC)
     if captured_at.tzinfo is None:
-        captured_at = captured_at.replace(tzinfo=timezone.utc)
-    captured_at_utc = captured_at.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+        captured_at = captured_at.replace(tzinfo=UTC)
+    captured_at_utc = captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
     members: list[UniverseMember] = []
     candidates = _candidate_rows(index_payload, index_name=index_name)
