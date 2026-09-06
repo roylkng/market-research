@@ -71,10 +71,11 @@ class NSEClient:
                     self._session_initialized = False
                     if attempt < self.attempts:
                         continue
-                if response.status_code == 429 or response.status_code >= 500:
-                    if attempt < self.attempts:
-                        time.sleep(0.5 * (2 ** (attempt - 1)))
-                        continue
+                if (
+                    response.status_code == 429 or response.status_code >= 500
+                ) and attempt < self.attempts:
+                    time.sleep(0.5 * (2 ** (attempt - 1)))
+                    continue
                 response.raise_for_status()
                 payload = response.json()
                 if not isinstance(payload, (dict, list)):
