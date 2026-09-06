@@ -3,6 +3,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 
@@ -20,10 +21,10 @@ class NSEAcquisitionError(RuntimeError):
 
 
 class NSEClient:
-    """Small client for NSE's web-facing and archive acquisition interfaces.
+    """Small client for NSE web-facing and archive acquisition interfaces.
 
-    These endpoints are acquisition helpers, not a contractual public API. The
-    research source of record remains the original exchange file/document.
+    Web JSON endpoints are discovery helpers. Research provenance must point to
+    the original exchange file/document and retain its exact bytes/hash.
     """
 
     BASE_URL = "https://www.nseindia.com"
@@ -35,9 +36,13 @@ class NSEClient:
     INTEGRATED_FILING_ENDPOINT = NSEEndpoint(
         "integrated_filing_results", f"{BASE_URL}/api/integrated-filing-results"
     )
+    CORPORATE_ACTION_ENDPOINT = NSEEndpoint(
+        "corporate_actions", f"{BASE_URL}/api/corporates-corporateActions"
+    )
     NIFTY200_CONSTITUENT_CSV = (
         "https://archives.nseindia.com/content/indices/ind_nifty200list.csv"
     )
+    ALLOWED_ARCHIVE_HOSTS = frozenset({"nsearchives.nseindia.com", "archives.nseindia.com"})
 
     def __init__(self, *, timeout: float = 12.0, attempts: int = 3) -> None:
         self.timeout = timeout
@@ -65,7 +70,9 @@ class NSEClient:
             )
         self._session_initialized = True
 
-    def _json_get(self, endpoint: NSEEndpoint, *, params: dict[str, Any]) -> JSONPayload:
+    def _json_get_with_raw(
+        self, endpoint: NSEEndpoint, *, params: dict[str, Any]
+    ) -> tuple[JSONPayload, bytes]:
         last_error: Exception | None = None
         for attempt in range(1, self.attempts + 1):
             try:
@@ -83,12 +90,15 @@ class NSEClient:
                     time.sleep(0.5 * (2 ** (attempt - 1)))
                     continue
                 response.raise_for_status()
+                raw = response.content
                 payload = response.json()
                 if not isinstance(payload, (dict, list)):
                     raise NSEAcquisitionError(
                         f"{endpoint.name} returned {type(payload).__name__}, expected JSON"
                     )
-                return payload
+                if not raw:
+                    raise NSEAcquisitionError(f"{endpoint.name} returned empty bytes")
+                return payload, raw
             except (requests.RequestException, ValueError, NSEAcquisitionError) as exc:
                 last_error = exc
                 if attempt < self.attempts:
@@ -96,6 +106,10 @@ class NSEClient:
                     continue
                 break
         raise NSEAcquisitionError(f"NSE {endpoint.name} failed: {last_error}") from last_error
+
+    def _json_get(self, endpoint: NSEEndpoint, *, params: dict[str, Any]) -> JSONPayload:
+        payload, _ = self._json_get_with_raw(endpoint, params=params)
+        return payload
 
     @staticmethod
     def _require_mapping(payload: JSONPayload, endpoint_name: str) -> dict[str, Any]:
@@ -111,7 +125,6 @@ class NSEClient:
 
     def nifty200_constituent_csv(self) -> bytes:
         """Fetch the official Nifty 200 constituent CSV as exact source bytes."""
-
         try:
             response = requests.get(
                 self.NIFTY200_CONSTITUENT_CSV,
@@ -126,8 +139,6 @@ class NSEClient:
         return response.content
 
     def quote_equity(self, symbol: str) -> dict[str, Any]:
-        """Best-effort quote metadata helper, not required by U001 v2."""
-
         payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
         return self._require_mapping(payload, self.QUOTE_ENDPOINT.name)
 
@@ -152,3 +163,51 @@ class NSEClient:
         if to_date:
             params["to_date"] = to_date
         return self._json_get(self.INTEGRATED_FILING_ENDPOINT, params=params)
+
+    def integrated_financial_filings_with_raw(
+        self, symbol: str, *, period: str = "Quarterly"
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact discovery bytes for one symbol's Integrated Financial filings."""
+        return self._json_get_with_raw(
+            self.INTEGRATED_FILING_ENDPOINT,
+            params={"index": "equities", "symbol": symbol, "period": period},
+        )
+
+    def corporate_actions_with_raw(
+        self,
+        symbol: str,
+        *,
+        from_date: str,
+        to_date: str,
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact NSE corporate-action discovery bytes for an EPS-basis audit."""
+        return self._json_get_with_raw(
+            self.CORPORATE_ACTION_ENDPOINT,
+            params={
+                "index": "equities",
+                "symbol": symbol,
+                "from_date": from_date,
+                "to_date": to_date,
+            },
+        )
+
+    def archive_bytes(self, url: str) -> bytes:
+        """Fetch original NSE archive bytes, rejecting arbitrary external URLs."""
+        parsed = urlparse(url)
+        if parsed.scheme != "https" or (parsed.hostname or "").lower() not in self.ALLOWED_ARCHIVE_HOSTS:
+            raise NSEAcquisitionError(f"unsupported NSE archive URL: {url}")
+        try:
+            response = requests.get(
+                url,
+                headers={
+                    "User-Agent": self.session.headers["User-Agent"],
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                },
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            raise NSEAcquisitionError(f"NSE archive fetch failed: {exc}") from exc
+        if not response.content:
+            raise NSEAcquisitionError("NSE archive returned empty bytes")
+        return response.content
