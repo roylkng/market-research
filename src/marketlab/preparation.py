@@ -21,7 +21,10 @@ from marketlab.expectations import (
     ExpectationStore,
     FrozenExpectationManifest,
 )
-from marketlab.h002 import build_seasonal_expectation
+from marketlab.h002 import (
+    build_seasonal_expectation,
+    build_terminal_no_signal_expectation,
+)
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.universe import UniverseSnapshot
 
@@ -30,6 +33,7 @@ IST = ZoneInfo("Asia/Kolkata")
 Outcome = Literal["CAPTURED", "UNCOVERED"]
 ReasonCode = Literal[
     "CAPTURED",
+    "CAPTURED_NO_SIGNAL",
     "DISCOVERY_FETCH_FAILED",
     "NO_BASELINE_FILING",
     "AMBIGUOUS_BASELINE_FILING",
@@ -230,7 +234,12 @@ def select_baseline_candidate(
             continue
         try:
             period = _parse_date(row.get("qe_Date"), field="qe_Date")
-            available = _parse_exchange_timestamp(row.get("broadcast_Date"))
+            availability_value = (
+                row.get("broadcast_Date")
+                or row.get("revised_Date")
+                or row.get("creation_Date")
+            )
+            available = _parse_exchange_timestamp(availability_value)
         except PreparationError:
             continue
         source_url = str(row.get("xbrl") or "").strip()
@@ -254,6 +263,37 @@ def select_baseline_candidate(
         source_url=next(iter(unique_urls)),
         discovery_row_sha256=_canonical_hash(row),
         revision_count=len(matches),
+    )
+
+
+def select_preferred_baseline_candidate(
+    payload: Any,
+    *,
+    symbol: str,
+    baseline_period_end: str,
+) -> FilingCandidate:
+    """Choose the baseline accounting basis deterministically before outcomes exist.
+
+    Consolidated is preferred when the company filed it for the baseline quarter.
+    Standalone is used only when no consolidated baseline exists. Ambiguity never
+    falls through to another basis.
+    """
+
+    try:
+        return select_baseline_candidate(
+            payload,
+            symbol=symbol,
+            baseline_period_end=baseline_period_end,
+            accounting_basis="Consolidated",
+        )
+    except PreparationError as exc:
+        if str(exc) != "NO_BASELINE_FILING":
+            raise
+    return select_baseline_candidate(
+        payload,
+        symbol=symbol,
+        baseline_period_end=baseline_period_end,
+        accounting_basis="Standalone",
     )
 
 
@@ -410,6 +450,28 @@ class PreparationStore:
             handle.flush()
             os.fsync(handle.fileno())
 
+    def retain_input(self, kind: str, raw: bytes) -> str:
+        """Persist exact acquisition bytes in a content-addressed preparation store."""
+
+        if not isinstance(kind, str) or re.fullmatch(r"[a-z0-9-]+", kind) is None:
+            raise PreparationError("preparation input kind is invalid")
+        if not raw:
+            raise PreparationError("preparation input bytes are empty")
+        digest = sha256_bytes(raw)
+        path = self.root / "h002-inputs" / kind / "sha256" / f"{digest}.bin"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+        except FileExistsError:
+            if path.read_bytes() != raw:
+                raise PreparationError("content-addressed preparation input collision")
+            return digest
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(raw)
+            handle.flush()
+            os.fsync(handle.fileno())
+        return digest
+
     def attempts(self, cohort_id: str, symbol: str) -> tuple[PreparationAttempt, ...]:
         root = self._attempt_dir(cohort_id, symbol)
         if not root.exists():
@@ -491,6 +553,12 @@ def prepare_symbol(
     candidate: FilingCandidate | None = None
     actions: CorporateActionAnalysis | None = None
     source_hash: str | None = None
+    member = next(
+        (item for item in universe.members if item.symbol.upper() == symbol.upper()),
+        None,
+    )
+    if member is None:
+        raise PreparationError(f"symbol {symbol} is not in frozen cohort {universe.cohort_id}")
 
     def finish(reason: ReasonCode, detail: str | None = None) -> PreparationAttempt:
         attempt = _make_attempt(
@@ -509,18 +577,45 @@ def prepare_symbol(
         preparation_store.append(attempt)
         return attempt
 
+    def capture_record(record: ExpectationCaptureRecord, detail: str | None = None) -> PreparationAttempt:
+        reason: ReasonCode = (
+            "CAPTURED_NO_SIGNAL"
+            if record.expectation.status == "NO_SIGNAL"
+            else "CAPTURED"
+        )
+        attempt = _make_attempt(
+            universe=universe,
+            symbol=symbol,
+            attempted_at_utc=attempted_at_utc,
+            baseline_period_end=baseline_period_end,
+            outcome="CAPTURED",
+            reason_code=reason,
+            detail=detail,
+            discovery_payload_sha256=discovery_hash,
+            candidate=candidate,
+            source_sha256=source_hash,
+            actions=actions,
+            record=record,
+        )
+        preparation_store.append(attempt)
+        return attempt
+
     try:
         payload, discovery_raw = client.integrated_financial_filings_with_raw(symbol)
         discovery_hash = sha256_bytes(discovery_raw)
     except NSEAcquisitionError as exc:
         return finish("DISCOVERY_FETCH_FAILED", str(exc))
+    retained_discovery = preparation_store.retain_input(
+        "integrated-financial-filings", discovery_raw
+    )
+    if retained_discovery != discovery_hash:
+        raise PreparationError("retained discovery payload hash mismatch")
 
     try:
-        candidate = select_baseline_candidate(
+        candidate = select_preferred_baseline_candidate(
             payload,
             symbol=symbol,
             baseline_period_end=baseline_period_end,
-            accounting_basis="Consolidated",
         )
     except PreparationError as exc:
         reason_text = str(exc)
@@ -537,6 +632,7 @@ def prepare_symbol(
         )
     except NSEAcquisitionError as exc:
         return finish("CORPORATE_ACTION_FETCH_FAILED", str(exc))
+    retained_actions = preparation_store.retain_input("corporate-actions", action_raw)
 
     actions = analyze_eps_basis_actions(
         action_payload,
@@ -545,11 +641,8 @@ def prepare_symbol(
         baseline_period_end=baseline_period_end,
         as_of_utc=attempted_at_utc,
     )
-    if actions.status != "READY" or actions.factor is None or actions.version is None:
-        return finish(
-            "UNRESOLVED_CORPORATE_ACTION",
-            "; ".join(actions.unresolved_subjects) or "unresolved EPS-basis action",
-        )
+    if retained_actions != actions.payload_sha256:
+        raise PreparationError("retained corporate-action payload hash mismatch")
 
     try:
         source_raw = client.archive_bytes(candidate.source_url)
@@ -573,26 +666,74 @@ def prepare_symbol(
     except PreparationError as exc:
         return finish("BASELINE_IDENTITY_MISMATCH", str(exc))
     if (
-        baseline_event.symbol.upper() != symbol.upper()
-        or parsed_period != baseline
-        or baseline_event.accounting_basis.strip().casefold() != "consolidated"
+        parsed_period != baseline
+        or baseline_event.accounting_basis.strip().casefold()
+        != candidate.accounting_basis.strip().casefold()
     ):
         return finish(
-            "BASELINE_IDENTITY_MISMATCH", "parsed filing identity differs from discovery"
+            "BASELINE_IDENTITY_MISMATCH",
+            "parsed filing period or accounting basis differs from discovery",
+        )
+
+    filing_symbol = baseline_event.symbol.upper()
+    canonical_symbol = symbol.upper()
+    filing_isin = (baseline_event.isin or "").strip().upper()
+    member_isin = member.isin.strip().upper()
+    historical_symbol_mismatch = filing_symbol != canonical_symbol
+    if historical_symbol_mismatch and (not filing_isin or filing_isin != member_isin):
+        return finish(
+            "BASELINE_IDENTITY_MISMATCH",
+            "parsed filing symbol differs and ISIN does not prove continuity",
         )
 
     target_period = _plus_one_year(parsed_period)
-    try:
-        expectation = build_seasonal_expectation(
-            baseline_event,
-            target_period_end=target_period.isoformat(),
-            target_quarter=baseline_event.reporting_quarter or "",
-            target_accounting_basis=baseline_event.accounting_basis,
-            baseline_available_at_utc=candidate.exchange_available_at_utc,
-            expectation_as_of_utc=attempted_at_utc,
-            corporate_action_factor=actions.factor,
-            corporate_action_version=actions.version,
+    terminal_reason: str | None = None
+    terminal_detail: str | None = None
+    terminal_action_version: str | None = None
+    if historical_symbol_mismatch:
+        terminal_reason = "baseline_identity_mismatch"
+        terminal_action_version = (
+            actions.version
+            if actions.status == "READY" and actions.version is not None
+            else f"EPSCA-UNRESOLVED-{actions.payload_sha256[:20]}"
         )
+        terminal_detail = (
+            f"historical symbol {filing_symbol} differs from frozen symbol {canonical_symbol}; "
+            f"ISIN matched {member_isin}; numeric EPS disabled"
+        )
+    elif actions.status != "READY" or actions.factor is None or actions.version is None:
+        terminal_reason = "unresolved_corporate_action"
+        terminal_action_version = f"EPSCA-UNRESOLVED-{actions.payload_sha256[:20]}"
+        terminal_detail = (
+            "; ".join(actions.unresolved_subjects) or "unresolved EPS-basis action"
+        )
+
+    try:
+        if terminal_reason is not None:
+            assert terminal_action_version is not None
+            expectation = build_terminal_no_signal_expectation(
+                baseline_event,
+                canonical_symbol=canonical_symbol,
+                target_period_end=target_period.isoformat(),
+                target_quarter=baseline_event.reporting_quarter or "",
+                target_accounting_basis=baseline_event.accounting_basis,
+                baseline_available_at_utc=candidate.exchange_available_at_utc,
+                expectation_as_of_utc=attempted_at_utc,
+                no_signal_reason=terminal_reason,
+                corporate_action_version=terminal_action_version,
+            )
+        else:
+            assert actions.factor is not None and actions.version is not None
+            expectation = build_seasonal_expectation(
+                baseline_event,
+                target_period_end=target_period.isoformat(),
+                target_quarter=baseline_event.reporting_quarter or "",
+                target_accounting_basis=baseline_event.accounting_basis,
+                baseline_available_at_utc=candidate.exchange_available_at_utc,
+                expectation_as_of_utc=attempted_at_utc,
+                corporate_action_factor=actions.factor,
+                corporate_action_version=actions.version,
+            )
         record, _ = expectation_store.capture(
             expectation,
             universe=universe,
@@ -601,21 +742,7 @@ def prepare_symbol(
     except (ExpectationLedgerError, ValueError) as exc:
         return finish("EXPECTATION_CAPTURE_FAILED", str(exc))
 
-    attempt = _make_attempt(
-        universe=universe,
-        symbol=symbol,
-        attempted_at_utc=attempted_at_utc,
-        baseline_period_end=baseline_period_end,
-        outcome="CAPTURED",
-        reason_code="CAPTURED",
-        discovery_payload_sha256=discovery_hash,
-        candidate=candidate,
-        source_sha256=source_hash,
-        actions=actions,
-        record=record,
-    )
-    preparation_store.append(attempt)
-    return attempt
+    return capture_record(record, terminal_detail)
 
 
 def build_preparation_report(

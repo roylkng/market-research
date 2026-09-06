@@ -234,13 +234,28 @@ def test_no_baseline_is_reason_coded_not_silently_omitted(tmp_path):
     assert attempt.discovery_payload_sha256 is not None
 
 
-def test_unresolved_corporate_action_is_reason_coded(tmp_path):
+def test_unresolved_corporate_action_freezes_terminal_no_signal(tmp_path):
     actions = [
-        {"symbol": "TESTCO", "subject": "Bonus issue approved", "exDate": "01-Jan-2026"}
+        {"symbol": "TESTCO", "subject": "Rights Issue 1:5", "exDate": "01-Jan-2026"}
     ]
-    attempt, _, _ = _prepare(tmp_path, client=FakeClient(action_payload=actions))
-    assert attempt.reason_code == "UNRESOLVED_CORPORATE_ACTION"
+    attempt, expectation_store, preparation_store = _prepare(
+        tmp_path, client=FakeClient(action_payload=actions)
+    )
+    assert attempt.outcome == "CAPTURED"
+    assert attempt.reason_code == "CAPTURED_NO_SIGNAL"
     assert attempt.corporate_action_payload_sha256 is not None
+    bundle = freeze_complete_bundle(
+        universe=_universe(),
+        expectation_store=expectation_store,
+        preparation_store=preparation_store,
+        baseline_period_end="2025-09-30",
+        generated_at=datetime(2026, 9, 6, 13, tzinfo=UTC),
+    )
+    assert bundle.expectations[0].expectation.status == "NO_SIGNAL"
+    assert (
+        bundle.expectations[0].expectation.no_signal_reason
+        == "unresolved_corporate_action"
+    )
 
 
 def test_report_refuses_partial_cohort_freeze(tmp_path):
