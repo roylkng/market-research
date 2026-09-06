@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from marketlab.execution import (
@@ -21,9 +23,9 @@ def _session(day: str) -> TradingSession:
     )
 
 
-def _calendar() -> TradingCalendar:
-    # Explicit sessions. 2026-09-15 is intentionally absent despite being a weekday.
-    days = [
+def _session_days() -> list[str]:
+    # 2026-09-15 is intentionally absent despite being a weekday.
+    return [
         "2026-09-07",
         "2026-09-08",
         "2026-09-09",
@@ -50,7 +52,10 @@ def _calendar() -> TradingCalendar:
         "2026-10-09",
         "2026-10-12",
     ]
-    return TradingCalendar([_session(day) for day in days], version="NSE-CALENDAR-TEST-v1")
+
+
+def _calendar(*, version: str = "NSE-CALENDAR-TEST-v1") -> TradingCalendar:
+    return TradingCalendar([_session(day) for day in _session_days()], version=version)
 
 
 def _signal(bucket: str = "POSITIVE") -> H002SignalResult:
@@ -80,7 +85,9 @@ def _bar(
     open_price: float | None = 100.0,
     close_price: float | None = 100.0,
     tradable_at_open: bool | None = True,
+    tradable_at_close: bool | None = True,
     corporate_action_version: str | None = "CA-v1",
+    source: str = "TEST-MARKET-DATA",
     source_timestamp_utc: str | None = None,
 ) -> PriceBar:
     return PriceBar(
@@ -88,19 +95,30 @@ def _bar(
         session_date=day,
         open_price=open_price,
         close_price=close_price,
-        source="TEST-MARKET-DATA",
+        source=source,
         source_timestamp_utc=source_timestamp_utc or f"{day}T12:00:00+00:00",
         tradable_at_open=tradable_at_open,
+        tradable_at_close=tradable_at_close,
         corporate_action_version=corporate_action_version,
     )
 
 
 def _completed_bars():
-    # Publication is Sunday Sep 6. Sep 7 is skipped, Sep 8 is entry. Because the
-    # explicit calendar omits Sep 15, the 20th holding session is Oct 6.
     stock = [
-        _bar("TESTCO", "2026-09-08", open_price=100.0, close_price=101.0),
-        _bar("TESTCO", "2026-10-06", open_price=119.0, close_price=120.0),
+        _bar(
+            "TESTCO",
+            "2026-09-08",
+            open_price=100.0,
+            close_price=101.0,
+            source="ENTRY-SOURCE",
+        ),
+        _bar(
+            "TESTCO",
+            "2026-10-06",
+            open_price=119.0,
+            close_price=120.0,
+            source="EXIT-SOURCE",
+        ),
     ]
     benchmarks = [
         _bar("nifty_50", "2026-09-08", open_price=200.0),
@@ -111,69 +129,129 @@ def _completed_bars():
     return stock, benchmarks
 
 
+def _build(
+    *,
+    signal: H002SignalResult | None = None,
+    stock_bars: list[PriceBar] | None = None,
+    benchmark_bars: list[PriceBar] | None = None,
+    as_of_utc: str = "2026-10-07T12:00:00+00:00",
+):
+    return build_paper_position(
+        signal or _signal(),
+        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
+        calendar=_calendar(),
+        stock_bars=[] if stock_bars is None else stock_bars,
+        benchmark_bars=[] if benchmark_bars is None else benchmark_bars,
+        as_of_utc=as_of_utc,
+    )
+
+
 def test_execution_rule_hash_validates():
     document = load_and_validate_execution_rule("registry/h002_execution_rule.yaml")
     assert document["id"] == "H002-X001"
     assert document["live_capital"] is False
 
 
-def test_calendar_uses_explicit_sessions_and_skips_first_post_event_session():
-    entry, exit_session = _calendar().schedule("2026-09-06T06:30:00+00:00")
+def test_calendar_uses_explicit_sessions_and_records_deterministic_hash():
+    calendar = _calendar()
+    entry, exit_session = calendar.schedule("2026-09-06T06:30:00+00:00")
     assert entry.session_date == "2026-09-08"
     assert exit_session.session_date == "2026-10-06"
-    assert "2026-09-15" not in {session.session_date for session in _calendar().sessions}
+    assert "2026-09-15" not in {session.session_date for session in calendar.sessions}
+    assert len(calendar.sha256) == 64
+    assert calendar.sha256 == _calendar().sha256
+    assert calendar.sha256 != _calendar(version="NSE-CALENDAR-TEST-v2").sha256
 
 
 def test_publication_local_date_not_utc_date_controls_schedule():
-    # 19:00 UTC on Sep 6 is 00:30 IST on Sep 7. Sep 7 is the event local date,
-    # so Sep 8 is the first subsequent session and Sep 9 is the entry.
     entry, _ = _calendar().schedule("2026-09-06T19:00:00+00:00")
     assert entry.session_date == "2026-09-09"
 
 
 def test_no_signal_is_skipped_without_market_data():
-    position = build_paper_position(
-        _signal("NO_SIGNAL"),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=[],
-        benchmark_bars=[],
+    position = _build(
+        signal=_signal("NO_SIGNAL"),
         as_of_utc="2026-09-06T07:00:00+00:00",
     )
     assert position.status == "SKIPPED"
     assert position.entry_session_date is None
+    assert position.calendar_snapshot_sha256 == _calendar().sha256
     assert position.live_order_created is False
 
 
-def test_before_entry_open_is_pending_not_false_missing_entry():
-    position = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=[],
-        benchmark_bars=[],
-        as_of_utc="2026-09-08T03:00:00+00:00",
-    )
+def test_signal_decision_must_strictly_precede_entry_open():
+    signal = replace(_signal(), scored_at_utc="2026-09-08T03:45:00+00:00")
+    with pytest.raises(ExecutionError, match="strictly precede scheduled entry open"):
+        _build(signal=signal, as_of_utc="2026-09-08T04:00:00+00:00")
+
+
+def test_before_entry_open_is_pending():
+    position = _build(as_of_utc="2026-09-08T03:00:00+00:00")
     assert position.status == "PENDING"
     assert position.skip_or_pending_reason == "entry_not_due"
-    assert position.entry_session_date == "2026-09-08"
 
 
-def test_completed_position_uses_exact_open_close_and_matching_benchmark_windows():
-    stock, benchmarks = _completed_bars()
-    position = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=stock,
-        benchmark_bars=benchmarks,
-        as_of_utc="2026-10-07T12:00:00+00:00",
+def test_missing_entry_stays_pending_until_session_close_then_skips():
+    before_close = _build(as_of_utc="2026-09-08T09:00:00+00:00")
+    after_close = _build(as_of_utc="2026-09-08T10:01:00+00:00")
+    assert before_close.status == "PENDING"
+    assert before_close.skip_or_pending_reason == "missing_entry_bar_before_entry_session_close"
+    assert after_close.status == "SKIPPED"
+    assert after_close.skip_or_pending_reason == "missing_entry_bar_after_entry_session_close"
+
+
+def test_future_market_data_is_unavailable_not_consumed():
+    future_bar = _bar(
+        "TESTCO",
+        "2026-09-08",
+        open_price=100.0,
+        source_timestamp_utc="2026-09-08T12:00:00+00:00",
     )
+    position = _build(
+        stock_bars=[future_bar],
+        as_of_utc="2026-09-08T09:00:00+00:00",
+    )
+    assert position.status == "PENDING"
+    assert position.skip_or_pending_reason == "missing_entry_bar_before_entry_session_close"
+
+
+def test_source_timestamp_cannot_predate_open_value():
+    impossible = _bar(
+        "TESTCO",
+        "2026-09-08",
+        open_price=100.0,
+        source_timestamp_utc="2026-09-08T03:00:00+00:00",
+    )
+    with pytest.raises(ExecutionError, match="source predates open value"):
+        _build(stock_bars=[impossible], as_of_utc="2026-09-08T09:00:00+00:00")
+
+
+def test_duplicate_market_bars_are_rejected():
+    bar = _bar("TESTCO", "2026-09-08")
+    with pytest.raises(ExecutionError, match="duplicate market bar"):
+        _build(stock_bars=[bar, bar])
+
+
+def test_nonfinite_market_price_is_rejected():
+    bar = _bar("TESTCO", "2026-09-08", open_price=float("nan"))
+    with pytest.raises(ExecutionError, match="finite positive number"):
+        _build(stock_bars=[bar])
+
+
+def test_completed_position_records_calendar_entry_exit_provenance_and_benchmarks():
+    stock, benchmarks = _completed_bars()
+    position = _build(stock_bars=stock, benchmark_bars=benchmarks)
     assert position.status == "COMPLETED"
+    assert position.schema_version == 2
     assert position.entry_session_date == "2026-09-08"
     assert position.exit_session_date == "2026-10-06"
+    assert position.calendar_snapshot_sha256 == _calendar().sha256
     assert position.entry_price == 100.0
     assert position.exit_price == 120.0
+    assert position.entry_price_source == "ENTRY-SOURCE"
+    assert position.exit_price_source == "EXIT-SOURCE"
+    assert position.entry_corporate_action_version == "CA-v1"
+    assert position.exit_corporate_action_version == "CA-v1"
     assert position.gross_return_pct == pytest.approx(20.0)
     assert position.cost_stressed_return_pct == {
         "0": pytest.approx(20.0),
@@ -188,111 +266,83 @@ def test_completed_position_uses_exact_open_close_and_matching_benchmark_windows
     assert position.live_order_created is False
 
 
-@pytest.mark.parametrize(
-    ("entry_bar", "reason"),
-    [
-        (None, "missing_entry_bar"),
-        (_bar("TESTCO", "2026-09-08", open_price=None), "missing_entry_open"),
-        (
-            _bar("TESTCO", "2026-09-08", tradable_at_open=False),
-            "entry_not_confirmed_tradable",
-        ),
-        (
-            _bar("TESTCO", "2026-09-08", corporate_action_version=None),
-            "missing_entry_corporate_action_version",
-        ),
-    ],
-)
-def test_unavailable_or_nontradable_entry_is_skipped_not_imputed(entry_bar, reason):
-    stock = [] if entry_bar is None else [entry_bar]
-    position = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=stock,
-        benchmark_bars=[],
-        as_of_utc="2026-09-08T13:00:00+00:00",
-    )
-    assert position.status == "SKIPPED"
-    assert position.skip_or_pending_reason == reason
-    assert position.gross_return_pct is None
-
-
-def test_missing_exit_is_pending_before_close_and_unresolved_after_close():
-    stock = [_bar("TESTCO", "2026-09-08", open_price=100.0)]
-    before_due = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=stock,
-        benchmark_bars=[],
-        as_of_utc="2026-10-06T09:00:00+00:00",
-    )
-    after_due = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
-        stock_bars=stock,
-        benchmark_bars=[],
-        as_of_utc="2026-10-06T11:00:00+00:00",
-    )
-    assert before_due.status == "PENDING"
-    assert before_due.skip_or_pending_reason == "exit_not_due"
-    assert after_due.status == "UNRESOLVED_EXIT"
-    assert after_due.skip_or_pending_reason == "missing_exit_close_after_due_session"
-
-
-def test_future_market_data_relative_to_evaluation_is_rejected():
+def test_nontradable_entry_pending_before_close_then_skipped_after_close():
     bar = _bar(
         "TESTCO",
         "2026-09-08",
         open_price=100.0,
-        source_timestamp_utc="2026-09-08T12:00:00+00:00",
+        tradable_at_open=False,
+        source_timestamp_utc="2026-09-08T04:00:00+00:00",
     )
-    with pytest.raises(ExecutionError, match="source timestamp exceeds evaluation as_of"):
-        build_paper_position(
-            _signal(),
-            exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-            calendar=_calendar(),
-            stock_bars=[bar],
-            benchmark_bars=[],
-            as_of_utc="2026-09-08T04:00:00+00:00",
-        )
+    before_close = _build(stock_bars=[bar], as_of_utc="2026-09-08T09:00:00+00:00")
+    after_close = _build(stock_bars=[bar], as_of_utc="2026-09-08T10:01:00+00:00")
+    assert before_close.status == "PENDING"
+    assert "entry_not_confirmed_tradable" in before_close.skip_or_pending_reason
+    assert after_close.status == "SKIPPED"
+    assert "entry_not_confirmed_tradable" in after_close.skip_or_pending_reason
 
 
-def test_missing_benchmark_is_reported_not_imputed():
+def test_missing_exit_before_due_is_pending_and_after_due_is_unresolved():
+    entry = _bar("TESTCO", "2026-09-08", open_price=100.0)
+    before_due = _build(stock_bars=[entry], as_of_utc="2026-10-06T09:00:00+00:00")
+    after_due = _build(stock_bars=[entry], as_of_utc="2026-10-06T11:00:00+00:00")
+    assert before_due.status == "PENDING"
+    assert before_due.skip_or_pending_reason == "exit_not_due"
+    assert after_due.status == "UNRESOLVED_EXIT"
+    assert after_due.skip_or_pending_reason == "missing_exit_bar_after_due_close"
+
+
+def test_exit_must_be_confirmed_tradable():
     stock, benchmarks = _completed_bars()
-    benchmarks = [bar for bar in benchmarks if bar.instrument_id != "nifty_200_momentum_30"]
-    position = build_paper_position(
-        _signal(),
-        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
-        calendar=_calendar(),
+    stock[1] = replace(stock[1], tradable_at_close=False)
+    position = _build(stock_bars=stock, benchmark_bars=benchmarks)
+    assert position.status == "UNRESOLVED_EXIT"
+    assert position.skip_or_pending_reason == "exit_not_confirmed_tradable_after_due_close"
+
+
+def test_source_timestamp_cannot_predate_close_value():
+    stock, benchmarks = _completed_bars()
+    stock[1] = replace(
+        stock[1],
+        source_timestamp_utc="2026-10-06T09:00:00+00:00",
+    )
+    with pytest.raises(ExecutionError, match="source predates close value"):
+        _build(stock_bars=stock, benchmark_bars=benchmarks)
+
+
+def test_entry_exit_corporate_action_versions_must_match():
+    stock, benchmarks = _completed_bars()
+    stock[1] = replace(stock[1], corporate_action_version="CA-v2")
+    with pytest.raises(ExecutionError, match="corporate-action versions differ"):
+        _build(stock_bars=stock, benchmark_bars=benchmarks)
+
+
+def test_benchmark_newer_than_as_of_is_missing_not_consumed():
+    stock, benchmarks = _completed_bars()
+    benchmarks[-1] = replace(
+        benchmarks[-1],
+        source_timestamp_utc="2026-10-08T12:00:00+00:00",
+    )
+    position = _build(
         stock_bars=stock,
         benchmark_bars=benchmarks,
         as_of_utc="2026-10-07T12:00:00+00:00",
     )
     by_id = {result.benchmark_id: result for result in position.benchmarks}
     assert by_id["nifty_200_momentum_30"].status == "MISSING"
-    assert by_id["nifty_200_momentum_30"].return_pct is None
     assert by_id["nifty_200_momentum_30"].reason == "missing_benchmark_bar"
 
 
-def test_entry_exit_corporate_action_version_mismatch_is_rejected():
-    stock, benchmarks = _completed_bars()
-    stock[1] = _bar(
-        "TESTCO",
-        "2026-10-06",
-        close_price=120.0,
-        corporate_action_version="CA-v2",
-    )
-    with pytest.raises(ExecutionError, match="corporate-action versions differ"):
+def test_negative_cost_scenario_is_rejected():
+    with pytest.raises(ExecutionError, match="non-negative integer basis points"):
         build_paper_position(
             _signal(),
             exchange_published_at_utc="2026-09-06T06:30:00+00:00",
             calendar=_calendar(),
-            stock_bars=stock,
-            benchmark_bars=benchmarks,
-            as_of_utc="2026-10-07T12:00:00+00:00",
+            stock_bars=[],
+            benchmark_bars=[],
+            as_of_utc="2026-09-08T03:00:00+00:00",
+            cost_scenarios_bps=(-1,),
         )
 
 

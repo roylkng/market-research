@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -44,6 +45,7 @@ class PriceBar:
     source: str
     source_timestamp_utc: str
     tradable_at_open: bool | None = None
+    tradable_at_close: bool | None = None
     corporate_action_version: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,14 +83,17 @@ class PaperPosition:
     exchange_published_at_utc: str
     evaluation_as_of_utc: str
     calendar_version: str
+    calendar_snapshot_sha256: str
     entry_session_date: str | None
     exit_session_date: str | None
     status: PositionStatus
     skip_or_pending_reason: str | None
     entry_price: float | None
     exit_price: float | None
-    stock_price_source: str | None
-    corporate_action_version: str | None
+    entry_price_source: str | None
+    exit_price_source: str | None
+    entry_corporate_action_version: str | None
+    exit_corporate_action_version: str | None
     gross_return_pct: float | None
     cost_stressed_return_pct: dict[str, float] | None
     benchmarks: tuple[BenchmarkOutcome, ...]
@@ -102,17 +107,14 @@ class PaperPosition:
 
 
 class TradingCalendar:
-    """Versioned explicit NSE session calendar.
-
-    MarketLab never infers trading sessions from weekdays. The caller must supply
-    the exchange session list captured/versioned by the research pipeline.
-    """
+    """Versioned explicit NSE session calendar with deterministic content hash."""
 
     def __init__(self, sessions: list[TradingSession], *, version: str) -> None:
         if not version.strip():
             raise ExecutionError("calendar version is required")
         if not sessions:
             raise ExecutionError("trading calendar must contain sessions")
+
         normalized: list[TradingSession] = []
         seen: set[str] = set()
         for session in sessions:
@@ -129,13 +131,20 @@ class TradingCalendar:
             if closed.astimezone(IST).date() != session_date:
                 raise ExecutionError(f"session close date mismatch: {session.session_date}")
             normalized.append(session)
-        if [item.session_date for item in normalized] != sorted(
-            item.session_date for item in normalized
-        ):
+
+        session_dates = [item.session_date for item in normalized]
+        if session_dates != sorted(session_dates):
             raise ExecutionError("trading sessions must be sorted ascending")
+
         self.sessions = tuple(normalized)
         self.version = version
         self._index = {session.session_date: index for index, session in enumerate(self.sessions)}
+        self.sha256 = _canonical_hash(
+            {
+                "version": version,
+                "sessions": [session.to_dict() for session in self.sessions],
+            }
+        )
 
     def schedule(self, exchange_published_at_utc: str) -> tuple[TradingSession, TradingSession]:
         publication = _parse_timestamp(
@@ -160,7 +169,7 @@ class TradingCalendar:
 def _parse_timestamp(value: str, *, field: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value)
-    except ValueError as exc:
+    except (TypeError, ValueError) as exc:
         raise ExecutionError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
         raise ExecutionError(f"{field} must include timezone: {value}")
@@ -170,13 +179,31 @@ def _parse_timestamp(value: str, *, field: str) -> datetime:
 def _parse_date(value: str, *, field: str) -> date:
     try:
         return date.fromisoformat(value)
-    except ValueError as exc:
+    except (TypeError, ValueError) as exc:
         raise ExecutionError(f"invalid {field}: {value}") from exc
 
 
 def _canonical_hash(payload: dict[str, Any]) -> str:
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    try:
+        encoded = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ExecutionError("canonical payload must contain finite JSON values") from exc
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _finite_price(value: float, *, field: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ExecutionError(f"{field} must be a finite positive number")
+    result = float(value)
+    if not math.isfinite(result) or result <= 0:
+        raise ExecutionError(f"{field} must be a finite positive number")
+    return result
 
 
 def validate_execution_rule_document(document: dict[str, Any]) -> str:
@@ -212,19 +239,67 @@ def _bar_key(instrument_id: str, session_date: str) -> tuple[str, str]:
     return instrument_id.casefold(), session_date
 
 
-def _validate_bar_available(bar: PriceBar, *, as_of: datetime) -> None:
+def _index_bars(bars: list[PriceBar]) -> dict[tuple[str, str], PriceBar]:
+    indexed: dict[tuple[str, str], PriceBar] = {}
+    for bar in bars:
+        if not isinstance(bar.instrument_id, str) or not bar.instrument_id.strip():
+            raise ExecutionError("market-data instrument_id is required")
+        _parse_date(bar.session_date, field="market-data session_date")
+        if not isinstance(bar.source, str) or not bar.source.strip():
+            raise ExecutionError("market-data source is required")
+        _parse_timestamp(bar.source_timestamp_utc, field="price source timestamp")
+        if bar.open_price is not None:
+            _finite_price(bar.open_price, field="open_price")
+        if bar.close_price is not None:
+            _finite_price(bar.close_price, field="close_price")
+        key = _bar_key(bar.instrument_id, bar.session_date)
+        if key in indexed:
+            raise ExecutionError(
+                f"duplicate market bar for {bar.instrument_id} {bar.session_date}"
+            )
+        indexed[key] = bar
+    return indexed
+
+
+def _available_as_of(
+    indexed: dict[tuple[str, str], PriceBar], *, as_of: datetime
+) -> dict[tuple[str, str], PriceBar]:
+    return {
+        key: bar
+        for key, bar in indexed.items()
+        if _parse_timestamp(bar.source_timestamp_utc, field="price source timestamp") <= as_of
+    }
+
+
+def _ensure_open_value_could_exist(bar: PriceBar, session: TradingSession) -> None:
+    if bar.open_price is None:
+        return
     source_timestamp = _parse_timestamp(bar.source_timestamp_utc, field="price source timestamp")
-    if source_timestamp > as_of:
+    session_open = _parse_timestamp(session.open_timestamp_utc, field="session open")
+    if source_timestamp < session_open:
         raise ExecutionError(
-            f"market data source timestamp exceeds evaluation as_of: {bar.instrument_id} "
-            f"{bar.session_date}"
+            f"market-data source predates open value: {bar.instrument_id} {bar.session_date}"
+        )
+
+
+def _ensure_close_value_could_exist(bar: PriceBar, session: TradingSession) -> None:
+    if bar.close_price is None:
+        return
+    source_timestamp = _parse_timestamp(bar.source_timestamp_utc, field="price source timestamp")
+    session_close = _parse_timestamp(session.close_timestamp_utc, field="session close")
+    if source_timestamp < session_close:
+        raise ExecutionError(
+            f"market-data source predates close value: {bar.instrument_id} {bar.session_date}"
         )
 
 
 def _return_pct(entry_price: float, exit_price: float) -> float:
-    if entry_price <= 0 or exit_price <= 0:
-        raise ExecutionError("entry and exit prices must be positive")
-    return (exit_price / entry_price - 1.0) * 100.0
+    entry = _finite_price(entry_price, field="entry_price")
+    exit_value = _finite_price(exit_price, field="exit_price")
+    result = (exit_value / entry - 1.0) * 100.0
+    if not math.isfinite(result):
+        raise ExecutionError("computed return is not finite")
+    return result
 
 
 def _benchmark_outcome(
@@ -234,7 +309,6 @@ def _benchmark_outcome(
     exit_session: TradingSession,
     bars: dict[tuple[str, str], PriceBar],
     stock_return_pct: float,
-    as_of: datetime,
 ) -> BenchmarkOutcome:
     entry = bars.get(_bar_key(benchmark_id, entry_session.session_date))
     exit_bar = bars.get(_bar_key(benchmark_id, exit_session.session_date))
@@ -248,8 +322,8 @@ def _benchmark_outcome(
             excess_return_pct=None,
             reason="missing_benchmark_bar",
         )
-    _validate_bar_available(entry, as_of=as_of)
-    _validate_bar_available(exit_bar, as_of=as_of)
+    _ensure_open_value_could_exist(entry, entry_session)
+    _ensure_close_value_could_exist(exit_bar, exit_session)
     if entry.open_price is None or exit_bar.close_price is None:
         return BenchmarkOutcome(
             benchmark_id=benchmark_id,
@@ -287,7 +361,7 @@ def _empty_position(
     entry_bar: PriceBar | None = None,
 ) -> PaperPosition:
     return PaperPosition(
-        schema_version=1,
+        schema_version=2,
         execution_rule_id=EXECUTION_RULE_ID,
         signal_rule_id=signal.rule_id,
         hypothesis_id="H002",
@@ -302,16 +376,19 @@ def _empty_position(
         exchange_published_at_utc=publication.isoformat().replace("+00:00", "Z"),
         evaluation_as_of_utc=as_of.isoformat().replace("+00:00", "Z"),
         calendar_version=calendar.version,
+        calendar_snapshot_sha256=calendar.sha256,
         entry_session_date=None if entry_session is None else entry_session.session_date,
         exit_session_date=None if exit_session is None else exit_session.session_date,
         status=status,
         skip_or_pending_reason=reason,
         entry_price=None if entry_bar is None else entry_bar.open_price,
         exit_price=None,
-        stock_price_source=None if entry_bar is None else entry_bar.source,
-        corporate_action_version=(
+        entry_price_source=None if entry_bar is None else entry_bar.source,
+        exit_price_source=None,
+        entry_corporate_action_version=(
             None if entry_bar is None else entry_bar.corporate_action_version
         ),
+        exit_corporate_action_version=None,
         gross_return_pct=None,
         cost_stressed_return_pct=None,
         benchmarks=(),
@@ -331,7 +408,7 @@ def build_paper_position(
     sector_benchmark_id: str | None = None,
     cost_scenarios_bps: tuple[int, ...] = (0, 25, 50),
 ) -> PaperPosition:
-    """Create/reconstruct one H002 paper observation under H002-X001."""
+    """Create/reconstruct one paper observation under frozen H002-X001."""
 
     if signal.rule_id != SIGNAL_RULE_ID:
         raise ExecutionError(f"unexpected signal rule: {signal.rule_id}")
@@ -344,11 +421,13 @@ def build_paper_position(
         raise ExecutionError("signal decision timestamp precedes publication")
     if as_of < decision:
         raise ExecutionError("evaluation as_of precedes signal decision timestamp")
-    if any(bps < 0 for bps in cost_scenarios_bps):
-        raise ExecutionError("cost scenarios cannot contain negative basis points")
+    if any(isinstance(bps, bool) or not isinstance(bps, int) or bps < 0 for bps in cost_scenarios_bps):
+        raise ExecutionError("cost scenarios must be non-negative integer basis points")
 
-    for bar in [*stock_bars, *benchmark_bars]:
-        _validate_bar_available(bar, as_of=as_of)
+    all_stock = _index_bars(stock_bars)
+    all_benchmarks = _index_bars(benchmark_bars)
+    available_stock = _available_as_of(all_stock, as_of=as_of)
+    available_benchmarks = _available_as_of(all_benchmarks, as_of=as_of)
 
     base_identity = {
         "execution_rule_id": EXECUTION_RULE_ID,
@@ -357,6 +436,7 @@ def build_paper_position(
         "expectation_id": signal.expectation_id,
         "symbol": signal.symbol.upper(),
         "calendar_version": calendar.version,
+        "calendar_snapshot_sha256": calendar.sha256,
     }
     position_id = _canonical_hash(base_identity)[:24]
 
@@ -374,7 +454,11 @@ def build_paper_position(
 
     entry_session, exit_session = calendar.schedule(exchange_published_at_utc)
     entry_open = _parse_timestamp(entry_session.open_timestamp_utc, field="entry session open")
+    entry_close = _parse_timestamp(entry_session.close_timestamp_utc, field="entry session close")
     exit_close = _parse_timestamp(exit_session.close_timestamp_utc, field="exit session close")
+
+    if decision >= entry_open:
+        raise ExecutionError("signal decision timestamp must strictly precede scheduled entry open")
 
     if as_of < entry_open:
         return _empty_position(
@@ -390,20 +474,35 @@ def build_paper_position(
             exit_session=exit_session,
         )
 
-    stock_index = {_bar_key(bar.instrument_id, bar.session_date): bar for bar in stock_bars}
-    entry_bar = stock_index.get(_bar_key(signal.symbol, entry_session.session_date))
-    if entry_bar is None:
-        skip_reason = "missing_entry_bar"
-    elif entry_bar.open_price is None:
-        skip_reason = "missing_entry_open"
-    elif entry_bar.tradable_at_open is not True:
-        skip_reason = "entry_not_confirmed_tradable"
-    elif not (entry_bar.corporate_action_version or "").strip():
-        skip_reason = "missing_entry_corporate_action_version"
-    else:
-        skip_reason = None
+    entry_bar = available_stock.get(_bar_key(signal.symbol, entry_session.session_date))
+    if entry_bar is not None:
+        _ensure_open_value_could_exist(entry_bar, entry_session)
 
-    if skip_reason is not None:
+    entry_issue: str | None = None
+    if entry_bar is None:
+        entry_issue = "missing_entry_bar"
+    elif entry_bar.open_price is None:
+        entry_issue = "missing_entry_open"
+    elif entry_bar.tradable_at_open is not True:
+        entry_issue = "entry_not_confirmed_tradable"
+    elif not (entry_bar.corporate_action_version or "").strip():
+        entry_issue = "missing_entry_corporate_action_version"
+
+    if entry_issue is not None:
+        if as_of < entry_close:
+            return _empty_position(
+                signal,
+                publication=publication,
+                as_of=as_of,
+                calendar=calendar,
+                position_id=position_id,
+                status="PENDING",
+                reason=f"{entry_issue}_before_entry_session_close",
+                sector_benchmark_id=sector_benchmark_id,
+                entry_session=entry_session,
+                exit_session=exit_session,
+                entry_bar=entry_bar,
+            )
         return _empty_position(
             signal,
             publication=publication,
@@ -411,7 +510,7 @@ def build_paper_position(
             calendar=calendar,
             position_id=position_id,
             status="SKIPPED",
-            reason=skip_reason,
+            reason=f"{entry_issue}_after_entry_session_close",
             sector_benchmark_id=sector_benchmark_id,
             entry_session=entry_session,
             exit_session=exit_session,
@@ -434,8 +533,21 @@ def build_paper_position(
             entry_bar=entry_bar,
         )
 
-    exit_bar = stock_index.get(_bar_key(signal.symbol, exit_session.session_date))
-    if exit_bar is None or exit_bar.close_price is None:
+    exit_bar = available_stock.get(_bar_key(signal.symbol, exit_session.session_date))
+    if exit_bar is not None:
+        _ensure_close_value_could_exist(exit_bar, exit_session)
+
+    exit_issue: str | None = None
+    if exit_bar is None:
+        exit_issue = "missing_exit_bar"
+    elif exit_bar.close_price is None:
+        exit_issue = "missing_exit_close"
+    elif exit_bar.tradable_at_close is not True:
+        exit_issue = "exit_not_confirmed_tradable"
+    elif not (exit_bar.corporate_action_version or "").strip():
+        exit_issue = "missing_exit_corporate_action_version"
+
+    if exit_issue is not None:
         return _empty_position(
             signal,
             publication=publication,
@@ -443,25 +555,22 @@ def build_paper_position(
             calendar=calendar,
             position_id=position_id,
             status="UNRESOLVED_EXIT",
-            reason="missing_exit_close_after_due_session",
+            reason=f"{exit_issue}_after_due_close",
             sector_benchmark_id=sector_benchmark_id,
             entry_session=entry_session,
             exit_session=exit_session,
             entry_bar=entry_bar,
         )
 
-    if not (exit_bar.corporate_action_version or "").strip():
-        raise ExecutionError("exit corporate_action_version is required")
+    assert exit_bar is not None and exit_bar.close_price is not None
     if exit_bar.corporate_action_version != entry_bar.corporate_action_version:
         raise ExecutionError(
             "entry/exit corporate-action versions differ; normalized price series is not proven comparable"
         )
+
     gross_return = _return_pct(entry_bar.open_price, exit_bar.close_price)
     cost_results = {str(bps): gross_return - (bps / 100.0) for bps in cost_scenarios_bps}
 
-    benchmark_index = {
-        _bar_key(bar.instrument_id, bar.session_date): bar for bar in benchmark_bars
-    }
     benchmark_ids = list(REQUIRED_BENCHMARKS)
     if sector_benchmark_id:
         benchmark_ids.append(sector_benchmark_id)
@@ -470,15 +579,14 @@ def build_paper_position(
             benchmark_id,
             entry_session=entry_session,
             exit_session=exit_session,
-            bars=benchmark_index,
+            bars=available_benchmarks,
             stock_return_pct=gross_return,
-            as_of=as_of,
         )
         for benchmark_id in benchmark_ids
     )
 
     return PaperPosition(
-        schema_version=1,
+        schema_version=2,
         execution_rule_id=EXECUTION_RULE_ID,
         signal_rule_id=signal.rule_id,
         hypothesis_id="H002",
@@ -493,14 +601,17 @@ def build_paper_position(
         exchange_published_at_utc=publication.isoformat().replace("+00:00", "Z"),
         evaluation_as_of_utc=as_of.isoformat().replace("+00:00", "Z"),
         calendar_version=calendar.version,
+        calendar_snapshot_sha256=calendar.sha256,
         entry_session_date=entry_session.session_date,
         exit_session_date=exit_session.session_date,
         status="COMPLETED",
         skip_or_pending_reason=None,
         entry_price=entry_bar.open_price,
         exit_price=exit_bar.close_price,
-        stock_price_source=entry_bar.source,
-        corporate_action_version=entry_bar.corporate_action_version,
+        entry_price_source=entry_bar.source,
+        exit_price_source=exit_bar.source,
+        entry_corporate_action_version=entry_bar.corporate_action_version,
+        exit_corporate_action_version=exit_bar.corporate_action_version,
         gross_return_pct=gross_return,
         cost_stressed_return_pct=cost_results,
         benchmarks=outcomes,
