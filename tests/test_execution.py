@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import date, timedelta
-
 import pytest
 
 from marketlab.execution import (
@@ -16,7 +14,6 @@ from marketlab.h002 import H002SignalResult
 
 
 def _session(day: str) -> TradingSession:
-    # NSE cash-market timestamps represented in UTC for tests.
     return TradingSession(
         session_date=day,
         open_timestamp_utc=f"{day}T03:45:00+00:00",
@@ -84,6 +81,7 @@ def _bar(
     close_price: float | None = 100.0,
     tradable_at_open: bool | None = True,
     corporate_action_version: str | None = "CA-v1",
+    source_timestamp_utc: str | None = None,
 ) -> PriceBar:
     return PriceBar(
         instrument_id=instrument,
@@ -91,15 +89,15 @@ def _bar(
         open_price=open_price,
         close_price=close_price,
         source="TEST-MARKET-DATA",
-        source_timestamp_utc=f"{day}T12:00:00+00:00",
+        source_timestamp_utc=source_timestamp_utc or f"{day}T12:00:00+00:00",
         tradable_at_open=tradable_at_open,
         corporate_action_version=corporate_action_version,
     )
 
 
 def _completed_bars():
-    # Publication is Sunday Sep 6. Sep 7 is the first eligible session and is skipped.
-    # Entry is Sep 8. The explicit Sep 15 holiday means the 20th holding session is Oct 6.
+    # Publication is Sunday Sep 6. Sep 7 is skipped, Sep 8 is entry. Because the
+    # explicit calendar omits Sep 15, the 20th holding session is Oct 6.
     stock = [
         _bar("TESTCO", "2026-09-08", open_price=100.0, close_price=101.0),
         _bar("TESTCO", "2026-10-06", open_price=119.0, close_price=120.0),
@@ -127,8 +125,8 @@ def test_calendar_uses_explicit_sessions_and_skips_first_post_event_session():
 
 
 def test_publication_local_date_not_utc_date_controls_schedule():
-    # 19:00 UTC on Sep 6 is 00:30 IST on Sep 7. Sep 7 is event local date, so
-    # Sep 8 is the first post-event session and Sep 9 is the second-session entry.
+    # 19:00 UTC on Sep 6 is 00:30 IST on Sep 7. Sep 7 is the event local date,
+    # so Sep 8 is the first subsequent session and Sep 9 is the entry.
     entry, _ = _calendar().schedule("2026-09-06T19:00:00+00:00")
     assert entry.session_date == "2026-09-09"
 
@@ -140,11 +138,25 @@ def test_no_signal_is_skipped_without_market_data():
         calendar=_calendar(),
         stock_bars=[],
         benchmark_bars=[],
-        as_of_date="2026-10-07",
+        as_of_utc="2026-09-06T07:00:00+00:00",
     )
     assert position.status == "SKIPPED"
     assert position.entry_session_date is None
     assert position.live_order_created is False
+
+
+def test_before_entry_open_is_pending_not_false_missing_entry():
+    position = build_paper_position(
+        _signal(),
+        exchange_published_at_utc="2026-09-06T06:30:00+00:00",
+        calendar=_calendar(),
+        stock_bars=[],
+        benchmark_bars=[],
+        as_of_utc="2026-09-08T03:00:00+00:00",
+    )
+    assert position.status == "PENDING"
+    assert position.skip_or_pending_reason == "entry_not_due"
+    assert position.entry_session_date == "2026-09-08"
 
 
 def test_completed_position_uses_exact_open_close_and_matching_benchmark_windows():
@@ -155,7 +167,7 @@ def test_completed_position_uses_exact_open_close_and_matching_benchmark_windows
         calendar=_calendar(),
         stock_bars=stock,
         benchmark_bars=benchmarks,
-        as_of_date="2026-10-07",
+        as_of_utc="2026-10-07T12:00:00+00:00",
     )
     assert position.status == "COMPLETED"
     assert position.entry_session_date == "2026-09-08"
@@ -199,14 +211,14 @@ def test_unavailable_or_nontradable_entry_is_skipped_not_imputed(entry_bar, reas
         calendar=_calendar(),
         stock_bars=stock,
         benchmark_bars=[],
-        as_of_date="2026-10-07",
+        as_of_utc="2026-09-08T13:00:00+00:00",
     )
     assert position.status == "SKIPPED"
     assert position.skip_or_pending_reason == reason
     assert position.gross_return_pct is None
 
 
-def test_missing_exit_is_pending_before_due_date_and_unresolved_after_due_date():
+def test_missing_exit_is_pending_before_close_and_unresolved_after_close():
     stock = [_bar("TESTCO", "2026-09-08", open_price=100.0)]
     before_due = build_paper_position(
         _signal(),
@@ -214,7 +226,7 @@ def test_missing_exit_is_pending_before_due_date_and_unresolved_after_due_date()
         calendar=_calendar(),
         stock_bars=stock,
         benchmark_bars=[],
-        as_of_date="2026-10-05",
+        as_of_utc="2026-10-06T09:00:00+00:00",
     )
     after_due = build_paper_position(
         _signal(),
@@ -222,12 +234,30 @@ def test_missing_exit_is_pending_before_due_date_and_unresolved_after_due_date()
         calendar=_calendar(),
         stock_bars=stock,
         benchmark_bars=[],
-        as_of_date="2026-10-07",
+        as_of_utc="2026-10-06T11:00:00+00:00",
     )
     assert before_due.status == "PENDING"
     assert before_due.skip_or_pending_reason == "exit_not_due"
     assert after_due.status == "UNRESOLVED_EXIT"
     assert after_due.skip_or_pending_reason == "missing_exit_close_after_due_session"
+
+
+def test_future_market_data_relative_to_evaluation_is_rejected():
+    bar = _bar(
+        "TESTCO",
+        "2026-09-08",
+        open_price=100.0,
+        source_timestamp_utc="2026-09-08T12:00:00+00:00",
+    )
+    with pytest.raises(ExecutionError, match="source timestamp exceeds evaluation as_of"):
+        build_paper_position(
+            _signal(),
+            exchange_published_at_utc="2026-09-06T06:30:00+00:00",
+            calendar=_calendar(),
+            stock_bars=[bar],
+            benchmark_bars=[],
+            as_of_utc="2026-09-08T04:00:00+00:00",
+        )
 
 
 def test_missing_benchmark_is_reported_not_imputed():
@@ -239,7 +269,7 @@ def test_missing_benchmark_is_reported_not_imputed():
         calendar=_calendar(),
         stock_bars=stock,
         benchmark_bars=benchmarks,
-        as_of_date="2026-10-07",
+        as_of_utc="2026-10-07T12:00:00+00:00",
     )
     by_id = {result.benchmark_id: result for result in position.benchmarks}
     assert by_id["nifty_200_momentum_30"].status == "MISSING"
@@ -262,11 +292,11 @@ def test_entry_exit_corporate_action_version_mismatch_is_rejected():
             calendar=_calendar(),
             stock_bars=stock,
             benchmark_bars=benchmarks,
-            as_of_date="2026-10-07",
+            as_of_utc="2026-10-07T12:00:00+00:00",
         )
 
 
-def test_calendar_rejects_weekday_like_session_with_wrong_timestamp_date():
+def test_calendar_rejects_session_with_wrong_timestamp_date():
     with pytest.raises(ExecutionError, match="session open date mismatch"):
         TradingCalendar(
             [
