@@ -1,0 +1,35 @@
+version: 1
+
+experiments:
+  - id: EXP-2026-09-06-H001
+    hypothesis_id: H001
+    experiment_type: historical_feasibility_pilot
+    frozen_at: 2026-09-06
+    status: COMPLETE
+    dataset:
+      cohort: late_july_2025_results
+      companies_selected_before_post_event_return_inspection: 25
+      exact_return_observations: 24
+      point_in_time_grade: feasibility_only
+    artifacts:
+      - artifacts/india_earnings_edge_experiment.xlsx
+      - reports/experiments/2026-09-06-feasibility-pilot.md
+    verdict: REJECTED
+
+  - id: EXP-2026-09-06-H002
+    hypothesis_id: H002
+    experiment_type: historical_feasibility_replication
+    frozen_at: 2026-09-06
+    status: COMPLETE
+    dataset:
+      cohort: late_july_2025_results
+      exact_return_observations: 24
+      point_in_time_grade: feasibility_only
+    artifacts:
+      - artifacts/india_earnings_edge_experiment.xlsx
+      - reports/experiments/2026-09-06-feasibility-pilot.md
+    verdict: INCONCLUSIVE
+    follow_up:
+      experiment_type: prospective_paper
+      required: true
+      live_capital_allowed: false
