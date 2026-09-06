@@ -1,0 +1,147 @@
+name: H002 FY27-Q2 live preparation
+
+on:
+  push:
+    branches:
+      - run/h002-fy27q2-live-preparation
+    paths:
+      - .github/workflows/h002-fy27q2-live-preparation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h002-fy27q2-live-preparation
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      UNIVERSE: research/prospective/universes/FY27-Q2-2026-09-06.json
+      BASELINE_PERIOD_END: '2025-09-30'
+      STORE: .marketlab
+      OUT_DIR: run-out/FY27-Q2-2026-09-06
+      ANCHOR_DIR: research/prospective/preparation/FY27-Q2-2026-09-06
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MarketLab
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen research contracts
+        run: make validate
+
+      - name: Prepare all 100 frozen U001 members
+        run: |
+          mkdir -p "$OUT_DIR" "$ANCHOR_DIR"
+          python scripts/prepare_h002_cohort.py \
+            --universe "$UNIVERSE" \
+            --baseline-period-end "$BASELINE_PERIOD_END" \
+            --store "$STORE" \
+            --report-out "$OUT_DIR/preparation-report.json"
+
+      - name: Inspect live coverage
+        id: coverage
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["OUT_DIR"]) / "preparation-report.json"
+          report = json.loads(path.read_text())
+          print(json.dumps({
+              "cohort_id": report["cohort_id"],
+              "captured_count": report["captured_count"],
+              "member_count": report["member_count"],
+              "uncovered_count": report["uncovered_count"],
+              "freeze_ready": report["freeze_ready"],
+              "reason_counts": report["reason_counts"],
+              "report_sha256": report["report_sha256"],
+          }, indent=2, sort_keys=True))
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"freeze_ready={str(report['freeze_ready']).lower()}\n")
+              handle.write(f"captured_count={report['captured_count']}\n")
+              handle.write(f"report_sha256={report['report_sha256']}\n")
+          PY
+
+      - name: Freeze complete expectation bundle
+        if: steps.coverage.outputs.freeze_ready == 'true'
+        run: |
+          python scripts/prepare_h002_cohort.py \
+            --universe "$UNIVERSE" \
+            --baseline-period-end "$BASELINE_PERIOD_END" \
+            --store "$STORE" \
+            --report-out "$OUT_DIR/preparation-report.json" \
+            --bundle-out "$OUT_DIR/expectation-bundle.json" \
+            --freeze
+
+      - name: Build externally anchored run metadata
+        run: |
+          cp "$OUT_DIR/preparation-report.json" "$ANCHOR_DIR/preparation-report.json"
+          if [ -f "$OUT_DIR/expectation-bundle.json" ]; then
+            cp "$OUT_DIR/expectation-bundle.json" "$ANCHOR_DIR/expectation-bundle.json"
+          fi
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out_dir = Path(os.environ["OUT_DIR"])
+          anchor_dir = Path(os.environ["ANCHOR_DIR"])
+          report = json.loads((out_dir / "preparation-report.json").read_text())
+          metadata = {
+              "schema_version": 1,
+              "cohort_id": report["cohort_id"],
+              "source_commit_sha": os.environ["GITHUB_SHA"],
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+              "workflow_run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "workflow_ref": os.environ["GITHUB_WORKFLOW_REF"],
+              "anchored_at_utc": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+              "preparation_report_sha256": report["report_sha256"],
+              "captured_count": report["captured_count"],
+              "member_count": report["member_count"],
+              "freeze_ready": report["freeze_ready"],
+              "expectation_bundle_present": (out_dir / "expectation-bundle.json").exists(),
+          }
+          (anchor_dir / "run-metadata.json").write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Commit timestamp anchor to run branch
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$ANCHOR_DIR"
+          if git diff --cached --quiet; then
+            echo "No new anchor files to commit"
+          else
+            git commit -m "Anchor FY27-Q2 H002 live preparation evidence"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Preserve raw acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-fy27q2-live-preparation-${{ github.run_id }}
+          path: |
+            .marketlab
+            run-out/FY27-Q2-2026-09-06
+            research/prospective/preparation/FY27-Q2-2026-09-06
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
