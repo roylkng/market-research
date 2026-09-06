@@ -201,3 +201,59 @@ def test_delivery_report_rejects_unknown_symbol():
     )
     assert result.exit_code == 2
     assert "no claims found for symbol" in result.output
+
+
+def test_delivery_feature_default_minimum_yields_no_signal_for_single_claim_history():
+    result = runner.invoke(
+        app,
+        [
+            "delivery-feature",
+            "research/company-intelligence/claims_v1.yaml",
+            "--symbol",
+            "CCL",
+            "--as-of",
+            "2026-09-06",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert '"resolved_count": 1' in result.output
+    assert '"minimum_resolved_claims": 3' in result.output
+    assert '"signal_state": "NO_SIGNAL"' in result.output
+    assert '"value": null' in result.output
+
+
+def test_delivery_feature_as_of_does_not_see_future_outcome():
+    result = runner.invoke(
+        app,
+        [
+            "delivery-feature",
+            "research/company-intelligence/claims_v1.yaml",
+            "--symbol",
+            "CCL",
+            "--as-of",
+            "2025-05-05",
+            "--min-resolved-claims",
+            "1",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert '"resolved_count": 0' in result.output
+    assert '"signal_state": "NO_SIGNAL"' in result.output
+
+    after = runner.invoke(
+        app,
+        [
+            "delivery-feature",
+            "research/company-intelligence/claims_v1.yaml",
+            "--symbol",
+            "CCL",
+            "--as-of",
+            "2025-05-06",
+            "--min-resolved-claims",
+            "1",
+        ],
+    )
+    assert after.exit_code == 0, after.output
+    assert '"resolved_count": 1' in after.output
+    assert '"signal_state": "ELIGIBLE"' in after.output
+    assert '"value": 1.0' in after.output
