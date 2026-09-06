@@ -1,0 +1,156 @@
+name: H003-E002 full frozen transcript extraction
+
+on:
+  push:
+    branches:
+      - run/h003-e002-full-extraction-20260907
+    paths:
+      - .github/workflows/h003e002-full-extraction.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h003-e002-full-extraction-20260907
+  cancel-in-progress: false
+
+env:
+  SOURCE_BUNDLE: research/prospective/h003/FY27-Q2-2026-09-06/source-coverage-v1.json
+  RULE: registry/h003_extraction_rule.yaml
+  OUT: run-out/h003-e002-full
+  ANCHOR: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-e002-full-extraction-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+      - name: Restore previous extraction checkpoint if this branch already has one
+        run: |
+          mkdir -p "$OUT" "$ANCHOR"
+          if [ -d "$ANCHOR/checkpoint-store" ]; then
+            cp -a "$ANCHOR/checkpoint-store/." "$OUT/store/"
+          fi
+      - name: Extract all 794 frozen sources with per-source checkpoints
+        id: extraction
+        run: |
+          set +e
+          python scripts/build_h003_candidates.py \
+            --source-bundle "$SOURCE_BUNDLE" \
+            --rule "$RULE" \
+            --store "$OUT/store" \
+            --report-out "$OUT/report.json" \
+            --summary-out "$OUT/summary.json" \
+            --fetch-attempts 4 \
+            --sleep-seconds 0.08
+          code=$?
+          set -e
+          echo "extractor_exit_code=$code" >> "$GITHUB_OUTPUT"
+          echo "$code" > "$OUT/extractor-exit-code.txt"
+      - name: Prepare immutable run anchor
+        if: always()
+        run: |
+          mkdir -p "$ANCHOR"
+          rm -rf "$ANCHOR/checkpoint-store"
+          mkdir -p "$ANCHOR/checkpoint-store"
+          if [ -d "$OUT/store/records" ]; then
+            cp -a "$OUT/store/records" "$ANCHOR/checkpoint-store/"
+          fi
+          if [ -f "$OUT/summary.json" ]; then
+            cp "$OUT/summary.json" "$ANCHOR/summary.json"
+          fi
+          if [ -f "$OUT/report.json" ]; then
+            cp "$OUT/report.json" "$ANCHOR/report.json"
+          fi
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT'])
+          anchor = Path(os.environ['ANCHOR'])
+          summary_path = out / 'summary.json'
+          report_path = out / 'report.json'
+          summary = json.loads(summary_path.read_text()) if summary_path.exists() else None
+          metadata = {
+              'schema_version': 1,
+              'cohort_id': 'FY27-Q2-2026-09-06',
+              'rule_id': 'H003-E002',
+              'rule_sha256': '5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2',
+              'source_bundle_sha256': '583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee',
+              'source_commit_sha': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'workflow_ref': os.environ['GITHUB_WORKFLOW_REF'],
+              'anchored_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'extractor_exit_code': int((out / 'extractor-exit-code.txt').read_text().strip()) if (out / 'extractor-exit-code.txt').exists() else None,
+              'summary_present': summary is not None,
+              'report_present': report_path.exists(),
+              'processed_source_count': None if summary is None else summary['processed_source_count'],
+              'resumed_source_count': None if summary is None else summary.get('resumed_source_count'),
+              'source_status_counts': None if summary is None else summary['source_status_counts'],
+              'candidate_count': None if summary is None else summary['candidate_count'],
+              'companies_with_candidates': None if summary is None else summary['companies_with_candidates'],
+              'complete': None if summary is None else summary['complete'],
+              'freeze_blockers': None if summary is None else summary['freeze_blockers'],
+              'report_sha256': None if summary is None else summary['report_sha256'],
+              'summary_file_sha256': hashlib.sha256(summary_path.read_bytes()).hexdigest() if summary_path.exists() else None,
+              'report_file_sha256': hashlib.sha256(report_path.read_bytes()).hexdigest() if report_path.exists() else None,
+          }
+          (anchor / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+      - name: Commit checkpoint and report evidence even if extraction is incomplete
+        if: always()
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$ANCHOR"
+          if git diff --cached --quiet; then
+            echo "No full-extraction anchor changes"
+          else
+            git commit -m "Anchor H003-E002 extraction run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT}"
+            git push origin HEAD:run/h003-e002-full-extraction-20260907
+          fi
+      - name: Preserve complete raw and extracted evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-e002-full-${{ github.run_id }}-${{ github.run_attempt }}
+          path: run-out/h003-e002-full
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Enforce complete freeze gate
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          summary_path = Path(os.environ['OUT']) / 'summary.json'
+          if not summary_path.exists():
+              raise SystemExit('full extraction produced no summary')
+          summary = json.loads(summary_path.read_text())
+          if summary['processed_source_count'] != 794:
+              raise SystemExit(f"processed {summary['processed_source_count']} of 794")
+          if summary['source_status_counts'] != {'TEXT_READY': 794}:
+              raise SystemExit(f"non-TEXT_READY source states remain: {summary['source_status_counts']}")
+          if summary['complete'] is not True or summary['freeze_blockers']:
+              raise SystemExit(f"full extraction is not freeze-ready: {summary['freeze_blockers']}")
+          print(f"freeze-ready candidate corpus: candidates={summary['candidate_count']}; companies={summary['companies_with_candidates']}; report={summary['report_sha256']}")
+          PY
