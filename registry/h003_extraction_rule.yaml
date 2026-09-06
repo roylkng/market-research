@@ -1,7 +1,9 @@
-schema_version: 1
-id: H003-E001
+schema_version: 2
+id: H003-E002
 hypothesis_id: H003
 status: FROZEN
+supersedes: H003-E001
+supersession_reason: E001 live sample was fully text-readable but emitted 920 candidates from 30 sources; E002 removes overlapping-context qualification and generic third-person future markers before any candidate review or return evaluation.
 source_rule_id: H003-C001
 source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
 source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
@@ -14,13 +16,8 @@ parser:
   strict: false
   ocr_allowed: false
 candidate_rule:
-  version: h003_future_commitment_candidate_v1
-  context_radius_lines: 1
-  min_excerpt_chars: 20
-  max_excerpt_chars: 800
-  require_future_marker: true
-  require_quantitative_or_deadline_marker: true
-  future_markers:
+  version: h003_future_commitment_candidate_v2
+  anchor_future_markers:
     - we will
     - we expect
     - we target
@@ -29,16 +26,18 @@ candidate_rule:
     - we plan
     - we intend
     - we anticipate
-    - we should
     - we are targeting
     - we are aiming
     - we are planning
-    - guidance
-    - targeting
-    - aiming for
-    - plan to
-    - expect to
-    - expected to
+    - our guidance
+    - our plan
+    - our expectation
+  forward_context_lines: 1
+  min_excerpt_chars: 20
+  max_excerpt_chars: 600
+  require_future_marker_on_anchor_line: true
+  require_quantitative_or_deadline_marker: true
+  require_commitment_domain_marker: true
   deadline_markers:
     - by fy
     - in fy
@@ -64,6 +63,56 @@ candidate_rule:
     - q4
     - h1
     - h2
+  commitment_domain_markers:
+    - revenue
+    - sales
+    - growth
+    - margin
+    - ebitda
+    - ebit
+    - profit
+    - pat
+    - cash flow
+    - free cash flow
+    - capex
+    - capital expenditure
+    - debt
+    - leverage
+    - roce
+    - roe
+    - return on capital
+    - volume
+    - production
+    - capacity
+    - utilisation
+    - utilization
+    - commission
+    - commissioning
+    - launch
+    - order book
+    - orders
+    - conversion
+    - market share
+    - stores
+    - outlets
+    - plants
+    - customers
+    - subscribers
+    - homes
+    - arpu
+    - realisation
+    - realization
+    - cost
+    - savings
+    - exports
+    - shipments
+    - deliveries
+    - network
+    - mw
+    - gw
+    - mt
+    - tonnes
+    - tons
   exclude_markers:
     - safe harbor
     - safe harbour
@@ -74,6 +123,7 @@ candidate_rule:
     - 'operator:'
     - 'moderator:'
   quantitative_regex: '(?i)(?:₹|rs\.?|inr|usd|\$)?\s*\d[\d,]*(?:\.\d+)?\s*(?:%|percent|bps|crore|cr\b|million|billion|mn\b|bn\b|mt\b|kt\b|mw\b|gw\b|units?|stores?|outlets?|plants?|days?|months?|years?|x\b)?'
+  dedupe_key: source_id,page_number,normalized_excerpt
 review:
   default_disposition: UNREVIEWED
   allowed_dispositions:
@@ -94,4 +144,4 @@ forbidden_inputs:
   - post_decision_returns
   - broker_or_live_order_state
 live_capital: false
-sha256: db954a0737bf9b049130c899104008479e677460a21c98b6a54855188180def8
+sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
