@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import yaml
 
@@ -89,7 +91,7 @@ class H002SignalResult:
 def _parse_timestamp(value: str, *, field: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value)
-    except ValueError as exc:
+    except (TypeError, ValueError) as exc:
         raise H002SignalError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
         raise H002SignalError(f"{field} must include timezone: {value}")
@@ -101,13 +103,13 @@ def _parse_period_end(value: str | None, *, field: str) -> date:
         raise H002SignalError(f"{field} is required")
     try:
         return date.fromisoformat(value)
-    except ValueError:
+    except (TypeError, ValueError):
         pass
     for fmt in ("%d-%m-%Y", "%d-%b-%Y"):
         try:
             parsed = time.strptime(value, fmt)
             return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
-        except ValueError:
+        except (TypeError, ValueError):
             continue
     raise H002SignalError(f"unsupported {field}: {value}")
 
@@ -121,8 +123,72 @@ def _one_year_apart(baseline: date, target: date) -> bool:
 
 
 def _canonical_hash(payload: dict[str, Any]) -> str:
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    try:
+        encoded = json.dumps(
+            payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        )
+    except (TypeError, ValueError) as exc:
+        raise H002SignalError("canonical payload must contain finite JSON values") from exc
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _finite_number(value: Any, *, field: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise H002SignalError(f"{field} must be a finite number")
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as exc:
+        raise H002SignalError(f"{field} must be a finite number") from exc
+    if not math.isfinite(result):
+        raise H002SignalError(f"{field} must be a finite number")
+    return result
+
+
+def _decimal_result(value: Decimal, *, field: str) -> float:
+    result = _finite_number(float(value), field=field)
+    if result == 0 and value != 0:
+        raise H002SignalError(f"{field} underflows the output numeric representation")
+    return result
+
+
+def _expectation_digest(expectation: SeasonalEPSExpectation) -> str:
+    payload = expectation.to_dict()
+    payload.pop("expectation_id")
+    return _canonical_hash(payload)[:24]
+
+
+def _validate_expectation(expectation: SeasonalEPSExpectation) -> None:
+    if (
+        expectation.schema_version != 2
+        or expectation.rule_id != RULE_ID
+        or expectation.model_version != EXPECTATION_MODEL_VERSION
+    ):
+        raise H002SignalError("unsupported expectation schema, model or rule")
+    if expectation.expectation_id != _expectation_digest(expectation):
+        raise H002SignalError("expectation identity does not match its complete payload")
+    factor = _finite_number(expectation.corporate_action_factor, field="corporate_action_factor")
+    if factor <= 0:
+        raise H002SignalError("corporate_action_factor must be positive")
+    if expectation.baseline_basic_eps is None:
+        if (
+            expectation.status != "NO_SIGNAL"
+            or expectation.expected_eps is not None
+            or expectation.no_signal_reason != "missing_baseline_basic_eps"
+        ):
+            raise H002SignalError("missing baseline EPS requires a consistent NO_SIGNAL record")
+        return
+    _finite_number(expectation.baseline_basic_eps, field="baseline_basic_eps")
+    expected = _decimal_result(
+        Decimal(str(expectation.baseline_basic_eps))
+        * Decimal(str(expectation.corporate_action_factor)),
+        field="expected_eps",
+    )
+    if (
+        expectation.status != "READY"
+        or expectation.no_signal_reason is not None
+        or _finite_number(expectation.expected_eps, field="expected_eps") != expected
+    ):
+        raise H002SignalError("expectation does not match the frozen EPS calculation")
 
 
 def validate_rule_document(document: dict[str, Any]) -> str:
@@ -176,6 +242,7 @@ def build_seasonal_expectation(
 
     if not corporate_action_version.strip():
         raise H002SignalError("corporate_action_version is required")
+    _finite_number(corporate_action_factor, field="corporate_action_factor")
     if corporate_action_factor <= 0:
         raise H002SignalError("corporate_action_factor must be positive")
 
@@ -215,31 +282,19 @@ def build_seasonal_expectation(
         status = "NO_SIGNAL"
         reason = "missing_baseline_basic_eps"
     else:
-        expected_eps = float(
-            Decimal(str(baseline_event.basic_eps)) * Decimal(str(corporate_action_factor))
+        _finite_number(baseline_event.basic_eps, field="baseline_basic_eps")
+        expected_eps = _decimal_result(
+            Decimal(str(baseline_event.basic_eps)) * Decimal(str(corporate_action_factor)),
+            field="expected_eps",
         )
         status = "READY"
         reason = None
 
-    identity = {
-        "rule_id": RULE_ID,
-        "model_version": EXPECTATION_MODEL_VERSION,
-        "symbol": baseline_event.symbol.upper(),
-        "target_period_end": target_period.isoformat(),
-        "target_quarter": target_quarter,
-        "accounting_basis": target_accounting_basis,
-        "baseline_event_id": baseline_event.economic_event_id,
-        "baseline_event_version_id": baseline_event.version_id,
-        "baseline_available_at_utc": baseline_available.isoformat().replace("+00:00", "Z"),
-        "expectation_as_of_utc": expectation_as_of.isoformat().replace("+00:00", "Z"),
-        "corporate_action_factor": corporate_action_factor,
-        "corporate_action_version": corporate_action_version,
-    }
-    return SeasonalEPSExpectation(
-        schema_version=1,
+    expectation = SeasonalEPSExpectation(
+        schema_version=2,
         rule_id=RULE_ID,
         model_version=EXPECTATION_MODEL_VERSION,
-        expectation_id=_canonical_hash(identity)[:24],
+        expectation_id="",
         symbol=baseline_event.symbol.upper(),
         target_period_end=target_period.isoformat(),
         target_quarter=target_quarter,
@@ -256,6 +311,7 @@ def build_seasonal_expectation(
         status=status,
         no_signal_reason=reason,
     )
+    return replace(expectation, expectation_id=_expectation_digest(expectation))
 
 
 def score_h002(
@@ -274,6 +330,9 @@ def score_h002(
         raise H002SignalError("prospective event is missing exchange publication timestamp")
     publication = _parse_timestamp(publication_value, field="exchange_published_at_utc")
     scored_at = _parse_timestamp(scored_at_utc, field="scored_at_utc")
+    captured_at = _parse_timestamp(
+        actual_event.provenance.captured_at_utc, field="actual captured_at_utc"
+    )
     expectation_as_of = _parse_timestamp(
         expectation.expectation_as_of_utc, field="expectation_as_of_utc"
     )
@@ -290,6 +349,8 @@ def score_h002(
         raise H002SignalError("price reference must be strictly before current filing publication")
     if scored_at < publication:
         raise H002SignalError("H002 cannot be scored before the filing is published")
+    if scored_at < captured_at:
+        raise H002SignalError("H002 cannot be scored before local filing capture")
 
     if actual_event.symbol.upper() != expectation.symbol.upper():
         raise H002SignalError("actual event symbol does not match expectation")
@@ -308,6 +369,21 @@ def score_h002(
         raise H002SignalError("price reference role must be price_day_minus_2")
     if not price_reference.corporate_action_version.strip():
         raise H002SignalError("price corporate_action_version is required")
+    _validate_expectation(expectation)
+    if actual_event.basic_eps is not None:
+        _finite_number(actual_event.basic_eps, field="actual_basic_eps")
+    if price_reference.close_price is not None:
+        _finite_number(price_reference.close_price, field="price_day_minus_2")
+        if price_reference.close_price <= 0:
+            raise H002SignalError("price_day_minus_2 must be positive")
+    if not isinstance(price_reference.source, str) or not price_reference.source.strip():
+        raise H002SignalError("price reference source is required")
+    trading_date = _parse_period_end(price_reference.trading_date, field="price trading_date")
+    exchange_timezone = ZoneInfo("Asia/Kolkata")
+    if trading_date != price_at.astimezone(exchange_timezone).date():
+        raise H002SignalError("price trading_date does not match its exchange-local timestamp")
+    if trading_date >= publication.astimezone(exchange_timezone).date():
+        raise H002SignalError("reference trading date must precede the publication date")
     if expectation.status == "NO_SIGNAL":
         return H002SignalResult(
             schema_version=1,
@@ -362,13 +438,13 @@ def score_h002(
             bucket="NO_SIGNAL",
             no_signal_reason="missing_price_day_minus_2",
         )
-    if price_reference.close_price <= 0:
-        raise H002SignalError("price_day_minus_2 must be positive")
     if expectation.expected_eps is None:
         raise H002SignalError("READY expectation cannot have missing expected_eps")
 
     surprise = Decimal(str(actual_event.basic_eps)) - Decimal(str(expectation.expected_eps))
     ue_decimal = surprise / Decimal(str(price_reference.close_price))
+    surprise_value = _decimal_result(surprise, field="surprise_eps")
+    ue_value = _decimal_result(ue_decimal, field="ue")
     if ue_decimal > 0:
         bucket: SignalBucket = "POSITIVE"
     elif ue_decimal < 0:
@@ -387,9 +463,9 @@ def score_h002(
         scored_at_utc=scored_at.isoformat().replace("+00:00", "Z"),
         actual_basic_eps=actual_event.basic_eps,
         expected_eps=expectation.expected_eps,
-        surprise_eps=float(surprise),
+        surprise_eps=surprise_value,
         price_day_minus_2=price_reference.close_price,
-        ue=float(ue_decimal),
+        ue=ue_value,
         bucket=bucket,
         no_signal_reason=None,
     )
