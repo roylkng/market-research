@@ -9,7 +9,7 @@ The project is deliberately **not** a stock-prediction product and does not perm
 | Hypothesis | Question | Status |
 |---|---|---|
 | H001 | Does raw revenue/profit/margin acceleration predict post-results returns? | **REJECTED** |
-| H002 | Does positive unexpected earnings produce post-earnings-announcement drift in liquid Indian equities? | **INCONCLUSIVE — prospective paper test required** |
+| H002 | Does positive unexpected earnings produce post-earnings-announcement drift in liquid Indian equities? | **FROZEN — historical evidence inconclusive, prospective evaluation required** |
 | H003 | Does prior management delivery credibility predict 120-session sector-relative returns? | **FROZEN — prospective evaluation required** |
 
 **No model in this repository is approved for live capital.**
@@ -63,6 +63,17 @@ A separate curated development cohort in `registry/development_companies.yaml` i
 ## Source of record
 
 For prospective earnings events, NSE Integrated Filing - Financials is the primary source of record when available. Web JSON endpoints can assist discovery, but retained provenance points to the original exchange Details/XBRL document and preserves its hash and exchange timestamps. See `docs/source-decision.md`.
+
+## Frozen H002 signal
+
+H002-R001 is the frozen prospective unexpected-earnings rule:
+
+```text
+expected_eps = prior_year_same_quarter_basic_eps * corporate_action_factor
+UE = (actual_basic_eps - expected_eps) / price_day_minus_2
+```
+
+The rule uses fixed `POSITIVE`, `ZERO`, `NEGATIVE`, and `NO_SIGNAL` outcomes. It has no learned threshold, no winsorization, and no momentum, valuation, guidance or LLM overlay. The canonical rule file is `registry/h002_signal_rule.yaml`; see `docs/h002-signal-v1.md`.
 
 ## Repository layout
 
@@ -145,7 +156,7 @@ make validate
 
 ## Current next experiments
 
-H002 receives **prospective paper testing only**. Its next gate is to freeze the expected-EPS/UE-SUE model before prospective earnings outcomes accumulate.
+H002's expected-EPS and UE signal are now frozen as `H002-R001`. Its next gate is **H002-C deterministic paper execution and benchmark reconstruction**: exchange-calendar handling, second-session entry, 20-session exit, exact price provenance, corporate actions, skipped/non-tradable observations, and broad/sector/momentum benchmarks.
 
 H003 is separately frozen at a 120-session horizon. Its next gate is expanding pre-existing claim/delivery history across U001 while enforcing the `as_of` cutoff, then testing future sector-relative returns.
 
