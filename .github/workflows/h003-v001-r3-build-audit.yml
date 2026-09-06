@@ -1,0 +1,418 @@
+name: H003-V001 r3 audited blind review queue
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-r3-20260907
+    paths:
+      - .github/workflows/h003-v001-r3-build-audit.yml
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  SOURCE_SHARD_RUN_ID: '34056101474'
+  SOURCE_EVIDENCE_BRANCH: run/h003-e002-sharded-20260907
+  SOURCE_REPORT_PATH: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json
+  EXPECTED_REPORT_SHA256: cb48b1e18c76a3ea2d06b13383955c0f0c6efa6d3d65bd132ac3d5e59217ffea
+  EXPECTED_CANDIDATE_COUNT: '2692'
+  OUT: research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r3
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-r3-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+
+      - name: Download eight frozen E002 shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: h003-e002-shard-*
+          path: shard-downloads
+          run-id: ${{ env.SOURCE_SHARD_RUN_ID }}
+          github-token: ${{ github.token }}
+
+      - name: Assemble exact content-addressed PDF store
+        run: |
+          python - <<'PY'
+          import hashlib
+          import shutil
+          from pathlib import Path
+
+          artifacts = sorted(Path('shard-downloads').glob('h003-e002-shard-*'))
+          if len(artifacts) != 8:
+              raise SystemExit(f'expected 8 shard artifacts, found {len(artifacts)}')
+          destination = Path('review-input/store/raw/sha256')
+          destination.mkdir(parents=True, exist_ok=True)
+          copied = reused = 0
+          for artifact in artifacts:
+              source_dir = artifact / 'store' / 'raw' / 'sha256'
+              if not source_dir.is_dir():
+                  raise SystemExit(f'missing shard raw store: {source_dir}')
+              for source in sorted(source_dir.glob('*.pdf')):
+                  raw = source.read_bytes()
+                  observed = hashlib.sha256(raw).hexdigest()
+                  if observed != source.stem:
+                      raise SystemExit(f'raw PDF hash mismatch: {source}')
+                  target = destination / source.name
+                  if target.exists():
+                      if target.read_bytes() != raw:
+                          raise SystemExit(f'content-addressed collision: {source.name}')
+                      reused += 1
+                  else:
+                      shutil.copy2(source, target)
+                      copied += 1
+          unique = len(list(destination.glob('*.pdf')))
+          if unique < 1:
+              raise SystemExit('assembled candidate PDF store is empty')
+          print(f'raw PDF store unique={unique} copied={copied} reused={reused}')
+          PY
+
+      - name: Retrieve exact complete E002 candidate report
+        run: |
+          mkdir -p review-input
+          git fetch origin "$SOURCE_EVIDENCE_BRANCH" --depth=1
+          git show FETCH_HEAD:"$SOURCE_REPORT_PATH" > review-input/report.json
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from marketlab.h003_review import load_complete_candidate_corpus
+
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          if corpus.report_sha256 != os.environ['EXPECTED_REPORT_SHA256']:
+              raise SystemExit(
+                  f"candidate report hash mismatch: expected={os.environ['EXPECTED_REPORT_SHA256']} observed={corpus.report_sha256}"
+              )
+          if corpus.candidate_count != int(os.environ['EXPECTED_CANDIDATE_COUNT']):
+              raise SystemExit(
+                  f"candidate count mismatch: expected={os.environ['EXPECTED_CANDIDATE_COUNT']} observed={corpus.candidate_count}"
+              )
+          print(f'candidate corpus verified: {corpus.candidate_count} sha={corpus.report_sha256}')
+          PY
+
+      - name: Build r3 V001 blind package from exact local PDFs
+        run: |
+          rm -rf "$OUT"
+          python scripts/build_h003_review_package.py \
+            --candidate-report review-input/report.json \
+            --review-rule registry/h003_review_rule.yaml \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --candidate-store review-input/store \
+            --out-dir "$OUT"
+
+      - name: Independently audit every reviewer-visible payload
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import re
+          from datetime import UTC, datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          from marketlab.h003_review import load_complete_candidate_corpus
+
+          def canonical_hash(value):
+              import hashlib
+              return hashlib.sha256(
+                  json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+              ).hexdigest()
+
+          def load_builder():
+              path = Path('scripts/build_h003_review_package.py')
+              spec = importlib.util.spec_from_file_location('h003_review_package_builder', path)
+              if spec is None or spec.loader is None:
+                  raise SystemExit('could not load review package builder')
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
+          def ordinal(day):
+              if 10 <= day % 100 <= 20:
+                  suffix = 'th'
+              else:
+                  suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+              return f'{day}{suffix}'
+
+          def independent_date_terms(timestamp):
+              parsed = datetime.fromisoformat(timestamp)
+              dates = {parsed.astimezone(UTC).date(), parsed.astimezone(ZoneInfo('Asia/Kolkata')).date()}
+              terms = set()
+              for value in dates:
+                  d, m, y = value.day, value.month, value.year
+                  d2, m2, yy = f'{d:02d}', f'{m:02d}', f'{y % 100:02d}'
+                  month, mon, od = value.strftime('%B'), value.strftime('%b'), ordinal(d)
+                  terms.update({
+                      f'{y}-{m2}-{d2}', f'{y}/{m2}/{d2}', f'{y}.{m2}.{d2}',
+                      f'{m2}/{d2}/{y}', f'{m2}-{d2}-{y}', f'{m2}.{d2}.{y}',
+                      f'{month} {od}, {y}', f'{month} {od} {y}',
+                      f'{od} {month} {y}', f'{od} {mon} {y}',
+                      f'{d2}{m2}{y}', f'{y}{m2}{d2}', f'{d2}{m2}{yy}',
+                      f'{month} {d2}, {y}', f'{mon} {d2}, {y}',
+                  })
+              return tuple(sorted(terms, key=len, reverse=True))
+
+          out = Path(os.environ['OUT'])
+          builder = load_builder()
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          universe = json.loads(Path('research/prospective/universes/FY27-Q2-2026-09-06.json').read_text(encoding='utf-8'))
+          company_names = {str(item['symbol']).upper(): str(item['company_name']) for item in universe['members']}
+          payloads = json.loads((out / 'blind-payloads.json').read_text(encoding='utf-8'))
+          if len(payloads) != corpus.candidate_count:
+              raise SystemExit(f'payload denominator changed: {len(payloads)} != {corpus.candidate_count}')
+          by_id = {str(item['candidate_id']): item for item in payloads}
+          if len(by_id) != len(payloads):
+              raise SystemExit('duplicate candidate id in blind payloads')
+
+          helper_violations = []
+          independent_date_violations = []
+          embedded_placeholder = []
+          for candidate_id, candidate in corpus.candidates_by_id.items():
+              payload = by_id.get(candidate_id)
+              if payload is None:
+                  helper_violations.append({'candidate_id': candidate_id, 'reason': 'missing_payload'})
+                  continue
+              visible_raw = ' '.join(
+                  [str(payload['redacted_excerpt']), *[str(v) for v in payload['redacted_page_context']]]
+              )
+              visible = visible_raw.casefold()
+              company = company_names[candidate.symbol]
+              helper_terms = (
+                  *builder._company_redaction_terms(company, candidate.symbol),
+                  *builder._publication_date_redaction_terms(candidate.exchange_published_at_utc),
+              )
+              for term in helper_terms:
+                  normalized = str(term).strip().casefold()
+                  if normalized and normalized in visible:
+                      helper_violations.append({
+                          'candidate_id': candidate_id,
+                          'matched_term': term,
+                          'exchange_published_at_utc': candidate.exchange_published_at_utc,
+                      })
+                      break
+              for term in independent_date_terms(candidate.exchange_published_at_utc):
+                  normalized = term.casefold()
+                  if normalized and normalized in visible:
+                      independent_date_violations.append({
+                          'candidate_id': candidate_id,
+                          'matched_term': term,
+                          'exchange_published_at_utc': candidate.exchange_published_at_utc,
+                      })
+                      break
+              if re.search(r'[A-Za-z0-9]\[COMPANY\][A-Za-z0-9]', visible_raw):
+                  embedded_placeholder.append(candidate_id)
+
+          package = json.loads((out / 'package.json').read_text(encoding='utf-8'))
+          audit_unsigned = {
+              'schema_version': 3,
+              'candidate_report_sha256': corpus.report_sha256,
+              'candidate_count': len(payloads),
+              'review_rule_sha256': package['review_rule_sha256'],
+              'blind_payload_sha256': package['blind_payload_sha256'],
+              'helper_violation_count': len(helper_violations),
+              'helper_violations': helper_violations[:100],
+              'independent_date_violation_count': len(independent_date_violations),
+              'independent_date_violations': independent_date_violations[:100],
+              'embedded_company_placeholder_count': len(embedded_placeholder),
+              'embedded_company_placeholder_examples': embedded_placeholder[:100],
+          }
+          audit = {**audit_unsigned, 'audit_sha256': canonical_hash(audit_unsigned)}
+          (out / 'blindness-audit.json').write_text(
+              json.dumps(audit, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps({
+              'candidate_count': audit['candidate_count'],
+              'helper_violation_count': audit['helper_violation_count'],
+              'independent_date_violation_count': audit['independent_date_violation_count'],
+              'embedded_company_placeholder_count': audit['embedded_company_placeholder_count'],
+              'audit_sha256': audit['audit_sha256'],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Fail closed unless full-corpus blindness audit is clean
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          audit = json.loads((Path(os.environ['OUT']) / 'blindness-audit.json').read_text(encoding='utf-8'))
+          blockers = {
+              'helper_violation_count': audit['helper_violation_count'],
+              'independent_date_violation_count': audit['independent_date_violation_count'],
+              'embedded_company_placeholder_count': audit['embedded_company_placeholder_count'],
+          }
+          nonzero = {key: value for key, value in blockers.items() if value != 0}
+          if nonzero:
+              raise SystemExit(f'H003-V001 r3 blindness audit failed closed: {nonzero}')
+          PY
+
+      - name: Freeze deterministic semantic chunks of 40
+        run: |
+          python scripts/chunk_h003_review_queue.py \
+            --queue "$OUT/semantic-review-queue.json" \
+            --out-dir "$OUT/chunks" \
+            --chunk-size 40
+
+      - name: Build hash-bound 20-candidate reviewer batches
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          def h(value):
+              return hashlib.sha256(
+                  json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+              ).hexdigest()
+
+          out = Path(os.environ['OUT'])
+          queue = json.loads((out / 'semantic-review-queue.json').read_text(encoding='utf-8'))
+          batch_root = out / 'batches20'
+          batch_root.mkdir(parents=True, exist_ok=True)
+          triage = []
+          for item in queue:
+              context = [str(v) for v in item['redacted_page_context']]
+              excerpt = str(item['redacted_excerpt'])
+              before = context[0] if context else ''
+              after = context[-1] if context else ''
+              normalized_excerpt = ' '.join(excerpt.split()).casefold()
+              for index, line in enumerate(context):
+                  normalized = ' '.join(line.split())
+                  if normalized and (
+                      normalized.casefold() in normalized_excerpt
+                      or normalized_excerpt in normalized.casefold()
+                  ):
+                      before = context[index - 1] if index > 0 else ''
+                      after = context[index + 1] if index + 1 < len(context) else ''
+                      break
+              triage.append({
+                  'candidate_id': item['candidate_id'],
+                  'payload_sha256': item['payload_sha256'],
+                  'excerpt': excerpt,
+                  'before': before,
+                  'after': after,
+                  'future': item['future_markers'],
+                  'deadline': item['deadline_markers'],
+                  'quant': item['quantitative_tokens'],
+                  'domain': item['domain_markers'],
+              })
+          entries = []
+          for start in range(0, len(triage), 20):
+              index = start // 20
+              batch = triage[start:start + 20]
+              filename = f'batch-{index:04d}.json'
+              (batch_root / filename).write_text(
+                  json.dumps(batch, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8'
+              )
+              entries.append({
+                  'batch_index': index,
+                  'file': filename,
+                  'candidate_count': len(batch),
+                  'first_candidate_id': batch[0]['candidate_id'],
+                  'last_candidate_id': batch[-1]['candidate_id'],
+                  'batch_sha256': h(batch),
+              })
+          unsigned = {
+              'schema_version': 3,
+              'source_semantic_queue_sha256': h(queue),
+              'candidate_count': len(triage),
+              'batch_size': 20,
+              'batch_count': len(entries),
+              'candidate_ids_sha256': h([item['candidate_id'] for item in triage]),
+              'batches': entries,
+          }
+          manifest = {**unsigned, 'manifest_sha256': h(unsigned)}
+          (batch_root / 'manifest.json').write_text(
+              json.dumps(manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Write r3 provenance anchor
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT'])
+          package = json.loads((out / 'package.json').read_text(encoding='utf-8'))
+          audit = json.loads((out / 'blindness-audit.json').read_text(encoding='utf-8'))
+          chunks = json.loads((out / 'chunks' / 'manifest.json').read_text(encoding='utf-8'))
+          batches = json.loads((out / 'batches20' / 'manifest.json').read_text(encoding='utf-8'))
+          expected = int(os.environ['EXPECTED_CANDIDATE_COUNT'])
+          if package['candidate_count'] != expected or package['blind_payload_count'] != expected:
+              raise SystemExit('package denominator changed')
+          if package['mechanical_rejected_count'] + package['semantic_review_count'] != expected:
+              raise SystemExit('mechanical + semantic denominator mismatch')
+          if chunks['candidate_count'] != package['semantic_review_count']:
+              raise SystemExit('40-chunk semantic denominator mismatch')
+          if batches['candidate_count'] != package['semantic_review_count']:
+              raise SystemExit('20-batch semantic denominator mismatch')
+          metadata = {
+              'schema_version': 3,
+              'status': 'VALIDATED_BLIND_PACKAGE_READY_FOR_REVIEW',
+              'review_rule_id': package['review_rule_id'],
+              'review_rule_sha256': package['review_rule_sha256'],
+              'candidate_report_sha256': package['candidate_report_sha256'],
+              'candidate_count': package['candidate_count'],
+              'mechanical_rejected_count': package['mechanical_rejected_count'],
+              'semantic_review_count': package['semantic_review_count'],
+              'blind_payload_sha256': package['blind_payload_sha256'],
+              'semantic_queue_sha256': package['semantic_queue_sha256'],
+              'package_sha256': package['package_sha256'],
+              'blindness_audit_sha256': audit['audit_sha256'],
+              'helper_violation_count': audit['helper_violation_count'],
+              'independent_date_violation_count': audit['independent_date_violation_count'],
+              'embedded_company_placeholder_count': audit['embedded_company_placeholder_count'],
+              'standard_chunk_manifest_sha256': chunks['manifest_sha256'],
+              'review_batch_manifest_sha256': batches['manifest_sha256'],
+              'source_shard_run_id': os.environ['SOURCE_SHARD_RUN_ID'],
+              'source_evidence_branch': os.environ['SOURCE_EVIDENCE_BRANCH'],
+              'source_evidence_commit': '2682d91a2be0dc3b69876ef397791515ff9146f2',
+              'invalidated_predecessor_branches': [
+                  'run/h003-v001-blind-review-20260907',
+                  'run/h003-v001-blind-review-r2-20260907',
+              ],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'anchored_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+
+      - name: Remove duplicate monolithic semantic queue from persistent evidence
+        run: rm "$OUT/semantic-review-queue.json"
+
+      - name: Anchor validated r3 blind package
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-r3-build-audit.yml
+          git add "$OUT"
+          git commit -m "Anchor fully audited H003-V001 r3 blind review queue"
+          git push origin HEAD:run/h003-v001-blind-review-r3-20260907
+
+      - name: Preserve r3 blind package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-v001-r3-blind-review-${{ github.run_id }}
+          path: research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r3
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
