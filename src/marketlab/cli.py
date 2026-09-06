@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Annotated
 
 import pandas as pd
 import typer
@@ -60,9 +61,9 @@ def validate_registry(path: Path) -> None:
 
 @app.command("snapshot-universe")
 def snapshot_universe(
-    output: Path = typer.Option(..., help="Output JSON path"),
-    cohort_id: str = typer.Option(..., help="Immutable earnings-cohort identifier"),
-    selection_size: int = typer.Option(100, min=1, max=200),
+    output: Annotated[Path, typer.Option(help="Output JSON path")],
+    cohort_id: Annotated[str, typer.Option(help="Immutable earnings-cohort identifier")],
+    selection_size: Annotated[int, typer.Option(min=1, max=200)] = 100,
 ) -> None:
     """Freeze the mechanical H002 research universe from current NSE metadata."""
 
