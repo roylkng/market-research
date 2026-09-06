@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -10,7 +11,7 @@ from typing import Any, Literal
 
 import yaml
 
-from marketlab.events import FinancialEvent, PROSPECTIVE
+from marketlab.events import PROSPECTIVE, FinancialEvent
 
 EXPECTATION_MODEL_VERSION = "seasonal_same_quarter_basic_eps_v1"
 SIGNAL_VERSION = "ue_price_normalized_v1"
@@ -87,7 +88,7 @@ class H002SignalResult:
 
 def _parse_timestamp(value: str, *, field: str) -> datetime:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise H002SignalError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
@@ -95,16 +96,17 @@ def _parse_timestamp(value: str, *, field: str) -> datetime:
     return parsed.astimezone(UTC)
 
 
-def _normalise_timestamp(value: str, *, field: str) -> str:
-    return _parse_timestamp(value, field=field).isoformat().replace("+00:00", "Z")
-
-
 def _parse_period_end(value: str | None, *, field: str) -> date:
     if not value:
         raise H002SignalError(f"{field} is required")
-    for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%b-%Y"):
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        pass
+    for fmt in ("%d-%m-%Y", "%d-%b-%Y"):
         try:
-            return datetime.strptime(value, fmt).date()
+            parsed = time.strptime(value, fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     raise H002SignalError(f"unsupported {field}: {value}")
