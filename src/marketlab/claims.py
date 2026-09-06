@@ -170,9 +170,12 @@ def validate_claim_ledger(ledger: ClaimLedger) -> list[str]:
                     errors.append(f"{claim.claim_id}: target_deadline precedes source_date")
         except ClaimLedgerError as exc:
             errors.append(str(exc))
-        if claim.target_min is not None and claim.target_max is not None:
-            if claim.target_min > claim.target_max:
-                errors.append(f"{claim.claim_id}: target_min exceeds target_max")
+        if (
+            claim.target_min is not None
+            and claim.target_max is not None
+            and claim.target_min > claim.target_max
+        ):
+            errors.append(f"{claim.claim_id}: target_min exceeds target_max")
         expected_hash = claim.computed_hash()
         if claim.claim_hash and claim.claim_hash != expected_hash:
             errors.append(f"{claim.claim_id}: claim_hash mismatch")
