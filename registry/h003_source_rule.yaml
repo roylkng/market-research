@@ -1,0 +1,56 @@
+id: H003-C001
+hypothesis_id: H003
+status: FROZEN
+live_capital: false
+cohort_id: FY27-Q2-2026-09-06
+decision_date: '2026-09-06'
+source_window:
+  from_date: '2024-09-01'
+  to_date: '2026-09-06'
+  basis: calendar_date_inclusive
+discovery:
+  source: NSE_CORPORATE_ANNOUNCEMENTS
+  endpoint: https://www.nseindia.com/api/corporate-announcements
+  index: equities
+  symbol_scoped: true
+  exact_discovery_bytes_sha256_required: true
+document_policy:
+  included_source_type: EARNINGS_CALL_TRANSCRIPT
+  attachment_required: true
+  attachment_scheme: https
+  allowed_attachment_hosts:
+    - nsearchives.nseindia.com
+    - archives.nseindia.com
+  text_must_contain:
+    - transcript
+  text_must_contain_any:
+    - earnings call
+    - financial results
+    - quarter ended
+    - quarter and year ended
+    - analyst meet
+    - conference call
+  text_excludes:
+    - annual general meeting
+    - agm transcript
+    - investor day
+    - ai day
+  investor_presentations_excluded: true
+  one_on_one_meeting_notices_excluded: true
+coverage:
+  all_matching_announcements_must_be_indexed: true
+  discovery_failure: INCOMPLETE
+  ambiguous_duplicate_attachment: INCOMPLETE
+  zero_matching_transcripts: COMPLETE_ZERO_SOURCE
+  score_requires_coverage_status: COMPLETE
+  minimum_resolved_claims: 3
+claim_review:
+  all_generated_candidates_must_receive_disposition: true
+  allowed_dispositions:
+    - ACCEPTED
+    - REJECTED
+  accepted_claim_requires_future_commitment: true
+  accepted_claim_requires_measurable_metric_or_explicit_deadline: true
+  post_decision_returns_forbidden: true
+  no_claim_type_weights: true
+sha256: 3e4de432a4fb10c9b7cb09a711bf3078e1e92d4970ecbc2b6d69afc1ff0a870a
