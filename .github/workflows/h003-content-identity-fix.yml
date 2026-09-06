@@ -1,0 +1,93 @@
+name: H003 content identity fix once
+
+on:
+  push:
+    branches:
+      - feat/h003-transcript-content-v1
+    paths:
+      - .github/workflows/h003-content-identity-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h003-transcript-content-v1
+      - name: Patch semantic content identity
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/marketlab/h003_content.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''def _record_digest(record: TranscriptContentRecord) -> str:
+              payload = record.to_dict()
+              payload.pop("content_id", None)
+              return _canonical_hash(payload)
+          '''.replace('          ', '')
+          new = '''def _record_digest(record: TranscriptContentRecord) -> str:
+              payload = record.to_dict()
+              payload.pop("content_id", None)
+              # Fetch time is acquisition provenance, not semantic content identity.
+              # The same immutable source bytes must keep the same content id on rerun.
+              payload.pop("fetched_at_utc", None)
+              return _canonical_hash(payload)
+          '''.replace('          ', '')
+          if old not in text:
+              raise SystemExit('content digest target not found')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          test = Path('tests/test_h003_content.py')
+          test.write_text(
+              test.read_text(encoding='utf-8')
+              + '''\n\ndef test_content_identity_ignores_fetch_time_for_same_failure(tmp_path):
+    from datetime import UTC, datetime
+
+    from marketlab.h003_content import FrozenTranscriptSource, TranscriptContentStore
+
+    source = FrozenTranscriptSource(
+        source_id="source-1",
+        symbol="TEST",
+        seq_id="1",
+        exchange_published_at_utc="2026-07-01T10:00:00Z",
+        attachment_url="https://nsearchives.nseindia.com/corporate/test.pdf",
+        discovery_row_sha256="a" * 64,
+    )
+    store = TranscriptContentStore(tmp_path)
+    first = store.record_failure(
+        source,
+        fetched_at=datetime(2026, 9, 6, 10, tzinfo=UTC),
+        status="FETCH_FAILED",
+        error="same error",
+    )
+    second = store.record_failure(
+        source,
+        fetched_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
+        status="FETCH_FAILED",
+        error="same error",
+    )
+    assert first.fetched_at_utc != second.fetched_at_utc
+    assert first.content_id == second.content_id
+''',
+              encoding='utf-8',
+          )
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests --fix
+      - run: ruff check src tests
+      - run: pytest -q
+      - name: Commit and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-content-identity-fix.yml
+          git add src tests
+          git commit -m "Stabilize H003 content identity across re-fetches"
+          git push origin HEAD:feat/h003-transcript-content-v1
