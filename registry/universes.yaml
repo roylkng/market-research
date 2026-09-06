@@ -7,21 +7,30 @@ universes:
     market: India
     source_index: NIFTY 200
     selection_size: 100
+    rule_version: U001-nifty200-top100-nonfinancial-ffmc-v2
     rule:
-      exclude_macro_sectors:
+      source_population: exact symbols in official Nifty 200 constituent CSV
+      exclude_constituent_industries:
         - Financial Services
       rank_by:
         - field: ffmc
+          source: Nifty 200 live index payload
           direction: descending
         - field: symbol
           direction: ascending
       freeze_frequency: per_earnings_cohort
+      source_symbol_mismatch: fail_snapshot
       missing_classification: fail_snapshot
+      missing_isin: fail_snapshot
       rebalance_policy: future_cohorts_only
     source:
       index_page: https://www.nseindia.com/static/products-services/indices-nifty200-index
-      index_api: https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200
-      quote_api_template: https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>
+      index_ffmc_api: https://www.nseindia.com/api/equity-stock-indices?index=NIFTY%20200
+      constituents_csv: https://archives.nseindia.com/content/indices/ind_nifty200list.csv
+      required_source_hashes:
+        - index_canonical_json_sha256
+        - constituents_raw_sha256
     research_use:
       - H002
+      - H003
     live_capital_allowed: false
