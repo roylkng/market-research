@@ -1,0 +1,58 @@
+name: H003-V001 normalize semantic review timestamps
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-20260907
+    paths:
+      - .github/workflows/h003-v001-normalize-review-times.yml
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bind each intermediate review timestamp to its immutable add commit
+        run: |
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001/semantic-judgments')
+          files = sorted(root.glob('batch-*.json'))
+          if not files:
+              raise SystemExit('no semantic judgment files found')
+          for path in files:
+              output = subprocess.check_output(
+                  ['git', 'log', '--diff-filter=A', '--format=%aI', '--', str(path)],
+                  text=True,
+              ).strip().splitlines()
+              if len(output) != 1:
+                  raise SystemExit(f'{path}: expected exactly one add commit timestamp, found {output!r}')
+              timestamp = output[0]
+              if timestamp.endswith('+00:00'):
+                  timestamp = timestamp[:-6] + 'Z'
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              old = doc.get('reviewed_at_utc')
+              doc['reviewed_at_utc'] = timestamp
+              path.write_text(json.dumps(doc, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+              print(f'{path.name}: {old} -> {timestamp}')
+          PY
+      - name: Commit timestamp provenance correction
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-normalize-review-times.yml
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001/semantic-judgments
+          git commit -m "Bind H003-V001 review timestamps to creation commits"
+          git push origin HEAD:run/h003-v001-blind-review-20260907
