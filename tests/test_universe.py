@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -42,7 +42,7 @@ def test_selects_top_non_financial_companies_by_ffmc():
         quotes.__getitem__,
         cohort_id="FY27-Q2",
         selection_size=3,
-        captured_at=datetime(2026, 9, 6, 10, 0, tzinfo=timezone.utc),
+        captured_at=datetime(2026, 9, 6, 10, 0, tzinfo=UTC),
     )
 
     assert [member.symbol for member in snapshot.members] == ["AAA", "BBB", "CCC"]
@@ -54,7 +54,7 @@ def test_selects_top_non_financial_companies_by_ffmc():
 def test_snapshot_hash_is_deterministic():
     index = {"timestamp": "x", "data": [{"symbol": "AAA", "ffmc": 100}]}
     quotes = {"AAA": _quote("AAA", "Information Technology")}
-    captured = datetime(2026, 9, 6, 10, 0, tzinfo=timezone.utc)
+    captured = datetime(2026, 9, 6, 10, 0, tzinfo=UTC)
 
     one = build_universe_snapshot(
         index, quotes.__getitem__, cohort_id="C", selection_size=1, captured_at=captured
