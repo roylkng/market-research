@@ -27,6 +27,21 @@ jobs:
       - name: Install MarketLab
         run: python -m pip install -e .
 
+      - name: Inspect Nifty 200 source row schema
+        run: |
+          python - <<'PY'
+          import json
+          from marketlab.nse import NSEClient
+
+          doc = NSEClient().index_snapshot('NIFTY 200')
+          print('index timestamp:', doc.get('timestamp'))
+          print('top-level keys:', sorted(doc.keys()))
+          for wanted in ('HDFCBANK', 'RELIANCE', 'INFY', 'SBIN', 'HDFCLIFE'):
+              row = next((r for r in doc.get('data', []) if r.get('symbol') == wanted), None)
+              if row:
+                  print(f'ROW {wanted}:', json.dumps(row, sort_keys=True))
+          PY
+
       - name: Freeze U001 snapshot from NSE
         run: |
           mkdir -p research/prospective/universes
