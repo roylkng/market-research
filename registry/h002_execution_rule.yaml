@@ -1,7 +1,7 @@
 id: H002-X001
 hypothesis_id: H002
 status: FROZEN
-sha256: 682fb5351f4c9e14782bc7f0e5c4cec8a3242cec011d3ce5ac3169a4a81e4e5f
+sha256: e33296d2aa8132e40258bf45036d504b624955701d9c20fe3c3612ca25c1a6f8
 
 calendar:
   exchange_timezone: Asia/Kolkata
@@ -18,11 +18,13 @@ execution:
   exit_price: exact_exit_session_close
   evaluation_as_of: timezone_aware_utc_timestamp
   signal_decision_must_precede_entry_open: true
+  entry_must_be_confirmed_tradable: true
+  exit_must_be_confirmed_tradable: true
   before_entry_open: PENDING
   missing_entry_before_entry_session_close: PENDING
   missing_or_nontradable_entry_after_entry_session_close: SKIPPED
   before_exit_close: PENDING
-  missing_exit_after_due: UNRESOLVED_EXIT
+  missing_or_nontradable_exit_after_due: UNRESOLVED_EXIT
   market_data_newer_than_evaluation_as_of: unavailable
   entry_and_exit_sources_recorded_separately: true
   no_ohlc_fill_inference: true
