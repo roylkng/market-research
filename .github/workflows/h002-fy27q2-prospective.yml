@@ -109,8 +109,12 @@ jobs:
           PY
 
       - name: Anchor runtime evidence on evidence branch
-        if: steps.gate.outputs.active == 'true'
+        if: always() && steps.gate.outputs.active == 'true'
         run: |
+          if [ ! -e "$RUNNER_TEMP/h002-evidence/.git" ]; then
+            echo "Evidence worktree was not created; nothing can be anchored"
+            exit 0
+          fi
           cd "$RUNNER_TEMP/h002-evidence"
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
