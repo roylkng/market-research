@@ -27,7 +27,7 @@ class NSEClient:
     """
 
     BASE_URL = "https://www.nseindia.com"
-    SESSION_PAGE = f"{BASE_URL}/market-data/live-equity-market"
+    SESSION_PAGE = f"{BASE_URL}/get-quotes/equity?symbol=LT"
     INDEX_ENDPOINT = NSEEndpoint(
         "equity_stock_indices", f"{BASE_URL}/api/equity-stock-indices"
     )
@@ -72,6 +72,7 @@ class NSEClient:
                 if response.status_code in {401, 403}:
                     self._session_initialized = False
                     if attempt < self.attempts:
+                        time.sleep(0.25 * attempt)
                         continue
                 if (
                     response.status_code == 429 or response.status_code >= 500
