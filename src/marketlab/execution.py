@@ -11,11 +11,12 @@ from zoneinfo import ZoneInfo
 
 import yaml
 
-from marketlab.h002 import H002SignalResult
+from marketlab.h002 import H002SignalResult, PriceReference
 
 EXECUTION_RULE_ID = "H002-X001"
 SIGNAL_RULE_ID = "H002-R001"
 REQUIRED_BENCHMARKS = ("nifty_50", "nifty_200_momentum_30")
+FROZEN_COST_SCENARIOS_BPS = (0, 25, 50)
 IST = ZoneInfo("Asia/Kolkata")
 
 PositionStatus = Literal["SKIPPED", "PENDING", "UNRESOLVED_EXIT", "COMPLETED"]
@@ -61,6 +62,10 @@ class BenchmarkOutcome:
     return_pct: float | None
     excess_return_pct: float | None
     reason: str | None
+    entry_source: str | None = None
+    entry_source_timestamp_utc: str | None = None
+    exit_source: str | None = None
+    exit_source_timestamp_utc: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -84,6 +89,7 @@ class PaperPosition:
     evaluation_as_of_utc: str
     calendar_version: str
     calendar_snapshot_sha256: str
+    reference_session_date: str | None
     entry_session_date: str | None
     exit_session_date: str | None
     status: PositionStatus
@@ -92,12 +98,17 @@ class PaperPosition:
     exit_price: float | None
     entry_price_source: str | None
     exit_price_source: str | None
+    entry_price_source_timestamp_utc: str | None
+    exit_price_source_timestamp_utc: str | None
     entry_corporate_action_version: str | None
     exit_corporate_action_version: str | None
     gross_return_pct: float | None
     cost_stressed_return_pct: dict[str, float] | None
     benchmarks: tuple[BenchmarkOutcome, ...]
     sector_benchmark_id: str | None
+    sector_benchmark_mapping_version: str | None
+    sector_benchmark_mapping_sha256: str | None
+    sector_benchmark_assigned_at_utc: str | None
     live_order_created: bool
 
     def to_dict(self) -> dict[str, Any]:
@@ -110,7 +121,7 @@ class TradingCalendar:
     """Versioned explicit NSE session calendar with deterministic content hash."""
 
     def __init__(self, sessions: list[TradingSession], *, version: str) -> None:
-        if not version.strip():
+        if not isinstance(version, str) or not version.strip():
             raise ExecutionError("calendar version is required")
         if not sessions:
             raise ExecutionError("trading calendar must contain sessions")
@@ -140,11 +151,30 @@ class TradingCalendar:
         self.version = version
         self._index = {session.session_date: index for index, session in enumerate(self.sessions)}
         self.sha256 = _canonical_hash(
-            {
-                "version": version,
-                "sessions": [session.to_dict() for session in self.sessions],
-            }
+            {"version": version, "sessions": [session.to_dict() for session in self.sessions]}
         )
+
+    def session(self, session_date: str) -> TradingSession:
+        try:
+            return self.sessions[self._index[session_date]]
+        except KeyError as exc:
+            raise ExecutionError(
+                f"market bar references non-calendar session: {session_date}"
+            ) from exc
+
+    def reference_session(self, exchange_published_at_utc: str) -> TradingSession:
+        publication = _parse_timestamp(
+            exchange_published_at_utc, field="exchange_published_at_utc"
+        )
+        event_local_date = publication.astimezone(IST).date()
+        prior = [
+            session
+            for session in self.sessions
+            if _parse_date(session.session_date, field="session_date") < event_local_date
+        ]
+        if len(prior) < 2:
+            raise ExecutionError("calendar does not contain two sessions before publication date")
+        return prior[-2]
 
     def schedule(self, exchange_published_at_utc: str) -> tuple[TradingSession, TradingSession]:
         publication = _parse_timestamp(
@@ -197,13 +227,23 @@ def _canonical_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
-def _finite_price(value: float, *, field: str) -> float:
+def _finite_price(value: Any, *, field: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ExecutionError(f"{field} must be a finite positive number")
     result = float(value)
     if not math.isfinite(result) or result <= 0:
         raise ExecutionError(f"{field} must be a finite positive number")
     return result
+
+
+def _validate_sha256(value: str | None, *, field: str) -> str:
+    if not isinstance(value, str):
+        raise ExecutionError(f"{field} must be a 64-character SHA-256 hex digest")
+    if len(value) != 64 or any(
+        character not in "0123456789abcdefABCDEF" for character in value
+    ):
+        raise ExecutionError(f"{field} must be a 64-character SHA-256 hex digest")
+    return value.lower()
 
 
 def validate_execution_rule_document(document: dict[str, Any]) -> str:
@@ -239,12 +279,14 @@ def _bar_key(instrument_id: str, session_date: str) -> tuple[str, str]:
     return instrument_id.casefold(), session_date
 
 
-def _index_bars(bars: list[PriceBar]) -> dict[tuple[str, str], PriceBar]:
+def _index_bars(
+    bars: list[PriceBar], *, calendar: TradingCalendar
+) -> dict[tuple[str, str], PriceBar]:
     indexed: dict[tuple[str, str], PriceBar] = {}
     for bar in bars:
         if not isinstance(bar.instrument_id, str) or not bar.instrument_id.strip():
             raise ExecutionError("market-data instrument_id is required")
-        _parse_date(bar.session_date, field="market-data session_date")
+        calendar.session(bar.session_date)
         if not isinstance(bar.source, str) or not bar.source.strip():
             raise ExecutionError("market-data source is required")
         _parse_timestamp(bar.source_timestamp_utc, field="price source timestamp")
@@ -302,6 +344,80 @@ def _return_pct(entry_price: float, exit_price: float) -> float:
     return result
 
 
+def _validate_reference_price(
+    signal: H002SignalResult,
+    price_reference: PriceReference,
+    *,
+    exchange_published_at_utc: str,
+    calendar: TradingCalendar,
+) -> TradingSession:
+    if price_reference.role != "price_day_minus_2":
+        raise ExecutionError("H002 reference role must be price_day_minus_2")
+    if price_reference.symbol.casefold() != signal.symbol.casefold():
+        raise ExecutionError("H002 reference symbol does not match signal")
+    expected = calendar.reference_session(exchange_published_at_utc)
+    if price_reference.trading_date != expected.session_date:
+        raise ExecutionError(
+            "price_day_minus_2 is not the second trading session before publication local date"
+        )
+    reference_timestamp = _parse_timestamp(
+        price_reference.close_timestamp_utc, field="price_day_minus_2 close timestamp"
+    )
+    expected_close = _parse_timestamp(
+        expected.close_timestamp_utc, field="reference session close"
+    )
+    if reference_timestamp != expected_close:
+        raise ExecutionError(
+            "price_day_minus_2 timestamp does not equal the reference session close"
+        )
+    if signal.price_day_minus_2 is None or price_reference.close_price is None:
+        raise ExecutionError("non-NO_SIGNAL observation requires price_day_minus_2")
+    reference_price = _finite_price(price_reference.close_price, field="price_day_minus_2")
+    signal_price = _finite_price(signal.price_day_minus_2, field="signal price_day_minus_2")
+    if reference_price != signal_price:
+        raise ExecutionError("price_day_minus_2 value does not match the scored signal")
+    if not isinstance(price_reference.source, str) or not price_reference.source.strip():
+        raise ExecutionError("price_day_minus_2 source is required")
+    if (
+        not isinstance(price_reference.corporate_action_version, str)
+        or not price_reference.corporate_action_version.strip()
+    ):
+        raise ExecutionError("price_day_minus_2 corporate_action_version is required")
+    return expected
+
+
+def _validate_sector_mapping(
+    sector_benchmark_id: str | None,
+    *,
+    mapping_version: str | None,
+    mapping_sha256: str | None,
+    assigned_at_utc: str | None,
+    publication: datetime,
+) -> tuple[str | None, str | None, str | None, str | None]:
+    if sector_benchmark_id is None:
+        if any(value is not None for value in (mapping_version, mapping_sha256, assigned_at_utc)):
+            raise ExecutionError("sector mapping metadata requires sector_benchmark_id")
+        return None, None, None, None
+    if not isinstance(sector_benchmark_id, str) or not sector_benchmark_id.strip():
+        raise ExecutionError("sector_benchmark_id cannot be empty")
+    if sector_benchmark_id in REQUIRED_BENCHMARKS:
+        raise ExecutionError("sector benchmark cannot duplicate a required benchmark")
+    if not isinstance(mapping_version, str) or not mapping_version.strip():
+        raise ExecutionError("sector benchmark requires a pre-registered mapping version")
+    mapping_hash = _validate_sha256(mapping_sha256, field="sector benchmark mapping sha256")
+    if assigned_at_utc is None:
+        raise ExecutionError("sector benchmark requires a pre-registration timestamp")
+    assigned_at = _parse_timestamp(assigned_at_utc, field="sector benchmark assigned_at_utc")
+    if assigned_at >= publication:
+        raise ExecutionError("sector benchmark mapping must be registered before publication")
+    return (
+        sector_benchmark_id,
+        mapping_version,
+        mapping_hash,
+        assigned_at.isoformat().replace("+00:00", "Z"),
+    )
+
+
 def _benchmark_outcome(
     benchmark_id: str,
     *,
@@ -321,6 +437,10 @@ def _benchmark_outcome(
             return_pct=None,
             excess_return_pct=None,
             reason="missing_benchmark_bar",
+            entry_source=None if entry is None else entry.source,
+            entry_source_timestamp_utc=None if entry is None else entry.source_timestamp_utc,
+            exit_source=None if exit_bar is None else exit_bar.source,
+            exit_source_timestamp_utc=None if exit_bar is None else exit_bar.source_timestamp_utc,
         )
     _ensure_open_value_could_exist(entry, entry_session)
     _ensure_close_value_could_exist(exit_bar, exit_session)
@@ -333,6 +453,10 @@ def _benchmark_outcome(
             return_pct=None,
             excess_return_pct=None,
             reason="missing_benchmark_open_or_close",
+            entry_source=entry.source,
+            entry_source_timestamp_utc=entry.source_timestamp_utc,
+            exit_source=exit_bar.source,
+            exit_source_timestamp_utc=exit_bar.source_timestamp_utc,
         )
     result = _return_pct(entry.open_price, exit_bar.close_price)
     return BenchmarkOutcome(
@@ -343,6 +467,10 @@ def _benchmark_outcome(
         return_pct=result,
         excess_return_pct=stock_return_pct - result,
         reason=None,
+        entry_source=entry.source,
+        entry_source_timestamp_utc=entry.source_timestamp_utc,
+        exit_source=exit_bar.source,
+        exit_source_timestamp_utc=exit_bar.source_timestamp_utc,
     )
 
 
@@ -356,12 +484,16 @@ def _empty_position(
     status: PositionStatus,
     reason: str,
     sector_benchmark_id: str | None,
+    sector_mapping_version: str | None,
+    sector_mapping_sha256: str | None,
+    sector_assigned_at_utc: str | None,
+    reference_session: TradingSession | None = None,
     entry_session: TradingSession | None = None,
     exit_session: TradingSession | None = None,
     entry_bar: PriceBar | None = None,
 ) -> PaperPosition:
     return PaperPosition(
-        schema_version=2,
+        schema_version=3,
         execution_rule_id=EXECUTION_RULE_ID,
         signal_rule_id=signal.rule_id,
         hypothesis_id="H002",
@@ -377,6 +509,7 @@ def _empty_position(
         evaluation_as_of_utc=as_of.isoformat().replace("+00:00", "Z"),
         calendar_version=calendar.version,
         calendar_snapshot_sha256=calendar.sha256,
+        reference_session_date=None if reference_session is None else reference_session.session_date,
         entry_session_date=None if entry_session is None else entry_session.session_date,
         exit_session_date=None if exit_session is None else exit_session.session_date,
         status=status,
@@ -385,6 +518,10 @@ def _empty_position(
         exit_price=None,
         entry_price_source=None if entry_bar is None else entry_bar.source,
         exit_price_source=None,
+        entry_price_source_timestamp_utc=(
+            None if entry_bar is None else entry_bar.source_timestamp_utc
+        ),
+        exit_price_source_timestamp_utc=None,
         entry_corporate_action_version=(
             None if entry_bar is None else entry_bar.corporate_action_version
         ),
@@ -393,6 +530,9 @@ def _empty_position(
         cost_stressed_return_pct=None,
         benchmarks=(),
         sector_benchmark_id=sector_benchmark_id,
+        sector_benchmark_mapping_version=sector_mapping_version,
+        sector_benchmark_mapping_sha256=sector_mapping_sha256,
+        sector_benchmark_assigned_at_utc=sector_assigned_at_utc,
         live_order_created=False,
     )
 
@@ -405,8 +545,12 @@ def build_paper_position(
     stock_bars: list[PriceBar],
     benchmark_bars: list[PriceBar],
     as_of_utc: str,
+    price_reference: PriceReference | None = None,
     sector_benchmark_id: str | None = None,
-    cost_scenarios_bps: tuple[int, ...] = (0, 25, 50),
+    sector_benchmark_mapping_version: str | None = None,
+    sector_benchmark_mapping_sha256: str | None = None,
+    sector_benchmark_assigned_at_utc: str | None = None,
+    cost_scenarios_bps: tuple[int, ...] = FROZEN_COST_SCENARIOS_BPS,
 ) -> PaperPosition:
     """Create/reconstruct one paper observation under frozen H002-X001."""
 
@@ -421,13 +565,26 @@ def build_paper_position(
         raise ExecutionError("signal decision timestamp precedes publication")
     if as_of < decision:
         raise ExecutionError("evaluation as_of precedes signal decision timestamp")
-    if any(isinstance(bps, bool) or not isinstance(bps, int) or bps < 0 for bps in cost_scenarios_bps):
+    if any(
+        isinstance(bps, bool) or not isinstance(bps, int) or bps < 0
+        for bps in cost_scenarios_bps
+    ):
         raise ExecutionError("cost scenarios must be non-negative integer basis points")
+    if cost_scenarios_bps != FROZEN_COST_SCENARIOS_BPS:
+        raise ExecutionError("cost scenarios are frozen at 0, 25 and 50 round-trip bps")
 
-    all_stock = _index_bars(stock_bars)
-    all_benchmarks = _index_bars(benchmark_bars)
-    available_stock = _available_as_of(all_stock, as_of=as_of)
-    available_benchmarks = _available_as_of(all_benchmarks, as_of=as_of)
+    (
+        sector_benchmark_id,
+        sector_mapping_version,
+        sector_mapping_sha256,
+        sector_assigned_at_utc,
+    ) = _validate_sector_mapping(
+        sector_benchmark_id,
+        mapping_version=sector_benchmark_mapping_version,
+        mapping_sha256=sector_benchmark_mapping_sha256,
+        assigned_at_utc=sector_benchmark_assigned_at_utc,
+        publication=publication,
+    )
 
     base_identity = {
         "execution_rule_id": EXECUTION_RULE_ID,
@@ -435,6 +592,7 @@ def build_paper_position(
         "event_version_id": signal.event_version_id,
         "expectation_id": signal.expectation_id,
         "symbol": signal.symbol.upper(),
+        "exchange_published_at_utc": publication.isoformat().replace("+00:00", "Z"),
         "calendar_version": calendar.version,
         "calendar_snapshot_sha256": calendar.sha256,
     }
@@ -450,7 +608,24 @@ def build_paper_position(
             status="SKIPPED",
             reason=signal.no_signal_reason or "NO_SIGNAL",
             sector_benchmark_id=sector_benchmark_id,
+            sector_mapping_version=sector_mapping_version,
+            sector_mapping_sha256=sector_mapping_sha256,
+            sector_assigned_at_utc=sector_assigned_at_utc,
         )
+
+    if price_reference is None:
+        raise ExecutionError("non-NO_SIGNAL observation requires the scored price reference")
+    reference_session = _validate_reference_price(
+        signal,
+        price_reference,
+        exchange_published_at_utc=exchange_published_at_utc,
+        calendar=calendar,
+    )
+
+    all_stock = _index_bars(stock_bars, calendar=calendar)
+    all_benchmarks = _index_bars(benchmark_bars, calendar=calendar)
+    available_stock = _available_as_of(all_stock, as_of=as_of)
+    available_benchmarks = _available_as_of(all_benchmarks, as_of=as_of)
 
     entry_session, exit_session = calendar.schedule(exchange_published_at_utc)
     entry_open = _parse_timestamp(entry_session.open_timestamp_utc, field="entry session open")
@@ -470,6 +645,10 @@ def build_paper_position(
             status="PENDING",
             reason="entry_not_due",
             sector_benchmark_id=sector_benchmark_id,
+            sector_mapping_version=sector_mapping_version,
+            sector_mapping_sha256=sector_mapping_sha256,
+            sector_assigned_at_utc=sector_assigned_at_utc,
+            reference_session=reference_session,
             entry_session=entry_session,
             exit_session=exit_session,
         )
@@ -499,6 +678,10 @@ def build_paper_position(
                 status="PENDING",
                 reason=f"{entry_issue}_before_entry_session_close",
                 sector_benchmark_id=sector_benchmark_id,
+                sector_mapping_version=sector_mapping_version,
+                sector_mapping_sha256=sector_mapping_sha256,
+                sector_assigned_at_utc=sector_assigned_at_utc,
+                reference_session=reference_session,
                 entry_session=entry_session,
                 exit_session=exit_session,
                 entry_bar=entry_bar,
@@ -512,6 +695,10 @@ def build_paper_position(
             status="SKIPPED",
             reason=f"{entry_issue}_after_entry_session_close",
             sector_benchmark_id=sector_benchmark_id,
+            sector_mapping_version=sector_mapping_version,
+            sector_mapping_sha256=sector_mapping_sha256,
+            sector_assigned_at_utc=sector_assigned_at_utc,
+            reference_session=reference_session,
             entry_session=entry_session,
             exit_session=exit_session,
             entry_bar=entry_bar,
@@ -528,6 +715,10 @@ def build_paper_position(
             status="PENDING",
             reason="exit_not_due",
             sector_benchmark_id=sector_benchmark_id,
+            sector_mapping_version=sector_mapping_version,
+            sector_mapping_sha256=sector_mapping_sha256,
+            sector_assigned_at_utc=sector_assigned_at_utc,
+            reference_session=reference_session,
             entry_session=entry_session,
             exit_session=exit_session,
             entry_bar=entry_bar,
@@ -557,6 +748,10 @@ def build_paper_position(
             status="UNRESOLVED_EXIT",
             reason=f"{exit_issue}_after_due_close",
             sector_benchmark_id=sector_benchmark_id,
+            sector_mapping_version=sector_mapping_version,
+            sector_mapping_sha256=sector_mapping_sha256,
+            sector_assigned_at_utc=sector_assigned_at_utc,
+            reference_session=reference_session,
             entry_session=entry_session,
             exit_session=exit_session,
             entry_bar=entry_bar,
@@ -569,7 +764,9 @@ def build_paper_position(
         )
 
     gross_return = _return_pct(entry_bar.open_price, exit_bar.close_price)
-    cost_results = {str(bps): gross_return - (bps / 100.0) for bps in cost_scenarios_bps}
+    cost_results = {
+        str(bps): gross_return - (bps / 100.0) for bps in FROZEN_COST_SCENARIOS_BPS
+    }
 
     benchmark_ids = list(REQUIRED_BENCHMARKS)
     if sector_benchmark_id:
@@ -586,7 +783,7 @@ def build_paper_position(
     )
 
     return PaperPosition(
-        schema_version=2,
+        schema_version=3,
         execution_rule_id=EXECUTION_RULE_ID,
         signal_rule_id=signal.rule_id,
         hypothesis_id="H002",
@@ -602,6 +799,7 @@ def build_paper_position(
         evaluation_as_of_utc=as_of.isoformat().replace("+00:00", "Z"),
         calendar_version=calendar.version,
         calendar_snapshot_sha256=calendar.sha256,
+        reference_session_date=reference_session.session_date,
         entry_session_date=entry_session.session_date,
         exit_session_date=exit_session.session_date,
         status="COMPLETED",
@@ -610,11 +808,16 @@ def build_paper_position(
         exit_price=exit_bar.close_price,
         entry_price_source=entry_bar.source,
         exit_price_source=exit_bar.source,
+        entry_price_source_timestamp_utc=entry_bar.source_timestamp_utc,
+        exit_price_source_timestamp_utc=exit_bar.source_timestamp_utc,
         entry_corporate_action_version=entry_bar.corporate_action_version,
         exit_corporate_action_version=exit_bar.corporate_action_version,
         gross_return_pct=gross_return,
         cost_stressed_return_pct=cost_results,
         benchmarks=outcomes,
         sector_benchmark_id=sector_benchmark_id,
+        sector_benchmark_mapping_version=sector_mapping_version,
+        sector_benchmark_mapping_sha256=sector_mapping_sha256,
+        sector_benchmark_assigned_at_utc=sector_assigned_at_utc,
         live_order_created=False,
     )
