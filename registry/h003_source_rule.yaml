@@ -17,7 +17,7 @@ discovery:
   symbol_scoped: true
   exact_discovery_bytes_sha256_required: true
 document_policy:
-  included_source_type: EARNINGS_CALL_TRANSCRIPT
+  included_source_type: MANAGEMENT_CALL_TRANSCRIPT
   attachment_required: true
   attachment_scheme: https
   allowed_attachment_hosts:
@@ -25,18 +25,25 @@ document_policy:
     - archives.nseindia.com
   text_must_contain:
     - transcript
-  text_must_contain_any:
+  include_if_announcement_category:
+    - Analysts/Institutional Investor Meet/Con. Call Updates
+  include_if_text_contains_any:
     - earnings call
+    - earningscall
     - financial results
     - quarter ended
     - quarter and year ended
     - analyst meet
     - conference call
+    - con. call
   text_excludes:
     - annual general meeting
     - agm transcript
     - investor day
     - ai day
+    - investor presentation
+    - schedule of meet
+    - one-on-one
   investor_presentations_excluded: true
   one_on_one_meeting_notices_excluded: true
 coverage:
@@ -55,4 +62,4 @@ claim_review:
   accepted_claim_requires_measurable_metric_or_explicit_deadline: true
   post_decision_returns_forbidden: true
   no_claim_type_weights: true
-sha256: 4f33a47450595baff76b88a6042560df68754ce8f11cfa44f9f890d74bbd94c1
+sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
