@@ -1,7 +1,7 @@
 id: H002-X001
 hypothesis_id: H002
 status: FROZEN
-sha256: f9402fb38e6e985c21e0b8981e29df2b8c65050439853fa311e1d90a377c8382
+sha256: 682fb5351f4c9e14782bc7f0e5c4cec8a3242cec011d3ce5ac3169a4a81e4e5f
 
 calendar:
   exchange_timezone: Asia/Kolkata
@@ -10,14 +10,21 @@ calendar:
   entry_session: second_trading_session_strictly_after_publication_local_date
   holding_period_sessions: 20
   exit_session: 20th_trading_session_including_entry_as_session_1
+  calendar_snapshot_sha256_required: true
 
 execution:
   position_type: long_observation_for_each_non_NO_SIGNAL_bucket
   entry_price: exact_entry_session_open
   exit_price: exact_exit_session_close
   evaluation_as_of: timezone_aware_utc_timestamp
-  missing_or_nontradable_entry_after_due: SKIPPED
+  signal_decision_must_precede_entry_open: true
+  before_entry_open: PENDING
+  missing_entry_before_entry_session_close: PENDING
+  missing_or_nontradable_entry_after_entry_session_close: SKIPPED
+  before_exit_close: PENDING
   missing_exit_after_due: UNRESOLVED_EXIT
+  market_data_newer_than_evaluation_as_of: unavailable
+  entry_and_exit_sources_recorded_separately: true
   no_ohlc_fill_inference: true
   live_orders: false
 
@@ -27,17 +34,23 @@ benchmarks:
     - nifty_200_momentum_30
   sector_matched: optional_only_when_pre_registered_mapping_exists
   window: same_entry_open_to_same_exit_close
+  unavailable_as_of: MISSING
 
 cost_scenarios_round_trip_bps:
   - 0
   - 25
   - 50
+
 guards:
   - signal_rule_id_must_be_H002-R001
   - NO_SIGNAL_is_SKIPPED
   - calendar_sessions_are_explicit_not_weekday_inferred
+  - calendar_snapshot_hash_is_recorded
   - entry_and_exit_market_data_must_be_timestamped
+  - source_timestamp_must_not_predate_the_market_value_it_contains
   - market_data_source_timestamp_cannot_exceed_evaluation_as_of
   - corporate_action_version_required_for_stock_prices
+  - entry_exit_corporate_action_versions_must_match
   - benchmark_missing_data_is_reported_not_imputed
+  - duplicate_market_bars_are_rejected
 live_capital: false
