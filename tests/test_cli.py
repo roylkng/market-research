@@ -5,22 +5,26 @@ from typer.testing import CliRunner
 
 from marketlab.cli import app
 from marketlab.universe import build_universe_snapshot
+from tests.universe_fixtures import make_nifty200_sources
 
 runner = CliRunner()
 
 
 def _ccl_universe_file(tmp_path):
+    index, constituent_csv = make_nifty200_sources(
+        [
+            {
+                "symbol": "CCL",
+                "ffmc": 1000,
+                "industry": "Fast Moving Consumer Goods",
+                "isin": "INE421D01022",
+                "company_name": "CCL Products (India) Limited",
+            }
+        ]
+    )
     snapshot = build_universe_snapshot(
-        {"timestamp": "x", "data": [{"symbol": "CCL", "ffmc": 100}]},
-        lambda _: {
-            "info": {"isin": "INE421D01022", "listingDate": "01-Jan-2000"},
-            "industryInfo": {
-                "macro": "Consumer Discretionary",
-                "sector": "Consumer",
-                "industry": "Coffee",
-                "basicIndustry": "Coffee",
-            },
-        },
+        index,
+        constituent_csv,
         cohort_id="FY27-Q1-TEST",
         selection_size=1,
         captured_at=datetime(2026, 7, 1, tzinfo=UTC),

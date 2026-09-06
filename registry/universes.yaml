@@ -3,25 +3,49 @@ version: 1
 universes:
   - id: U001
     name: nifty200_top100_nonfinancial_ffmc
-    status: FROZEN_RULE_PENDING_FIRST_SNAPSHOT
+    status: FIRST_SNAPSHOT_FROZEN
     market: India
     source_index: NIFTY 200
     selection_size: 100
+    rule_version: U001-nifty200-top100-nonfinancial-ffmc-v2
     rule:
-      exclude_macro_sectors:
+      source_population: exact symbols in official Nifty 200 constituent CSV
+      exclude_constituent_industries:
         - Financial Services
       rank_by:
         - field: ffmc
+          source: Nifty 200 live index payload
           direction: descending
         - field: symbol
           direction: ascending
       freeze_frequency: per_earnings_cohort
+      source_symbol_mismatch: fail_snapshot
       missing_classification: fail_snapshot
+      missing_isin: fail_snapshot
       rebalance_policy: future_cohorts_only
     source:
       index_page: https://www.nseindia.com/static/products-services/indices-nifty200-index
-      index_api: https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200
-      quote_api_template: https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>
+      index_ffmc_api: https://www.nseindia.com/api/equity-stock-indices?index=NIFTY%20200
+      constituents_csv: https://archives.nseindia.com/content/indices/ind_nifty200list.csv
+      required_source_hashes:
+        - index_canonical_json_sha256
+        - constituents_raw_sha256
+    first_snapshot:
+      cohort_id: FY27-Q2-2026-09-06
+      path: research/prospective/universes/FY27-Q2-2026-09-06.json
+      captured_at_utc: 2026-09-06T12:21:06.431463Z
+      index_timestamp: 04-Sep-2026 16:00:00
+      member_count: 100
+      sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+      source_hashes:
+        index_canonical_json_sha256: b26dd60f6ae3ca653c2d3cc7e97de71277efab48f93f66260cdf7a5621d4798a
+        constituents_raw_sha256: 76b8b127931953ce7e5e5511c99c3b73775140eeb83b6b293085b4a9483dce1a
+      validation:
+        unique_symbols: 100
+        financial_services_members: 0
+        ffmc_nonincreasing: true
+        canonical_hash_recomputed: true
     research_use:
       - H002
+      - H003
     live_capital_allowed: false
