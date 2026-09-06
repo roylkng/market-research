@@ -7,10 +7,10 @@ import pytest
 from marketlab.h003_candidates import ClaimCandidate
 from marketlab.h003_review import (
     ACCEPT_REASON,
-    H003ReviewError,
-    NormalizedClaimDraft,
     REVIEW_RULE_ID,
     CandidateCorpus,
+    H003ReviewError,
+    NormalizedClaimDraft,
     build_blind_review_payload,
     build_review_decision,
     freeze_review_ledger,
@@ -88,7 +88,11 @@ def test_blind_payload_redacts_company_metadata_and_preserves_locator():
 
 
 def test_question_is_mechanically_rejected_even_if_it_says_our_guidance():
-    candidate = _candidate(excerpt="Why is our guidance only 1% to 3% for next year?")
+    candidate = _candidate(
+        excerpt="Why is our guidance only 1% to 3% for next year?",
+        line_start=1,
+        line_end=1,
+    )
     payload = _payload(candidate, ("Why is our guidance only 1% to 3% for next year?",))
     assert mechanical_rejection(payload) == "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER"
 
@@ -191,7 +195,11 @@ def test_complete_review_emits_claims_but_never_outcomes():
         reviewed_at_utc="2026-09-07T00:00:00Z",
         note="Synthetic rejection fixture.",
     )
-    ledger = freeze_review_ledger(corpus, [accepted, rejected])
+    ledger = freeze_review_ledger(
+        corpus,
+        [accepted, rejected],
+        [accepted_payload, rejected_payload],
+    )
     assert ledger.complete is True
     assert ledger.accepted_count == 1
     assert ledger.rejected_count == 1
@@ -215,4 +223,31 @@ def test_missing_decision_blocks_review_freeze():
         candidates_by_id={candidate.candidate_id: candidate},
     )
     with pytest.raises(H003ReviewError, match="coverage incomplete"):
-        freeze_review_ledger(corpus, [])
+        freeze_review_ledger(corpus, [], [])
+
+
+def test_wrong_blind_payload_hash_blocks_freeze():
+    candidate = _candidate(candidate_id="cand-bind")
+    corpus = CandidateCorpus(
+        report_sha256="c" * 64,
+        candidate_rule_id="H003-E002",
+        candidate_rule_sha256=candidate.rule_sha256,
+        source_bundle_sha256="583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee",
+        cohort_id="FY27-Q2-2026-09-06",
+        candidate_count=1,
+        candidates_by_id={candidate.candidate_id: candidate},
+    )
+    payload = _payload(
+        candidate,
+        ("Analyst question", "We expect revenue growth of 15% next year."),
+    )
+    decision = build_review_decision(
+        candidate_id=candidate.candidate_id,
+        blind_payload_sha256="0" * 64,
+        disposition="REJECTED",
+        reason_code="REJECT_GENERIC_ASPIRATION",
+        reviewer_version="blind-review-v1",
+        reviewed_at_utc="2026-09-07T00:00:00Z",
+    )
+    with pytest.raises(H003ReviewError, match="blind-payload hash mismatch"):
+        freeze_review_ledger(corpus, [decision], [payload])

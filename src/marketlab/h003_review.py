@@ -14,17 +14,16 @@ import yaml
 from marketlab.claims import ClaimLedger, ManagementClaim, validate_claim_ledger
 from marketlab.h003_candidates import (
     CANDIDATE_VERSION,
-    DEADLINE_MARKERS,
     EXCLUDE_MARKERS,
     EXTRACTION_RULE_ID,
     EXTRACTION_RULE_SHA256,
-    QUANTITATIVE_PATTERN,
     SOURCE_BUNDLE_SHA256,
     ClaimCandidate,
-    H003CandidateError,
     SourceExtractionRecord,
-    _canonical_hash as _candidate_canonical_hash,
     _record_digest,
+)
+from marketlab.h003_candidates import (
+    _canonical_hash as _candidate_canonical_hash,
 )
 
 REVIEW_RULE_ID = "H003-V001"
@@ -321,7 +320,10 @@ def build_blind_review_payload(
     if candidate.line_end > len(page_lines):
         raise H003ReviewError("candidate locator exceeds reconstructed page lines")
     original_excerpt = " ".join(page_lines[candidate.line_start - 1 : candidate.line_end])
-    if " ".join(original_excerpt.split()) != " ".join(candidate.excerpt.split()):
+    expected_excerpt = " ".join(original_excerpt.split())
+    if len(expected_excerpt) > 600:
+        expected_excerpt = expected_excerpt[:600].rstrip()
+    if expected_excerpt != " ".join(candidate.excerpt.split()):
         raise H003ReviewError("reconstructed source lines do not match candidate excerpt")
     context_start = max(0, candidate.line_start - 1 - context_radius_lines)
     context_end = min(len(page_lines), candidate.line_end + context_radius_lines)
@@ -353,7 +355,6 @@ def build_blind_review_payload(
 def mechanical_rejection(payload: BlindReviewPayload) -> str | None:
     text = payload.redacted_excerpt.strip()
     lowered = text.casefold()
-    context = "\n".join(payload.redacted_page_context).casefold()
     if any(marker in lowered for marker in EXCLUDE_MARKERS):
         return "REJECT_OTHER_WITH_EXPLICIT_NOTE"
     if "?" in text:
@@ -361,15 +362,11 @@ def mechanical_rejection(payload: BlindReviewPayload) -> str | None:
     stripped = re.sub(r"^[^a-zA-Z]+", "", lowered)
     if any(stripped.startswith(prefix) for prefix in QUESTION_PREFIXES):
         return "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER"
-    if any(re.search(rf"\b{re.escape(label)}\s*[:\-]", context) for label in NON_MANAGEMENT_LABELS):
-        # A nearby speaker label is a high-confidence rejection only when it is on
-        # the candidate excerpt itself or the immediately preceding context line.
-        immediate = "\n".join(payload.redacted_page_context[:4]).casefold()
-        if any(
-            re.search(rf"\b{re.escape(label)}\s*[:\-]", immediate)
-            for label in NON_MANAGEMENT_LABELS
-        ):
-            return "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER"
+    if any(
+        re.search(rf"\b{re.escape(label)}\s*[:\-]", lowered)
+        for label in NON_MANAGEMENT_LABELS
+    ):
+        return "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER"
     return None
 
 
@@ -515,26 +512,38 @@ class ReviewLedger:
         return payload
 
 
-def _claim_id(candidate_id: str, draft: NormalizedClaimDraft) -> str:
+def _claim_id(
+    candidate_id: str,
+    decision_id: str,
+    draft: NormalizedClaimDraft,
+) -> str:
     return "H003C-" + _canonical_hash(
-        {"candidate_id": candidate_id, "normalized_claim": draft.to_dict()}
+        {
+            "candidate_id": candidate_id,
+            "decision_id": decision_id,
+            "normalized_claim": draft.to_dict(),
+        }
     )[:20]
 
 
-def _management_claim(candidate: ClaimCandidate, draft: NormalizedClaimDraft) -> ManagementClaim:
+def _management_claim(
+    candidate: ClaimCandidate,
+    decision_id: str,
+    draft: NormalizedClaimDraft,
+) -> ManagementClaim:
     publication = _parse_timestamp(
         candidate.exchange_published_at_utc, field="candidate.exchange_published_at_utc"
     )
     source_date = publication.astimezone(IST).date().isoformat()
     claim = ManagementClaim(
-        claim_id=_claim_id(candidate.candidate_id, draft),
+        claim_id=_claim_id(candidate.candidate_id, decision_id, draft),
         symbol=candidate.symbol,
         source_date=source_date,
         source_url=candidate.attachment_url,
         source_type="NSE_MANAGEMENT_TRANSCRIPT",
         source_locator=(
-            f"candidate={candidate.candidate_id};page={candidate.page_number};"
-            f"lines={candidate.line_start}-{candidate.line_end}"
+            f"candidate={candidate.candidate_id};decision={decision_id};"
+            f"page={candidate.page_number};lines={candidate.line_start}-{candidate.line_end}"
         ),
         claim_type=draft.claim_type,
         metric=draft.metric,
@@ -554,7 +563,41 @@ def _management_claim(candidate: ClaimCandidate, draft: NormalizedClaimDraft) ->
 def freeze_review_ledger(
     corpus: CandidateCorpus,
     decisions: list[ReviewDecision],
+    blind_payloads: list[BlindReviewPayload],
 ) -> ReviewLedger:
+    payload_by_candidate: dict[str, BlindReviewPayload] = {}
+    for blind_payload in blind_payloads:
+        payload_document = blind_payload.to_dict()
+        declared_payload_hash = payload_document.pop("payload_sha256", None)
+        if (
+            blind_payload.schema_version != 1
+            or blind_payload.review_rule_id != REVIEW_RULE_ID
+            or blind_payload.review_rule_sha256 != REVIEW_RULE_SHA256
+            or declared_payload_hash != _canonical_hash(payload_document)
+        ):
+            raise H003ReviewError(
+                f"invalid blind review payload: {blind_payload.candidate_id}"
+            )
+        candidate = corpus.candidates_by_id.get(blind_payload.candidate_id)
+        if candidate is None:
+            raise H003ReviewError(
+                f"blind payload references unknown candidate: {blind_payload.candidate_id}"
+            )
+        if blind_payload.evidence_sha256 != _candidate_evidence_hash(candidate):
+            raise H003ReviewError(
+                f"blind payload evidence hash mismatch: {blind_payload.candidate_id}"
+            )
+        if blind_payload.candidate_id in payload_by_candidate:
+            raise H003ReviewError(
+                f"duplicate blind review payload: {blind_payload.candidate_id}"
+            )
+        payload_by_candidate[blind_payload.candidate_id] = blind_payload
+    payload_missing = sorted(set(corpus.candidates_by_id) - set(payload_by_candidate))
+    if payload_missing:
+        raise H003ReviewError(
+            f"blind payload coverage incomplete; missing={len(payload_missing)}"
+        )
+
     by_candidate: dict[str, ReviewDecision] = {}
     for decision in decisions:
         if (
@@ -568,6 +611,11 @@ def freeze_review_ledger(
             raise H003ReviewError(f"review decision references unknown candidate: {decision.candidate_id}")
         if decision.candidate_id in by_candidate:
             raise H003ReviewError(f"duplicate review decision: {decision.candidate_id}")
+        blind_payload = payload_by_candidate[decision.candidate_id]
+        if decision.blind_payload_sha256 != blind_payload.payload_sha256:
+            raise H003ReviewError(
+                f"decision blind-payload hash mismatch: {decision.candidate_id}"
+            )
         by_candidate[decision.candidate_id] = decision
     missing = sorted(set(corpus.candidates_by_id) - set(by_candidate))
     extra = sorted(set(by_candidate) - set(corpus.candidates_by_id))
@@ -582,7 +630,9 @@ def freeze_review_ledger(
         if decision.disposition == "ACCEPTED":
             if decision.normalized_claim is None:
                 raise H003ReviewError("accepted review decision lost normalized claim")
-            accepted_claims.append(_management_claim(candidate, decision.normalized_claim))
+            accepted_claims.append(
+                _management_claim(candidate, decision.decision_id, decision.normalized_claim)
+            )
     claim_ledger = ClaimLedger(
         version=1,
         mode="HISTORICAL_RECONSTRUCTION",
