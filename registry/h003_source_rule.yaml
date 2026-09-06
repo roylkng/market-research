@@ -4,10 +4,12 @@ status: FROZEN
 live_capital: false
 cohort_id: FY27-Q2-2026-09-06
 decision_date: '2026-09-06'
+decision_timestamp_utc: '2026-09-06T12:21:06.431463Z'
 source_window:
   from_date: '2024-09-01'
   to_date: '2026-09-06'
-  basis: calendar_date_inclusive
+  to_timestamp_utc: '2026-09-06T12:21:06.431463Z'
+  basis: announcement_exchange_publication_timestamp
 discovery:
   source: NSE_CORPORATE_ANNOUNCEMENTS
   endpoint: https://www.nseindia.com/api/corporate-announcements
@@ -53,4 +55,4 @@ claim_review:
   accepted_claim_requires_measurable_metric_or_explicit_deadline: true
   post_decision_returns_forbidden: true
   no_claim_type_weights: true
-sha256: 3e4de432a4fb10c9b7cb09a711bf3078e1e92d4970ecbc2b6d69afc1ff0a870a
+sha256: 4f33a47450595baff76b88a6042560df68754ce8f11cfa44f9f890d74bbd94c1
