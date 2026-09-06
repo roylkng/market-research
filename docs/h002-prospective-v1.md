@@ -6,6 +6,10 @@ H002-D turns the already-frozen FY27-Q2 expectation panel into an automatic, rec
 
 The canonical operational rule is `H002-D001` in `registry/h002_runner_rule.yaml`.
 
+Canonical runner-rule SHA-256:
+
+`fdf174f2a0e848356e29cff3ba3fdc8f7f674836a77c4ef6065e5ca72360d238`
+
 ## Frozen first-event rule
 
 For each of the 100 U001 members, the runner looks only for the target period ending `2026-09-30` and the accounting basis already frozen in that company's expectation record.
@@ -38,7 +42,7 @@ H002-D instead uses exact official report archives:
 - Benchmark open/close: **Indices Daily Snapshot** CSV.
 - Session holidays: **NSE trading holiday master** exact JSON bytes.
 
-These source shapes were measured against 20-Aug-2026 and 04-Sep-2026 files before the parser contract was written.
+These source shapes were measured against 20-Aug-2026 and 04-Sep-2026 files before the parser contract was written. The hosted contract probes were runs `34045633552` and `34045749836`; the second run verified both UDiFF and index snapshot headers and exact daily archive access.
 
 No nearby close, adjusted web chart, OHLC inference or alternate data vendor is substituted if an official archive is unavailable.
 
