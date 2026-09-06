@@ -5,7 +5,6 @@ import json
 import time
 from collections import Counter
 from datetime import UTC, datetime
-from pathlib import Path
 
 import requests
 
