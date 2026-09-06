@@ -109,11 +109,25 @@ class MarketArtifactStore:
         captured = captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
         identity = {
             "source_url": source_url,
-            "captured_at_utc": captured,
             "raw_sha256": digest,
             "byte_count": len(raw),
         }
         artifact_id = _canonical_hash(identity)
+        metadata_path = self.root / "market-data" / "artifacts" / f"{artifact_id}.json"
+        metadata_path.parent.mkdir(parents=True, exist_ok=True)
+        if metadata_path.exists():
+            try:
+                existing = MarketArtifact(**json.loads(metadata_path.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError, TypeError) as exc:
+                raise MarketDataError(f"invalid retained market artifact: {exc}") from exc
+            if (
+                existing.source_url != source_url
+                or existing.raw_sha256 != digest
+                or existing.byte_count != len(raw)
+                or existing.raw_path != str(raw_path)
+            ):
+                raise MarketDataError("market artifact metadata collision")
+            return existing
         metadata = MarketArtifact(
             schema_version=1,
             artifact_id=artifact_id,
@@ -123,19 +137,20 @@ class MarketArtifactStore:
             raw_path=str(raw_path),
             byte_count=len(raw),
         )
-        metadata_path = self.root / "market-data" / "artifacts" / f"{artifact_id}.json"
-        metadata_path.parent.mkdir(parents=True, exist_ok=True)
         content = (json.dumps(metadata.to_dict(), indent=2, sort_keys=True) + "\n").encode()
         try:
             fd = os.open(metadata_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
         except FileExistsError:
-            if metadata_path.read_bytes() != content:
-                raise MarketDataError("market artifact metadata collision")
-        else:
-            with os.fdopen(fd, "wb") as handle:
-                handle.write(content)
-                handle.flush()
-                os.fsync(handle.fileno())
+            return self.retain(
+                raw,
+                source_url=source_url,
+                captured_at=captured_at,
+                suffix=suffix,
+            )
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
         return metadata
 
 

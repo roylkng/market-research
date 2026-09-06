@@ -37,7 +37,6 @@ from marketlab.marketdata import (
 )
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.prospective import (
-    ObservationSnapshot,
     ObservationStore,
     ProspectiveReport,
     build_prospective_report,
@@ -131,11 +130,26 @@ class RawEvidenceStore:
         identity = {
             "kind": kind,
             "source_url": source_url,
-            "captured_at_utc": captured,
             "raw_sha256": digest,
             "byte_count": len(raw),
         }
         evidence_id = _canonical_hash(identity)
+        metadata = self.root / "raw-evidence" / kind / "records" / f"{evidence_id}.json"
+        metadata.parent.mkdir(parents=True, exist_ok=True)
+        if metadata.exists():
+            try:
+                existing = RawEvidence(**json.loads(metadata.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError, TypeError) as exc:
+                raise RunnerError(f"invalid retained raw evidence: {exc}") from exc
+            if (
+                existing.kind != kind
+                or existing.source_url != source_url
+                or existing.raw_sha256 != digest
+                or existing.byte_count != len(raw)
+                or existing.raw_path != str(raw_path)
+            ):
+                raise RunnerError("raw-evidence metadata collision")
+            return existing
         evidence = RawEvidence(
             schema_version=1,
             evidence_id=evidence_id,
@@ -146,19 +160,21 @@ class RawEvidenceStore:
             raw_path=str(raw_path),
             byte_count=len(raw),
         )
-        metadata = self.root / "raw-evidence" / kind / "records" / f"{evidence_id}.json"
-        metadata.parent.mkdir(parents=True, exist_ok=True)
         content = (json.dumps(evidence.to_dict(), indent=2, sort_keys=True) + "\n").encode()
         try:
             fd = os.open(metadata, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
         except FileExistsError:
-            if metadata.read_bytes() != content:
-                raise RunnerError("raw-evidence metadata collision")
-        else:
-            with os.fdopen(fd, "wb") as handle:
-                handle.write(content)
-                handle.flush()
-                os.fsync(handle.fileno())
+            return self.retain(
+                raw,
+                kind=kind,
+                source_url=source_url,
+                captured_at=captured_at,
+                suffix=suffix,
+            )
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
         return evidence
 
 
@@ -207,7 +223,7 @@ def _terminal_no_signal(event: FinancialEvent, record_id: str, expectation: Any,
         event_version_id=event.version_id,
         expectation_id=expectation.expectation_id,
         symbol=event.symbol,
-        scored_at_utc=_iso(as_of),
+        scored_at_utc=event.provenance.captured_at_utc,
         actual_basic_eps=event.basic_eps,
         expected_eps=None,
         surprise_eps=None,
@@ -216,17 +232,6 @@ def _terminal_no_signal(event: FinancialEvent, record_id: str, expectation: Any,
         bucket="NO_SIGNAL",
         no_signal_reason=expectation.no_signal_reason or f"terminal_record:{record_id}",
     )
-
-
-def _required_benchmark_complete(position: dict[str, Any] | None) -> bool:
-    if not isinstance(position, dict) or position.get("status") != "COMPLETED":
-        return False
-    status = {
-        row.get("benchmark_id"): row.get("status")
-        for row in position.get("benchmarks", [])
-        if isinstance(row, dict)
-    }
-    return status.get("nifty_50") == "COMPLETE" and status.get("nifty_200_momentum_30") == "COMPLETE"
 
 
 class H002CohortRunner:
@@ -332,8 +337,15 @@ class H002CohortRunner:
             if latest is not None and isinstance(latest.event, dict)
             else None
         )
-        revisions: list[dict[str, Any]] = []
-        discovery_evidence: dict[str, Any] = {}
+        previous_evidence = (
+            dict(latest.evidence) if latest is not None and isinstance(latest.evidence, dict) else {}
+        )
+        revisions: list[dict[str, Any]] = list(previous_evidence.get("revisions", []))
+        discovery_evidence: dict[str, Any] = {
+            key: previous_evidence[key]
+            for key in ("discovery_sha256", "first_discovery_row_sha256")
+            if key in previous_evidence
+        }
 
         if discovery_enabled:
             try:
@@ -358,6 +370,7 @@ class H002CohortRunner:
                         "discovery_sha256": hashlib.sha256(discovery_raw).hexdigest(),
                         "first_discovery_row_sha256": selection.first.discovery_row_sha256,
                     }
+                    revisions = []
                     if event is None:
                         source_raw = self.client.archive_bytes(selection.first.source_url)
                         event, _ = self.event_store.capture_prospective_bytes(
@@ -438,6 +451,7 @@ class H002CohortRunner:
         record = self.bundle.resolve_for_event(event)
         expectation = record.expectation
         base_evidence = {
+            **previous_evidence,
             **discovery_evidence,
             "event_source_sha256": event.provenance.raw_sha256,
             "event_discovery_sha256": event.provenance.discovery_sha256,
@@ -484,7 +498,7 @@ class H002CohortRunner:
         action_payload, action_raw, action_artifact = self._corporate_actions(
             member,
             from_date=expectation_day,
-            to_date=as_of.astimezone(IST).date(),
+            to_date=publication_day,
             as_of=as_of,
         )
         pre_event_basis = audit_price_basis_actions(
@@ -494,7 +508,7 @@ class H002CohortRunner:
             start_date=expectation_day,
             end_date=publication_day,
         )
-        base_evidence["corporate_action_artifact"] = action_artifact.to_dict()
+        base_evidence["pre_event_corporate_action_artifact"] = action_artifact.to_dict()
         base_evidence["pre_event_price_basis"] = asdict(pre_event_basis)
         if pre_event_basis.relevant_actions or pre_event_basis.unresolved_actions:
             detail = "; ".join(
@@ -580,11 +594,12 @@ class H002CohortRunner:
             corporate_action_version=pre_event_basis.version or "PB-PRE-EVENT-UNRESOLVED",
         )
         base_evidence["price_reference_artifact"] = reference_artifact.to_dict()
+        base_evidence["price_reference"] = reference.to_dict()
         signal = score_h002(
             event,
             expectation,
             reference,
-            scored_at_utc=_iso(as_of),
+            scored_at_utc=event.provenance.captured_at_utc,
         )
         if latest is None or latest.signal != signal.to_dict():
             self.observations.append(
@@ -677,13 +692,20 @@ class H002CohortRunner:
             if entry_artifact is not None:
                 base_evidence["entry_price_artifact"] = entry_artifact.to_dict()
             if entry_price is not None:
+                entry_action_payload, entry_action_raw, entry_action_artifact = self._corporate_actions(
+                    member,
+                    from_date=publication_day,
+                    to_date=entry_day,
+                    as_of=as_of,
+                )
                 entry_basis = audit_price_basis_actions(
-                    action_payload,
-                    raw_payload=action_raw,
+                    entry_action_payload,
+                    raw_payload=entry_action_raw,
                     symbol=symbol,
                     start_date=publication_day,
                     end_date=entry_day,
                 )
+                base_evidence["entry_corporate_action_artifact"] = entry_action_artifact.to_dict()
                 base_evidence["entry_price_basis"] = asdict(entry_basis)
                 if entry_basis.status != "READY" or entry_basis.version is None:
                     return self._append_price_basis_unresolved(
@@ -722,13 +744,20 @@ class H002CohortRunner:
             if exit_artifact is not None:
                 base_evidence["exit_price_artifact"] = exit_artifact.to_dict()
             if exit_price is not None:
+                exit_action_payload, exit_action_raw, exit_action_artifact = self._corporate_actions(
+                    member,
+                    from_date=publication_day,
+                    to_date=exit_day,
+                    as_of=as_of,
+                )
                 exit_basis = audit_price_basis_actions(
-                    action_payload,
-                    raw_payload=action_raw,
+                    exit_action_payload,
+                    raw_payload=exit_action_raw,
                     symbol=symbol,
                     start_date=publication_day,
                     end_date=exit_day,
                 )
+                base_evidence["exit_corporate_action_artifact"] = exit_action_artifact.to_dict()
                 base_evidence["exit_price_basis"] = asdict(exit_basis)
                 if exit_basis.status != "READY" or exit_basis.version is None:
                     return self._append_price_basis_unresolved(
