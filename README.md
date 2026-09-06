@@ -9,7 +9,7 @@ The project is deliberately **not** a stock-prediction product and does not perm
 | Hypothesis | Question | Status |
 |---|---|---|
 | H001 | Does raw revenue/profit/margin acceleration predict post-results returns? | **REJECTED** |
-| H002 | Does positive unexpected earnings produce post-earnings-announcement drift in liquid Indian equities? | **INCONCLUSIVE — prospective paper test required** |
+| H002 | Does positive unexpected earnings produce post-earnings-announcement drift in liquid Indian equities? | **FROZEN — prospective evaluation required** |
 | H003 | Does prior management delivery credibility predict 120-session sector-relative returns? | **FROZEN — prospective evaluation required** |
 
 **No model in this repository is approved for live capital.**
@@ -64,6 +64,22 @@ A separate curated development cohort in `registry/development_companies.yaml` i
 
 For prospective earnings events, NSE Integrated Filing - Financials is the primary source of record when available. Web JSON endpoints can assist discovery, but retained provenance points to the original exchange Details/XBRL document and preserves its hash and exchange timestamps. See `docs/source-decision.md`.
 
+## Frozen H002 signal
+
+The first prospective earnings-surprise rule is `H002-UE-v1`:
+
+```text
+expected_eps = basic_eps from the same quarter one year earlier
+unexpected_eps = actual_basic_eps - expected_eps
+UE = unexpected_eps / price_day_minus_2
+```
+
+Rule SHA-256:
+
+`24eb8325216e68db8e3f14db440a0f470f9f576a3d1aea034b570812c70686ff`
+
+The rule uses sign buckets (`POSITIVE`, `ZERO`, `NEGATIVE`) and returns `NO_SIGNAL` for missing or non-comparable inputs. It deliberately does not add analyst-consensus, momentum, valuation, guidance or LLM overlays. See `docs/h002-ue-v1.md` and `registry/signals/H002-UE-v1.json`.
+
 ## Repository layout
 
 ```text
@@ -71,7 +87,7 @@ market-research/
 ├── docs/                 # protocol, data policy, source/universe decisions
 ├── hypotheses/           # immutable human-readable hypotheses
 ├── experiments/          # frozen specs and results
-├── registry/             # hypothesis, experiment, universe and dev-company ledgers
+├── registry/             # hypothesis, signal, experiment, universe and dev-company ledgers
 ├── research/             # historical reconstruction, company intelligence, prospective data
 ├── src/marketlab/        # evaluation, acquisition, parsing and feature code
 ├── tests/                # invariants, provenance and leakage tests
@@ -145,7 +161,7 @@ make validate
 
 ## Current next experiments
 
-H002 receives **prospective paper testing only**. Its next gate is to freeze the expected-EPS/UE-SUE model before prospective earnings outcomes accumulate.
+H002's expectation/signal rule is now frozen. Its next gate is **H002-C deterministic paper execution and benchmark reconstruction**: trading calendar, second-session entry, 20-session exit, exact price provenance, sector/broad/momentum benchmarks, corporate actions and explicit non-tradable/skipped observations.
 
 H003 is separately frozen at a 120-session horizon. Its next gate is expanding pre-existing claim/delivery history across U001 while enforcing the `as_of` cutoff, then testing future sector-relative returns.
 
