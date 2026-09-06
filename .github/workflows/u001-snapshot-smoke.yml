@@ -8,6 +8,7 @@ on:
       - 'src/marketlab/universe.py'
       - 'src/marketlab/cli.py'
       - 'registry/universes.yaml'
+      - 'tests/**'
   workflow_dispatch:
 
 permissions:
@@ -74,9 +75,16 @@ jobs:
 
           path = Path('research/prospective/universes/FY27-Q2-2026-09-06.json')
           doc = json.loads(path.read_text())
+          assert doc['schema_version'] == 2
+          assert doc['rule_version'] == 'U001-nifty200-top100-nonfinancial-ffmc-v2'
           assert doc['selection_size'] == 100
           assert len(doc['members']) == 100
-          assert all(m['macro'].strip().casefold() != 'financial services' for m in doc['members'])
+          assert all(
+              m['constituent_industry'].strip().casefold() != 'financial services'
+              for m in doc['members']
+          )
+          assert 'index_canonical_json_sha256' in doc['source_hashes']
+          assert 'constituents_raw_sha256' in doc['source_hashes']
           print('cohort:', doc['cohort_id'])
           print('sha256:', doc['sha256'])
           print('top10:', ','.join(m['symbol'] for m in doc['members'][:10]))
