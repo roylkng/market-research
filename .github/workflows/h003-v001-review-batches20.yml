@@ -1,0 +1,93 @@
+name: H003-V001 20-candidate semantic review batches
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-20260907
+    paths:
+      - .github/workflows/h003-v001-review-batches20.yml
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Split hash-bound triage queue into batches of 20
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001')
+          triage_root = root / 'triage'
+          out = root / 'batches20'
+          out.mkdir(parents=True, exist_ok=True)
+
+          def h(value):
+              return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()).hexdigest()
+
+          source_manifest = json.loads((triage_root / 'manifest.json').read_text(encoding='utf-8'))
+          unsigned_source = dict(source_manifest)
+          declared_source_hash = unsigned_source.pop('manifest_sha256')
+          if h(unsigned_source) != declared_source_hash:
+              raise SystemExit('triage manifest hash mismatch')
+          all_items = []
+          for entry in source_manifest['chunks']:
+              items = json.loads((triage_root / entry['file']).read_text(encoding='utf-8'))
+              if h(items) != entry['triage_sha256']:
+                  raise SystemExit(f"triage chunk hash mismatch: {entry['file']}")
+              all_items.extend(items)
+          if len(all_items) != source_manifest['candidate_count']:
+              raise SystemExit('flattened triage candidate count mismatch')
+          if len({item['candidate_id'] for item in all_items}) != len(all_items):
+              raise SystemExit('flattened triage contains duplicate candidate ids')
+
+          entries = []
+          expected_files = set()
+          for start in range(0, len(all_items), 20):
+              index = start // 20
+              batch = all_items[start:start + 20]
+              filename = f'batch-{index:04d}.json'
+              expected_files.add(filename)
+              (out / filename).write_text(json.dumps(batch, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
+              entries.append({
+                  'batch_index': index,
+                  'file': filename,
+                  'candidate_count': len(batch),
+                  'first_candidate_id': batch[0]['candidate_id'],
+                  'last_candidate_id': batch[-1]['candidate_id'],
+                  'batch_sha256': h(batch),
+              })
+          for stale in out.glob('batch-*.json'):
+              if stale.name not in expected_files:
+                  stale.unlink()
+          unsigned = {
+              'schema_version': 1,
+              'source_triage_manifest_sha256': declared_source_hash,
+              'candidate_count': len(all_items),
+              'batch_size': 20,
+              'batch_count': len(entries),
+              'candidate_ids_sha256': h([item['candidate_id'] for item in all_items]),
+              'batches': entries,
+          }
+          manifest = {**unsigned, 'manifest_sha256': h(unsigned)}
+          (out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+      - name: Anchor 20-candidate review batches
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-review-batches20.yml
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001/batches20
+          git commit -m "Anchor H003-V001 20-candidate semantic review batches"
+          git push origin HEAD:run/h003-v001-blind-review-20260907
