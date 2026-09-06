@@ -1,0 +1,39 @@
+id: H002-D001
+hypothesis_id: H002
+status: FROZEN
+sha256: fdf174f2a0e848356e29cff3ba3fdc8f7f674836a77c4ef6065e5ca72360d238
+cohort_id: FY27-Q2-2026-09-06
+universe_snapshot_sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+expectation_bundle_sha256: 33ecb6496f02adc9d856aeeeee1e624df83e03d9e00a204c0c6ace26ee06b3b3
+signal_rule_id: H002-R001
+execution_rule_id: H002-X001
+target_period_end: '2026-09-30'
+discovery:
+  source: NSE Integrated Filing - Financials
+  first_filing_policy: earliest_official_publication_for_frozen_symbol_period_and_expectation_basis
+  revision_policy: retain_later_revisions_but_never_rescore_or_open_second_observation
+  polling_inclusion: all_frozen_universe_members
+market_data:
+  stock_source: NSE CM-UDiFF Common Bhavcopy Final
+  index_source: NSE Indices Daily Snapshot
+  holiday_source: NSE trading holiday master
+  no_adjacent_fill: true
+  unavailable_archive: PENDING_until_due_boundary_then_frozen_execution_semantics
+eligibility:
+  post_expectation_freeze_eps_basis_action: SKIPPED
+  terminal_prefiling_no_signal: NO_SIGNAL
+  manual_company_override: false
+ledger:
+  append_only: true
+  hash_chained_snapshots: true
+  same_state_deduplication: true
+  raw_source_hashes_required: true
+evaluation:
+  completed_positions_only_for_return_statistics: true
+  interim_reports_are_descriptive: true
+  threshold_optimization: false
+  paper_only: true
+active_window:
+  start: '2026-10-01'
+  end: '2027-01-31'
+live_capital: false
