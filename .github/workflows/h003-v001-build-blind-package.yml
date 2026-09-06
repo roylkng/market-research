@@ -1,0 +1,202 @@
+name: H003-V001 build frozen blind review queue
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-20260907
+    paths:
+      - .github/workflows/h003-v001-build-blind-package.yml
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  SOURCE_SHARD_RUN_ID: '34056101474'
+  SOURCE_EVIDENCE_BRANCH: run/h003-e002-sharded-20260907
+  SOURCE_REPORT_PATH: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json
+  EXPECTED_REPORT_SHA256: cb48b1e18c76a3ea2d06b13383955c0f0c6efa6d3d65bd132ac3d5e59217ffea
+  EXPECTED_CANDIDATE_COUNT: '2692'
+  OUT: research/prospective/h003/FY27-Q2-2026-09-06/review-v001
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+      - name: Download the eight frozen E002 shard artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: h003-e002-shard-*
+          path: shard-downloads
+          run-id: ${{ env.SOURCE_SHARD_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Assemble exact content-addressed candidate PDF store
+        run: |
+          python - <<'PY'
+          import hashlib
+          import shutil
+          from pathlib import Path
+
+          artifacts = sorted(Path('shard-downloads').glob('h003-e002-shard-*'))
+          if len(artifacts) != 8:
+              raise SystemExit(f'expected 8 shard artifact directories, found {len(artifacts)}')
+          destination = Path('review-input/store/raw/sha256')
+          destination.mkdir(parents=True, exist_ok=True)
+          copied = 0
+          reused = 0
+          for artifact in artifacts:
+              source_dir = artifact / 'store' / 'raw' / 'sha256'
+              if not source_dir.is_dir():
+                  raise SystemExit(f'missing shard raw store: {source_dir}')
+              for source in sorted(source_dir.glob('*.pdf')):
+                  expected = source.stem
+                  raw = source.read_bytes()
+                  observed = hashlib.sha256(raw).hexdigest()
+                  if observed != expected:
+                      raise SystemExit(f'artifact raw hash mismatch: {source}')
+                  target = destination / source.name
+                  if target.exists():
+                      if target.read_bytes() != raw:
+                          raise SystemExit(f'content-addressed collision: {source.name}')
+                      reused += 1
+                  else:
+                      shutil.copy2(source, target)
+                      copied += 1
+          total = len(list(destination.glob('*.pdf')))
+          if total < 1:
+              raise SystemExit('candidate PDF store is empty')
+          print(f'candidate raw PDF store: unique={total} copied={copied} reused={reused}')
+          PY
+      - name: Retrieve the externally anchored complete candidate report
+        run: |
+          mkdir -p review-input
+          git fetch origin "$SOURCE_EVIDENCE_BRANCH" --depth=1
+          git show FETCH_HEAD:"$SOURCE_REPORT_PATH" > review-input/report.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from marketlab.h003_review import load_complete_candidate_corpus
+
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          if corpus.report_sha256 != os.environ['EXPECTED_REPORT_SHA256']:
+              raise SystemExit(
+                  f"candidate report hash changed: expected={os.environ['EXPECTED_REPORT_SHA256']} "
+                  f"observed={corpus.report_sha256}"
+              )
+          if corpus.candidate_count != int(os.environ['EXPECTED_CANDIDATE_COUNT']):
+              raise SystemExit(
+                  f"candidate count changed: expected={os.environ['EXPECTED_CANDIDATE_COUNT']} "
+                  f"observed={corpus.candidate_count}"
+              )
+          print(json.dumps({
+              'candidate_report_sha256': corpus.report_sha256,
+              'candidate_count': corpus.candidate_count,
+          }, indent=2, sort_keys=True))
+          PY
+      - name: Build identity-redacted V001 blind package from exact local PDFs
+        run: |
+          rm -rf "$OUT"
+          python scripts/build_h003_review_package.py \
+            --candidate-report review-input/report.json \
+            --review-rule registry/h003_review_rule.yaml \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --candidate-store review-input/store \
+            --out-dir "$OUT"
+          python scripts/chunk_h003_review_queue.py \
+            --queue "$OUT/semantic-review-queue.json" \
+            --out-dir "$OUT/chunks" \
+            --chunk-size 40
+      - name: Enforce frozen queue integrity and write provenance anchor
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT'])
+          package = json.loads((out / 'package.json').read_text(encoding='utf-8'))
+          manifest = json.loads((out / 'chunks' / 'manifest.json').read_text(encoding='utf-8'))
+          expected_count = int(os.environ['EXPECTED_CANDIDATE_COUNT'])
+          expected_report = os.environ['EXPECTED_REPORT_SHA256']
+          required = {
+              'candidate_count': expected_count,
+              'blind_payload_count': expected_count,
+              'candidate_report_sha256': expected_report,
+          }
+          for key, value in required.items():
+              if package.get(key) != value:
+                  raise SystemExit(f'{key}: expected={value!r}, observed={package.get(key)!r}')
+          mechanical = int(package['mechanical_rejected_count'])
+          semantic = int(package['semantic_review_count'])
+          if mechanical + semantic != expected_count:
+              raise SystemExit('mechanical + semantic counts do not equal frozen candidate count')
+          if manifest.get('candidate_count') != semantic:
+              raise SystemExit('chunk manifest semantic count mismatch')
+          if manifest.get('queue_sha256') != package.get('semantic_queue_sha256'):
+              raise SystemExit('chunk manifest queue hash mismatch')
+          metadata = {
+              'schema_version': 1,
+              'review_rule_id': package['review_rule_id'],
+              'review_rule_sha256': package['review_rule_sha256'],
+              'candidate_report_sha256': expected_report,
+              'candidate_count': expected_count,
+              'mechanical_rejected_count': mechanical,
+              'semantic_review_count': semantic,
+              'package_sha256': package['package_sha256'],
+              'semantic_queue_sha256': package['semantic_queue_sha256'],
+              'chunk_manifest_sha256': manifest['manifest_sha256'],
+              'chunk_count': manifest['chunk_count'],
+              'chunk_size': manifest['chunk_size'],
+              'source_shard_run_id': os.environ['SOURCE_SHARD_RUN_ID'],
+              'source_evidence_branch': os.environ['SOURCE_EVIDENCE_BRANCH'],
+              'source_evidence_commit': '2682d91a2be0dc3b69876ef397791515ff9146f2',
+              'source_artifact_digests': {
+                  'h003-e002-shard-0': 'sha256:270749f4afd4e7cf4735b03d5a64502987cdbe8d6f139450372d8f55e983a18a',
+                  'h003-e002-shard-1': 'sha256:fb55fe1de51d2fd3c69993c5b938f0a08e3144da6271dbb6d670a1283a3d74c3',
+                  'h003-e002-shard-2': 'sha256:8a6c12d5222a1d547a03e76bf78308331fb4d81279339c09890d68bbb967b75a',
+                  'h003-e002-shard-3': 'sha256:e756f083697df1531ac3baeb772c47e58becc58c6b6fdd7ca0e07e4f98304abb',
+                  'h003-e002-shard-4': 'sha256:1dddc6619b84b91fac40f5a4224bfe410c23be4afafb5eb9059ea4df905f81f2',
+                  'h003-e002-shard-5': 'sha256:018a1379fe76f2c8125e549c680f687d179e6fd46ee6d4038d266f4820f68684',
+                  'h003-e002-shard-6': 'sha256:e46d0369b88012ea338d022fb85752d87dded376ed9600f953c45607f8aa513e',
+                  'h003-e002-shard-7': 'sha256:a48c23a6c0cbb04fea8b6e6ce6f8195fca991f7e28441fb15f634642e3309ddd',
+              },
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'anchored_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+          # The deterministic chunks replace this duplicate aggregate queue in persistent evidence.
+          rm "$OUT/semantic-review-queue.json"
+      - name: Anchor blind package and deterministic chunks on evidence branch
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-build-blind-package.yml
+          git add "$OUT"
+          git commit -m "Anchor frozen H003-V001 blind review queue"
+          git push origin HEAD:run/h003-v001-blind-review-20260907
+      - name: Preserve blind review package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-v001-blind-review-${{ github.run_id }}
+          path: research/prospective/h003/FY27-Q2-2026-09-06/review-v001
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
