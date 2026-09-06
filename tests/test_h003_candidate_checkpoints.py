@@ -3,9 +3,12 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 from marketlab.h003_candidates import (
     EXTRACTION_RULE_ID,
     EXTRACTION_RULE_SHA256,
+    H003CandidateError,
     SourceExtractionRecord,
     _record_digest,
 )
@@ -83,14 +86,10 @@ def test_checkpoint_identity_mismatch_fails_closed(tmp_path):
     module = _runner_module()
     path = tmp_path / "records" / "source-1.json"
     module._write_checkpoint(path, _record(status="TEXT_READY"))
-    try:
+    with pytest.raises(H003CandidateError, match="identity mismatch"):
         module._load_checkpoint(
             path,
             source_id="source-1",
             symbol="OTHER",
             attachment_url="https://nsearchives.nseindia.com/test.pdf",
         )
-    except Exception as exc:  # exact project exception imported through dynamic module
-        assert "identity mismatch" in str(exc)
-    else:
-        raise AssertionError("checkpoint mismatch must fail closed")
