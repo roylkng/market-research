@@ -6,6 +6,8 @@ from typing import Any
 
 import requests
 
+JSONPayload = dict[str, Any] | list[Any]
+
 
 @dataclass(frozen=True)
 class NSEEndpoint:
@@ -58,7 +60,7 @@ class NSEClient:
             )
         self._session_initialized = True
 
-    def _json_get(self, endpoint: NSEEndpoint, *, params: dict[str, Any]) -> dict[str, Any]:
+    def _json_get(self, endpoint: NSEEndpoint, *, params: dict[str, Any]) -> JSONPayload:
         last_error: Exception | None = None
         for attempt in range(1, self.attempts + 1):
             try:
@@ -75,9 +77,9 @@ class NSEClient:
                         continue
                 response.raise_for_status()
                 payload = response.json()
-                if not isinstance(payload, dict):
+                if not isinstance(payload, (dict, list)):
                     raise NSEAcquisitionError(
-                        f"{endpoint.name} returned {type(payload).__name__}, expected JSON object"
+                        f"{endpoint.name} returned {type(payload).__name__}, expected JSON"
                     )
                 return payload
             except (requests.RequestException, ValueError, NSEAcquisitionError) as exc:
@@ -88,11 +90,21 @@ class NSEClient:
                 break
         raise NSEAcquisitionError(f"NSE {endpoint.name} failed: {last_error}") from last_error
 
+    @staticmethod
+    def _require_mapping(payload: JSONPayload, endpoint_name: str) -> dict[str, Any]:
+        if not isinstance(payload, dict):
+            raise NSEAcquisitionError(
+                f"NSE {endpoint_name} returned {type(payload).__name__}, expected JSON object"
+            )
+        return payload
+
     def index_snapshot(self, index_name: str = "NIFTY 200") -> dict[str, Any]:
-        return self._json_get(self.INDEX_ENDPOINT, params={"index": index_name})
+        payload = self._json_get(self.INDEX_ENDPOINT, params={"index": index_name})
+        return self._require_mapping(payload, self.INDEX_ENDPOINT.name)
 
     def quote_equity(self, symbol: str) -> dict[str, Any]:
-        return self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
+        payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
+        return self._require_mapping(payload, self.QUOTE_ENDPOINT.name)
 
     def integrated_filings(
         self,
@@ -102,7 +114,7 @@ class NSEClient:
         to_date: str | None = None,
         page: int = 1,
         size: int = 20,
-    ) -> dict[str, Any]:
+    ) -> JSONPayload:
         params: dict[str, Any] = {
             "type": "Integrated Filing- Financials",
             "page": page,
