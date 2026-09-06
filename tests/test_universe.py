@@ -1,8 +1,9 @@
+import json
 from datetime import UTC, datetime
 
 import pytest
 
-from marketlab.universe import UniverseError, build_universe_snapshot
+from marketlab.universe import UniverseError, build_universe_snapshot, load_universe_snapshot
 
 
 def _quote(symbol: str, macro: str) -> dict:
@@ -48,6 +49,8 @@ def test_selects_top_non_financial_companies_by_ffmc():
     assert [member.symbol for member in snapshot.members] == ["AAA", "BBB", "CCC"]
     assert [member.source_rank for member in snapshot.members] == [1, 3, 4]
     assert snapshot.members[1].ffmc == 500
+    assert snapshot.contains("bbb") is True
+    assert snapshot.contains("BANK") is False
     assert len(snapshot.sha256) == 64
 
 
@@ -64,6 +67,38 @@ def test_snapshot_hash_is_deterministic():
     )
     assert one.sha256 == two.sha256
     assert one.to_dict() == two.to_dict()
+
+
+def test_frozen_snapshot_round_trip_verifies_hash(tmp_path):
+    index = {"timestamp": "x", "data": [{"symbol": "AAA", "ffmc": 100}]}
+    snapshot = build_universe_snapshot(
+        index,
+        lambda _: _quote("AAA", "Industrials"),
+        cohort_id="C",
+        selection_size=1,
+        captured_at=datetime(2026, 9, 6, 10, 0, tzinfo=UTC),
+    )
+    path = tmp_path / "universe.json"
+    path.write_text(json.dumps(snapshot.to_dict()), encoding="utf-8")
+    loaded = load_universe_snapshot(path)
+    assert loaded == snapshot
+
+
+def test_frozen_snapshot_rejects_tampering(tmp_path):
+    index = {"timestamp": "x", "data": [{"symbol": "AAA", "ffmc": 100}]}
+    snapshot = build_universe_snapshot(
+        index,
+        lambda _: _quote("AAA", "Industrials"),
+        cohort_id="C",
+        selection_size=1,
+        captured_at=datetime(2026, 9, 6, 10, 0, tzinfo=UTC),
+    )
+    document = snapshot.to_dict()
+    document["members"][0]["symbol"] = "CHANGED"
+    path = tmp_path / "tampered.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(UniverseError, match="hash mismatch"):
+        load_universe_snapshot(path)
 
 
 def test_missing_macro_is_fatal_not_silently_skipped():
