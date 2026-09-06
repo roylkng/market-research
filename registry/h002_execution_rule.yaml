@@ -1,7 +1,7 @@
 id: H002-X001
 hypothesis_id: H002
 status: FROZEN
-sha256: d4eb7dcc0691ddfbc901970c14b06a8f2d415d0e518d76585d0dd4fd604cc08b
+sha256: f9402fb38e6e985c21e0b8981e29df2b8c65050439853fa311e1d90a377c8382
 
 calendar:
   exchange_timezone: Asia/Kolkata
@@ -15,8 +15,9 @@ execution:
   position_type: long_observation_for_each_non_NO_SIGNAL_bucket
   entry_price: exact_entry_session_open
   exit_price: exact_exit_session_close
-  missing_or_nontradable_entry: SKIPPED
-  missing_exit_after_due_session: UNRESOLVED_EXIT
+  evaluation_as_of: timezone_aware_utc_timestamp
+  missing_or_nontradable_entry_after_due: SKIPPED
+  missing_exit_after_due: UNRESOLVED_EXIT
   no_ohlc_fill_inference: true
   live_orders: false
 
@@ -31,12 +32,12 @@ cost_scenarios_round_trip_bps:
   - 0
   - 25
   - 50
-
 guards:
   - signal_rule_id_must_be_H002-R001
   - NO_SIGNAL_is_SKIPPED
   - calendar_sessions_are_explicit_not_weekday_inferred
   - entry_and_exit_market_data_must_be_timestamped
+  - market_data_source_timestamp_cannot_exceed_evaluation_as_of
   - corporate_action_version_required_for_stock_prices
   - benchmark_missing_data_is_reported_not_imputed
 live_capital: false
