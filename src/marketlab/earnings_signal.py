@@ -4,6 +4,8 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
 from typing import Any, Literal
 
+from marketlab.events import FinancialEvent
+
 H002_SIGNAL_VERSION = "H002-UE-SIGN-v1"
 H002_EXPECTATION_MODEL = "seasonal_naive_same_quarter_basic_eps_v1"
 H002_FORMULA = "(actual_basic_eps - prior_year_same_quarter_basic_eps) / price_day_minus_2"
@@ -80,8 +82,55 @@ def _parse_period_end(value: str, *, field: str) -> date:
         raise EarningsSignalError(f"{field} must use YYYY-MM-DD") from exc
 
 
+def _exchange_date_to_iso(value: str, *, field: str) -> str:
+    for pattern in ("%d-%m-%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, pattern).date().isoformat()
+        except ValueError:
+            continue
+    raise EarningsSignalError(f"{field} must use DD-MM-YYYY or YYYY-MM-DD")
+
+
 def _normalized(value: str) -> str:
     return " ".join(value.strip().casefold().split())
+
+
+def eps_observation_from_event(
+    event: FinancialEvent,
+    *,
+    eps_basis_version: str | None,
+    source_published_at_utc: str | None = None,
+) -> EPSObservation:
+    """Adapt one filing event to the H002 point-in-time EPS contract.
+
+    Historical reconstruction capture time is never substituted for original
+    publication time. If exchange publication provenance is absent, the caller
+    must supply a separately source-grounded timestamp or the signal will be
+    ineligible.
+    """
+
+    if not event.reporting_period_end:
+        raise EarningsSignalError("financial event reporting_period_end is required")
+    if not event.reporting_quarter:
+        raise EarningsSignalError("financial event reporting_quarter is required")
+
+    published = source_published_at_utc or event.provenance.exchange_published_at_utc
+    if published is not None:
+        _parse_utc(published, field="source_published_at_utc")
+
+    return EPSObservation(
+        symbol=event.symbol,
+        reporting_period_end=_exchange_date_to_iso(
+            event.reporting_period_end, field="financial_event.reporting_period_end"
+        ),
+        reporting_quarter=event.reporting_quarter,
+        accounting_basis=event.accounting_basis,
+        basic_eps=event.basic_eps,
+        source_event_id=event.economic_event_id,
+        source_version_id=event.version_id,
+        source_published_at_utc=published,
+        eps_basis_version=eps_basis_version,
+    )
 
 
 def _validate_identity(actual: EPSObservation, expected: EPSObservation) -> None:
