@@ -47,14 +47,24 @@ market-research/
 ├── src/marketlab/        # evaluation and validation code
 ├── tests/                # invariants and metric tests
 ├── reports/              # published research reports
-├── data/                 # local/raw policy and future fixtures
+├── data/                 # data policy and small published fixtures
 └── artifacts/            # artifact manifests and hashes
 ```
 
 ## Setup
 
+Python 3.11+ is required. On Linux, `python3` is the safest bootstrap command because many systems do not install an unversioned `python` executable.
+
 ```bash
-python -m venv .venv
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+```
+
+If your system exposes only a versioned interpreter, for example `python3.12`, use that in the first command:
+
+```bash
+python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e '.[dev]'
 ```
@@ -67,21 +77,25 @@ Validate the research ledger:
 marketlab validate-registry registry/hypotheses.yaml
 ```
 
-Evaluate a continuous signal from a CSV:
+The repository ships a small **feasibility-only** fixture so the evaluator commands are runnable immediately. It reproduces the 24 exact-return observations from the published H002 pilot. It is not production-grade point-in-time data.
+
+Evaluate the continuous unexpected-earnings signal:
 
 ```bash
-marketlab evaluate-signal data.csv \
+marketlab evaluate-signal data/fixtures/h002_feasibility.csv \
   --signal-col ue \
   --excess-col excess_vs_nifty
 ```
 
-Evaluate a pre-defined binary split and winner dependence:
+Evaluate positive versus negative UE and winner dependence:
 
 ```bash
-marketlab evaluate-binary data.csv \
+marketlab evaluate-binary data/fixtures/h002_feasibility.csv \
   --group-col ue_sign \
   --excess-col excess_vs_nifty
 ```
+
+For your own experiment data, replace the fixture path and column names with the fields in your CSV.
 
 Run repository checks:
 
