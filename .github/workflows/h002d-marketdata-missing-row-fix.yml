@@ -1,0 +1,46 @@
+name: H002-D marketdata missing-row fix
+
+on:
+  push:
+    branches:
+      - feat/h002-prospective-orchestrator-v1
+    paths:
+      - .github/workflows/h002d-marketdata-missing-row-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h002-prospective-orchestrator-v1
+      - name: Add typed missing-row semantics
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/marketlab/marketdata.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              'class MarketDataError(ValueError):\n    """Raised when exact market-data files cannot be interpreted without guessing."""\n\n\n',
+              'class MarketDataError(ValueError):\n    """Raised when exact market-data files cannot be interpreted without guessing."""\n\n\nclass MarketDataMissingRow(MarketDataError):\n    """Raised when a valid official archive lacks the requested instrument row."""\n\n\n',
+          )
+          old = '''    if len(matches) != 1:\n        raise MarketDataError(\n            f"expected exactly one UDiFF row for {wanted_symbol}/{wanted_series} on {day}; "\n            f"found {len(matches)}"\n        )\n'''
+          new = '''    if not matches:\n        raise MarketDataMissingRow(\n            f"UDiFF has no row for {wanted_symbol}/{wanted_series} on {day}"\n        )\n    if len(matches) != 1:\n        raise MarketDataError(\n            f"expected exactly one UDiFF row for {wanted_symbol}/{wanted_series} on {day}; "\n            f"found {len(matches)}"\n        )\n'''
+          if old not in text:
+              raise SystemExit('UDiFF match block not found')
+          text = text.replace(old, new)
+          old = '''    if len(matches) != 1:\n        raise MarketDataError(\n            f"expected exactly one index row for {benchmark_id} on {session_date}; "\n            f"found {len(matches)}"\n        )\n'''
+          new = '''    if not matches:\n        raise MarketDataMissingRow(\n            f"index snapshot has no row for {benchmark_id} on {session_date}"\n        )\n    if len(matches) != 1:\n        raise MarketDataError(\n            f"expected exactly one index row for {benchmark_id} on {session_date}; "\n            f"found {len(matches)}"\n        )\n'''
+          if old not in text:
+              raise SystemExit('index match block not found')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h002d-marketdata-missing-row-fix.yml
+          git add src/marketlab/marketdata.py
+          git commit -m "Type valid-archive missing market rows"
+          git push origin HEAD:feat/h002-prospective-orchestrator-v1
