@@ -28,7 +28,7 @@ class Universe:
     cohort_id = "FY27-Q2-TEST"
     sha256 = UNIVERSE_HASH
     captured_at_utc = "2026-09-06T06:00:00Z"
-    members = [Member("TESTCO"), Member("OTHER")]
+    members = (Member("TESTCO"), Member("OTHER"))
 
     def contains(self, symbol: str) -> bool:
         return symbol.upper() in {member.symbol for member in self.members}
