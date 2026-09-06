@@ -1,0 +1,49 @@
+name: H002-D pre-window smoke
+
+on:
+  push:
+    branches:
+      - feat/h002-prospective-orchestrator-v1
+    paths:
+      - .github/workflows/h002d-prewindow-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h002-prospective-orchestrator-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+      - name: Run exact production inputs before activation
+        run: |
+          python scripts/run_h002_prospective.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --bundle research/prospective/preparation/FY27-Q2-2026-09-06/expectation-bundle.json \
+            --anchor-metadata research/prospective/preparation/FY27-Q2-2026-09-06/run-metadata.json \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --store /tmp/h002d-store \
+            --report-out /tmp/h002d-report.json \
+            --summary-out /tmp/h002d-summary.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(Path('/tmp/h002d-summary.json').read_text())
+          report = json.loads(Path('/tmp/h002d-report.json').read_text())
+          assert summary['member_count'] == 100
+          assert summary['discovery_enabled'] is False
+          assert summary['results'] == []
+          assert report['observation_count'] == 0
+          assert report['completed_count'] == 0
+          assert report['paper_only'] is True
+          assert report['live_capital_allowed'] is False
+          print(json.dumps({'summary': summary, 'report': report}, indent=2, sort_keys=True))
+          PY
