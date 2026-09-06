@@ -39,7 +39,9 @@ hypotheses:
       gradually, producing post-earnings-announcement drift.
     universe:
       market: India
-      type: liquid_non_financial_equities
+      type: frozen_rule
+      rule_id: U001
+      prospective_only: true
     signal:
       formula: (eps_t - eps_t_minus_4) / price_day_minus_2
       literature_style: true
