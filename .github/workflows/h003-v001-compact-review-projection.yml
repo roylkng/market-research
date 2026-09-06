@@ -1,0 +1,99 @@
+name: H003-V001 compact semantic review projection
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-20260907
+    paths:
+      - .github/workflows/h003-v001-compact-review-projection.yml
+
+permissions:
+  contents: write
+
+jobs:
+  compact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Project frozen chunks without changing reviewer-visible information
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001')
+          chunks = root / 'chunks'
+          out = root / 'compact'
+          out.mkdir(parents=True, exist_ok=True)
+          manifest = json.loads((chunks / 'manifest.json').read_text(encoding='utf-8'))
+
+          def h(value):
+              raw = json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+              return hashlib.sha256(raw).hexdigest()
+
+          source_unsigned = dict(manifest)
+          declared_manifest_hash = source_unsigned.pop('manifest_sha256')
+          if h(source_unsigned) != declared_manifest_hash:
+              raise SystemExit('source chunk manifest hash mismatch')
+
+          entries = []
+          total = 0
+          for source_entry in manifest['chunks']:
+              source_file = chunks / source_entry['file']
+              docs = json.loads(source_file.read_text(encoding='utf-8'))
+              if h(docs) != source_entry['chunk_sha256']:
+                  raise SystemExit(f"source chunk hash mismatch: {source_file}")
+              compact = []
+              for item in docs:
+                  compact.append({
+                      'candidate_id': item['candidate_id'],
+                      'payload_sha256': item['payload_sha256'],
+                      'excerpt': item['redacted_excerpt'],
+                      'context': item['redacted_page_context'],
+                      'future_markers': item['future_markers'],
+                      'deadline_markers': item['deadline_markers'],
+                      'quantitative_tokens': item['quantitative_tokens'],
+                      'domain_markers': item['domain_markers'],
+                  })
+              target = out / source_entry['file']
+              target.write_text(json.dumps(compact, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+              entries.append({
+                  'file': source_entry['file'],
+                  'candidate_count': len(compact),
+                  'source_chunk_sha256': source_entry['chunk_sha256'],
+                  'compact_sha256': h(compact),
+                  'first_candidate_id': compact[0]['candidate_id'] if compact else None,
+                  'last_candidate_id': compact[-1]['candidate_id'] if compact else None,
+              })
+              total += len(compact)
+          if total != manifest['candidate_count']:
+              raise SystemExit(f'compact count mismatch: {total} != {manifest["candidate_count"]}')
+          expected = {entry['file'] for entry in entries}
+          for stale in out.glob('chunk-*.json'):
+              if stale.name not in expected:
+                  stale.unlink()
+          unsigned = {
+              'schema_version': 1,
+              'source_manifest_sha256': declared_manifest_hash,
+              'candidate_count': total,
+              'chunk_count': len(entries),
+              'chunks': entries,
+          }
+          projected = {**unsigned, 'manifest_sha256': h(unsigned)}
+          (out / 'manifest.json').write_text(json.dumps(projected, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(projected, indent=2, sort_keys=True))
+          PY
+      - name: Anchor compact review projection
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-compact-review-projection.yml
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001/compact
+          git commit -m "Anchor compact H003-V001 semantic review projection"
+          git push origin HEAD:run/h003-v001-blind-review-20260907
