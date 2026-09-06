@@ -67,7 +67,7 @@ class H002Signal:
 
 def _parse_utc(value: str, *, field: str) -> datetime:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise EarningsSignalError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
@@ -83,11 +83,18 @@ def _parse_period_end(value: str, *, field: str) -> date:
 
 
 def _exchange_date_to_iso(value: str, *, field: str) -> str:
-    for pattern in ("%d-%m-%Y", "%Y-%m-%d"):
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError:
+        pass
+
+    parts = value.split("-")
+    if len(parts) == 3:
         try:
-            return datetime.strptime(value, pattern).date().isoformat()
+            day, month, year = (int(part) for part in parts)
+            return date(year, month, day).isoformat()
         except ValueError:
-            continue
+            pass
     raise EarningsSignalError(f"{field} must use DD-MM-YYYY or YYYY-MM-DD")
 
 
