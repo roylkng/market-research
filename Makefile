@@ -9,7 +9,7 @@ test:
 	pytest -q
 
 lint:
-	ruff check src tests
+	ruff check src tests scripts
 
 validate:
 	marketlab validate-registry registry/hypotheses.yaml
