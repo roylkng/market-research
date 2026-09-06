@@ -1,0 +1,34 @@
+name: H003-A resumable extraction test once
+
+on:
+  push:
+    branches:
+      - feat/h003-claim-candidates-v1
+    paths:
+      - .github/workflows/h003a-resume-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h003-claim-candidates-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests scripts/build_h003_candidates.py
+      - run: pytest -q
+      - run: make validate
+      - name: Commit lint-clean checkpoint tests and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003a-resume-test.yml
+          git add scripts/build_h003_candidates.py tests/test_h003_candidate_checkpoints.py docs/h003-claim-candidates-v1.md
+          git commit -m "Harden resumable H003 full-corpus extraction"
+          git push origin HEAD:feat/h003-claim-candidates-v1
