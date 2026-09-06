@@ -156,3 +156,44 @@ def test_partial_report_cannot_be_frozen(tmp_path):
 
 def test_parser_version_is_exactly_pinned():
     assert pypdf.__version__ == "6.17.0"
+
+
+def test_future_marker_in_neighbor_line_does_not_promote_current_fact():
+    pages = (
+        ExtractedPage(
+            page_number=1,
+            lines=(
+                "ARPU for the quarter came in at Rs. 195.1.",
+                "We expect this to taper down as well.",
+            ),
+        ),
+    )
+    assert generate_candidates(_source(), raw_sha256="d" * 64, pages=pages) == ()
+
+
+def test_generic_future_without_commitment_domain_is_not_candidate():
+    pages = (
+        ExtractedPage(
+            page_number=1,
+            lines=("We expect this to improve over the next two quarters.",),
+        ),
+    )
+    assert generate_candidates(_source(), raw_sha256="e" * 64, pages=pages) == ()
+
+
+def test_one_anchor_line_yields_one_candidate_not_overlapping_duplicates():
+    pages = (
+        ExtractedPage(
+            page_number=1,
+            lines=(
+                "We expect revenue growth of 15% next year.",
+                "Current revenue grew 8% this quarter.",
+                "Historic margin was 12%.",
+            ),
+        ),
+    )
+    candidates = generate_candidates(_source(), raw_sha256="f" * 64, pages=pages)
+    assert len(candidates) == 1
+    assert candidates[0].line_start == 1
+    assert candidates[0].line_end == 2
+    assert "revenue" in candidates[0].domain_markers

@@ -17,8 +17,8 @@ import yaml
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
-EXTRACTION_RULE_ID = "H003-E001"
-EXTRACTION_RULE_SHA256 = "db954a0737bf9b049130c899104008479e677460a21c98b6a54855188180def8"
+EXTRACTION_RULE_ID = "H003-E002"
+EXTRACTION_RULE_SHA256 = "5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2"
 SOURCE_RULE_ID = "H003-C001"
 SOURCE_RULE_SHA256 = "a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e"
 SOURCE_BUNDLE_SHA256 = "583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee"
@@ -26,7 +26,7 @@ COHORT_ID = "FY27-Q2-2026-09-06"
 DECISION_TIMESTAMP_UTC = "2026-09-06T12:21:06.431463Z"
 PARSER_VERSION = "h003_pdf_text_v1"
 PARSER_LIBRARY_VERSION = "6.17.0"
-CANDIDATE_VERSION = "h003_future_commitment_candidate_v1"
+CANDIDATE_VERSION = "h003_future_commitment_candidate_v2"
 EXPECTED_MEMBER_COUNT = 100
 EXPECTED_SOURCE_COUNT = 794
 ALLOWED_ATTACHMENT_HOSTS = frozenset(
@@ -42,16 +42,12 @@ FUTURE_MARKERS = (
     "we plan",
     "we intend",
     "we anticipate",
-    "we should",
     "we are targeting",
     "we are aiming",
     "we are planning",
-    "guidance",
-    "targeting",
-    "aiming for",
-    "plan to",
-    "expect to",
-    "expected to",
+    "our guidance",
+    "our plan",
+    "our expectation",
 )
 DEADLINE_MARKERS = (
     "by fy",
@@ -78,6 +74,57 @@ DEADLINE_MARKERS = (
     "q4",
     "h1",
     "h2",
+)
+COMMITMENT_DOMAIN_MARKERS = (
+    "revenue",
+    "sales",
+    "growth",
+    "margin",
+    "ebitda",
+    "ebit",
+    "profit",
+    "pat",
+    "cash flow",
+    "free cash flow",
+    "capex",
+    "capital expenditure",
+    "debt",
+    "leverage",
+    "roce",
+    "roe",
+    "return on capital",
+    "volume",
+    "production",
+    "capacity",
+    "utilisation",
+    "utilization",
+    "commission",
+    "commissioning",
+    "launch",
+    "order book",
+    "orders",
+    "conversion",
+    "market share",
+    "stores",
+    "outlets",
+    "plants",
+    "customers",
+    "subscribers",
+    "homes",
+    "arpu",
+    "realisation",
+    "realization",
+    "cost",
+    "savings",
+    "exports",
+    "shipments",
+    "deliveries",
+    "network",
+    "mw",
+    "gw",
+    "mt",
+    "tonnes",
+    "tons",
 )
 EXCLUDE_MARKERS = (
     "safe harbor",
@@ -151,8 +198,12 @@ def validate_extraction_rule_document(document: dict[str, Any]) -> str:
         raise H003CandidateError(
             f"H003 extraction rule hash mismatch: declared={declared}, recomputed={actual}"
         )
+    if document.get("schema_version") != 2:
+        raise H003CandidateError("H003 extraction rule schema changed")
     if document.get("id") != EXTRACTION_RULE_ID:
         raise H003CandidateError("unexpected H003 extraction rule id")
+    if document.get("supersedes") != "H003-E001":
+        raise H003CandidateError("H003 E002 must supersede the audited E001 pilot")
     if document.get("status") != "FROZEN":
         raise H003CandidateError("H003 extraction rule must remain FROZEN")
     if document.get("source_rule_id") != SOURCE_RULE_ID:
@@ -181,15 +232,18 @@ def validate_extraction_rule_document(document: dict[str, Any]) -> str:
         raise H003CandidateError("H003 candidate rule is required")
     expected_candidate = {
         "version": CANDIDATE_VERSION,
-        "context_radius_lines": 1,
+        "anchor_future_markers": list(FUTURE_MARKERS),
+        "forward_context_lines": 1,
         "min_excerpt_chars": 20,
-        "max_excerpt_chars": 800,
-        "require_future_marker": True,
+        "max_excerpt_chars": 600,
+        "require_future_marker_on_anchor_line": True,
         "require_quantitative_or_deadline_marker": True,
-        "future_markers": list(FUTURE_MARKERS),
+        "require_commitment_domain_marker": True,
         "deadline_markers": list(DEADLINE_MARKERS),
+        "commitment_domain_markers": list(COMMITMENT_DOMAIN_MARKERS),
         "exclude_markers": list(EXCLUDE_MARKERS),
         "quantitative_regex": QUANTITATIVE_REGEX,
+        "dedupe_key": "source_id,page_number,normalized_excerpt",
     }
     if candidate != expected_candidate:
         raise H003CandidateError("H003 candidate extraction semantics changed")
@@ -360,6 +414,7 @@ class ClaimCandidate:
     future_markers: tuple[str, ...]
     deadline_markers: tuple[str, ...]
     quantitative_tokens: tuple[str, ...]
+    domain_markers: tuple[str, ...]
     disposition: ReviewDisposition
     disposition_reason: str | None
 
@@ -368,6 +423,7 @@ class ClaimCandidate:
         payload["future_markers"] = list(self.future_markers)
         payload["deadline_markers"] = list(self.deadline_markers)
         payload["quantitative_tokens"] = list(self.quantitative_tokens)
+        payload["domain_markers"] = list(self.domain_markers)
         return payload
 
 
@@ -479,7 +535,9 @@ def extract_pdf_pages(raw_pdf: bytes) -> tuple[tuple[ExtractedPage, ...], str]:
     except (PdfReadError, OSError, ValueError) as exc:
         raise H003CandidateError(f"could not parse transcript PDF: {exc}") from exc
     if reader.is_encrypted:
-        raise H003CandidateError("encrypted transcript PDF is not allowed by H003-E001")
+        raise H003CandidateError(
+            f"encrypted transcript PDF is not allowed by {EXTRACTION_RULE_ID}"
+        )
     pages: list[ExtractedPage] = []
     for index, page in enumerate(reader.pages, start=1):
         try:
@@ -531,19 +589,25 @@ def generate_candidates(
     seen: set[tuple[int, str]] = set()
     for page in pages:
         lines = list(page.lines)
-        for index, _line in enumerate(lines):
-            start = max(0, index - 1)
+        for index, line in enumerate(lines):
+            anchor = line.casefold()
+            future_hits = tuple(marker for marker in FUTURE_MARKERS if marker in anchor)
+            if not future_hits:
+                continue
+            start = index
             end = min(len(lines), index + 2)
             excerpt = " ".join(lines[start:end])
             if len(excerpt) < 20:
                 continue
-            if len(excerpt) > 800:
-                excerpt = excerpt[:800].rstrip()
+            if len(excerpt) > 600:
+                excerpt = excerpt[:600].rstrip()
             lowered = excerpt.casefold()
             if any(marker in lowered for marker in EXCLUDE_MARKERS):
                 continue
-            future_hits = tuple(marker for marker in FUTURE_MARKERS if marker in lowered)
-            if not future_hits:
+            domain_hits = tuple(
+                marker for marker in COMMITMENT_DOMAIN_MARKERS if marker in lowered
+            )
+            if not domain_hits:
                 continue
             deadline_hits = tuple(marker for marker in DEADLINE_MARKERS if marker in lowered)
             quantitative_tokens = tuple(
@@ -569,7 +633,7 @@ def generate_candidates(
             )
             results.append(
                 ClaimCandidate(
-                    schema_version=1,
+                    schema_version=2,
                     candidate_id=_canonical_hash(identity),
                     rule_id=EXTRACTION_RULE_ID,
                     rule_sha256=EXTRACTION_RULE_SHA256,
@@ -587,6 +651,7 @@ def generate_candidates(
                     future_markers=future_hits,
                     deadline_markers=deadline_hits,
                     quantitative_tokens=quantitative_tokens,
+                    domain_markers=domain_hits,
                     disposition="UNREVIEWED",
                     disposition_reason=None,
                 )
