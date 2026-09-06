@@ -33,7 +33,7 @@ hypotheses:
   - id: H002
     name: positive_unexpected_earnings_pead
     created: 2026-09-06
-    status: INCONCLUSIVE
+    status: FROZEN
     mechanism: >-
       Positive unexpected earnings may be incorporated into Indian equity prices
       gradually, producing post-earnings-announcement drift.
@@ -43,14 +43,33 @@ hypotheses:
       rule_id: U001
       prospective_only: true
     signal:
+      version: H002-UE-v1
+      rule_file: registry/signals/H002-UE-v1.json
+      rule_sha256: 24eb8325216e68db8e3f14db440a0f470f9f576a3d1aea034b570812c70686ff
       formula: (eps_t - eps_t_minus_4) / price_day_minus_2
+      actual_eps_field: basic_eps
+      expected_eps_model: seasonal_naive_v1
+      expected_eps_formula: eps_t_minus_4
+      bucket_rule: sign
+      winsorization: none
+      missing_policy: NO_SIGNAL
       literature_style: true
     decision:
       entry_delay_sessions: 2
       holding_period_sessions: 20
     benchmarks:
       - nifty_50
+      - sector_matched
       - nifty_200_momentum_30
+    guardrails:
+      - prior_eps_source_must_predate_current_filing
+      - same_reporting_quarter_required
+      - same_accounting_basis_required
+      - corporate_action_comparability_must_be_versioned
+      - missing_required_input_returns_no_signal
+      - analyst_consensus_is_not_part_of_h002_ue_v1
+      - no_momentum_valuation_guidance_or_llm_overlay
+      - no_post_result_price_in_signal_denominator
     feasibility_result:
       exact_return_observations: 24
       positive_ue_observations: 16
@@ -65,10 +84,11 @@ hypotheses:
       ranked_ue_top_quintile_excess_pp: -2.58
       ranked_ue_bottom_quintile_excess_pp: -1.80
     conclusion: >-
-      Ranked UE magnitude did not replicate in this small feasibility pilot.
-      UE sign moved in the economically expected direction, but uncertainty and
-      winner dependence are too large for a tradable conclusion.
-    next_action: prospective_paper_test
+      Ranked UE magnitude did not replicate in the small feasibility pilot. UE sign
+      moved in the economically expected direction, but uncertainty and winner
+      dependence remain too large for a tradable conclusion. H002-UE-v1 is now
+      frozen for prospective evaluation without changing the historical rule.
+    next_action: deterministic_paper_execution_then_prospective_cohort
     live_capital: false
 
   - id: H003
