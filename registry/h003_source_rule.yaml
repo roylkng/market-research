@@ -1,0 +1,65 @@
+id: H003-C001
+hypothesis_id: H003
+status: FROZEN
+live_capital: false
+cohort_id: FY27-Q2-2026-09-06
+decision_date: '2026-09-06'
+decision_timestamp_utc: '2026-09-06T12:21:06.431463Z'
+source_window:
+  from_date: '2024-09-01'
+  to_date: '2026-09-06'
+  to_timestamp_utc: '2026-09-06T12:21:06.431463Z'
+  basis: announcement_exchange_publication_timestamp
+discovery:
+  source: NSE_CORPORATE_ANNOUNCEMENTS
+  endpoint: https://www.nseindia.com/api/corporate-announcements
+  index: equities
+  symbol_scoped: true
+  exact_discovery_bytes_sha256_required: true
+document_policy:
+  included_source_type: MANAGEMENT_CALL_TRANSCRIPT
+  attachment_required: true
+  attachment_scheme: https
+  allowed_attachment_hosts:
+    - nsearchives.nseindia.com
+    - archives.nseindia.com
+  text_must_contain:
+    - transcript
+  include_if_announcement_category:
+    - Analysts/Institutional Investor Meet/Con. Call Updates
+  include_if_text_contains_any:
+    - earnings call
+    - earningscall
+    - financial results
+    - quarter ended
+    - quarter and year ended
+    - analyst meet
+    - conference call
+    - con. call
+  text_excludes:
+    - annual general meeting
+    - agm transcript
+    - investor day
+    - ai day
+    - investor presentation
+    - schedule of meet
+    - one-on-one
+  investor_presentations_excluded: true
+  one_on_one_meeting_notices_excluded: true
+coverage:
+  all_matching_announcements_must_be_indexed: true
+  discovery_failure: INCOMPLETE
+  ambiguous_duplicate_attachment: INCOMPLETE
+  zero_matching_transcripts: COMPLETE_ZERO_SOURCE
+  score_requires_coverage_status: COMPLETE
+  minimum_resolved_claims: 3
+claim_review:
+  all_generated_candidates_must_receive_disposition: true
+  allowed_dispositions:
+    - ACCEPTED
+    - REJECTED
+  accepted_claim_requires_future_commitment: true
+  accepted_claim_requires_measurable_metric_or_explicit_deadline: true
+  post_decision_returns_forbidden: true
+  no_claim_type_weights: true
+sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
