@@ -1,4 +1,4 @@
-name: H003 full frozen source coverage scan
+name: H003 decisive exact-cutoff source scan
 
 on:
   push:
@@ -32,7 +32,12 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - run: make validate
+      - name: Validate code and frozen contracts before acquisition
+        run: |
+          ruff check src tests
+          ruff check scripts/scan_h003_sources.py
+          pytest -q
+          make validate
       - name: Scan all 100 frozen U001 members
         run: |
           mkdir -p "$OUT_DIR" "$DEST_DIR"
@@ -73,10 +78,11 @@ jobs:
           destination = Path(os.environ['DEST_DIR'])
           (destination / 'source-coverage-v1.json').write_text(out.read_text(encoding='utf-8'), encoding='utf-8')
           metadata = {
-              'schema_version': 1,
+              'schema_version': 2,
               'rule_id': bundle['rule_id'],
               'rule_sha256': bundle['rule_sha256'],
               'cohort_id': bundle['cohort_id'],
+              'decision_timestamp_utc': '2026-09-06T12:21:06.431463Z',
               'source_commit_sha': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
@@ -95,7 +101,7 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add "$DEST_DIR"
-          git commit -m "Anchor complete U001 H003 transcript source coverage v1"
+          git commit -m "Anchor exact-cutoff U001 H003 transcript source coverage v1"
           git push origin HEAD:feat/h003-source-corpus-v1
       - name: Preserve exact discovery bytes
         if: always()
