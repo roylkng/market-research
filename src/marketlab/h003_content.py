@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import io
 import json
-import os
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
