@@ -1,0 +1,36 @@
+name: Script lint cleanup once
+
+on:
+  push:
+    branches:
+      - chore/lint-executable-scripts
+    paths:
+      - .github/workflows/script-lint-fix-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chore/lint-executable-scripts
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Apply Ruff fixes and executable modes
+        run: |
+          ruff check scripts --fix --unsafe-fixes
+          chmod +x scripts/freeze_h002_calendar.py scripts/run_h002_prospective.py
+          ruff check src tests scripts
+      - name: Commit cleanup and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/script-lint-fix-once.yml
+          git add scripts
+          git commit -m "Fix executable research script lint defects"
+          git push origin HEAD:chore/lint-executable-scripts
