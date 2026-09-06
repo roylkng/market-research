@@ -1,0 +1,97 @@
+version: 1
+mode: HISTORICAL_RECONSTRUCTION
+
+claims:
+  - claim_id: CCL-FY25-VOLUME-20241106
+    symbol: CCL
+    source_date: '2024-11-06'
+    source_url: https://www.cclproducts.com/wp-content/uploads/2024/11/Q2-Earnings-Call-Transcript-2024-25.pdf
+    source_type: EARNINGS_CALL_TRANSCRIPT
+    source_locator: Q2 FY25 transcript, p.3, Q&A with Jenish Karia
+    claim_type: VOLUME_GUIDANCE
+    metric: fy25_volume_growth_pct
+    unit: percent
+    target_min: 10.0
+    target_max: 20.0
+    target_deadline: '2025-03-31'
+    target_horizon: FY25 full year
+    normalized_claim: Management maintained FY25 full-year volume growth guidance of 10% to 20%.
+    status: CLOSED
+    supersedes_claim_id: null
+    claim_hash: 6681919f1d5c2f32c52a810e0d379494f936789b4eb644f66e11752fb5ecf6fc
+
+  - claim_id: SHAILY-PEN-CAPACITY-20250811
+    symbol: SHAILY
+    source_date: '2025-08-11'
+    source_url: https://static.shaily.com/iCbuWN4RSVShshhOJqvW-shaily-engineering-q-1-f-y-26-c-all-transcript-pdf
+    source_type: EARNINGS_CALL_TRANSCRIPT
+    source_locator: Q1 FY26 transcript, pp.4 and 16, pen-capacity Q&A
+    claim_type: CAPACITY_COMMISSIONING
+    metric: effective_pen_capacity_million_units_per_year
+    unit: million_pens_per_year
+    target_min: 70.0
+    target_max: 75.0
+    target_deadline: '2026-06-30'
+    target_horizon: by the end of Q1 FY27
+    normalized_claim: Two planned 25 million-pen expansions were expected to lift effective pen capacity to roughly 70-75 million units per year, with the second expansion coming on stream by Q1 FY27.
+    status: CLOSED
+    supersedes_claim_id: null
+    claim_hash: 413c7d49a361eb4c2c4d50ce50264562989b73df318760be10ea0d1187d9a0fa
+
+  - claim_id: NETWEB-AI-MIX-20250131
+    symbol: NETWEB
+    source_date: '2025-01-31'
+    source_url: https://www.netwebindia.com/investors/Transcript_31012025.pdf
+    source_type: EARNINGS_CALL_TRANSCRIPT
+    source_locator: Q3 FY25 earnings call transcript, business-mix discussion
+    claim_type: BUSINESS_MIX_GUIDANCE
+    metric: ai_systems_share_of_operating_revenue_pct
+    unit: percent
+    target_min: 20.0
+    target_max: null
+    target_deadline: '2027-01-31'
+    target_horizon: within one to two years
+    normalized_claim: Management expected AI systems, then around 14-15% of business, to reach roughly 20% within one to two years.
+    status: CLOSED
+    supersedes_claim_id: null
+    claim_hash: 9d3c631f7b08e2418d18e5559f6939722d8f3926d8e2a2b3223c626bcf7869c2
+
+outcomes:
+  - outcome_id: CCL-FY25-VOLUME-20250506
+    claim_id: CCL-FY25-VOLUME-20241106
+    observed_date: '2025-05-06'
+    source_url: https://www.cclproducts.com/wp-content/uploads/2025/05/Q4.pdf
+    source_type: EARNINGS_CALL_TRANSCRIPT
+    source_locator: Q4 FY25 transcript, p.11, response to Kashyap Javeri
+    status: MET
+    observed_value: 10.0
+    observed_unit: percent
+    observed_is_approximate: true
+    normalized_observation: Management described full-year volume growth as roughly 10%, placing the realized outcome around the lower bound of the prior 10-20% guidance.
+    outcome_hash: 86fca2420afb54ac7a978a2338c02ccaa05f9f7f4a75ddb7923ca46e5b07d803
+
+  - outcome_id: SHAILY-PEN-CAPACITY-20260810
+    claim_id: SHAILY-PEN-CAPACITY-20250811
+    observed_date: '2026-08-10'
+    source_url: https://static.shaily.com/cmUVF3BhT3mFfVZJC9K8-sepl-q-1-f-y-27-e-arnings-conference-call-transcript-final-pdf
+    source_type: EARNINGS_CALL_TRANSCRIPT
+    source_locator: Q1 FY27 transcript, p.3, opening remarks on pen capacity
+    status: LATE
+    observed_value: null
+    observed_unit: null
+    observed_is_approximate: false
+    normalized_observation: After Q1 FY27 had ended, management said the additional 25 million-pen line was still expected to become operational by end-September 2026, after which installed capacity would be about 75 million pens per year.
+    outcome_hash: 1ee3384c6d33432746e0a481cb53dd5bf337f61851b1eb647a915b5e2288c7d2
+
+  - outcome_id: NETWEB-AI-MIX-20250731
+    claim_id: NETWEB-AI-MIX-20250131
+    observed_date: '2025-07-31'
+    source_url: https://www.netwebindia.com/investors/board-meeting/2025-26/Earning_Presentation_Q1.pdf
+    source_type: EARNINGS_PRESENTATION
+    source_locator: Q1 FY26 investor presentation, management commentary / revenue-breakup pages
+    status: MET
+    observed_value: 29.0
+    observed_unit: percent
+    observed_is_approximate: false
+    normalized_observation: AI systems contributed 29% of Q1 FY26 operating revenue, exceeding the roughly 20% mix management had expected within one to two years.
+    outcome_hash: 41be22300e0295214a52d9787add38f67659b66fdf14b91ad28dec5468f34f1a
