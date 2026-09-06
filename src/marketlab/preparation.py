@@ -5,6 +5,7 @@ import json
 import math
 import os
 import re
+import time
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
@@ -42,7 +43,7 @@ ReasonCode = Literal[
 
 
 class PreparationError(ValueError):
-    """Raised when a cohort preparation artifact cannot be produced deterministically."""
+    """Raised when cohort preparation cannot proceed without guessing."""
 
 
 @dataclass(frozen=True)
@@ -139,7 +140,7 @@ class FrozenExpectationBundle:
 
 def _canonical_hash(payload: Any) -> str:
     try:
-        raw = json.dumps(
+        encoded = json.dumps(
             payload,
             sort_keys=True,
             separators=(",", ":"),
@@ -148,7 +149,7 @@ def _canonical_hash(payload: Any) -> str:
         ).encode("utf-8")
     except (TypeError, ValueError) as exc:
         raise PreparationError("preparation payload must contain finite JSON values") from exc
-    return hashlib.sha256(raw).hexdigest()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _parse_date(value: Any, *, field: str) -> date:
@@ -157,7 +158,8 @@ def _parse_date(value: Any, *, field: str) -> date:
     text = value.strip()
     for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%m-%Y"):
         try:
-            return datetime.strptime(text, fmt).date()
+            parsed = time.strptime(text, fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     raise PreparationError(f"unsupported {field}: {value}")
@@ -181,7 +183,7 @@ def _parse_exchange_timestamp(value: Any) -> datetime:
         "%d-%m-%Y",
     ):
         try:
-            parsed = datetime.strptime(text, fmt).replace(tzinfo=IST)
+            parsed = datetime.strptime(f"{text} +0530", f"{fmt} %z")
             return parsed.astimezone(UTC)
         except ValueError:
             continue
@@ -231,21 +233,18 @@ def select_baseline_candidate(
             available = _parse_exchange_timestamp(row.get("broadcast_Date"))
         except PreparationError:
             continue
-        if period != wanted_period:
-            continue
         source_url = str(row.get("xbrl") or "").strip()
-        if not source_url:
-            continue
-        matches.append((available, row))
+        if period == wanted_period and source_url:
+            matches.append((available, row))
     if not matches:
         raise PreparationError("NO_BASELINE_FILING")
     matches.sort(key=lambda item: (item[0], str(item[1].get("xbrl") or "")))
     latest_time = matches[-1][0]
-    latest = [row for timestamp, row in matches if timestamp == latest_time]
-    unique_urls = {str(row.get("xbrl") or "").strip() for row in latest}
+    latest_rows = [row for timestamp, row in matches if timestamp == latest_time]
+    unique_urls = {str(row.get("xbrl") or "").strip() for row in latest_rows}
     if len(unique_urls) != 1:
         raise PreparationError("AMBIGUOUS_BASELINE_FILING")
-    row = latest[-1]
+    row = latest_rows[-1]
     return FilingCandidate(
         symbol=wanted_symbol,
         company_name=str(row.get("cmName") or "").strip(),
@@ -261,9 +260,9 @@ def select_baseline_candidate(
 def _action_rows(payload: Any) -> list[dict[str, Any]]:
     if isinstance(payload, list):
         return [row for row in payload if isinstance(row, dict)]
-    rows = payload.get("data") if isinstance(payload, dict) else None
-    if rows is None and isinstance(payload, dict):
-        rows = payload.get("records")
+    if not isinstance(payload, dict):
+        return []
+    rows = payload.get("data") or payload.get("records")
     if not isinstance(rows, list):
         return []
     return [row for row in rows if isinstance(row, dict)]
@@ -271,7 +270,7 @@ def _action_rows(payload: Any) -> list[dict[str, Any]]:
 
 def _parse_ratio(subject: str) -> tuple[float, float] | None:
     match = re.search(r"(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)", subject)
-    if not match:
+    if match is None:
         return None
     return float(match.group(1)), float(match.group(2))
 
@@ -282,7 +281,7 @@ def _parse_face_change(subject: str) -> tuple[float, float] | None:
         subject,
         flags=re.IGNORECASE,
     )
-    if not match:
+    if match is None:
         return None
     return float(match.group(1)), float(match.group(2))
 
@@ -297,7 +296,7 @@ def analyze_eps_basis_actions(
 ) -> CorporateActionAnalysis:
     start = _parse_date(baseline_period_end, field="baseline_period_end")
     try:
-        as_of = datetime.fromisoformat(as_of_utc.replace("Z", "+00:00"))
+        as_of = datetime.fromisoformat(as_of_utc)
     except ValueError as exc:
         raise PreparationError(f"invalid as_of_utc: {as_of_utc}") from exc
     if as_of.tzinfo is None:
@@ -306,22 +305,19 @@ def analyze_eps_basis_actions(
     factor = 1.0
     relevant: list[dict[str, str]] = []
     unresolved: list[str] = []
+    share_tokens = ("bonus", "split", "sub-division", "subdivision", "consolidation", "rights")
+
     for row in _action_rows(payload):
         if str(row.get("symbol") or "").strip().upper() != symbol.upper():
             continue
         subject = str(row.get("subject") or row.get("purpose") or "").strip()
-        if not subject:
-            continue
         lowered = subject.casefold()
-        share_changing = any(
-            token in lowered
-            for token in ("bonus", "split", "sub-division", "subdivision", "consolidation", "rights")
-        )
-        if not share_changing:
+        if not subject or not any(token in lowered for token in share_tokens):
             continue
-        ex_raw = row.get("exDate") or row.get("ex_date")
         try:
-            ex_date = _parse_date(ex_raw, field="corporate action exDate")
+            ex_date = _parse_date(
+                row.get("exDate") or row.get("ex_date"), field="corporate action exDate"
+            )
         except PreparationError:
             unresolved.append(subject)
             continue
@@ -330,29 +326,27 @@ def analyze_eps_basis_actions(
         action = {"subject": subject, "ex_date": ex_date.isoformat()}
         if "bonus" in lowered:
             ratio = _parse_ratio(subject)
-            if ratio is None or ratio[1] <= 0:
+            if ratio is None or ratio[0] < 0 or ratio[1] <= 0:
                 unresolved.append(subject)
                 continue
             bonus, existing = ratio
-            if bonus < 0 or existing <= 0:
-                unresolved.append(subject)
-                continue
-            factor *= existing / (existing + bonus)
+            action_factor = existing / (existing + bonus)
             action["kind"] = "BONUS"
-            action["factor"] = format(existing / (existing + bonus), ".17g")
         elif any(token in lowered for token in ("split", "sub-division", "subdivision", "consolidation")):
             change = _parse_face_change(subject)
             if change is None or change[0] <= 0 or change[1] <= 0:
                 unresolved.append(subject)
                 continue
             old_face, new_face = change
-            factor *= new_face / old_face
+            action_factor = new_face / old_face
             action["kind"] = "FACE_VALUE_CHANGE"
-            action["factor"] = format(new_face / old_face, ".17g")
         else:
             unresolved.append(subject)
             continue
+        factor *= action_factor
+        action["factor"] = format(action_factor, ".17g")
         relevant.append(action)
+
     payload_hash = sha256_bytes(raw_payload)
     if unresolved:
         return CorporateActionAnalysis(
@@ -389,7 +383,7 @@ def _attempt_digest(attempt: PreparationAttempt) -> str:
 
 
 class PreparationStore:
-    """Append-only cohort-preparation evidence, separate from the expectation ledger."""
+    """Append-only preparation evidence, separate from the expectation ledger."""
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)
@@ -406,12 +400,12 @@ class PreparationStore:
         path.parent.mkdir(parents=True, exist_ok=True)
         content = (json.dumps(attempt.to_dict(), indent=2, sort_keys=True) + "\n").encode()
         try:
-            fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
         except FileExistsError:
             if path.read_bytes() != content:
                 raise PreparationError("preparation attempt id collision")
             return
-        with os.fdopen(fd, "wb") as handle:
+        with os.fdopen(descriptor, "wb") as handle:
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
@@ -491,7 +485,7 @@ def prepare_symbol(
     expectation_store: ExpectationStore,
     preparation_store: PreparationStore,
 ) -> PreparationAttempt:
-    """Acquire and freeze one company's FY27-Q2 H002 expectation without guessing."""
+    """Acquire and freeze one company's H002 expectation without source guessing."""
     attempted_at_utc = _iso_utc(attempted_at)
     discovery_hash: str | None = None
     candidate: FilingCandidate | None = None
@@ -520,6 +514,7 @@ def prepare_symbol(
         discovery_hash = sha256_bytes(discovery_raw)
     except NSEAcquisitionError as exc:
         return finish("DISCOVERY_FETCH_FAILED", str(exc))
+
     try:
         candidate = select_baseline_candidate(
             payload,
@@ -528,20 +523,21 @@ def prepare_symbol(
             accounting_basis="Consolidated",
         )
     except PreparationError as exc:
-        reason = str(exc)
-        if reason not in {"NO_BASELINE_FILING", "AMBIGUOUS_BASELINE_FILING"}:
-            reason = "AMBIGUOUS_BASELINE_FILING"
-        return finish(reason)  # type: ignore[arg-type]
+        reason_text = str(exc)
+        if reason_text == "NO_BASELINE_FILING":
+            return finish("NO_BASELINE_FILING")
+        return finish("AMBIGUOUS_BASELINE_FILING", reason_text)
 
     baseline = _parse_date(baseline_period_end, field="baseline_period_end")
     try:
         action_payload, action_raw = client.corporate_actions_with_raw(
             symbol,
-            from_date=(baseline.replace(day=baseline.day) ).strftime("%d-%m-%Y"),
+            from_date=baseline.strftime("%d-%m-%Y"),
             to_date=attempted_at.astimezone(IST).strftime("%d-%m-%Y"),
         )
     except NSEAcquisitionError as exc:
         return finish("CORPORATE_ACTION_FETCH_FAILED", str(exc))
+
     actions = analyze_eps_basis_actions(
         action_payload,
         raw_payload=action_raw,
@@ -554,19 +550,22 @@ def prepare_symbol(
             "UNRESOLVED_CORPORATE_ACTION",
             "; ".join(actions.unresolved_subjects) or "unresolved EPS-basis action",
         )
+
     try:
         source_raw = client.archive_bytes(candidate.source_url)
         source_hash = sha256_bytes(source_raw)
     except NSEAcquisitionError as exc:
         return finish("SOURCE_FETCH_FAILED", str(exc))
+
     try:
         baseline_event, _ = event_store.reconstruct_bytes(
             source_raw,
             source_url=candidate.source_url,
             captured_at=attempted_at,
         )
-    except (EventParseError, UnicodeDecodeError, OSError) as exc:
+    except (EventParseError, OSError, UnicodeDecodeError) as exc:
         return finish("SOURCE_PARSE_FAILED", str(exc))
+
     try:
         parsed_period = _parse_date(
             baseline_event.reporting_period_end, field="baseline reporting_period_end"
@@ -578,7 +577,10 @@ def prepare_symbol(
         or parsed_period != baseline
         or baseline_event.accounting_basis.strip().casefold() != "consolidated"
     ):
-        return finish("BASELINE_IDENTITY_MISMATCH", "parsed filing identity differs from discovery")
+        return finish(
+            "BASELINE_IDENTITY_MISMATCH", "parsed filing identity differs from discovery"
+        )
+
     target_period = _plus_one_year(parsed_period)
     try:
         expectation = build_seasonal_expectation(
@@ -598,6 +600,7 @@ def prepare_symbol(
         )
     except (ExpectationLedgerError, ValueError) as exc:
         return finish("EXPECTATION_CAPTURE_FAILED", str(exc))
+
     attempt = _make_attempt(
         universe=universe,
         symbol=symbol,
@@ -623,13 +626,14 @@ def build_preparation_report(
     generated_at: datetime,
 ) -> PreparationReport:
     latest: list[PreparationAttempt] = []
+    generated_at_utc = _iso_utc(generated_at)
     for member in universe.members:
         attempt = preparation_store.latest(universe.cohort_id, member.symbol)
         if attempt is None:
             attempt = _make_attempt(
                 universe=universe,
                 symbol=member.symbol,
-                attempted_at_utc=_iso_utc(generated_at),
+                attempted_at_utc=generated_at_utc,
                 baseline_period_end=baseline_period_end,
                 outcome="UNCOVERED",
                 reason_code="DISCOVERY_FETCH_FAILED",
@@ -638,19 +642,20 @@ def build_preparation_report(
         latest.append(attempt)
     latest.sort(key=lambda item: item.symbol)
     captured = sum(attempt.outcome == "CAPTURED" for attempt in latest)
-    reason_counts = dict(sorted(Counter(item.reason_code for item in latest).items()))
     provisional = PreparationReport(
         schema_version=1,
         report_sha256="",
         cohort_id=universe.cohort_id,
         universe_snapshot_sha256=universe.sha256,
-        generated_at_utc=_iso_utc(generated_at),
-        baseline_period_end=_parse_date(baseline_period_end, field="baseline_period_end").isoformat(),
+        generated_at_utc=generated_at_utc,
+        baseline_period_end=_parse_date(
+            baseline_period_end, field="baseline_period_end"
+        ).isoformat(),
         member_count=len(universe.members),
         captured_count=captured,
         uncovered_count=len(universe.members) - captured,
         freeze_ready=captured == len(universe.members),
-        reason_counts=reason_counts,
+        reason_counts=dict(sorted(Counter(item.reason_code for item in latest).items())),
         latest_attempts=tuple(latest),
     )
     payload = provisional.to_dict()
@@ -668,7 +673,7 @@ def freeze_complete_bundle(
     baseline_period_end: str,
     generated_at: datetime,
 ) -> FrozenExpectationBundle:
-    """Freeze only complete 100-company coverage. No discretionary omissions in v1."""
+    """Freeze v1 only with complete coverage. No discretionary omissions."""
     report = build_preparation_report(
         universe=universe,
         preparation_store=preparation_store,
@@ -724,4 +729,6 @@ def freeze_complete_bundle(
 def write_json(path: str | Path, payload: dict[str, Any]) -> None:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    destination.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
