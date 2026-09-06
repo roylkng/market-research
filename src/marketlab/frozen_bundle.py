@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -123,9 +124,6 @@ def _timestamp(value: str, field: str) -> datetime:
 def _period(value: str | None) -> str:
     if not value:
         raise FrozenBundleError("event reporting period end is required")
-    from datetime import date
-    import time
-
     try:
         return date.fromisoformat(value).isoformat()
     except ValueError:

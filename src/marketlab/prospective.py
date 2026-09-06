@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
@@ -13,7 +14,7 @@ import numpy as np
 
 from marketlab.execution import PaperPosition
 from marketlab.h002 import H002SignalResult
-from marketlab.preparation import _parse_exchange_timestamp
+from marketlab.preparation import PreparationError, _parse_exchange_timestamp
 
 RUNNER_RULE_ID = "H002-D001"
 RUNNER_RULE_SHA256 = "fdf174f2a0e848356e29cff3ba3fdc8f7f674836a77c4ef6065e5ca72360d238"
@@ -209,14 +210,14 @@ def select_first_result_candidate(
 
 
 def _official_timestamp(row: dict[str, Any]) -> datetime:
-    last_error: Exception | None = None
+    last_error: PreparationError | None = None
     for key in ("broadcast_Date", "revisedDate", "creationDate"):
         value = row.get(key)
         if value in (None, ""):
             continue
         try:
             return _parse_exchange_timestamp(value)
-        except Exception as exc:
+        except PreparationError as exc:
             last_error = exc
     raise ProspectiveError(
         f"result discovery row has no parseable official timestamp: {last_error}"
@@ -228,7 +229,8 @@ def _parse_date(value: Any) -> date:
         raise ProspectiveError("result period date must be a string")
     for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%m-%Y"):
         try:
-            return datetime.strptime(value.strip(), fmt).date()
+            parsed = time.strptime(value.strip(), fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     raise ProspectiveError(f"unsupported result period date: {value}")

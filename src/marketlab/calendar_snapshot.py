@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time as time_module
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from pathlib import Path
@@ -110,7 +111,8 @@ def _parse_holiday_date(value: Any) -> date:
     if not isinstance(value, str):
         raise CalendarSnapshotError("holiday tradingDate must be a string")
     try:
-        return datetime.strptime(value.strip(), "%d-%b-%Y").date()
+        parsed = time_module.strptime(value.strip(), "%d-%b-%Y")
+        return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
     except ValueError as exc:
         raise CalendarSnapshotError(f"invalid holiday tradingDate: {value}") from exc
 

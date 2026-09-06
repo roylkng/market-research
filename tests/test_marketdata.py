@@ -55,11 +55,11 @@ def test_udiff_parser_rejects_wrong_isin():
 
 def test_index_snapshot_parser_uses_exact_open_and_close():
     raw = (
-        "Index Name,Index Date,Open Index Value,High Index Value,Low Index Value,"
-        "Closing Index Value,Points Change,Change(%),Volume,Turnover (Rs. Cr.),P/E,P/B,Div Yield\n"
-        "Nifty 50,04-09-2026,23910.9,24005.75,23895.85,23897.7,24.25,.1,1,2,3,4,5\n"
-        "Nifty200 Momentum 30,04-09-2026,30000,30100,29900,30050,1,.1,1,2,3,4,5\n"
-    ).encode()
+        b"Index Name,Index Date,Open Index Value,High Index Value,Low Index Value,"
+        b"Closing Index Value,Points Change,Change(%),Volume,Turnover (Rs. Cr.),P/E,P/B,Div Yield\n"
+        b"Nifty 50,04-09-2026,23910.9,24005.75,23895.85,23897.7,24.25,.1,1,2,3,4,5\n"
+        b"Nifty200 Momentum 30,04-09-2026,30000,30100,29900,30050,1,.1,1,2,3,4,5\n"
+    )
     nifty = parse_index_snapshot(raw, benchmark_id="nifty_50", session_date=date(2026, 9, 4))
     momentum = parse_index_snapshot(
         raw, benchmark_id="nifty_200_momentum_30", session_date=date(2026, 9, 4)

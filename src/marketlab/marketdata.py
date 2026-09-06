@@ -6,14 +6,15 @@ import io
 import json
 import math
 import os
+import time
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-from marketlab.execution import PriceBar
 from marketlab.events import sha256_bytes
+from marketlab.execution import PriceBar
 
 UDIFF_URL_TEMPLATE = (
     "https://nsearchives.nseindia.com/content/cm/"
@@ -265,7 +266,8 @@ def parse_index_snapshot(
         parsed_date: date | None = None
         for fmt in ("%d-%m-%Y", "%d-%b-%Y", "%Y-%m-%d"):
             try:
-                parsed_date = datetime.strptime(raw_date, fmt).date()
+                parsed = time.strptime(raw_date, fmt)
+                parsed_date = date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
                 break
             except ValueError:
                 continue
@@ -411,7 +413,8 @@ def _parse_action_date(value: Any) -> date:
         raise MarketDataError("corporate-action exDate is required")
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(value.strip(), fmt).date()
+            parsed = time.strptime(value.strip(), fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     raise MarketDataError(f"unsupported corporate-action exDate: {value}")
