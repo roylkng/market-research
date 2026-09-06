@@ -77,6 +77,15 @@ text = text.replace(
     "        published_date = published.astimezone(IST).date()\n",
     1,
 )
+text = text.replace(
+    '''    if any(token in text for token in EXCLUDE_ANY):
+        return False
+    return True
+''',
+    '''    return not any(token in text for token in EXCLUDE_ANY)
+''',
+    1,
+)
 p.write_text(text, encoding="utf-8")
 
 replace_once(
