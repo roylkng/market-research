@@ -1,0 +1,63 @@
+name: u001-snapshot-smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/u001-snapshot-smoke.yml'
+      - 'src/marketlab/nse.py'
+      - 'src/marketlab/universe.py'
+      - 'src/marketlab/cli.py'
+      - 'registry/universes.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MarketLab
+        run: python -m pip install -e .
+
+      - name: Freeze U001 snapshot from NSE
+        run: |
+          mkdir -p research/prospective/universes
+          marketlab snapshot-universe \
+            --output research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --cohort-id FY27-Q2-2026-09-06 \
+            --selection-size 100
+
+      - name: Validate frozen snapshot
+        run: |
+          marketlab validate-universe \
+            research/prospective/universes/FY27-Q2-2026-09-06.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('research/prospective/universes/FY27-Q2-2026-09-06.json')
+          doc = json.loads(path.read_text())
+          assert doc['selection_size'] == 100
+          assert len(doc['members']) == 100
+          assert all(m['macro'].strip().casefold() != 'financial services' for m in doc['members'])
+          print('cohort:', doc['cohort_id'])
+          print('sha256:', doc['sha256'])
+          print('top10:', ','.join(m['symbol'] for m in doc['members'][:10]))
+          print('bottom10:', ','.join(m['symbol'] for m in doc['members'][-10:]))
+          PY
+
+      - name: Upload immutable snapshot candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: u001-FY27-Q2-2026-09-06
+          path: research/prospective/universes/FY27-Q2-2026-09-06.json
+          if-no-files-found: error
+          retention-days: 30
