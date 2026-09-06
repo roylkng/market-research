@@ -218,6 +218,31 @@ def delivery_report(
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
 
 
+@app.command("delivery-feature")
+def delivery_feature(
+    ledger_path: Path,
+    symbol: Annotated[str, typer.Option(help="NSE symbol to score")],
+    as_of: Annotated[str, typer.Option(help="Decision date YYYY-MM-DD")],
+    min_resolved_claims: Annotated[int, typer.Option(min=1)] = 3,
+) -> None:
+    """Compute H003's leakage-safe management delivery feature as of a date."""
+
+    if not ledger_path.exists() or not ledger_path.is_file():
+        typer.echo(f"claim ledger not found: {ledger_path}", err=True)
+        raise typer.Exit(code=2)
+    try:
+        ledger = load_claim_ledger(ledger_path)
+        feature = ledger.delivery_feature_as_of(
+            symbol,
+            as_of,
+            min_resolved_claims=min_resolved_claims,
+        )
+    except (OSError, ClaimLedgerError) as exc:
+        typer.echo(f"delivery feature failed: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+    typer.echo(json.dumps(feature, indent=2, sort_keys=True))
+
+
 @app.command("evaluate-signal")
 def evaluate_signal(
     csv_path: Path,
