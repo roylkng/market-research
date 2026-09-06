@@ -16,9 +16,10 @@ from marketlab.preparation import PreparationError, _parse_exchange_timestamp
 from marketlab.universe import UniverseSnapshot
 
 SOURCE_RULE_ID = "H003-C001"
-SOURCE_RULE_SHA256 = "3e4de432a4fb10c9b7cb09a711bf3078e1e92d4970ecbc2b6d69afc1ff0a870a"
+SOURCE_RULE_SHA256 = "4f33a47450595baff76b88a6042560df68754ce8f11cfa44f9f890d74bbd94c1"
 COHORT_ID = "FY27-Q2-2026-09-06"
 DECISION_DATE = date(2026, 9, 6)
+DECISION_TIMESTAMP_UTC = datetime(2026, 9, 6, 12, 21, 6, 431463, tzinfo=UTC)
 WINDOW_START = date(2024, 9, 1)
 WINDOW_END = DECISION_DATE
 IST = ZoneInfo("Asia/Kolkata")
@@ -39,6 +40,9 @@ EXCLUDE_ANY = (
     "agm transcript",
     "investor day",
     "ai day",
+    "investor presentation",
+    "schedule of meet",
+    "one-on-one",
 )
 
 CoverageStatus = Literal["COMPLETE", "COMPLETE_ZERO_SOURCE", "INCOMPLETE"]
@@ -73,6 +77,7 @@ class SourceCoverageRecord:
     cohort_id: str
     symbol: str
     decision_date: str
+    decision_timestamp_utc: str
     window_start: str
     window_end: str
     captured_at_utc: str
@@ -124,6 +129,12 @@ def _canonical_hash(payload: Any) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def _iso_utc(value: datetime) -> str:
+    if value.tzinfo is None:
+        raise H003SourceError("H003 timestamp must include timezone")
+    return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
 def validate_source_rule_document(document: dict[str, Any]) -> str:
     if not isinstance(document, dict):
         raise H003SourceError("H003 source rule root must be a mapping")
@@ -147,6 +158,13 @@ def validate_source_rule_document(document: dict[str, Any]) -> str:
         raise H003SourceError("H003 source rule cohort changed")
     if document.get("decision_date") != DECISION_DATE.isoformat():
         raise H003SourceError("H003 source rule decision date changed")
+    if document.get("decision_timestamp_utc") != _iso_utc(DECISION_TIMESTAMP_UTC):
+        raise H003SourceError("H003 source rule decision timestamp changed")
+    source_window = document.get("source_window")
+    if not isinstance(source_window, dict):
+        raise H003SourceError("H003 source rule source_window is required")
+    if source_window.get("to_timestamp_utc") != _iso_utc(DECISION_TIMESTAMP_UTC):
+        raise H003SourceError("H003 source-window timestamp does not match U001 cutoff")
     return actual
 
 
@@ -214,9 +232,13 @@ def select_transcript_sources(
     symbol: str,
     window_start: date = WINDOW_START,
     window_end: date = WINDOW_END,
+    cutoff_utc: datetime = DECISION_TIMESTAMP_UTC,
 ) -> tuple[TranscriptSource, ...]:
     if window_start > window_end:
         raise H003SourceError("H003 source window start exceeds end")
+    if cutoff_utc.tzinfo is None:
+        raise H003SourceError("H003 source cutoff must include timezone")
+    cutoff = cutoff_utc.astimezone(UTC)
     wanted = symbol.strip().upper()
     if not wanted:
         raise H003SourceError("H003 source symbol is required")
@@ -230,7 +252,9 @@ def select_transcript_sources(
             continue
         published = _official_timestamp(row)
         published_date = published.astimezone(IST).date()
-        if not (window_start <= published_date <= window_end):
+        if published_date < window_start or published_date > window_end:
+            continue
+        if published > cutoff:
             continue
         attachment_url = _validated_attachment_url(row)
         row_hash = _canonical_hash(row)
@@ -245,11 +269,12 @@ def select_transcript_sources(
         seq_id = str(row.get("seq_id") or "").strip()
         if not seq_id:
             raise H003SourceError("matching transcript announcement is missing seq_id")
+        published_utc = _iso_utc(published)
         identity = {
             "rule_id": SOURCE_RULE_ID,
             "symbol": wanted,
             "seq_id": seq_id,
-            "exchange_published_at_utc": published.isoformat().replace("+00:00", "Z"),
+            "exchange_published_at_utc": published_utc,
             "attachment_url": attachment_url,
             "discovery_row_sha256": row_hash,
         }
@@ -259,7 +284,7 @@ def select_transcript_sources(
                 source_id=_canonical_hash(identity),
                 symbol=wanted,
                 seq_id=seq_id,
-                exchange_published_at_utc=identity["exchange_published_at_utc"],
+                exchange_published_at_utc=published_utc,
                 attachment_url=attachment_url,
                 announcement_description=str(row.get("desc") or "").strip(),
                 attachment_text=str(row.get("attchmntText") or "").strip(),
@@ -297,9 +322,10 @@ def build_coverage_record(
         cohort_id=COHORT_ID,
         symbol=symbol.upper(),
         decision_date=DECISION_DATE.isoformat(),
+        decision_timestamp_utc=_iso_utc(DECISION_TIMESTAMP_UTC),
         window_start=WINDOW_START.isoformat(),
         window_end=WINDOW_END.isoformat(),
-        captured_at_utc=captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+        captured_at_utc=_iso_utc(captured_at),
         coverage_status=status,
         incomplete_reason=None,
         discovery_sha256=sha256_bytes(raw_discovery_bytes),
@@ -327,9 +353,10 @@ def incomplete_coverage_record(
         cohort_id=COHORT_ID,
         symbol=symbol.upper(),
         decision_date=DECISION_DATE.isoformat(),
+        decision_timestamp_utc=_iso_utc(DECISION_TIMESTAMP_UTC),
         window_start=WINDOW_START.isoformat(),
         window_end=WINDOW_END.isoformat(),
-        captured_at_utc=captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+        captured_at_utc=_iso_utc(captured_at),
         coverage_status="INCOMPLETE",
         incomplete_reason=reason,
         discovery_sha256=None,
@@ -367,7 +394,7 @@ def build_coverage_bundle(
         rule_sha256=SOURCE_RULE_SHA256,
         cohort_id=COHORT_ID,
         universe_snapshot_sha256=universe.sha256,
-        generated_at_utc=generated_at.astimezone(UTC).isoformat().replace("+00:00", "Z"),
+        generated_at_utc=_iso_utc(generated_at),
         member_count=len(expected),
         complete_count=complete,
         complete_zero_source_count=zero,
