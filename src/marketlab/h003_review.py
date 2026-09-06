@@ -303,6 +303,51 @@ def _redact(value: str, redaction_terms: tuple[str, ...]) -> str:
     return result
 
 
+def _redact_cross_line_terms(
+    lines: tuple[str, ...],
+    redaction_terms: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Redact forbidden multi-token terms split across adjacent PDF lines.
+
+    Source reconstruction is validated before this helper is called. The helper
+    preserves line count and only replaces the exact suffix/prefix fragments
+    whose whitespace-normalized concatenation equals a frozen redaction term.
+    """
+
+    result = list(lines)
+    terms = sorted(
+        {term.strip() for term in redaction_terms if isinstance(term, str) and term.strip()},
+        key=len,
+        reverse=True,
+    )
+    for boundary in range(len(result) - 1):
+        for term in terms:
+            tokens = term.split()
+            if len(tokens) < 2:
+                continue
+            for cut in range(1, len(tokens)):
+                left_pattern = r"\s+".join(re.escape(token) for token in tokens[:cut])
+                right_pattern = r"\s+".join(re.escape(token) for token in tokens[cut:])
+                left_match = re.search(
+                    rf"(?<!\w){left_pattern}\s*$",
+                    result[boundary],
+                    flags=re.IGNORECASE,
+                )
+                if left_match is None:
+                    continue
+                right_match = re.match(
+                    rf"^\s*{right_pattern}(?!\w)",
+                    result[boundary + 1],
+                    flags=re.IGNORECASE,
+                )
+                if right_match is None:
+                    continue
+                result[boundary] = result[boundary][: left_match.start()] + "[COMPANY]"
+                result[boundary + 1] = "[COMPANY]" + result[boundary + 1][right_match.end() :]
+                break
+    return tuple(result)
+
+
 def _candidate_evidence_hash(candidate: ClaimCandidate) -> str:
     return _canonical_hash(candidate.to_dict())
 
@@ -331,6 +376,10 @@ def build_blind_review_payload(
     context_start = max(0, candidate.line_start - 1 - context_radius_lines)
     context_end = min(len(page_lines), candidate.line_end + context_radius_lines)
     redaction_terms = tuple({candidate.symbol, *redaction_terms})
+    context_lines = _redact_cross_line_terms(
+        page_lines[context_start:context_end],
+        redaction_terms,
+    )
     provisional = BlindReviewPayload(
         schema_version=1,
         payload_sha256="",
@@ -340,7 +389,7 @@ def build_blind_review_payload(
         evidence_sha256=_candidate_evidence_hash(candidate),
         redacted_excerpt=_redact(candidate.excerpt, redaction_terms),
         redacted_page_context=tuple(
-            _redact(line, redaction_terms) for line in page_lines[context_start:context_end]
+            _redact(line, redaction_terms) for line in context_lines
         ),
         page_number=candidate.page_number,
         line_start=candidate.line_start,
