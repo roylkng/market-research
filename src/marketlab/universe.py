@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import csv
 import hashlib
+import io
 import json
-from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -18,13 +19,11 @@ class UniverseMember:
     rank: int
     source_rank: int
     symbol: str
-    isin: str | None
+    isin: str
     ffmc: float
-    listing_date: str | None
-    macro: str
-    sector: str | None
-    industry: str | None
-    basic_industry: str | None
+    company_name: str
+    constituent_industry: str
+    series: str
 
 
 @dataclass(frozen=True)
@@ -37,6 +36,7 @@ class UniverseSnapshot:
     index_timestamp: str | None
     selection_size: int
     source_urls: dict[str, str]
+    source_hashes: dict[str, str]
     members: list[UniverseMember]
     sha256: str
 
@@ -50,6 +50,7 @@ class UniverseSnapshot:
             "index_timestamp": self.index_timestamp,
             "selection_size": self.selection_size,
             "source_urls": self.source_urls,
+            "source_hashes": self.source_hashes,
             "members": [asdict(member) for member in self.members],
             "sha256": self.sha256,
         }
@@ -59,24 +60,10 @@ class UniverseSnapshot:
         return any(member.symbol.upper() == wanted for member in self.members)
 
 
-def _normalise_macro(value: Any) -> str:
-    return " ".join(str(value or "").strip().casefold().split())
-
-
 def _as_float(value: Any) -> float:
     if isinstance(value, str):
         value = value.replace(",", "").strip()
     return float(value)
-
-
-def _extract_industry_info(quote: dict[str, Any]) -> dict[str, Any]:
-    value = quote.get("industryInfo")
-    return value if isinstance(value, dict) else {}
-
-
-def _extract_info(quote: dict[str, Any]) -> dict[str, Any]:
-    value = quote.get("info")
-    return value if isinstance(value, dict) else {}
 
 
 def _candidate_rows(index_payload: dict[str, Any], *, index_name: str) -> list[dict[str, Any]]:
@@ -103,9 +90,39 @@ def _candidate_rows(index_payload: dict[str, Any], *, index_name: str) -> list[d
     return candidates
 
 
-def _canonical_hash(payload: dict[str, Any]) -> str:
+def _constituent_rows(raw_csv: bytes) -> dict[str, dict[str, str]]:
+    try:
+        text = raw_csv.decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text))
+    except UnicodeDecodeError as exc:
+        raise UniverseError(f"constituent CSV is not UTF-8: {exc}") from exc
+
+    required = {"Company Name", "Industry", "Symbol", "Series", "ISIN Code"}
+    if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+        raise UniverseError(
+            f"constituent CSV missing required columns: {sorted(required - set(reader.fieldnames or []))}"
+        )
+
+    rows: dict[str, dict[str, str]] = {}
+    for row in reader:
+        symbol = str(row.get("Symbol") or "").strip().upper()
+        if not symbol:
+            continue
+        if symbol in rows:
+            raise UniverseError(f"duplicate symbol in constituent CSV: {symbol}")
+        rows[symbol] = {key: str(value or "").strip() for key, value in row.items()}
+    if len(rows) != 200:
+        raise UniverseError(f"expected 200 Nifty 200 constituent rows, found {len(rows)}")
+    return rows
+
+
+def _canonical_hash(payload: Any) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _bytes_hash(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
 
 
 def _snapshot_hash_payload(snapshot: UniverseSnapshot) -> dict[str, Any]:
@@ -115,7 +132,7 @@ def _snapshot_hash_payload(snapshot: UniverseSnapshot) -> dict[str, Any]:
 
 
 def load_universe_snapshot(path: str | Path) -> UniverseSnapshot:
-    """Load a frozen universe and verify count plus canonical SHA-256."""
+    """Load a frozen U001 v2 snapshot and verify count plus canonical SHA-256."""
 
     path = Path(path)
     try:
@@ -142,22 +159,27 @@ def load_universe_snapshot(path: str | Path) -> UniverseSnapshot:
     symbols = [member.symbol.upper() for member in snapshot.members]
     if len(symbols) != len(set(symbols)):
         raise UniverseError("universe snapshot contains duplicate symbols")
+    if any(member.constituent_industry.casefold() == "financial services" for member in snapshot.members):
+        raise UniverseError("universe snapshot contains Financial Services member")
     return snapshot
 
 
 def build_universe_snapshot(
     index_payload: dict[str, Any],
-    quote_loader: Callable[[str], dict[str, Any]],
+    constituent_csv: bytes,
     *,
     cohort_id: str,
     selection_size: int = 100,
     index_name: str = "NIFTY 200",
     captured_at: datetime | None = None,
 ) -> UniverseSnapshot:
-    """Build v1: top-N non-financial Nifty 200 constituents by NSE FFMC.
+    """Build U001 v2 from two official NSE sources.
 
-    Metadata failure is fatal while scanning the ranked source population. We do
-    not skip an unclassified company because doing so can alter membership.
+    The live Nifty 200 payload supplies free-float market capitalization. The
+    official Nifty 200 constituent CSV supplies membership, ISIN and its broad
+    `Industry` classification. In NSE's classification taxonomy, the financial
+    macro economic sector has sector label `Financial Services`; the official
+    constituent CSV uses that same label for all financial constituents.
     """
 
     if selection_size <= 0:
@@ -168,40 +190,39 @@ def build_universe_snapshot(
         captured_at = captured_at.replace(tzinfo=UTC)
     captured_at_utc = captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
-    members: list[UniverseMember] = []
+    classification = _constituent_rows(constituent_csv)
     candidates = _candidate_rows(index_payload, index_name=index_name)
-    for source_rank, candidate in enumerate(candidates, start=1):
-        quote = quote_loader(candidate["symbol"])
-        if not isinstance(quote, dict):
-            raise UniverseError(f"invalid quote metadata for {candidate['symbol']}")
-        industry = _extract_industry_info(quote)
-        info = _extract_info(quote)
-        macro = str(industry.get("macro") or "").strip()
-        if not macro:
-            raise UniverseError(f"missing NSE macro-sector metadata for {candidate['symbol']}")
-        if _normalise_macro(macro) == "financial services":
-            continue
+    candidate_symbols = {candidate["symbol"].upper() for candidate in candidates}
+    missing_from_csv = sorted(candidate_symbols - classification.keys())
+    missing_from_index = sorted(classification.keys() - candidate_symbols)
+    if missing_from_csv or missing_from_index:
+        raise UniverseError(
+            "Nifty 200 source mismatch: "
+            f"index_only={missing_from_csv[:10]}, csv_only={missing_from_index[:10]}"
+        )
 
+    members: list[UniverseMember] = []
+    for source_rank, candidate in enumerate(candidates, start=1):
+        symbol = candidate["symbol"].upper()
+        meta = classification[symbol]
+        industry = meta["Industry"]
+        if not industry:
+            raise UniverseError(f"missing official Industry classification for {symbol}")
+        if industry.casefold() == "financial services":
+            continue
+        isin = meta["ISIN Code"]
+        if not isin:
+            raise UniverseError(f"missing ISIN for {symbol}")
         members.append(
             UniverseMember(
                 rank=len(members) + 1,
                 source_rank=source_rank,
-                symbol=candidate["symbol"],
-                isin=(str(info.get("isin")).strip() if info.get("isin") else None),
+                symbol=symbol,
+                isin=isin,
                 ffmc=candidate["ffmc"],
-                listing_date=(
-                    str(info.get("listingDate")).strip() if info.get("listingDate") else None
-                ),
-                macro=macro,
-                sector=(str(industry.get("sector")).strip() if industry.get("sector") else None),
-                industry=(
-                    str(industry.get("industry")).strip() if industry.get("industry") else None
-                ),
-                basic_industry=(
-                    str(industry.get("basicIndustry")).strip()
-                    if industry.get("basicIndustry")
-                    else None
-                ),
+                company_name=meta["Company Name"],
+                constituent_industry=industry,
+                series=meta["Series"],
             )
         )
         if len(members) == selection_size:
@@ -213,29 +234,35 @@ def build_universe_snapshot(
         )
 
     source_urls = {
-        "index": "https://www.nseindia.com/api/equity-stock-indices?index=NIFTY%20200",
-        "quote_template": "https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>",
+        "index_ffmc": "https://www.nseindia.com/api/equity-stock-indices?index=NIFTY%20200",
+        "constituents": "https://archives.nseindia.com/content/indices/ind_nifty200list.csv",
+    }
+    source_hashes = {
+        "index_canonical_json_sha256": _canonical_hash(index_payload),
+        "constituents_raw_sha256": _bytes_hash(constituent_csv),
     }
     hash_payload = {
-        "schema_version": 1,
-        "rule_version": "U001-nifty200-top100-nonfinancial-ffmc-v1",
+        "schema_version": 2,
+        "rule_version": "U001-nifty200-top100-nonfinancial-ffmc-v2",
         "cohort_id": cohort_id,
         "captured_at_utc": captured_at_utc,
         "index_name": index_name,
         "index_timestamp": index_payload.get("timestamp"),
         "selection_size": selection_size,
         "source_urls": source_urls,
+        "source_hashes": source_hashes,
         "members": [asdict(member) for member in members],
     }
     return UniverseSnapshot(
-        schema_version=1,
-        rule_version="U001-nifty200-top100-nonfinancial-ffmc-v1",
+        schema_version=2,
+        rule_version="U001-nifty200-top100-nonfinancial-ffmc-v2",
         cohort_id=cohort_id,
         captured_at_utc=captured_at_utc,
         index_name=index_name,
         index_timestamp=index_payload.get("timestamp"),
         selection_size=selection_size,
         source_urls=source_urls,
+        source_hashes=source_hashes,
         members=members,
         sha256=_canonical_hash(hash_payload),
     )
