@@ -1,7 +1,14 @@
 version: 1
 prospective_capture:
-  enabled: false
+  enabled: true
   prerequisite_universe_id: U001
+  cohort_id: FY27-Q2-2026-09-06
+  universe_snapshot_path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  universe_snapshot_sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+  signal_rule_id: H002-R001
+  signal_rule_sha256: a86218ec529ea53f7c7918d415961bcda30c5bbdda141a05ae13225c081db2c6
+  execution_rule_id: H002-X001
+  execution_rule_sha256: e33296d2aa8132e40258bf45036d504b624955701d9c20fe3c3612ca25c1a6f8
   require_frozen_universe_snapshot: true
   require_original_source_bytes: true
   require_exchange_publication_timestamp: true
@@ -9,12 +16,17 @@ prospective_capture:
   require_source_payload_hash: true
   require_symbol_in_universe: true
   allow_historical_backfill_as_prospective: false
-  allow_signal_generation: false
-  allow_paper_positions: false
+  allow_signal_generation: true
+  allow_paper_positions: true
   allow_live_capital: false
+  first_event_version_fixes_signal: true
+  later_revised_filings_can_rewrite_signal: false
 
 activation:
-  state: BLOCKED
+  state: ACTIVE_PAPER_ONLY
+  activated_at_utc: 2026-09-06T13:02:28Z
   reason: >-
-    Capture machinery may be implemented, but prospective observation collection
-    cannot begin until a frozen U001 cohort snapshot is generated and reviewed.
+    U001 cohort snapshot, H002-A point-in-time capture, H002-R001 signal rule,
+    and H002-X001 deterministic execution rule are frozen. H002-D may append
+    prospective paper observations only through the hash-chained ledger. Live
+    capital and historical backfill remain prohibited.
