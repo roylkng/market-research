@@ -12,8 +12,11 @@ experiments:
       exact_return_observations: 24
       point_in_time_grade: feasibility_only
     artifacts:
-      - artifacts/india_earnings_edge_experiment.xlsx
       - reports/experiments/2026-09-06-feasibility-pilot.md
+      - artifacts/README.md
+    external_binary_artifact:
+      file: india_earnings_edge_experiment.xlsx
+      sha256: b7dbb16f5149e74adc25a7db3de3413283220cbc3cc892aabea50688b2f20b37
     verdict: REJECTED
 
   - id: EXP-2026-09-06-H002
@@ -26,8 +29,11 @@ experiments:
       exact_return_observations: 24
       point_in_time_grade: feasibility_only
     artifacts:
-      - artifacts/india_earnings_edge_experiment.xlsx
       - reports/experiments/2026-09-06-feasibility-pilot.md
+      - artifacts/README.md
+    external_binary_artifact:
+      file: india_earnings_edge_experiment.xlsx
+      sha256: b7dbb16f5149e74adc25a7db3de3413283220cbc3cc892aabea50688b2f20b37
     verdict: INCONCLUSIVE
     follow_up:
       experiment_type: prospective_paper
