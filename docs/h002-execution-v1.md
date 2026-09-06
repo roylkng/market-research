@@ -2,68 +2,80 @@
 
 ## Status
 
-`H002-X001` is **FROZEN** and paper-only.
+`H002-X001` is **FROZEN** and paper-only. It defines how prospective H002 signals are observed. It does not imply that H002 is profitable or validated.
 
-This rule does not assert that H002 is profitable. It defines how every prospective H002 signal will be observed so subsequent results cannot be improved by discretionary entry, exit, stock selection or fill reconstruction.
+## Calendar and schedule
 
-## Trading calendar
+MarketLab consumes an explicit, versioned NSE cash-market session calendar. Weekdays are never treated as trading sessions implicitly.
 
-MarketLab does not infer NSE trading sessions from weekdays. H002-X001 consumes a versioned explicit NSE cash-market session calendar with timezone-aware open and close timestamps.
+For a filing published on exchange-local date `D`:
 
-For a filing published on local exchange date `D`:
-
-1. the event date itself is never an entry date,
+1. `D` is never an entry date,
 2. the first trading session strictly after `D` is skipped,
 3. the second trading session strictly after `D` is the paper-entry session,
-4. entry uses that session's exact open,
-5. entry session counts as holding session 1,
-6. exit uses the close of holding session 20.
+4. entry uses the exact session open,
+5. entry session is holding session 1,
+6. exit uses the exact close of holding session 20.
 
-A weekday omitted from the versioned calendar is not silently recreated. This handles exchange holidays and special closures without generic weekday assumptions.
+The canonical SHA-256 of the version plus ordered session list is recorded in every paper position. The position identifier also binds to that calendar hash.
 
-## Paper observation direction
+## Signal timing
 
-Every H002 bucket other than `NO_SIGNAL` is observed as a long paper position. This includes `POSITIVE`, `ZERO` and `NEGATIVE`.
+For every non-`NO_SIGNAL` observation, the signal decision timestamp must be strictly earlier than the scheduled entry open. A signal computed after the entry price became observable is invalid rather than backfilled.
 
-That does **not** mean negative UE is a buy recommendation. Keeping all buckets on the same return convention allows the prospective experiment to measure whether the groups separate without introducing a new short-selling hypothesis or asymmetric execution rules.
+`NO_SIGNAL` is always `SKIPPED` and never creates a paper trade.
 
-`NO_SIGNAL` is always `SKIPPED`.
+`POSITIVE`, `ZERO` and `NEGATIVE` are all observed long under the same execution convention. This is an experimental return convention, not a recommendation to buy every bucket.
 
-## Evaluation timestamp
+## Evaluation timestamp and availability
 
-Every reconstruction receives a timezone-aware `as_of_utc` timestamp.
+Every reconstruction uses timezone-aware `as_of_utc`.
 
-The engine distinguishes:
+Market-data records with source timestamps later than `as_of_utc` are treated as unavailable. They are not consumed and do not trigger a future-data exception merely because they exist in the caller's larger dataset.
 
-- entry has not opened yet: `PENDING / entry_not_due`,
-- entry is due but exact open data is missing: `SKIPPED`,
-- entry is due but tradability at the open is not confirmed: `SKIPPED`,
-- exit close has not occurred yet: `PENDING / exit_not_due`,
-- exit close is due but missing: `UNRESOLVED_EXIT`,
-- exact entry and exit data exist: `COMPLETED`.
+State transitions are:
 
-Any supplied market-data record with a source timestamp later than `as_of_utc` is rejected. This prevents a runner from smuggling future prices into an earlier report.
+- before entry open: `PENDING / entry_not_due`,
+- entry information incomplete before entry-session close: `PENDING`,
+- entry information still missing or non-tradable after entry-session close: `SKIPPED`,
+- valid entry but before exit close: `PENDING / exit_not_due`,
+- exit missing or non-tradable after due close: `UNRESOLVED_EXIT`,
+- exact valid entry and exit: `COMPLETED`.
+
+This distinction prevents a delayed data feed from turning a not-yet-observable fill into a false missing-data failure.
 
 ## No fabricated fills
 
-The engine never infers an entry or exit from daily high, low, VWAP or a nearby price.
+The engine never reconstructs execution from high, low, VWAP, adjacent sessions or another security.
 
 Entry requires:
 
 - exact entry-session open,
 - `tradable_at_open == true`,
-- timestamped market-data source,
-- explicit corporate-action version.
+- timestamped source,
+- corporate-action version.
 
-If these are absent after entry is due, the observation remains visible as `SKIPPED` rather than receiving an estimated fill.
+Exit requires:
 
-Exit requires the exact exit-session close. A missing due exit is `UNRESOLVED_EXIT`, not a substituted prior/next close.
+- exact exit-session close,
+- `tradable_at_close == true`,
+- timestamped source,
+- corporate-action version.
 
-## Corporate actions
+The source timestamp for an open value cannot predate the session open. The source timestamp for a close value cannot predate the session close.
 
-Entry and exit stock records require a corporate-action version. H002-X001 rejects a completed return when the entry and exit records use different versions because price comparability has not been established.
+Duplicate market bars for the same instrument/session are rejected rather than silently overwritten.
 
-A future normalization system may support a version change across the holding window, but that requires its own explicit comparable-price transformation and tests. H002-X001 does not guess.
+## Entry/exit provenance
+
+Paper positions record separately:
+
+- entry price source,
+- exit price source,
+- entry corporate-action version,
+- exit corporate-action version.
+
+A completed return requires matching entry and exit corporate-action versions. If future normalization supports a version change across a holding window, that must be a separately specified and tested transformation.
 
 ## Benchmarks
 
@@ -72,40 +84,26 @@ Required benchmark windows use the same entry-session open and exit-session clos
 - `nifty_50`
 - `nifty_200_momentum_30`
 
-A sector-matched benchmark is optional only when a deterministic mapping was registered before the observation.
+A sector benchmark is optional only when a deterministic mapping was registered before the observation.
 
-Missing benchmark data is reported as `MISSING`. It is never filled using another index or adjacent trading session.
+Benchmark data newer than the evaluation timestamp is unavailable. Missing benchmark data remains explicitly `MISSING`. It is never imputed or replaced with an adjacent session.
 
 ## Costs
 
-The initial paper report records gross return and fixed round-trip cost scenarios:
+Paper results record fixed round-trip sensitivity scenarios:
 
-- 0 bps
-- 25 bps
-- 50 bps
+- 0 bps,
+- 25 bps,
+- 50 bps.
 
-These are sensitivity scenarios, not claims about a particular broker's actual all-in costs.
+These are research stress scenarios, not claims about a specific broker's actual costs.
 
 ## Frozen rule
 
-The canonical rule lives at:
+The canonical contract is `registry/h002_execution_rule.yaml`.
 
-`registry/h002_execution_rule.yaml`
-
-Its SHA-256 is validated in tests and `make validate`. A change to entry timing, holding period, fill semantics, benchmark windows or cost convention requires a new execution-rule version.
+Its SHA-256 is checked by tests and repository validation. Any material change to timing, session counting, fill semantics, benchmark windows, tradability, provenance or cost convention requires a new execution-rule version.
 
 ## Explicit non-goals
 
-H002-X001 does not contain:
-
-- broker APIs,
-- order placement,
-- leverage,
-- options,
-- stop losses,
-- take-profit rules,
-- discretionary overrides,
-- intraday optimization,
-- sector/regime overlays.
-
-Those features would answer different hypotheses and cannot be silently added to the H002 prospective test.
+H002-X001 contains no broker integration, live orders, leverage, options, stops, targets, discretionary overrides, intraday optimization or regime overlays. Those would be separate hypotheses and cannot be added silently to H002.
