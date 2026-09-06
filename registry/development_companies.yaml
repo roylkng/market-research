@@ -1,0 +1,83 @@
+version: 1
+purpose: >-
+  Deliberately selected issuer cases for acquisition, parsing, reconciliation,
+  company-intelligence, and historical-reconstruction development. This registry
+  is not the H002 experimental universe and is not an investment portfolio.
+
+first_end_to_end_cases:
+  - INFY
+  - CCL
+  - SHAILY
+
+companies:
+  - symbol: INFY
+    name: Infosys Limited
+    research_questions:
+      - reconcile consolidated versus standalone reporting
+      - preserve INR units and reporting period correctly
+      - distinguish result-time disclosures from later guidance/transcripts
+
+  - symbol: TCS
+    name: Tata Consultancy Services Limited
+    research_questions:
+      - test an independent large-IT reporting format
+      - reconcile EPS and reporting basis without overfitting INFY parser behavior
+
+  - symbol: HINDUNILVR
+    name: Hindustan Unilever Limited
+    research_questions:
+      - separate revenue, volume/pricing disclosures, margins, and exceptional items
+
+  - symbol: POLYCAB
+    name: Polycab India Limited
+    research_questions:
+      - distinguish operating growth from commodity-price effects
+      - track segment mix, capex, and competitive response
+
+  - symbol: CCL
+    name: CCL Products (India) Limited
+    research_questions:
+      - distinguish volume growth from coffee-price effects
+      - track utilisation, working capital, debt, and cash generation
+
+  - symbol: GRAVITA
+    name: Gravita India Limited
+    research_questions:
+      - separate metal-price effects from physical volume
+      - distinguish capacity announcement, commissioning, utilisation, and cash return
+
+  - symbol: NEULANDLAB
+    name: Neuland Laboratories Limited
+    research_questions:
+      - distinguish commercial-programme growth from low-base quarterly effects
+      - track customer concentration and cash generation
+
+  - symbol: SHAILY
+    name: Shaily Engineering Plastics Limited
+    research_questions:
+      - reconcile healthcare and consumer segments
+      - track capacity targets versus commissioning, shipments, and consolidated earnings
+
+  - symbol: NETWEB
+    name: Netweb Technologies India Limited
+    research_questions:
+      - distinguish order book from recognised revenue
+      - reconcile growth with inventory, receivables, working capital, and cash
+
+  - symbol: SHALBY
+    name: Shalby Limited
+    research_questions:
+      - distinguish consolidated and standalone performance
+      - separate tax/one-off effects from operating recovery
+
+  - symbol: COFORGE
+    name: Coforge Limited
+    research_questions:
+      - preserve acquisition/comparability notes
+      - distinguish adjusted from reported metrics and EPS denominator changes
+
+  - symbol: APARINDS
+    name: APAR Industries Limited
+    research_questions:
+      - track business mix and commodity effects
+      - compare order/revenue growth with subsequent cash conversion
