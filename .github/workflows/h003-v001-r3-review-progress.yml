@@ -1,0 +1,180 @@
+name: H003-V001 r3 semantic review progress
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-r3-20260907
+    paths:
+      - .github/workflows/h003-v001-r3-review-progress.yml
+
+permissions:
+  contents: write
+
+jobs:
+  progress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-r3-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate all anchored semantic judgment batches
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r3')
+          batches_root = root / 'batches20'
+          judgments_root = root / 'semantic-judgments'
+          manifest = json.loads((batches_root / 'manifest.json').read_text(encoding='utf-8'))
+
+          def h(value):
+              return hashlib.sha256(
+                  json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+              ).hexdigest()
+
+          unsigned_manifest = dict(manifest)
+          declared_manifest_sha = unsigned_manifest.pop('manifest_sha256')
+          if h(unsigned_manifest) != declared_manifest_sha:
+              raise SystemExit('review batch manifest hash mismatch')
+
+          by_file = {entry['file']: entry for entry in manifest['batches']}
+          files = sorted(judgments_root.glob('batch-*.json'))
+          if not files:
+              raise SystemExit('no semantic judgments found')
+
+          expected_next_index = 0
+          accepted = rejected = reviewed = 0
+          reason_counts = {}
+          accepted_claim_type_counts = {}
+          reviewed_candidate_ids = []
+          batch_results = []
+          reviewer_versions = set()
+
+          for judgment_path in files:
+              expected_filename = f'batch-{expected_next_index:04d}.json'
+              if judgment_path.name != expected_filename:
+                  raise SystemExit(
+                      f'semantic review is not contiguous: expected {expected_filename}, found {judgment_path.name}'
+                  )
+              entry = by_file.get(judgment_path.name)
+              if entry is None:
+                  raise SystemExit(f'judgment file absent from frozen manifest: {judgment_path.name}')
+              source_items = json.loads((batches_root / judgment_path.name).read_text(encoding='utf-8'))
+              if h(source_items) != entry['batch_sha256']:
+                  raise SystemExit(f'frozen source batch hash mismatch: {judgment_path.name}')
+              source_ids = [str(item['candidate_id']) for item in source_items]
+              if len(source_ids) != len(set(source_ids)):
+                  raise SystemExit(f'duplicate source candidate id: {judgment_path.name}')
+
+              document = json.loads(judgment_path.read_text(encoding='utf-8'))
+              if document.get('schema_version') != 1:
+                  raise SystemExit(f'judgment schema mismatch: {judgment_path.name}')
+              if document.get('batch_file') != judgment_path.name:
+                  raise SystemExit(f'judgment batch_file mismatch: {judgment_path.name}')
+              if document.get('batch_sha256') != entry['batch_sha256']:
+                  raise SystemExit(f'judgment batch hash binding mismatch: {judgment_path.name}')
+              reviewer = str(document.get('reviewer_version') or '')
+              if reviewer != 'GPT-5.6-Sol-H003-V001-r3-semantic-v1':
+                  raise SystemExit(f'unexpected reviewer version: {reviewer!r}')
+              reviewer_versions.add(reviewer)
+              if not str(document.get('reviewed_at_utc') or '').endswith('Z'):
+                  raise SystemExit(f'invalid reviewed_at_utc: {judgment_path.name}')
+              judgments = document.get('judgments')
+              if not isinstance(judgments, list):
+                  raise SystemExit(f'judgments must be a list: {judgment_path.name}')
+              ids = [str(item.get('candidate_id') or '') for item in judgments]
+              if ids != source_ids:
+                  raise SystemExit(f'judgment candidate order/coverage mismatch: {judgment_path.name}')
+
+              batch_accepted = batch_rejected = 0
+              for item in judgments:
+                  disposition = item.get('disposition')
+                  reason = str(item.get('reason_code') or '')
+                  reason_counts[reason] = reason_counts.get(reason, 0) + 1
+                  normalized_claim = item.get('normalized_claim')
+                  duplicate_of = item.get('duplicate_of_candidate_id')
+                  if disposition == 'ACCEPTED':
+                      if reason != 'ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT':
+                          raise SystemExit(f'accepted reason mismatch: {item["candidate_id"]}')
+                      if not isinstance(normalized_claim, dict):
+                          raise SystemExit(f'accepted claim missing normalization: {item["candidate_id"]}')
+                      if not normalized_claim.get('claim_type') or not normalized_claim.get('metric'):
+                          raise SystemExit(f'accepted claim missing type/metric: {item["candidate_id"]}')
+                      if not (normalized_claim.get('target_deadline') or normalized_claim.get('target_horizon')):
+                          raise SystemExit(f'accepted claim missing deadline/horizon: {item["candidate_id"]}')
+                      if duplicate_of is not None:
+                          raise SystemExit(f'accepted candidate cannot be duplicate: {item["candidate_id"]}')
+                      claim_type = str(normalized_claim['claim_type'])
+                      accepted_claim_type_counts[claim_type] = accepted_claim_type_counts.get(claim_type, 0) + 1
+                      accepted += 1
+                      batch_accepted += 1
+                  elif disposition == 'REJECTED':
+                      if normalized_claim is not None:
+                          raise SystemExit(f'rejected claim carries normalization: {item["candidate_id"]}')
+                      if reason == 'ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT':
+                          raise SystemExit(f'rejected candidate has accept reason: {item["candidate_id"]}')
+                      if reason == 'REJECT_DUPLICATE_OR_RESTATEMENT':
+                          if not duplicate_of or duplicate_of == item['candidate_id']:
+                              raise SystemExit(f'invalid duplicate lineage: {item["candidate_id"]}')
+                      elif duplicate_of is not None:
+                          raise SystemExit(f'non-duplicate rejection has duplicate_of: {item["candidate_id"]}')
+                      rejected += 1
+                      batch_rejected += 1
+                  else:
+                      raise SystemExit(f'invalid disposition: {item["candidate_id"]}')
+                  reviewed += 1
+                  reviewed_candidate_ids.append(item['candidate_id'])
+              batch_results.append({
+                  'batch_index': expected_next_index,
+                  'batch_sha256': entry['batch_sha256'],
+                  'candidate_count': len(judgments),
+                  'accepted_count': batch_accepted,
+                  'rejected_count': batch_rejected,
+              })
+              expected_next_index += 1
+
+          if len(reviewed_candidate_ids) != len(set(reviewed_candidate_ids)):
+              raise SystemExit('duplicate candidate across semantic judgment batches')
+          if reviewed != accepted + rejected:
+              raise SystemExit('reviewed denominator mismatch')
+          next_batch = f'batch-{expected_next_index:04d}.json' if expected_next_index < manifest['batch_count'] else None
+          unsigned = {
+              'schema_version': 1,
+              'status': 'SEMANTIC_REVIEW_IN_PROGRESS' if next_batch else 'SEMANTIC_REVIEW_COMPLETE',
+              'review_rule_sha256': '8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244',
+              'blind_payload_sha256': '717f907ee1522e3dba63d28769c6677102b5f93a6d1306adba0f5c3ebb7a9a31',
+              'semantic_queue_sha256': 'b04324e69a743fd9d5d65965ea13b15e072cb97d035279120b921d057ea7ee41',
+              'review_batch_manifest_sha256': declared_manifest_sha,
+              'semantic_candidate_count': manifest['candidate_count'],
+              'reviewed_candidate_count': reviewed,
+              'accepted_count': accepted,
+              'rejected_count': rejected,
+              'remaining_candidate_count': manifest['candidate_count'] - reviewed,
+              'completed_batch_count': expected_next_index,
+              'total_batch_count': manifest['batch_count'],
+              'next_batch_file': next_batch,
+              'reviewer_versions': sorted(reviewer_versions),
+              'reason_counts': dict(sorted(reason_counts.items())),
+              'accepted_claim_type_counts': dict(sorted(accepted_claim_type_counts.items())),
+              'reviewed_candidate_ids_sha256': h(reviewed_candidate_ids),
+              'batches': batch_results,
+          }
+          progress = {**unsigned, 'progress_sha256': h(unsigned)}
+          (root / 'review-progress.json').write_text(
+              json.dumps(progress, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(progress, indent=2, sort_keys=True))
+          PY
+      - name: Anchor progress checkpoint and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-r3-review-progress.yml
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r3/review-progress.json
+          git commit -m "Anchor H003-V001 r3 semantic review progress checkpoint"
+          git push origin HEAD:run/h003-v001-blind-review-r3-20260907
