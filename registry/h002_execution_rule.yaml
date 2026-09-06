@@ -1,0 +1,42 @@
+id: H002-X001
+hypothesis_id: H002
+status: FROZEN
+sha256: d4eb7dcc0691ddfbc901970c14b06a8f2d415d0e518d76585d0dd4fd604cc08b
+
+calendar:
+  exchange_timezone: Asia/Kolkata
+  source: versioned_nse_session_calendar
+  event_day_policy: publication_local_date_is_never_entry_date
+  entry_session: second_trading_session_strictly_after_publication_local_date
+  holding_period_sessions: 20
+  exit_session: 20th_trading_session_including_entry_as_session_1
+
+execution:
+  position_type: long_observation_for_each_non_NO_SIGNAL_bucket
+  entry_price: exact_entry_session_open
+  exit_price: exact_exit_session_close
+  missing_or_nontradable_entry: SKIPPED
+  missing_exit_after_due_session: UNRESOLVED_EXIT
+  no_ohlc_fill_inference: true
+  live_orders: false
+
+benchmarks:
+  required:
+    - nifty_50
+    - nifty_200_momentum_30
+  sector_matched: optional_only_when_pre_registered_mapping_exists
+  window: same_entry_open_to_same_exit_close
+
+cost_scenarios_round_trip_bps:
+  - 0
+  - 25
+  - 50
+
+guards:
+  - signal_rule_id_must_be_H002-R001
+  - NO_SIGNAL_is_SKIPPED
+  - calendar_sessions_are_explicit_not_weekday_inferred
+  - entry_and_exit_market_data_must_be_timestamped
+  - corporate_action_version_required_for_stock_prices
+  - benchmark_missing_data_is_reported_not_imputed
+live_capital: false
