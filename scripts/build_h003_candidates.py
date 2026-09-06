@@ -13,6 +13,7 @@ from marketlab.h003_candidates import (
     EXTRACTION_RULE_ID,
     EXTRACTION_RULE_SHA256,
     ClaimCandidate,
+    FrozenTranscriptSource,
     H003CandidateError,
     H003CandidateStore,
     SourceExtractionRecord,
@@ -126,6 +127,30 @@ def _write_checkpoint(path: Path, record: SourceExtractionRecord) -> None:
     os.replace(temporary, path)
 
 
+def _select_sources(
+    all_sources: tuple[FrozenTranscriptSource, ...],
+    *,
+    sample_count: int | None,
+    shard_count: int | None,
+    shard_index: int | None,
+) -> tuple[FrozenTranscriptSource, ...]:
+    if sample_count is not None and (shard_count is not None or shard_index is not None):
+        raise H003CandidateError("sample selection and shard selection are mutually exclusive")
+    if sample_count is not None:
+        return deterministic_sample(all_sources, sample_count)
+    if shard_count is None and shard_index is None:
+        return all_sources
+    if shard_count is None or shard_index is None:
+        raise H003CandidateError("both shard_count and shard_index are required")
+    if shard_count < 1:
+        raise H003CandidateError("shard_count must be positive")
+    if shard_index < 0 or shard_index >= shard_count:
+        raise H003CandidateError(
+            f"shard_index must be in [0, {shard_count - 1}], got {shard_index}"
+        )
+    return all_sources[shard_index::shard_count]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Build deterministic H003 claim candidates from the frozen transcript corpus."
@@ -136,6 +161,8 @@ def main() -> int:
     parser.add_argument("--report-out", type=Path, required=True)
     parser.add_argument("--summary-out", type=Path, required=True)
     parser.add_argument("--sample-count", type=int)
+    parser.add_argument("--shard-count", type=int)
+    parser.add_argument("--shard-index", type=int)
     parser.add_argument("--fetch-attempts", type=int, default=3)
     parser.add_argument("--sleep-seconds", type=float, default=0.05)
     args = parser.parse_args()
@@ -147,11 +174,15 @@ def main() -> int:
 
     rule = load_and_validate_extraction_rule(args.rule)
     all_sources = load_frozen_transcript_sources(args.source_bundle)
-    sources = (
-        deterministic_sample(all_sources, args.sample_count)
-        if args.sample_count is not None
-        else all_sources
-    )
+    try:
+        sources = _select_sources(
+            all_sources,
+            sample_count=args.sample_count,
+            shard_count=args.shard_count,
+            shard_index=args.shard_index,
+        )
+    except H003CandidateError as exc:
+        parser.error(str(exc))
     client = NSEClient(timeout=30.0, attempts=3)
     store = H003CandidateStore(args.store)
     records: list[SourceExtractionRecord] = []
@@ -197,14 +228,20 @@ def main() -> int:
     candidate_symbols = sorted(
         {record.symbol for record in records if record.candidate_count > 0}
     )
+    is_sample = args.sample_count is not None
+    is_shard = args.shard_count is not None
     summary = {
-        "schema_version": 2,
+        "schema_version": 3,
         "rule_id": rule["id"],
         "rule_sha256": rule["sha256"],
         "source_bundle_sha256": report.source_bundle_sha256,
         "generated_at_utc": report.generated_at_utc,
-        "sampled": args.sample_count is not None,
+        "sampled": is_sample,
         "requested_sample_count": args.sample_count,
+        "sharded": is_shard,
+        "shard_count": args.shard_count,
+        "shard_index": args.shard_index,
+        "selected_source_count": len(sources),
         "processed_source_count": report.processed_source_count,
         "processed_company_count": report.processed_company_count,
         "resumed_source_count": resumed_count,
