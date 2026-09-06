@@ -7,11 +7,12 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 
 import yaml
 
 from marketlab.events import sha256_bytes
-from marketlab.preparation import _parse_exchange_timestamp
+from marketlab.preparation import PreparationError, _parse_exchange_timestamp
 from marketlab.universe import UniverseSnapshot
 
 SOURCE_RULE_ID = "H003-C001"
@@ -20,6 +21,7 @@ COHORT_ID = "FY27-Q2-2026-09-06"
 DECISION_DATE = date(2026, 9, 6)
 WINDOW_START = date(2024, 9, 1)
 WINDOW_END = DECISION_DATE
+IST = ZoneInfo("Asia/Kolkata")
 ALLOWED_ATTACHMENT_HOSTS = frozenset(
     {"nsearchives.nseindia.com", "archives.nseindia.com"}
 )
@@ -173,7 +175,7 @@ def _official_timestamp(row: dict[str, Any]) -> datetime:
             continue
         try:
             return _parse_exchange_timestamp(value)
-        except (TypeError, ValueError) as exc:
+        except PreparationError as exc:
             last_error = exc
     raise H003SourceError(
         f"announcement row has no parseable official timestamp: {last_error}"
@@ -193,9 +195,7 @@ def _matches_transcript_policy(row: dict[str, Any]) -> bool:
         return False
     if not any(token in text for token in INCLUDE_ANY):
         return False
-    if any(token in text for token in EXCLUDE_ANY):
-        return False
-    return True
+    return not any(token in text for token in EXCLUDE_ANY)
 
 
 def _validated_attachment_url(row: dict[str, Any]) -> str:
@@ -229,7 +229,7 @@ def select_transcript_sources(
         if not _matches_transcript_policy(row):
             continue
         published = _official_timestamp(row)
-        published_date = published.astimezone(UTC).date()
+        published_date = published.astimezone(IST).date()
         if not (window_start <= published_date <= window_end):
             continue
         attachment_url = _validated_attachment_url(row)

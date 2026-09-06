@@ -39,6 +39,9 @@ class NSEClient:
     CORPORATE_ACTION_ENDPOINT = NSEEndpoint(
         "corporate_actions", f"{BASE_URL}/api/corporates-corporateActions"
     )
+    CORPORATE_ANNOUNCEMENT_ENDPOINT = NSEEndpoint(
+        "corporate_announcements", f"{BASE_URL}/api/corporate-announcements"
+    )
     HOLIDAY_ENDPOINT = NSEEndpoint("trading_holidays", f"{BASE_URL}/api/holiday-master")
     NIFTY200_CONSTITUENT_CSV = (
         "https://archives.nseindia.com/content/indices/ind_nifty200list.csv"
@@ -195,6 +198,24 @@ class NSEClient:
     def trading_holidays_with_raw(self) -> tuple[JSONPayload, bytes]:
         """Fetch exact NSE trading-holiday master bytes for calendar snapshotting."""
         return self._json_get_with_raw(self.HOLIDAY_ENDPOINT, params={"type": "trading"})
+
+    def corporate_announcements_with_raw(
+        self,
+        symbol: str,
+        *,
+        from_date: str,
+        to_date: str,
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact NSE announcement discovery bytes for one equity symbol."""
+        return self._json_get_with_raw(
+            self.CORPORATE_ANNOUNCEMENT_ENDPOINT,
+            params={
+                "index": "equities",
+                "symbol": symbol,
+                "from_date": from_date,
+                "to_date": to_date,
+            },
+        )
 
     def archive_bytes(self, url: str) -> bytes:
         """Fetch original NSE archive bytes, rejecting arbitrary external URLs."""

@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 import pytest
 
 from marketlab.h003_sources import (
-    H003SourceError,
     SOURCE_RULE_SHA256,
+    H003SourceError,
     build_coverage_bundle,
     build_coverage_record,
     load_and_validate_source_rule,

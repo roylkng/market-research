@@ -9,9 +9,9 @@ from pathlib import Path
 
 from marketlab.events import sha256_bytes
 from marketlab.h003_sources import (
-    H003SourceError,
     WINDOW_END,
     WINDOW_START,
+    H003SourceError,
     build_coverage_bundle,
     build_coverage_record,
     incomplete_coverage_record,
