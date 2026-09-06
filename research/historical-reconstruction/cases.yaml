@@ -1,0 +1,64 @@
+version: 1
+mode: HISTORICAL_RECONSTRUCTION
+warning: >-
+  These cases are for acquisition/parser/company-intelligence development only.
+  They are not untouched out-of-sample observations and must not be counted as
+  prospective H002 evidence.
+
+cases:
+  - case_id: HR-INFY-FY26-Q4-CONSOLIDATED
+    symbol: INFY
+    period_end: 2026-03-31
+    accounting_basis: consolidated
+    source_type: NSE_INTEGRATED_FILING_IXBRL
+    source_url: https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_152465_23042026210154_iXBRL_WEB.html
+    expected_metadata:
+      isin: INE009A01021
+      company_name: INFOSYS LIMITED
+      reporting_quarter: Fourth quarter
+      audited: true
+      currency: INR
+      rounding: Lakhs
+    development_tests:
+      - source metadata and accounting basis
+      - multi-segment extraction
+      - result-time versus later commentary separation
+
+  - case_id: HR-CCL-FY27-Q1-CONSOLIDATED
+    symbol: CCL
+    period_end: 2026-06-30
+    accounting_basis: consolidated
+    source_type: NSE_INTEGRATED_FILING_IXBRL
+    source_url: https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_178875_27072026202614_iXBRL_WEB.html
+    expected_metadata:
+      isin: INE421D01022
+      company_name: CCL PRODUCTS (INDIA) LIMITED
+      reporting_quarter: First quarter
+      audited: false
+      currency: INR
+      rounding: Lakhs
+    expected_values_for_fixture_validation:
+      revenue_from_operations_lakhs: 120044.62
+      profit_before_tax_lakhs: 12901.75
+      total_profit_lakhs: 11688.05
+      basic_eps: 8.77
+    development_tests:
+      - standalone versus consolidated distinction
+      - coffee single-segment metadata
+      - notes and subsidiary consolidation
+
+  - case_id: HR-SHAILY-FY26-Q1-CONSOLIDATED
+    symbol: SHAILY
+    period_end: 2025-06-30
+    accounting_basis: consolidated
+    source_type: NSE_INTEGRATED_FILING_IXBRL
+    source_url: https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_109908_11082025161038_iXBRL_WEB.html
+    expected_metadata:
+      company_name: Shaily Engineering Plastics Limited
+      reporting_quarter: First quarter
+      audited: false
+      currency: INR
+    development_tests:
+      - consolidated versus standalone distinction
+      - preserve segment/business disclosures separately from statutory result facts
+      - capacity commentary must remain a later-information event unless present in result filing

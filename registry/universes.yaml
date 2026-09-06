@@ -1,0 +1,27 @@
+version: 1
+
+universes:
+  - id: U001
+    name: nifty200_top100_nonfinancial_ffmc
+    status: FROZEN_RULE_PENDING_FIRST_SNAPSHOT
+    market: India
+    source_index: NIFTY 200
+    selection_size: 100
+    rule:
+      exclude_macro_sectors:
+        - Financial Services
+      rank_by:
+        - field: ffmc
+          direction: descending
+        - field: symbol
+          direction: ascending
+      freeze_frequency: per_earnings_cohort
+      missing_classification: fail_snapshot
+      rebalance_policy: future_cohorts_only
+    source:
+      index_page: https://www.nseindia.com/static/products-services/indices-nifty200-index
+      index_api: https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200
+      quote_api_template: https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>
+    research_use:
+      - H002
+    live_capital_allowed: false
