@@ -1,0 +1,38 @@
+id: H003-T001
+hypothesis_id: H003
+status: FROZEN
+live_capital: false
+cohort_id: FY27-Q2-2026-09-06
+source_rule_id: H003-C001
+source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
+source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
+decision_timestamp_utc: '2026-09-06T12:21:06.431463Z'
+acquisition:
+  source_urls: FROM_FROZEN_H003_C001_BUNDLE_ONLY
+  https_required: true
+  exact_pdf_bytes_sha256_required: true
+  fetch_failure: FETCH_FAILED
+parser:
+  id: pypdf-text-v1
+  library: pypdf
+  extraction: page_extract_text
+classification:
+  CONTENT_READY:
+    minimum_page_count: 2
+    minimum_nonempty_page_count: 2
+    minimum_extracted_char_count: 5000
+  INSUFFICIENT_TEXT:
+    applies_when_content_ready_false: true
+  UNREADABLE:
+    applies_on_pdf_or_text_extraction_error: true
+coverage:
+  numeric_h003_score_requires_minimum_content_ready_transcripts: 3
+  fetch_failed_counts_as_not_content_ready: true
+  insufficient_text_counts_as_not_content_ready: true
+  unreadable_counts_as_not_content_ready: true
+  no_issuer_website_fallback_v1: true
+  no_ocr_fallback_v1: true
+claim_generation:
+  only_content_ready_transcripts_allowed: true
+  every_generated_candidate_requires_disposition: true
+sha256: e48d621c1ce45147a68577a156629e86b706ab6be4b1ebc232d2a745a2f8b3bb
