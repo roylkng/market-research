@@ -30,6 +30,9 @@ REVIEW_RULE_ID = "H003-V001"
 REVIEW_RULE_SHA256 = "8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244"
 COHORT_ID = "FY27-Q2-2026-09-06"
 DECISION_TIMESTAMP_UTC = "2026-09-06T12:21:06.431463Z"
+EXPECTED_COHORT_COMPANY_COUNT = 100
+EXPECTED_SOURCE_BEARING_COMPANY_COUNT = 97
+FROZEN_ZERO_SOURCE_SYMBOLS = ("BHEL", "ITC", "TRENT")
 IST = ZoneInfo("Asia/Kolkata")
 
 Disposition = Literal["ACCEPTED", "REJECTED"]
@@ -225,8 +228,8 @@ def load_complete_candidate_corpus(path: str | Path) -> CandidateCorpus:
         or document.get("cohort_id") != COHORT_ID
         or document.get("expected_source_count") != 794
         or document.get("processed_source_count") != 794
-        or document.get("expected_member_count") != 100
-        or document.get("processed_company_count") != 100
+        or document.get("expected_member_count") != EXPECTED_COHORT_COMPANY_COUNT
+        or document.get("processed_company_count") != EXPECTED_SOURCE_BEARING_COMPANY_COUNT
         or document.get("complete") is not True
         or document.get("freeze_blockers") != []
         or document.get("source_status_counts") != {"TEXT_READY": 794}

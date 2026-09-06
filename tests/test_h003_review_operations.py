@@ -137,3 +137,24 @@ def test_decision_loader_requires_semantic_decision_files(tmp_path):
     semantic_dir.mkdir()
     with pytest.raises(H003ReviewError, match="contains no decision files"):
         freezer.load_decisions(mechanical, semantic_dir)
+
+
+def test_frozen_h003_source_denominator_is_100_cohort_97_source_bearing():
+    from marketlab.h003_review import (
+        EXPECTED_COHORT_COMPANY_COUNT,
+        EXPECTED_SOURCE_BEARING_COMPANY_COUNT,
+        FROZEN_ZERO_SOURCE_SYMBOLS,
+    )
+
+    source_path = Path(
+        "research/prospective/h003/FY27-Q2-2026-09-06/source-coverage-v1.json"
+    )
+    document = json.loads(source_path.read_text(encoding="utf-8"))
+    records = document["records"]
+    source_bearing = [record for record in records if record["source_count"] > 0]
+    zero_source = sorted(
+        record["symbol"] for record in records if record["source_count"] == 0
+    )
+    assert len(records) == EXPECTED_COHORT_COMPANY_COUNT == 100
+    assert len(source_bearing) == EXPECTED_SOURCE_BEARING_COMPANY_COUNT == 97
+    assert zero_source == sorted(FROZEN_ZERO_SOURCE_SYMBOLS) == ["BHEL", "ITC", "TRENT"]

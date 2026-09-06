@@ -6,7 +6,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from marketlab.h003_review import BlindReviewPayload, H003ReviewError, REVIEW_RULE_ID, REVIEW_RULE_SHA256
+from marketlab.h003_review import (
+    REVIEW_RULE_ID,
+    REVIEW_RULE_SHA256,
+    BlindReviewPayload,
+    H003ReviewError,
+)
 
 
 def _canonical_hash(payload: Any) -> str:
