@@ -1,0 +1,60 @@
+name: Audit invalid H003 r1 redaction quality
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-20260907
+    paths:
+      - .github/workflows/h003-invalid-r1-redaction-quality-audit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Detect redaction placeholders embedded inside alphanumeric words
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001')
+          payloads = json.loads((root / 'blind-payloads.json').read_text(encoding='utf-8'))
+          pattern = re.compile(r'[A-Za-z0-9]\[COMPANY\][A-Za-z0-9]')
+          affected = []
+          for item in payloads:
+              visible = [str(item['redacted_excerpt']), *[str(v) for v in item['redacted_page_context']]]
+              hits = [text for text in visible if pattern.search(text)]
+              if hits:
+                  affected.append({
+                      'candidate_id': item['candidate_id'],
+                      'examples': hits[:3],
+                  })
+          report = {
+              'schema_version': 1,
+              'status': 'INVALID_R1_DIAGNOSTIC_ONLY',
+              'payload_count': len(payloads),
+              'affected_payload_count': len(affected),
+              'examples': affected[:25],
+          }
+          path = root / 'INVALIDATED-redaction-quality-audit.json'
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+      - name: Preserve diagnostic and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-invalid-r1-redaction-quality-audit.yml
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001/INVALIDATED-redaction-quality-audit.json
+          git commit -m "Record invalid r1 redaction-quality diagnostic"
+          git push origin HEAD:run/h003-v001-blind-review-20260907
