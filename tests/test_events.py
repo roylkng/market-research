@@ -14,6 +14,7 @@ from marketlab.events import (
     sha256_bytes,
 )
 from marketlab.universe import build_universe_snapshot
+from tests.universe_fixtures import make_nifty200_sources
 
 FIXTURES = Path("data/fixtures/filings")
 
@@ -22,23 +23,21 @@ def _fixture(name: str) -> bytes:
     return (FIXTURES / name).read_bytes()
 
 
-def _quote(symbol: str, *, isin: str, macro: str = "Consumer Discretionary") -> dict:
-    return {
-        "info": {"isin": isin, "listingDate": "01-Jan-2000"},
-        "industryInfo": {
-            "macro": macro,
-            "sector": "Research Sector",
-            "industry": "Research Industry",
-            "basicIndustry": "Research Basic Industry",
-        },
-    }
-
-
 def _ccl_universe(*, captured_at: datetime | None = None):
-    index = {"timestamp": "01-Jul-2026 15:30:00", "data": [{"symbol": "CCL", "ffmc": 100}]}
+    index, constituent_csv = make_nifty200_sources(
+        [
+            {
+                "symbol": "CCL",
+                "ffmc": 1000,
+                "industry": "Fast Moving Consumer Goods",
+                "isin": "INE421D01022",
+                "company_name": "CCL Products (India) Limited",
+            }
+        ]
+    )
     return build_universe_snapshot(
         index,
-        lambda _: _quote("CCL", isin="INE421D01022"),
+        constituent_csv,
         cohort_id="FY27-Q1-TEST",
         selection_size=1,
         captured_at=captured_at or datetime(2026, 7, 1, tzinfo=UTC),
