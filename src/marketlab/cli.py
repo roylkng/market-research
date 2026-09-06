@@ -16,6 +16,30 @@ from marketlab.evaluation import (
 
 app = typer.Typer(help="Reproducible market-research utilities.", no_args_is_help=True)
 
+EXAMPLE_FIXTURE = Path("data/fixtures/h002_feasibility.csv")
+
+
+def _read_csv_or_exit(csv_path: Path, *, required_columns: list[str]) -> pd.DataFrame:
+    if not csv_path.exists() or not csv_path.is_file():
+        typer.echo(f"input CSV not found: {csv_path}", err=True)
+        typer.echo(f"runnable example: {EXAMPLE_FIXTURE}", err=True)
+        raise typer.Exit(code=2)
+
+    try:
+        frame = pd.read_csv(csv_path)
+    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError) as exc:
+        typer.echo(f"could not read CSV {csv_path}: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+
+    missing = [column for column in required_columns if column not in frame.columns]
+    if missing:
+        available = ", ".join(str(column) for column in frame.columns) or "<none>"
+        typer.echo(f"CSV is missing required column(s): {', '.join(missing)}", err=True)
+        typer.echo(f"available columns: {available}", err=True)
+        raise typer.Exit(code=2)
+
+    return frame
+
 
 @app.command("validate-registry")
 def validate_registry(path: Path) -> None:
@@ -40,7 +64,7 @@ def evaluate_signal(
 ) -> None:
     """Evaluate a continuous signal against subsequent excess return."""
 
-    frame = pd.read_csv(csv_path)
+    frame = _read_csv_or_exit(csv_path, required_columns=[signal_col, excess_col])
     result = evaluate_continuous_signal(
         frame,
         signal_col=signal_col,
@@ -60,7 +84,7 @@ def evaluate_binary(
 ) -> None:
     """Evaluate two pre-defined groups and expose winner dependence."""
 
-    frame = pd.read_csv(csv_path)
+    frame = _read_csv_or_exit(csv_path, required_columns=[group_col, excess_col])
     result = evaluate_binary_groups(
         frame,
         group_col=group_col,
