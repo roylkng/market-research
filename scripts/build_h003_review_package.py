@@ -9,6 +9,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from marketlab.h003_candidates import extract_pdf_pages
 from marketlab.h003_review import (
@@ -53,6 +54,55 @@ def _company_redaction_terms(company_name: str, symbol: str) -> tuple[str, ...]:
         terms.add(base + " Limited")
         terms.add(base + " Ltd")
         terms.add(base + " Ltd.")
+    return tuple(sorted((term for term in terms if term), key=len, reverse=True))
+
+
+IST = ZoneInfo("Asia/Kolkata")
+
+
+def _publication_date_redaction_terms(exchange_published_at_utc: str) -> tuple[str, ...]:
+    try:
+        parsed = datetime.fromisoformat(exchange_published_at_utc)
+    except (TypeError, ValueError) as exc:
+        raise ReviewPackageError(
+            f"invalid candidate exchange publication timestamp: {exchange_published_at_utc!r}"
+        ) from exc
+    if parsed.tzinfo is None:
+        raise ReviewPackageError("candidate exchange publication timestamp must include timezone")
+
+    dates = {parsed.astimezone(UTC).date(), parsed.astimezone(IST).date()}
+    terms: set[str] = set()
+    for value in dates:
+        day = str(value.day)
+        day2 = f"{value.day:02d}"
+        month = str(value.month)
+        month2 = f"{value.month:02d}"
+        year = str(value.year)
+        year2 = f"{value.year % 100:02d}"
+        full_month = value.strftime("%B")
+        short_month = value.strftime("%b")
+        terms.update(
+            {
+                f"{full_month} {day}, {year}",
+                f"{full_month} {day} {year}",
+                f"{short_month} {day}, {year}",
+                f"{short_month} {day} {year}",
+                f"{day} {full_month} {year}",
+                f"{day2} {full_month} {year}",
+                f"{day} {short_month} {year}",
+                f"{day2} {short_month} {year}",
+                f"{day}-{short_month}-{year}",
+                f"{day2}-{short_month}-{year}",
+                f"{day}-{short_month}-{year2}",
+                f"{day2}-{short_month}-{year2}",
+                f"{day}/{month}/{year}",
+                f"{day2}/{month2}/{year}",
+                f"{day}-{month}-{year}",
+                f"{day2}-{month2}-{year}",
+                f"{day}.{month}.{year}",
+                f"{day2}.{month2}.{year}",
+            }
+        )
     return tuple(sorted((term for term in terms if term), key=len, reverse=True))
 
 
@@ -180,7 +230,12 @@ def build_package(
             company_name = company_names[first.symbol]
         except KeyError as exc:
             raise ReviewPackageError(f"candidate symbol absent from universe: {first.symbol}") from exc
-        redaction_terms = _company_redaction_terms(company_name, first.symbol)
+        redaction_terms = tuple(
+            {
+                *_company_redaction_terms(company_name, first.symbol),
+                *_publication_date_redaction_terms(first.exchange_published_at_utc),
+            }
+        )
         for candidate in candidates:
             page_lines = page_map.get(candidate.page_number)
             if page_lines is None:
