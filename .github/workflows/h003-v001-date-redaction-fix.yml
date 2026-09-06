@@ -1,0 +1,64 @@
+name: H003-V001 publication-date redaction fix
+
+on:
+  push:
+    branches:
+      - fix/h003-v001-publication-date-redaction
+    paths:
+      - .github/workflows/h003-v001-date-redaction-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/h003-v001-publication-date-redaction
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Patch blind-package publication-date redaction and add regression
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/build_h003_review_package.py')
+          text = path.read_text(encoding='utf-8')
+          old_import = 'from pathlib import Path\nfrom typing import Any\n'
+          new_import = 'from pathlib import Path\nfrom typing import Any\nfrom zoneinfo import ZoneInfo\n'
+          if text.count(old_import) != 1:
+              raise SystemExit('unexpected import anchor count')
+          text = text.replace(old_import, new_import)
+
+          anchor = '''def _load_company_names(path: Path) -> dict[str, str]:\n'''
+          helper = '''IST = ZoneInfo("Asia/Kolkata")\n\n\ndef _publication_date_redaction_terms(exchange_published_at_utc: str) -> tuple[str, ...]:\n    try:\n        parsed = datetime.fromisoformat(exchange_published_at_utc.replace("Z", "+00:00"))\n    except (TypeError, ValueError) as exc:\n        raise ReviewPackageError(\n            f"invalid candidate exchange publication timestamp: {exchange_published_at_utc!r}"\n        ) from exc\n    if parsed.tzinfo is None:\n        raise ReviewPackageError("candidate exchange publication timestamp must include timezone")\n\n    dates = {parsed.astimezone(UTC).date(), parsed.astimezone(IST).date()}\n    terms: set[str] = set()\n    for value in dates:\n        day = str(value.day)\n        day2 = f"{value.day:02d}"\n        month = str(value.month)\n        month2 = f"{value.month:02d}"\n        year = str(value.year)\n        year2 = f"{value.year % 100:02d}"\n        full_month = value.strftime("%B")\n        short_month = value.strftime("%b")\n        terms.update(\n            {\n                f"{full_month} {day}, {year}",\n                f"{full_month} {day} {year}",\n                f"{short_month} {day}, {year}",\n                f"{short_month} {day} {year}",\n                f"{day} {full_month} {year}",\n                f"{day2} {full_month} {year}",\n                f"{day} {short_month} {year}",\n                f"{day2} {short_month} {year}",\n                f"{day}-{short_month}-{year}",\n                f"{day2}-{short_month}-{year}",\n                f"{day}-{short_month}-{year2}",\n                f"{day2}-{short_month}-{year2}",\n                f"{day}/{month}/{year}",\n                f"{day2}/{month2}/{year}",\n                f"{day}-{month}-{year}",\n                f"{day2}-{month2}-{year}",\n                f"{day}.{month}.{year}",\n                f"{day2}.{month2}.{year}",\n            }\n        )\n    return tuple(sorted((term for term in terms if term), key=len, reverse=True))\n\n\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit('unexpected helper anchor count')
+          text = text.replace(anchor, helper + anchor)
+
+          old_redaction = '''        redaction_terms = _company_redaction_terms(company_name, first.symbol)\n'''
+          new_redaction = '''        redaction_terms = tuple(\n            {\n                *_company_redaction_terms(company_name, first.symbol),\n                *_publication_date_redaction_terms(first.exchange_published_at_utc),\n            }\n        )\n'''
+          if text.count(old_redaction) != 1:
+              raise SystemExit('unexpected redaction integration anchor count')
+          text = text.replace(old_redaction, new_redaction)
+          path.write_text(text, encoding='utf-8')
+
+          test = Path('tests/test_h003_review_publication_date_redaction.py')
+          test.write_text('''from __future__ import annotations\n\nimport hashlib\nimport importlib.util\nfrom pathlib import Path\n\nfrom marketlab.h003_candidates import (\n    CANDIDATE_VERSION,\n    EXTRACTION_RULE_ID,\n    EXTRACTION_RULE_SHA256,\n    PARSER_VERSION,\n    ClaimCandidate,\n    ExtractedPage,\n)\nfrom marketlab.h003_review import CandidateCorpus\n\n\ndef _module():\n    path = Path("scripts/build_h003_review_package.py")\n    spec = importlib.util.spec_from_file_location("build_h003_review_package", path)\n    assert spec is not None and spec.loader is not None\n    module = importlib.util.module_from_spec(spec)\n    spec.loader.exec_module(module)\n    return module\n\n\ndef _candidate(raw_sha256: str) -> ClaimCandidate:\n    return ClaimCandidate(\n        schema_version=2,\n        candidate_id="candidate-1",\n        rule_id=EXTRACTION_RULE_ID,\n        rule_sha256=EXTRACTION_RULE_SHA256,\n        candidate_version=CANDIDATE_VERSION,\n        source_id="source-1",\n        symbol="TEST",\n        exchange_published_at_utc="2025-10-16T20:30:00Z",\n        attachment_url="https://nsearchives.nseindia.com/test.pdf",\n        raw_sha256=raw_sha256,\n        parser_version=PARSER_VERSION,\n        page_number=1,\n        line_start=1,\n        line_end=1,\n        excerpt="October 16, 2025 Test Limited expects capacity of 10 MW next year.",\n        future_markers=("expects",),\n        deadline_markers=("next year",),\n        quantitative_tokens=("10 MW",),\n        domain_markers=("capacity",),\n        disposition="UNREVIEWED",\n        disposition_reason=None,\n    )\n\n\ndef test_publication_date_terms_cover_utc_and_india_calendar_dates():\n    module = _module()\n    terms = module._publication_date_redaction_terms("2025-10-16T20:30:00Z")\n    assert "October 16, 2025" in terms\n    assert "October 17, 2025" in terms\n    assert "16-Oct-2025" in terms\n    assert "17/10/2025" in terms\n\n\ndef test_build_package_redacts_publication_date_from_excerpt_and_context(monkeypatch):\n    module = _module()\n    raw = b"frozen transcript bytes"\n    raw_sha256 = hashlib.sha256(raw).hexdigest()\n    candidate = _candidate(raw_sha256)\n    corpus = CandidateCorpus(\n        report_sha256="report",\n        candidate_rule_id=EXTRACTION_RULE_ID,\n        candidate_rule_sha256=EXTRACTION_RULE_SHA256,\n        source_bundle_sha256="bundle",\n        cohort_id="cohort",\n        candidate_count=1,\n        candidates_by_id={candidate.candidate_id: candidate},\n    )\n    page = ExtractedPage(\n        page_number=1,\n        lines=(\n            "October 16, 2025 Test Limited expects capacity of 10 MW next year.",\n            "October 17, 2025 is the India-local publication calendar date.",\n        ),\n    )\n    monkeypatch.setattr(\n        module,\n        "_source_pdf_bytes",\n        lambda **kwargs: (raw, "candidate-store:test"),\n    )\n    monkeypatch.setattr(module, "extract_pdf_pages", lambda value: ((page,), page.canonical_text()))\n\n    package, payloads, _ = module.build_package(\n        corpus,\n        company_names={"TEST": "Test Limited"},\n        client=None,\n        candidate_store=Path("unused"),\n        fetch_attempts=1,\n    )\n    assert package["blind_payload_count"] == 1\n    payload = payloads[0]\n    visible = " ".join((payload.redacted_excerpt, *payload.redacted_page_context)).casefold()\n    assert "test limited" not in visible\n    assert "october 16, 2025" not in visible\n    assert "october 17, 2025" not in visible\n''', encoding='utf-8')
+          PY
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests scripts/build_h003_review_package.py --fix
+      - run: ruff check src tests scripts/build_h003_review_package.py
+      - run: pytest -q
+      - run: make validate
+      - name: Commit validated fix and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-date-redaction-fix.yml
+          git add scripts/build_h003_review_package.py tests/test_h003_review_publication_date_redaction.py
+          git commit -m "Redact frozen publication dates from H003 blind review payloads"
+          git push origin HEAD:fix/h003-v001-publication-date-redaction
