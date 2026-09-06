@@ -1,0 +1,105 @@
+name: H003 NSE announcement corpus probe
+
+on:
+  push:
+    branches:
+      - probe/h003-nse-announcements-20260906
+    paths:
+      - .github/workflows/h003-announcement-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Probe NSE announcement discovery
+        run: |
+          mkdir -p probe-out
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          from marketlab.nse import NSEClient
+
+          client = NSEClient(timeout=20.0, attempts=4)
+          client._initialize_session()
+          url = 'https://www.nseindia.com/api/corporate-announcements'
+          variants = {
+              'infy_2y': {
+                  'index': 'equities',
+                  'symbol': 'INFY',
+                  'from_date': '01-09-2024',
+                  'to_date': '06-09-2026',
+              },
+              'reliance_1y': {
+                  'index': 'equities',
+                  'symbol': 'RELIANCE',
+                  'from_date': '01-09-2025',
+                  'to_date': '06-09-2026',
+              },
+          }
+          summary = {}
+          for name, params in variants.items():
+              response = client.session.get(url, params=params, timeout=20)
+              raw = response.content
+              record = {
+                  'status': response.status_code,
+                  'requested_url': response.url,
+                  'content_type': response.headers.get('content-type'),
+                  'byte_count': len(raw),
+                  'sha256': hashlib.sha256(raw).hexdigest(),
+              }
+              try:
+                  payload = response.json()
+              except Exception as exc:
+                  record['json_error'] = repr(exc)
+                  record['prefix'] = raw[:300].decode('utf-8', errors='replace')
+                  summary[name] = record
+                  continue
+              record['json_type'] = type(payload).__name__
+              rows = payload if isinstance(payload, list) else payload.get('data', []) if isinstance(payload, dict) else []
+              record['row_count'] = len(rows) if isinstance(rows, list) else None
+              if isinstance(rows, list) and rows:
+                  record['first_keys'] = sorted(rows[0].keys()) if isinstance(rows[0], dict) else []
+                  filtered = []
+                  for row in rows:
+                      if not isinstance(row, dict):
+                          continue
+                      desc = str(row.get('desc') or row.get('subject') or '')
+                      attach = str(row.get('attchmntFile') or row.get('attachment') or '')
+                      text = f'{desc} {attach}'.casefold()
+                      if any(token in text for token in ('transcript', 'investor presentation', 'earnings', 'conference call', 'analyst')):
+                          filtered.append({
+                              'symbol': row.get('symbol'),
+                              'desc': desc,
+                              'broadcast': row.get('exchdisstime') or row.get('an_dt') or row.get('sort_date'),
+                              'attachment': attach,
+                              'attachment_text': row.get('attchmntText'),
+                              'seq_id': row.get('seq_id'),
+                          })
+                  record['relevant_count'] = len(filtered)
+                  record['relevant_rows'] = filtered[:60]
+              summary[name] = record
+          out = Path('probe-out/summary.json')
+          out.write_text(json.dumps(summary, indent=2, sort_keys=True, default=str) + '\n', encoding='utf-8')
+          print(out.read_text())
+          PY
+      - name: Commit measured contract
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          mkdir -p research/probes/h003-announcements-2026-09-06
+          cp probe-out/summary.json research/probes/h003-announcements-2026-09-06/summary.json
+          git add research/probes/h003-announcements-2026-09-06/summary.json
+          git commit -m "Capture current NSE announcement corpus contract" || exit 0
+          git push origin HEAD:probe/h003-nse-announcements-20260906
