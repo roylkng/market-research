@@ -62,8 +62,13 @@ hypotheses:
         - guidance_or_llm_score
         - arbitrary_optimized_weights
     decision:
+      execution_rule_id: H002-X001
+      execution_rule_file: registry/h002_execution_rule.yaml
       entry_delay_sessions: 2
       holding_period_sessions: 20
+      entry_price: exact_second_subsequent_session_open
+      exit_price: exact_20th_holding_session_close
+      paper_only: true
     benchmarks:
       - nifty_50
       - nifty_200_momentum_30
@@ -85,7 +90,7 @@ hypotheses:
       Ranked UE magnitude did not replicate in this small feasibility pilot.
       UE sign moved in the economically expected direction, but uncertainty and
       winner dependence are too large for a tradable conclusion. The prospective
-      test rule is now frozen without implying that the hypothesis is validated.
+      signal and paper-execution rules are frozen without implying validation.
     next_action: prospective_paper_test
     live_capital: false
 
