@@ -14,6 +14,7 @@ from marketlab.evaluation import (
     require_valid_registry,
     winner_concentration,
 )
+from marketlab.events import EventParseError, EventStore
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.universe import UniverseError, build_universe_snapshot
 
@@ -87,6 +88,42 @@ def snapshot_universe(
     )
     typer.echo(
         f"wrote {snapshot.selection_size} companies to {output}; sha256={snapshot.sha256}"
+    )
+
+
+@app.command("reconstruct-event")
+def reconstruct_event(
+    input_file: Path,
+    source_url: Annotated[str, typer.Option(help="Original filing URL represented by the file")],
+    store: Annotated[Path, typer.Option(help="Local content-addressed research store")] = Path(
+        ".marketlab"
+    ),
+) -> None:
+    """Reconstruct one historical Ind-AS event from local source bytes.
+
+    This command always records HISTORICAL_RECONSTRUCTION. It cannot create a
+    prospective H002 observation.
+    """
+
+    if not input_file.exists() or not input_file.is_file():
+        typer.echo(f"input filing not found: {input_file}", err=True)
+        raise typer.Exit(code=2)
+    try:
+        raw = input_file.read_bytes()
+        event, created = EventStore(store).reconstruct_bytes(raw, source_url=source_url)
+    except (OSError, UnicodeDecodeError, EventParseError) as exc:
+        typer.echo(f"historical reconstruction failed: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+
+    typer.echo(
+        json.dumps(
+            {
+                "created": created,
+                "event": event.to_dict(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
     )
 
 
