@@ -7,6 +7,7 @@ from typing import Annotated
 import pandas as pd
 import typer
 
+from marketlab.claims import ClaimLedgerError, load_claim_ledger
 from marketlab.evaluation import (
     RegistryError,
     evaluate_binary_groups,
@@ -125,6 +126,28 @@ def reconstruct_event(
             sort_keys=True,
         )
     )
+
+
+@app.command("delivery-report")
+def delivery_report(
+    ledger_path: Path,
+    symbol: Annotated[str, typer.Option(help="NSE symbol to report")],
+) -> None:
+    """Report historical management promise-to-delivery evidence for one company."""
+
+    if not ledger_path.exists() or not ledger_path.is_file():
+        typer.echo(f"claim ledger not found: {ledger_path}", err=True)
+        raise typer.Exit(code=2)
+    try:
+        ledger = load_claim_ledger(ledger_path)
+    except (OSError, ClaimLedgerError) as exc:
+        typer.echo(f"invalid claim ledger: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+    report = ledger.company_report(symbol)
+    if report["claim_count"] == 0:
+        typer.echo(f"no claims found for symbol: {symbol.upper()}", err=True)
+        raise typer.Exit(code=2)
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
 
 
 @app.command("evaluate-signal")
