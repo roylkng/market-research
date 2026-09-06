@@ -11,6 +11,7 @@ import yaml
 
 CLAIM_STATUSES = {"ACTIVE", "SUPERSEDED", "CLOSED"}
 OUTCOME_STATUSES = {"MET", "PARTIAL", "MISSED", "LATE", "UNRESOLVED"}
+RESOLVED_OUTCOME_STATUSES = ("MET", "PARTIAL", "MISSED", "LATE")
 
 
 class ClaimLedgerError(ValueError):
@@ -99,25 +100,35 @@ class ClaimLedger:
     claims: tuple[ManagementClaim, ...]
     outcomes: tuple[ClaimOutcome, ...]
 
-    def company_report(self, symbol: str) -> dict[str, Any]:
+    @staticmethod
+    def _report(
+        symbol: str,
+        claims: list[ManagementClaim],
+        outcomes: list[ClaimOutcome],
+        *,
+        as_of_date: str | None = None,
+    ) -> dict[str, Any]:
         symbol = symbol.upper()
-        claims = [claim for claim in self.claims if claim.symbol.upper() == symbol]
         claim_ids = {claim.claim_id for claim in claims}
-        outcomes = [outcome for outcome in self.outcomes if outcome.claim_id in claim_ids]
+        relevant_outcomes = [outcome for outcome in outcomes if outcome.claim_id in claim_ids]
         latest_by_claim: dict[str, ClaimOutcome] = {}
-        for outcome in sorted(outcomes, key=lambda item: (item.observed_date, item.outcome_id)):
+        for outcome in sorted(
+            relevant_outcomes, key=lambda item: (item.observed_date, item.outcome_id)
+        ):
             latest_by_claim[outcome.claim_id] = outcome
 
         counts = {status: 0 for status in sorted(OUTCOME_STATUSES)}
         for outcome in latest_by_claim.values():
             counts[outcome.status] += 1
 
-        resolved = sum(counts[status] for status in ("MET", "PARTIAL", "MISSED", "LATE"))
+        resolved = sum(counts[status] for status in RESOLVED_OUTCOME_STATUSES)
         met = counts["MET"]
         return {
             "symbol": symbol,
+            "as_of_date": as_of_date,
             "claim_count": len(claims),
             "latest_outcome_count": len(latest_by_claim),
+            "pending_without_outcome_count": len(claims) - len(latest_by_claim),
             "status_counts": counts,
             "resolved_count": resolved,
             "met_rate_resolved": (met / resolved if resolved else None),
@@ -132,6 +143,70 @@ class ClaimLedger:
                 }
                 for claim in claims
             ],
+        }
+
+    def company_report(self, symbol: str) -> dict[str, Any]:
+        symbol = symbol.upper()
+        claims = [claim for claim in self.claims if claim.symbol.upper() == symbol]
+        return self._report(symbol, claims, list(self.outcomes))
+
+    def company_report_as_of(self, symbol: str, as_of: str) -> dict[str, Any]:
+        """Return only claim/outcome evidence that was observable by `as_of`.
+
+        Claim lifecycle `status` is never used to decide eligibility because that
+        field may be populated during later reconstruction. Timing is determined
+        only by immutable source_date and observed_date values.
+        """
+
+        cutoff = _parse_date(as_of, field="as_of")
+        symbol = symbol.upper()
+        claims = [
+            claim
+            for claim in self.claims
+            if claim.symbol.upper() == symbol
+            and _parse_date(claim.source_date, field=f"{claim.claim_id}.source_date") <= cutoff
+        ]
+        claim_ids = {claim.claim_id for claim in claims}
+        outcomes = [
+            outcome
+            for outcome in self.outcomes
+            if outcome.claim_id in claim_ids
+            and _parse_date(
+                outcome.observed_date, field=f"{outcome.outcome_id}.observed_date"
+            )
+            <= cutoff
+        ]
+        return self._report(symbol, claims, outcomes, as_of_date=cutoff.isoformat())
+
+    def delivery_feature_as_of(
+        self,
+        symbol: str,
+        as_of: str,
+        *,
+        min_resolved_claims: int = 3,
+    ) -> dict[str, Any]:
+        """Compute H003 v0's simple prior on-time delivery feature.
+
+        No weights are assigned to claim types or failure categories. The primary
+        feature is simply MET / resolved, where resolved is MET/PARTIAL/MISSED/LATE.
+        A company with insufficient resolved history receives NO_SIGNAL.
+        """
+
+        if min_resolved_claims < 1:
+            raise ClaimLedgerError("min_resolved_claims must be at least 1")
+        report = self.company_report_as_of(symbol, as_of)
+        resolved = int(report["resolved_count"])
+        eligible = resolved >= min_resolved_claims
+        return {
+            "symbol": symbol.upper(),
+            "as_of_date": report["as_of_date"],
+            "feature_name": "prior_management_delivery_met_rate_v1",
+            "resolved_count": resolved,
+            "minimum_resolved_claims": min_resolved_claims,
+            "status_counts": report["status_counts"],
+            "pending_without_outcome_count": report["pending_without_outcome_count"],
+            "signal_state": "ELIGIBLE" if eligible else "NO_SIGNAL",
+            "value": report["met_rate_resolved"] if eligible else None,
         }
 
 
