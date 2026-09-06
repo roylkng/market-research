@@ -1,0 +1,85 @@
+name: H003 zero-source transcript gap probe
+
+on:
+  push:
+    branches:
+      - probe/h003-nse-announcements-20260906
+    paths:
+      - .github/workflows/h003-zero-source-gap-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Inspect all transcript-labelled announcements
+        run: |
+          mkdir -p probe-out
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from marketlab.nse import NSEClient
+
+          client = NSEClient(timeout=25.0, attempts=4)
+          client._initialize_session()
+          url = 'https://www.nseindia.com/api/corporate-announcements'
+          result = {}
+          for symbol in ('LT', 'TCS', 'HCLTECH', 'WIPRO', 'MARUTI', 'TECHM', 'HINDALCO', 'TATASTEEL'):
+              response = client.session.get(
+                  url,
+                  params={
+                      'index': 'equities',
+                      'symbol': symbol,
+                      'from_date': '01-09-2024',
+                      'to_date': '06-09-2026',
+                  },
+                  timeout=25,
+              )
+              response.raise_for_status()
+              payload = response.json()
+              rows = payload if isinstance(payload, list) else payload.get('data', [])
+              transcript_rows = []
+              for row in rows:
+                  if not isinstance(row, dict):
+                      continue
+                  text = ' '.join(
+                      str(row.get(key) or '')
+                      for key in ('desc', 'attchmntText', 'attchmntFile')
+                  )
+                  if 'transcript' not in text.casefold():
+                      continue
+                  transcript_rows.append({
+                      'seq_id': row.get('seq_id'),
+                      'exchdisstime': row.get('exchdisstime'),
+                      'desc': row.get('desc'),
+                      'attchmntText': row.get('attchmntText'),
+                      'attchmntFile': row.get('attchmntFile'),
+                  })
+              result[symbol] = {
+                  'announcement_count': len(rows),
+                  'transcript_label_count': len(transcript_rows),
+                  'transcript_rows': transcript_rows,
+              }
+          path = Path('probe-out/zero-source-gap.json')
+          path.write_text(json.dumps(result, indent=2, sort_keys=True, default=str) + '\n', encoding='utf-8')
+          print(path.read_text())
+          PY
+      - name: Commit audit evidence
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          mkdir -p research/probes/h003-announcements-2026-09-06
+          cp probe-out/zero-source-gap.json research/probes/h003-announcements-2026-09-06/zero-source-gap.json
+          git add research/probes/h003-announcements-2026-09-06/zero-source-gap.json
+          git commit -m "Audit H003 zero-source transcript gaps"
+          git push origin HEAD:probe/h003-nse-announcements-20260906
