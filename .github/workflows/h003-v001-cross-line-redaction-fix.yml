@@ -1,0 +1,64 @@
+name: H003-V001 cross-line identity redaction fix
+
+on:
+  push:
+    branches:
+      - fix/h003-v001-cross-line-identity-redaction
+    paths:
+      - .github/workflows/h003-v001-cross-line-redaction-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/h003-v001-cross-line-identity-redaction
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Patch adjacent-line redaction and add regression
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/marketlab/h003_review.py')
+          text = path.read_text(encoding='utf-8')
+          anchor = '''def _candidate_evidence_hash(candidate: ClaimCandidate) -> str:\n'''
+          helper = '''def _redact_cross_line_terms(\n    lines: tuple[str, ...],\n    redaction_terms: tuple[str, ...],\n) -> tuple[str, ...]:\n    \"\"\"Redact forbidden multi-token terms split across adjacent PDF lines.\n\n    Source reconstruction is validated before this helper is called. The helper\n    preserves line count and only replaces the exact suffix/prefix fragments\n    whose whitespace-normalized concatenation equals a frozen redaction term.\n    \"\"\"\n\n    result = list(lines)\n    terms = sorted(\n        {term.strip() for term in redaction_terms if isinstance(term, str) and term.strip()},\n        key=len,\n        reverse=True,\n    )\n    for boundary in range(len(result) - 1):\n        for term in terms:\n            tokens = term.split()\n            if len(tokens) < 2:\n                continue\n            for cut in range(1, len(tokens)):\n                left_pattern = r"\\s+".join(re.escape(token) for token in tokens[:cut])\n                right_pattern = r"\\s+".join(re.escape(token) for token in tokens[cut:])\n                left_match = re.search(\n                    rf"(?<!\\w){left_pattern}\\s*$",\n                    result[boundary],\n                    flags=re.IGNORECASE,\n                )\n                if left_match is None:\n                    continue\n                right_match = re.match(\n                    rf"^\\s*{right_pattern}(?!\\w)",\n                    result[boundary + 1],\n                    flags=re.IGNORECASE,\n                )\n                if right_match is None:\n                    continue\n                result[boundary] = result[boundary][: left_match.start()] + "[COMPANY]"\n                result[boundary + 1] = "[COMPANY]" + result[boundary + 1][right_match.end() :]\n                break\n    return tuple(result)\n\n\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'unexpected helper anchor count: {text.count(anchor)}')
+          text = text.replace(anchor, helper + anchor)
+
+          old_context = '''    context_start = max(0, candidate.line_start - 1 - context_radius_lines)\n    context_end = min(len(page_lines), candidate.line_end + context_radius_lines)\n    redaction_terms = tuple({candidate.symbol, *redaction_terms})\n    provisional = BlindReviewPayload(\n'''
+          new_context = '''    context_start = max(0, candidate.line_start - 1 - context_radius_lines)\n    context_end = min(len(page_lines), candidate.line_end + context_radius_lines)\n    redaction_terms = tuple({candidate.symbol, *redaction_terms})\n    context_lines = _redact_cross_line_terms(\n        page_lines[context_start:context_end],\n        redaction_terms,\n    )\n    provisional = BlindReviewPayload(\n'''
+          if text.count(old_context) != 1:
+              raise SystemExit(f'unexpected context anchor count: {text.count(old_context)}')
+          text = text.replace(old_context, new_context)
+
+          old_payload = '''        redacted_page_context=tuple(\n            _redact(line, redaction_terms) for line in page_lines[context_start:context_end]\n        ),\n'''
+          new_payload = '''        redacted_page_context=tuple(\n            _redact(line, redaction_terms) for line in context_lines\n        ),\n'''
+          if text.count(old_payload) != 1:
+              raise SystemExit(f'unexpected payload anchor count: {text.count(old_payload)}')
+          text = text.replace(old_payload, new_payload)
+          path.write_text(text, encoding='utf-8')
+
+          test_path = Path('tests/test_h003_review_cross_line_redaction.py')
+          test_path.write_text('''from __future__ import annotations\n\nfrom marketlab.h003_candidates import ClaimCandidate\nfrom marketlab.h003_review import build_blind_review_payload\n\n\ndef _candidate(*, line_start: int = 3, line_end: int = 3) -> ClaimCandidate:\n    return ClaimCandidate(\n        schema_version=2,\n        candidate_id="cross-line-candidate",\n        rule_id="H003-E002",\n        rule_sha256="5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2",\n        candidate_version="h003_future_commitment_candidate_v2",\n        source_id="source-cross-line",\n        symbol="TEST",\n        exchange_published_at_utc="2026-08-01T10:00:00Z",\n        attachment_url="https://nsearchives.nseindia.com/test.pdf",\n        raw_sha256="a" * 64,\n        parser_version="h003_pdf_text_v1",\n        page_number=1,\n        line_start=line_start,\n        line_end=line_end,\n        excerpt="We expect revenue growth of 15% next year.",\n        future_markers=("we expect",),\n        deadline_markers=("next year",),\n        quantitative_tokens=("15%",),\n        domain_markers=("revenue", "growth"),\n        disposition="UNREVIEWED",\n        disposition_reason=None,\n    )\n\n\ndef test_blind_context_redacts_company_name_split_across_adjacent_pdf_lines():\n    candidate = _candidate()\n    page_lines = (\n        "Our portfolio includes Tata",\n        "Steel Kalinganagar and other facilities.",\n        "We expect revenue growth of 15% next year.",\n    )\n    payload = build_blind_review_payload(\n        candidate,\n        page_lines=page_lines,\n        redaction_terms=("Tata Steel", "Tata Steel Limited"),\n        context_radius_lines=3,\n    )\n    visible = " ".join(payload.redacted_page_context).casefold()\n    assert "tata steel" not in visible\n    assert payload.redacted_page_context[0].endswith("[COMPANY]")\n    assert payload.redacted_page_context[1].startswith("[COMPANY]")\n    assert len(payload.redacted_page_context) == len(page_lines)\n    assert payload.line_start == 3\n    assert payload.line_end == 3\n\n\ndef test_cross_line_redaction_handles_three_token_term_at_different_split_point():\n    candidate = _candidate()\n    page_lines = (\n        "We work with Alpha Beta",\n        "Gamma Holdings across the market.",\n        "We expect revenue growth of 15% next year.",\n    )\n    payload = build_blind_review_payload(\n        candidate,\n        page_lines=page_lines,\n        redaction_terms=("Alpha Beta Gamma",),\n        context_radius_lines=3,\n    )\n    visible = " ".join(payload.redacted_page_context).casefold()\n    assert "alpha beta gamma" not in visible\n    assert payload.redacted_page_context[0].endswith("[COMPANY]")\n    assert payload.redacted_page_context[1].startswith("[COMPANY]")\n''', encoding='utf-8')
+          PY
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests --fix
+      - run: ruff check src tests
+      - run: pytest -q
+      - run: make validate
+      - name: Commit validated fix and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-cross-line-redaction-fix.yml
+          git add src/marketlab/h003_review.py tests/test_h003_review_cross_line_redaction.py
+          git commit -m "Redact H003 blind identities split across PDF lines"
+          git push origin HEAD:fix/h003-v001-cross-line-identity-redaction
