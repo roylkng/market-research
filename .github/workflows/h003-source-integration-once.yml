@@ -6,6 +6,7 @@ on:
       - feat/h003-source-corpus-v1
     paths:
       - .github/workflows/h003-source-integration-once.yml
+      - scripts/h003_source_integrate_once.py
 
 permissions:
   contents: write
@@ -21,77 +22,16 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Apply small integration edits
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          p = Path('src/marketlab/nse.py')
-          text = p.read_text()
-          old = '''    CORPORATE_ACTION_ENDPOINT = NSEEndpoint(
-        "corporate_actions", f"{BASE_URL}/api/corporates-corporateActions"
-    )
-'''
-          new = old + '''    CORPORATE_ANNOUNCEMENT_ENDPOINT = NSEEndpoint(
-        "corporate_announcements", f"{BASE_URL}/api/corporate-announcements"
-    )
-'''
-          if old not in text:
-              raise SystemExit('NSE endpoint insertion target missing')
-          text = text.replace(old, new, 1)
-          old = '''    def archive_bytes(self, url: str) -> bytes:
-'''
-          method = '''    def corporate_announcements_with_raw(
-        self,
-        symbol: str,
-        *,
-        from_date: str,
-        to_date: str,
-    ) -> tuple[JSONPayload, bytes]:
-        """Fetch exact NSE announcement discovery bytes for one equity symbol."""
-        return self._json_get_with_raw(
-            self.CORPORATE_ANNOUNCEMENT_ENDPOINT,
-            params={
-                "index": "equities",
-                "symbol": symbol,
-                "from_date": from_date,
-                "to_date": to_date,
-            },
-        )
-
-'''
-          if old not in text:
-              raise SystemExit('NSE method insertion target missing')
-          p.write_text(text.replace(old, method + old, 1))
-
-          p = Path('src/marketlab/h003_sources.py')
-          text = p.read_text()
-          text = text.replace('from typing import Any, Literal\nfrom urllib.parse import urlparse\n', 'from typing import Any, Literal\nfrom urllib.parse import urlparse\nfrom zoneinfo import ZoneInfo\n')
-          text = text.replace('from marketlab.preparation import _parse_exchange_timestamp\n', 'from marketlab.preparation import PreparationError, _parse_exchange_timestamp\n')
-          text = text.replace('ALLOWED_ATTACHMENT_HOSTS = frozenset(', 'IST = ZoneInfo("Asia/Kolkata")\nALLOWED_ATTACHMENT_HOSTS = frozenset(', 1)
-          text = text.replace('        except (TypeError, ValueError) as exc:\n            last_error = exc\n', '        except PreparationError as exc:\n            last_error = exc\n')
-          text = text.replace('        published_date = published.astimezone(UTC).date()\n', '        published_date = published.astimezone(IST).date()\n')
-          p.write_text(text)
-
-          p = Path('Makefile')
-          text = p.read_text()
-          old = '''\t$(PYTHON) -c "from marketlab.prospective import load_and_validate_runner_rule; d=load_and_validate_runner_rule('registry/h002_runner_rule.yaml'); print(f\\"H002 runner valid: {d['id']} sha256={d['sha256']}\\")"
-'''
-          new = old + '''\t$(PYTHON) -c "from marketlab.h003_sources import load_and_validate_source_rule; d=load_and_validate_source_rule('registry/h003_source_rule.yaml'); print(f\\"H003 source rule valid: {d['id']} sha256={d['sha256']}\\")"
-'''
-          if old not in text:
-              raise SystemExit('Makefile validation target missing')
-          p.write_text(text.replace(old, new, 1))
-          PY
+      - run: python scripts/h003_source_integrate_once.py
       - run: ruff check src tests scripts --fix
       - run: ruff check src tests scripts
       - run: pytest -q
       - run: make validate
-      - name: Commit integration and remove one-shot workflow
+      - name: Commit integration and remove one-shot files
         run: |
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git rm .github/workflows/h003-source-integration-once.yml
+          git rm .github/workflows/h003-source-integration-once.yml scripts/h003_source_integrate_once.py
           git add Makefile src tests scripts registry
           git commit -m "Integrate frozen H003 source coverage contract"
           git push origin HEAD:feat/h003-source-corpus-v1
