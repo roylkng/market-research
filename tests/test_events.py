@@ -3,13 +3,46 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.events import HISTORICAL_RECONSTRUCTION, EventStore, parse_indas_html, sha256_bytes
+import pytest
+
+from marketlab.events import (
+    HISTORICAL_RECONSTRUCTION,
+    PROSPECTIVE,
+    EventParseError,
+    EventStore,
+    parse_indas_html,
+    sha256_bytes,
+)
+from marketlab.universe import build_universe_snapshot
 
 FIXTURES = Path("data/fixtures/filings")
 
 
 def _fixture(name: str) -> bytes:
     return (FIXTURES / name).read_bytes()
+
+
+def _quote(symbol: str, *, isin: str, macro: str = "Consumer Discretionary") -> dict:
+    return {
+        "info": {"isin": isin, "listingDate": "01-Jan-2000"},
+        "industryInfo": {
+            "macro": macro,
+            "sector": "Research Sector",
+            "industry": "Research Industry",
+            "basicIndustry": "Research Basic Industry",
+        },
+    }
+
+
+def _ccl_universe(*, captured_at: datetime | None = None):
+    index = {"timestamp": "01-Jul-2026 15:30:00", "data": [{"symbol": "CCL", "ffmc": 100}]}
+    return build_universe_snapshot(
+        index,
+        lambda _: _quote("CCL", isin="INE421D01022"),
+        cohort_id="FY27-Q1-TEST",
+        selection_size=1,
+        captured_at=captured_at or datetime(2026, 7, 1, tzinfo=UTC),
+    )
 
 
 def test_ccl_source_derived_fixture_parses_without_reinterpreting_ebitda():
@@ -124,3 +157,108 @@ def test_reconstruction_mode_is_hard_coded_for_current_store(tmp_path):
         source_url="https://example.invalid/shaily",
     )
     assert event.mode == HISTORICAL_RECONSTRUCTION
+
+
+def test_prospective_capture_records_discovery_source_and_universe_hashes(tmp_path):
+    raw = _fixture("ccl_fy27_q1_consolidated_source_derived.html")
+    discovery = b'{"symbol":"CCL","exchdisstime":"27-Jul-2026 20:26:14"}'
+    universe = _ccl_universe()
+    event, created = EventStore(tmp_path).capture_prospective_bytes(
+        raw,
+        discovery_bytes=discovery,
+        source_url=(
+            "https://nsearchives.nseindia.com/corporate/ixbrl/"
+            "INTEGRATED_FILING_INDAS_178875_27072026202614_iXBRL_WEB.html"
+        ),
+        exchange_published_at_utc="2026-07-27T14:56:14Z",
+        universe=universe,
+        captured_at=datetime(2026, 7, 27, 15, 0, tzinfo=UTC),
+    )
+
+    assert created is True
+    assert event.mode == PROSPECTIVE
+    assert event.schema_version == 2
+    assert event.provenance.exchange_published_at_utc == "2026-07-27T14:56:14Z"
+    assert event.provenance.discovery_sha256 == sha256_bytes(discovery)
+    assert event.provenance.universe_snapshot_sha256 == universe.sha256
+    assert event.provenance.cohort_id == "FY27-Q1-TEST"
+    assert Path(event.provenance.raw_path).read_bytes() == raw
+    assert Path(event.provenance.discovery_path or "").read_bytes() == discovery
+    prospective_records = list(
+        (tmp_path / "prospective-events" / event.economic_event_id).glob("*.json")
+    )
+    assert len(prospective_records) == 1
+
+
+def test_historical_and_prospective_same_bytes_do_not_collapse_namespaces(tmp_path):
+    raw = _fixture("ccl_fy27_q1_consolidated_source_derived.html")
+    store = EventStore(tmp_path)
+    historical, _ = store.reconstruct_bytes(raw, source_url="https://example.invalid/ccl")
+    prospective, created = store.capture_prospective_bytes(
+        raw,
+        discovery_bytes=b'{"symbol":"CCL"}',
+        source_url="https://example.invalid/ccl",
+        exchange_published_at_utc="2026-07-27T14:56:14Z",
+        universe=_ccl_universe(),
+        captured_at=datetime(2026, 7, 27, 15, 0, tzinfo=UTC),
+    )
+    assert created is True
+    assert historical.economic_event_id == prospective.economic_event_id
+    assert historical.mode == HISTORICAL_RECONSTRUCTION
+    assert prospective.mode == PROSPECTIVE
+    assert (tmp_path / "events" / historical.economic_event_id).exists()
+    assert (tmp_path / "prospective-events" / prospective.economic_event_id).exists()
+
+
+def test_prospective_capture_rejects_symbol_outside_frozen_universe(tmp_path):
+    raw = _fixture("shaily_fy26_q1_consolidated_source_derived.html")
+    with pytest.raises(EventParseError, match="SHAILY is not eligible"):
+        EventStore(tmp_path).capture_prospective_bytes(
+            raw,
+            discovery_bytes=b'{"symbol":"SHAILY"}',
+            source_url="https://example.invalid/shaily",
+            exchange_published_at_utc="2026-07-27T14:56:14Z",
+            universe=_ccl_universe(),
+            captured_at=datetime(2026, 7, 27, 15, 0, tzinfo=UTC),
+        )
+
+
+def test_prospective_capture_rejects_universe_frozen_after_publication(tmp_path):
+    raw = _fixture("ccl_fy27_q1_consolidated_source_derived.html")
+    universe = _ccl_universe(captured_at=datetime(2026, 7, 28, tzinfo=UTC))
+    with pytest.raises(EventParseError, match="universe snapshot was frozen after"):
+        EventStore(tmp_path).capture_prospective_bytes(
+            raw,
+            discovery_bytes=b'{"symbol":"CCL"}',
+            source_url="https://example.invalid/ccl",
+            exchange_published_at_utc="2026-07-27T14:56:14Z",
+            universe=universe,
+            captured_at=datetime(2026, 7, 28, 1, 0, tzinfo=UTC),
+        )
+
+
+def test_prospective_capture_rejects_future_exchange_timestamp(tmp_path):
+    raw = _fixture("ccl_fy27_q1_consolidated_source_derived.html")
+    with pytest.raises(EventParseError, match="later than local capture time"):
+        EventStore(tmp_path).capture_prospective_bytes(
+            raw,
+            discovery_bytes=b'{"symbol":"CCL"}',
+            source_url="https://example.invalid/ccl",
+            exchange_published_at_utc="2026-07-27T16:00:00Z",
+            universe=_ccl_universe(),
+            captured_at=datetime(2026, 7, 27, 15, 0, tzinfo=UTC),
+        )
+
+
+def test_same_prospective_source_bytes_cannot_silently_change_discovery_provenance(tmp_path):
+    raw = _fixture("ccl_fy27_q1_consolidated_source_derived.html")
+    store = EventStore(tmp_path)
+    kwargs = {
+        "source_url": "https://example.invalid/ccl",
+        "exchange_published_at_utc": "2026-07-27T14:56:14Z",
+        "universe": _ccl_universe(),
+        "captured_at": datetime(2026, 7, 27, 15, 0, tzinfo=UTC),
+    }
+    store.capture_prospective_bytes(raw, discovery_bytes=b'{"v":1}', **kwargs)
+    with pytest.raises(EventParseError, match="conflicting prospective provenance"):
+        store.capture_prospective_bytes(raw, discovery_bytes=b'{"v":2}', **kwargs)
