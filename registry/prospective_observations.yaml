@@ -1,6 +1,25 @@
 version: 1
-cohorts: []
 warning: >-
-  This ledger is intentionally empty. Historical reconstruction records must never
-  be copied here. Prospective observations may be appended only after the capture
-  policy gate is activated for a frozen U001 cohort snapshot.
+  Historical reconstruction records must never be copied into this ledger.
+  Prospective observations are paper-only and must originate from the active
+  capture policy and frozen U001/H002 contracts.
+
+cohorts:
+  - cohort_id: FY27-Q2-2026-09-06
+    hypothesis_id: H002
+    status: ACTIVE_PAPER_ONLY
+    activated_at_utc: 2026-09-06T13:02:28Z
+    universe_id: U001
+    universe_snapshot_path: research/prospective/universes/FY27-Q2-2026-09-06.json
+    universe_snapshot_sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+    signal_rule_id: H002-R001
+    signal_rule_sha256: a86218ec529ea53f7c7918d415961bcda30c5bbdda141a05ae13225c081db2c6
+    execution_rule_id: H002-X001
+    execution_rule_sha256: e33296d2aa8132e40258bf45036d504b624955701d9c20fe3c3612ca25c1a6f8
+    ledger_format: hash_chained_jsonl_v1
+    local_ledger_path: .marketlab/prospective/FY27-Q2-2026-09-06/h002_observations.jsonl
+    raw_source_root: .marketlab/prospective/FY27-Q2-2026-09-06/raw
+    first_event_version_fixes_signal: true
+    historical_backfill_allowed: false
+    live_capital: false
+    observations_recorded: 0
