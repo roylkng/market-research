@@ -27,10 +27,13 @@ jobs:
       - name: Install MarketLab
         run: python -m pip install -e .
 
-      - name: Inspect Nifty 200 source row schema
+      - name: Inspect Nifty 200 official source schemas
         run: |
           python - <<'PY'
+          import io
           import json
+          import pandas as pd
+          import requests
           from marketlab.nse import NSEClient
 
           doc = NSEClient().index_snapshot('NIFTY 200')
@@ -40,6 +43,17 @@ jobs:
               row = next((r for r in doc.get('data', []) if r.get('symbol') == wanted), None)
               if row:
                   print(f'ROW {wanted}:', json.dumps(row, sort_keys=True))
+
+          url = 'https://archives.nseindia.com/content/indices/ind_nifty200list.csv'
+          response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=20)
+          print('constituent csv status:', response.status_code)
+          print('constituent csv content-type:', response.headers.get('content-type'))
+          response.raise_for_status()
+          frame = pd.read_csv(io.BytesIO(response.content))
+          print('constituent csv columns:', list(frame.columns))
+          print('constituent csv rows:', len(frame))
+          print(frame.loc[frame['Symbol'].isin(['HDFCBANK','RELIANCE','INFY','SBIN','HDFCLIFE'])].to_string(index=False))
+          print('industry counts:', frame['Industry'].value_counts().head(20).to_dict())
           PY
 
       - name: Freeze U001 snapshot from NSE
