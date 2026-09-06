@@ -155,7 +155,7 @@ def _economic_event_id(symbol: str, period_end: str | None, basis: str, quarter:
 
 def _parse_utc_timestamp(value: str, *, field: str) -> datetime:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise EventParseError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
