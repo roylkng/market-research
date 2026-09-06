@@ -1,0 +1,95 @@
+name: H003 announcement window completeness probe
+
+on:
+  push:
+    branches:
+      - feat/h003-source-corpus-v1
+    paths:
+      - .github/workflows/h003-window-completeness-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h003-source-corpus-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Compare full window with six-month slices
+        run: |
+          mkdir -p probe-out
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from marketlab.nse import NSEClient
+
+          client = NSEClient(timeout=25.0, attempts=4)
+          windows = [
+              ('01-09-2024', '28-02-2025'),
+              ('01-03-2025', '31-08-2025'),
+              ('01-09-2025', '28-02-2026'),
+              ('01-03-2026', '06-09-2026'),
+          ]
+
+          def rows(payload):
+              if isinstance(payload, list):
+                  return [row for row in payload if isinstance(row, dict)]
+              if isinstance(payload, dict) and isinstance(payload.get('data'), list):
+                  return [row for row in payload['data'] if isinstance(row, dict)]
+              raise RuntimeError('unexpected announcement payload')
+
+          def identity(row):
+              return (
+                  str(row.get('seq_id') or ''),
+                  str(row.get('exchdisstime') or row.get('an_dt') or row.get('sort_date') or ''),
+                  str(row.get('attchmntFile') or ''),
+                  str(row.get('desc') or ''),
+              )
+
+          result = {}
+          for symbol in ('INFY', 'RELIANCE', 'LT', 'HINDUNILVR'):
+              full_payload, _ = client.corporate_announcements_with_raw(
+                  symbol, from_date='01-09-2024', to_date='06-09-2026'
+              )
+              full_rows = rows(full_payload)
+              full_ids = {identity(row) for row in full_rows}
+              slice_ids = set()
+              slice_counts = []
+              for start, end in windows:
+                  payload, _ = client.corporate_announcements_with_raw(
+                      symbol, from_date=start, to_date=end
+                  )
+                  current = rows(payload)
+                  slice_counts.append(len(current))
+                  slice_ids.update(identity(row) for row in current)
+              result[symbol] = {
+                  'full_count': len(full_rows),
+                  'full_unique_count': len(full_ids),
+                  'slice_counts': slice_counts,
+                  'slice_union_count': len(slice_ids),
+                  'missing_from_full_count': len(slice_ids - full_ids),
+                  'extra_in_full_count': len(full_ids - slice_ids),
+                  'full_equals_slice_union': full_ids == slice_ids,
+              }
+          path = Path('probe-out/window-completeness.json')
+          path.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(path.read_text())
+          PY
+      - name: Commit measured completeness evidence
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          mkdir -p research/probes/h003-announcements-2026-09-06
+          cp probe-out/window-completeness.json research/probes/h003-announcements-2026-09-06/window-completeness.json
+          git add research/probes/h003-announcements-2026-09-06/window-completeness.json
+          git commit -m "Measure H003 announcement window completeness"
+          git push origin HEAD:feat/h003-source-corpus-v1
