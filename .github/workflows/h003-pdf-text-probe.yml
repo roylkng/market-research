@@ -1,0 +1,82 @@
+name: H003 transcript PDF text extraction probe
+
+on:
+  push:
+    branches:
+      - probe/h003-nse-announcements-20260906
+    paths:
+      - .github/workflows/h003-pdf-text-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pypdf requests
+      - name: Test representative official transcript PDFs
+        run: |
+          mkdir -p probe-out
+          python - <<'PY'
+          import io
+          import json
+          import re
+          from pathlib import Path
+
+          import requests
+          from pypdf import PdfReader
+
+          urls = {
+              'HCLTECH_Q1FY27': 'https://nsearchives.nseindia.com/corporate/HCLTECH_15072026223403_TranscriptEarningsCall.pdf',
+              'LT_JUN2026': 'https://nsearchives.nseindia.com/corporate/PAM_03082026181720_TranscriptJune2026.pdf',
+              'HINDALCO_Q1FY27': 'https://nsearchives.nseindia.com/corporate/HINDALCOIND_13082026112508_Q1FY27_Transcript_signed.pdf',
+              'MARUTI_Q1FY27': 'https://nsearchives.nseindia.com/corporate/MARUTIASHISH_06082026173039_STxIntimation_Transcript_6Aug2026.pdf',
+          }
+          future = re.compile(r'\b(expect|expects|expected|expecting|guidance|target|targets|aim|aims|plan|plans|will|should|intend|intends|outlook)\b', re.I)
+          numeric = re.compile(r'(?:\d+(?:\.\d+)?\s*%|\b\d+(?:\.\d+)?\s*(?:crore|cr|million|billion|mn|bn|bps|basis points)\b|FY\s*\d{2,4}|Q[1-4])', re.I)
+          result = {}
+          for name, url in urls.items():
+              response = requests.get(url, timeout=30, headers={'User-Agent': 'Mozilla/5.0'})
+              response.raise_for_status()
+              raw = response.content
+              reader = PdfReader(io.BytesIO(raw))
+              pages = []
+              for page in reader.pages:
+                  try:
+                      pages.append(page.extract_text() or '')
+                  except Exception:
+                      pages.append('')
+              text = '\n'.join(pages)
+              lines = [' '.join(line.split()) for line in text.splitlines() if line.strip()]
+              candidates = [line for line in lines if future.search(line) and numeric.search(line)]
+              result[name] = {
+                  'url': url,
+                  'http_bytes': len(raw),
+                  'page_count': len(reader.pages),
+                  'nonempty_page_count': sum(bool(page.strip()) for page in pages),
+                  'extracted_char_count': len(text),
+                  'line_count': len(lines),
+                  'future_numeric_candidate_count': len(candidates),
+                  'candidate_examples': candidates[:15],
+                  'text_prefix': text[:1500],
+              }
+          path = Path('probe-out/pdf-text-extraction.json')
+          path.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(path.read_text())
+          PY
+      - name: Commit extraction evidence
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          mkdir -p research/probes/h003-announcements-2026-09-06
+          cp probe-out/pdf-text-extraction.json research/probes/h003-announcements-2026-09-06/pdf-text-extraction.json
+          git add research/probes/h003-announcements-2026-09-06/pdf-text-extraction.json
+          git commit -m "Measure H003 transcript PDF text extractability"
+          git push origin HEAD:probe/h003-nse-announcements-20260906
