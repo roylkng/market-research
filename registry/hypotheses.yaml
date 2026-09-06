@@ -1,0 +1,70 @@
+version: 1
+live_capital_allowed: false
+
+hypotheses:
+  - id: H001
+    name: raw_earnings_acceleration
+    created: 2026-09-06
+    status: REJECTED
+    mechanism: >-
+      Companies with stronger year-on-year sales growth, operating-profit growth,
+      and margin expansion should outperform after the immediate earnings reaction.
+    universe:
+      market: India
+      type: liquid_non_financial_equities
+    signal:
+      formula: sales_yoy_pct + op_profit_yoy_pct + 5 * opm_change_pp
+    decision:
+      entry_delay_sessions: 2
+      holding_period_sessions: 20
+    benchmarks:
+      - nifty_50
+      - nifty_200_momentum_30
+    result:
+      pearson_excess_vs_nifty: 0.066
+      pearson_p_value: 0.758
+      spearman_excess_vs_nifty: 0.035
+      spearman_p_value: 0.872
+    conclusion: >-
+      Raw accounting growth is not a sufficient proxy for information surprise.
+      The signal had essentially zero relationship with subsequent excess return.
+    live_capital: false
+
+  - id: H002
+    name: positive_unexpected_earnings_pead
+    created: 2026-09-06
+    status: INCONCLUSIVE
+    mechanism: >-
+      Positive unexpected earnings may be incorporated into Indian equity prices
+      gradually, producing post-earnings-announcement drift.
+    universe:
+      market: India
+      type: liquid_non_financial_equities
+    signal:
+      formula: (eps_t - eps_t_minus_4) / price_day_minus_2
+      literature_style: true
+    decision:
+      entry_delay_sessions: 2
+      holding_period_sessions: 20
+    benchmarks:
+      - nifty_50
+      - nifty_200_momentum_30
+    feasibility_result:
+      exact_return_observations: 24
+      positive_ue_observations: 16
+      negative_ue_observations: 8
+      positive_ue_mean_excess_pp: 1.99
+      negative_ue_mean_excess_pp: -1.17
+      positive_minus_negative_spread_pp: 3.16
+      spread_p_value: 0.233
+      positive_ue_beat_rate: 0.625
+      negative_ue_beat_rate: 0.375
+      bootstrap_95_ci_pp: [-1.67, 7.96]
+      ranked_ue_top_quintile_excess_pp: -2.58
+      ranked_ue_bottom_quintile_excess_pp: -1.80
+    conclusion: >-
+      Ranked UE magnitude did not replicate in this small feasibility pilot.
+      UE sign moved in the economically expected direction, but uncertainty and
+      winner dependence are too large for a tradable conclusion.
+    next_action: prospective_paper_test
+    live_capital: false
