@@ -10,6 +10,7 @@ The project is deliberately **not** a stock-prediction product and does not perm
 |---|---|---|
 | H001 | Does raw revenue/profit/margin acceleration predict post-results returns? | **REJECTED** |
 | H002 | Does positive unexpected earnings produce post-earnings-announcement drift in liquid Indian equities? | **INCONCLUSIVE — prospective paper test required** |
+| H003 | Does prior management delivery credibility predict 120-session sector-relative returns? | **FROZEN — prospective evaluation required** |
 
 **No model in this repository is approved for live capital.**
 
@@ -36,19 +37,32 @@ See `reports/experiments/2026-09-06-feasibility-pilot.md`.
 7. Promote models only after walk-forward and prospective paper evidence.
 8. Preserve rejected hypotheses instead of rewriting them until they work.
 
-## Prospective coverage panel
+## Frozen prospective coverage panel
 
-H002 v1 will use universe rule `U001`:
+H002 and H003 use universe rule `U001`. The first cohort is now frozen at:
 
-> For each earnings cohort, take current Nifty 200 constituents, remove the NSE macro sector `Financial Services`, rank the remainder by NSE free-float market capitalization, then freeze the top 100 for that cohort.
+`research/prospective/universes/FY27-Q2-2026-09-06.json`
 
-This is a research panel, not a portfolio. See `docs/universe-v1.md` and `registry/universes.yaml`.
+Canonical SHA-256:
 
-A separate curated development cohort in `registry/development_companies.yaml` is used to stress acquisition, extraction and company-intelligence workflows. Those companies cannot enter H002 by exception.
+`cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb`
+
+U001 v2 is mechanical:
+
+1. take exact Nifty 200 membership, Industry and ISIN from the official NSE constituent CSV,
+2. take point-in-time free-float market capitalization from the NSE Nifty 200 index payload,
+3. require exact symbol-set agreement between both 200-name sources,
+4. exclude `Financial Services`,
+5. rank by FFMC descending and symbol ascending,
+6. freeze the top 100 for the full earnings cohort.
+
+The frozen cohort contains 100 unique non-financial names and preserves hashes of both official source artifacts. This is a research panel, not a portfolio or a list of companies expected to outperform. See `docs/universe-v1.md` and `registry/universes.yaml`.
+
+A separate curated development cohort in `registry/development_companies.yaml` is used to stress acquisition, extraction and company-intelligence workflows. Those companies cannot enter H002/H003 by exception.
 
 ## Source of record
 
-For prospective earnings events, NSE Integrated Filing - Financials is the primary source of record when available. Web JSON endpoints can assist discovery, but the retained provenance points to the original exchange Details/XBRL document and preserves its hash and exchange timestamps. See `docs/source-decision.md`.
+For prospective earnings events, NSE Integrated Filing - Financials is the primary source of record when available. Web JSON endpoints can assist discovery, but retained provenance points to the original exchange Details/XBRL document and preserves its hash and exchange timestamps. See `docs/source-decision.md`.
 
 ## Repository layout
 
@@ -58,9 +72,9 @@ market-research/
 ├── hypotheses/           # immutable human-readable hypotheses
 ├── experiments/          # frozen specs and results
 ├── registry/             # hypothesis, experiment, universe and dev-company ledgers
-├── research/             # historical reconstruction manifests
-├── src/marketlab/        # evaluation, acquisition, parsing and universe code
-├── tests/                # invariants and metric tests
+├── research/             # historical reconstruction, company intelligence, prospective data
+├── src/marketlab/        # evaluation, acquisition, parsing and feature code
+├── tests/                # invariants, provenance and leakage tests
 ├── reports/              # published research reports
 ├── data/                 # data policy and small published fixtures
 └── artifacts/            # artifact manifests and hashes
@@ -76,13 +90,7 @@ source .venv/bin/activate
 python -m pip install -e '.[dev]'
 ```
 
-If your system exposes only a versioned interpreter, for example `python3.12`, use that in the first command:
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e '.[dev]'
-```
+If your system exposes only a versioned interpreter, for example `python3.12`, use that in the first command.
 
 ## Commands
 
@@ -92,34 +100,23 @@ Validate the research ledger:
 marketlab validate-registry registry/hypotheses.yaml
 ```
 
-The repository ships a small **feasibility-only** fixture so the evaluator commands are runnable immediately. It reproduces the 24 exact-return observations from the published H002 pilot. It is not production-grade point-in-time data.
+Validate the frozen U001 cohort:
 
-Evaluate the continuous unexpected-earnings signal:
+```bash
+marketlab validate-universe research/prospective/universes/FY27-Q2-2026-09-06.json
+```
+
+The repository ships a **feasibility-only** H002 fixture so evaluator commands are runnable immediately. It is not production-grade point-in-time data.
 
 ```bash
 marketlab evaluate-signal data/fixtures/h002_feasibility.csv \
   --signal-col ue \
   --excess-col excess_vs_nifty
-```
 
-Evaluate positive versus negative UE and winner dependence:
-
-```bash
 marketlab evaluate-binary data/fixtures/h002_feasibility.csv \
   --group-col ue_sign \
   --excess-col excess_vs_nifty
 ```
-
-Freeze a 100-company prospective universe snapshot from current NSE metadata:
-
-```bash
-marketlab snapshot-universe \
-  --cohort-id FY27-Q2 \
-  --selection-size 100 \
-  --output data/snapshots/FY27-Q2-universe.json
-```
-
-The snapshot command fails rather than silently skipping an unclassified high-ranked constituent. Commit a reviewed cohort snapshot before prospective result scoring begins.
 
 Reconstruct an old source-derived filing fixture without making it prospective evidence:
 
@@ -130,7 +127,13 @@ marketlab reconstruct-event \
   --store .marketlab
 ```
 
-The local content-addressed store is ignored by Git. See `docs/historical-reconstruction.md`.
+Inspect management delivery evidence without leaking future outcomes:
+
+```bash
+marketlab delivery-feature research/company-intelligence/claims_v1.yaml \
+  --symbol CCL \
+  --as-of 2026-09-06
+```
 
 Run repository checks:
 
@@ -140,19 +143,11 @@ make test
 make validate
 ```
 
-## Current next experiment
+## Current next experiments
 
-H002 receives **prospective paper testing only**.
+H002 receives **prospective paper testing only**. Its next gate is to freeze the expected-EPS/UE-SUE model before prospective earnings outcomes accumulate.
 
-The next-grade experiment must capture in real time:
-
-- original exchange filing and timestamp,
-- original reported financials,
-- pre-result consensus or pre-registered expected-EPS model,
-- exact decision/entry timestamps,
-- benchmark prices,
-- corporate-action state,
-- and immutable raw hashes.
+H003 is separately frozen at a 120-session horizon. Its next gate is expanding pre-existing claim/delivery history across U001 while enforcing the `as_of` cutoff, then testing future sector-relative returns.
 
 No rule changes are permitted after observations begin without creating a new hypothesis/version.
 
@@ -160,7 +155,7 @@ No rule changes are permitted after observations begin without creating a new hy
 
 Older free filings and historical news can be used to build and test acquisition and company-intelligence capabilities. Such records are labelled `HISTORICAL_RECONSTRUCTION`. They cannot be counted as prospective validation because their subsequent outcomes are already knowable.
 
-The first reconstruction cases are seeded in `research/historical-reconstruction/cases.yaml` for INFY, CCL and SHAILY. Source-derived parser fixtures are intentionally labelled as derived and their hashes must never be represented as original exchange-file hashes.
+The first reconstruction cases are seeded for INFY, CCL and SHAILY. Source-derived parser fixtures are intentionally labelled as derived and their hashes must never be represented as original exchange-file hashes.
 
 ## Future architecture
 
