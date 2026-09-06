@@ -4,11 +4,12 @@ import hashlib
 import json
 import os
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from marketlab.events import PROSPECTIVE, FinancialEvent
 from marketlab.h002 import (
