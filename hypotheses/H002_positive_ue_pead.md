@@ -2,31 +2,67 @@
 
 ## Status
 
-`INCONCLUSIVE`
+`FROZEN — PROSPECTIVE EVALUATION REQUIRED`
 
 ## Hypothesis
 
 Positive unexpected earnings may be incorporated into Indian equity prices gradually, producing post-earnings-announcement drift after the immediate result reaction.
 
-## Literature-style signal
+## Frozen prospective signal
+
+Signal version: `H002-UE-v1`
 
 ```text
-UE = (EPS_t - EPS_t-4) / price_day_minus_2
+expected_eps = EPS_t-4
+unexpected_eps = EPS_t - expected_eps
+UE = unexpected_eps / price_day_minus_2
 ```
 
-This mirrors a simple seasonal unexpected-earnings proxy used in Indian PEAD research.
+Canonical rule SHA-256:
 
-## Frozen feasibility decision rule
+`24eb8325216e68db8e3f14db440a0f470f9f576a3d1aea034b570812c70686ff`
 
-- Universe: preselected liquid non-financial Indian companies in the July 2025 result cohort.
-- Do not trade the event day or first subsequent session.
-- Enter at the open of the second trading session after the result.
-- Hold exactly 20 trading sessions.
-- Compare with Nifty 50 and a simple momentum benchmark.
+The canonical rule is stored in `registry/signals/H002-UE-v1.json` and documented in `docs/h002-ue-v1.md`.
+
+This keeps the prospective signal aligned with the same literature-style seasonal unexpected-earnings proxy used by the original feasibility pilot. Analyst-consensus and standardized-SUE alternatives are separate future hypotheses or signal versions rather than post-hoc replacements.
+
+## Prospective universe
+
+H002 uses frozen universe rule `U001`.
+
+The first 100-company cohort is stored at:
+
+`research/prospective/universes/FY27-Q2-2026-09-06.json`
+
+No discretionary company additions or removals are allowed after the cohort is frozen.
+
+## Buckets
+
+- `POSITIVE`: UE > 0
+- `ZERO`: UE == 0
+- `NEGATIVE`: UE < 0
+- `NO_SIGNAL`: missing, invalid or non-comparable required inputs
+
+No winsorization or current-cohort quantile thresholds are used in v1.
+
+## Timing and comparability guardrails
+
+- prior EPS source must predate the current filing,
+- prior EPS must correspond to the same reporting quarter and accounting basis,
+- corporate-action comparability must be explicit and versioned,
+- post-result prices, transcripts and brokerage revisions cannot enter the signal,
+- missing required inputs create `NO_SIGNAL`, not an estimate.
+
+## Primary horizon
+
+- ignore result day and the first subsequent trading session,
+- planned paper entry is the second eligible session open,
+- primary holding period is exactly 20 trading sessions,
+- actual execution and benchmark mechanics belong to H002-C.
 
 ## Feasibility result
 
-24 observations had independently verified delayed-entry/exit prices.
+The historical feasibility pilot remains unchanged. 24 observations had independently verified delayed-entry/exit prices.
 
 ### Ranked UE magnitude
 
@@ -49,12 +85,10 @@ The ranked 20-session implementation did not replicate a clean PEAD effect.
 - Positive UE beat rate: **62.5%**
 - Negative UE beat rate: **37.5%**
 
-The sign moves in the economically expected direction, but the sample is small, uncertainty crosses zero, and the result is sensitive to a handful of observations.
+The sign moved in the economically expected direction, but the historical sample was too small and winner-dependent for a tradable conclusion.
 
 ## Decision
 
 **No live capital.**
 
-The only justified next step is a prospectively frozen paper test using original point-in-time exchange filings and, where available, timestamped analyst consensus / standardized unexpected earnings.
-
-Do not optimize the current result into significance.
+H002-UE-v1 is now frozen so the next earnings cohort can test the same rule prospectively. The next implementation gate is deterministic paper execution and benchmark reconstruction, not more signal optimization.
