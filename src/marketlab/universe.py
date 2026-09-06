@@ -174,7 +174,7 @@ def build_universe_snapshot(
         "index": "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200",
         "quote_template": "https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>",
     }
-    unsigned = {
+    hash_payload = {
         "schema_version": 1,
         "rule_version": "U001-nifty200-top100-nonfinancial-ffmc-v1",
         "cohort_id": cohort_id,
@@ -185,4 +185,15 @@ def build_universe_snapshot(
         "source_urls": source_urls,
         "members": [asdict(member) for member in members],
     }
-    return UniverseSnapshot(**unsigned, sha256=_canonical_hash(unsigned))
+    return UniverseSnapshot(
+        schema_version=1,
+        rule_version="U001-nifty200-top100-nonfinancial-ffmc-v1",
+        cohort_id=cohort_id,
+        captured_at_utc=captured_at_utc,
+        index_name=index_name,
+        index_timestamp=index_payload.get("timestamp"),
+        selection_size=selection_size,
+        source_urls=source_urls,
+        members=members,
+        sha256=_canonical_hash(hash_payload),
+    )
