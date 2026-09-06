@@ -106,7 +106,10 @@ def _rows(html: str) -> list[list[str]]:
     soup = BeautifulSoup(html, "html.parser")
     rows: list[list[str]] = []
     for row in soup.find_all("tr"):
-        cells = [_normalise_text(cell.get_text(" ", strip=True)) for cell in row.find_all(["th", "td"])]
+        cells = [
+            _normalise_text(cell.get_text(" ", strip=True))
+            for cell in row.find_all(["th", "td"])
+        ]
         cells = [cell for cell in cells if cell]
         if cells:
             rows.append(cells)
@@ -242,7 +245,7 @@ def parse_indas_html(
 
 
 class EventStore:
-    """Content-addressed local store for immutable source bytes and event versions."""
+    """Content-addressed local store for immutable historical source bytes."""
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)
@@ -260,7 +263,6 @@ class EventStore:
         source_url: str,
         suffix: str = ".html",
         captured_at: datetime | None = None,
-        mode: str = HISTORICAL_RECONSTRUCTION,
     ) -> tuple[FinancialEvent, bool]:
         captured_at = captured_at or datetime.now(UTC)
         if captured_at.tzinfo is None:
@@ -282,7 +284,7 @@ class EventStore:
             raw_sha256=digest,
             raw_path=str(raw_path),
             captured_at_utc=captured_at_utc,
-            mode=mode,
+            mode=HISTORICAL_RECONSTRUCTION,
         )
         record_path = self._record_path(provisional)
         if record_path.exists():
@@ -298,6 +300,7 @@ class EventStore:
 
 
 def _event_from_dict(payload: dict[str, Any]) -> FinancialEvent:
+    payload = dict(payload)
     provenance = SourceProvenance(**payload.pop("provenance"))
     unresolved = tuple(payload.pop("unresolved_fields", []))
     return FinancialEvent(**payload, unresolved_fields=unresolved, provenance=provenance)
