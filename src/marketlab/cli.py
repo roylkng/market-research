@@ -71,14 +71,15 @@ def snapshot_universe(
     cohort_id: Annotated[str, typer.Option(help="Immutable earnings-cohort identifier")],
     selection_size: Annotated[int, typer.Option(min=1, max=200)] = 100,
 ) -> None:
-    """Freeze the mechanical H002 research universe from current NSE metadata."""
+    """Freeze U001 from official Nifty 200 FFMC and constituent sources."""
 
     client = NSEClient()
     try:
         index_payload = client.index_snapshot("NIFTY 200")
+        constituent_csv = client.nifty200_constituent_csv()
         snapshot = build_universe_snapshot(
             index_payload,
-            client.quote_equity,
+            constituent_csv,
             cohort_id=cohort_id,
             selection_size=selection_size,
         )
