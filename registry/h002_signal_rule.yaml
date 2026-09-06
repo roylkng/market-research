@@ -1,0 +1,41 @@
+id: H002-R001
+hypothesis_id: H002
+status: FROZEN
+sha256: a86218ec529ea53f7c7918d415961bcda30c5bbdda141a05ae13225c081db2c6
+
+expectation_model:
+  version: seasonal_same_quarter_basic_eps_v1
+  formula: expected_eps = prior_year_same_quarter_basic_eps * corporate_action_factor
+  baseline_age_years: 1
+  baseline_accounting_basis: must_match_actual
+  baseline_quarter: must_match_actual
+  baseline_availability: strictly_before_current_exchange_publication
+  missing_baseline_eps: NO_SIGNAL
+  corporate_action_factor_default: 1.0
+  corporate_action_version_required: true
+
+signal:
+  version: ue_price_normalized_v1
+  formula: ue = (actual_basic_eps - expected_eps) / price_day_minus_2
+  price_role: price_day_minus_2
+  price_timestamp: strictly_before_current_exchange_publication
+  price_must_be_positive: true
+  winsorization: none
+  buckets:
+    positive: ue > 0
+    zero: ue == 0
+    negative: ue < 0
+  missing_input: NO_SIGNAL
+
+guards:
+  - actual_event_mode_must_be_PROSPECTIVE
+  - expectation_as_of_strictly_before_publication
+  - baseline_available_strictly_before_publication
+  - symbol_period_quarter_and_accounting_basis_must_match
+  - no_post_filing_input
+  - no_momentum_valuation_guidance_or_llm_factor
+
+decision:
+  entry_delay_sessions: 2
+  holding_period_sessions: 20
+  live_capital: false
