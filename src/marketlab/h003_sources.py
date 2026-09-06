@@ -16,7 +16,7 @@ from marketlab.preparation import PreparationError, _parse_exchange_timestamp
 from marketlab.universe import UniverseSnapshot
 
 SOURCE_RULE_ID = "H003-C001"
-SOURCE_RULE_SHA256 = "4f33a47450595baff76b88a6042560df68754ce8f11cfa44f9f890d74bbd94c1"
+SOURCE_RULE_SHA256 = "a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e"
 COHORT_ID = "FY27-Q2-2026-09-06"
 DECISION_DATE = date(2026, 9, 6)
 DECISION_TIMESTAMP_UTC = datetime(2026, 9, 6, 12, 21, 6, 431463, tzinfo=UTC)
@@ -26,14 +26,19 @@ IST = ZoneInfo("Asia/Kolkata")
 ALLOWED_ATTACHMENT_HOSTS = frozenset(
     {"nsearchives.nseindia.com", "archives.nseindia.com"}
 )
+ANALYST_CALL_CATEGORIES = frozenset(
+    {"analysts/institutional investor meet/con. call updates"}
+)
 INCLUDE_ALL = ("transcript",)
 INCLUDE_ANY = (
     "earnings call",
+    "earningscall",
     "financial results",
     "quarter ended",
     "quarter and year ended",
     "analyst meet",
     "conference call",
+    "con. call",
 )
 EXCLUDE_ANY = (
     "annual general meeting",
@@ -200,20 +205,27 @@ def _official_timestamp(row: dict[str, Any]) -> datetime:
     )
 
 
+def _normalise(value: Any) -> str:
+    return " ".join(str(value or "").split()).casefold()
+
+
 def _candidate_text(row: dict[str, Any]) -> str:
     return " ".join(
-        str(value or "").strip()
-        for value in (row.get("desc"), row.get("attchmntText"), row.get("attchmntFile"))
-    ).casefold()
+        _normalise(row.get(key))
+        for key in ("desc", "attchmntText", "attchmntFile")
+    )
 
 
 def _matches_transcript_policy(row: dict[str, Any]) -> bool:
     text = _candidate_text(row)
     if not all(token in text for token in INCLUDE_ALL):
         return False
-    if not any(token in text for token in INCLUDE_ANY):
+    if any(token in text for token in EXCLUDE_ANY):
         return False
-    return not any(token in text for token in EXCLUDE_ANY)
+    description = _normalise(row.get("desc"))
+    return description in ANALYST_CALL_CATEGORIES or any(
+        token in text for token in INCLUDE_ANY
+    )
 
 
 def _validated_attachment_url(row: dict[str, Any]) -> str:
