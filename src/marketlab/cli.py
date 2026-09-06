@@ -13,6 +13,8 @@ from marketlab.evaluation import (
     require_valid_registry,
     winner_concentration,
 )
+from marketlab.nse import NSEAcquisitionError, NSEClient
+from marketlab.universe import UniverseError, build_universe_snapshot
 
 app = typer.Typer(help="Reproducible market-research utilities.", no_args_is_help=True)
 
@@ -53,6 +55,37 @@ def validate_registry(path: Path) -> None:
 
     typer.echo(
         f"registry valid: {len(document['hypotheses'])} hypotheses; live capital disabled"
+    )
+
+
+@app.command("snapshot-universe")
+def snapshot_universe(
+    output: Path = typer.Option(..., help="Output JSON path"),
+    cohort_id: str = typer.Option(..., help="Immutable earnings-cohort identifier"),
+    selection_size: int = typer.Option(100, min=1, max=200),
+) -> None:
+    """Freeze the mechanical H002 research universe from current NSE metadata."""
+
+    client = NSEClient()
+    try:
+        index_payload = client.index_snapshot("NIFTY 200")
+        snapshot = build_universe_snapshot(
+            index_payload,
+            client.quote_equity,
+            cohort_id=cohort_id,
+            selection_size=selection_size,
+        )
+    except (NSEAcquisitionError, UniverseError) as exc:
+        typer.echo(f"universe snapshot failed: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        json.dumps(snapshot.to_dict(), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    typer.echo(
+        f"wrote {snapshot.selection_size} companies to {output}; sha256={snapshot.sha256}"
     )
 
 
