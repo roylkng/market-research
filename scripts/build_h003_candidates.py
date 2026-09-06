@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -113,7 +112,6 @@ def _load_checkpoint(
             or candidate.symbol != symbol
         ):
             raise H003CandidateError(f"candidate checkpoint identity mismatch: {path}")
-    # FETCH_ERROR is transient. Always retry it on a resumed run.
     return None if record.status == "FETCH_ERROR" else record
 
 
