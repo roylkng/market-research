@@ -1,8 +1,33 @@
+import json
+from datetime import UTC, datetime
+
 from typer.testing import CliRunner
 
 from marketlab.cli import app
+from marketlab.universe import build_universe_snapshot
 
 runner = CliRunner()
+
+
+def _ccl_universe_file(tmp_path):
+    snapshot = build_universe_snapshot(
+        {"timestamp": "x", "data": [{"symbol": "CCL", "ffmc": 100}]},
+        lambda _: {
+            "info": {"isin": "INE421D01022", "listingDate": "01-Jan-2000"},
+            "industryInfo": {
+                "macro": "Consumer Discretionary",
+                "sector": "Consumer",
+                "industry": "Coffee",
+                "basicIndustry": "Coffee",
+            },
+        },
+        cohort_id="FY27-Q1-TEST",
+        selection_size=1,
+        captured_at=datetime(2026, 7, 1, tzinfo=UTC),
+    )
+    path = tmp_path / "universe.json"
+    path.write_text(json.dumps(snapshot.to_dict()), encoding="utf-8")
+    return path
 
 
 def test_evaluate_signal_runs_against_published_fixture():
@@ -111,6 +136,41 @@ def test_reconstruct_event_is_runnable_and_historical_only(tmp_path):
     )
     assert second.exit_code == 0, second.output
     assert '"created": false' in second.output
+
+
+def test_capture_prospective_event_records_universe_and_discovery_provenance(tmp_path):
+    source = "data/fixtures/filings/ccl_fy27_q1_consolidated_source_derived.html"
+    discovery = tmp_path / "discovery.json"
+    discovery.write_text('{"symbol":"CCL","source":"fixture"}', encoding="utf-8")
+    universe = _ccl_universe_file(tmp_path)
+    result = runner.invoke(
+        app,
+        [
+            "capture-prospective-event",
+            source,
+            str(discovery),
+            str(universe),
+            "--source-url",
+            "https://example.invalid/ccl",
+            "--published-at",
+            "2026-07-27T14:56:14Z",
+            "--store",
+            str(tmp_path / "store"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert '"mode": "PROSPECTIVE"' in result.output
+    assert '"cohort_id": "FY27-Q1-TEST"' in result.output
+    assert '"discovery_sha256"' in result.output
+    assert '"universe_snapshot_sha256"' in result.output
+    assert '"created": true' in result.output
+
+
+def test_validate_universe_detects_valid_snapshot(tmp_path):
+    universe = _ccl_universe_file(tmp_path)
+    result = runner.invoke(app, ["validate-universe", str(universe)])
+    assert result.exit_code == 0, result.output
+    assert "universe valid: cohort=FY27-Q1-TEST" in result.output
 
 
 def test_delivery_report_runs_for_source_grounded_claim_ledger():

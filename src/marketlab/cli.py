@@ -17,7 +17,11 @@ from marketlab.evaluation import (
 )
 from marketlab.events import EventParseError, EventStore
 from marketlab.nse import NSEAcquisitionError, NSEClient
-from marketlab.universe import UniverseError, build_universe_snapshot
+from marketlab.universe import (
+    UniverseError,
+    build_universe_snapshot,
+    load_universe_snapshot,
+)
 
 app = typer.Typer(help="Reproducible market-research utilities.", no_args_is_help=True)
 
@@ -92,6 +96,21 @@ def snapshot_universe(
     )
 
 
+@app.command("validate-universe")
+def validate_universe(snapshot_file: Path) -> None:
+    """Validate a frozen universe snapshot including its canonical SHA-256."""
+
+    try:
+        snapshot = load_universe_snapshot(snapshot_file)
+    except UniverseError as exc:
+        typer.echo(f"invalid universe snapshot: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+    typer.echo(
+        f"universe valid: cohort={snapshot.cohort_id}; members={len(snapshot.members)}; "
+        f"sha256={snapshot.sha256}"
+    )
+
+
 @app.command("reconstruct-event")
 def reconstruct_event(
     input_file: Path,
@@ -114,6 +133,55 @@ def reconstruct_event(
         event, created = EventStore(store).reconstruct_bytes(raw, source_url=source_url)
     except (OSError, UnicodeDecodeError, EventParseError) as exc:
         typer.echo(f"historical reconstruction failed: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+
+    typer.echo(
+        json.dumps(
+            {
+                "created": created,
+                "event": event.to_dict(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+
+
+@app.command("capture-prospective-event")
+def capture_prospective_event(
+    source_file: Path,
+    discovery_file: Path,
+    universe_file: Path,
+    source_url: Annotated[str, typer.Option(help="Exact original filing URL")],
+    published_at: Annotated[
+        str,
+        typer.Option(help="Exchange publication timestamp as timezone-aware ISO-8601"),
+    ],
+    store: Annotated[Path, typer.Option(help="Local content-addressed research store")] = Path(
+        ".marketlab"
+    ),
+) -> None:
+    """Capture exact filing/discovery bytes as a prospective event.
+
+    This command stores provenance only. It does not calculate H002 or create a
+    paper position.
+    """
+
+    for label, path in (("source filing", source_file), ("discovery payload", discovery_file)):
+        if not path.exists() or not path.is_file():
+            typer.echo(f"{label} not found: {path}", err=True)
+            raise typer.Exit(code=2)
+    try:
+        universe = load_universe_snapshot(universe_file)
+        event, created = EventStore(store).capture_prospective_bytes(
+            source_file.read_bytes(),
+            discovery_bytes=discovery_file.read_bytes(),
+            source_url=source_url,
+            exchange_published_at_utc=published_at,
+            universe=universe,
+        )
+    except (OSError, UnicodeDecodeError, EventParseError, UniverseError) as exc:
+        typer.echo(f"prospective capture failed: {exc}", err=True)
         raise typer.Exit(code=2) from exc
 
     typer.echo(

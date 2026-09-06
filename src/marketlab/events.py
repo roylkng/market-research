@@ -3,14 +3,17 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 from bs4 import BeautifulSoup
 
+from marketlab.universe import UniverseSnapshot
+
 PARSER_VERSION = "indas-table-v1"
 HISTORICAL_RECONSTRUCTION = "HISTORICAL_RECONSTRUCTION"
+PROSPECTIVE = "PROSPECTIVE"
 
 
 class EventParseError(ValueError):
@@ -25,6 +28,12 @@ class SourceProvenance:
     raw_path: str
     content_type: str
     source_mode: str
+    exchange_published_at_utc: str | None = None
+    discovery_sha256: str | None = None
+    discovery_path: str | None = None
+    cohort_id: str | None = None
+    universe_rule_version: str | None = None
+    universe_snapshot_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -144,6 +153,16 @@ def _economic_event_id(symbol: str, period_end: str | None, basis: str, quarter:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
 
 
+def _parse_utc_timestamp(value: str, *, field: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise EventParseError(f"invalid {field}: {value}") from exc
+    if parsed.tzinfo is None:
+        raise EventParseError(f"{field} must include timezone: {value}")
+    return parsed.astimezone(UTC)
+
+
 def parse_indas_html(
     html: str,
     *,
@@ -152,13 +171,18 @@ def parse_indas_html(
     raw_path: str,
     captured_at_utc: str,
     mode: str = HISTORICAL_RECONSTRUCTION,
+    exchange_published_at_utc: str | None = None,
+    discovery_sha256: str | None = None,
+    discovery_path: str | None = None,
+    cohort_id: str | None = None,
+    universe_rule_version: str | None = None,
+    universe_snapshot_sha256: str | None = None,
 ) -> FinancialEvent:
     """Parse standard fields from an NSE Integrated Filing Ind-AS HTML document.
 
-    The parser deliberately does not reinterpret `profit before exceptional items
-    and tax` as EBITDA/operating profit. Standard integrated filings do not expose
-    a canonical operating-profit line item across issuers, so those fields remain
-    unresolved unless a later parser version obtains them from an explicit source.
+    `Total profit before exceptional items and tax` is deliberately not re-labeled
+    as EBITDA/operating profit. Standard integrated filings do not expose a
+    canonical operating-profit line item across issuers.
     """
 
     rows = _rows(html)
@@ -200,9 +224,15 @@ def parse_indas_html(
         raw_path=raw_path,
         content_type="text/html",
         source_mode="NSE_INTEGRATED_FILING_IXBRL",
+        exchange_published_at_utc=exchange_published_at_utc,
+        discovery_sha256=discovery_sha256,
+        discovery_path=discovery_path,
+        cohort_id=cohort_id,
+        universe_rule_version=universe_rule_version,
+        universe_snapshot_sha256=universe_snapshot_sha256,
     )
     return FinancialEvent(
-        schema_version=1,
+        schema_version=2 if mode == PROSPECTIVE else 1,
         parser_version=PARSER_VERSION,
         mode=mode,
         economic_event_id=event_id,
@@ -245,7 +275,7 @@ def parse_indas_html(
 
 
 class EventStore:
-    """Content-addressed local store for immutable historical source bytes."""
+    """Content-addressed local store for immutable filing and discovery bytes."""
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root)
@@ -253,8 +283,29 @@ class EventStore:
     def _raw_path(self, digest: str, suffix: str) -> Path:
         return self.root / "raw" / "sha256" / f"{digest}{suffix}"
 
+    def _discovery_path(self, digest: str) -> Path:
+        return self.root / "discovery" / "sha256" / f"{digest}.json"
+
     def _record_path(self, event: FinancialEvent) -> Path:
-        return self.root / "events" / event.economic_event_id / f"{event.provenance.raw_sha256}.json"
+        namespace = "prospective-events" if event.mode == PROSPECTIVE else "events"
+        return self.root / namespace / event.economic_event_id / f"{event.provenance.raw_sha256}.json"
+
+    @staticmethod
+    def _write_content_addressed(path: Path, content: bytes) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.exists():
+            if path.read_bytes() != content:
+                raise RuntimeError("content-addressed store hash collision")
+            return
+        path.write_bytes(content)
+
+    @staticmethod
+    def _captured_at(captured_at: datetime | None) -> tuple[datetime, str]:
+        captured_at = captured_at or datetime.now(UTC)
+        if captured_at.tzinfo is None:
+            captured_at = captured_at.replace(tzinfo=UTC)
+        captured = captured_at.astimezone(UTC)
+        return captured, captured.isoformat().replace("+00:00", "Z")
 
     def reconstruct_bytes(
         self,
@@ -264,18 +315,10 @@ class EventStore:
         suffix: str = ".html",
         captured_at: datetime | None = None,
     ) -> tuple[FinancialEvent, bool]:
-        captured_at = captured_at or datetime.now(UTC)
-        if captured_at.tzinfo is None:
-            captured_at = captured_at.replace(tzinfo=UTC)
-        captured_at_utc = captured_at.astimezone(UTC).isoformat().replace("+00:00", "Z")
+        _, captured_at_utc = self._captured_at(captured_at)
         digest = sha256_bytes(raw)
         raw_path = self._raw_path(digest, suffix)
-        raw_path.parent.mkdir(parents=True, exist_ok=True)
-        if raw_path.exists():
-            if raw_path.read_bytes() != raw:
-                raise RuntimeError("content-addressed raw store hash collision")
-        else:
-            raw_path.write_bytes(raw)
+        self._write_content_addressed(raw_path, raw)
 
         html = raw.decode("utf-8", errors="strict")
         provisional = parse_indas_html(
@@ -290,6 +333,100 @@ class EventStore:
         if record_path.exists():
             existing = json.loads(record_path.read_text(encoding="utf-8"))
             return _event_from_dict(existing), False
+
+        record_path.parent.mkdir(parents=True, exist_ok=True)
+        record_path.write_text(
+            json.dumps(provisional.to_dict(), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        return provisional, True
+
+    def capture_prospective_bytes(
+        self,
+        raw: bytes,
+        *,
+        discovery_bytes: bytes,
+        source_url: str,
+        exchange_published_at_utc: str,
+        universe: UniverseSnapshot,
+        suffix: str = ".html",
+        captured_at: datetime | None = None,
+        max_clock_skew_seconds: int = 300,
+    ) -> tuple[FinancialEvent, bool]:
+        """Capture a prospective filing with immutable discovery and universe provenance."""
+
+        if not raw:
+            raise EventParseError("prospective source bytes are empty")
+        if not discovery_bytes:
+            raise EventParseError("prospective discovery bytes are empty")
+        try:
+            discovery_payload = json.loads(discovery_bytes.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise EventParseError(f"prospective discovery payload is not valid JSON: {exc}") from exc
+        if not isinstance(discovery_payload, (dict, list)):
+            raise EventParseError("prospective discovery payload must be JSON object or array")
+
+        captured, captured_at_utc = self._captured_at(captured_at)
+        published = _parse_utc_timestamp(
+            exchange_published_at_utc, field="exchange_published_at_utc"
+        )
+        if published > captured + timedelta(seconds=max_clock_skew_seconds):
+            raise EventParseError(
+                "exchange publication timestamp is later than local capture time beyond tolerance"
+            )
+        universe_captured = _parse_utc_timestamp(
+            universe.captured_at_utc, field="universe.captured_at_utc"
+        )
+        if universe_captured > published:
+            raise EventParseError("universe snapshot was frozen after the filing was published")
+
+        raw_digest = sha256_bytes(raw)
+        raw_path = self._raw_path(raw_digest, suffix)
+        self._write_content_addressed(raw_path, raw)
+        discovery_digest = sha256_bytes(discovery_bytes)
+        discovery_path = self._discovery_path(discovery_digest)
+        self._write_content_addressed(discovery_path, discovery_bytes)
+
+        html = raw.decode("utf-8", errors="strict")
+        provisional = parse_indas_html(
+            html,
+            source_url=source_url,
+            raw_sha256=raw_digest,
+            raw_path=str(raw_path),
+            captured_at_utc=captured_at_utc,
+            mode=PROSPECTIVE,
+            exchange_published_at_utc=published.isoformat().replace("+00:00", "Z"),
+            discovery_sha256=discovery_digest,
+            discovery_path=str(discovery_path),
+            cohort_id=universe.cohort_id,
+            universe_rule_version=universe.rule_version,
+            universe_snapshot_sha256=universe.sha256,
+        )
+        if not universe.contains(provisional.symbol):
+            raise EventParseError(
+                f"symbol {provisional.symbol} is not eligible in frozen cohort {universe.cohort_id}"
+            )
+        matching_member = next(
+            member for member in universe.members if member.symbol.upper() == provisional.symbol.upper()
+        )
+        if matching_member.isin and provisional.isin and matching_member.isin != provisional.isin:
+            raise EventParseError(
+                f"ISIN mismatch for {provisional.symbol}: universe={matching_member.isin}, filing={provisional.isin}"
+            )
+
+        record_path = self._record_path(provisional)
+        if record_path.exists():
+            existing = _event_from_dict(json.loads(record_path.read_text(encoding="utf-8")))
+            if (
+                existing.provenance.discovery_sha256 != discovery_digest
+                or existing.provenance.exchange_published_at_utc
+                != provisional.provenance.exchange_published_at_utc
+                or existing.provenance.universe_snapshot_sha256 != universe.sha256
+            ):
+                raise EventParseError(
+                    "same filing bytes already exist with conflicting prospective provenance"
+                )
+            return existing, False
 
         record_path.parent.mkdir(parents=True, exist_ok=True)
         record_path.write_text(

@@ -5,6 +5,7 @@ import json
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 
@@ -52,6 +53,10 @@ class UniverseSnapshot:
             "members": [asdict(member) for member in self.members],
             "sha256": self.sha256,
         }
+
+    def contains(self, symbol: str) -> bool:
+        wanted = symbol.strip().upper()
+        return any(member.symbol.upper() == wanted for member in self.members)
 
 
 def _normalise_macro(value: Any) -> str:
@@ -101,6 +106,43 @@ def _candidate_rows(index_payload: dict[str, Any], *, index_name: str) -> list[d
 def _canonical_hash(payload: dict[str, Any]) -> str:
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _snapshot_hash_payload(snapshot: UniverseSnapshot) -> dict[str, Any]:
+    payload = snapshot.to_dict()
+    payload.pop("sha256", None)
+    return payload
+
+
+def load_universe_snapshot(path: str | Path) -> UniverseSnapshot:
+    """Load a frozen universe and verify count plus canonical SHA-256."""
+
+    path = Path(path)
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise UniverseError(f"could not load universe snapshot {path}: {exc}") from exc
+    if not isinstance(document, dict):
+        raise UniverseError("universe snapshot root must be an object")
+    try:
+        member_docs = document.pop("members")
+        members = [UniverseMember(**member) for member in member_docs]
+        snapshot = UniverseSnapshot(**document, members=members)
+    except (KeyError, TypeError) as exc:
+        raise UniverseError(f"invalid universe snapshot schema: {exc}") from exc
+    if snapshot.selection_size != len(snapshot.members):
+        raise UniverseError(
+            f"universe selection_size={snapshot.selection_size} but has {len(snapshot.members)} members"
+        )
+    expected = _canonical_hash(_snapshot_hash_payload(snapshot))
+    if snapshot.sha256 != expected:
+        raise UniverseError(
+            f"universe snapshot hash mismatch: expected {expected}, found {snapshot.sha256}"
+        )
+    symbols = [member.symbol.upper() for member in snapshot.members]
+    if len(symbols) != len(set(symbols)):
+        raise UniverseError("universe snapshot contains duplicate symbols")
+    return snapshot
 
 
 def build_universe_snapshot(
