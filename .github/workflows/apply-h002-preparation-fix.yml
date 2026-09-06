@@ -30,7 +30,9 @@ jobs:
           rm scripts/_apply_h002_preparation_fix.py
           rm .github/workflows/apply-h002-preparation-fix.yml
       - name: Lint
-        run: ruff check src tests
+        run: |
+          ruff check --fix src tests
+          ruff check src tests
       - name: Test
         run: pytest -q
       - name: Validate frozen contracts
