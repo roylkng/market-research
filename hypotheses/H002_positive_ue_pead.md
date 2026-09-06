@@ -2,29 +2,64 @@
 
 ## Status
 
-`INCONCLUSIVE`
+`FROZEN — PROSPECTIVE EVALUATION REQUIRED`
+
+The **historical feasibility evidence remains INCONCLUSIVE**. `FROZEN` means the prospective rule is now fixed and cannot be changed after outcomes begin. It does not mean the hypothesis has been validated.
 
 ## Hypothesis
 
 Positive unexpected earnings may be incorporated into Indian equity prices gradually, producing post-earnings-announcement drift after the immediate result reaction.
 
-## Literature-style signal
+## Frozen prospective rule
+
+Rule id: `H002-R001`
+
+Expectation model:
 
 ```text
-UE = (EPS_t - EPS_t-4) / price_day_minus_2
+expected_eps = prior_year_same_quarter_basic_eps * corporate_action_factor
 ```
 
-This mirrors a simple seasonal unexpected-earnings proxy used in Indian PEAD research.
+Signal:
 
-## Frozen feasibility decision rule
+```text
+UE = (actual_basic_eps - expected_eps) / price_day_minus_2
+```
 
-- Universe: preselected liquid non-financial Indian companies in the July 2025 result cohort.
-- Do not trade the event day or first subsequent session.
-- Enter at the open of the second trading session after the result.
-- Hold exactly 20 trading sessions.
-- Compare with Nifty 50 and a simple momentum benchmark.
+The canonical rule is stored in `registry/h002_signal_rule.yaml` and documented in `docs/h002-signal-v1.md`.
 
-## Feasibility result
+### Guardrails
+
+- target and baseline symbol, reporting quarter and accounting basis must match,
+- baseline must be exactly the comparable quarter one year earlier,
+- baseline availability must be independently known and strictly predate the current filing,
+- historical reconstruction capture time cannot substitute for historical availability,
+- corporate-action factor and version are explicit,
+- price reference must be positive, versioned and strictly predate the filing,
+- current event must be PROSPECTIVE,
+- momentum, valuation, guidance and LLM judgement are not part of H002-R001,
+- missing required inputs produce `NO_SIGNAL` rather than imputation.
+
+Buckets are fixed as `POSITIVE`, `ZERO`, `NEGATIVE`, or `NO_SIGNAL`. There is no learned threshold and no winsorization.
+
+## Prospective universe
+
+H002 uses frozen universe rule `U001`.
+
+The first 100-company cohort is stored at:
+
+`research/prospective/universes/FY27-Q2-2026-09-06.json`
+
+No discretionary company additions or removals are allowed after the cohort is frozen.
+
+## Primary horizon
+
+- ignore result day and the first subsequent trading session,
+- planned paper entry is the second eligible session open,
+- primary holding period is exactly 20 trading sessions,
+- actual trading-calendar, price and benchmark mechanics belong to H002-C.
+
+## Historical feasibility result
 
 24 observations had independently verified delayed-entry/exit prices.
 
@@ -49,12 +84,10 @@ The ranked 20-session implementation did not replicate a clean PEAD effect.
 - Positive UE beat rate: **62.5%**
 - Negative UE beat rate: **37.5%**
 
-The sign moves in the economically expected direction, but the sample is small, uncertainty crosses zero, and the result is sensitive to a handful of observations.
+The sign moved in the economically expected direction, but the sample was small, uncertainty crossed zero, and the result was sensitive to a handful of observations.
 
 ## Decision
 
 **No live capital.**
 
-The only justified next step is a prospectively frozen paper test using original point-in-time exchange filings and, where available, timestamped analyst consensus / standardized unexpected earnings.
-
-Do not optimize the current result into significance.
+H002-R001 is now fixed for prospective paper testing. Analyst-consensus surprise, standardized SUE, momentum or valuation overlays require separately registered future rules. The next gate is H002-C: deterministic paper execution and benchmark reconstruction.
