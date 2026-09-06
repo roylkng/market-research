@@ -36,15 +36,30 @@ See `reports/experiments/2026-09-06-feasibility-pilot.md`.
 7. Promote models only after walk-forward and prospective paper evidence.
 8. Preserve rejected hypotheses instead of rewriting them until they work.
 
+## Prospective coverage panel
+
+H002 v1 will use universe rule `U001`:
+
+> For each earnings cohort, take current Nifty 200 constituents, remove the NSE macro sector `Financial Services`, rank the remainder by NSE free-float market capitalization, then freeze the top 100 for that cohort.
+
+This is a research panel, not a portfolio. See `docs/universe-v1.md` and `registry/universes.yaml`.
+
+A separate curated development cohort in `registry/development_companies.yaml` is used to stress acquisition, extraction and company-intelligence workflows. Those companies cannot enter H002 by exception.
+
+## Source of record
+
+For prospective earnings events, NSE Integrated Filing - Financials is the primary source of record when available. Web JSON endpoints can assist discovery, but the retained provenance points to the original exchange Details/XBRL document and preserves its hash and exchange timestamps. See `docs/source-decision.md`.
+
 ## Repository layout
 
 ```text
 market-research/
-├── docs/                 # protocol, data policy, evaluation, architecture
+├── docs/                 # protocol, data policy, source/universe decisions
 ├── hypotheses/           # immutable human-readable hypotheses
 ├── experiments/          # frozen specs and results
-├── registry/             # machine-readable hypothesis/experiment ledger
-├── src/marketlab/        # evaluation and validation code
+├── registry/             # hypothesis, experiment, universe and dev-company ledgers
+├── research/             # historical reconstruction manifests
+├── src/marketlab/        # evaluation, NSE acquisition and universe code
 ├── tests/                # invariants and metric tests
 ├── reports/              # published research reports
 ├── data/                 # data policy and small published fixtures
@@ -95,7 +110,16 @@ marketlab evaluate-binary data/fixtures/h002_feasibility.csv \
   --excess-col excess_vs_nifty
 ```
 
-For your own experiment data, replace the fixture path and column names with the fields in your CSV.
+Freeze a 100-company prospective universe snapshot from current NSE metadata:
+
+```bash
+marketlab snapshot-universe \
+  --cohort-id FY27-Q2 \
+  --selection-size 100 \
+  --output data/snapshots/FY27-Q2-universe.json
+```
+
+The snapshot command fails rather than silently skipping an unclassified high-ranked constituent. Commit a reviewed cohort snapshot before prospective result scoring begins.
 
 Run repository checks:
 
@@ -120,6 +144,12 @@ The next-grade experiment must capture in real time:
 - and immutable raw hashes.
 
 No rule changes are permitted after observations begin without creating a new hypothesis/version.
+
+## Historical reconstruction
+
+Older free filings and historical news can be used to build and test acquisition and company-intelligence capabilities. Such records are labelled `HISTORICAL_RECONSTRUCTION`. They cannot be counted as prospective validation because their subsequent outcomes are already knowable.
+
+The first reconstruction cases are seeded in `research/historical-reconstruction/cases.yaml` for INFY, CCL and SHAILY.
 
 ## Future architecture
 
