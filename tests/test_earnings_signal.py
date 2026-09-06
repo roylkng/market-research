@@ -1,4 +1,6 @@
 import copy
+import json
+from pathlib import Path
 
 import pytest
 
@@ -11,6 +13,8 @@ from marketlab.earnings_signal import (
     compute_h002_signal,
     validate_frozen_rule,
 )
+
+SIGNAL_RULE_FILE = Path("registry/signals/H002-UE-v1.json")
 
 
 def _valid_input(**overrides):
@@ -39,6 +43,14 @@ def _valid_input(**overrides):
 def test_frozen_rule_hash_is_exact():
     assert canonical_rule_sha256() == H002_RULE_SHA256
     validate_frozen_rule()
+
+
+def test_registry_rule_matches_in_code_rule_and_hash():
+    payload = json.loads(SIGNAL_RULE_FILE.read_text(encoding="utf-8"))
+    declared_hash = payload.pop("rule_sha256")
+    assert payload == H002_RULE
+    assert declared_hash == H002_RULE_SHA256
+    assert canonical_rule_sha256(payload) == declared_hash
 
 
 def test_rule_mutation_requires_new_version():
