@@ -1,0 +1,20 @@
+version: 1
+prospective_capture:
+  enabled: false
+  prerequisite_universe_id: U001
+  require_frozen_universe_snapshot: true
+  require_original_source_bytes: true
+  require_exchange_publication_timestamp: true
+  require_discovery_payload_hash: true
+  require_source_payload_hash: true
+  require_symbol_in_universe: true
+  allow_historical_backfill_as_prospective: false
+  allow_signal_generation: false
+  allow_paper_positions: false
+  allow_live_capital: false
+
+activation:
+  state: BLOCKED
+  reason: >-
+    Capture machinery may be implemented, but prospective observation collection
+    cannot begin until a frozen U001 cohort snapshot is generated and reviewed.
