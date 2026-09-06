@@ -59,7 +59,7 @@ market-research/
 ├── experiments/          # frozen specs and results
 ├── registry/             # hypothesis, experiment, universe and dev-company ledgers
 ├── research/             # historical reconstruction manifests
-├── src/marketlab/        # evaluation, NSE acquisition and universe code
+├── src/marketlab/        # evaluation, acquisition, parsing and universe code
 ├── tests/                # invariants and metric tests
 ├── reports/              # published research reports
 ├── data/                 # data policy and small published fixtures
@@ -121,6 +121,17 @@ marketlab snapshot-universe \
 
 The snapshot command fails rather than silently skipping an unclassified high-ranked constituent. Commit a reviewed cohort snapshot before prospective result scoring begins.
 
+Reconstruct an old source-derived filing fixture without making it prospective evidence:
+
+```bash
+marketlab reconstruct-event \
+  data/fixtures/filings/ccl_fy27_q1_consolidated_source_derived.html \
+  --source-url https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_178875_27072026202614_iXBRL_WEB.html \
+  --store .marketlab
+```
+
+The local content-addressed store is ignored by Git. See `docs/historical-reconstruction.md`.
+
 Run repository checks:
 
 ```bash
@@ -149,7 +160,7 @@ No rule changes are permitted after observations begin without creating a new hy
 
 Older free filings and historical news can be used to build and test acquisition and company-intelligence capabilities. Such records are labelled `HISTORICAL_RECONSTRUCTION`. They cannot be counted as prospective validation because their subsequent outcomes are already knowable.
 
-The first reconstruction cases are seeded in `research/historical-reconstruction/cases.yaml` for INFY, CCL and SHAILY.
+The first reconstruction cases are seeded in `research/historical-reconstruction/cases.yaml` for INFY, CCL and SHAILY. Source-derived parser fixtures are intentionally labelled as derived and their hashes must never be represented as original exchange-file hashes.
 
 ## Future architecture
 
