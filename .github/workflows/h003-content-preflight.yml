@@ -1,0 +1,39 @@
+name: H003 transcript content preflight
+
+on:
+  push:
+    branches:
+      - feat/h003-transcript-content-v1
+    paths:
+      - .github/workflows/h003-content-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/h003-transcript-content-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests
+      - run: ruff check scripts/scan_h003_content.py
+      - run: pytest -q
+      - run: make validate
+      - name: Load exact frozen source bundle
+        run: |
+          python - <<'PY'
+          from marketlab.h003_content import load_frozen_sources
+          sources = load_frozen_sources(
+              'research/prospective/h003/FY27-Q2-2026-09-06/source-coverage-v1.json'
+          )
+          print(f'frozen_sources={len(sources)}')
+          assert len(sources) == 794
+          PY
