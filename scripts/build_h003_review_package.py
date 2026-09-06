@@ -91,6 +91,36 @@ def _fetch_pdf(client: NSEClient, url: str, *, attempts: int) -> bytes:
     raise ReviewPackageError(f"could not re-fetch frozen candidate PDF: {last_error}") from last_error
 
 
+def _source_pdf_bytes(
+    *,
+    raw_sha256: str,
+    source_url: str,
+    candidate_store: Path | None,
+    client: NSEClient | None,
+    fetch_attempts: int,
+) -> tuple[bytes, str]:
+    if candidate_store is not None:
+        path = candidate_store / "raw" / "sha256" / f"{raw_sha256}.pdf"
+        try:
+            raw = path.read_bytes()
+        except OSError as exc:
+            raise ReviewPackageError(
+                f"candidate-store PDF is missing/unreadable for {raw_sha256}: {path}: {exc}"
+            ) from exc
+        source = f"candidate-store:{path.as_posix()}"
+    else:
+        if client is None:
+            raise ReviewPackageError("network review packaging requires an NSE client")
+        raw = _fetch_pdf(client, source_url, attempts=fetch_attempts)
+        source = source_url
+    observed = hashlib.sha256(raw).hexdigest()
+    if observed != raw_sha256:
+        raise ReviewPackageError(
+            f"source bytes changed: expected={raw_sha256}, observed={observed}, source={source}"
+        )
+    return raw, source
+
+
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -109,7 +139,8 @@ def build_package(
     corpus: CandidateCorpus,
     *,
     company_names: dict[str, str],
-    client: NSEClient,
+    client: NSEClient | None,
+    candidate_store: Path | None,
     fetch_attempts: int,
 ) -> tuple[dict[str, Any], list[BlindReviewPayload], list[ReviewDecision]]:
     candidates_by_source: dict[str, list[Any]] = defaultdict(list)
@@ -118,7 +149,8 @@ def build_package(
 
     payloads: list[BlindReviewPayload] = []
     mechanical_decisions: list[ReviewDecision] = []
-    fetched_source_count = 0
+    source_count = 0
+    source_modes: dict[str, int] = defaultdict(int)
     for source_index, source_id in enumerate(sorted(candidates_by_source), start=1):
         candidates = sorted(
             candidates_by_source[source_id],
@@ -132,13 +164,14 @@ def build_package(
             for candidate in candidates[1:]
         ):
             raise ReviewPackageError(f"source candidate provenance diverges: {source_id}")
-        raw = _fetch_pdf(client, first.attachment_url, attempts=fetch_attempts)
-        raw_sha256 = hashlib.sha256(raw).hexdigest()
-        if raw_sha256 != first.raw_sha256:
-            raise ReviewPackageError(
-                f"source bytes changed for {source_id}: "
-                f"expected={first.raw_sha256}, observed={raw_sha256}"
-            )
+        raw, source_mode = _source_pdf_bytes(
+            raw_sha256=first.raw_sha256,
+            source_url=first.attachment_url,
+            candidate_store=candidate_store,
+            client=client,
+            fetch_attempts=fetch_attempts,
+        )
+        source_modes["LOCAL_STORE" if source_mode.startswith("candidate-store:") else "NSE_REFETCH"] += 1
         pages, _ = extract_pdf_pages(raw)
         page_map = {page.page_number: page.lines for page in pages}
         if len(page_map) != len(pages):
@@ -177,31 +210,33 @@ def build_package(
                         ),
                     )
                 )
-        fetched_source_count += 1
+        source_count += 1
         print(
             f"[{source_index}/{len(candidates_by_source)}] source={source_id[:12]} "
-            f"candidates={len(candidates)}",
+            f"candidates={len(candidates)} mode={source_mode.split(':', 1)[0]}",
             flush=True,
         )
 
     payloads.sort(key=_payload_sort_key)
+    mechanical_decisions.sort(key=lambda decision: decision.candidate_id)
     mechanical_by_id = {decision.candidate_id: decision for decision in mechanical_decisions}
     semantic_payloads = [
         payload for payload in payloads if payload.candidate_id not in mechanical_by_id
     ]
     package_unsigned = {
-        "schema_version": 1,
+        "schema_version": 2,
         "review_rule_id": REVIEW_RULE_ID,
         "review_rule_sha256": REVIEW_RULE_SHA256,
         "candidate_report_sha256": corpus.report_sha256,
         "candidate_count": corpus.candidate_count,
-        "fetched_source_count": fetched_source_count,
+        "candidate_source_count": source_count,
+        "source_mode_counts": dict(sorted(source_modes.items())),
         "blind_payload_count": len(payloads),
         "mechanical_rejected_count": len(mechanical_decisions),
         "semantic_review_count": len(semantic_payloads),
         "blind_payload_sha256": _canonical_hash([payload.to_dict() for payload in payloads]),
         "mechanical_decisions_sha256": _canonical_hash(
-            [decision.to_dict() for decision in sorted(mechanical_decisions, key=lambda x: x.candidate_id)]
+            [decision.to_dict() for decision in mechanical_decisions]
         ),
         "semantic_queue_sha256": _canonical_hash(
             [payload.to_dict() for payload in semantic_payloads]
@@ -222,6 +257,11 @@ def main() -> int:
     parser.add_argument("--review-rule", type=Path, required=True)
     parser.add_argument("--universe", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument(
+        "--candidate-store",
+        type=Path,
+        help="Optional completed E002 store. Uses exact local raw/sha256 PDFs instead of NSE refetch.",
+    )
     parser.add_argument("--fetch-attempts", type=int, default=4)
     args = parser.parse_args()
     if args.fetch_attempts < 1:
@@ -230,10 +270,12 @@ def main() -> int:
     load_and_validate_review_rule(args.review_rule)
     corpus = load_complete_candidate_corpus(args.candidate_report)
     company_names = _load_company_names(args.universe)
+    client = None if args.candidate_store is not None else NSEClient(timeout=30.0, attempts=3)
     package, payloads, mechanical_decisions = build_package(
         corpus,
         company_names=company_names,
-        client=NSEClient(timeout=30.0, attempts=3),
+        client=client,
+        candidate_store=args.candidate_store,
         fetch_attempts=args.fetch_attempts,
     )
     mechanical_ids = {decision.candidate_id for decision in mechanical_decisions}
@@ -245,7 +287,7 @@ def main() -> int:
     _write_json(out / "blind-payloads.json", [payload.to_dict() for payload in payloads])
     _write_json(
         out / "mechanical-decisions.json",
-        [decision.to_dict() for decision in sorted(mechanical_decisions, key=lambda x: x.candidate_id)],
+        [decision.to_dict() for decision in mechanical_decisions],
     )
     _write_json(
         out / "semantic-review-queue.json",
