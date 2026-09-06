@@ -1,0 +1,133 @@
+name: H002 FY27-Q2 prospective paper cohort
+
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h002-fy27q2-prospective-paper
+  cancel-in-progress: false
+
+env:
+  EVIDENCE_BRANCH: evidence/h002-fy27q2
+  COHORT_ID: FY27-Q2-2026-09-06
+  UNIVERSE: research/prospective/universes/FY27-Q2-2026-09-06.json
+  BUNDLE: research/prospective/preparation/FY27-Q2-2026-09-06/expectation-bundle.json
+  ANCHOR: research/prospective/preparation/FY27-Q2-2026-09-06/run-metadata.json
+  CALENDAR: research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json
+  RUNTIME: research/prospective/runtime/FY27-Q2-2026-09-06
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and validate frozen contracts
+        run: |
+          python -m pip install -e '.[dev]'
+          make validate
+
+      - name: Gate frozen active window
+        id: gate
+        run: |
+          python - <<'PY'
+          import os
+          from datetime import UTC, date, datetime
+          from zoneinfo import ZoneInfo
+
+          today = datetime.now(UTC).astimezone(ZoneInfo('Asia/Kolkata')).date()
+          active = date(2026, 10, 1) <= today <= date(2027, 1, 31)
+          print(f'Asia/Kolkata date={today}; active={active}')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'active={str(active).lower()}\n')
+          PY
+
+      - name: Prepare persistent evidence worktree
+        if: steps.gate.outputs.active == 'true'
+        run: |
+          if git ls-remote --exit-code --heads origin "$EVIDENCE_BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$EVIDENCE_BRANCH:refs/remotes/origin/$EVIDENCE_BRANCH"
+            git worktree add -B "$EVIDENCE_BRANCH" "$RUNNER_TEMP/h002-evidence" "refs/remotes/origin/$EVIDENCE_BRANCH"
+          else
+            git branch "$EVIDENCE_BRANCH" HEAD
+            git push origin "$EVIDENCE_BRANCH"
+            git worktree add "$RUNNER_TEMP/h002-evidence" "$EVIDENCE_BRANCH"
+          fi
+
+      - name: Run one prospective cohort iteration
+        if: steps.gate.outputs.active == 'true'
+        run: |
+          cd "$RUNNER_TEMP/h002-evidence"
+          mkdir -p "$RUNTIME/store" "$RUNTIME/runs"
+          python "$GITHUB_WORKSPACE/scripts/run_h002_prospective.py" \
+            --universe "$GITHUB_WORKSPACE/$UNIVERSE" \
+            --bundle "$GITHUB_WORKSPACE/$BUNDLE" \
+            --anchor-metadata "$GITHUB_WORKSPACE/$ANCHOR" \
+            --calendar "$GITHUB_WORKSPACE/$CALENDAR" \
+            --store "$RUNTIME/store" \
+            --report-out "$RUNTIME/latest-report.json" \
+            --summary-out "$RUNTIME/runs/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}.json"
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNTIME'])
+          summary_path = root / 'runs' / f"run-{os.environ['GITHUB_RUN_ID']}-attempt-{os.environ['GITHUB_RUN_ATTEMPT']}.json"
+          summary = json.loads(summary_path.read_text(encoding='utf-8'))
+          report = json.loads((root / 'latest-report.json').read_text(encoding='utf-8'))
+          metadata = {
+              'schema_version': 1,
+              'cohort_id': os.environ['COHORT_ID'],
+              'source_commit_sha': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'workflow_ref': os.environ['GITHUB_WORKFLOW_REF'],
+              'runner_as_of_utc': summary['as_of_utc'],
+              'run_sha256': summary['run_sha256'],
+              'report_sha256': report['report_sha256'],
+              'completed_count': report['completed_count'],
+              'paper_only': report['paper_only'],
+              'live_capital_allowed': report['live_capital_allowed'],
+          }
+          (root / 'runs' / f"run-{os.environ['GITHUB_RUN_ID']}-attempt-{os.environ['GITHUB_RUN_ATTEMPT']}.metadata.json").write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          PY
+
+      - name: Anchor runtime evidence on evidence branch
+        if: steps.gate.outputs.active == 'true'
+        run: |
+          cd "$RUNNER_TEMP/h002-evidence"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f "$RUNTIME"
+          if git diff --cached --quiet; then
+            echo "No runtime evidence changed"
+          else
+            git commit -m "Anchor H002-D run ${GITHUB_RUN_ID} attempt ${GITHUB_RUN_ATTEMPT}"
+            git push origin "HEAD:$EVIDENCE_BRANCH"
+          fi
+
+      - name: Preserve runtime evidence artifact
+        if: always() && steps.gate.outputs.active == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-fy27q2-runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/h002-evidence/research/prospective/runtime/FY27-Q2-2026-09-06
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
