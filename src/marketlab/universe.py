@@ -213,7 +213,7 @@ def build_universe_snapshot(
         )
 
     source_urls = {
-        "index": "https://www.nseindia.com/api/equity-stockIndices?index=NIFTY%20200",
+        "index": "https://www.nseindia.com/api/equity-stock-indices?index=NIFTY%20200",
         "quote_template": "https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>",
     }
     hash_payload = {
