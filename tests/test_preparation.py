@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import replace
 from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 
@@ -21,7 +19,6 @@ from marketlab.preparation import (
 )
 from marketlab.universe import UniverseMember, UniverseSnapshot
 
-
 BASELINE_HTML = b"""<html><table>
 <tr><td>NSE Symbol</td><td>TESTCO</td></tr>
 <tr><td>ISIN</td><td>INE000A01001</td></tr>
@@ -37,7 +34,7 @@ BASELINE_HTML = b"""<html><table>
 </table></html>"""
 
 
-def _universe(two: bool = False) -> UniverseSnapshot:
+def _universe(*, two: bool = False) -> UniverseSnapshot:
     members = [
         UniverseMember(
             rank=1,
@@ -63,7 +60,7 @@ def _universe(two: bool = False) -> UniverseSnapshot:
                 series="EQ",
             )
         )
-    provisional = UniverseSnapshot(
+    return UniverseSnapshot(
         schema_version=2,
         rule_version="U001-test",
         cohort_id="FY27-Q2-TEST",
@@ -76,11 +73,6 @@ def _universe(two: bool = False) -> UniverseSnapshot:
         members=members,
         sha256="b" * 64,
     )
-    return provisional
-
-
-def _payload(*rows):
-    return {"data": list(rows)}
 
 
 def _row(**changes):
@@ -99,7 +91,7 @@ def _row(**changes):
 
 class FakeClient:
     def __init__(self, *, filing_payload=None, action_payload=None, source=BASELINE_HTML):
-        self.filing_payload = filing_payload if filing_payload is not None else _payload(_row())
+        self.filing_payload = filing_payload if filing_payload is not None else {"data": [_row()]}
         self.action_payload = action_payload if action_payload is not None else []
         self.source = source
 
@@ -115,11 +107,37 @@ class FakeClient:
         return self.source
 
 
-def test_selects_latest_official_revision_deterministically():
-    payload = _payload(
-        _row(broadcast_Date="17-Oct-2025 18:00:00", xbrl="https://nsearchives.nseindia.com/old.html"),
-        _row(broadcast_Date="17-Oct-2025 19:36:44", xbrl="https://nsearchives.nseindia.com/new.html"),
+def _prepare(tmp_path, *, client=None, universe=None):
+    actual_universe = universe or _universe()
+    now = datetime(2026, 9, 6, 12, tzinfo=UTC)
+    expectation_store = ExpectationStore(tmp_path, clock=lambda: now)
+    preparation_store = PreparationStore(tmp_path)
+    attempt = prepare_symbol(
+        client or FakeClient(),
+        universe=actual_universe,
+        symbol="TESTCO",
+        baseline_period_end="2025-09-30",
+        attempted_at=now,
+        event_store=EventStore(tmp_path),
+        expectation_store=expectation_store,
+        preparation_store=preparation_store,
     )
+    return attempt, expectation_store, preparation_store
+
+
+def test_selects_latest_official_revision_deterministically():
+    payload = {
+        "data": [
+            _row(
+                broadcast_Date="17-Oct-2025 18:00:00",
+                xbrl="https://nsearchives.nseindia.com/old.html",
+            ),
+            _row(
+                broadcast_Date="17-Oct-2025 19:36:44",
+                xbrl="https://nsearchives.nseindia.com/new.html",
+            ),
+        ]
+    }
     selected = select_baseline_candidate(
         payload, symbol="TESTCO", baseline_period_end="2025-09-30"
     )
@@ -129,18 +147,29 @@ def test_selects_latest_official_revision_deterministically():
 
 
 def test_same_timestamp_different_urls_is_ambiguous():
-    payload = _payload(_row(xbrl="https://nsearchives.nseindia.com/a.html"), _row(xbrl="https://nsearchives.nseindia.com/b.html"))
+    payload = {
+        "data": [
+            _row(xbrl="https://nsearchives.nseindia.com/a.html"),
+            _row(xbrl="https://nsearchives.nseindia.com/b.html"),
+        ]
+    }
     with pytest.raises(PreparationError, match="AMBIGUOUS"):
-        select_baseline_candidate(payload, symbol="TESTCO", baseline_period_end="2025-09-30")
+        select_baseline_candidate(
+            payload, symbol="TESTCO", baseline_period_end="2025-09-30"
+        )
 
 
-def test_wrong_basis_and_wrong_period_do_not_become_baseline():
-    payload = _payload(
-        _row(consolidated="Standalone"),
-        _row(qe_Date="30-Jun-2025"),
-    )
+def test_wrong_basis_and_period_do_not_become_baseline():
+    payload = {
+        "data": [
+            _row(consolidated="Standalone"),
+            _row(qe_Date="30-Jun-2025"),
+        ]
+    }
     with pytest.raises(PreparationError, match="NO_BASELINE"):
-        select_baseline_candidate(payload, symbol="TESTCO", baseline_period_end="2025-09-30")
+        select_baseline_candidate(
+            payload, symbol="TESTCO", baseline_period_end="2025-09-30"
+        )
 
 
 def test_bonus_and_split_adjustment_is_deterministic():
@@ -151,24 +180,31 @@ def test_bonus_and_split_adjustment_is_deterministic():
             "subject": "Face Value Split (Sub-Division) - From Rs 10 Per Share To Rs 2 Per Share",
             "exDate": "01-Jun-2026",
         },
-        {"symbol": "TESTCO", "subject": "Dividend - Rs 10 Per Share", "exDate": "01-Jul-2026"},
+        {
+            "symbol": "TESTCO",
+            "subject": "Dividend - Rs 10 Per Share",
+            "exDate": "01-Jul-2026",
+        },
     ]
-    raw = json.dumps(actions).encode()
     result = analyze_eps_basis_actions(
         actions,
-        raw_payload=raw,
+        raw_payload=json.dumps(actions).encode(),
         symbol="TESTCO",
         baseline_period_end="2025-09-30",
         as_of_utc="2026-09-06T12:00:00Z",
     )
     assert result.status == "READY"
     assert result.factor == pytest.approx(0.1)
-    assert result.version.startswith("EPSCA-")
+    assert result.version is not None and result.version.startswith("EPSCA-")
     assert len(result.relevant_actions) == 2
 
 
-def test_unparseable_share_change_fails_closed():
-    actions = [{"symbol": "TESTCO", "subject": "Bonus issue approved", "exDate": "01-Jan-2026"}]
+@pytest.mark.parametrize(
+    "subject",
+    ["Bonus issue approved", "Rights Issue 1:5"],
+)
+def test_unresolved_share_change_fails_closed(subject):
+    actions = [{"symbol": "TESTCO", "subject": subject, "exDate": "01-Jan-2026"}]
     result = analyze_eps_basis_actions(
         actions,
         raw_payload=json.dumps(actions).encode(),
@@ -180,94 +216,42 @@ def test_unparseable_share_change_fails_closed():
     assert result.factor is None
 
 
-def test_rights_issue_is_unresolved_not_guessed():
-    actions = [{"symbol": "TESTCO", "subject": "Rights Issue 1:5", "exDate": "01-Jan-2026"}]
-    result = analyze_eps_basis_actions(
-        actions,
-        raw_payload=json.dumps(actions).encode(),
-        symbol="TESTCO",
-        baseline_period_end="2025-09-30",
-        as_of_utc="2026-09-06T12:00:00Z",
-    )
-    assert result.status == "UNRESOLVED"
-
-
-def test_prepare_symbol_captures_complete_source_provenance(tmp_path):
-    universe = _universe()
-    prep = PreparationStore(tmp_path)
-    attempt = prepare_symbol(
-        FakeClient(),
-        universe=universe,
-        symbol="TESTCO",
-        baseline_period_end="2025-09-30",
-        attempted_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
-        event_store=EventStore(tmp_path),
-        expectation_store=ExpectationStore(tmp_path, clock=lambda: datetime(2026, 9, 6, 12, tzinfo=UTC)),
-        preparation_store=prep,
-    )
+def test_prepare_symbol_captures_source_and_action_provenance(tmp_path):
+    attempt, _, preparation_store = _prepare(tmp_path)
     assert attempt.outcome == "CAPTURED"
-    assert attempt.expectation_id is not None
     assert attempt.expectation_record_id is not None
     assert attempt.baseline_source_sha256 is not None
     assert attempt.discovery_payload_sha256 is not None
     assert attempt.corporate_action_payload_sha256 is not None
     assert attempt.corporate_action_factor == 1.0
-    assert prep.latest(universe.cohort_id, "TESTCO") == attempt
+    assert preparation_store.latest(attempt.cohort_id, "TESTCO") == attempt
 
 
-def test_prepare_symbol_records_no_baseline_reason(tmp_path):
-    universe = _universe()
-    attempt = prepare_symbol(
-        FakeClient(filing_payload={"data": []}),
-        universe=universe,
-        symbol="TESTCO",
-        baseline_period_end="2025-09-30",
-        attempted_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
-        event_store=EventStore(tmp_path),
-        expectation_store=ExpectationStore(tmp_path, clock=lambda: datetime(2026, 9, 6, 12, tzinfo=UTC)),
-        preparation_store=PreparationStore(tmp_path),
-    )
+def test_no_baseline_is_reason_coded_not_silently_omitted(tmp_path):
+    attempt, _, _ = _prepare(tmp_path, client=FakeClient(filing_payload={"data": []}))
     assert attempt.outcome == "UNCOVERED"
     assert attempt.reason_code == "NO_BASELINE_FILING"
     assert attempt.discovery_payload_sha256 is not None
 
 
-def test_prepare_symbol_records_unresolved_corporate_action(tmp_path):
-    actions = [{"symbol": "TESTCO", "subject": "Bonus issue approved", "exDate": "01-Jan-2026"}]
-    universe = _universe()
-    attempt = prepare_symbol(
-        FakeClient(action_payload=actions),
-        universe=universe,
-        symbol="TESTCO",
-        baseline_period_end="2025-09-30",
-        attempted_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
-        event_store=EventStore(tmp_path),
-        expectation_store=ExpectationStore(tmp_path, clock=lambda: datetime(2026, 9, 6, 12, tzinfo=UTC)),
-        preparation_store=PreparationStore(tmp_path),
-    )
+def test_unresolved_corporate_action_is_reason_coded(tmp_path):
+    actions = [
+        {"symbol": "TESTCO", "subject": "Bonus issue approved", "exDate": "01-Jan-2026"}
+    ]
+    attempt, _, _ = _prepare(tmp_path, client=FakeClient(action_payload=actions))
     assert attempt.reason_code == "UNRESOLVED_CORPORATE_ACTION"
     assert attempt.corporate_action_payload_sha256 is not None
 
 
-def test_report_requires_every_company_captured_for_v1_freeze(tmp_path):
+def test_report_refuses_partial_cohort_freeze(tmp_path):
     universe = _universe(two=True)
-    prep = PreparationStore(tmp_path)
-    first = replace(
-        prepare_symbol(
-            FakeClient(),
-            universe=universe,
-            symbol="TESTCO",
-            baseline_period_end="2025-09-30",
-            attempted_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
-            event_store=EventStore(tmp_path),
-            expectation_store=ExpectationStore(tmp_path, clock=lambda: datetime(2026, 9, 6, 12, tzinfo=UTC)),
-            preparation_store=prep,
-        )
+    attempt, expectation_store, preparation_store = _prepare(
+        tmp_path, universe=universe
     )
-    assert first.outcome == "CAPTURED"
+    assert attempt.outcome == "CAPTURED"
     report = build_preparation_report(
         universe=universe,
-        preparation_store=prep,
+        preparation_store=preparation_store,
         baseline_period_end="2025-09-30",
         generated_at=datetime(2026, 9, 6, 13, tzinfo=UTC),
     )
@@ -277,28 +261,34 @@ def test_report_requires_every_company_captured_for_v1_freeze(tmp_path):
     with pytest.raises(PreparationError, match="not freeze-ready"):
         freeze_complete_bundle(
             universe=universe,
-            expectation_store=ExpectationStore(tmp_path),
-            preparation_store=prep,
+            expectation_store=expectation_store,
+            preparation_store=preparation_store,
             baseline_period_end="2025-09-30",
             generated_at=datetime(2026, 9, 6, 13, tzinfo=UTC),
         )
 
 
+def test_complete_cohort_exports_bundle_with_baseline_hashes(tmp_path):
+    universe = _universe()
+    attempt, expectation_store, preparation_store = _prepare(tmp_path, universe=universe)
+    bundle = freeze_complete_bundle(
+        universe=universe,
+        expectation_store=expectation_store,
+        preparation_store=preparation_store,
+        baseline_period_end="2025-09-30",
+        generated_at=datetime(2026, 9, 6, 13, tzinfo=UTC),
+    )
+    assert len(bundle.bundle_sha256) == 64
+    assert bundle.expectation_manifest.uncovered_symbols == ()
+    assert bundle.preparation_attempts[0].attempt_id == attempt.attempt_id
+    assert bundle.preparation_attempts[0].baseline_source_sha256 is not None
+
+
 def test_network_failure_is_evidence_not_silent_omission(tmp_path):
-    class Broken(FakeClient):
+    class BrokenClient(FakeClient):
         def integrated_financial_filings_with_raw(self, symbol):
             raise NSEAcquisitionError("offline")
 
-    universe = _universe()
-    attempt = prepare_symbol(
-        Broken(),
-        universe=universe,
-        symbol="TESTCO",
-        baseline_period_end="2025-09-30",
-        attempted_at=datetime(2026, 9, 6, 12, tzinfo=UTC),
-        event_store=EventStore(tmp_path),
-        expectation_store=ExpectationStore(tmp_path, clock=lambda: datetime(2026, 9, 6, 12, tzinfo=UTC)),
-        preparation_store=PreparationStore(tmp_path),
-    )
+    attempt, _, _ = _prepare(tmp_path, client=BrokenClient())
     assert attempt.reason_code == "DISCOVERY_FETCH_FAILED"
     assert "offline" in (attempt.detail or "")
