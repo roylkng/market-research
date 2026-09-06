@@ -1,0 +1,28 @@
+{
+  "actual_eps_field": "basic_eps",
+  "bucket_rule": {
+    "negative": "ue < 0",
+    "positive": "ue > 0",
+    "zero": "ue == 0"
+  },
+  "corporate_action_policy": "NO_SIGNAL unless pre_event_comparability_adjustment_is_versioned",
+  "expected_eps_model": {
+    "formula": "eps_t_minus_4",
+    "same_accounting_basis": true,
+    "same_reporting_quarter": true,
+    "type": "seasonal_naive_v1"
+  },
+  "hypothesis_id": "H002",
+  "missing_policy": "NO_SIGNAL",
+  "post_event_inputs_forbidden": true,
+  "rule_sha256": "24eb8325216e68db8e3f14db440a0f470f9f576a3d1aea034b570812c70686ff",
+  "scaling": {
+    "formula": "surprise / price_day_minus_2",
+    "price_reference": "official_close_second_prior_nse_trading_session_before_exchange_publication_local_date",
+    "type": "price"
+  },
+  "signal_version": "H002-UE-v1",
+  "surprise_formula": "actual_eps - eps_t_minus_4",
+  "universe_rule_id": "U001",
+  "winsorization": "none"
+}
