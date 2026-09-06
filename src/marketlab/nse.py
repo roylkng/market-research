@@ -20,10 +20,10 @@ class NSEAcquisitionError(RuntimeError):
 
 
 class NSEClient:
-    """Small client for NSE's web-facing JSON interfaces.
+    """Small client for NSE's web-facing and archive acquisition interfaces.
 
     These endpoints are acquisition helpers, not a contractual public API. The
-    research source of record remains the original filing/XBRL document URL.
+    research source of record remains the original exchange file/document.
     """
 
     BASE_URL = "https://www.nseindia.com"
@@ -34,6 +34,9 @@ class NSEClient:
     QUOTE_ENDPOINT = NSEEndpoint("quote_equity", f"{BASE_URL}/api/quote-equity")
     INTEGRATED_FILING_ENDPOINT = NSEEndpoint(
         "integrated_filing_results", f"{BASE_URL}/api/integrated-filing-results"
+    )
+    NIFTY200_CONSTITUENT_CSV = (
+        "https://archives.nseindia.com/content/indices/ind_nifty200list.csv"
     )
 
     def __init__(self, *, timeout: float = 12.0, attempts: int = 3) -> None:
@@ -106,7 +109,25 @@ class NSEClient:
         payload = self._json_get(self.INDEX_ENDPOINT, params={"index": index_name})
         return self._require_mapping(payload, self.INDEX_ENDPOINT.name)
 
+    def nifty200_constituent_csv(self) -> bytes:
+        """Fetch the official Nifty 200 constituent CSV as exact source bytes."""
+
+        try:
+            response = requests.get(
+                self.NIFTY200_CONSTITUENT_CSV,
+                headers={"User-Agent": self.session.headers["User-Agent"]},
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            raise NSEAcquisitionError(f"NSE Nifty 200 constituent CSV failed: {exc}") from exc
+        if not response.content:
+            raise NSEAcquisitionError("NSE Nifty 200 constituent CSV returned empty bytes")
+        return response.content
+
     def quote_equity(self, symbol: str) -> dict[str, Any]:
+        """Best-effort quote metadata helper, not required by U001 v2."""
+
         payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
         return self._require_mapping(payload, self.QUOTE_ENDPOINT.name)
 
