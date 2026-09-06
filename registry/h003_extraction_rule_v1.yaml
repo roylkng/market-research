@@ -1,0 +1,97 @@
+schema_version: 1
+id: H003-E001
+hypothesis_id: H003
+status: FROZEN
+source_rule_id: H003-C001
+source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
+source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
+cohort_id: FY27-Q2-2026-09-06
+decision_timestamp_utc: '2026-09-06T12:21:06.431463Z'
+parser:
+  library: pypdf
+  library_version: 6.17.0
+  parser_version: h003_pdf_text_v1
+  strict: false
+  ocr_allowed: false
+candidate_rule:
+  version: h003_future_commitment_candidate_v1
+  context_radius_lines: 1
+  min_excerpt_chars: 20
+  max_excerpt_chars: 800
+  require_future_marker: true
+  require_quantitative_or_deadline_marker: true
+  future_markers:
+    - we will
+    - we expect
+    - we target
+    - our target
+    - we aim
+    - we plan
+    - we intend
+    - we anticipate
+    - we should
+    - we are targeting
+    - we are aiming
+    - we are planning
+    - guidance
+    - targeting
+    - aiming for
+    - plan to
+    - expect to
+    - expected to
+  deadline_markers:
+    - by fy
+    - in fy
+    - during fy
+    - this fiscal
+    - next fiscal
+    - this year
+    - next year
+    - this quarter
+    - next quarter
+    - by the end
+    - by end
+    - within
+    - over the next
+    - in the next
+    - by march
+    - by june
+    - by september
+    - by december
+    - q1
+    - q2
+    - q3
+    - q4
+    - h1
+    - h2
+  exclude_markers:
+    - safe harbor
+    - safe harbour
+    - forward-looking statements
+    - forward looking statements
+    - may differ materially
+    - no obligation to update
+    - 'operator:'
+    - 'moderator:'
+  quantitative_regex: '(?i)(?:₹|rs\.?|inr|usd|\$)?\s*\d[\d,]*(?:\.\d+)?\s*(?:%|percent|bps|crore|cr\b|million|billion|mn\b|bn\b|mt\b|kt\b|mw\b|gw\b|units?|stores?|outlets?|plants?|days?|months?|years?|x\b)?'
+review:
+  default_disposition: UNREVIEWED
+  allowed_dispositions:
+    - UNREVIEWED
+    - ACCEPTED
+    - REJECTED
+  candidate_generation_confers_signal: false
+  accepted_claim_requires_human_or_separately_versioned_review: true
+completion:
+  expected_member_count: 100
+  expected_source_count: 794
+  freeze_requires_all_sources_text_ready: true
+  no_text_blocks_freeze: true
+  fetch_or_parse_error_blocks_freeze: true
+forbidden_inputs:
+  - post_decision_outcome_evidence
+  - post_decision_prices
+  - post_decision_returns
+  - broker_or_live_order_state
+live_capital: false
+sha256: db954a0737bf9b049130c899104008479e677460a21c98b6a54855188180def8
