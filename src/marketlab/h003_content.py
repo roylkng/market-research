@@ -271,6 +271,7 @@ def classify_extracted_text(page_texts: tuple[str, ...], text: str) -> ContentSt
 def _record_digest(record: TranscriptContentRecord) -> str:
     payload = record.to_dict()
     payload.pop("content_id", None)
+    payload.pop("fetched_at_utc", None)
     return _canonical_hash(payload)
 
 
