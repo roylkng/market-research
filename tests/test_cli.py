@@ -111,3 +111,33 @@ def test_reconstruct_event_is_runnable_and_historical_only(tmp_path):
     )
     assert second.exit_code == 0, second.output
     assert '"created": false' in second.output
+
+
+def test_delivery_report_runs_for_source_grounded_claim_ledger():
+    result = runner.invoke(
+        app,
+        [
+            "delivery-report",
+            "research/company-intelligence/claims_v1.yaml",
+            "--symbol",
+            "SHAILY",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert '"symbol": "SHAILY"' in result.output
+    assert '"LATE": 1' in result.output
+    assert '"met_rate_resolved": 0.0' in result.output
+
+
+def test_delivery_report_rejects_unknown_symbol():
+    result = runner.invoke(
+        app,
+        [
+            "delivery-report",
+            "research/company-intelligence/claims_v1.yaml",
+            "--symbol",
+            "DOESNOTEXIST",
+        ],
+    )
+    assert result.exit_code == 2
+    assert "no claims found for symbol" in result.output
