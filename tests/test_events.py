@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.events import EventStore, HISTORICAL_RECONSTRUCTION, parse_indas_html, sha256_bytes
+from marketlab.events import HISTORICAL_RECONSTRUCTION, EventStore, parse_indas_html, sha256_bytes
 
 FIXTURES = Path("data/fixtures/filings")
 
