@@ -61,11 +61,7 @@ class _Client:
         return self.raw
 
 
-def test_package_fetches_once_per_source_redacts_identity_and_only_auto_rejects_question(
-    monkeypatch,
-):
-    module = _module()
-    raw = b"frozen-pdf-bytes"
+def _corpus(raw: bytes) -> tuple[CandidateCorpus, str, str]:
     answer = "We expect TEST revenue growth of 15% next year."
     question = "Why do we expect TEST revenue growth of 15% next year?"
     answer_candidate = _candidate(
@@ -91,6 +87,10 @@ def test_package_fetches_once_per_source_redacts_identity_and_only_auto_rejects_
         candidate_count=2,
         candidates_by_id={"answer": answer_candidate, "question": question_candidate},
     )
+    return corpus, answer, question
+
+
+def _patch_pages(monkeypatch, module, answer: str, question: str) -> None:
     monkeypatch.setattr(
         module,
         "extract_pdf_pages",
@@ -99,17 +99,28 @@ def test_package_fetches_once_per_source_redacts_identity_and_only_auto_rejects_
             answer + "\n" + question,
         ),
     )
+
+
+def test_package_fetches_once_per_source_redacts_identity_and_only_auto_rejects_question(
+    monkeypatch,
+):
+    module = _module()
+    raw = b"frozen-pdf-bytes"
+    corpus, answer, question = _corpus(raw)
+    _patch_pages(monkeypatch, module, answer, question)
     client = _Client(raw)
     package, payloads, decisions = module.build_package(
         corpus,
         company_names={"TEST": "Test Limited"},
         client=client,
+        candidate_store=None,
         fetch_attempts=1,
     )
     assert client.calls == 1
     assert package["blind_payload_count"] == 2
     assert package["mechanical_rejected_count"] == 1
     assert package["semantic_review_count"] == 1
+    assert package["source_mode_counts"] == {"NSE_REFETCH": 1}
     assert [decision.candidate_id for decision in decisions] == ["question"]
     assert decisions[0].reason_code == "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER"
     for payload in payloads:
@@ -117,6 +128,27 @@ def test_package_fetches_once_per_source_redacts_identity_and_only_auto_rejects_
         assert "TEST" not in text
         assert "Test Limited" not in text
     assert len(package["package_sha256"]) == 64
+
+
+def test_local_candidate_store_reuses_exact_pdf_without_network(monkeypatch, tmp_path):
+    module = _module()
+    raw = b"frozen-pdf-bytes"
+    corpus, answer, question = _corpus(raw)
+    _patch_pages(monkeypatch, module, answer, question)
+    digest = hashlib.sha256(raw).hexdigest()
+    raw_path = tmp_path / "raw" / "sha256" / f"{digest}.pdf"
+    raw_path.parent.mkdir(parents=True)
+    raw_path.write_bytes(raw)
+    package, payloads, decisions = module.build_package(
+        corpus,
+        company_names={"TEST": "Test Limited"},
+        client=None,
+        candidate_store=tmp_path,
+        fetch_attempts=1,
+    )
+    assert package["source_mode_counts"] == {"LOCAL_STORE": 1}
+    assert len(payloads) == 2
+    assert len(decisions) == 1
 
 
 def test_changed_pdf_bytes_fail_closed_before_blind_review(monkeypatch):
@@ -150,9 +182,54 @@ def test_changed_pdf_bytes_fail_closed_before_blind_review(monkeypatch):
             corpus,
             company_names={"TEST": "Test Limited"},
             client=_Client(changed_raw),
+            candidate_store=None,
             fetch_attempts=1,
         )
     except module.ReviewPackageError as exc:
         assert "source bytes changed" in str(exc)
     else:
         raise AssertionError("changed PDF bytes must fail closed")
+
+
+def test_changed_local_store_bytes_fail_closed(monkeypatch, tmp_path):
+    module = _module()
+    frozen_raw = b"original"
+    changed_raw = b"changed"
+    excerpt = "We expect TEST revenue growth of 15% next year."
+    candidate = _candidate(
+        candidate_id="candidate",
+        source_id="source-1",
+        raw=frozen_raw,
+        excerpt=excerpt,
+        line_start=1,
+    )
+    corpus = CandidateCorpus(
+        report_sha256="c" * 64,
+        candidate_rule_id="H003-E002",
+        candidate_rule_sha256=candidate.rule_sha256,
+        source_bundle_sha256="583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee",
+        cohort_id="FY27-Q2-2026-09-06",
+        candidate_count=1,
+        candidates_by_id={candidate.candidate_id: candidate},
+    )
+    monkeypatch.setattr(
+        module,
+        "extract_pdf_pages",
+        lambda _: ((ExtractedPage(page_number=1, lines=(excerpt,)),), excerpt),
+    )
+    digest = hashlib.sha256(frozen_raw).hexdigest()
+    path = tmp_path / "raw" / "sha256" / f"{digest}.pdf"
+    path.parent.mkdir(parents=True)
+    path.write_bytes(changed_raw)
+    try:
+        module.build_package(
+            corpus,
+            company_names={"TEST": "Test Limited"},
+            client=None,
+            candidate_store=tmp_path,
+            fetch_attempts=1,
+        )
+    except module.ReviewPackageError as exc:
+        assert "source bytes changed" in str(exc)
+    else:
+        raise AssertionError("changed local-store bytes must fail closed")
