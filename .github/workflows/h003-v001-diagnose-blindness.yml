@@ -1,0 +1,196 @@
+name: Diagnose H003-V001 r2 blindness violations
+
+on:
+  push:
+    branches:
+      - diag/h003-v001-r2-blindness-violations
+    paths:
+      - .github/workflows/h003-v001-diagnose-blindness.yml
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  SOURCE_SHARD_RUN_ID: '34056101474'
+  SOURCE_EVIDENCE_BRANCH: run/h003-e002-sharded-20260907
+  SOURCE_REPORT_PATH: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json
+  EXPECTED_REPORT_SHA256: cb48b1e18c76a3ea2d06b13383955c0f0c6efa6d3d65bd132ac3d5e59217ffea
+  OUT: /tmp/h003-review-diagnostic
+  REPORT_OUT: research/prospective/h003/FY27-Q2-2026-09-06/diagnostics/v001-r2-blindness-violations.json
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: diag/h003-v001-r2-blindness-violations
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Download frozen E002 source shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: h003-e002-shard-*
+          path: shard-downloads
+          run-id: ${{ env.SOURCE_SHARD_RUN_ID }}
+          github-token: ${{ github.token }}
+      - name: Assemble exact PDF store and candidate report
+        run: |
+          python - <<'PY'
+          import hashlib
+          import shutil
+          from pathlib import Path
+          artifacts = sorted(Path('shard-downloads').glob('h003-e002-shard-*'))
+          if len(artifacts) != 8:
+              raise SystemExit(f'expected 8 artifacts, found {len(artifacts)}')
+          dest = Path('review-input/store/raw/sha256')
+          dest.mkdir(parents=True, exist_ok=True)
+          for artifact in artifacts:
+              source_dir = artifact / 'store' / 'raw' / 'sha256'
+              for source in source_dir.glob('*.pdf'):
+                  raw = source.read_bytes()
+                  if hashlib.sha256(raw).hexdigest() != source.stem:
+                      raise SystemExit(f'raw hash mismatch: {source}')
+                  target = dest / source.name
+                  if target.exists() and target.read_bytes() != raw:
+                      raise SystemExit(f'content collision: {source.name}')
+                  if not target.exists():
+                      shutil.copy2(source, target)
+          PY
+          mkdir -p review-input
+          git fetch origin "$SOURCE_EVIDENCE_BRANCH" --depth=1
+          git show FETCH_HEAD:"$SOURCE_REPORT_PATH" > review-input/report.json
+      - name: Rebuild corrected blind package
+        run: |
+          rm -rf "$OUT"
+          python scripts/build_h003_review_package.py \
+            --candidate-report review-input/report.json \
+            --review-rule registry/h003_review_rule.yaml \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --candidate-store review-input/store \
+            --out-dir "$OUT"
+      - name: Record exact helper and independent blindness violations
+        run: |
+          python - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import re
+          from datetime import UTC, datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          from marketlab.h003_review import load_complete_candidate_corpus
+
+          def load_builder():
+              path = Path('scripts/build_h003_review_package.py')
+              spec = importlib.util.spec_from_file_location('h003_review_package_builder', path)
+              if spec is None or spec.loader is None:
+                  raise SystemExit('cannot load review package builder')
+              module = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(module)
+              return module
+
+          def ordinal(day: int) -> str:
+              if 10 <= day % 100 <= 20:
+                  suffix = 'th'
+              else:
+                  suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+              return f'{day}{suffix}'
+
+          def independent_date_terms(timestamp: str) -> tuple[str, ...]:
+              dt = datetime.fromisoformat(timestamp)
+              dates = {dt.astimezone(UTC).date(), dt.astimezone(ZoneInfo('Asia/Kolkata')).date()}
+              terms = set()
+              for value in dates:
+                  d = value.day
+                  d2 = f'{d:02d}'
+                  m = value.month
+                  m2 = f'{m:02d}'
+                  y = value.year
+                  yy = f'{y % 100:02d}'
+                  month = value.strftime('%B')
+                  mon = value.strftime('%b')
+                  od = ordinal(d)
+                  terms.update({
+                      f'{y}-{m2}-{d2}', f'{y}/{m2}/{d2}', f'{y}.{m2}.{d2}',
+                      f'{m2}/{d2}/{y}', f'{m2}-{d2}-{y}', f'{m2}.{d2}.{y}',
+                      f'{month} {od}, {y}', f'{month} {od} {y}',
+                      f'{od} {month} {y}', f'{od} {mon} {y}',
+                      f'{d2}{m2}{y}', f'{y}{m2}{d2}', f'{d2}{m2}{yy}',
+                      f'{month} {d2}, {y}', f'{mon} {d2}, {y}',
+                  })
+              return tuple(sorted(terms, key=len, reverse=True))
+
+          builder = load_builder()
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          universe = json.loads(Path('research/prospective/universes/FY27-Q2-2026-09-06.json').read_text())
+          company_names = {str(x['symbol']).upper(): str(x['company_name']) for x in universe['members']}
+          payloads = json.loads((Path(os.environ['OUT']) / 'blind-payloads.json').read_text())
+          by_id = {str(x['candidate_id']): x for x in payloads}
+
+          helper_violations = []
+          independent_violations = []
+          embedded_company = []
+          for candidate_id, candidate in corpus.candidates_by_id.items():
+              payload = by_id[candidate_id]
+              visible_raw = ' '.join([str(payload['redacted_excerpt']), *map(str, payload['redacted_page_context'])])
+              visible = visible_raw.casefold()
+              company = company_names[candidate.symbol]
+              for term in (*builder._company_redaction_terms(company, candidate.symbol), *builder._publication_date_redaction_terms(candidate.exchange_published_at_utc)):
+                  normalized = str(term).strip().casefold()
+                  if normalized and normalized in visible:
+                      helper_violations.append({
+                          'candidate_id': candidate_id,
+                          'symbol': candidate.symbol,
+                          'exchange_published_at_utc': candidate.exchange_published_at_utc,
+                          'matched_term': term,
+                          'excerpt': payload['redacted_excerpt'],
+                          'context': payload['redacted_page_context'],
+                      })
+                      break
+              for term in independent_date_terms(candidate.exchange_published_at_utc):
+                  normalized = term.casefold()
+                  if normalized and normalized in visible:
+                      independent_violations.append({
+                          'candidate_id': candidate_id,
+                          'symbol': candidate.symbol,
+                          'exchange_published_at_utc': candidate.exchange_published_at_utc,
+                          'matched_term': term,
+                          'excerpt': payload['redacted_excerpt'],
+                          'context': payload['redacted_page_context'],
+                      })
+                      break
+              if re.search(r'[A-Za-z0-9]\[COMPANY\][A-Za-z0-9]', visible_raw):
+                  embedded_company.append({'candidate_id': candidate_id, 'excerpt': payload['redacted_excerpt']})
+
+          report = {
+              'schema_version': 1,
+              'candidate_count': len(payloads),
+              'helper_violation_count': len(helper_violations),
+              'helper_violations': helper_violations[:100],
+              'independent_date_violation_count': len(independent_violations),
+              'independent_date_violations': independent_violations[:100],
+              'embedded_company_placeholder_count': len(embedded_company),
+              'embedded_company_examples': embedded_company[:25],
+              'candidate_report_sha256': corpus.report_sha256,
+              'review_rule_sha256': '8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244',
+              'diagnostic_only': True,
+          }
+          path = Path(os.environ['REPORT_OUT'])
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps({k: v for k, v in report.items() if not isinstance(v, list)}, indent=2, sort_keys=True))
+          PY
+      - name: Commit diagnostic report and remove workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-diagnose-blindness.yml
+          git add "$REPORT_OUT"
+          git commit -m "Record exact H003-V001 r2 blindness violations"
+          git push origin HEAD:diag/h003-v001-r2-blindness-violations
