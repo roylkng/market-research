@@ -13,13 +13,13 @@ from zoneinfo import ZoneInfo
 from marketlab.calendar_snapshot import CalendarSnapshot, CalendarSnapshotError
 from marketlab.events import EventParseError, EventStore, FinancialEvent, SourceProvenance
 from marketlab.execution import ExecutionError, PriceBar, TradingCalendar, build_paper_position
-from marketlab.frozen_bundle import FrozenBundleView, FrozenBundleError
+from marketlab.frozen_bundle import FrozenBundleError, FrozenBundleView
 from marketlab.h002 import (
+    RULE_ID,
+    SIGNAL_VERSION,
     H002SignalError,
     H002SignalResult,
     PriceReference,
-    RULE_ID,
-    SIGNAL_VERSION,
     score_h002,
 )
 from marketlab.marketdata import (
@@ -768,6 +768,22 @@ class H002CohortRunner:
                         signal=signal,
                         evidence=base_evidence,
                         reason="exit_price_basis_unresolved",
+                    )
+                entry_basis_payload = base_evidence.get("entry_price_basis")
+                entry_basis_version = (
+                    entry_basis_payload.get("version")
+                    if isinstance(entry_basis_payload, dict)
+                    else None
+                )
+                if entry_basis_version != exit_basis.version:
+                    return self._append_price_basis_unresolved(
+                        member,
+                        as_of=as_of,
+                        event=event,
+                        record_id=record.record_id,
+                        signal=signal,
+                        evidence=base_evidence,
+                        reason="holding_period_price_basis_changed",
                     )
                 stock_bars.append(
                     replace(

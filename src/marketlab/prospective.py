@@ -257,6 +257,13 @@ def _snapshot_payload_for_state(snapshot: ObservationSnapshot) -> dict[str, Any]
         "recorded_at_utc",
     ):
         payload.pop(key, None)
+    position = payload.get("paper_position")
+    if isinstance(position, dict):
+        # evaluation_as_of_utc records when a poll reconstructed the position. It is
+        # not an economic state transition and must not create ledger churn.
+        position = dict(position)
+        position.pop("evaluation_as_of_utc", None)
+        payload["paper_position"] = position
     return payload
 
 
