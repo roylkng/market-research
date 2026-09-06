@@ -34,6 +34,10 @@ class MarketDataError(ValueError):
     """Raised when exact market-data files cannot be interpreted without guessing."""
 
 
+class MarketDataMissingRow(MarketDataError):
+    """Raised when a valid official archive lacks the requested instrument row."""
+
+
 @dataclass(frozen=True)
 class MarketArtifact:
     schema_version: int
@@ -215,6 +219,10 @@ def parse_udiff_equity(
             and str(row.get("SctySrs") or "").strip().upper() == wanted_series
         ):
             matches.append(row)
+    if not matches:
+        raise MarketDataMissingRow(
+            f"UDiFF has no row for {wanted_symbol}/{wanted_series} on {day}"
+        )
     if len(matches) != 1:
         raise MarketDataError(
             f"expected exactly one UDiFF row for {wanted_symbol}/{wanted_series} on {day}; "
@@ -273,6 +281,10 @@ def parse_index_snapshot(
                 continue
         if parsed_date == session_date:
             matches.append(row)
+    if not matches:
+        raise MarketDataMissingRow(
+            f"index snapshot has no row for {benchmark_id} on {session_date}"
+        )
     if len(matches) != 1:
         raise MarketDataError(
             f"expected exactly one index row for {benchmark_id} on {session_date}; "
