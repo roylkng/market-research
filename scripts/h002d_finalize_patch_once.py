@@ -165,25 +165,7 @@ prospective_tests.write_text(
     encoding="utf-8",
 )
 
-runner_tests = Path("tests/test_runner.py")
-runner_tests.write_text(
-    runner_tests.read_text(encoding="utf-8")
-    + '''\n\ndef test_price_basis_version_changes_when_holding_period_share_basis_changes():
-    from datetime import date
-
-    from marketlab.marketdata import audit_price_basis_actions
-
-    entry = audit_price_basis_actions(
-        [], raw_payload=b"[]", symbol="TEST",
-        start_date=date(2026, 10, 1), end_date=date(2026, 10, 5),
-    )
-    exit_basis = audit_price_basis_actions(
-        [{"symbol": "TEST", "subject": "Bonus 1:1", "exDate": "20-Oct-2026"}],
-        raw_payload=b"bonus", symbol="TEST",
-        start_date=date(2026, 10, 1), end_date=date(2026, 11, 2),
-    )
-    assert entry.status == "READY" and exit_basis.status == "READY"
-    assert entry.version != exit_basis.version
-''',
+Path("tests/test_runner.py").write_text(
+    '''from datetime import date\n\nfrom marketlab.marketdata import audit_price_basis_actions\n\n\ndef test_price_basis_version_changes_when_holding_period_share_basis_changes():\n    entry = audit_price_basis_actions(\n        [], raw_payload=b"[]", symbol="TEST",\n        start_date=date(2026, 10, 1), end_date=date(2026, 10, 5),\n    )\n    exit_basis = audit_price_basis_actions(\n        [{"symbol": "TEST", "subject": "Bonus 1:1", "exDate": "20-Oct-2026"}],\n        raw_payload=b"bonus", symbol="TEST",\n        start_date=date(2026, 10, 1), end_date=date(2026, 11, 2),\n    )\n    assert entry.status == "READY" and exit_basis.status == "READY"\n    assert entry.version != exit_basis.version\n''',
     encoding="utf-8",
 )
