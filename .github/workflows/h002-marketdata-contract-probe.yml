@@ -21,11 +21,14 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Probe current NSE contracts
+      - name: Probe official archive and holiday contracts
         run: |
           mkdir -p probe-out
           python - <<'PY'
+          import csv
+          import io
           import json
+          import zipfile
           from pathlib import Path
           import requests
           from marketlab.nse import NSEClient
@@ -33,87 +36,67 @@ jobs:
           out = Path('probe-out')
           client = NSEClient(timeout=20.0, attempts=4)
           client._initialize_session()
+          headers = {'User-Agent': client.session.headers['User-Agent']}
 
-          probes = {
-              'holiday-master': (
-                  'https://www.nseindia.com/api/holiday-master',
-                  {'type': 'trading'},
-              ),
-              'equity-securityArchives': (
-                  'https://www.nseindia.com/api/historical/securityArchives',
-                  {
-                      'from': '01-09-2026',
-                      'to': '04-09-2026',
-                      'symbol': 'RELIANCE',
-                      'dataType': 'priceVolumeDeliverable',
-                      'series': 'EQ',
-                  },
-              ),
-              'equity-cm-equity': (
-                  'https://www.nseindia.com/api/historical/cm/equity',
-                  {
-                      'from': '01-09-2026',
-                      'to': '04-09-2026',
-                      'symbol': 'RELIANCE',
-                      'series': '["EQ"]',
-                  },
-              ),
-              'index-indicesHistory-nifty50': (
-                  'https://www.nseindia.com/api/historical/indicesHistory',
-                  {
-                      'indexType': 'NIFTY 50',
-                      'from': '01-09-2026',
-                      'to': '04-09-2026',
-                  },
-              ),
-              'index-indicesHistory-momentum': (
-                  'https://www.nseindia.com/api/historical/indicesHistory',
-                  {
-                      'indexType': 'NIFTY200 MOMENTUM 30',
-                      'from': '01-09-2026',
-                      'to': '04-09-2026',
-                  },
-              ),
+          urls = {
+              'udiff-20260904': 'https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20260904_F_0000.csv.zip',
+              'full-bhav-20260904': 'https://archives.nseindia.com/products/content/sec_bhavdata_full_04092026.csv',
+              'index-snapshot-20260904': 'https://archives.nseindia.com/content/indices/ind_close_all_04092026.csv',
+              'udiff-known-20260820': 'https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20260820_F_0000.csv.zip',
+              'full-bhav-known-20260820': 'https://archives.nseindia.com/products/content/sec_bhavdata_full_20082026.csv',
+              'index-snapshot-known-20260820': 'https://archives.nseindia.com/content/indices/ind_close_all_20082026.csv',
           }
-
           summary = {}
-          for name, (url, params) in probes.items():
+          for name, url in urls.items():
               try:
-                  response = client.session.get(url, params=params, timeout=20)
+                  response = requests.get(url, headers=headers, timeout=20)
                   raw = response.content
                   record = {
-                      'requested_url': response.url,
+                      'url': url,
                       'status': response.status_code,
                       'content_type': response.headers.get('content-type'),
                       'byte_count': len(raw),
                   }
                   if raw:
                       (out / f'{name}.raw').write_bytes(raw)
-                  try:
-                      payload = response.json()
-                      record['json_type'] = type(payload).__name__
-                      if isinstance(payload, dict):
-                          record['top_keys'] = sorted(payload.keys())
-                          for candidate in ('data', 'records', 'CM', 'FO', 'CD'):
-                              value = payload.get(candidate)
-                              if isinstance(value, list):
-                                  record[f'{candidate}_count'] = len(value)
-                                  if value and isinstance(value[0], dict):
-                                      record[f'{candidate}_first_keys'] = sorted(value[0].keys())
-                                      record[f'{candidate}_first'] = value[0]
-                      elif isinstance(payload, list):
-                          record['count'] = len(payload)
-                          if payload and isinstance(payload[0], dict):
-                              record['first_keys'] = sorted(payload[0].keys())
-                              record['first'] = payload[0]
-                  except Exception as exc:
-                      record['json_error'] = repr(exc)
-                      record['prefix'] = raw[:500].decode('utf-8', errors='replace')
+                  if response.status_code == 200 and raw:
+                      data = raw
+                      if raw[:2] == b'PK':
+                          with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+                              record['zip_names'] = archive.namelist()
+                              if archive.namelist():
+                                  data = archive.read(archive.namelist()[0])
+                                  (out / f'{name}.csv').write_bytes(data)
+                      text = data.decode('utf-8-sig', errors='replace')
+                      rows = list(csv.reader(io.StringIO(text)))
+                      if rows:
+                          record['header'] = rows[0]
+                          record['first_row'] = rows[1] if len(rows) > 1 else None
+                          record['row_count'] = max(0, len(rows)-1)
                   summary[name] = record
               except Exception as exc:
-                  summary[name] = {'request_error': repr(exc)}
+                  summary[name] = {'url': url, 'error': repr(exc)}
 
-          (out / 'summary.json').write_text(
+          try:
+              response = client.session.get(
+                  'https://www.nseindia.com/api/holiday-master',
+                  params={'type': 'trading'},
+                  timeout=20,
+              )
+              raw = response.content
+              (out / 'holiday-master.raw').write_bytes(raw)
+              payload = response.json()
+              cm = payload.get('CM', []) if isinstance(payload, dict) else []
+              summary['holiday-master'] = {
+                  'status': response.status_code,
+                  'byte_count': len(raw),
+                  'cm_count': len(cm),
+                  'cm_rows': cm,
+              }
+          except Exception as exc:
+              summary['holiday-master'] = {'error': repr(exc)}
+
+          (out / 'summary-v2.json').write_text(
               json.dumps(summary, indent=2, sort_keys=True, default=str) + '\n',
               encoding='utf-8',
           )
@@ -124,9 +107,9 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           mkdir -p research/probes/h002-marketdata-2026-09-06
-          cp probe-out/summary.json research/probes/h002-marketdata-2026-09-06/summary.json
-          git add research/probes/h002-marketdata-2026-09-06/summary.json
-          git commit -m "Capture current NSE market-data endpoint contracts" || exit 0
+          cp probe-out/summary-v2.json research/probes/h002-marketdata-2026-09-06/summary-v2.json
+          git add research/probes/h002-marketdata-2026-09-06/summary-v2.json
+          git commit -m "Capture NSE static market-data archive contracts" || exit 0
           git push origin "HEAD:${GITHUB_REF_NAME}"
       - uses: actions/upload-artifact@v4
         if: always()
