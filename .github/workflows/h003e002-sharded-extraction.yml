@@ -1,0 +1,220 @@
+name: H003-E002 sharded full transcript extraction
+
+on:
+  push:
+    branches:
+      - run/h003-e002-sharded-20260907
+    paths:
+      - .github/workflows/h003e002-sharded-extraction.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h003-e002-sharded-20260907
+  cancel-in-progress: false
+
+env:
+  SOURCE_BUNDLE: research/prospective/h003/FY27-Q2-2026-09-06/source-coverage-v1.json
+  RULE: registry/h003_extraction_rule.yaml
+  ANCHOR: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    env:
+      SHARD: ${{ matrix.shard }}
+      OUT: run-out/h003-e002-shard-${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-e002-sharded-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+      - name: Extract deterministic shard
+        run: |
+          mkdir -p "$OUT"
+          python scripts/build_h003_candidates.py \
+            --source-bundle "$SOURCE_BUNDLE" \
+            --rule "$RULE" \
+            --store "$OUT/store" \
+            --report-out "$OUT/report.json" \
+            --summary-out "$OUT/summary.json" \
+            --shard-count 8 \
+            --shard-index "$SHARD" \
+            --fetch-attempts 4 \
+            --sleep-seconds 0.15
+      - name: Verify exact shard cardinality and clean source states
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          shard = int(os.environ['SHARD'])
+          expected = len(range(shard, 794, 8))
+          summary = json.loads((Path(os.environ['OUT']) / 'summary.json').read_text())
+          assert summary['sharded'] is True
+          assert summary['shard_count'] == 8
+          assert summary['shard_index'] == shard
+          assert summary['selected_source_count'] == expected
+          assert summary['processed_source_count'] == expected
+          assert summary['source_status_counts'] == {'TEXT_READY': expected}, summary
+          print(f"shard={shard}; sources={expected}; candidates={summary['candidate_count']}")
+          PY
+      - name: Preserve shard evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-e002-shard-${{ matrix.shard }}
+          path: run-out/h003-e002-shard-${{ matrix.shard }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    needs: extract
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OUT: run-out/h003-e002-aggregate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-e002-sharded-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h003-e002-shard-*
+          path: shard-downloads
+      - name: Merge content-addressed shard stores
+        run: |
+          mkdir -p "$OUT/store/records" "$OUT/store/raw/sha256" "$OUT/store/text/sha256"
+          python - <<'PY'
+          import shutil
+          from pathlib import Path
+
+          destination = Path('run-out/h003-e002-aggregate/store')
+          seen_records = set()
+          for artifact in sorted(Path('shard-downloads').glob('h003-e002-shard-*')):
+              stores = list(artifact.glob('run-out/h003-e002-shard-*/store'))
+              if len(stores) != 1:
+                  raise SystemExit(f'unexpected shard artifact layout: {artifact}: {stores}')
+              store = stores[0]
+              for record in sorted((store / 'records').glob('*.json')):
+                  if record.name in seen_records:
+                      raise SystemExit(f'duplicate source checkpoint across shards: {record.name}')
+                  seen_records.add(record.name)
+                  shutil.copy2(record, destination / 'records' / record.name)
+              for category, suffix in (('raw/sha256', '.pdf'), ('text/sha256', '.txt')):
+                  source_dir = store / category
+                  target_dir = destination / category
+                  if not source_dir.exists():
+                      continue
+                  for source in source_dir.glob(f'*{suffix}'):
+                      target = target_dir / source.name
+                      if target.exists():
+                          if target.read_bytes() != source.read_bytes():
+                              raise SystemExit(f'content-addressed collision: {source.name}')
+                      else:
+                          shutil.copy2(source, target)
+          if len(seen_records) != 794:
+              raise SystemExit(f'expected 794 unique source checkpoints, found {len(seen_records)}')
+          print(f'merged source checkpoints={len(seen_records)}')
+          PY
+      - name: Reconstruct the canonical full report entirely from checkpoints
+        run: |
+          python scripts/build_h003_candidates.py \
+            --source-bundle "$SOURCE_BUNDLE" \
+            --rule "$RULE" \
+            --store "$OUT/store" \
+            --report-out "$OUT/report.json" \
+            --summary-out "$OUT/summary.json" \
+            --fetch-attempts 1 \
+            --sleep-seconds 0
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          summary = json.loads((Path(os.environ['OUT']) / 'summary.json').read_text())
+          if summary['processed_source_count'] != 794:
+              raise SystemExit(f"processed {summary['processed_source_count']} of 794")
+          if summary['resumed_source_count'] != 794:
+              raise SystemExit(f"aggregation unexpectedly fetched data: resumed={summary['resumed_source_count']}")
+          if summary['source_status_counts'] != {'TEXT_READY': 794}:
+              raise SystemExit(f"non-TEXT_READY sources remain: {summary['source_status_counts']}")
+          if summary['complete'] is not True or summary['freeze_blockers']:
+              raise SystemExit(f"corpus is not freeze-ready: {summary['freeze_blockers']}")
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+      - name: Anchor the complete corpus on the run branch
+        run: |
+          mkdir -p "$ANCHOR"
+          cp "$OUT/report.json" "$ANCHOR/report.json"
+          cp "$OUT/summary.json" "$ANCHOR/summary.json"
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT'])
+          anchor = Path(os.environ['ANCHOR'])
+          summary = json.loads((out / 'summary.json').read_text())
+          metadata = {
+              'schema_version': 1,
+              'cohort_id': 'FY27-Q2-2026-09-06',
+              'rule_id': 'H003-E002',
+              'rule_sha256': '5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2',
+              'source_bundle_sha256': '583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee',
+              'shard_count': 8,
+              'max_parallel': 4,
+              'source_commit_sha': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'workflow_ref': os.environ['GITHUB_WORKFLOW_REF'],
+              'anchored_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'processed_source_count': summary['processed_source_count'],
+              'source_status_counts': summary['source_status_counts'],
+              'candidate_count': summary['candidate_count'],
+              'companies_with_candidates': summary['companies_with_candidates'],
+              'complete': summary['complete'],
+              'freeze_blockers': summary['freeze_blockers'],
+              'report_sha256': summary['report_sha256'],
+              'report_file_sha256': hashlib.sha256((out / 'report.json').read_bytes()).hexdigest(),
+              'summary_file_sha256': hashlib.sha256((out / 'summary.json').read_bytes()).hexdigest(),
+          }
+          (anchor / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$ANCHOR"
+          git commit -m "Anchor complete sharded H003-E002 candidate corpus"
+          git push origin HEAD:run/h003-e002-sharded-20260907
+      - name: Preserve complete raw/text/candidate evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-e002-complete-${{ github.run_id }}
+          path: run-out/h003-e002-aggregate
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
