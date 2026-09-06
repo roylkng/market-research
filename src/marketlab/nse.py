@@ -28,7 +28,9 @@ class NSEClient:
 
     BASE_URL = "https://www.nseindia.com"
     SESSION_PAGE = f"{BASE_URL}/market-data/live-equity-market"
-    INDEX_ENDPOINT = NSEEndpoint("equity_stock_indices", f"{BASE_URL}/api/equity-stockIndices")
+    INDEX_ENDPOINT = NSEEndpoint(
+        "equity_stock_indices", f"{BASE_URL}/api/equity-stock-indices"
+    )
     QUOTE_ENDPOINT = NSEEndpoint("quote_equity", f"{BASE_URL}/api/quote-equity")
     INTEGRATED_FILING_ENDPOINT = NSEEndpoint(
         "integrated_filing_results", f"{BASE_URL}/api/integrated-filing-results"
