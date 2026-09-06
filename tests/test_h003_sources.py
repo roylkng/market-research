@@ -64,6 +64,7 @@ def _universe():
 def test_frozen_h003_source_rule_hash_validates():
     document = load_and_validate_source_rule("registry/h003_source_rule.yaml")
     assert document["sha256"] == SOURCE_RULE_SHA256
+    assert document["decision_timestamp_utc"] == "2026-09-06T12:21:06.431463Z"
     assert document["live_capital"] is False
 
 
@@ -83,7 +84,7 @@ def test_selects_results_call_transcripts_and_excludes_non_results_transcripts()
         _row(
             seq="4",
             desc="Investor Presentation",
-            text="Investor Presentation for financial results",
+            text="Investor Presentation transcript for financial results",
             url="https://nsearchives.nseindia.com/corporate/presentation.pdf",
         ),
         _row(
@@ -96,13 +97,34 @@ def test_selects_results_call_transcripts_and_excludes_non_results_transcripts()
     assert [item.seq_id for item in selected] == ["1", "5"]
 
 
-def test_source_window_is_enforced_on_exchange_timestamp():
+def test_source_window_and_exact_decision_cutoff_are_enforced():
     payload = [
         _row(seq="old", timestamp="31-Aug-2024 23:59:59"),
-        _row(seq="inside", timestamp="01-Sep-2024 00:00:00", url="https://nsearchives.nseindia.com/corporate/inside.pdf"),
-        _row(seq="late", timestamp="07-Sep-2026 00:00:00", url="https://nsearchives.nseindia.com/corporate/late.pdf"),
+        _row(
+            seq="inside",
+            timestamp="01-Sep-2024 00:00:00",
+            url="https://nsearchives.nseindia.com/corporate/inside.pdf",
+        ),
+        _row(
+            seq="before-cutoff",
+            timestamp="06-Sep-2026 17:50:00",
+            url="https://nsearchives.nseindia.com/corporate/before.pdf",
+        ),
+        _row(
+            seq="same-day-after-cutoff",
+            timestamp="06-Sep-2026 18:00:00",
+            url="https://nsearchives.nseindia.com/corporate/after.pdf",
+        ),
+        _row(
+            seq="late",
+            timestamp="07-Sep-2026 00:00:00",
+            url="https://nsearchives.nseindia.com/corporate/late.pdf",
+        ),
     ]
-    assert [item.seq_id for item in select_transcript_sources(payload, symbol="INFY")] == ["inside"]
+    assert [item.seq_id for item in select_transcript_sources(payload, symbol="INFY")] == [
+        "inside",
+        "before-cutoff",
+    ]
 
 
 def test_conflicting_duplicate_attachment_fails_closed():
@@ -125,6 +147,7 @@ def test_zero_matching_transcripts_is_complete_zero_source():
     assert record.coverage_status == "COMPLETE_ZERO_SOURCE"
     assert record.source_count == 0
     assert record.discovery_sha256 is not None
+    assert record.decision_timestamp_utc == "2026-09-06T12:21:06.431463Z"
 
 
 def test_bundle_requires_exact_frozen_universe_partition():
