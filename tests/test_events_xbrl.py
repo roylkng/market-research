@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 from marketlab.events import (
+    XBRL_PARSER_VERSION,
     EventParseError,
     EventStore,
-    XBRL_PARSER_VERSION,
     parse_indas_xbrl,
     sha256_bytes,
 )
