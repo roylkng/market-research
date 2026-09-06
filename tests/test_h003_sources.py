@@ -65,6 +65,7 @@ def test_frozen_h003_source_rule_hash_validates():
     document = load_and_validate_source_rule("registry/h003_source_rule.yaml")
     assert document["sha256"] == SOURCE_RULE_SHA256
     assert document["decision_timestamp_utc"] == "2026-09-06T12:21:06.431463Z"
+    assert document["document_policy"]["included_source_type"] == "MANAGEMENT_CALL_TRANSCRIPT"
     assert document["live_capital"] is False
 
 
@@ -95,6 +96,34 @@ def test_selects_results_call_transcripts_and_excludes_non_results_transcripts()
     ]
     selected = select_transcript_sources(payload, symbol="INFY")
     assert [item.seq_id for item in selected] == ["1", "5"]
+
+
+def test_generic_official_analyst_call_transcript_is_included():
+    payload = [
+        _row(
+            seq="hcl-q1",
+            text="HCL Technologies Limited has informed the Exchange about Transcript",
+            desc="Analysts/Institutional Investor Meet/Con. Call Updates",
+            url=(
+                "https://nsearchives.nseindia.com/corporate/"
+                "HCLTECH_15072026223403_TranscriptEarningsCall.pdf"
+            ),
+        )
+    ]
+    selected = select_transcript_sources(payload, symbol="INFY")
+    assert [item.seq_id for item in selected] == ["hcl-q1"]
+
+
+def test_generic_call_category_still_excludes_agm_transcript():
+    payload = [
+        _row(
+            seq="agm",
+            text="Transcript of the 80th Annual General Meeting",
+            desc="Analysts/Institutional Investor Meet/Con. Call Updates",
+            url="https://nsearchives.nseindia.com/corporate/agm-transcript.pdf",
+        )
+    ]
+    assert select_transcript_sources(payload, symbol="INFY") == ()
 
 
 def test_source_window_and_exact_decision_cutoff_are_enforced():
