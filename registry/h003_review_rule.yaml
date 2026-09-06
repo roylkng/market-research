@@ -10,15 +10,17 @@ candidate_evidence_cutoff_utc: '2026-09-06T12:21:06.431463Z'
 review_mode: BLIND_SOURCE_CONTEXT_ONLY
 allowed_review_inputs:
   - candidate_id
-  - candidate_excerpt
+  - redacted_candidate_excerpt
   - candidate_page_number
   - candidate_line_start
   - candidate_line_end
-  - reconstructed_same_source_page_context
-  - frozen_candidate_metadata_without_symbol_or_company_name
+  - redacted_same_source_page_context
+  - frozen_candidate_marker_metadata
 forbidden_review_inputs:
   - company_symbol
   - company_name
+  - source_url
+  - source_publication_date
   - securities_prices
   - securities_returns
   - analyst_ratings
@@ -79,14 +81,14 @@ accepted_claim:
   emit_claim_outcome: false
   validate_with_existing_management_claim_schema: true
 blindness:
-  store_symbol_only_after_review_decision: true
-  reviewer_payload_must_omit_symbol_and_company_name: true
-  reviewer_payload_must_omit_source_url: true
-  reviewer_payload_must_omit_source_publication_date: true
+  redact_symbol_and_company_name_when_present: true
+  preserve_candidate_id_and_source_locator: true
+  original_evidence_hash_remains_bound: true
+  external_retrieval_allowed: false
 completion:
   requires_complete_candidate_corpus: true
   requires_every_candidate_reviewed: true
   rejected_candidates_remain_in_ledger: true
   accepted_claims_are_hash_bound_to_candidate_decisions: true
 live_capital: false
-sha256: fbd787fcc19cfd499a9b8fc0dcb71c32b77744a84b693bc183dacbdbec1ebfe6
+sha256: 8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244
