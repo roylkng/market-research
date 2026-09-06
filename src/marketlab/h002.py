@@ -20,6 +20,9 @@ SIGNAL_VERSION = "ue_price_normalized_v1"
 RULE_ID = "H002-R001"
 
 SignalBucket = Literal["POSITIVE", "ZERO", "NEGATIVE", "NO_SIGNAL"]
+TERMINAL_NO_SIGNAL_REASONS = frozenset(
+    {"unresolved_corporate_action", "baseline_identity_mismatch"}
+)
 
 
 class H002SignalError(ValueError):
@@ -159,7 +162,7 @@ def _expectation_digest(expectation: SeasonalEPSExpectation) -> str:
 
 def _validate_expectation(expectation: SeasonalEPSExpectation) -> None:
     if (
-        expectation.schema_version != 2
+        expectation.schema_version not in {2, 3}
         or expectation.rule_id != RULE_ID
         or expectation.model_version != EXPECTATION_MODEL_VERSION
     ):
@@ -169,6 +172,21 @@ def _validate_expectation(expectation: SeasonalEPSExpectation) -> None:
     factor = _finite_number(expectation.corporate_action_factor, field="corporate_action_factor")
     if factor <= 0:
         raise H002SignalError("corporate_action_factor must be positive")
+
+    if expectation.schema_version == 3:
+        if (
+            expectation.status != "NO_SIGNAL"
+            or expectation.expected_eps is not None
+            or expectation.no_signal_reason not in TERMINAL_NO_SIGNAL_REASONS
+            or factor != 1.0
+            or not expectation.corporate_action_version.strip()
+        ):
+            raise H002SignalError("terminal NO_SIGNAL expectation is internally inconsistent")
+        _parse_period_end(expectation.baseline_period_end, field="baseline_period_end")
+        if expectation.baseline_basic_eps is not None:
+            _finite_number(expectation.baseline_basic_eps, field="baseline_basic_eps")
+        return
+
     if expectation.baseline_basic_eps is None:
         if (
             expectation.status != "NO_SIGNAL"
@@ -310,6 +328,86 @@ def build_seasonal_expectation(
         expected_eps=expected_eps,
         status=status,
         no_signal_reason=reason,
+    )
+    return replace(expectation, expectation_id=_expectation_digest(expectation))
+
+
+def build_terminal_no_signal_expectation(
+    baseline_event: FinancialEvent,
+    *,
+    canonical_symbol: str,
+    target_period_end: str,
+    target_quarter: str,
+    target_accounting_basis: str,
+    baseline_available_at_utc: str | None,
+    expectation_as_of_utc: str,
+    no_signal_reason: str,
+    corporate_action_version: str,
+) -> SeasonalEPSExpectation:
+    """Freeze a terminal pre-filing NO_SIGNAL decision without inventing an EPS value.
+
+    Schema 3 is an operational evidence shape under the unchanged H002-R001 rule.
+    It is allowed only when a required numeric signal input is known to be unusable
+    before the target filing, currently unresolved corporate-action normalization or
+    a historical-symbol identity mismatch. The baseline EPS is retained for audit but
+    is never converted into expected EPS.
+    """
+
+    symbol = canonical_symbol.strip().upper()
+    if not symbol:
+        raise H002SignalError("canonical_symbol is required")
+    if no_signal_reason not in TERMINAL_NO_SIGNAL_REASONS:
+        raise H002SignalError(f"unsupported terminal NO_SIGNAL reason: {no_signal_reason}")
+    if not corporate_action_version.strip():
+        raise H002SignalError("corporate_action_version is required")
+
+    availability_value = (
+        baseline_event.provenance.exchange_published_at_utc or baseline_available_at_utc
+    )
+    if not availability_value:
+        raise H002SignalError("baseline availability is required for terminal NO_SIGNAL")
+    baseline_available = _parse_timestamp(
+        availability_value, field="baseline_available_at_utc"
+    )
+    expectation_as_of = _parse_timestamp(expectation_as_of_utc, field="expectation_as_of_utc")
+    if baseline_available > expectation_as_of:
+        raise H002SignalError("baseline became available after expectation_as_of")
+
+    baseline_period = _parse_period_end(
+        baseline_event.reporting_period_end, field="baseline reporting_period_end"
+    )
+    target_period = _parse_period_end(target_period_end, field="target_period_end")
+    if not _one_year_apart(baseline_period, target_period):
+        raise H002SignalError(
+            "baseline event must be the same quarter exactly one year before target period"
+        )
+    if (baseline_event.reporting_quarter or "").strip().casefold() != target_quarter.strip().casefold():
+        raise H002SignalError("baseline reporting quarter does not match target quarter")
+    if baseline_event.accounting_basis.strip().casefold() != target_accounting_basis.strip().casefold():
+        raise H002SignalError("baseline accounting basis does not match target accounting basis")
+    if baseline_event.basic_eps is not None:
+        _finite_number(baseline_event.basic_eps, field="baseline_basic_eps")
+
+    expectation = SeasonalEPSExpectation(
+        schema_version=3,
+        rule_id=RULE_ID,
+        model_version=EXPECTATION_MODEL_VERSION,
+        expectation_id="",
+        symbol=symbol,
+        target_period_end=target_period.isoformat(),
+        target_quarter=target_quarter,
+        accounting_basis=target_accounting_basis,
+        baseline_event_id=baseline_event.economic_event_id,
+        baseline_event_version_id=baseline_event.version_id,
+        baseline_period_end=baseline_period.isoformat(),
+        baseline_basic_eps=baseline_event.basic_eps,
+        baseline_available_at_utc=baseline_available.isoformat().replace("+00:00", "Z"),
+        expectation_as_of_utc=expectation_as_of.isoformat().replace("+00:00", "Z"),
+        corporate_action_factor=1.0,
+        corporate_action_version=corporate_action_version,
+        expected_eps=None,
+        status="NO_SIGNAL",
+        no_signal_reason=no_signal_reason,
     )
     return replace(expectation, expectation_id=_expectation_digest(expectation))
 
