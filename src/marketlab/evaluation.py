@@ -126,7 +126,11 @@ def require_valid_registry(path: str | Path) -> dict[str, Any]:
     return document
 
 
-def unexpected_earnings(eps_current: pd.Series, eps_year_ago: pd.Series, price_day_minus_2: pd.Series) -> pd.Series:
+def unexpected_earnings(
+    eps_current: pd.Series,
+    eps_year_ago: pd.Series,
+    price_day_minus_2: pd.Series,
+) -> pd.Series:
     """Literature-style seasonal unexpected earnings proxy.
 
     UE = (EPS_t - EPS_t-4) / price_day_minus_2
@@ -234,7 +238,11 @@ def evaluate_binary_groups(
     )
 
 
-def winner_concentration(excess_returns: pd.Series, *, top_n: int = 2) -> dict[str, float]:
+def winner_concentration(
+    excess_returns: pd.Series,
+    *,
+    top_n: int = 2,
+) -> dict[str, float | int]:
     values = pd.to_numeric(excess_returns, errors="coerce").dropna().sort_values(ascending=False)
     if len(values) <= top_n:
         raise ValueError("winner-concentration test needs more observations than top_n")
@@ -242,8 +250,8 @@ def winner_concentration(excess_returns: pd.Series, *, top_n: int = 2) -> dict[s
     full_mean = float(values.mean())
     stripped_mean = float(values.iloc[top_n:].mean())
     return {
-        "n": int(len(values)),
-        "top_n": int(top_n),
+        "n": len(values),
+        "top_n": top_n,
         "full_mean": full_mean,
         "mean_without_top_n": stripped_mean,
         "mean_change": stripped_mean - full_mean,
