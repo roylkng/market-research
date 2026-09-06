@@ -1,4 +1,4 @@
-name: H003 decisive exact-cutoff source scan
+name: H003 final corrected-category source scan
 
 on:
   push:
@@ -57,6 +57,10 @@ jobs:
           out = Path(os.environ['OUT_DIR']) / 'source-coverage-v1.json'
           bundle = json.loads(out.read_text(encoding='utf-8'))
           records = bundle['records']
+          if bundle['member_count'] != 100:
+              raise SystemExit(f"unexpected frozen cohort size: {bundle['member_count']}")
+          if bundle['incomplete_count'] != 0:
+              raise SystemExit(f"H003 source coverage is incomplete for {bundle['incomplete_count']} companies")
           distribution = sorted(
               ({'symbol': item['symbol'], 'source_count': item['source_count'], 'coverage_status': item['coverage_status']}
                for item in records),
@@ -78,7 +82,7 @@ jobs:
           destination = Path(os.environ['DEST_DIR'])
           (destination / 'source-coverage-v1.json').write_text(out.read_text(encoding='utf-8'), encoding='utf-8')
           metadata = {
-              'schema_version': 2,
+              'schema_version': 3,
               'rule_id': bundle['rule_id'],
               'rule_sha256': bundle['rule_sha256'],
               'cohort_id': bundle['cohort_id'],
@@ -101,7 +105,7 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add "$DEST_DIR"
-          git commit -m "Anchor exact-cutoff U001 H003 transcript source coverage v1"
+          git commit -m "Anchor final U001 H003 management-call source coverage v1"
           git push origin HEAD:feat/h003-source-corpus-v1
       - name: Preserve exact discovery bytes
         if: always()
