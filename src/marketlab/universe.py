@@ -57,6 +57,12 @@ def _normalise_macro(value: Any) -> str:
     return " ".join(str(value or "").strip().casefold().split())
 
 
+def _as_float(value: Any) -> float:
+    if isinstance(value, str):
+        value = value.replace(",", "").strip()
+    return float(value)
+
+
 def _extract_industry_info(quote: dict[str, Any]) -> dict[str, Any]:
     value = quote.get("industryInfo")
     return value if isinstance(value, dict) else {}
@@ -80,7 +86,7 @@ def _candidate_rows(index_payload: dict[str, Any], *, index_name: str) -> list[d
         if not symbol or symbol.casefold() == index_name.casefold():
             continue
         try:
-            ffmc = float(row["ffmc"])
+            ffmc = _as_float(row["ffmc"])
         except (KeyError, TypeError, ValueError) as exc:
             raise UniverseError(f"missing/invalid ffmc for {symbol or '<unknown>'}") from exc
         candidates.append({"symbol": symbol, "ffmc": ffmc})
