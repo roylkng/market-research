@@ -14,6 +14,7 @@ lint:
 validate:
 	marketlab validate-registry registry/hypotheses.yaml
 	$(PYTHON) -c "from marketlab.h002 import load_and_validate_rule; d=load_and_validate_rule('registry/h002_signal_rule.yaml'); print(f\"H002 rule valid: {d['id']} sha256={d['sha256']}\")"
+	$(PYTHON) -c "from marketlab.execution import load_and_validate_execution_rule; d=load_and_validate_execution_rule('registry/h002_execution_rule.yaml'); print(f\"H002 execution valid: {d['id']} sha256={d['sha256']}\")"
 
 demo:
 	marketlab evaluate-signal data/fixtures/h002_feasibility.csv --signal-col ue --excess-col excess_vs_nifty
