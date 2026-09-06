@@ -1,0 +1,94 @@
+schema_version: 1
+id: H003-V001
+hypothesis_id: H003
+status: FROZEN
+candidate_rule_id: H003-E002
+candidate_rule_sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
+source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
+cohort_id: FY27-Q2-2026-09-06
+candidate_evidence_cutoff_utc: '2026-09-06T12:21:06.431463Z'
+review_mode: BLIND_SOURCE_CONTEXT_ONLY
+allowed_review_inputs:
+  - candidate_id
+  - redacted_candidate_excerpt
+  - candidate_page_number
+  - candidate_line_start
+  - candidate_line_end
+  - redacted_same_source_page_context
+  - frozen_candidate_marker_metadata
+forbidden_review_inputs:
+  - company_symbol
+  - company_name
+  - source_url
+  - source_publication_date
+  - securities_prices
+  - securities_returns
+  - analyst_ratings
+  - subsequent_financial_results
+  - subsequent_management_statements
+  - claim_outcomes
+  - post_cutoff_web_search
+  - broker_state
+mechanical_rejections:
+  question_mark: true
+  question_prefixes:
+    - why
+    - what
+    - how
+    - when
+    - where
+    - who
+    - could you
+    - can you
+    - would you
+    - do you
+    - are you
+    - is it
+    - should we
+  speaker_labels:
+    - analyst
+    - investor
+    - moderator
+    - operator
+  reject_safe_harbor: true
+review:
+  allowed_dispositions:
+    - ACCEPTED
+    - REJECTED
+  reason_codes:
+    - ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT
+    - REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER
+    - REJECT_CURRENT_OR_HISTORICAL_FACT
+    - REJECT_GENERIC_ASPIRATION
+    - REJECT_UNRELATED_CONTEXT_VALUE
+    - REJECT_NOT_OBJECTIVELY_RESOLVABLE
+    - REJECT_DUPLICATE_OR_RESTATEMENT
+    - REJECT_OTHER_WITH_EXPLICIT_NOTE
+  one_decision_per_candidate: true
+  default_acceptance: false
+  unreviewed_blocks_freeze: true
+accepted_claim:
+  requires_management_origin: true
+  requires_future_commitment: true
+  requires_objective_resolution: true
+  required_fields:
+    - claim_type
+    - metric
+    - normalized_claim
+    - source_locator
+  numeric_target_may_be_range: true
+  deadline_or_horizon_required: true
+  emit_claim_outcome: false
+  validate_with_existing_management_claim_schema: true
+blindness:
+  redact_symbol_and_company_name_when_present: true
+  preserve_candidate_id_and_source_locator: true
+  original_evidence_hash_remains_bound: true
+  external_retrieval_allowed: false
+completion:
+  requires_complete_candidate_corpus: true
+  requires_every_candidate_reviewed: true
+  rejected_candidates_remain_in_ledger: true
+  accepted_claims_are_hash_bound_to_candidate_decisions: true
+live_capital: false
+sha256: 8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244

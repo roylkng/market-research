@@ -18,6 +18,7 @@ validate:
 	$(PYTHON) -c "from marketlab.prospective import load_and_validate_runner_rule; d=load_and_validate_runner_rule('registry/h002_runner_rule.yaml'); print(f\"H002 runner valid: {d['id']} sha256={d['sha256']}\")"
 	$(PYTHON) -c "from marketlab.h003_sources import load_and_validate_source_rule; d=load_and_validate_source_rule('registry/h003_source_rule.yaml'); print(f\"H003 source rule valid: {d['id']} sha256={d['sha256']}\")"
 	$(PYTHON) -c "from marketlab.h003_candidates import load_and_validate_extraction_rule; d=load_and_validate_extraction_rule('registry/h003_extraction_rule.yaml'); print(f\"H003 extraction rule valid: {d['id']} sha256={d['sha256']}\")"
+	$(PYTHON) -c "from marketlab.h003_review import load_and_validate_review_rule; d=load_and_validate_review_rule('registry/h003_review_rule.yaml'); print(f\"H003 review rule valid: {d['id']} sha256={d['sha256']}\")"
 
 demo:
 	marketlab evaluate-signal data/fixtures/h002_feasibility.csv --signal-col ue --excess-col excess_vs_nifty
