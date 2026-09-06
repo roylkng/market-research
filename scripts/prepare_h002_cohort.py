@@ -36,7 +36,7 @@ def main() -> int:
     event_store = EventStore(args.store)
     expectation_store = ExpectationStore(args.store)
     preparation_store = PreparationStore(args.store)
-    started_at = datetime.now(UTC)
+    datetime.now(UTC)
 
     for index, member in enumerate(universe.members, start=1):
         existing = preparation_store.latest(universe.cohort_id, member.symbol)
