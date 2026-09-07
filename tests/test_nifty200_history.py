@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from marketlab.nifty200_history import load_registry, reconstruct_freezes
 
 
