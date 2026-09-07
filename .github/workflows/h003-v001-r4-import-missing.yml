@@ -76,7 +76,7 @@ jobs:
             -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
           test "$(find research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments -maxdepth 1 -name 'batch-*.json' | wc -l)" -eq 117
 
-      - name: Normalize reason codes and repack by immutable candidate id
+      - name: Normalize and repack by immutable frozen candidate id
         run: |
           python - <<'PY'
           import hashlib
@@ -87,9 +87,18 @@ jobs:
           batch_dir = base / 'batches20'
           judgments_dir = base / 'semantic-judgments'
           manifest = json.loads((batch_dir / 'manifest.json').read_text(encoding='utf-8'))
-          aliases = {
+          reason_aliases = {
               'REJECT_DUPLICATE': 'REJECT_DUPLICATE_OR_RESTATEMENT',
               'REJECT_OTHER_EXPLICIT_NOTE': 'REJECT_OTHER_WITH_EXPLICIT_NOTE',
+          }
+          candidate_id_aliases = {
+              # Audited manual packaging typo: final hex character was truncated.
+              '38686dcf4ada52d13243fc073de3d544f34b3f2fd90cec55cf2cc0662ace9f3':
+                  '38686dcf4ada52d13243fc073de3d544f34b3f2fd90cec55cf2cc0662ace9f3f',
+              # Audited manual packaging typo. The review note is the low-single-digit
+              # price-growth candidate and is bound to this frozen candidate id.
+              '98f913cc7491b4f16ecb72e7492b30f3cf7e1888d8a9cbb1a610820be86ceac':
+                  '98f913cc7491b4f16ecb72e7b661c959e6c13630b913b7cc65ee48c5b53c2f84',
           }
 
           def canonical_hash(value):
@@ -119,6 +128,7 @@ jobs:
               raise SystemExit('frozen source candidate identity/coverage is not exactly 2322 unique ids')
           frozen_set = set(frozen_ids)
 
+          applied_id_aliases = []
           for path in sorted(judgments_dir.glob('batch-*.json')):
               doc = json.loads(path.read_text(encoding='utf-8'))
               reviewer = str(doc.get('reviewer_version') or '').strip()
@@ -128,15 +138,22 @@ jobs:
               for item in doc.get('judgments', []):
                   if not isinstance(item, dict):
                       raise SystemExit(f'non-object judgment in {path.name}')
-                  candidate_id = str(item.get('candidate_id') or '')
-                  if not candidate_id:
+                  raw_candidate_id = str(item.get('candidate_id') or '')
+                  if not raw_candidate_id:
                       raise SystemExit(f'missing candidate_id in {path.name}')
+                  candidate_id = candidate_id_aliases.get(raw_candidate_id, raw_candidate_id)
+                  normalized = dict(item)
+                  if candidate_id != raw_candidate_id:
+                      normalized['candidate_id'] = candidate_id
+                      applied_id_aliases.append((raw_candidate_id, candidate_id))
+                  duplicate_id = normalized.get('duplicate_of_candidate_id')
+                  if duplicate_id in candidate_id_aliases:
+                      normalized['duplicate_of_candidate_id'] = candidate_id_aliases[duplicate_id]
+                  old_reason = normalized.get('reason_code')
+                  if old_reason in reason_aliases:
+                      normalized['reason_code'] = reason_aliases[old_reason]
                   if candidate_id in judgments_by_id:
                       raise SystemExit(f'duplicate reviewed candidate id across documents: {candidate_id}')
-                  normalized = dict(item)
-                  old_reason = normalized.get('reason_code')
-                  if old_reason in aliases:
-                      normalized['reason_code'] = aliases[old_reason]
                   judgments_by_id[candidate_id] = normalized
 
           observed_set = set(judgments_by_id)
@@ -147,6 +164,12 @@ jobs:
                   f'global judgment coverage mismatch: reviewed={len(judgments_by_id)} '
                   f'missing={len(missing)} extra={len(extra)} '
                   f'missing_sample={missing[:5]} extra_sample={extra[:5]}'
+              )
+          expected_aliases = set(candidate_id_aliases.items())
+          if set(applied_id_aliases) != expected_aliases:
+              raise SystemExit(
+                  f'candidate-id correction set changed: applied={applied_id_aliases} '
+                  f'expected={sorted(expected_aliases)}'
               )
           if len(reviewer_versions) != 1:
               raise SystemExit(f'multiple reviewer versions in frozen review: {sorted(reviewer_versions)}')
@@ -169,7 +192,8 @@ jobs:
               )
 
           print('global blind review binding proven: 2322/2322 unique frozen candidate ids')
-          print('repacked all 117 semantic judgment documents in canonical frozen batch order')
+          print(f'applied exactly {len(applied_id_aliases)} audited candidate-id corrections')
+          print('repacked all 117 judgment documents in canonical frozen batch order')
           PY
 
       - name: Load canonical compiler from main
