@@ -9,6 +9,8 @@ on:
       - src/marketlab/h002_historical_outcomes_fast.py
       - scripts/run_h002_historical_v2_phase_b_shard.py
       - scripts/merge_h002_historical_v2_phase_b_shards.py
+      - scripts/evaluate_h002_hr002_actionability.py
+      - registry/h002_hr002_outcome_gate.yaml
       - .github/workflows/h002-historical-v2-phase-b-validate.yml
   workflow_dispatch:
 
@@ -38,13 +40,26 @@ jobs:
             src/marketlab/h002_historical_v2_outcomes.py \
             src/marketlab/h002_historical_outcomes_fast.py \
             scripts/run_h002_historical_v2_phase_b_shard.py \
-            scripts/merge_h002_historical_v2_phase_b_shards.py
+            scripts/merge_h002_historical_v2_phase_b_shards.py \
+            scripts/evaluate_h002_hr002_actionability.py
       - name: Compile Phase B path
         run: |
           python -m py_compile \
             src/marketlab/h002_historical_v2_outcomes.py \
             scripts/run_h002_historical_v2_phase_b_shard.py \
-            scripts/merge_h002_historical_v2_phase_b_shards.py
+            scripts/merge_h002_historical_v2_phase_b_shards.py \
+            scripts/evaluate_h002_hr002_actionability.py
+      - name: Validate frozen gate identity
+        run: |
+          python - <<'PY'
+          import yaml
+          from pathlib import Path
+          gate = yaml.safe_load(Path('registry/h002_hr002_outcome_gate.yaml').read_text())
+          if gate.get('gate_id') != 'H002-HR002-OUTCOME-GATE-V1':
+              raise SystemExit('unexpected actionability gate')
+          if gate.get('live_capital_allowed') is not False:
+              raise SystemExit('historical gate cannot authorize live capital')
+          PY
       - name: Run outcome and execution contracts
         run: |
           pytest -q \
