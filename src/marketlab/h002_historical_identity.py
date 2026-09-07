@@ -15,8 +15,33 @@ _SYMBOL_EQUIVALENCE: dict[str, frozenset[str]] = {
     "LTM": frozenset({"LTM", "LTIM"}),
 }
 
+# Exact official-source defects observed in retained NSE XBRL evidence. These are
+# not aliases and must never broaden discovery. They only permit an already
+# selected filing to remain attributable to its canonical company when the XBRL
+# embeds a demonstrably wrong ticker but the company name and ISIN identify the
+# canonical issuer exactly.
+_KNOWN_FILING_SYMBOL_DEFECTS: frozenset[tuple[str, str, str, str]] = frozenset(
+    {
+        (
+            "COFORGE",
+            "NUCLEUS",
+            "INE591G01025",
+            "COFORGE LIMITED",
+        ),
+    }
+)
+
+# Exact historical ISIN inconsistencies observed across official NSE sources.
+# This registry is used only after an exact canonical ticker match. It does not
+# imply that EPS/share bases are comparable across ISIN changes; the separate
+# corporate-action and baseline/target checks remain authoritative for that.
+_HISTORICAL_ISIN_EQUIVALENCE: dict[str, frozenset[str]] = {
+    "PERSISTENT": frozenset({"INE262H01016", "INE262H01021"}),
+}
+
 # This lineage is not a rename. TMPV emerged from the Tata Motors demerger/merger
-# scheme, so predecessor TATAMOTORS EPS is not a valid same-company baseline.
+# scheme, so predecessor TATAMOTORS EPS is not a valid same-company baseline or
+# target for a TMPV historical replay.
 _NON_COMPARABLE_PREDECESSORS: frozenset[tuple[str, str]] = frozenset(
     {
         ("TMPV", "TATAMOTORS"),
@@ -38,6 +63,40 @@ def symbols_equivalent(canonical_symbol: str, observed_symbol: str) -> bool:
     if canonical == observed:
         return True
     return observed in _SYMBOL_EQUIVALENCE.get(canonical, frozenset())
+
+
+def filing_identity_matches(canonical_symbol: str, event: FinancialEvent) -> bool:
+    """Accept exact aliases or a specifically registered official-XBRL defect."""
+
+    canonical = canonical_symbol.strip().upper()
+    if symbols_equivalent(canonical, event.symbol):
+        return True
+    identity = (
+        canonical,
+        event.symbol.strip().upper(),
+        (event.isin or "").strip().upper(),
+        " ".join(event.company_name.upper().split()),
+    )
+    return identity in _KNOWN_FILING_SYMBOL_DEFECTS
+
+
+def historical_isins_equivalent(
+    canonical_symbol: str,
+    expected_isin: str | None,
+    observed_isin: str | None,
+) -> bool:
+    """Compare exact ISINs, allowing only registered official-source inconsistencies."""
+
+    expected = (expected_isin or "").strip().upper()
+    observed = (observed_isin or "").strip().upper()
+    if not expected or not observed:
+        return expected == observed
+    if expected == observed:
+        return True
+    registered = _HISTORICAL_ISIN_EQUIVALENCE.get(
+        canonical_symbol.strip().upper(), frozenset()
+    )
+    return expected in registered and observed in registered
 
 
 def is_non_comparable_predecessor(
