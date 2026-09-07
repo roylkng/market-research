@@ -4,7 +4,7 @@ status: FROZEN_HISTORICAL_REPLAY
 source_signal_rule_id: H002-R001
 source_execution_rule_id: H002-X001
 purpose: historical transport test of the frozen H002 signal without relabeling reconstructed evidence as prospective
-sha256: 8bd83f1d02b7a7a1a5add27399efb801560ef00c69434ad6e6239a9ae443b9a5
+sha256: 75eb775670f8039fcf17acbbbc0465238478ea289f75d2f11db07607abff17bc
 
 evidence_mode:
   actual_event_mode: HISTORICAL_RECONSTRUCTION
@@ -13,7 +13,8 @@ evidence_mode:
 
 freeze_policy:
   target_period_end_offset_days: -24
-  freeze_clock: "23:59:59 Asia/Kolkata"
+  freeze_clock: "20:41:38.303000 Asia/Kolkata"
+  freeze_clock_basis: FY27_Q2_expectation_bundle_anchored_at_2026-09-06T15:11:38.303000Z
   baseline_revision_cutoff: strictly_at_or_before_freeze
   corporate_action_cutoff: strictly_at_or_before_freeze
   post_freeze_eps_basis_action: SKIP
