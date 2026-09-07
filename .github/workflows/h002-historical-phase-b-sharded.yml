@@ -1,0 +1,175 @@
+name: H002 historical Phase B sharded fallback
+
+on:
+  push:
+    branches:
+      - work/h002-historical-replay-v1-20260907
+    paths:
+      - scripts/run_h002_historical_phase_b_shard.py
+      - scripts/merge_h002_historical_phase_b_shards.py
+      - .github/workflows/h002-historical-phase-b-sharded.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PHASE_A_SHA256: 2062e21ee1b1cbcd86d758ae3cf9ef9aeb43664c629ca5eb7a22cd885068ef98
+
+concurrency:
+  group: h002-hr001-phase-b-sharded
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Lint shard path
+        run: |
+          ruff check \
+            scripts/run_h002_historical_phase_b_shard.py \
+            scripts/merge_h002_historical_phase_b_shards.py
+      - name: Verify Phase-A freeze still matches
+        run: |
+          python - <<'PY'
+          import os
+          from marketlab.h002_historical_outcomes import load_phase_a_manifest
+          doc = load_phase_a_manifest(
+              'research/historical/h002/H002-HR001/phase-a/fixed-u001-transport-signals.json',
+              expected_sha256=os.environ['PHASE_A_SHA256'],
+          )
+          if doc['status_counts']['SIGNAL'] != 178:
+              raise SystemExit('frozen Phase-A SIGNAL count changed')
+          PY
+
+  shard:
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Reconstruct company shard
+        run: |
+          python scripts/run_h002_historical_phase_b_shard.py \
+            --expected-phase-a-sha256 "$PHASE_A_SHA256" \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count 4 \
+            --attempts 3 \
+            --timeout 20 \
+            --sleep 0.05 \
+            --store ".marketlab-historical-phase-b-shard-${{ matrix.shard }}" \
+            --output "phase-b-shards/shard-${{ matrix.shard }}.json"
+      - name: Reject unresolved shard errors
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import os
+
+          shard = os.environ['SHARD']
+          doc = json.loads(Path(f'phase-b-shards/shard-{shard}.json').read_text())
+          errors = [record for record in doc['records'] if record.get('status') == 'ERROR']
+          if errors:
+              for record in errors:
+                  print(record.get('symbol'), record.get('quarter_id'), record.get('reason'))
+              raise SystemExit(f'shard {shard} contains {len(errors)} ERROR records')
+          print('records', len(doc['records']))
+          PY
+        env:
+          SHARD: ${{ matrix.shard }}
+      - name: Upload shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-hr001-phase-b-shard-${{ matrix.shard }}
+          path: |
+            phase-b-shards/shard-${{ matrix.shard }}.json
+            .marketlab-historical-phase-b-shard-${{ matrix.shard }}
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 30
+
+  merge:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h002-hr001-phase-b-shard-*
+          path: downloaded-shards
+          merge-multiple: true
+      - name: Merge and evaluate all 178 frozen signals
+        run: |
+          python scripts/merge_h002_historical_phase_b_shards.py \
+            --input-dir downloaded-shards \
+            --expected-phase-a-sha256 "$PHASE_A_SHA256" \
+            --shard-count 4 \
+            --expected-record-count 178 \
+            --output research/historical/h002/H002-HR001/phase-b/fixed-u001-transport-outcomes.json
+      - name: Validate research result
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          doc = json.loads(Path(
+              'research/historical/h002/H002-HR001/phase-b/fixed-u001-transport-outcomes.json'
+          ).read_text())
+          status = doc['summary']['status_counts']
+          if int(status.get('ERROR', 0)):
+              raise SystemExit(f"merged result has ERROR={status.get('ERROR')}")
+          if int(status.get('MISSING_BENCHMARK', 0)):
+              raise SystemExit(f"missing benchmarks={status.get('MISSING_BENCHMARK')}")
+          print('manifest_sha256', doc['manifest_sha256'])
+          print('status_counts', json.dumps(status, sort_keys=True))
+          for benchmark, result in doc['summary']['by_benchmark'].items():
+              print(benchmark, json.dumps(result, sort_keys=True))
+          PY
+      - name: Upload merged result
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-hr001-phase-b-sharded-result
+          path: research/historical/h002/H002-HR001/phase-b/fixed-u001-transport-outcomes.json
+          retention-days: 30
+      - name: Commit merged outcome manifest
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git pull --rebase origin work/h002-historical-replay-v1-20260907
+          git add research/historical/h002/H002-HR001/phase-b/fixed-u001-transport-outcomes.json
+          if git diff --cached --quiet; then
+            echo "Phase-B result already present"
+            exit 0
+          fi
+          git commit -m "H002-HR001: freeze sharded historical outcomes"
+          git push origin HEAD:work/h002-historical-replay-v1-20260907
