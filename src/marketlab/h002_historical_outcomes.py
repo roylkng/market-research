@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
@@ -105,10 +104,8 @@ def adapt_signal_for_execution(record: dict[str, Any]) -> H002SignalResult:
         event_version_id=str(historical["event_version_id"]),
         expectation_id=str(historical["expectation_id"]),
         symbol=str(historical["symbol"]),
-        # This is an explicitly simulated historical decision timestamp. The signal
-        # inputs were frozen pre-filing and actual EPS becomes available at publication.
-        # Using the official publication timestamp is conservative and still strictly
-        # precedes the frozen second-session entry.
+        # Explicit simulated historical decision timestamp. Inputs were frozen
+        # pre-filing and actual EPS becomes available at official publication.
         scored_at_utc=publication,
         actual_basic_eps=historical.get("actual_basic_eps"),
         expected_eps=historical.get("expected_eps"),
