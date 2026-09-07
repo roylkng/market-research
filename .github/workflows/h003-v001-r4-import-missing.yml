@@ -76,33 +76,7 @@ jobs:
             -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
           test "$(find research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments -maxdepth 1 -name 'batch-*.json' | wc -l)" -eq 117
 
-      - name: Normalize known reason-code aliases
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-
-          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments')
-          aliases = {
-              'REJECT_DUPLICATE': 'REJECT_DUPLICATE_OR_RESTATEMENT',
-              'REJECT_OTHER_EXPLICIT_NOTE': 'REJECT_OTHER_WITH_EXPLICIT_NOTE',
-          }
-          changed = 0
-          for path in sorted(root.glob('batch-*.json')):
-              data = json.loads(path.read_text(encoding='utf-8'))
-              dirty = False
-              for item in data.get('judgments', []):
-                  old = item.get('reason_code')
-                  if old in aliases:
-                      item['reason_code'] = aliases[old]
-                      dirty = True
-              if dirty:
-                  path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
-                  changed += 1
-          print(f'normalized reason codes in {changed} file(s)')
-          PY
-
-      - name: Prove frozen batch binding and repair stale envelope hashes
+      - name: Normalize reason codes and repack by immutable candidate id
         run: |
           python - <<'PY'
           import hashlib
@@ -110,9 +84,13 @@ jobs:
           from pathlib import Path
 
           base = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4')
-          manifest = json.loads((base / 'batches20/manifest.json').read_text(encoding='utf-8'))
           batch_dir = base / 'batches20'
           judgments_dir = base / 'semantic-judgments'
+          manifest = json.loads((batch_dir / 'manifest.json').read_text(encoding='utf-8'))
+          aliases = {
+              'REJECT_DUPLICATE': 'REJECT_DUPLICATE_OR_RESTATEMENT',
+              'REJECT_OTHER_EXPLICIT_NOTE': 'REJECT_OTHER_WITH_EXPLICIT_NOTE',
+          }
 
           def canonical_hash(value):
               raw = json.dumps(
@@ -124,49 +102,74 @@ jobs:
               ).encode('utf-8')
               return hashlib.sha256(raw).hexdigest()
 
-          repaired = []
-          checked_candidates = 0
+          judgments_by_id = {}
+          reviewer_versions = set()
+          source_docs = {}
+          frozen_ids = []
+
           for entry in manifest['batches']:
               name = entry['file']
-              expected_sha = entry['batch_sha256']
               source = json.loads((batch_dir / name).read_text(encoding='utf-8'))
-              actual_source_sha = canonical_hash(source)
-              if actual_source_sha != expected_sha:
-                  raise SystemExit(
-                      f'frozen source batch hash mismatch {name}: '
-                      f'{actual_source_sha} != {expected_sha}'
-                  )
+              if canonical_hash(source) != entry['batch_sha256']:
+                  raise SystemExit(f'frozen source batch hash mismatch: {name}')
+              source_docs[name] = source
+              frozen_ids.extend(str(item['candidate_id']) for item in source)
 
-              path = judgments_dir / name
-              judgment = json.loads(path.read_text(encoding='utf-8'))
-              if judgment.get('batch_file') != name:
-                  raise SystemExit(f'judgment batch_file mismatch: {name}')
+          if len(frozen_ids) != 2322 or len(set(frozen_ids)) != 2322:
+              raise SystemExit('frozen source candidate identity/coverage is not exactly 2322 unique ids')
+          frozen_set = set(frozen_ids)
 
-              expected_ids = [str(item.get('candidate_id') or '') for item in source]
-              observed_ids = [
-                  str(item.get('candidate_id') or '')
-                  for item in judgment.get('judgments', [])
-              ]
-              if observed_ids != expected_ids:
-                  raise SystemExit(f'candidate order/coverage mismatch before envelope repair: {name}')
-              if len(observed_ids) != len(set(observed_ids)):
-                  raise SystemExit(f'duplicate candidate id in {name}')
-              checked_candidates += len(observed_ids)
+          for path in sorted(judgments_dir.glob('batch-*.json')):
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              reviewer = str(doc.get('reviewer_version') or '').strip()
+              if not reviewer:
+                  raise SystemExit(f'missing reviewer_version: {path.name}')
+              reviewer_versions.add(reviewer)
+              for item in doc.get('judgments', []):
+                  if not isinstance(item, dict):
+                      raise SystemExit(f'non-object judgment in {path.name}')
+                  candidate_id = str(item.get('candidate_id') or '')
+                  if not candidate_id:
+                      raise SystemExit(f'missing candidate_id in {path.name}')
+                  if candidate_id in judgments_by_id:
+                      raise SystemExit(f'duplicate reviewed candidate id across documents: {candidate_id}')
+                  normalized = dict(item)
+                  old_reason = normalized.get('reason_code')
+                  if old_reason in aliases:
+                      normalized['reason_code'] = aliases[old_reason]
+                  judgments_by_id[candidate_id] = normalized
 
-              if judgment.get('batch_sha256') != expected_sha:
-                  old = judgment.get('batch_sha256')
-                  print(f'repairing stale batch envelope {name}: {old} -> {expected_sha}')
-                  judgment['batch_sha256'] = expected_sha
-                  path.write_text(
-                      json.dumps(judgment, indent=2, ensure_ascii=False) + '\n',
-                      encoding='utf-8',
-                  )
-                  repaired.append(name)
+          observed_set = set(judgments_by_id)
+          missing = sorted(frozen_set - observed_set)
+          extra = sorted(observed_set - frozen_set)
+          if missing or extra or len(judgments_by_id) != 2322:
+              raise SystemExit(
+                  f'global judgment coverage mismatch: reviewed={len(judgments_by_id)} '
+                  f'missing={len(missing)} extra={len(extra)} '
+                  f'missing_sample={missing[:5]} extra_sample={extra[:5]}'
+              )
+          if len(reviewer_versions) != 1:
+              raise SystemExit(f'multiple reviewer versions in frozen review: {sorted(reviewer_versions)}')
+          reviewer_version = next(iter(reviewer_versions))
 
-          if checked_candidates != 2322:
-              raise SystemExit(f'candidate coverage mismatch: {checked_candidates} != 2322')
-          print(f'validated 117 frozen batch bindings / {checked_candidates} candidates')
-          print(f'repaired {len(repaired)} stale envelope hash(es): {repaired}')
+          for entry in manifest['batches']:
+              name = entry['file']
+              source = source_docs[name]
+              ordered = [judgments_by_id[str(item['candidate_id'])] for item in source]
+              repacked = {
+                  'schema_version': 1,
+                  'batch_file': name,
+                  'batch_sha256': entry['batch_sha256'],
+                  'reviewer_version': reviewer_version,
+                  'judgments': ordered,
+              }
+              (judgments_dir / name).write_text(
+                  json.dumps(repacked, indent=2, ensure_ascii=False) + '\n',
+                  encoding='utf-8',
+              )
+
+          print('global blind review binding proven: 2322/2322 unique frozen candidate ids')
+          print('repacked all 117 semantic judgment documents in canonical frozen batch order')
           PY
 
       - name: Load canonical compiler from main
@@ -189,7 +192,6 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-
           p = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions/manifest.json')
           d = json.loads(p.read_text(encoding='utf-8'))
           assert d['compiled_batch_count'] == 117, d
