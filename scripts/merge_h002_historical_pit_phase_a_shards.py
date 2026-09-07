@@ -27,20 +27,51 @@ def _iso(value: datetime) -> str:
     return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
+def _shard_manifest_paths(root: Path) -> dict[str, Path]:
+    """Resolve exactly one Phase-A shard manifest per frozen quarter.
+
+    Each workflow artifact also contains retained raw evidence, much of it JSON
+    and some of it list-valued.  Those files are evidence, not shard manifests,
+    and must never be interpreted as Phase-A documents during merge.
+    """
+
+    resolved: dict[str, Path] = {}
+    for quarter_id in EXPECTED_QUARTERS:
+        matches = sorted(
+            path
+            for path in root.rglob(f"{quarter_id}.json")
+            if path.parent.name == "phase-a-pit-shards"
+        )
+        if len(matches) != 1:
+            raise PitMergeError(
+                f"expected exactly one HR003 Phase-A manifest for {quarter_id}, "
+                f"found {len(matches)}: {[str(path) for path in matches]}"
+            )
+        resolved[quarter_id] = matches[0]
+    return resolved
+
+
 def run(args: argparse.Namespace) -> dict[str, Any]:
     root = Path(args.input_dir)
-    files = sorted(root.rglob("*.json"))
+    manifest_paths = _shard_manifest_paths(root)
     shards: dict[str, dict[str, Any]] = {}
-    for path in files:
+    for expected_quarter_id in EXPECTED_QUARTERS:
+        path = manifest_paths[expected_quarter_id]
         try:
             document = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PitMergeError(f"could not load HR003 shard {path}: {exc}") from exc
+        if not isinstance(document, dict):
+            raise PitMergeError(f"HR003 shard manifest must be an object: {path}")
         if document.get("experiment_id") != EXPERIMENT_ID:
-            continue
+            raise PitMergeError(
+                f"unexpected experiment id in {path}: {document.get('experiment_id')}"
+            )
         quarter_id = str(document.get("quarter_id") or "")
-        if quarter_id in shards:
-            raise PitMergeError(f"duplicate HR003 Phase-A shard for {quarter_id}")
+        if quarter_id != expected_quarter_id:
+            raise PitMergeError(
+                f"shard filename/quarter mismatch: expected={expected_quarter_id} observed={quarter_id}"
+            )
         declared = str(document.get("manifest_sha256") or "")
         unsigned = dict(document)
         unsigned.pop("manifest_sha256", None)
@@ -65,11 +96,6 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         ):
             raise PitMergeError(f"shard {quarter_id} observation/member count differs")
         shards[quarter_id] = document
-
-    if set(shards) != set(EXPECTED_QUARTERS):
-        raise PitMergeError(
-            f"expected HR003 quarters {EXPECTED_QUARTERS}, found {sorted(shards)}"
-        )
 
     records: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
