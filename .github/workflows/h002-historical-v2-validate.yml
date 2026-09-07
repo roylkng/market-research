@@ -1,0 +1,30 @@
+name: H002-HR002 six-quarter replay validation
+
+on:
+  push:
+    branches:
+      - work/h002-historical-replay-v1-20260907
+    paths:
+      - registry/h002_historical_replay_v2_rule.yaml
+      - src/marketlab/h002_historical_v2.py
+      - tests/test_h002_historical_v2.py
+      - .github/workflows/h002-historical-v2-validate.yml
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Lint new mixed-source replay code
+        run: ruff check src/marketlab/h002_historical_v2.py tests/test_h002_historical_v2.py
+      - name: Test mixed-source replay freeze and selector
+        run: pytest -q tests/test_h002_historical_v2.py
