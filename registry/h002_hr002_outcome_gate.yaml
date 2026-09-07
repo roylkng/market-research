@@ -1,0 +1,94 @@
+schema_version: 1
+gate_id: H002-HR002-OUTCOME-GATE-V1
+frozen_for_experiment: H002-HR002
+purpose: >-
+  Pre-register the evidence required to promote the six-quarter historical H002
+  replay from exploratory evidence to an actionable research signal. This gate
+  does not authorize live capital and must be frozen before HR002 Phase-B outcome
+  reconstruction.
+
+outcome_horizon:
+  trading_sessions: 20
+  entry_rule: frozen_H002_execution_rule
+  transaction_cost_stress_bps_round_trip: [0, 25, 50]
+
+benchmarks:
+  primary: nifty_50
+  factor_control: nifty_200_momentum_30
+
+minimum_sample:
+  completed_observations: 250
+  represented_quarters: 4
+  minimum_positive_observations: 100
+  minimum_negative_observations: 40
+  unresolved_outcome_errors: 0
+
+primary_binary_test:
+  definition: mean_excess_return_positive_ue_minus_mean_excess_return_negative_ue
+  cluster_unit: company_symbol
+  bootstrap_iterations: 10000
+  confidence: 0.95
+  seed: 19
+
+promotion_levels:
+  WATCHLIST_FILTER:
+    all_required:
+      - pooled_nifty50_spread_gt_0
+      - pooled_nifty50_company_cluster_ci_low_gt_0
+      - leave_one_company_out_min_nifty50_spread_gt_0
+      - positive_spread_in_at_least_3_represented_quarters
+    interpretation: >-
+      H002 may be used to tag or deprioritize companies after results, but not as
+      a standalone buy/sell rule.
+
+  ACTIONABLE_AVOIDANCE:
+    all_required:
+      - WATCHLIST_FILTER_passed
+      - pooled_momentum30_spread_gt_0
+      - pooled_momentum30_company_cluster_ci_low_gt_0
+      - negative_ue_mean_excess_vs_momentum30_lt_0
+      - negative_ue_underperforms_momentum30_in_at_least_4_represented_quarters
+      - leave_one_quarter_out_nifty50_spread_gt_0_for_every_eligible_omission
+    interpretation: >-
+      Negative UE may be used as a portfolio-risk downgrade or exclusion feature
+      inside the multi-signal company ranking. It is not by itself a short signal.
+
+  LONG_ALPHA_CANDIDATE:
+    all_required:
+      - WATCHLIST_FILTER_passed
+      - positive_ue_pooled_mean_excess_vs_nifty50_after_50bps_gt_0
+      - positive_ue_mean_excess_vs_nifty50_after_50bps_gt_0_in_at_least_4_represented_quarters
+      - positive_ue_pooled_mean_excess_vs_momentum30_after_50bps_gt_0
+      - positive_group_result_not_reversed_after_removing_top_2_winners
+    interpretation: >-
+      Positive UE may contribute positively to a long ranking, but must still be
+      combined with independent company-quality, credibility, valuation and
+      market-structure signals.
+
+  CAPITAL_READY:
+    all_required:
+      - ACTIONABLE_AVOIDANCE_or_LONG_ALPHA_CANDIDATE_passed
+      - prospective_H002_FY27Q2_completed
+      - prospective_H002_FY27Q2_primary_gate_passed
+      - no_research_integrity_violation
+    interpretation: >-
+      Only this level may be considered for real-capital use. Position sizing and
+      portfolio-risk rules remain separate requirements.
+
+stability_checks:
+  - by_quarter_results
+  - leave_one_company_out
+  - leave_one_quarter_out
+  - winner_concentration_top_2
+  - continuous_ue_pearson_and_spearman
+  - positive_and_negative_group_beat_rates
+  - transaction_cost_stress
+
+forbidden_after_freeze:
+  - changing_the_20_session_horizon_to_improve_results
+  - changing_ue_sign_definition_after_outcomes
+  - dropping_bad_quarters_without_pre_registered_data_quality_reason
+  - adding_symbol_or_isin_exceptions_based_on_return_outcomes
+  - choosing_a_benchmark_after_seeing_which_one_is_easier_to_beat
+
+live_capital_allowed: false
