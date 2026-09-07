@@ -11,13 +11,14 @@ from marketlab.marketdata import MarketDataError
 #   Symbol=NUCLEUS
 #   ISIN=INE591G01025
 #   NameOfTheCompany=COFORGE LIMITED
-# Discovery itself is correctly bound to COFORGE.  Constrain the compatibility
+# Discovery itself is correctly bound to COFORGE. Constrain the compatibility
 # exception to this one official source URL and quarter so NUCLEUS never becomes
-# a discovery alias for Coforge.
+# a discovery or market-data alias for Coforge.
 _COFORGE_FY26_Q3_SOURCE = (
     "https://nsearchives.nseindia.com/corporate/xbrl/"
     "INTEGRATED_FILING_INDAS_1608772_22012026114610_WEB.xml"
 )
+_COFORGE_ISIN = "INE591G01025"
 
 _ORIGINAL_PROCESS_PAIR = base._process_pair
 _ORIGINAL_SYMBOLS_EQUIVALENT = base.symbols_equivalent
@@ -33,6 +34,31 @@ def _coforge_source_defect_symbols_equivalent(
     if canonical == "COFORGE" and observed == "NUCLEUS":
         return True
     return _ORIGINAL_SYMBOLS_EQUIVALENT(canonical_symbol, observed_symbol)
+
+
+def _coforge_udiff_from_frozen_discovery_symbol(
+    raw_zip: bytes,
+    *,
+    symbol: str,
+    session_date: Any,
+    series: str = "EQ",
+    expected_isin: str | None = None,
+):
+    if symbol.strip().upper() != "NUCLEUS" or expected_isin != _COFORGE_ISIN:
+        return _ORIGINAL_PARSE_UDIFF(
+            raw_zip,
+            symbol=symbol,
+            session_date=session_date,
+            series=series,
+            expected_isin=expected_isin,
+        )
+    return _ORIGINAL_PARSE_UDIFF(
+        raw_zip,
+        symbol="COFORGE",
+        session_date=session_date,
+        series=series,
+        expected_isin=_COFORGE_ISIN,
+    )
 
 
 def _persistent_udiff_with_registered_historical_isin(
@@ -84,6 +110,7 @@ def _process_pair_v3(**kwargs: Any) -> dict[str, Any]:
     previous_parse = base.parse_udiff_equity
     if patch_coforge:
         base.symbols_equivalent = _coforge_source_defect_symbols_equivalent
+        base.parse_udiff_equity = _coforge_udiff_from_frozen_discovery_symbol
     if patch_persistent:
         base.parse_udiff_equity = _persistent_udiff_with_registered_historical_isin
 
@@ -91,7 +118,7 @@ def _process_pair_v3(**kwargs: Any) -> dict[str, Any]:
         try:
             return _ORIGINAL_PROCESS_PAIR(**kwargs)
         except base.PhaseAV2Error as exc:
-            # TMPV is the post-restructure company.  A retained target filing that
+            # TMPV is the post-restructure company. A retained target filing that
             # still identifies TATAMOTORS is predecessor history, not an identity
             # acquisition failure and not a comparable H002 observation.
             if (
