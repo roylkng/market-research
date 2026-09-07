@@ -24,6 +24,14 @@ _NON_COMPARABLE_PREDECESSORS: frozenset[tuple[str, str]] = frozenset(
 )
 
 
+def historical_symbol_variants(canonical_symbol: str) -> tuple[str, ...]:
+    """Return the canonical ticker plus only explicitly registered rename aliases."""
+
+    canonical = canonical_symbol.strip().upper()
+    variants = _SYMBOL_EQUIVALENCE.get(canonical, frozenset({canonical}))
+    return tuple(sorted(variants, key=lambda item: (item != canonical, item)))
+
+
 def symbols_equivalent(canonical_symbol: str, observed_symbol: str) -> bool:
     canonical = canonical_symbol.strip().upper()
     observed = observed_symbol.strip().upper()
