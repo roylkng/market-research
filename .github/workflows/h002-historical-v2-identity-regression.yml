@@ -1,0 +1,56 @@
+name: H002-HR002 historical identity regression
+
+on:
+  push:
+    branches:
+      - work/h002-historical-replay-v1-20260907
+    paths:
+      - src/marketlab/h002_historical_identity.py
+      - scripts/run_h002_historical_replay_v2r3.py
+      - .github/workflows/h002-historical-v2-identity-regression.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: h002-hr002-identity-regression
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Reconstruct exact identity edge cases
+        run: |
+          python scripts/run_h002_historical_replay_v2r3.py \
+            --symbols COFORGE,PERSISTENT,TMPV \
+            --attempts 5 \
+            --timeout 25 \
+            --sleep 0.05 \
+            --store .marketlab-historical-replay-v2-identity-regression \
+            --output /tmp/h002-hr002-identity-regression.json
+      - name: Require zero identity errors
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          doc = json.loads(Path('/tmp/h002-hr002-identity-regression.json').read_text())
+          errors = [r for r in doc['records'] if r.get('status') == 'ERROR']
+          for record in errors:
+              print(record.get('symbol'), record.get('quarter_id'), record.get('reason'))
+          if errors:
+              raise SystemExit(f'identity regression has {len(errors)} ERROR observations')
+          for symbol in ('COFORGE', 'PERSISTENT', 'TMPV'):
+              rows = [r for r in doc['records'] if r.get('symbol') == symbol]
+              print(symbol, [(r.get('quarter_id'), r.get('status'), r.get('reason')) for r in rows])
+          PY
