@@ -1,0 +1,95 @@
+name: H003-V001 r4 import missing semantic judgments
+
+on:
+  push:
+    branches:
+      - work/h003-complete-review-20260907-import6
+    paths:
+      - .github/workflows/h003-v001-r4-import-missing.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-and-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h003-complete-review-20260907-import6
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify and import audited batches 0016-0091
+        run: |
+          test "$(ls .github/h003-bz-part-*.b64 | wc -l)" -eq 9
+          for n in 00 01 02 03 04 05 06 07; do
+            test "$(wc -c < .github/h003-bz-part-${n}.b64)" -eq 14000
+          done
+          test "$(wc -c < .github/h003-bz-part-08.b64)" -eq 11736
+          cat .github/h003-bz-part-*.b64 | base64 --decode > /tmp/h003-missing.tar.bz2
+          echo 'b27d4d38f31f82ebbe6765685d164ec452f0cac04511d9d78435b5a2cbead2ad  /tmp/h003-missing.tar.bz2' | sha256sum -c -
+          mkdir -p research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
+          tar -xjf /tmp/h003-missing.tar.bz2 \
+            -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
+          test "$(find research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments -maxdepth 1 -name 'batch-*.json' | wc -l)" -eq 117
+      - name: Normalize known reason-code aliases
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments')
+          aliases = {
+              'REJECT_DUPLICATE': 'REJECT_DUPLICATE_OR_RESTATEMENT',
+              'REJECT_OTHER_EXPLICIT_NOTE': 'REJECT_OTHER_WITH_EXPLICIT_NOTE',
+          }
+          changed = 0
+          for path in sorted(root.glob('batch-*.json')):
+              data = json.loads(path.read_text(encoding='utf-8'))
+              dirty = False
+              for item in data.get('judgments', []):
+                  old = item.get('reason_code')
+                  if old in aliases:
+                      item['reason_code'] = aliases[old]
+                      dirty = True
+              if dirty:
+                  path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+                  changed += 1
+          print(f'normalized reason codes in {changed} file(s)')
+          PY
+      - name: Load canonical compiler from main
+        run: |
+          git fetch origin main --depth=1
+          git show origin/main:scripts/compile_h003_review_judgments.py > /tmp/compile_h003_review_judgments.py
+      - name: Compile complete blind review
+        run: |
+          python /tmp/compile_h003_review_judgments.py \
+            --batch-manifest research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20/manifest.json \
+            --batch-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20 \
+            --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
+            --judgments-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments \
+            --out-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
+            --repo-root .
+      - name: Prove completeness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions/manifest.json')
+          d = json.loads(p.read_text(encoding='utf-8'))
+          assert d['compiled_batch_count'] == 117, d
+          assert d['compiled_candidate_count'] == 2322, d
+          assert d['complete'] is True, d
+          print(json.dumps({k: d[k] for k in ('compiled_batch_count','compiled_candidate_count','complete')}, indent=2))
+          PY
+      - name: Commit completed review and remove importer
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          rm -f .github/h003-bz-part-*.b64 .github/h003-staging-marker.txt .github/workflows/h003-v001-r4-import-missing.yml
+          git add -A
+          git diff --cached --check
+          git commit -m "H003-V001: complete blind semantic review"
+          git push origin HEAD:work/h003-complete-review-20260907-import6
