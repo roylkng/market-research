@@ -13,7 +13,7 @@ evidence_mode:
 
 freeze_policy:
   target_period_end_offset_days: -24
-  freeze_clock: 23:59:59 Asia/Kolkata
+  freeze_clock: "23:59:59 Asia/Kolkata"
   baseline_revision_cutoff: strictly_at_or_before_freeze
   corporate_action_cutoff: strictly_at_or_before_freeze
   post_freeze_eps_basis_action: SKIP
@@ -39,11 +39,11 @@ execution:
 
 target_quarters:
   - id: FY26-Q4
-    period_end: 2026-03-31
-    baseline_period_end: 2025-03-31
+    period_end: "2026-03-31"
+    baseline_period_end: "2025-03-31"
   - id: FY27-Q1
-    period_end: 2026-06-30
-    baseline_period_end: 2025-06-30
+    period_end: "2026-06-30"
+    baseline_period_end: "2025-06-30"
 
 cohort:
   primary_transport_test: FY27-Q2-2026-09-06
