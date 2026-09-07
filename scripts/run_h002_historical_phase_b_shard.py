@@ -5,16 +5,18 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from marketlab.execution import TradingCalendar, TradingSession
-from marketlab.h002_historical_outcomes import load_phase_a_manifest
-from marketlab.nse import NSEClient
-from marketlab.universe import load_universe_snapshot
 from run_h002_historical_phase_b import (
+    IST,
     OutcomeSources,
     _execute_record,
     _market_member,
     _record_schedule,
 )
+
+from marketlab.execution import TradingCalendar, TradingSession
+from marketlab.h002_historical_outcomes import load_phase_a_manifest
+from marketlab.nse import NSEClient
+from marketlab.universe import load_universe_snapshot
 
 
 def _iso(value: datetime) -> str:
@@ -38,7 +40,7 @@ def run(args: argparse.Namespace) -> dict:
 
     calendar_document = phase_a.get("calendar_snapshot")
     if not isinstance(calendar_document, dict):
-        raise ValueError("phase-A manifest is missing its frozen calendar")
+        raise TypeError("phase-A manifest is missing its frozen calendar")
     sessions = [TradingSession(**item) for item in calendar_document.get("sessions", [])]
     calendar = TradingCalendar(sessions, version=str(calendar_document.get("version") or ""))
     members = {member.symbol.upper(): member for member in universe.members}
@@ -63,7 +65,7 @@ def run(args: argparse.Namespace) -> dict:
         publication, entry_day, exit_day = _record_schedule(record, calendar)
         key = (member.symbol.upper(), str(record.get("quarter_id")))
         schedules[key] = (publication, entry_day, exit_day)
-        publication_day = publication.astimezone().date()
+        publication_day = publication.astimezone(IST).date()
         current = action_windows.get(member.symbol.upper())
         if current is None:
             action_windows[member.symbol.upper()] = (publication_day, exit_day)
