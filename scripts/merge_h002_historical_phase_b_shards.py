@@ -36,7 +36,7 @@ def run(args: argparse.Namespace) -> dict:
         seen_shards.add(shard_index)
         records = document.get("records")
         if not isinstance(records, list):
-            raise ValueError(f"shard {path} has no record list")
+            raise TypeError(f"shard {path} has no record list")
         if len(records) != int(document.get("eligible_record_count", -1)):
             raise ValueError(f"shard {path} record count changed")
         for record in records:
