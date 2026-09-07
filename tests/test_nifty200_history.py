@@ -1,4 +1,4 @@
-from marketlab import nifty200_history
+from marketlab import nifty200_history  # noqa: I001
 
 
 REGISTRY = "registry/nifty200_historical_membership_v1.yaml"
