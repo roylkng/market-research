@@ -1,0 +1,107 @@
+name: H002 historical Nifty 200 anchor
+
+on:
+  push:
+    branches:
+      - work/h002-historical-replay-v1-20260907
+    paths:
+      - .github/workflows/h002-historical-nifty200-anchor.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h002-historical-nifty200-anchor
+  cancel-in-progress: true
+
+env:
+  MIRROR_COMMIT: d3b64d7e6007bb39c390efa935e6e0d87b1744c6
+  MIRROR_URL: https://huggingface.co/spaces/Invicto69/Algo_Trading_Dashboard_streamlit/resolve/d3b64d7e6007bb39c390efa935e6e0d87b1744c6/data/ind_nifty200list.csv?download=true
+  OUTPUT_CSV: research/historical/nifty200/anchors/2025-01-29-hf-mirror.csv
+  OUTPUT_META: research/historical/nifty200/anchors/2025-01-29-hf-mirror.json
+
+jobs:
+  freeze-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Fetch pinned point-in-time mirror
+        run: |
+          mkdir -p "$(dirname "$OUTPUT_CSV")"
+          curl --fail --location --retry 4 --retry-all-errors \
+            --output /tmp/ind_nifty200list.csv "$MIRROR_URL"
+          cp /tmp/ind_nifty200list.csv "$OUTPUT_CSV"
+      - name: Validate and freeze provenance
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          csv_path = Path(os.environ['OUTPUT_CSV'])
+          meta_path = Path(os.environ['OUTPUT_META'])
+          raw = csv_path.read_bytes()
+          text = raw.decode('utf-8-sig')
+          rows = list(csv.DictReader(text.splitlines()))
+          expected = ['Company Name', 'Industry', 'Symbol', 'Series', 'ISIN Code']
+          if not rows or list(rows[0].keys()) != expected:
+              raise SystemExit(f'unexpected anchor columns: {list(rows[0].keys()) if rows else None}')
+          if len(rows) != 201:
+              raise SystemExit(f'expected 201 point-in-time rows including demerger dummy, found {len(rows)}')
+          symbols = [str(row['Symbol']).strip().upper() for row in rows]
+          if len(set(symbols)) != len(symbols):
+              raise SystemExit('point-in-time anchor contains duplicate symbols')
+          if 'DUMMYITC' not in symbols:
+              raise SystemExit('expected temporary ITC Hotels dummy constituent is absent')
+          if 'CENTRALBK' in symbols:
+              raise SystemExit('anchor unexpectedly contains revoked Sep-2024 Nifty200 inclusion CENTRALBK')
+          if 'IDEA' not in symbols:
+              raise SystemExit('anchor unexpectedly omits Vodafone Idea after Sep-2024 revocation')
+          sha = hashlib.sha256(raw).hexdigest()
+          meta = {
+              'schema_version': 1,
+              'index_id': 'NIFTY_200',
+              'anchor_date': '2025-01-29',
+              'evidence_class': 'POINT_IN_TIME_MIRROR_BRIDGE',
+              'authoritative_for_membership_changes': False,
+              'purpose': 'Bridge anchor only. Official NSE Indices press releases remain authoritative for every applied membership event.',
+              'mirror_provider': 'Hugging Face Space Invicto69/Algo_Trading_Dashboard_streamlit',
+              'mirror_commit': os.environ['MIRROR_COMMIT'],
+              'source_url': os.environ['MIRROR_URL'],
+              'captured_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'raw_sha256': sha,
+              'row_count': len(rows),
+              'temporary_dummy_symbols_present': ['DUMMYITC'],
+              'integrity_assertions': {
+                  'unique_symbols': True,
+                  'idea_present_after_sep_2024_revocation': True,
+                  'centralbk_absent_after_sep_2024_revocation': True,
+                  'dummyitc_present_before_feb_2025_exclusion': True,
+              },
+          }
+          meta_path.write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps({'row_count': len(rows), 'raw_sha256': sha}, sort_keys=True))
+          PY
+      - name: Commit frozen anchor
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git pull --rebase origin work/h002-historical-replay-v1-20260907
+          git add "$OUTPUT_CSV" "$OUTPUT_META"
+          if git diff --cached --quiet; then
+            echo "Nifty 200 anchor already frozen"
+            exit 0
+          fi
+          git commit -m "H002-HR003: freeze Jan-2025 Nifty 200 mirror anchor"
+          git push origin HEAD:work/h002-historical-replay-v1-20260907
