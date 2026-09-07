@@ -9,6 +9,7 @@ on:
       - src/marketlab/h002_historical_v2_outcomes.py
       - src/marketlab/h002_historical_outcomes_fast.py
       - scripts/run_h002_historical_v2_phase_b_shard.py
+      - scripts/run_h002_historical_v2_phase_b_shard_r2.py
       - scripts/merge_h002_historical_v2_phase_b_shards.py
       - scripts/evaluate_h002_hr002_actionability.py
   workflow_dispatch:
@@ -68,11 +69,13 @@ jobs:
             src/marketlab/h002_historical_v2_outcomes.py \
             src/marketlab/h002_historical_outcomes_fast.py \
             scripts/run_h002_historical_v2_phase_b_shard.py \
+            scripts/run_h002_historical_v2_phase_b_shard_r2.py \
             scripts/merge_h002_historical_v2_phase_b_shards.py \
             scripts/evaluate_h002_hr002_actionability.py
           python -m py_compile \
             src/marketlab/h002_historical_v2_outcomes.py \
             scripts/run_h002_historical_v2_phase_b_shard.py \
+            scripts/run_h002_historical_v2_phase_b_shard_r2.py \
             scripts/merge_h002_historical_v2_phase_b_shards.py \
             scripts/evaluate_h002_hr002_actionability.py
           python - <<'PY'
@@ -104,7 +107,7 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Reconstruct historical outcome shard
         run: |
-          python scripts/run_h002_historical_v2_phase_b_shard.py \
+          python scripts/run_h002_historical_v2_phase_b_shard_r2.py \
             --expected-phase-a-sha256 "${{ needs.prepare.outputs.phase_a_sha256 }}" \
             --shard-index "${{ matrix.shard }}" \
             --shard-count 8 \
