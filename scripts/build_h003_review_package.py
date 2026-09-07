@@ -106,6 +106,37 @@ def _publication_date_redaction_terms(exchange_published_at_utc: str) -> tuple[s
     return tuple(sorted((term for term in terms if term), key=len, reverse=True))
 
 
+_STANDALONE_SOURCE_DATE_PATTERNS = (
+    re.compile(r"^(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}$", re.IGNORECASE),
+    re.compile(r"^\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?),?\s+\d{4}$", re.IGNORECASE),
+    re.compile(r"^\d{1,2}[-/.](?:\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/.]\d{2,4}$", re.IGNORECASE),
+    re.compile(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$"),
+)
+_PAGE_HEADER_MARKER = re.compile(r"^Page\s+\d+\s+of\s+\d+$", re.IGNORECASE)
+
+
+def _page_header_date_redaction_terms(page_lines: tuple[str, ...]) -> tuple[str, ...]:
+    """Return standalone source-date strings found in the PDF page header.
+
+    Prefer an explicit ``Page X of Y`` boundary. When a PDF has no such marker,
+    inspect only the first two non-empty lines. This keeps body/claim dates out
+    of the metadata redaction set while removing transcript header dates.
+    """
+
+    nonempty = [line.strip() for line in page_lines if line.strip()]
+    marker_index = next(
+        (index for index, line in enumerate(nonempty[:10]) if _PAGE_HEADER_MARKER.fullmatch(line)),
+        None,
+    )
+    header_lines = nonempty[:marker_index] if marker_index is not None else nonempty[:2]
+    terms = {
+        line
+        for line in header_lines
+        if any(pattern.fullmatch(line) for pattern in _STANDALONE_SOURCE_DATE_PATTERNS)
+    }
+    return tuple(sorted(terms, key=len, reverse=True))
+
+
 def _load_company_names(path: Path) -> dict[str, str]:
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
@@ -242,10 +273,16 @@ def build_package(
                 raise ReviewPackageError(
                     f"candidate page absent after reconstruction: {candidate.candidate_id}"
                 )
+            candidate_redaction_terms = tuple(
+                {
+                    *redaction_terms,
+                    *_page_header_date_redaction_terms(page_lines),
+                }
+            )
             payload = build_blind_review_payload(
                 candidate,
                 page_lines=page_lines,
-                redaction_terms=redaction_terms,
+                redaction_terms=candidate_redaction_terms,
                 context_radius_lines=3,
             )
             payloads.append(payload)
