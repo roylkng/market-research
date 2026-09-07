@@ -7,8 +7,11 @@ from marketlab.events import FinancialEvent
 # Deliberately narrow, evidence-backed equivalence. No fuzzy ticker matching.
 # BAJAJ-AUTO appears as BAJAJAUTO in some official financial XBRL instances.
 # LTIM changed its NSE trading symbol to LTM effective 27-Feb-2026.
+# ZOMATO changed its NSE name/symbol to ETERNAL in Apr-2025 with the same ISIN
+# INE758T01015. This is a rename, not a change in the economic company.
 _SYMBOL_EQUIVALENCE: dict[str, frozenset[str]] = {
     "BAJAJ-AUTO": frozenset({"BAJAJ-AUTO", "BAJAJAUTO"}),
+    "ETERNAL": frozenset({"ETERNAL", "ZOMATO"}),
     "LTM": frozenset({"LTM", "LTIM"}),
 }
 
