@@ -8,6 +8,7 @@ import run_h002_historical_v2_phase_b_shard as base
 from marketlab.h002_historical_identity import historical_symbol_variants
 from marketlab.marketdata import MarketDataMissingRow
 
+RESOLVER_VERSION = "H002-HR002-PHASE-B-PIT-TICKER-R2"
 _COFORGE_FY26_Q3_SOURCE = (
     "https://nsearchives.nseindia.com/corporate/xbrl/"
     "INTEGRATED_FILING_INDAS_1608772_22012026114610_WEB.xml"
