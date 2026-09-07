@@ -1,80 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-
-BUILD = Path("scripts/build_h003_review_package.py")
-TEST = Path("tests/test_h003_review_source_header_date_redaction.py")
-
-
-def patch_build_script() -> None:
-    text = BUILD.read_text(encoding="utf-8")
-    anchor = "def _load_company_names(path: Path) -> dict[str, str]:\n"
-    helper = r'''_STANDALONE_SOURCE_DATE_PATTERNS = (
-    re.compile(r"^(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}$", re.IGNORECASE),
-    re.compile(r"^\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?),?\s+\d{4}$", re.IGNORECASE),
-    re.compile(r"^\d{1,2}[-/.](?:\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/.]\d{2,4}$", re.IGNORECASE),
-    re.compile(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$"),
-)
-_PAGE_HEADER_MARKER = re.compile(r"^Page\s+\d+\s+of\s+\d+$", re.IGNORECASE)
-
-
-def _page_header_date_redaction_terms(page_lines: tuple[str, ...]) -> tuple[str, ...]:
-    """Return standalone source-date strings found in the PDF page header.
-
-    Prefer an explicit ``Page X of Y`` boundary. When a PDF has no such marker,
-    inspect only the first two non-empty lines. This keeps body/claim dates out
-    of the metadata redaction set while removing transcript header dates.
-    """
-
-    nonempty = [line.strip() for line in page_lines if line.strip()]
-    marker_index = next(
-        (index for index, line in enumerate(nonempty[:10]) if _PAGE_HEADER_MARKER.fullmatch(line)),
-        None,
-    )
-    header_lines = nonempty[:marker_index] if marker_index is not None else nonempty[:2]
-    terms = {
-        line
-        for line in header_lines
-        if any(pattern.fullmatch(line) for pattern in _STANDALONE_SOURCE_DATE_PATTERNS)
-    }
-    return tuple(sorted(terms, key=len, reverse=True))
-
-
-'''
-    if text.count(anchor) != 1:
-        raise SystemExit(f"unexpected helper anchor count: {text.count(anchor)}")
-    text = text.replace(anchor, helper + anchor)
-
-    old = '''            payload = build_blind_review_payload(
-                candidate,
-                page_lines=page_lines,
-                redaction_terms=redaction_terms,
-                context_radius_lines=3,
-            )
-'''
-    new = '''            candidate_redaction_terms = tuple(
-                {
-                    *redaction_terms,
-                    *_page_header_date_redaction_terms(page_lines),
-                }
-            )
-            payload = build_blind_review_payload(
-                candidate,
-                page_lines=page_lines,
-                redaction_terms=candidate_redaction_terms,
-                context_radius_lines=3,
-            )
-'''
-    if text.count(old) != 1:
-        raise SystemExit(f"unexpected payload anchor count: {text.count(old)}")
-    BUILD.write_text(text.replace(old, new), encoding="utf-8")
-
-
-def write_test() -> None:
-    TEST.write_text(
-        r'''from __future__ import annotations
-
 import hashlib
 import importlib.util
 from pathlib import Path
@@ -200,11 +125,3 @@ def test_header_date_recognizes_numeric_and_ordinal_formats():
     assert module._page_header_date_redaction_terms(("16/04/2026", "Page 1 of 2")) == ("16/04/2026",)
     assert module._page_header_date_redaction_terms(("16th April 2026", "Page 1 of 2")) == ("16th April 2026",)
     assert module._page_header_date_redaction_terms(("2026-04-16", "Page 1 of 2")) == ("2026-04-16",)
-''',
-        encoding="utf-8",
-    )
-
-
-if __name__ == "__main__":
-    patch_build_script()
-    write_test()
