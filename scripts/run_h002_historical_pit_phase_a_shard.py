@@ -12,12 +12,18 @@ from typing import Any
 import run_h002_historical_replay_v2r2 as base
 import run_h002_historical_replay_v2r3 as compatibility
 
+from marketlab.h002_historical_identity import (
+    historical_discovery_query_symbols,
+    historical_isins_equivalent,
+)
 from marketlab.h002_historical_v2 import historical_freeze_v2
+from marketlab.marketdata import MarketDataError
 from marketlab.nifty200_history import canonical_hash
 from marketlab.universe import UniverseMember
 
 EXPERIMENT_ID = "H002-HR003"
 COMPILER_REVISION = "H002-HR003-phase-a-r1-point-in-time-nifty200"
+_ORIGINAL_PARSE_UDIFF = base.parse_udiff_equity
 
 
 class PitPhaseAError(RuntimeError):
@@ -110,6 +116,76 @@ def _processing_member(eligibility_member: UniverseMember, target_symbol: str) -
         constituent_industry=eligibility_member.constituent_industry,
         series=eligibility_member.series,
     )
+
+
+def _fetch_point_in_time_discovery(
+    client: Any,
+    store_root: Path,
+    eligibility_member: UniverseMember,
+) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
+    """Discover without treating retrieval-only successor tickers as economic aliases."""
+
+    queries = historical_discovery_query_symbols(eligibility_member.symbol)
+    identity_variants = base.historical_symbol_variants(eligibility_member.symbol)
+    retrieval_only = [symbol for symbol in queries if symbol not in identity_variants]
+    if not retrieval_only:
+        return base._fetch_discovery_for_variants(client, store_root, eligibility_member)
+    if len(retrieval_only) != 1:
+        raise PitPhaseAError(
+            f"multiple retrieval-only aliases are not supported for {eligibility_member.symbol}: "
+            f"{retrieval_only}"
+        )
+
+    query_member = _processing_member(eligibility_member, retrieval_only[0])
+    integrated, legacy, evidence = base._fetch_discovery_for_variants(
+        client,
+        store_root,
+        query_member,
+    )
+    evidence = dict(evidence)
+    evidence["point_in_time_retrieval_bridge"] = {
+        "eligibility_symbol": eligibility_member.symbol,
+        "query_symbol": query_member.symbol,
+        "economic_identity_equivalence": False,
+        "selection_requirement": (
+            "candidate row must still match the point-in-time eligibility ticker or its "
+            "identity-preserving aliases"
+        ),
+    }
+    return integrated, legacy, evidence
+
+
+def _parse_udiff_with_registered_source_isin(
+    raw_zip: bytes,
+    *,
+    symbol: str,
+    session_date: date,
+    series: str = "EQ",
+    expected_isin: str | None = None,
+):
+    """Allow only exact, pre-registered official-source ISIN inconsistencies."""
+
+    try:
+        return _ORIGINAL_PARSE_UDIFF(
+            raw_zip,
+            symbol=symbol,
+            session_date=session_date,
+            series=series,
+            expected_isin=expected_isin,
+        )
+    except MarketDataError as exc:
+        if "ISIN mismatch" not in str(exc):
+            raise
+        parsed = _ORIGINAL_PARSE_UDIFF(
+            raw_zip,
+            symbol=symbol,
+            session_date=session_date,
+            series=series,
+            expected_isin=None,
+        )
+        if not historical_isins_equivalent(symbol, expected_isin, parsed.isin):
+            raise
+        return parsed
 
 
 def _decorate_record(
@@ -216,7 +292,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     for index, eligibility_member in enumerate(members, start=1):
         eligibility_symbol = eligibility_member.symbol
         try:
-            integrated_payload, legacy_payload, raw_discovery = base._fetch_discovery_for_variants(
+            integrated_payload, legacy_payload, raw_discovery = _fetch_point_in_time_discovery(
                 client,
                 store_root,
                 eligibility_member,
@@ -256,6 +332,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                     .astimezone(base.IST)
                     .date(),
                 )
+                previous_parse = base.parse_udiff_equity
+                base.parse_udiff_equity = _parse_udiff_with_registered_source_isin
                 try:
                     record = compatibility._process_pair_v3(
                         cache=cache,
@@ -279,6 +357,8 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                         reason=f"{type(exc).__name__}: {exc}",
                         freeze_at_utc=freeze_at_utc,
                     )
+                finally:
+                    base.parse_udiff_equity = previous_parse
         except (RuntimeError, ValueError, OSError) as exc:
             record = base._record(
                 member=eligibility_member,
