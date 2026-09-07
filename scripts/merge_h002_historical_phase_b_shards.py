@@ -5,7 +5,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.h002_historical_outcomes import phase_b_manifest
+from marketlab.h002_historical_outcomes_fast import phase_b_manifest_fast
 
 
 def _iso(value: datetime) -> str:
@@ -59,13 +59,14 @@ def run(args: argparse.Namespace) -> dict:
             f"expected {args.expected_record_count} Phase-B records, found {len(all_records)}"
         )
     all_records.sort(key=lambda item: (str(item.get("symbol")), str(item.get("quarter_id"))))
-    manifest = phase_b_manifest(
+    manifest = phase_b_manifest_fast(
         phase_a_manifest_sha256=args.expected_phase_a_sha256,
         generated_at_utc=_iso(datetime.now(UTC)),
         records=all_records,
         evidence={
             "acquisition_mode": "4-way-company-sharded",
             "shard_count": args.shard_count,
+            "bootstrap_implementation": "exact-vectorized-company-cluster-v1",
             "shards": sorted(shard_evidence, key=lambda item: item["shard_index"]),
         },
     )
