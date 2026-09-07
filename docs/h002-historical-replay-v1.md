@@ -22,20 +22,20 @@ This separation prevents a successful backtest from being misrepresented as forw
 
 ## Freeze convention
 
-The FY27 Q2 prospective expectations were frozen on 6-Sep-2026 for a 30-Sep-2026 quarter end. H002-HR001 preserves that 24-calendar-day lead time.
+The FY27 Q2 prospective expectation bundle was anchored at `2026-09-06T15:11:38.303000Z`, or 20:41:38.303 IST, for a 30-Sep-2026 quarter end. H002-HR001 preserves both the 24-calendar-day lead time and that local clock time.
 
 For each replay quarter:
 
 ```text
-historical_freeze = target_period_end - 24 calendar days at 23:59:59 Asia/Kolkata
+historical_freeze = target_period_end - 24 calendar days at 20:41:38.303 Asia/Kolkata
 ```
 
 Initial quarters:
 
 | Replay quarter | Target period | Baseline period | Freeze |
 | --- | --- | --- | --- |
-| FY26 Q4 | 31-Mar-2026 | 31-Mar-2025 | 7-Mar-2026 23:59:59 IST |
-| FY27 Q1 | 30-Jun-2026 | 30-Jun-2025 | 6-Jun-2026 23:59:59 IST |
+| FY26 Q4 | 31-Mar-2026 | 31-Mar-2025 | 7-Mar-2026 20:41:38.303 IST |
+| FY27 Q1 | 30-Jun-2026 | 30-Jun-2025 | 6-Jun-2026 20:41:38.303 IST |
 
 The latest matching baseline filing revision that was public at or before the freeze is eligible. A later revision cannot enter the expectation.
 
