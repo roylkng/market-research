@@ -16,12 +16,23 @@ def patch_build_script() -> None:
     re.compile(r"^\d{1,2}[-/.](?:\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/.]\d{2,4}$", re.IGNORECASE),
     re.compile(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$"),
 )
+_PAGE_HEADER_MARKER = re.compile(r"^Page\s+\d+\s+of\s+\d+$", re.IGNORECASE)
 
 
 def _page_header_date_redaction_terms(page_lines: tuple[str, ...]) -> tuple[str, ...]:
-    """Return standalone source-date strings found in the PDF page header."""
+    """Return standalone source-date strings found in the PDF page header.
 
-    header_lines = [line.strip() for line in page_lines if line.strip()][:6]
+    Prefer an explicit ``Page X of Y`` boundary. When a PDF has no such marker,
+    inspect only the first two non-empty lines. This keeps body/claim dates out
+    of the metadata redaction set while removing transcript header dates.
+    """
+
+    nonempty = [line.strip() for line in page_lines if line.strip()]
+    marker_index = next(
+        (index for index, line in enumerate(nonempty[:10]) if _PAGE_HEADER_MARKER.fullmatch(line)),
+        None,
+    )
+    header_lines = nonempty[:marker_index] if marker_index is not None else nonempty[:2]
     terms = {
         line
         for line in header_lines
@@ -114,7 +125,7 @@ def _candidate(raw_sha256: str) -> ClaimCandidate:
     )
 
 
-def test_page_header_date_terms_only_take_standalone_dates_from_header():
+def test_page_header_date_terms_stop_at_explicit_page_marker():
     module = _module()
     lines = (
         "Test Limited",
@@ -129,6 +140,17 @@ def test_page_header_date_terms_only_take_standalone_dates_from_header():
     assert terms == ("April 16, 2026",)
     assert "April 30, 2027" not in terms
     assert "May 1, 2027" not in terms
+
+
+def test_header_date_fallback_only_uses_first_two_nonempty_lines():
+    module = _module()
+    lines = (
+        "Test Limited",
+        "April 16, 2026",
+        "Body begins",
+        "May 1, 2027",
+    )
+    assert module._page_header_date_redaction_terms(lines) == ("April 16, 2026",)
 
 
 def test_build_package_redacts_transcript_header_date_but_preserves_target_date(monkeypatch):
