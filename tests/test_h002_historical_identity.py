@@ -5,6 +5,8 @@ from pathlib import Path
 
 from marketlab.events import HISTORICAL_RECONSTRUCTION, parse_indas_html, sha256_bytes
 from marketlab.h002_historical_identity import (
+    historical_discovery_query_symbols,
+    historical_isins_equivalent,
     historical_symbol_variants,
     is_non_comparable_predecessor,
     normalize_symbol_for_h002,
@@ -47,6 +49,21 @@ def test_point_in_time_ticker_can_discover_post_rename_filing_alias():
     assert historical_symbol_variants("ETERNAL") == ("ETERNAL", "ZOMATO")
     assert historical_symbol_variants("LTIM") == ("LTIM", "LTM")
     assert historical_symbol_variants("LTM") == ("LTM", "LTIM")
+
+
+def test_tata_motors_successor_is_retrieval_only_not_economic_equivalence():
+    assert historical_discovery_query_symbols("TATAMOTORS") == ("TATAMOTORS", "TMPV")
+    assert historical_symbol_variants("TATAMOTORS") == ("TATAMOTORS",)
+    assert not symbols_equivalent("TATAMOTORS", "TMPV")
+    assert not symbols_equivalent("TMPV", "TATAMOTORS")
+
+
+def test_registered_official_source_isin_inconsistencies_are_exact_only():
+    assert historical_isins_equivalent("PERSISTENT", "INE262H01016", "INE262H01021")
+    assert historical_isins_equivalent("OBEROIRLTY", "INE903I01010", "INE093I01010")
+    assert historical_isins_equivalent("TATATECH", "INE142M01017", "INE142M01025")
+    assert not historical_isins_equivalent("OBEROIRLTY", "INE903I01010", "INE000000000")
+    assert not historical_isins_equivalent("TATATECH", "INE142M01017", "INE142M01099")
 
 
 def test_tata_motors_predecessor_is_explicitly_non_comparable():
