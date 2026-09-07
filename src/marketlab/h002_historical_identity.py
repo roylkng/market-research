@@ -10,7 +10,8 @@ from marketlab.events import FinancialEvent
 # ZOMATO changed its NSE name/symbol to ETERNAL in Apr-2025 with the same ISIN
 # INE758T01015. These groups are pure identity-preserving aliases. Membership in
 # a group is symmetric so a point-in-time ticker can discover a filing published
-# after a later rename, or vice versa.
+# after a later rename, or vice versa. The dictionary key is also the stable
+# research-cluster identity used across quarters.
 _SYMBOL_EQUIVALENCE: dict[str, frozenset[str]] = {
     "BAJAJ-AUTO": frozenset({"BAJAJ-AUTO", "BAJAJAUTO"}),
     "ETERNAL": frozenset({"ETERNAL", "ZOMATO"}),
@@ -75,6 +76,20 @@ def _registered_symbol_group(symbol: str) -> frozenset[str]:
     if len(matches) > 1:
         raise ValueError(f"historical symbol alias belongs to multiple groups: {normalized}")
     return matches[0] if matches else frozenset({normalized})
+
+
+def canonical_historical_symbol(symbol: str) -> str:
+    """Return a stable company-cluster ticker for identity-preserving renames only."""
+
+    normalized = symbol.strip().upper()
+    matches = [
+        canonical
+        for canonical, group in _SYMBOL_EQUIVALENCE.items()
+        if normalized in group
+    ]
+    if len(matches) > 1:
+        raise ValueError(f"historical symbol alias belongs to multiple canonical groups: {normalized}")
+    return matches[0] if matches else normalized
 
 
 def historical_symbol_variants(canonical_symbol: str) -> tuple[str, ...]:
