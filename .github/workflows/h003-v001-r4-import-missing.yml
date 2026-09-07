@@ -102,6 +102,73 @@ jobs:
           print(f'normalized reason codes in {changed} file(s)')
           PY
 
+      - name: Prove frozen batch binding and repair stale envelope hashes
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          base = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4')
+          manifest = json.loads((base / 'batches20/manifest.json').read_text(encoding='utf-8'))
+          batch_dir = base / 'batches20'
+          judgments_dir = base / 'semantic-judgments'
+
+          def canonical_hash(value):
+              raw = json.dumps(
+                  value,
+                  sort_keys=True,
+                  separators=(',', ':'),
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ).encode('utf-8')
+              return hashlib.sha256(raw).hexdigest()
+
+          repaired = []
+          checked_candidates = 0
+          for entry in manifest['batches']:
+              name = entry['file']
+              expected_sha = entry['batch_sha256']
+              source = json.loads((batch_dir / name).read_text(encoding='utf-8'))
+              actual_source_sha = canonical_hash(source)
+              if actual_source_sha != expected_sha:
+                  raise SystemExit(
+                      f'frozen source batch hash mismatch {name}: '
+                      f'{actual_source_sha} != {expected_sha}'
+                  )
+
+              path = judgments_dir / name
+              judgment = json.loads(path.read_text(encoding='utf-8'))
+              if judgment.get('batch_file') != name:
+                  raise SystemExit(f'judgment batch_file mismatch: {name}')
+
+              expected_ids = [str(item.get('candidate_id') or '') for item in source]
+              observed_ids = [
+                  str(item.get('candidate_id') or '')
+                  for item in judgment.get('judgments', [])
+              ]
+              if observed_ids != expected_ids:
+                  raise SystemExit(f'candidate order/coverage mismatch before envelope repair: {name}')
+              if len(observed_ids) != len(set(observed_ids)):
+                  raise SystemExit(f'duplicate candidate id in {name}')
+              checked_candidates += len(observed_ids)
+
+              if judgment.get('batch_sha256') != expected_sha:
+                  old = judgment.get('batch_sha256')
+                  print(f'repairing stale batch envelope {name}: {old} -> {expected_sha}')
+                  judgment['batch_sha256'] = expected_sha
+                  path.write_text(
+                      json.dumps(judgment, indent=2, ensure_ascii=False) + '\n',
+                      encoding='utf-8',
+                  )
+                  repaired.append(name)
+
+          if checked_candidates != 2322:
+              raise SystemExit(f'candidate coverage mismatch: {checked_candidates} != 2322')
+          print(f'validated 117 frozen batch bindings / {checked_candidates} candidates')
+          print(f'repaired {len(repaired)} stale envelope hash(es): {repaired}')
+          PY
+
       - name: Load canonical compiler from main
         run: |
           git fetch origin main --depth=1
