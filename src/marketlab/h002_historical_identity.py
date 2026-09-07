@@ -8,7 +8,9 @@ from marketlab.events import FinancialEvent
 # BAJAJ-AUTO appears as BAJAJAUTO in some official financial XBRL instances.
 # LTIM changed its NSE trading symbol to LTM effective 27-Feb-2026.
 # ZOMATO changed its NSE name/symbol to ETERNAL in Apr-2025 with the same ISIN
-# INE758T01015. This is a rename, not a change in the economic company.
+# INE758T01015. These groups are pure identity-preserving aliases. Membership in
+# a group is symmetric so a point-in-time ticker can discover a filing published
+# after a later rename, or vice versa.
 _SYMBOL_EQUIVALENCE: dict[str, frozenset[str]] = {
     "BAJAJ-AUTO": frozenset({"BAJAJ-AUTO", "BAJAJAUTO"}),
     "ETERNAL": frozenset({"ETERNAL", "ZOMATO"}),
@@ -49,11 +51,19 @@ _NON_COMPARABLE_PREDECESSORS: frozenset[tuple[str, str]] = frozenset(
 )
 
 
+def _registered_symbol_group(symbol: str) -> frozenset[str]:
+    normalized = symbol.strip().upper()
+    matches = [group for group in _SYMBOL_EQUIVALENCE.values() if normalized in group]
+    if len(matches) > 1:
+        raise ValueError(f"historical symbol alias belongs to multiple groups: {normalized}")
+    return matches[0] if matches else frozenset({normalized})
+
+
 def historical_symbol_variants(canonical_symbol: str) -> tuple[str, ...]:
-    """Return the canonical ticker plus only explicitly registered rename aliases."""
+    """Return the ticker plus only explicitly registered identity-preserving aliases."""
 
     canonical = canonical_symbol.strip().upper()
-    variants = _SYMBOL_EQUIVALENCE.get(canonical, frozenset({canonical}))
+    variants = _registered_symbol_group(canonical)
     return tuple(sorted(variants, key=lambda item: (item != canonical, item)))
 
 
@@ -62,7 +72,7 @@ def symbols_equivalent(canonical_symbol: str, observed_symbol: str) -> bool:
     observed = observed_symbol.strip().upper()
     if canonical == observed:
         return True
-    return observed in _SYMBOL_EQUIVALENCE.get(canonical, frozenset())
+    return observed in _registered_symbol_group(canonical)
 
 
 def filing_identity_matches(canonical_symbol: str, event: FinancialEvent) -> bool:
