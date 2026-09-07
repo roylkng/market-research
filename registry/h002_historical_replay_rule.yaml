@@ -1,0 +1,61 @@
+id: H002-HR001
+hypothesis_id: H002
+status: FROZEN_HISTORICAL_REPLAY
+source_signal_rule_id: H002-R001
+source_execution_rule_id: H002-X001
+purpose: historical transport test of the frozen H002 signal without relabeling reconstructed evidence as prospective
+sha256: 8bd83f1d02b7a7a1a5add27399efb801560ef00c69434ad6e6239a9ae443b9a5
+
+evidence_mode:
+  actual_event_mode: HISTORICAL_RECONSTRUCTION
+  prospective_equivalence_claimed: false
+  live_capital: false
+
+freeze_policy:
+  target_period_end_offset_days: -24
+  freeze_clock: 23:59:59 Asia/Kolkata
+  baseline_revision_cutoff: strictly_at_or_before_freeze
+  corporate_action_cutoff: strictly_at_or_before_freeze
+  post_freeze_eps_basis_action: SKIP
+  price_reference: second NSE trading session strictly before target filing local date
+
+signal:
+  expectation_model: seasonal_same_quarter_basic_eps_v1
+  formula: ue = (actual_basic_eps - prior_year_same_quarter_basic_eps * corporate_action_factor) / price_day_minus_2
+  buckets:
+    positive: ue > 0
+    zero: ue == 0
+    negative: ue < 0
+  missing_input: NO_SIGNAL
+
+execution:
+  entry_delay_sessions: 2
+  holding_period_sessions: 20
+  entry_price: open
+  exit_price: close
+  benchmarks:
+    - nifty_50
+    - nifty_200_momentum_30
+
+target_quarters:
+  - id: FY26-Q4
+    period_end: 2026-03-31
+    baseline_period_end: 2025-03-31
+  - id: FY27-Q1
+    period_end: 2026-06-30
+    baseline_period_end: 2025-06-30
+
+cohort:
+  primary_transport_test: FY27-Q2-2026-09-06
+  primary_transport_test_path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  bias_label: SURVIVORSHIP_SENSITIVE_FIXED_2026_COHORT
+  point_in_time_universe_required_for_validation: true
+
+phase_separation:
+  phase_a: capture target/baseline filings, corporate actions, reference prices, and signals only
+  phase_b: after phase-a manifest is frozen, acquire entry/exit/benchmark outcomes and evaluate
+  outcome_data_forbidden_in_phase_a: true
+
+decision:
+  historical_replay_can_validate_live_capital: false
+  prospective_H002_R001_remains_authoritative: true
