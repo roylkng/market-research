@@ -1,0 +1,239 @@
+name: H002-HR003 point-in-time Phase B
+
+on:
+  push:
+    branches:
+      - work/h002-historical-replay-v1-20260907
+    paths:
+      - registry/h002_hr003_phase_a_freeze.yaml
+      - src/marketlab/h002_historical_pit_outcomes.py
+      - scripts/run_h002_historical_pit_phase_b_shard.py
+      - scripts/merge_h002_historical_pit_phase_b_shards.py
+      - scripts/evaluate_h002_hr003_actionability.py
+      - .github/workflows/h002-historical-pit-phase-b.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h002-hr003-point-in-time-phase-b
+  cancel-in-progress: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      phase_a_sha256: ${{ steps.freeze.outputs.phase_a_sha256 }}
+      signal_count: ${{ steps.freeze.outputs.signal_count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen HR003 Phase A and export identity
+        id: freeze
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          from marketlab.h002_historical_pit_outcomes import load_phase_a_manifest_pit
+
+          freeze = yaml.safe_load(Path('registry/h002_hr003_phase_a_freeze.yaml').read_text())
+          if freeze.get('freeze_id') != 'H002-HR003-PHASE-A-FREEZE-V1':
+              raise SystemExit('unexpected HR003 Phase-A freeze identity')
+          sha = str(freeze.get('phase_a_manifest_sha256') or '')
+          signal_count = int(freeze.get('signal_count', -1))
+          doc = load_phase_a_manifest_pit(
+              freeze['phase_a_manifest_path'],
+              expected_sha256=sha,
+          )
+          if int(doc['status_counts']['SIGNAL']) != signal_count:
+              raise SystemExit('frozen HR003 SIGNAL count does not match Phase A')
+          if doc['observation_count'] != int(freeze['observation_count']):
+              raise SystemExit('frozen HR003 observation count does not match Phase A')
+          with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as handle:
+              handle.write(f'phase_a_sha256={sha}\n')
+              handle.write(f'signal_count={signal_count}\n')
+          print('phase_a_sha256', sha)
+          print('signal_count', signal_count)
+          PY
+      - name: Verify unchanged pre-registered actionability gate
+        run: |
+          test "$(git hash-object registry/h002_hr002_outcome_gate.yaml)" = \
+            "319cf27151bd7bcd0057e0eb9cee6fbb545c08bc"
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+          gate = yaml.safe_load(Path('registry/h002_hr002_outcome_gate.yaml').read_text())
+          if gate.get('gate_id') != 'H002-HR002-OUTCOME-GATE-V1':
+              raise SystemExit('unexpected source actionability gate')
+          if gate.get('live_capital_allowed') is not False:
+              raise SystemExit('historical gate cannot authorize live capital')
+          PY
+      - name: Validate point-in-time Phase B code
+        run: |
+          ruff check \
+            src/marketlab/h002_historical_pit_outcomes.py \
+            scripts/run_h002_historical_pit_phase_b_shard.py \
+            scripts/merge_h002_historical_pit_phase_b_shards.py \
+            scripts/evaluate_h002_hr003_actionability.py
+          python -m py_compile \
+            src/marketlab/h002_historical_pit_outcomes.py \
+            scripts/run_h002_historical_pit_phase_b_shard.py \
+            scripts/merge_h002_historical_pit_phase_b_shards.py \
+            scripts/evaluate_h002_hr003_actionability.py
+          pytest -q tests/test_h002_historical_identity.py
+
+  shard:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Reconstruct survivorship-clean outcome shard
+        run: |
+          python scripts/run_h002_historical_pit_phase_b_shard.py \
+            --expected-phase-a-sha256 "${{ needs.prepare.outputs.phase_a_sha256 }}" \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count 8 \
+            --attempts 3 \
+            --timeout 20 \
+            --sleep 0.05 \
+            --store ".marketlab-historical-pit-phase-b-shard-${{ matrix.shard }}" \
+            --output "phase-b-shards/shard-${{ matrix.shard }}.json"
+      - name: Reject unresolved acquisition or benchmark errors
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          shard = os.environ['SHARD']
+          doc = json.loads(Path(f'phase-b-shards/shard-{shard}.json').read_text())
+          bad = [
+              record for record in doc['records']
+              if record.get('status') in {'ERROR', 'MISSING_BENCHMARK'}
+          ]
+          for record in bad:
+              eligibility = record.get('point_in_time_eligibility') or {}
+              print(
+                  eligibility.get('symbol_at_freeze'),
+                  record.get('symbol'),
+                  record.get('quarter_id'),
+                  record.get('status'),
+                  record.get('reason'),
+              )
+          if bad:
+              raise SystemExit(f'shard {shard} contains {len(bad)} unresolved records')
+          counts = {}
+          for record in doc['records']:
+              status = record.get('status')
+              counts[status] = counts.get(status, 0) + 1
+          print('status_counts', json.dumps(counts, sort_keys=True))
+          PY
+        env:
+          SHARD: ${{ matrix.shard }}
+      - name: Upload exact shard evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-hr003-phase-b-shard-${{ matrix.shard }}
+          path: |
+            phase-b-shards/shard-${{ matrix.shard }}.json
+            .marketlab-historical-pit-phase-b-shard-${{ matrix.shard }}
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 30
+
+  merge-and-gate:
+    needs: [prepare, shard]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h002-historical-replay-v1-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h002-hr003-phase-b-shard-*
+          path: downloaded-shards
+          merge-multiple: true
+      - name: Merge frozen point-in-time outcomes
+        run: |
+          python scripts/merge_h002_historical_pit_phase_b_shards.py \
+            --input-dir downloaded-shards \
+            --expected-phase-a-sha256 "${{ needs.prepare.outputs.phase_a_sha256 }}" \
+            --shard-count 8 \
+            --expected-record-count "${{ needs.prepare.outputs.signal_count }}" \
+            --output research/historical/h002/H002-HR003/phase-b/point-in-time-nifty200-outcomes.json
+      - name: Require zero unresolved merged errors
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          doc = json.loads(Path(
+              'research/historical/h002/H002-HR003/phase-b/point-in-time-nifty200-outcomes.json'
+          ).read_text())
+          status = doc['summary']['status_counts']
+          for forbidden in ('ERROR', 'MISSING_BENCHMARK'):
+              if int(status.get(forbidden, 0)):
+                  raise SystemExit(f'{forbidden}={status.get(forbidden)}')
+          print('manifest_sha256', doc['manifest_sha256'])
+          print('completed_count', doc['summary']['completed_count'])
+          print('status_counts', json.dumps(status, sort_keys=True))
+          for benchmark, result in doc['summary']['by_benchmark'].items():
+              print(benchmark, json.dumps(result, sort_keys=True))
+          PY
+      - name: Apply unchanged pre-registered actionability gate
+        run: |
+          python scripts/evaluate_h002_hr003_actionability.py \
+            --phase-b research/historical/h002/H002-HR003/phase-b/point-in-time-nifty200-outcomes.json \
+            --gate registry/h002_hr002_outcome_gate.yaml \
+            --output research/historical/h002/H002-HR003/phase-b/actionability-gate-v1.json
+          cat research/historical/h002/H002-HR003/phase-b/actionability-gate-v1.json
+      - name: Upload merged result and verdict
+        uses: actions/upload-artifact@v4
+        with:
+          name: h002-hr003-phase-b-result
+          path: |
+            research/historical/h002/H002-HR003/phase-b/point-in-time-nifty200-outcomes.json
+            research/historical/h002/H002-HR003/phase-b/actionability-gate-v1.json
+          retention-days: 30
+      - name: Commit frozen outcomes and verdict
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git pull --rebase origin work/h002-historical-replay-v1-20260907
+          git add \
+            research/historical/h002/H002-HR003/phase-b/point-in-time-nifty200-outcomes.json \
+            research/historical/h002/H002-HR003/phase-b/actionability-gate-v1.json
+          if git diff --cached --quiet; then
+            echo "HR003 Phase-B result already present"
+            exit 0
+          fi
+          git commit -m "H002-HR003: freeze point-in-time outcomes and actionability verdict"
+          git push origin HEAD:work/h002-historical-replay-v1-20260907
