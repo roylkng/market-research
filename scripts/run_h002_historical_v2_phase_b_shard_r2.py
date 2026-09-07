@@ -8,7 +8,7 @@ import run_h002_historical_v2_phase_b_shard as base
 from marketlab.h002_historical_identity import historical_symbol_variants
 from marketlab.marketdata import MarketDataMissingRow
 
-RESOLVER_VERSION = "H002-HR002-PHASE-B-PIT-TICKER-R2"
+RESOLVER_VERSION = "H002-HR002-PHASE-B-PIT-TICKER-R3"
 _COFORGE_FY26_Q3_SOURCE = (
     "https://nsearchives.nseindia.com/corporate/xbrl/"
     "INTEGRATED_FILING_INDAS_1608772_22012026114610_WEB.xml"
@@ -84,7 +84,7 @@ def _parse_with_registered_alias_fallback(
             series=series,
             expected_isin=expected_isin,
         )
-    except MarketDataMissingRow as first_error:
+    except MarketDataMissingRow:
         # Fallback is restricted to explicitly registered symbol equivalence.
         # Every successful row still has to pass the frozen ISIN check inside the
         # original parser, so this cannot drift into fuzzy ticker matching.
@@ -102,7 +102,7 @@ def _parse_with_registered_alias_fallback(
                 )
             except MarketDataMissingRow:
                 continue
-        raise first_error
+        raise
 
 
 def main() -> None:
