@@ -4,7 +4,8 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, time as clock_time, timedelta
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as clock_time
 from pathlib import Path
 from typing import Any, Literal
 from zoneinfo import ZoneInfo
@@ -198,10 +199,9 @@ def _integrated_rows(
             or row.get("creation_Date")
             or row.get("creationDate")
         )
-        try:
-            timestamp = _parse_exchange_timestamp(timestamp_value)
-        except Exception:
-            continue
+        # A matching filing with an invalid official timestamp must fail closed.
+        # Silently dropping it could alter which revision is treated as first/latest.
+        timestamp = _parse_exchange_timestamp(timestamp_value)
         matches.append(
             MixedHistoricalFilingCandidate(
                 symbol=wanted_symbol,
@@ -224,7 +224,12 @@ def _legacy_rows(
     period_end: str,
     accounting_basis: str,
 ) -> list[MixedHistoricalFilingCandidate]:
-    rows = payload if isinstance(payload, list) else payload.get("data") if isinstance(payload, dict) else None
+    if isinstance(payload, list):
+        rows = payload
+    elif isinstance(payload, dict):
+        rows = payload.get("data")
+    else:
+        rows = None
     if not isinstance(rows, list):
         raise HistoricalReplayV2Error("legacy financial-results payload does not contain a row list")
     wanted_symbol = symbol.strip().upper()
@@ -250,10 +255,9 @@ def _legacy_rows(
         source_url = str(row.get("xbrl") or "").strip()
         if not source_url:
             continue
-        try:
-            timestamp = _parse_exchange_timestamp(row.get("broadCastDate"))
-        except Exception:
-            continue
+        # Same fail-closed rule for the legacy feed. A candidate row with an
+        # unparseable broadcast time is not silently made invisible.
+        timestamp = _parse_exchange_timestamp(row.get("broadCastDate"))
         matches.append(
             MixedHistoricalFilingCandidate(
                 symbol=wanted_symbol,
