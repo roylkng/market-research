@@ -92,11 +92,8 @@ jobs:
               'REJECT_OTHER_EXPLICIT_NOTE': 'REJECT_OTHER_WITH_EXPLICIT_NOTE',
           }
           candidate_id_aliases = {
-              # Audited manual packaging typo: final hex character was truncated.
               '38686dcf4ada52d13243fc073de3d544f34b3f2fd90cec55cf2cc0662ace9f3':
                   '38686dcf4ada52d13243fc073de3d544f34b3f2fd90cec55cf2cc0662ace9f3f',
-              # Audited manual packaging typo. The review note is the low-single-digit
-              # price-growth candidate and is bound to this frozen candidate id.
               '98f913cc7491b4f16ecb72e7492b30f3cf7e1888d8a9cbb1a610820be86ceac':
                   '98f913cc7491b4f16ecb72e7b661c959e6c13630b913b7cc65ee48c5b53c2f84',
           }
@@ -115,6 +112,7 @@ jobs:
           reviewer_versions = set()
           source_docs = {}
           frozen_ids = []
+          applied_id_aliases = []
 
           for entry in manifest['batches']:
               name = entry['file']
@@ -128,7 +126,6 @@ jobs:
               raise SystemExit('frozen source candidate identity/coverage is not exactly 2322 unique ids')
           frozen_set = set(frozen_ids)
 
-          applied_id_aliases = []
           for path in sorted(judgments_dir.glob('batch-*.json')):
               doc = json.loads(path.read_text(encoding='utf-8'))
               reviewer = str(doc.get('reviewer_version') or '').strip()
@@ -196,6 +193,14 @@ jobs:
           print('repacked all 117 judgment documents in canonical frozen batch order')
           PY
 
+      - name: Anchor canonical semantic judgments before compilation
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
+          git diff --cached --check
+          git commit -m "H003-V001: anchor complete blind semantic judgments"
+
       - name: Load canonical compiler from main
         run: |
           git fetch origin main --depth=1
@@ -224,15 +229,13 @@ jobs:
           print(json.dumps({k: d[k] for k in ('compiled_batch_count','compiled_candidate_count','complete')}, indent=2))
           PY
 
-      - name: Commit completed review and remove importer
+      - name: Commit compiled review, remove importer, and push both commits
         run: |
-          git config user.name "marketlab-research-bot"
-          git config user.email "marketlab-research-bot@users.noreply.github.com"
           rm -f .github/h003-bz-part-*.b64 \
                 .github/h003-repair-p*.b64 \
                 .github/h003-staging-marker.txt \
                 .github/workflows/h003-v001-r4-import-missing.yml
           git add -A
           git diff --cached --check
-          git commit -m "H003-V001: complete blind semantic review"
+          git commit -m "H003-V001: compile complete blind semantic review"
           git push origin HEAD:work/h003-complete-review-20260907-import6
