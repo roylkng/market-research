@@ -1,4 +1,4 @@
-import marketlab.nifty200_history as nifty200_history
+from marketlab import nifty200_history
 
 
 REGISTRY = "registry/nifty200_historical_membership_v1.yaml"
