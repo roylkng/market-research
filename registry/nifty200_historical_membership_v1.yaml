@@ -1,0 +1,165 @@
+id: NIFTY200-HISTORICAL-MEMBERSHIP-V1
+status: FROZEN_HISTORICAL_RECONSTRUCTION
+index_id: NIFTY_200
+purpose: >-
+  Reconstruct point-in-time Nifty 200 membership for the six H002-HR002
+  historical freeze dates. The pinned Jan-2025 mirror is only a bridge anchor.
+  NSE Indices releases are authoritative for all membership changes.
+anchor:
+  date: '2025-01-29'
+  csv: research/historical/nifty200/anchors/2025-01-29-hf-mirror.csv
+  metadata: research/historical/nifty200/anchors/2025-01-29-hf-mirror.json
+  raw_sha256: 75d14aa0f48c146eed21e8f7303e0418254a0c85a77a8f1a7f5455eff2f6c92c
+  evidence_class: POINT_IN_TIME_MIRROR_BRIDGE
+freeze_dates:
+  - quarter_id: FY25-Q4
+    date: '2025-03-07'
+  - quarter_id: FY26-Q1
+    date: '2025-06-06'
+  - quarter_id: FY26-Q2
+    date: '2025-09-06'
+  - quarter_id: FY26-Q3
+    date: '2025-12-07'
+  - quarter_id: FY26-Q4
+    date: '2026-03-07'
+  - quarter_id: FY27-Q1
+    date: '2026-06-06'
+financial_classification:
+  anchor_rule: "Industry == Financial Services"
+  added_constituent_rule: explicit financial boolean frozen below
+  note: >-
+    The historical replay uses all regular non-financial Nifty 200 members.
+    No historical free-float ranking is inferred.
+events:
+  - effective_date: '2025-02-10'
+    kind: REMOVE_ANY
+    symbols: [DUMMYITC, ITCHOTELS]
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs06022025_1.pdf
+    note: Exclude the temporary ITC Hotels demerger constituent.
+
+  - effective_date: '2025-03-28'
+    kind: RECONSTITUTION
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs21022025.pdf
+    remove:
+      [BALKRISIND, DELHIVERY, FACT, IDBI, IOB, JSWINFRA, MRPL, NLCINDIA,
+       POONAWALLA, SUNDARMFIN, TATACHEM]
+    add:
+      - {symbol: BAJAJHFL, financial: true}
+      - {symbol: GLENMARK, financial: false}
+      - {symbol: HYUNDAI, financial: false}
+      - {symbol: MOTILALOFS, financial: true}
+      - {symbol: NATIONALUM, financial: false}
+      - {symbol: NTPCGREEN, financial: false}
+      - {symbol: OLAELEC, financial: false}
+      - {symbol: PREMIERENE, financial: false}
+      - {symbol: SWIGGY, financial: false}
+      - {symbol: VMM, financial: false}
+      - {symbol: WAAREEENER, financial: false}
+
+  - effective_date: '2025-04-07'
+    kind: ADD_DUMMY
+    symbol: DUMMYSIEMS
+    parent_symbol: SIEMENS
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs02042025.pdf
+
+  - effective_date: '2025-04-09'
+    kind: RENAME
+    from: ZOMATO
+    to: ETERNAL
+    source_url: https://nsearchives.nseindia.com/content/circulars/CML67420.pdf
+
+  - effective_date: '2025-05-22'
+    kind: ADD_DUMMY
+    symbol: DUMMYABFRL
+    parent_symbol: ABFRL
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs19052025.pdf
+
+  - effective_date: '2025-06-27'
+    kind: REMOVE_GROUPS
+    groups:
+      - [DUMMYSIEMS, ENRIN]
+      - [DUMMYABFRL, ABLBL]
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs25062025_2.pdf
+    note: Listed demerged entities are excluded after their dummy periods.
+
+  - effective_date: '2025-09-30'
+    kind: RECONSTITUTION
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs22082025.pdf
+    remove:
+      [ABFRL, APOLLOTYRE, BANDHANBNK, MAHABANK, ESCORTS, ICICIPRULI,
+       OLAELEC, PETRONET, SJVN]
+    add:
+      - {symbol: 360ONE, financial: true}
+      - {symbol: BLUESTARCO, financial: false}
+      - {symbol: COROMANDEL, financial: false}
+      - {symbol: FORTIS, financial: false}
+      - {symbol: GODFRYPHLP, financial: false}
+      - {symbol: POWERINDIA, financial: false}
+      - {symbol: ITCHOTELS, financial: false}
+      - {symbol: KEI, financial: false}
+      - {symbol: ENRIN, financial: false}
+
+  - effective_date: '2025-10-14'
+    kind: ADD_DUMMY
+    symbol: DUMMYTATAM
+    parent_symbol: TATAMOTORS
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs07102025.pdf
+
+  - effective_date: '2025-10-24'
+    kind: RENAME
+    from: TATAMOTORS
+    to: TMPV
+    source_url: https://nsearchives.nseindia.com/content/circulars/FAOP70882.pdf
+
+  - effective_date: '2025-11-17'
+    kind: REMOVE_ANY
+    symbols: [DUMMYTATAM, TMCV]
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs13112025.pdf
+
+  - effective_date: '2025-12-05'
+    kind: ADD_DUMMY
+    symbol: DUMMYHDLVR
+    parent_symbol: HINDUNILVR
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs28112025.pdf
+
+  - effective_date: '2026-02-24'
+    kind: REMOVE_ANY
+    symbols: [DUMMYHDLVR, KWIL]
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs20022026_1.pdf
+
+  - effective_date: '2026-02-27'
+    kind: RENAME
+    from: LTIM
+    to: LTM
+    source_url: https://nsearchives.nseindia.com/content/circulars/FAOP72935.pdf
+
+  - effective_date: '2026-03-30'
+    kind: RECONSTITUTION
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs23022026.pdf
+    remove:
+      [ACC, BAJAJHFL, BHARTIHEXA, IGL, IRB, ITCHOTELS, LICI, NTPCGREEN,
+       SONACOMS, TATATECH, TORNTPOWER]
+    add:
+      - {symbol: GROWW, financial: true}
+      - {symbol: GVT&D, financial: false}
+      - {symbol: ICICIAMC, financial: true}
+      - {symbol: LAURUSLABS, financial: false}
+      - {symbol: LENSKART, financial: false}
+      - {symbol: LGEINDIA, financial: false}
+      - {symbol: MCX, financial: true}
+      - {symbol: RADICO, financial: false}
+      - {symbol: TATACAP, financial: true}
+      - {symbol: TATAINVEST, financial: true}
+      - {symbol: TMCV, financial: false}
+
+  - effective_date: '2026-04-30'
+    kind: ADD_DUMMIES
+    symbols: [DUMMYVEDL1, DUMMYVEDL2, DUMMYVEDL3, DUMMYVEDL4]
+    parent_symbol: VEDL
+    source_url: https://www.niftyindices.com/Press_Release/ind_prs23042026.pdf
+
+integrity:
+  expected_regular_constituents_at_each_freeze: 200
+  dummies_are_investable: false
+  live_capital: false
+  prospective_equivalence_claimed: false
