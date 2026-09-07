@@ -9,7 +9,7 @@ on:
       - src/marketlab/h002_historical_v2.py
       - src/marketlab/h002_historical_calendar.py
       - src/marketlab/h002_historical_identity.py
-      - scripts/run_h002_historical_replay_v2.py
+      - scripts/run_h002_historical_replay_v2r2.py
       - .github/workflows/h002-historical-v2-phase-a.yml
   workflow_dispatch:
 
@@ -40,7 +40,7 @@ jobs:
             src/marketlab/h002_historical_v2.py \
             src/marketlab/h002_historical_calendar.py \
             src/marketlab/h002_historical_identity.py \
-            scripts/run_h002_historical_replay_v2.py \
+            scripts/run_h002_historical_replay_v2r2.py \
             tests/test_h002_historical_v2.py \
             tests/test_h002_historical_calendar.py
       - name: Test HR002 contracts
@@ -65,7 +65,7 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Run five-company 30-observation pilot
         run: |
-          python scripts/run_h002_historical_replay_v2.py \
+          python scripts/run_h002_historical_replay_v2r2.py \
             --limit 5 \
             --attempts 5 \
             --timeout 25 \
@@ -121,7 +121,7 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Capture all 600 pre-registered historical signals
         run: |
-          python scripts/run_h002_historical_replay_v2.py \
+          python scripts/run_h002_historical_replay_v2r2.py \
             --attempts 5 \
             --timeout 25 \
             --sleep 0.05 \
@@ -177,6 +177,7 @@ jobs:
         run: |
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git pull --rebase origin work/h002-historical-replay-v1-20260907
           git add research/historical/h002/H002-HR002/phase-a/fixed-u001-six-quarter-signals.json
           if git diff --cached --quiet; then
             echo "HR002 Phase-A manifest unchanged"
