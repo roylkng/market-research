@@ -1,0 +1,143 @@
+name: H003 freeze complete company ledger
+
+on:
+  push:
+    branches:
+      - work/h003-complete-review-20260907-import6
+    paths:
+      - .github/workflows/h003-freeze-company-ledger.yml
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/h003-complete-review-20260907-import6
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Recover frozen candidate corpus and review rule
+        run: |
+          git fetch origin main --depth=1
+          git fetch origin 2682d91a2be0dc3b69876ef397791515ff9146f2 --depth=1
+          git show 2682d91a2be0dc3b69876ef397791515ff9146f2:research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json > /tmp/h003-candidate-report.json
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          import yaml
+
+          files = subprocess.check_output(
+              ['git', 'ls-tree', '-r', '--name-only', 'origin/main'], text=True
+          ).splitlines()
+          matches = []
+          for path in files:
+              if not path.endswith(('.yaml', '.yml', '.json')):
+                  continue
+              try:
+                  raw = subprocess.check_output(['git', 'show', f'origin/main:{path}'])
+                  doc = yaml.safe_load(raw)
+              except Exception:
+                  continue
+              if isinstance(doc, dict) and doc.get('id') == 'H003-V001':
+                  matches.append((path, raw))
+          if len(matches) != 1:
+              raise SystemExit(f'expected exactly one H003-V001 rule, found {[m[0] for m in matches]}')
+          Path('/tmp/h003-review-rule.yaml').write_bytes(matches[0][1])
+          print('review_rule=' + matches[0][0])
+          PY
+      - name: Freeze complete H003 review ledger
+        run: |
+          git show origin/main:scripts/freeze_h003_review.py > /tmp/freeze_h003_review.py
+          OUT=research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/final-ledger
+          mkdir -p "$OUT"
+          python /tmp/freeze_h003_review.py \
+            --candidate-report /tmp/h003-candidate-report.json \
+            --review-rule /tmp/h003-review-rule.yaml \
+            --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
+            --mechanical-decisions research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/mechanical-decisions.json \
+            --semantic-decisions-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
+            --ledger-out "$OUT/review-ledger.json" \
+            --summary-out "$OUT/summary.json"
+      - name: Build company-level H003 features
+        run: |
+          python - <<'PY'
+          import hashlib, json, re
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/final-ledger')
+          ledger = json.loads((root/'review-ledger.json').read_text())
+          claims = ledger['accepted_claims']
+          by = defaultdict(list)
+          for c in claims:
+              by[c['symbol']].append(c)
+
+          def bucket(c):
+              text = ' '.join(str(c.get(k) or '') for k in ('claim_type','metric','normalized_claim')).lower()
+              tags = []
+              if any(x in text for x in ('revenue','sales','growth','volume','market_share','market share','production')): tags.append('growth')
+              if any(x in text for x in ('margin','ebitda','profit','breakeven','cost','savings')): tags.append('profitability')
+              if any(x in text for x in ('commission','launch','capacity','project','installation','bed','outlet','city')): tags.append('execution')
+              if any(x in text for x in ('debt','leverage','cash flow','cash_flow','free cash','working capital')): tags.append('balance_sheet')
+              if 'capex' in text or 'capital expenditure' in text: tags.append('capital_intensity')
+              return tags
+
+          def horizon_class(c):
+              h = f"{c.get('target_deadline') or ''} {c.get('target_horizon') or ''}".lower()
+              if re.search(r'\b(q[1-4]|h[12]|this quarter|next quarter|this year|current year|next year|fy2[5-8]|202[5-8]|\d+\s*(month|months))\b', h):
+                  return 'near_medium'
+              if re.search(r'203\d|3[- ]?5 years|4[- ]?5 years|5 years|decade', h):
+                  return 'long'
+              return 'other'
+
+          rows = []
+          grouped = {}
+          for sym in sorted(by):
+              cs = by[sym]
+              buckets = Counter(t for c in cs for t in bucket(c))
+              horizons = Counter(horizon_class(c) for c in cs)
+              source_dates = {c.get('source_date') for c in cs}
+              source_urls = {c.get('source_url') for c in cs}
+              claim_types = Counter(c['claim_type'] for c in cs)
+              metrics = Counter(c['metric'] for c in cs)
+              rows.append({
+                  'symbol': sym,
+                  'accepted_claim_count': len(cs),
+                  'distinct_claim_type_count': len(claim_types),
+                  'distinct_metric_count': len(metrics),
+                  'distinct_source_date_count': len(source_dates),
+                  'distinct_source_count': len(source_urls),
+                  'growth_claim_count': buckets['growth'],
+                  'profitability_claim_count': buckets['profitability'],
+                  'execution_claim_count': buckets['execution'],
+                  'balance_sheet_claim_count': buckets['balance_sheet'],
+                  'capital_intensity_claim_count': buckets['capital_intensity'],
+                  'near_medium_claim_count': horizons['near_medium'],
+                  'long_horizon_claim_count': horizons['long'],
+                  'claim_type_counts': dict(sorted(claim_types.items())),
+                  'metric_counts': dict(sorted(metrics.items())),
+              })
+              grouped[sym] = cs
+          rows.sort(key=lambda r: (-r['accepted_claim_count'], -r['distinct_claim_type_count'], r['symbol']))
+          payload = {'schema_version':1, 'company_count_with_accepted_claims':len(rows), 'accepted_claim_count':len(claims), 'companies':rows}
+          raw = json.dumps(payload, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode()
+          payload['sha256'] = hashlib.sha256(raw).hexdigest()
+          (root/'company-summary.json').write_text(json.dumps(payload, indent=2, sort_keys=True)+'\n')
+          (root/'company-claims.json').write_text(json.dumps(grouped, indent=2, sort_keys=True)+'\n')
+          print(json.dumps({'companies':len(rows),'claims':len(claims),'top':rows[:15]}, indent=2))
+          PY
+      - name: Commit frozen ledger
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          rm -f .github/workflows/h003-freeze-company-ledger.yml
+          git add -A
+          git diff --cached --check
+          git commit -m "H003-V001: freeze complete management-claim ledger"
+          git push origin HEAD:work/h003-complete-review-20260907-import6
