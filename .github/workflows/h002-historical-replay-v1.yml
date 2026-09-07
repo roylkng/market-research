@@ -5,6 +5,7 @@ on:
     branches:
       - work/h002-historical-replay-v1-20260907
     paths:
+      - pyproject.toml
       - registry/h002_historical_replay_rule.yaml
       - src/marketlab/h002_historical.py
       - scripts/run_h002_historical_replay.py
@@ -75,7 +76,6 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
-          import sys
           from pathlib import Path
 
           path = Path('research/historical/h002/H002-HR001/phase-a/fixed-u001-transport-signals.json')
