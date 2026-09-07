@@ -1,4 +1,3 @@
-# retry after part05 repair
 name: H003-V001 r4 import missing semantic judgments
 
 on:
@@ -23,9 +22,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Verify and import audited batches 0016-0091
+
+      - name: Reconstruct and verify audited batches 0016-0091
+        shell: bash
         run: |
-          test "$(ls .github/h003-bz-part-*.b64 | wc -l)" -eq 9
+          set -euo pipefail
           declare -A expected
           expected[00]=6b726b2c8d37a9353992b88174e53cadc6be33bf635319717ec91f7d2dc4259d
           expected[01]=426473c29e8e2f0ebdc6d0b770b06c4ed3bf1f1459d695fbcc99a0243041000e
@@ -36,12 +37,28 @@ jobs:
           expected[06]=fa3f86712fb147abd21b37e7634972a4b2d56beee42f2f5b689b089626a437fa
           expected[07]=5718107f61ea7ac3b4e44a02079bbbf3e824842538bd8a6cd55969ce4e666292
           expected[08]=efdae0ffe71207e91dc8ed03d3b42e3037574a2fc99f76f1653b37863d4fd6a8
+
           rm -f /tmp/h003-missing.b64
           for n in 00 01 02 03 04 05 06 07 08; do
             limit=14000
             test "$n" = 08 && limit=11736
             tmp="/tmp/h003-${n}.canon"
-            tr -d ' \t\r\n' < ".github/h003-bz-part-${n}.b64" | head -c "$limit" > "$tmp"
+            case "$n" in
+              02|05|06|07)
+                test "$(find .github -maxdepth 1 -name "h003-repair-p${n}-*.b64" | wc -l)" -eq 4
+                for sub in 0 1 2 3; do
+                  test "$(wc -c < ".github/h003-repair-p${n}-${sub}.b64")" -eq 3500
+                done
+                cat .github/h003-repair-p${n}-0.b64 \
+                    .github/h003-repair-p${n}-1.b64 \
+                    .github/h003-repair-p${n}-2.b64 \
+                    .github/h003-repair-p${n}-3.b64 \
+                  | tr -d ' \t\r\n' > "$tmp"
+                ;;
+              *)
+                tr -d ' \t\r\n' < ".github/h003-bz-part-${n}.b64" > "$tmp"
+                ;;
+            esac
             actual="$(sha256sum "$tmp" | awk '{print $1}')"
             bytes="$(wc -c < "$tmp")"
             echo "part=${n} bytes=${bytes} sha256=${actual} expected=${expected[$n]}"
@@ -49,17 +66,22 @@ jobs:
             test "$actual" = "${expected[$n]}"
             cat "$tmp" >> /tmp/h003-missing.b64
           done
+
           test "$(wc -c < /tmp/h003-missing.b64)" -eq 123736
           base64 --decode /tmp/h003-missing.b64 > /tmp/h003-missing.tar.bz2
           echo 'b27d4d38f31f82ebbe6765685d164ec452f0cac04511d9d78435b5a2cbead2ad  /tmp/h003-missing.tar.bz2' | sha256sum -c -
+
           mkdir -p research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
-          tar -xjf /tmp/h003-missing.tar.bz2 -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
+          tar -xjf /tmp/h003-missing.tar.bz2 \
+            -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
           test "$(find research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments -maxdepth 1 -name 'batch-*.json' | wc -l)" -eq 117
+
       - name: Normalize known reason-code aliases
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+
           root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments')
           aliases = {
               'REJECT_DUPLICATE': 'REJECT_DUPLICATE_OR_RESTATEMENT',
@@ -79,10 +101,12 @@ jobs:
                   changed += 1
           print(f'normalized reason codes in {changed} file(s)')
           PY
+
       - name: Load canonical compiler from main
         run: |
           git fetch origin main --depth=1
           git show origin/main:scripts/compile_h003_review_judgments.py > /tmp/compile_h003_review_judgments.py
+
       - name: Compile complete blind review
         run: |
           python /tmp/compile_h003_review_judgments.py \
@@ -92,11 +116,13 @@ jobs:
             --judgments-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments \
             --out-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
             --repo-root .
+
       - name: Prove completeness
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+
           p = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions/manifest.json')
           d = json.loads(p.read_text(encoding='utf-8'))
           assert d['compiled_batch_count'] == 117, d
@@ -104,11 +130,15 @@ jobs:
           assert d['complete'] is True, d
           print(json.dumps({k: d[k] for k in ('compiled_batch_count','compiled_candidate_count','complete')}, indent=2))
           PY
+
       - name: Commit completed review and remove importer
         run: |
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          rm -f .github/h003-bz-part-*.b64 .github/h003-staging-marker.txt .github/workflows/h003-v001-r4-import-missing.yml
+          rm -f .github/h003-bz-part-*.b64 \
+                .github/h003-repair-p*.b64 \
+                .github/h003-staging-marker.txt \
+                .github/workflows/h003-v001-r4-import-missing.yml
           git add -A
           git diff --cached --check
           git commit -m "H003-V001: complete blind semantic review"
