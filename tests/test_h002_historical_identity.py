@@ -5,6 +5,7 @@ from pathlib import Path
 
 from marketlab.events import HISTORICAL_RECONSTRUCTION, parse_indas_html, sha256_bytes
 from marketlab.h002_historical_identity import (
+    historical_symbol_variants,
     is_non_comparable_predecessor,
     normalize_symbol_for_h002,
     symbols_equivalent,
@@ -30,10 +31,22 @@ def _event():
 
 def test_only_registered_symbol_aliases_are_equivalent():
     assert symbols_equivalent("BAJAJ-AUTO", "BAJAJAUTO")
+    assert symbols_equivalent("BAJAJAUTO", "BAJAJ-AUTO")
     assert symbols_equivalent("LTM", "LTIM")
+    assert symbols_equivalent("LTIM", "LTM")
+    assert symbols_equivalent("ETERNAL", "ZOMATO")
+    assert symbols_equivalent("ZOMATO", "ETERNAL")
     assert symbols_equivalent("INFY", "INFY")
     assert not symbols_equivalent("TMPV", "TATAMOTORS")
+    assert not symbols_equivalent("TATAMOTORS", "TMPV")
     assert not symbols_equivalent("M&M", "MM")
+
+
+def test_point_in_time_ticker_can_discover_post_rename_filing_alias():
+    assert historical_symbol_variants("ZOMATO") == ("ZOMATO", "ETERNAL")
+    assert historical_symbol_variants("ETERNAL") == ("ETERNAL", "ZOMATO")
+    assert historical_symbol_variants("LTIM") == ("LTIM", "LTM")
+    assert historical_symbol_variants("LTM") == ("LTM", "LTIM")
 
 
 def test_tata_motors_predecessor_is_explicitly_non_comparable():
