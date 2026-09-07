@@ -17,6 +17,16 @@ _SYMBOL_EQUIVALENCE: dict[str, frozenset[str]] = {
     "LTM": frozenset({"LTM", "LTIM"}),
 }
 
+# Retrieval-only aliases are not economic identity equivalence. They exist only
+# because today's NSE discovery endpoint may stop answering a retired ticker even
+# though it still returns that ticker's historical filings when queried through a
+# successor/current endpoint. Candidate selection must still require the exact
+# point-in-time filing ticker. In particular, TATAMOTORS and TMPV are NOT treated
+# as comparable companies across the demerger/restructure.
+_DISCOVERY_QUERY_ALIASES: dict[str, tuple[str, ...]] = {
+    "TATAMOTORS": ("TMPV",),
+}
+
 # Exact official-source defects observed in retained NSE XBRL evidence. These are
 # not aliases and must never broaden discovery. They only permit an already
 # selected filing to remain attributable to its canonical company when the XBRL
@@ -34,11 +44,19 @@ _KNOWN_FILING_SYMBOL_DEFECTS: frozenset[tuple[str, str, str, str]] = frozenset(
 )
 
 # Exact historical ISIN inconsistencies observed across official NSE sources.
-# This registry is used only after an exact canonical ticker match. It does not
-# imply that EPS/share bases are comparable across ISIN changes; the separate
-# corporate-action and baseline/target checks remain authoritative for that.
+# These are source-record inconsistencies, not broad ISIN aliases. They are used
+# only after an exact/registered ticker identity match. Separate corporate-action
+# and baseline/target checks remain authoritative for economic share-basis
+# comparability.
 _HISTORICAL_ISIN_EQUIVALENCE: dict[str, frozenset[str]] = {
     "PERSISTENT": frozenset({"INE262H01016", "INE262H01021"}),
+    # NSE July-2025 OBEROIRLTY financial XBRL transposes the leading 093 to 903;
+    # older/current exchange security records use INE093I01010.
+    "OBEROIRLTY": frozenset({"INE093I01010", "INE903I01010"}),
+    # TATATECH 2025 financial XBRL uses ...01017 while contemporaneous NSE prior
+    # intimation and bhavcopy identity use ...01025. No share-basis transformation
+    # is inferred from this source inconsistency.
+    "TATATECH": frozenset({"INE142M01017", "INE142M01025"}),
 }
 
 # This lineage is not a rename. TMPV emerged from the Tata Motors demerger/merger
@@ -65,6 +83,18 @@ def historical_symbol_variants(canonical_symbol: str) -> tuple[str, ...]:
     canonical = canonical_symbol.strip().upper()
     variants = _registered_symbol_group(canonical)
     return tuple(sorted(variants, key=lambda item: (item != canonical, item)))
+
+
+def historical_discovery_query_symbols(point_in_time_symbol: str) -> tuple[str, ...]:
+    """Return retrieval queries without widening economic identity equivalence."""
+
+    symbol = point_in_time_symbol.strip().upper()
+    ordered = list(historical_symbol_variants(symbol))
+    for alias in _DISCOVERY_QUERY_ALIASES.get(symbol, ()):
+        normalized = alias.strip().upper()
+        if normalized not in ordered:
+            ordered.append(normalized)
+    return tuple(ordered)
 
 
 def symbols_equivalent(canonical_symbol: str, observed_symbol: str) -> bool:
