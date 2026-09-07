@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 import yaml
 
-from marketlab.events import HISTORICAL_RECONSTRUCTION, SourceProvenance, parse_indas_html, sha256_bytes
+from marketlab.events import (
+    HISTORICAL_RECONSTRUCTION,
+    SourceProvenance,
+    parse_indas_html,
+    sha256_bytes,
+)
 from marketlab.h002 import PriceReference, build_seasonal_expectation
 from marketlab.h002_historical import (
     HistoricalReplayError,
@@ -61,9 +65,9 @@ def test_historical_replay_rule_hash_is_valid():
     assert validate_historical_replay_rule(document) == document["sha256"]
 
 
-def test_historical_freeze_matches_live_offset_convention():
-    assert historical_freeze_at("2026-06-30") == "2026-06-06T18:29:59Z"
-    assert historical_freeze_at("2026-03-31") == "2026-03-07T18:29:59Z"
+def test_historical_freeze_matches_live_anchor_convention():
+    assert historical_freeze_at("2026-06-30") == "2026-06-06T15:11:38.303000Z"
+    assert historical_freeze_at("2026-03-31") == "2026-03-07T15:11:38.303000Z"
 
 
 def test_pair_selection_uses_first_target_and_latest_baseline_available_at_freeze():
@@ -116,7 +120,7 @@ def test_pair_selection_uses_first_target_and_latest_baseline_available_at_freez
         symbol="ABC",
         target_period_end="2026-06-30",
         baseline_period_end="2025-06-30",
-        freeze_at_utc="2026-06-06T18:29:59Z",
+        freeze_at_utc=historical_freeze_at("2026-06-30"),
     )
     assert pair is not None
     assert pair.accounting_basis == "Consolidated"
@@ -158,7 +162,7 @@ def test_pair_selection_falls_back_to_standalone_only_when_no_consolidated_pair_
         symbol="ABC",
         target_period_end="2026-06-30",
         baseline_period_end="2025-06-30",
-        freeze_at_utc="2026-06-06T18:29:59Z",
+        freeze_at_utc=historical_freeze_at("2026-06-30"),
     )
     assert pair is not None
     assert pair.accounting_basis == "Standalone"
