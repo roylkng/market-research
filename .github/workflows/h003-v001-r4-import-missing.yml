@@ -25,17 +25,34 @@ jobs:
       - name: Verify and import audited batches 0016-0091
         run: |
           test "$(ls .github/h003-bz-part-*.b64 | wc -l)" -eq 9
+          declare -A expected
+          expected[00]=6b726b2c8d37a9353992b88174e53cadc6be33bf635319717ec91f7d2dc4259d
+          expected[01]=426473c29e8e2f0ebdc6d0b770b06c4ed3bf1f1459d695fbcc99a0243041000e
+          expected[02]=0720f307c118c3f58297107f9051b092d021f1a9ce2f4d5883672ed3dcca501c
+          expected[03]=1349a10b22d71f661a6e252ada21298cbefd44a58ce79607240e7d384e10329d
+          expected[04]=cdac34620e6e655afa93ef5ce5da7951e19ef16fa6218d63a292323c969d3328
+          expected[05]=5897490ab875cd3240cefc04f2a66948a15fb1908866b3152f7db68f6c7ddac2
+          expected[06]=fa3f86712fb147abd21b37e7634972a4b2d56beee42f2f5b689b089626a437fa
+          expected[07]=5718107f61ea7ac3b4e44a02079bbbf3e824842538bd8a6cd55969ce4e666292
+          expected[08]=efdae0ffe71207e91dc8ed03d3b42e3037574a2fc99f76f1653b37863d4fd6a8
           rm -f /tmp/h003-missing.b64
-          for n in 00 01 02 03 04 05 06 07; do
-            tr -d ' \t\r\n' < ".github/h003-bz-part-${n}.b64" | head -c 14000 >> /tmp/h003-missing.b64
+          for n in 00 01 02 03 04 05 06 07 08; do
+            limit=14000
+            test "$n" = 08 && limit=11736
+            tmp="/tmp/h003-${n}.canon"
+            tr -d ' \t\r\n' < ".github/h003-bz-part-${n}.b64" | head -c "$limit" > "$tmp"
+            actual="$(sha256sum "$tmp" | awk '{print $1}')"
+            bytes="$(wc -c < "$tmp")"
+            echo "part=${n} bytes=${bytes} sha256=${actual} expected=${expected[$n]}"
+            test "$bytes" -eq "$limit"
+            test "$actual" = "${expected[$n]}"
+            cat "$tmp" >> /tmp/h003-missing.b64
           done
-          tr -d ' \t\r\n' < .github/h003-bz-part-08.b64 | head -c 11736 >> /tmp/h003-missing.b64
           test "$(wc -c < /tmp/h003-missing.b64)" -eq 123736
           base64 --decode /tmp/h003-missing.b64 > /tmp/h003-missing.tar.bz2
           echo 'b27d4d38f31f82ebbe6765685d164ec452f0cac04511d9d78435b5a2cbead2ad  /tmp/h003-missing.tar.bz2' | sha256sum -c -
           mkdir -p research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
-          tar -xjf /tmp/h003-missing.tar.bz2 \
-            -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
+          tar -xjf /tmp/h003-missing.tar.bz2 -C research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
           test "$(find research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments -maxdepth 1 -name 'batch-*.json' | wc -l)" -eq 117
       - name: Normalize known reason-code aliases
         run: |
