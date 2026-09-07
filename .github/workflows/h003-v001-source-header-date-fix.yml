@@ -1,0 +1,206 @@
+name: H003-V001 source-header date redaction fix
+
+on:
+  push:
+    branches:
+      - fix/h003-v001-source-header-date-redaction
+    paths:
+      - .github/workflows/h003-v001-source-header-date-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/h003-v001-source-header-date-redaction
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Patch source-header date redaction and add regressions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/build_h003_review_package.py')
+          text = path.read_text(encoding='utf-8')
+
+          anchor = '''def _load_company_names(path: Path) -> dict[str, str]:\n'''
+          helper = r'''_STANDALONE_SOURCE_DATE_PATTERNS = (
+    re.compile(r"^(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}$", re.IGNORECASE),
+    re.compile(r"^\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?),?\s+\d{4}$", re.IGNORECASE),
+    re.compile(r"^\d{1,2}[-/.](?:\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/.]\d{2,4}$", re.IGNORECASE),
+    re.compile(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$"),
+)
+
+
+def _page_header_date_redaction_terms(page_lines: tuple[str, ...]) -> tuple[str, ...]:
+    """Return standalone date strings that appear in the PDF page header.
+
+    H003-V001 forbids source publication dates. Transcript/conference-call PDFs
+    can print their own source date in page headers even when it differs from
+    the NSE attachment timestamp. Restrict discovery to the first six non-empty
+    lines and exact standalone date lines so operative dates in management body
+    text are not generically stripped.
+    """
+
+    header_lines = [line.strip() for line in page_lines if line.strip()][:6]
+    terms = {
+        line
+        for line in header_lines
+        if any(pattern.fullmatch(line) for pattern in _STANDALONE_SOURCE_DATE_PATTERNS)
+    }
+    return tuple(sorted(terms, key=len, reverse=True))
+
+
+'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'unexpected helper anchor count: {text.count(anchor)}')
+          text = text.replace(anchor, helper + anchor)
+
+          old = '''            payload = build_blind_review_payload(\n                candidate,\n                page_lines=page_lines,\n                redaction_terms=redaction_terms,\n                context_radius_lines=3,\n            )\n'''
+          new = '''            candidate_redaction_terms = tuple(\n                {\n                    *redaction_terms,\n                    *_page_header_date_redaction_terms(page_lines),\n                }\n            )\n            payload = build_blind_review_payload(\n                candidate,\n                page_lines=page_lines,\n                redaction_terms=candidate_redaction_terms,\n                context_radius_lines=3,\n            )\n'''
+          if text.count(old) != 1:
+              raise SystemExit(f'unexpected payload anchor count: {text.count(old)}')
+          text = text.replace(old, new)
+          path.write_text(text, encoding='utf-8')
+
+          test_path = Path('tests/test_h003_review_source_header_date_redaction.py')
+          test_path.write_text(r'''from __future__ import annotations
+
+import hashlib
+import importlib.util
+from pathlib import Path
+
+from marketlab.h003_candidates import (
+    CANDIDATE_VERSION,
+    EXTRACTION_RULE_ID,
+    EXTRACTION_RULE_SHA256,
+    PARSER_VERSION,
+    ClaimCandidate,
+    ExtractedPage,
+)
+from marketlab.h003_review import CandidateCorpus
+
+
+def _module():
+    path = Path("scripts/build_h003_review_package.py")
+    spec = importlib.util.spec_from_file_location("build_h003_review_package", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _candidate(raw_sha256: str) -> ClaimCandidate:
+    return ClaimCandidate(
+        schema_version=2,
+        candidate_id="candidate-header-date",
+        rule_id=EXTRACTION_RULE_ID,
+        rule_sha256=EXTRACTION_RULE_SHA256,
+        candidate_version=CANDIDATE_VERSION,
+        source_id="source-header-date",
+        symbol="TEST",
+        exchange_published_at_utc="2026-04-17T10:00:00Z",
+        attachment_url="https://nsearchives.nseindia.com/test.pdf",
+        raw_sha256=raw_sha256,
+        parser_version=PARSER_VERSION,
+        page_number=5,
+        line_start=4,
+        line_end=4,
+        excerpt="We expect capacity of 10 MW by April 30, 2027.",
+        future_markers=("we expect",),
+        deadline_markers=("by",),
+        quantitative_tokens=("10 MW", "April 30, 2027"),
+        domain_markers=("capacity",),
+        disposition="UNREVIEWED",
+        disposition_reason=None,
+    )
+
+
+def test_page_header_date_terms_only_take_standalone_dates_from_header():
+    module = _module()
+    lines = (
+        "Test Limited",
+        "April 16, 2026",
+        "Page 5 of 13",
+        "We expect capacity of 10 MW by April 30, 2027.",
+        "Supporting body text",
+        "May 1, 2027",
+        "More body text",
+    )
+    terms = module._page_header_date_redaction_terms(lines)
+    assert terms == ("April 16, 2026",)
+    assert "April 30, 2027" not in terms
+    assert "May 1, 2027" not in terms
+
+
+def test_build_package_redacts_transcript_header_date_but_preserves_target_date(monkeypatch):
+    module = _module()
+    raw = b"frozen transcript source-header date bytes"
+    raw_sha256 = hashlib.sha256(raw).hexdigest()
+    candidate = _candidate(raw_sha256)
+    corpus = CandidateCorpus(
+        report_sha256="report",
+        candidate_rule_id=EXTRACTION_RULE_ID,
+        candidate_rule_sha256=EXTRACTION_RULE_SHA256,
+        source_bundle_sha256="bundle",
+        cohort_id="cohort",
+        candidate_count=1,
+        candidates_by_id={candidate.candidate_id: candidate},
+    )
+    page = ExtractedPage(
+        page_number=5,
+        lines=(
+            "Test Limited",
+            "April 16, 2026",
+            "Page 5 of 13",
+            "We expect capacity of 10 MW by April 30, 2027.",
+            "Supporting body text.",
+        ),
+    )
+    monkeypatch.setattr(
+        module,
+        "_source_pdf_bytes",
+        lambda **kwargs: (raw, "candidate-store:test"),
+    )
+    monkeypatch.setattr(module, "extract_pdf_pages", lambda value: ((page,), page.canonical_text()))
+
+    package, payloads, _ = module.build_package(
+        corpus,
+        company_names={"TEST": "Test Limited"},
+        client=None,
+        candidate_store=Path("unused"),
+        fetch_attempts=1,
+    )
+    assert package["blind_payload_count"] == 1
+    payload = payloads[0]
+    visible = " ".join((payload.redacted_excerpt, *payload.redacted_page_context)).casefold()
+    assert "test limited" not in visible
+    assert "april 16, 2026" not in visible
+    assert "april 30, 2027" in visible
+
+
+def test_header_date_recognizes_numeric_and_ordinal_formats():
+    module = _module()
+    assert module._page_header_date_redaction_terms(("16/04/2026", "Page 1 of 2")) == ("16/04/2026",)
+    assert module._page_header_date_redaction_terms(("16th April 2026", "Page 1 of 2")) == ("16th April 2026",)
+    assert module._page_header_date_redaction_terms(("2026-04-16", "Page 1 of 2")) == ("2026-04-16",)
+''', encoding='utf-8')
+          PY
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check src tests scripts/build_h003_review_package.py --fix
+      - run: ruff check src tests scripts/build_h003_review_package.py
+      - run: pytest -q
+      - run: make validate
+      - name: Commit validated fix and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-source-header-date-fix.yml
+          git add scripts/build_h003_review_package.py tests/test_h003_review_source_header_date_redaction.py
+          git commit -m "Redact standalone source-header dates from H003 blind review"
+          git push origin HEAD:fix/h003-v001-source-header-date-redaction
