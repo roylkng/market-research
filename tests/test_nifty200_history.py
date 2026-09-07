@@ -1,11 +1,15 @@
-from marketlab.nifty200_history import load_registry, reconstruct_freezes
+import marketlab.nifty200_history as nifty200_history
 
 
 REGISTRY = "registry/nifty200_historical_membership_v1.yaml"
 
 
 def _snapshots():
-    return {item["quarter_id"]: item for item in reconstruct_freezes(load_registry(REGISTRY))}
+    registry = nifty200_history.load_registry(REGISTRY)
+    return {
+        item["quarter_id"]: item
+        for item in nifty200_history.reconstruct_freezes(registry)
+    }
 
 
 def test_every_freeze_has_exactly_200_regular_nifty200_members():
