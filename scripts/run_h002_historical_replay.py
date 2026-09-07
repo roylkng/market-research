@@ -84,9 +84,8 @@ def _document_event(
     store_root: Path,
 ) -> Any:
     source = _retain(store_root, raw, kind="filings", suffix=".source")
-    document = raw.decode("utf-8", errors="strict")
     return parse_indas_document(
-        document,
+        raw.decode("utf-8", errors="strict"),
         source_url=source_url,
         raw_sha256=source["raw_sha256"],
         raw_path=source["raw_path"],
@@ -106,8 +105,8 @@ def _period_iso(value: str | None) -> str | None:
         return text
     for fmt in ("%d-%m-%Y", "%d-%b-%Y"):
         try:
-            parsed = datetime.strptime(text, fmt)
-            return parsed.date().isoformat()
+            parsed = time.strptime(text, fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday).isoformat()
         except ValueError:
             continue
     return None
@@ -242,17 +241,339 @@ def _signal_record(
             "target_source": target_evidence,
             "baseline_source": baseline_evidence,
             "corporate_actions": corporate_action_evidence,
-            "frozen_eps_basis": None
-            if frozen_action_analysis is None
-            else asdict(frozen_action_analysis),
-            "publication_eps_basis": None
-            if publication_action_analysis is None
-            else asdict(publication_action_analysis),
-            "pre_event_price_basis": None
-            if pre_event_price_basis is None
-            else asdict(pre_event_price_basis),
+            "frozen_eps_basis": (
+                None
+                if frozen_action_analysis is None
+                else asdict(frozen_action_analysis)
+            ),
+            "publication_eps_basis": (
+                None
+                if publication_action_analysis is None
+                else asdict(publication_action_analysis)
+            ),
+            "pre_event_price_basis": (
+                None if pre_event_price_basis is None else asdict(pre_event_price_basis)
+            ),
         },
     }
+
+
+def _error_records(
+    records: list[dict[str, Any]],
+    *,
+    member: UniverseMember,
+    quarters: list[dict[str, Any]],
+    offset_days: int,
+    exc: BaseException,
+) -> None:
+    for quarter in quarters:
+        if any(
+            record["symbol"] == member.symbol
+            and record["quarter_id"] == quarter["id"]
+            for record in records
+        ):
+            continue
+        records.append(
+            _signal_record(
+                member=member,
+                quarter=quarter,
+                status="ERROR",
+                reason=f"{type(exc).__name__}: {exc}",
+                freeze_at_utc=historical_freeze_at(
+                    quarter["period_end"], offset_days=offset_days
+                ),
+            )
+        )
+
+
+def _select_pairs(
+    discovery_payload: Any,
+    *,
+    member: UniverseMember,
+    quarters: list[dict[str, Any]],
+    offset_days: int,
+    records: list[dict[str, Any]],
+    discovery_evidence: dict[str, Any],
+) -> dict[str, Any]:
+    pairs: dict[str, Any] = {}
+    for quarter in quarters:
+        freeze_at_utc = historical_freeze_at(
+            quarter["period_end"], offset_days=offset_days
+        )
+        pair = select_historical_filing_pair(
+            discovery_payload,
+            symbol=member.symbol,
+            target_period_end=quarter["period_end"],
+            baseline_period_end=quarter["baseline_period_end"],
+            freeze_at_utc=freeze_at_utc,
+        )
+        if pair is None:
+            records.append(
+                _signal_record(
+                    member=member,
+                    quarter=quarter,
+                    status="UNCOVERED",
+                    reason="no_matching_target_baseline_pair_as_of_freeze",
+                    freeze_at_utc=freeze_at_utc,
+                    discovery_evidence=discovery_evidence,
+                )
+            )
+        else:
+            pairs[quarter["id"]] = pair
+    return pairs
+
+
+def _action_window(
+    pairs: dict[str, Any], quarters_by_id: dict[str, dict[str, Any]]
+) -> tuple[date, date]:
+    baseline_dates = [
+        date.fromisoformat(quarters_by_id[quarter_id]["baseline_period_end"])
+        for quarter_id in pairs
+    ]
+    target_dates = [
+        datetime.fromisoformat(pair.target.exchange_published_at_utc)
+        .astimezone(IST)
+        .date()
+        for pair in pairs.values()
+    ]
+    return min(baseline_dates), max(target_dates)
+
+
+def _process_pair(
+    *,
+    cache: SourceCache,
+    store_root: Path,
+    started_at: datetime,
+    calendar: TradingCalendar,
+    member: UniverseMember,
+    quarter: dict[str, Any],
+    pair: Any,
+    discovery_evidence: dict[str, Any],
+    action_payload: Any,
+    action_raw: bytes,
+    action_evidence: dict[str, Any],
+    offset_days: int,
+) -> dict[str, Any]:
+    symbol = member.symbol.upper()
+    freeze_at_utc = historical_freeze_at(
+        quarter["period_end"], offset_days=offset_days
+    )
+    target_raw = cache.archive_bytes(pair.target.source_url)
+    baseline_raw = cache.archive_bytes(pair.baseline.source_url)
+    target_evidence = _retain(
+        store_root, target_raw, kind="filings", suffix=".source"
+    )
+    target_evidence["source_url"] = pair.target.source_url
+    baseline_evidence = _retain(
+        store_root, baseline_raw, kind="filings", suffix=".source"
+    )
+    baseline_evidence["source_url"] = pair.baseline.source_url
+
+    target_event = _document_event(
+        target_raw,
+        source_url=pair.target.source_url,
+        exchange_published_at_utc=pair.target.exchange_published_at_utc,
+        discovery=discovery_evidence,
+        captured_at=started_at,
+        store_root=store_root,
+    )
+    baseline_event = _document_event(
+        baseline_raw,
+        source_url=pair.baseline.source_url,
+        exchange_published_at_utc=pair.baseline.exchange_published_at_utc,
+        discovery=discovery_evidence,
+        captured_at=started_at,
+        store_root=store_root,
+    )
+    _assert_event_identity(
+        target_event,
+        member=member,
+        expected_period_end=quarter["period_end"],
+        expected_basis=pair.accounting_basis,
+        role="target",
+    )
+    _assert_event_identity(
+        baseline_event,
+        member=member,
+        expected_period_end=quarter["baseline_period_end"],
+        expected_basis=pair.accounting_basis,
+        role="baseline",
+    )
+
+    freeze = datetime.fromisoformat(freeze_at_utc).astimezone(IST)
+    publication = datetime.fromisoformat(
+        pair.target.exchange_published_at_utc
+    ).astimezone(IST)
+
+    frozen_actions = analyze_eps_basis_actions(
+        action_payload,
+        raw_payload=action_raw,
+        symbol=symbol,
+        baseline_period_end=quarter["baseline_period_end"],
+        as_of_utc=freeze_at_utc,
+    )
+    publication_actions = analyze_eps_basis_actions(
+        action_payload,
+        raw_payload=action_raw,
+        symbol=symbol,
+        baseline_period_end=quarter["baseline_period_end"],
+        as_of_utc=pair.target.exchange_published_at_utc,
+    )
+
+    if frozen_actions.status != "READY" or frozen_actions.version is None:
+        expectation = build_terminal_no_signal_expectation(
+            baseline_event,
+            canonical_symbol=symbol,
+            target_period_end=quarter["period_end"],
+            target_quarter=target_event.reporting_quarter or "",
+            target_accounting_basis=pair.accounting_basis,
+            baseline_available_at_utc=None,
+            expectation_as_of_utc=freeze_at_utc,
+            no_signal_reason="unresolved_corporate_action",
+            corporate_action_version=(
+                "EPSCA-UNRESOLVED-" + frozen_actions.payload_sha256[:16]
+            ),
+        )
+        return _signal_record(
+            member=member,
+            quarter=quarter,
+            status="NO_SIGNAL",
+            reason="unresolved_corporate_action_at_freeze",
+            freeze_at_utc=freeze_at_utc,
+            pair=pair,
+            target_event=target_event,
+            baseline_event=baseline_event,
+            expectation=expectation,
+            discovery_evidence=discovery_evidence,
+            target_evidence=target_evidence,
+            baseline_evidence=baseline_evidence,
+            corporate_action_evidence=action_evidence,
+            frozen_action_analysis=frozen_actions,
+            publication_action_analysis=publication_actions,
+        )
+
+    if (
+        publication_actions.status != "READY"
+        or publication_actions.version is None
+        or publication_actions.relevant_actions != frozen_actions.relevant_actions
+        or publication_actions.unresolved_subjects
+    ):
+        return _signal_record(
+            member=member,
+            quarter=quarter,
+            status="SKIPPED",
+            reason="post_freeze_eps_basis_action",
+            freeze_at_utc=freeze_at_utc,
+            pair=pair,
+            target_event=target_event,
+            baseline_event=baseline_event,
+            discovery_evidence=discovery_evidence,
+            target_evidence=target_evidence,
+            baseline_evidence=baseline_evidence,
+            corporate_action_evidence=action_evidence,
+            frozen_action_analysis=frozen_actions,
+            publication_action_analysis=publication_actions,
+        )
+
+    expectation = build_seasonal_expectation(
+        baseline_event,
+        target_period_end=quarter["period_end"],
+        target_quarter=target_event.reporting_quarter or "",
+        target_accounting_basis=pair.accounting_basis,
+        baseline_available_at_utc=None,
+        expectation_as_of_utc=freeze_at_utc,
+        corporate_action_factor=frozen_actions.factor or 1.0,
+        corporate_action_version=frozen_actions.version,
+    )
+
+    pre_event_basis = audit_price_basis_actions(
+        action_payload,
+        raw_payload=action_raw,
+        symbol=symbol,
+        start_date=freeze.date(),
+        end_date=publication.date(),
+    )
+    if (
+        pre_event_basis.status != "READY"
+        or pre_event_basis.version is None
+        or pre_event_basis.relevant_actions
+        or pre_event_basis.unresolved_actions
+    ):
+        return _signal_record(
+            member=member,
+            quarter=quarter,
+            status="SKIPPED",
+            reason="post_freeze_price_basis_action",
+            freeze_at_utc=freeze_at_utc,
+            pair=pair,
+            target_event=target_event,
+            baseline_event=baseline_event,
+            expectation=expectation,
+            discovery_evidence=discovery_evidence,
+            target_evidence=target_evidence,
+            baseline_evidence=baseline_evidence,
+            corporate_action_evidence=action_evidence,
+            frozen_action_analysis=frozen_actions,
+            publication_action_analysis=publication_actions,
+            pre_event_price_basis=pre_event_basis,
+        )
+
+    reference_session = calendar.reference_session(
+        pair.target.exchange_published_at_utc
+    )
+    reference_day = date.fromisoformat(reference_session.session_date)
+    udiff_raw, udiff_evidence = cache.udiff_bytes(reference_day)
+    try:
+        reference_price = parse_udiff_equity(
+            udiff_raw,
+            symbol=symbol,
+            session_date=reference_day,
+            series=member.series,
+            expected_isin=member.isin,
+        )
+        close_price = reference_price.close_price
+    except MarketDataMissingRow:
+        close_price = None
+
+    reference = PriceReference(
+        symbol=symbol,
+        role="price_day_minus_2",
+        trading_date=reference_session.session_date,
+        close_timestamp_utc=reference_session.close_timestamp_utc,
+        close_price=close_price,
+        source=udiff_evidence["source_url"],
+        corporate_action_version=pre_event_basis.version,
+    )
+    signal = score_h002_historical_replay(
+        target_event,
+        expectation,
+        reference,
+        reconstructed_at_utc=_iso(datetime.now(UTC)),
+    )
+    evidence = {
+        **action_evidence,
+        "price_reference_udiff": udiff_evidence,
+    }
+    return _signal_record(
+        member=member,
+        quarter=quarter,
+        status="SIGNAL" if signal.bucket != "NO_SIGNAL" else "NO_SIGNAL",
+        reason=signal.no_signal_reason,
+        freeze_at_utc=freeze_at_utc,
+        pair=pair,
+        target_event=target_event,
+        baseline_event=baseline_event,
+        expectation=expectation,
+        reference=reference,
+        signal=signal,
+        discovery_evidence=discovery_evidence,
+        target_evidence=target_evidence,
+        baseline_evidence=baseline_evidence,
+        corporate_action_evidence=evidence,
+        frozen_action_analysis=frozen_actions,
+        publication_action_analysis=publication_actions,
+        pre_event_price_basis=pre_event_basis,
+    )
 
 
 def run_phase_a(args: argparse.Namespace) -> dict[str, Any]:
@@ -261,8 +582,12 @@ def run_phase_a(args: argparse.Namespace) -> dict[str, Any]:
     universe = load_universe_snapshot(args.universe)
     members = universe.members
     if args.symbols:
-        wanted = {item.strip().upper() for item in args.symbols.split(",") if item.strip()}
-        members = [member for member in members if member.symbol.upper() in wanted]
+        wanted = {
+            item.strip().upper() for item in args.symbols.split(",") if item.strip()
+        }
+        members = [
+            member for member in members if member.symbol.upper() in wanted
+        ]
         missing = wanted - {member.symbol.upper() for member in members}
         if missing:
             raise PhaseAError(
@@ -301,311 +626,69 @@ def run_phase_a(args: argparse.Namespace) -> dict[str, Any]:
         list(calendar_snapshot.sessions), version=calendar_snapshot.version
     )
 
+    quarters = list(rule["target_quarters"])
+    quarters_by_id = {quarter["id"]: quarter for quarter in quarters}
+    offset_days = int(rule["freeze_policy"]["target_period_end_offset_days"])
     records: list[dict[str, Any]] = []
-    per_symbol_discovery: dict[str, tuple[Any, bytes, dict[str, Any]]] = {}
 
     for index, member in enumerate(members, start=1):
-        symbol = member.symbol.upper()
         try:
-            discovery_payload, discovery_raw, discovery_evidence = per_symbol_discovery.get(
-                symbol, (None, None, None)
+            discovery_payload, discovery_raw = (
+                client.integrated_financial_filings_with_raw(member.symbol)
             )
-            if discovery_payload is None:
-                discovery_payload, discovery_raw = (
-                    client.integrated_financial_filings_with_raw(symbol)
-                )
-                discovery_evidence = _retain(
-                    store_root,
-                    discovery_raw,
-                    kind="integrated-discovery",
-                    suffix=".json",
-                )
-                discovery_evidence["source_url"] = client.INTEGRATED_FILING_ENDPOINT.url
-                per_symbol_discovery[symbol] = (
-                    discovery_payload,
-                    discovery_raw,
-                    discovery_evidence,
-                )
+            discovery_evidence = _retain(
+                store_root,
+                discovery_raw,
+                kind="integrated-discovery",
+                suffix=".json",
+            )
+            discovery_evidence["source_url"] = client.INTEGRATED_FILING_ENDPOINT.url
 
-            for quarter in rule["target_quarters"]:
-                freeze_at_utc = historical_freeze_at(
-                    quarter["period_end"],
-                    offset_days=rule["freeze_policy"]["target_period_end_offset_days"],
-                )
-                pair = select_historical_filing_pair(
-                    discovery_payload,
-                    symbol=symbol,
-                    target_period_end=quarter["period_end"],
-                    baseline_period_end=quarter["baseline_period_end"],
-                    freeze_at_utc=freeze_at_utc,
-                )
-                if pair is None:
-                    records.append(
-                        _signal_record(
-                            member=member,
-                            quarter=quarter,
-                            status="UNCOVERED",
-                            reason="no_matching_target_baseline_pair_as_of_freeze",
-                            freeze_at_utc=freeze_at_utc,
-                            discovery_evidence=discovery_evidence,
-                        )
-                    )
-                    continue
-
-                target_raw = cache.archive_bytes(pair.target.source_url)
-                baseline_raw = cache.archive_bytes(pair.baseline.source_url)
-                target_evidence = _retain(
-                    store_root, target_raw, kind="filings", suffix=".source"
-                )
-                target_evidence["source_url"] = pair.target.source_url
-                baseline_evidence = _retain(
-                    store_root, baseline_raw, kind="filings", suffix=".source"
-                )
-                baseline_evidence["source_url"] = pair.baseline.source_url
-
-                target_event = _document_event(
-                    target_raw,
-                    source_url=pair.target.source_url,
-                    exchange_published_at_utc=pair.target.exchange_published_at_utc,
-                    discovery=discovery_evidence,
-                    captured_at=started_at,
-                    store_root=store_root,
-                )
-                baseline_event = _document_event(
-                    baseline_raw,
-                    source_url=pair.baseline.source_url,
-                    exchange_published_at_utc=pair.baseline.exchange_published_at_utc,
-                    discovery=discovery_evidence,
-                    captured_at=started_at,
-                    store_root=store_root,
-                )
-                _assert_event_identity(
-                    target_event,
-                    member=member,
-                    expected_period_end=quarter["period_end"],
-                    expected_basis=pair.accounting_basis,
-                    role="target",
-                )
-                _assert_event_identity(
-                    baseline_event,
-                    member=member,
-                    expected_period_end=quarter["baseline_period_end"],
-                    expected_basis=pair.accounting_basis,
-                    role="baseline",
-                )
-
-                freeze = datetime.fromisoformat(freeze_at_utc).astimezone(IST)
-                publication = datetime.fromisoformat(
-                    pair.target.exchange_published_at_utc
-                ).astimezone(IST)
-                baseline_period = date.fromisoformat(quarter["baseline_period_end"])
+            pairs = _select_pairs(
+                discovery_payload,
+                member=member,
+                quarters=quarters,
+                offset_days=offset_days,
+                records=records,
+                discovery_evidence=discovery_evidence,
+            )
+            if pairs:
+                action_from, action_to = _action_window(pairs, quarters_by_id)
                 action_payload, action_raw, action_evidence = _corporate_actions(
                     client,
                     store_root,
-                    symbol=symbol,
-                    from_date=baseline_period,
-                    to_date=publication.date(),
+                    symbol=member.symbol,
+                    from_date=action_from,
+                    to_date=action_to,
                 )
-                frozen_actions = analyze_eps_basis_actions(
-                    action_payload,
-                    raw_payload=action_raw,
-                    symbol=symbol,
-                    baseline_period_end=quarter["baseline_period_end"],
-                    as_of_utc=freeze_at_utc,
-                )
-                publication_actions = analyze_eps_basis_actions(
-                    action_payload,
-                    raw_payload=action_raw,
-                    symbol=symbol,
-                    baseline_period_end=quarter["baseline_period_end"],
-                    as_of_utc=pair.target.exchange_published_at_utc,
-                )
-
-                if frozen_actions.status != "READY" or frozen_actions.version is None:
-                    expectation = build_terminal_no_signal_expectation(
-                        baseline_event,
-                        canonical_symbol=symbol,
-                        target_period_end=quarter["period_end"],
-                        target_quarter=target_event.reporting_quarter or "",
-                        target_accounting_basis=pair.accounting_basis,
-                        baseline_available_at_utc=None,
-                        expectation_as_of_utc=freeze_at_utc,
-                        no_signal_reason="unresolved_corporate_action",
-                        corporate_action_version=(
-                            "EPSCA-UNRESOLVED-" + frozen_actions.payload_sha256[:16]
-                        ),
-                    )
+                for quarter in quarters:
+                    pair = pairs.get(quarter["id"])
+                    if pair is None:
+                        continue
                     records.append(
-                        _signal_record(
+                        _process_pair(
+                            cache=cache,
+                            store_root=store_root,
+                            started_at=started_at,
+                            calendar=calendar,
                             member=member,
                             quarter=quarter,
-                            status="NO_SIGNAL",
-                            reason="unresolved_corporate_action_at_freeze",
-                            freeze_at_utc=freeze_at_utc,
                             pair=pair,
-                            target_event=target_event,
-                            baseline_event=baseline_event,
-                            expectation=expectation,
                             discovery_evidence=discovery_evidence,
-                            target_evidence=target_evidence,
-                            baseline_evidence=baseline_evidence,
-                            corporate_action_evidence=action_evidence,
-                            frozen_action_analysis=frozen_actions,
-                            publication_action_analysis=publication_actions,
+                            action_payload=action_payload,
+                            action_raw=action_raw,
+                            action_evidence=action_evidence,
+                            offset_days=offset_days,
                         )
                     )
-                    continue
-
-                if (
-                    publication_actions.status != "READY"
-                    or publication_actions.version is None
-                    or publication_actions.relevant_actions != frozen_actions.relevant_actions
-                    or publication_actions.unresolved_subjects
-                ):
-                    records.append(
-                        _signal_record(
-                            member=member,
-                            quarter=quarter,
-                            status="SKIPPED",
-                            reason="post_freeze_eps_basis_action",
-                            freeze_at_utc=freeze_at_utc,
-                            pair=pair,
-                            target_event=target_event,
-                            baseline_event=baseline_event,
-                            discovery_evidence=discovery_evidence,
-                            target_evidence=target_evidence,
-                            baseline_evidence=baseline_evidence,
-                            corporate_action_evidence=action_evidence,
-                            frozen_action_analysis=frozen_actions,
-                            publication_action_analysis=publication_actions,
-                        )
-                    )
-                    continue
-
-                expectation = build_seasonal_expectation(
-                    baseline_event,
-                    target_period_end=quarter["period_end"],
-                    target_quarter=target_event.reporting_quarter or "",
-                    target_accounting_basis=pair.accounting_basis,
-                    baseline_available_at_utc=None,
-                    expectation_as_of_utc=freeze_at_utc,
-                    corporate_action_factor=frozen_actions.factor or 1.0,
-                    corporate_action_version=frozen_actions.version,
-                )
-
-                pre_event_basis = audit_price_basis_actions(
-                    action_payload,
-                    raw_payload=action_raw,
-                    symbol=symbol,
-                    start_date=freeze.date(),
-                    end_date=publication.date(),
-                )
-                if (
-                    pre_event_basis.status != "READY"
-                    or pre_event_basis.version is None
-                    or pre_event_basis.relevant_actions
-                    or pre_event_basis.unresolved_actions
-                ):
-                    records.append(
-                        _signal_record(
-                            member=member,
-                            quarter=quarter,
-                            status="SKIPPED",
-                            reason="post_freeze_price_basis_action",
-                            freeze_at_utc=freeze_at_utc,
-                            pair=pair,
-                            target_event=target_event,
-                            baseline_event=baseline_event,
-                            expectation=expectation,
-                            discovery_evidence=discovery_evidence,
-                            target_evidence=target_evidence,
-                            baseline_evidence=baseline_evidence,
-                            corporate_action_evidence=action_evidence,
-                            frozen_action_analysis=frozen_actions,
-                            publication_action_analysis=publication_actions,
-                            pre_event_price_basis=pre_event_basis,
-                        )
-                    )
-                    continue
-
-                reference_session = calendar.reference_session(
-                    pair.target.exchange_published_at_utc
-                )
-                reference_day = date.fromisoformat(reference_session.session_date)
-                udiff_raw, udiff_evidence = cache.udiff_bytes(reference_day)
-                try:
-                    reference_price = parse_udiff_equity(
-                        udiff_raw,
-                        symbol=symbol,
-                        session_date=reference_day,
-                        series=member.series,
-                        expected_isin=member.isin,
-                    )
-                    close_price = reference_price.close_price
-                except MarketDataMissingRow:
-                    close_price = None
-                reference = PriceReference(
-                    symbol=symbol,
-                    role="price_day_minus_2",
-                    trading_date=reference_session.session_date,
-                    close_timestamp_utc=reference_session.close_timestamp_utc,
-                    close_price=close_price,
-                    source=udiff_evidence["source_url"],
-                    corporate_action_version=pre_event_basis.version,
-                )
-
-                signal = score_h002_historical_replay(
-                    target_event,
-                    expectation,
-                    reference,
-                    reconstructed_at_utc=_iso(datetime.now(UTC)),
-                )
-                records.append(
-                    _signal_record(
-                        member=member,
-                        quarter=quarter,
-                        status="SIGNAL" if signal.bucket != "NO_SIGNAL" else "NO_SIGNAL",
-                        reason=signal.no_signal_reason,
-                        freeze_at_utc=freeze_at_utc,
-                        pair=pair,
-                        target_event=target_event,
-                        baseline_event=baseline_event,
-                        expectation=expectation,
-                        reference=reference,
-                        signal=signal,
-                        discovery_evidence=discovery_evidence,
-                        target_evidence=target_evidence,
-                        baseline_evidence=baseline_evidence,
-                        corporate_action_evidence={
-                            **action_evidence,
-                            "price_reference_udiff": udiff_evidence,
-                        },
-                        frozen_action_analysis=frozen_actions,
-                        publication_action_analysis=publication_actions,
-                        pre_event_price_basis=pre_event_basis,
-                    )
-                )
-        except Exception as exc:
-            for quarter in rule["target_quarters"]:
-                if any(
-                    record["symbol"] == symbol and record["quarter_id"] == quarter["id"]
-                    for record in records
-                ):
-                    continue
-                records.append(
-                    _signal_record(
-                        member=member,
-                        quarter=quarter,
-                        status="ERROR",
-                        reason=f"{type(exc).__name__}: {exc}",
-                        freeze_at_utc=historical_freeze_at(
-                            quarter["period_end"],
-                            offset_days=rule["freeze_policy"][
-                                "target_period_end_offset_days"
-                            ],
-                        ),
-                    )
-                )
+        except (RuntimeError, ValueError, OSError) as exc:
+            _error_records(
+                records,
+                member=member,
+                quarters=quarters,
+                offset_days=offset_days,
+                exc=exc,
+            )
         if args.sleep > 0 and index < len(members):
             time.sleep(args.sleep)
 
@@ -616,10 +699,12 @@ def run_phase_a(args: argparse.Namespace) -> dict[str, Any]:
         if isinstance(record.get("signal"), dict)
     )
     quarter_counts: dict[str, dict[str, int]] = {}
-    for quarter in rule["target_quarters"]:
-        quarter_records = [r for r in records if r["quarter_id"] == quarter["id"]]
+    for quarter in quarters:
+        quarter_records = [
+            record for record in records if record["quarter_id"] == quarter["id"]
+        ]
         quarter_counts[quarter["id"]] = dict(
-            sorted(Counter(r["status"] for r in quarter_records).items())
+            sorted(Counter(record["status"] for record in quarter_records).items())
         )
 
     body = {
@@ -634,7 +719,7 @@ def run_phase_a(args: argparse.Namespace) -> dict[str, Any]:
         "cohort_sha256": universe.sha256,
         "cohort_bias_label": rule["cohort"]["bias_label"],
         "member_count_requested": len(members),
-        "observation_count_expected": len(members) * len(rule["target_quarters"]),
+        "observation_count_expected": len(members) * len(quarters),
         "observation_count": len(records),
         "status_counts": dict(sorted(status_counts.items())),
         "signal_bucket_counts": dict(sorted(bucket_counts.items())),
