@@ -1,0 +1,40 @@
+schema_version: 1
+freeze_id: H002-HR003-PHASE-A-FREEZE-V1
+experiment_id: H002-HR003
+mechanics_rule_id: H002-HR002
+source_signal_rule_id: H002-R001
+phase: A_SIGNAL_CAPTURE_ONLY
+phase_a_manifest_path: research/historical/h002/H002-HR003/phase-a/point-in-time-nifty200-signals.json
+phase_a_manifest_sha256: 77104e3f675578c6b756c950a96a3e13e64fe133c25b48249df68484f25fa3d9
+observation_count: 919
+signal_count: 568
+status_counts:
+  SIGNAL: 568
+  NO_SIGNAL: 6
+  SKIPPED: 298
+  UNCOVERED: 47
+signal_bucket_counts:
+  POSITIVE: 388
+  NEGATIVE: 177
+  ZERO: 3
+  NO_SIGNAL: 1
+membership_mode: ALL_REGULAR_NON_FINANCIAL_NIFTY200_AT_EACH_HISTORICAL_FREEZE
+cohort_bias_label: POINT_IN_TIME_NIFTY200_MEMBERSHIP_NON_FINANCIAL
+outcome_data_included: false
+live_capital_allowed: false
+frozen_on_date: '2026-09-07'
+calendar_dependency:
+  phase_a_freeze_registry: registry/h002_hr002_phase_a_freeze.yaml
+  phase_a_manifest_sha256: 6e87b416af5915f0d204a3672779bd3a2209a8fa2c375783587825af88dd4bfe
+  purpose: verify the same frozen NSE 2025/2026 trading-calendar construction used by HR003 Phase A
+actionability_gate_reuse:
+  path: registry/h002_hr002_outcome_gate.yaml
+  git_blob_sha: 319cf27151bd7bcd0057e0eb9cee6fbb545c08bc
+  gate_id: H002-HR002-OUTCOME-GATE-V1
+  threshold_changes_permitted: false
+notes:
+  - HR003 is the survivorship-clean historical H002 replay, not the H003 management-credibility hypothesis.
+  - Phase A contains no securities-return outcome data.
+  - Every Phase-B outcome must bind exactly to the Phase-A SHA and signal count above.
+  - The HR002 actionability gate is reused unchanged so HR003 cannot tune promotion thresholds after seeing returns.
+  - Historical evidence cannot authorize live capital; the prospective FY27-Q2 H002 test remains mandatory for CAPITAL_READY.
