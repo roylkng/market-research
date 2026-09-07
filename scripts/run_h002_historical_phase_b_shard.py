@@ -16,17 +16,46 @@ from run_h002_historical_phase_b import (
 from marketlab.execution import TradingCalendar, TradingSession
 from marketlab.h002_historical_outcomes import load_phase_a_manifest
 from marketlab.nse import NSEClient
-from marketlab.universe import load_universe_snapshot
+from marketlab.universe import UniverseMember, load_universe_snapshot
 
 
 def _iso(value: datetime) -> str:
     return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
+def _pending_outcome(
+    record: dict,
+    *,
+    member: UniverseMember,
+    publication: datetime,
+    entry_day: date,
+    exit_day: date,
+    started_at: datetime,
+) -> dict:
+    return {
+        "schema_version": 1,
+        "symbol": member.symbol,
+        "isin": member.isin,
+        "quarter_id": record.get("quarter_id"),
+        "target_period_end": record.get("target_period_end"),
+        "phase_a_signal_event_id": record.get("signal", {}).get("event_id"),
+        "signal_bucket": record.get("signal", {}).get("bucket"),
+        "signal_ue": record.get("signal", {}).get("ue"),
+        "exchange_published_at_utc": _iso(publication),
+        "entry_session_date": entry_day.isoformat(),
+        "exit_session_date": exit_day.isoformat(),
+        "status": "PENDING",
+        "reason": "exit_not_matured_before_reconstruction_date",
+        "evaluation_as_of_utc": _iso(started_at),
+        "live_order_created": False,
+    }
+
+
 def run(args: argparse.Namespace) -> dict:
     if args.shard_count < 1 or not 0 <= args.shard_index < args.shard_count:
         raise ValueError("shard_index must be within [0, shard_count)")
     started_at = datetime.now(UTC)
+    as_of_day = started_at.astimezone(IST).date()
     phase_a = load_phase_a_manifest(
         args.phase_a,
         expected_sha256=args.expected_phase_a_sha256,
@@ -65,6 +94,13 @@ def run(args: argparse.Namespace) -> dict:
         publication, entry_day, exit_day = _record_schedule(record, calendar)
         key = (member.symbol.upper(), str(record.get("quarter_id")))
         schedules[key] = (publication, entry_day, exit_day)
+
+        # Outcomes whose exit is today or later are deliberately censored.  We do
+        # not query future/same-day archives and, more importantly, do not audit
+        # corporate actions through a horizon that has not fully elapsed yet.
+        if exit_day >= as_of_day:
+            continue
+
         publication_day = publication.astimezone(IST).date()
         current = action_windows.get(member.symbol.upper())
         if current is None:
@@ -93,6 +129,20 @@ def run(args: argparse.Namespace) -> dict:
         member = _market_member(record, members)
         key = (member.symbol.upper(), str(record.get("quarter_id")))
         publication, entry_day, exit_day = schedules[key]
+
+        if exit_day >= as_of_day:
+            outcomes.append(
+                _pending_outcome(
+                    record,
+                    member=member,
+                    publication=publication,
+                    entry_day=entry_day,
+                    exit_day=exit_day,
+                    started_at=started_at,
+                )
+            )
+            continue
+
         action_payload, action_raw, action_evidence = sources.actions[member.symbol.upper()]
         try:
             outcome = _execute_record(
@@ -132,6 +182,7 @@ def run(args: argparse.Namespace) -> dict:
         "symbols": sorted(shard_symbols),
         "eligible_record_count": len(shard_records),
         "generated_at_utc": _iso(started_at),
+        "reconstruction_local_date": as_of_day.isoformat(),
         "records": outcomes,
         "evidence": {
             "calendar_version": calendar.version,
