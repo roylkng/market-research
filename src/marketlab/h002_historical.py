@@ -20,11 +20,14 @@ from marketlab.h002 import (
     PriceReference,
     SeasonalEPSExpectation,
 )
-from marketlab.preparation import _parse_exchange_timestamp
+from marketlab.preparation import PreparationError, _parse_exchange_timestamp
 
 REPLAY_RULE_ID = "H002-HR001"
 SOURCE_SIGNAL_RULE_ID = "H002-R001"
 IST = ZoneInfo("Asia/Kolkata")
+DEFAULT_FREEZE_CLOCK = clock_time(20, 41, 38, 303000)
+DEFAULT_FREEZE_CLOCK_TEXT = "20:41:38.303000 Asia/Kolkata"
+FREEZE_CLOCK_BASIS = "FY27_Q2_expectation_bundle_anchored_at_2026-09-06T15:11:38.303000Z"
 ReplayBucket = Literal["POSITIVE", "ZERO", "NEGATIVE", "NO_SIGNAL"]
 
 
@@ -111,10 +114,18 @@ def validate_historical_replay_rule(document: dict[str, Any]) -> str:
         raise HistoricalReplayError("historical replay rule must remain frozen")
     if document.get("source_signal_rule_id") != SOURCE_SIGNAL_RULE_ID:
         raise HistoricalReplayError("historical replay must reference H002-R001")
-    if document.get("evidence_mode", {}).get("prospective_equivalence_claimed") is not False:
+    evidence_mode = document.get("evidence_mode", {})
+    if evidence_mode.get("actual_event_mode") != HISTORICAL_RECONSTRUCTION:
+        raise HistoricalReplayError("historical replay event mode must remain reconstruction")
+    if evidence_mode.get("prospective_equivalence_claimed") is not False:
         raise HistoricalReplayError("historical replay cannot claim prospective equivalence")
-    if document.get("evidence_mode", {}).get("live_capital") is not False:
+    if evidence_mode.get("live_capital") is not False:
         raise HistoricalReplayError("historical replay must keep live_capital false")
+    freeze_policy = document.get("freeze_policy", {})
+    if freeze_policy.get("freeze_clock") != DEFAULT_FREEZE_CLOCK_TEXT:
+        raise HistoricalReplayError("historical replay freeze clock differs from frozen anchor")
+    if freeze_policy.get("freeze_clock_basis") != FREEZE_CLOCK_BASIS:
+        raise HistoricalReplayError("historical replay freeze-clock basis differs from anchor")
     if document.get("phase_separation", {}).get("outcome_data_forbidden_in_phase_a") is not True:
         raise HistoricalReplayError("phase A must forbid post-filing outcome data")
     return actual
@@ -139,7 +150,7 @@ def historical_freeze_at(
             f"invalid target_period_end: {target_period_end}"
         ) from exc
     freeze_day = target + timedelta(days=offset_days)
-    freeze = datetime.combine(freeze_day, clock_time(23, 59, 59), tzinfo=IST)
+    freeze = datetime.combine(freeze_day, DEFAULT_FREEZE_CLOCK, tzinfo=IST)
     return freeze.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
@@ -155,8 +166,18 @@ def _parse_period(value: Any) -> date:
     raise HistoricalReplayError(f"unsupported filing period: {value}")
 
 
+def _timestamp(value: str, field: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except (TypeError, ValueError) as exc:
+        raise HistoricalReplayError(f"invalid {field}: {value}") from exc
+    if parsed.tzinfo is None:
+        raise HistoricalReplayError(f"{field} must include timezone")
+    return parsed.astimezone(UTC)
+
+
 def _official_timestamp(row: dict[str, Any]) -> datetime:
-    last_error: Exception | None = None
+    last_error: PreparationError | None = None
     for key in (
         "broadcast_Date",
         "revised_Date",
@@ -169,7 +190,7 @@ def _official_timestamp(row: dict[str, Any]) -> datetime:
             continue
         try:
             return _parse_exchange_timestamp(value)
-        except Exception as exc:
+        except PreparationError as exc:
             last_error = exc
     raise HistoricalReplayError(
         f"filing row has no parseable official timestamp: {last_error}"
@@ -201,7 +222,7 @@ def _candidate_rows(
             continue
         try:
             observed_period = _parse_period(row.get("qe_Date"))
-            timestamp = _official_timestamp(row)
+            published = _official_timestamp(row)
         except HistoricalReplayError:
             continue
         if observed_period != wanted_period:
@@ -214,7 +235,7 @@ def _candidate_rows(
                 symbol=wanted_symbol,
                 accounting_basis=accounting_basis,
                 period_end=wanted_period.isoformat(),
-                exchange_published_at_utc=timestamp.astimezone(UTC).isoformat().replace(
+                exchange_published_at_utc=published.astimezone(UTC).isoformat().replace(
                     "+00:00", "Z"
                 ),
                 source_url=source_url,
@@ -223,6 +244,26 @@ def _candidate_rows(
         )
     matches.sort(key=lambda item: (item.exchange_published_at_utc, item.source_url))
     return matches
+
+
+def _unique_at_timestamp(
+    matches: list[HistoricalFilingCandidate],
+    *,
+    latest: bool,
+    role: str,
+    symbol: str,
+    accounting_basis: str,
+) -> HistoricalFilingCandidate | None:
+    if not matches:
+        return None
+    timestamp = matches[-1].exchange_published_at_utc if latest else matches[0].exchange_published_at_utc
+    same_time = [item for item in matches if item.exchange_published_at_utc == timestamp]
+    urls = {item.source_url for item in same_time}
+    if len(urls) != 1:
+        raise HistoricalReplayError(
+            f"ambiguous {role} filing for {symbol}/{accounting_basis}: {sorted(urls)}"
+        )
+    return same_time[-1] if latest else same_time[0]
 
 
 def _first_target(
@@ -238,16 +279,13 @@ def _first_target(
         period_end=period_end,
         accounting_basis=accounting_basis,
     )
-    if not matches:
-        return None
-    earliest = matches[0].exchange_published_at_utc
-    earliest_rows = [item for item in matches if item.exchange_published_at_utc == earliest]
-    urls = {item.source_url for item in earliest_rows}
-    if len(urls) != 1:
-        raise HistoricalReplayError(
-            f"ambiguous first target filing for {symbol}/{accounting_basis}: {sorted(urls)}"
-        )
-    return earliest_rows[0]
+    return _unique_at_timestamp(
+        matches,
+        latest=False,
+        role="first target",
+        symbol=symbol,
+        accounting_basis=accounting_basis,
+    )
 
 
 def _latest_baseline_as_of(
@@ -269,16 +307,13 @@ def _latest_baseline_as_of(
         )
         if _timestamp(item.exchange_published_at_utc, "baseline publication") <= freeze
     ]
-    if not matches:
-        return None
-    latest = matches[-1].exchange_published_at_utc
-    latest_rows = [item for item in matches if item.exchange_published_at_utc == latest]
-    urls = {item.source_url for item in latest_rows}
-    if len(urls) != 1:
-        raise HistoricalReplayError(
-            f"ambiguous baseline as-of freeze for {symbol}/{accounting_basis}: {sorted(urls)}"
-        )
-    return latest_rows[-1]
+    return _unique_at_timestamp(
+        matches,
+        latest=True,
+        role="baseline as-of freeze",
+        symbol=symbol,
+        accounting_basis=accounting_basis,
+    )
 
 
 def select_historical_filing_pair(
@@ -317,16 +352,6 @@ def select_historical_filing_pair(
             baseline=baseline,
         )
     return None
-
-
-def _timestamp(value: str, field: str) -> datetime:
-    try:
-        parsed = datetime.fromisoformat(value)
-    except (TypeError, ValueError) as exc:
-        raise HistoricalReplayError(f"invalid {field}: {value}") from exc
-    if parsed.tzinfo is None:
-        raise HistoricalReplayError(f"{field} must include timezone")
-    return parsed.astimezone(UTC)
 
 
 def _finite(value: Any, field: str) -> float:
