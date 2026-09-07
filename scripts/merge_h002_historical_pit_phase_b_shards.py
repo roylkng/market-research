@@ -17,7 +17,7 @@ def _iso(value: datetime) -> str:
 def _record_key(record: dict) -> tuple[str, str]:
     eligibility = record.get("point_in_time_eligibility")
     if not isinstance(eligibility, dict):
-        raise ValueError("HR003 Phase-B record lacks point-in-time eligibility")
+        raise TypeError("HR003 Phase-B record lacks point-in-time eligibility")
     quarter = str(record.get("quarter_id") or "")
     freeze_symbol = str(eligibility.get("symbol_at_freeze") or "").strip().upper()
     if not quarter or not freeze_symbol:
