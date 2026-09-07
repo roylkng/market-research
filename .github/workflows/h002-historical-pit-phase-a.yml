@@ -10,6 +10,7 @@ on:
       - scripts/run_h002_historical_pit_phase_a_shard.py
       - scripts/merge_h002_historical_pit_phase_a_shards.py
       - research/historical/nifty200/snapshots-v1/**
+      - research/historical/h002/H002-HR001/phase-a/fixed-u001-transport-signals.json
       - .github/workflows/h002-historical-pit-phase-a.yml
   workflow_dispatch:
 
@@ -47,6 +48,21 @@ jobs:
             scripts/merge_h002_historical_pit_phase_a_shards.py
       - name: Test historical identity contracts
         run: pytest -q tests/test_h002_historical_identity.py tests/test_nifty200_history.py
+      - name: Verify immutable HR001 dependency
+        run: |
+          python - <<'PY'
+          from marketlab.h002_historical_outcomes import load_phase_a_manifest
+
+          doc = load_phase_a_manifest(
+              'research/historical/h002/H002-HR001/phase-a/fixed-u001-transport-signals.json',
+              expected_sha256='2062e21ee1b1cbcd86d758ae3cf9ef9aeb43664c629ca5eb7a22cd885068ef98',
+          )
+          if doc.get('observation_count') != 200:
+              raise SystemExit(f"expected 200 frozen HR001 observations, got {doc.get('observation_count')}")
+          if int(doc.get('status_counts', {}).get('ERROR', 0)):
+              raise SystemExit('frozen HR001 dependency contains ERROR observations')
+          print('hr001_manifest_sha256', doc['manifest_sha256'])
+          PY
       - name: Verify frozen snapshot total
         run: |
           python - <<'PY'
