@@ -1,0 +1,97 @@
+id: H002-HR002
+hypothesis_id: H002
+status: FROZEN_HISTORICAL_REPLAY
+source_signal_rule_id: H002-R001
+source_execution_rule_id: H002-X001
+purpose: six-quarter mixed-source historical transport test frozen before H002-HR001 Phase-B outcomes are observed
+sha256: d4c537e95fd2fc4c1b1365337ae6b3b73364fa6462a8478e1ec57f39ce0c9805
+
+evidence_mode:
+  actual_event_mode: HISTORICAL_RECONSTRUCTION
+  prospective_equivalence_claimed: false
+  live_capital: false
+
+freeze_policy:
+  target_period_end_offset_days: -24
+  freeze_clock: "20:41:38.303 Asia/Kolkata"
+  baseline_revision_cutoff: strictly_at_or_before_freeze
+  corporate_action_cutoff: strictly_at_or_before_freeze
+  post_freeze_eps_basis_action: SKIP
+  price_reference: second NSE trading session strictly before target filing local date
+
+source_policy:
+  integrated_filing_first_period_end: "2025-03-31"
+  target_first_official_filing: true
+  baseline_latest_revision_as_of_freeze: true
+  legacy_financial_results_endpoint: https://www.nseindia.com/api/corporates-financial-results
+  integrated_financial_results_endpoint: https://www.nseindia.com/api/integrated-filing-results
+  source_bytes_required: true
+  official_broadcast_timestamp_required: true
+  legacy_and_integrated_xbrl_use_same_normalized_core_concepts: true
+
+signal:
+  expectation_model: seasonal_same_quarter_basic_eps_v1
+  formula: ue = (actual_basic_eps - prior_year_same_quarter_basic_eps * corporate_action_factor) / price_day_minus_2
+  buckets:
+    positive: ue > 0
+    zero: ue == 0
+    negative: ue < 0
+  missing_input: NO_SIGNAL
+  learned_thresholds: forbidden
+
+execution:
+  entry_delay_sessions: 2
+  holding_period_sessions: 20
+  entry_price: open
+  exit_price: close
+  benchmarks:
+    - nifty_50
+    - nifty_200_momentum_30
+  cost_scenarios_bps:
+    - 0
+    - 25
+    - 50
+
+target_quarters:
+  - id: FY25-Q4
+    period_end: "2025-03-31"
+    baseline_period_end: "2024-03-31"
+  - id: FY26-Q1
+    period_end: "2025-06-30"
+    baseline_period_end: "2024-06-30"
+  - id: FY26-Q2
+    period_end: "2025-09-30"
+    baseline_period_end: "2024-09-30"
+  - id: FY26-Q3
+    period_end: "2025-12-31"
+    baseline_period_end: "2024-12-31"
+  - id: FY26-Q4
+    period_end: "2026-03-31"
+    baseline_period_end: "2025-03-31"
+  - id: FY27-Q1
+    period_end: "2026-06-30"
+    baseline_period_end: "2025-06-30"
+
+cohort:
+  primary_transport_test: FY27-Q2-2026-09-06
+  primary_transport_test_path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  planned_observations: 600
+  bias_label: SURVIVORSHIP_SENSITIVE_FIXED_2026_COHORT
+  point_in_time_universe_required_for_validation: true
+
+phase_separation:
+  phase_a: capture filings, corporate actions, reference prices, and signals only
+  phase_b: after phase-a manifest is frozen, acquire entry/exit/benchmark outcomes and evaluate
+  outcome_data_forbidden_in_phase_a: true
+
+statistics:
+  primary_binary_comparison: POSITIVE_vs_NEGATIVE
+  continuous_ue: report
+  company_cluster_bootstrap: true
+  leave_one_company_out: true
+  quarter_splits: true
+  winner_concentration: true
+
+decision:
+  historical_replay_can_validate_live_capital: false
+  prospective_H002_R001_remains_authoritative: true
