@@ -25,11 +25,8 @@ jobs:
       - name: Verify and import audited batches 0016-0091
         run: |
           test "$(ls .github/h003-bz-part-*.b64 | wc -l)" -eq 9
-          for n in 00 01 02 03 04 05 06 07; do
-            test "$(wc -c < .github/h003-bz-part-${n}.b64)" -eq 14000
-          done
-          test "$(wc -c < .github/h003-bz-part-08.b64)" -eq 11736
-          cat .github/h003-bz-part-*.b64 | base64 --decode > /tmp/h003-missing.tar.bz2
+          wc -c .github/h003-bz-part-*.b64
+          cat .github/h003-bz-part-*.b64 | tr -d ' \t\r\n' | base64 --decode > /tmp/h003-missing.tar.bz2
           echo 'b27d4d38f31f82ebbe6765685d164ec452f0cac04511d9d78435b5a2cbead2ad  /tmp/h003-missing.tar.bz2' | sha256sum -c -
           mkdir -p research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments
           tar -xjf /tmp/h003-missing.tar.bz2 \
