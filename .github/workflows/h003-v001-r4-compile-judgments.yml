@@ -1,0 +1,49 @@
+name: H003-V001 r4 compile semantic judgments
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-r4-20260907
+    paths:
+      - research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments/**
+      - .github/workflows/h003-v001-r4-compile-judgments.yml
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-r4-20260907
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Load canonical compiler from main
+        run: |
+          git fetch origin main --depth=1
+          git show origin/main:scripts/compile_h003_review_judgments.py > /tmp/compile_h003_review_judgments.py
+      - name: Compile all currently anchored semantic judgments
+        run: |
+          python /tmp/compile_h003_review_judgments.py \
+            --batch-manifest research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20/manifest.json \
+            --batch-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20 \
+            --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
+            --judgments-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments \
+            --out-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
+            --repo-root .
+      - name: Commit compiled decision progress
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions
+          if git diff --cached --quiet; then
+            echo "compiled decisions unchanged"
+            exit 0
+          fi
+          git commit -m "Compile H003-V001 r4 semantic judgment progress"
+          git push origin HEAD:run/h003-v001-blind-review-r4-20260907
