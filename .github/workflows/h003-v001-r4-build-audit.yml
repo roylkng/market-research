@@ -1,0 +1,330 @@
+name: H003-V001 r4 source-metadata audited queue
+
+on:
+  push:
+    branches:
+      - run/h003-v001-blind-review-r4-20260907
+    paths:
+      - .github/workflows/h003-v001-r4-build-audit.yml
+
+permissions:
+  actions: read
+  contents: write
+
+env:
+  SOURCE_SHARD_RUN_ID: '34056101474'
+  SOURCE_EVIDENCE_BRANCH: run/h003-e002-sharded-20260907
+  SOURCE_REPORT_PATH: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json
+  EXPECTED_REPORT_SHA256: cb48b1e18c76a3ea2d06b13383955c0f0c6efa6d3d65bd132ac3d5e59217ffea
+  EXPECTED_CANDIDATE_COUNT: '2692'
+  OUT: research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: run/h003-v001-blind-review-r4-20260907
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: make validate
+
+      - name: Download frozen E002 shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: h003-e002-shard-*
+          path: shard-downloads
+          run-id: ${{ env.SOURCE_SHARD_RUN_ID }}
+          github-token: ${{ github.token }}
+
+      - name: Assemble exact raw PDF store
+        run: |
+          python - <<'PY'
+          import hashlib
+          import shutil
+          from pathlib import Path
+          artifacts = sorted(Path('shard-downloads').glob('h003-e002-shard-*'))
+          if len(artifacts) != 8:
+              raise SystemExit(f'expected 8 shard artifacts, found {len(artifacts)}')
+          dst = Path('review-input/store/raw/sha256')
+          dst.mkdir(parents=True, exist_ok=True)
+          for artifact in artifacts:
+              src_dir = artifact / 'store' / 'raw' / 'sha256'
+              if not src_dir.is_dir():
+                  raise SystemExit(f'missing raw store in {artifact}')
+              for src in src_dir.glob('*.pdf'):
+                  raw = src.read_bytes()
+                  if hashlib.sha256(raw).hexdigest() != src.stem:
+                      raise SystemExit(f'raw hash mismatch: {src}')
+                  target = dst / src.name
+                  if target.exists() and target.read_bytes() != raw:
+                      raise SystemExit(f'content collision: {src.name}')
+                  if not target.exists():
+                      shutil.copy2(src, target)
+          print(f'unique PDFs={len(list(dst.glob("*.pdf")))}')
+          PY
+
+      - name: Retrieve exact E002 corpus
+        run: |
+          mkdir -p review-input
+          git fetch origin "$SOURCE_EVIDENCE_BRANCH" --depth=1
+          git show FETCH_HEAD:"$SOURCE_REPORT_PATH" > review-input/report.json
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from marketlab.h003_review import load_complete_candidate_corpus
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          assert corpus.report_sha256 == os.environ['EXPECTED_REPORT_SHA256']
+          assert corpus.candidate_count == int(os.environ['EXPECTED_CANDIDATE_COUNT'])
+          print(corpus.report_sha256, corpus.candidate_count)
+          PY
+
+      - name: Build V001 r4 package
+        run: |
+          rm -rf "$OUT"
+          python scripts/build_h003_review_package.py \
+            --candidate-report review-input/report.json \
+            --review-rule registry/h003_review_rule.yaml \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --candidate-store review-input/store \
+            --out-dir "$OUT"
+
+      - name: Independent full-corpus source-metadata and identity audit
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          from collections import defaultdict
+          from datetime import UTC, datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          from marketlab.h003_candidates import extract_pdf_pages
+          from marketlab.h003_review import load_complete_candidate_corpus
+
+          out = Path(os.environ['OUT'])
+          corpus = load_complete_candidate_corpus(Path('review-input/report.json'))
+          payloads = json.loads((out / 'blind-payloads.json').read_text(encoding='utf-8'))
+          by_id = {str(x['candidate_id']): x for x in payloads}
+          if len(by_id) != corpus.candidate_count:
+              raise SystemExit('blind payload denominator mismatch')
+
+          universe = json.loads(Path('research/prospective/universes/FY27-Q2-2026-09-06.json').read_text())
+          company_names = {str(x['symbol']).upper(): str(x['company_name']) for x in universe['members']}
+
+          month = r'(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)'
+          date_patterns = (
+              re.compile(rf'^{month}\s+\d{{1,2}}(?:st|nd|rd|th)?,?\s+\d{{4}}$', re.I),
+              re.compile(rf'^\d{{1,2}}(?:st|nd|rd|th)?\s+{month},?\s+\d{{4}}$', re.I),
+              re.compile(r'^\d{1,2}[-/.](?:\d{1,2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[-/.]\d{2,4}$', re.I),
+              re.compile(r'^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}$'),
+          )
+          page_marker = re.compile(r'^Page\s+\d+\s+of\s+\d+$', re.I)
+
+          def header_dates(lines):
+              nonempty = [line.strip() for line in lines if line.strip()]
+              marker = next((i for i, line in enumerate(nonempty[:10]) if page_marker.fullmatch(line)), None)
+              header = nonempty[:marker] if marker is not None else nonempty[:2]
+              return tuple(line for line in header if any(p.fullmatch(line) for p in date_patterns))
+
+          def exchange_date_terms(timestamp):
+              dt = datetime.fromisoformat(timestamp)
+              dates = {dt.astimezone(UTC).date(), dt.astimezone(ZoneInfo('Asia/Kolkata')).date()}
+              terms = set()
+              for d in dates:
+                  terms.update({
+                      d.isoformat(), d.strftime('%B %-d, %Y'), d.strftime('%b %-d, %Y'),
+                      d.strftime('%d %B %Y'), d.strftime('%d %b %Y'), d.strftime('%d/%m/%Y'),
+                      d.strftime('%d-%m-%Y'), d.strftime('%d.%m.%Y'),
+                  })
+              return terms
+
+          candidates_by_raw = defaultdict(list)
+          for candidate in corpus.candidates_by_id.values():
+              candidates_by_raw[candidate.raw_sha256].append(candidate)
+
+          raw_header_dates = {}
+          for raw_sha, candidates in candidates_by_raw.items():
+              raw = (Path('review-input/store/raw/sha256') / f'{raw_sha}.pdf').read_bytes()
+              if hashlib.sha256(raw).hexdigest() != raw_sha:
+                  raise SystemExit(f'raw SHA changed: {raw_sha}')
+              pages, _ = extract_pdf_pages(raw)
+              raw_header_dates[raw_sha] = {page.page_number: header_dates(page.lines) for page in pages}
+
+          violations = []
+          embedded = []
+          for candidate_id, candidate in corpus.candidates_by_id.items():
+              payload = by_id[candidate_id]
+              visible_raw = ' '.join([str(payload['redacted_excerpt']), *map(str, payload['redacted_page_context'])])
+              visible = visible_raw.casefold()
+
+              company = company_names[candidate.symbol]
+              company_terms = {candidate.symbol, company}
+              base = re.sub(r'(?i)\s+(?:limited|ltd\.?|private limited|pvt\.?\s+ltd\.?)$', '', company).strip()
+              if base:
+                  company_terms.update({base, base + ' Limited', base + ' Ltd', base + ' Ltd.'})
+              for term in sorted(company_terms, key=len, reverse=True):
+                  if term.strip() and term.casefold() in visible:
+                      violations.append({'candidate_id': candidate_id, 'kind': 'company_identity', 'term': term})
+                      break
+
+              for term in raw_header_dates[candidate.raw_sha256].get(candidate.page_number, ()): 
+                  if term.casefold() in visible:
+                      violations.append({'candidate_id': candidate_id, 'kind': 'source_header_date', 'term': term})
+                      break
+
+              for term in exchange_date_terms(candidate.exchange_published_at_utc):
+                  if term.casefold() in visible:
+                      violations.append({'candidate_id': candidate_id, 'kind': 'exchange_publication_date', 'term': term})
+                      break
+
+              if re.search(r'[A-Za-z0-9]\[COMPANY\][A-Za-z0-9]', visible_raw):
+                  embedded.append(candidate_id)
+
+          audit_unsigned = {
+              'schema_version': 4,
+              'candidate_count': corpus.candidate_count,
+              'candidate_report_sha256': corpus.report_sha256,
+              'blind_payload_sha256': json.loads((out / 'package.json').read_text())['blind_payload_sha256'],
+              'violation_count': len(violations),
+              'violations': violations[:200],
+              'embedded_company_placeholder_count': len(embedded),
+              'embedded_company_placeholder_examples': embedded[:100],
+          }
+          raw = json.dumps(audit_unsigned, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+          audit = {**audit_unsigned, 'audit_sha256': hashlib.sha256(raw).hexdigest()}
+          (out / 'blindness-audit.json').write_text(json.dumps(audit, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({k: v for k, v in audit.items() if not isinstance(v, list)}, indent=2))
+          if violations or embedded:
+              raise SystemExit(f'blindness audit failed: violations={len(violations)} embedded={len(embedded)}')
+          PY
+
+      - name: Freeze deterministic 40-candidate chunks
+        run: |
+          python scripts/chunk_h003_review_queue.py \
+            --queue "$OUT/semantic-review-queue.json" \
+            --out-dir "$OUT/chunks" \
+            --chunk-size 40
+
+      - name: Build 20-candidate batches and lossless JSONL projection
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          def h(value):
+              return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()).hexdigest()
+
+          out = Path(os.environ['OUT'])
+          queue = json.loads((out / 'semantic-review-queue.json').read_text())
+          batch_root = out / 'batches20'
+          jsonl_root = out / 'review-jsonl'
+          batch_root.mkdir(parents=True, exist_ok=True)
+          jsonl_root.mkdir(parents=True, exist_ok=True)
+          triage = []
+          for item in queue:
+              context = list(map(str, item['redacted_page_context']))
+              excerpt = str(item['redacted_excerpt'])
+              before = context[0] if context else ''
+              after = context[-1] if context else ''
+              ex = ' '.join(excerpt.split()).casefold()
+              for i, line in enumerate(context):
+                  norm = ' '.join(line.split())
+                  if norm and (norm.casefold() in ex or ex in norm.casefold()):
+                      before = context[i - 1] if i > 0 else ''
+                      after = context[i + 1] if i + 1 < len(context) else ''
+                      break
+              triage.append({
+                  'candidate_id': item['candidate_id'], 'payload_sha256': item['payload_sha256'],
+                  'excerpt': excerpt, 'before': before, 'after': after,
+                  'future': item['future_markers'], 'deadline': item['deadline_markers'],
+                  'quant': item['quantitative_tokens'], 'domain': item['domain_markers'],
+              })
+          entries = []
+          jsonl_entries = []
+          for start in range(0, len(triage), 20):
+              index = start // 20
+              batch = triage[start:start + 20]
+              filename = f'batch-{index:04d}.json'
+              batch_path = batch_root / filename
+              batch_path.write_text(json.dumps(batch, ensure_ascii=False, separators=(',', ':')) + '\n')
+              sha = h(batch)
+              entries.append({'batch_index': index, 'file': filename, 'candidate_count': len(batch), 'batch_sha256': sha, 'first_candidate_id': batch[0]['candidate_id'], 'last_candidate_id': batch[-1]['candidate_id']})
+              jsonl_path = jsonl_root / filename.replace('.json', '.jsonl')
+              jsonl_path.write_text('\n'.join(json.dumps(x, ensure_ascii=False, separators=(',', ':')) for x in batch) + '\n')
+              jsonl_entries.append({'batch_index': index, 'file': jsonl_path.name, 'candidate_count': len(batch), 'source_batch_sha256': sha, 'jsonl_bytes_sha256': hashlib.sha256(jsonl_path.read_bytes()).hexdigest()})
+          unsigned = {'schema_version': 4, 'source_semantic_queue_sha256': h(queue), 'candidate_count': len(triage), 'batch_size': 20, 'batch_count': len(entries), 'candidate_ids_sha256': h([x['candidate_id'] for x in triage]), 'batches': entries}
+          manifest = {**unsigned, 'manifest_sha256': h(unsigned)}
+          (batch_root / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+          ju = {'schema_version': 1, 'source_batch_manifest_sha256': manifest['manifest_sha256'], 'candidate_count': len(triage), 'batch_count': len(jsonl_entries), 'entries': jsonl_entries}
+          jm = {**ju, 'manifest_sha256': h(ju)}
+          (jsonl_root / 'manifest.json').write_text(json.dumps(jm, indent=2, sort_keys=True) + '\n')
+          PY
+
+      - name: Write r4 provenance
+        run: |
+          python - <<'PY'
+          import json, os
+          from datetime import UTC, datetime
+          from pathlib import Path
+          out = Path(os.environ['OUT'])
+          package = json.loads((out / 'package.json').read_text())
+          audit = json.loads((out / 'blindness-audit.json').read_text())
+          batches = json.loads((out / 'batches20/manifest.json').read_text())
+          if package['candidate_count'] != 2692 or package['blind_payload_count'] != 2692:
+              raise SystemExit('candidate denominator changed')
+          if package['mechanical_rejected_count'] + package['semantic_review_count'] != 2692:
+              raise SystemExit('review denominator mismatch')
+          metadata = {
+              'schema_version': 4,
+              'status': 'VALIDATED_BLIND_PACKAGE_READY_FOR_REVIEW',
+              'candidate_report_sha256': package['candidate_report_sha256'],
+              'candidate_count': package['candidate_count'],
+              'mechanical_rejected_count': package['mechanical_rejected_count'],
+              'semantic_review_count': package['semantic_review_count'],
+              'review_rule_id': package['review_rule_id'],
+              'review_rule_sha256': package['review_rule_sha256'],
+              'blind_payload_sha256': package['blind_payload_sha256'],
+              'semantic_queue_sha256': package['semantic_queue_sha256'],
+              'package_sha256': package['package_sha256'],
+              'blindness_audit_sha256': audit['audit_sha256'],
+              'blindness_violation_count': audit['violation_count'],
+              'embedded_company_placeholder_count': audit['embedded_company_placeholder_count'],
+              'review_batch_manifest_sha256': batches['manifest_sha256'],
+              'source_shard_run_id': os.environ['SOURCE_SHARD_RUN_ID'],
+              'source_evidence_commit': '2682d91a2be0dc3b69876ef397791515ff9146f2',
+              'invalidated_predecessor_branches': ['run/h003-v001-blind-review-20260907', 'run/h003-v001-blind-review-r2-20260907', 'run/h003-v001-blind-review-r3-20260907'],
+              'anchored_at_utc': datetime.now(UTC).isoformat().replace('+00:00','Z'),
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(json.dumps(metadata, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+
+      - run: rm "$OUT/semantic-review-queue.json"
+
+      - name: Anchor r4
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h003-v001-r4-build-audit.yml
+          git add "$OUT"
+          git commit -m "Anchor source-metadata-audited H003-V001 r4 queue"
+          git push origin HEAD:run/h003-v001-blind-review-r4-20260907
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h003-v001-r4-${{ github.run_id }}
+          path: research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4
+          retention-days: 90
+          if-no-files-found: error
