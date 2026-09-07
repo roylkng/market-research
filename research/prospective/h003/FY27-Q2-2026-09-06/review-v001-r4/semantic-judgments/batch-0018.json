@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "batch_file": "batch-0018.json",
+  "batch_sha256": "1f4281184f00a5ec573b96868a9e670fb669b29531f4f3c85df69cfc12e515ed",
+  "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
+  "judgments": [
+    {
+      "candidate_id": "184f4cd63ccb6854c0e4516f560f587fbbc722fe8b3e1fe046249ac1eacede04",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER",
+      "note": "This is an analyst question about a previously stated contribution-margin target, not a management commitment in the candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "690b45bd0e50a05f5b5daa2bad7ede3f9de0dc2acd050ebad9cb5d0da332126f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The 55%-60% gross-margin range is reiterated without a bounded target period in the blind evidence.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "e6d55bfd58e2d39491cbde81bb037a327fe5ead146dd08fd86ff372e08e8fe03",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": null,
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPACITY_ADDITION_TARGET",
+        "metric": "capacity_addition",
+        "unit": "GW",
+        "target_min": 4.5,
+        "target_max": 5.0,
+        "target_deadline": null,
+        "target_horizon": "coming year",
+        "normalized_claim": "Add 4.5-5 GW of the referenced capacity in the coming year."
+      }
+    },
+    {
+      "candidate_id": "94974de6d1f186633edeb7aa5bb49e5d7908bb0e2dd05794f48ddb9f85d29877",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The candidate also mentions a 50,000-ton target but does not bind that tonnage to a clear period; V001 normalizes only the bounded startup milestone.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "OPERATING_MILESTONE",
+        "metric": "new_mill_start",
+        "unit": null,
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "this or next month",
+        "normalized_claim": "Start the referenced new mill this month or next month."
+      }
+    },
+    {
+      "candidate_id": "7e2a67f135e69312fe7a83ef5c9b2cd26224be043d696547e1bbd84b973fbcff",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Double-digit revenue and operating-profit growth for next year are not frozen numeric thresholds under V001.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "05fe1b5b14b1a058ab48b873b756e44a9f5b6c6a1dad7af9a024e4c4d15f5590",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": null,
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "MARGIN_GUIDANCE",
+        "metric": "ebitda_margin",
+        "unit": "percent",
+        "target_min": 24.0,
+        "target_max": 25.0,
+        "target_deadline": null,
+        "target_horizon": "full year",
+        "normalized_claim": "Deliver full-year EBITDA margin of 24%-25%."
+      }
+    },
+    {
+      "candidate_id": "c041789773c3f3806c5ecc5f41fc6d31610fa576570762d6647bfe23e8ab92b2",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The passage describes a category-expansion strategy rather than a measurable launch count or deadline.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "19bb06a80e22cb8d7ce306edfef7ee47d0820cfd0f572591a0d2a84fe50d094b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "More solid growth in FY27 is directional and no growth threshold is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "208c4b49bbfe8f887d7fa51b80224281c0bf3f7659135f41e2a9a6781ab0168c",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The same sentence also gives 17.5%-18.5% margin guidance; V001 normalizes the first complete guidance metric.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "REVENUE_GROWTH_GUIDANCE",
+        "metric": "revenue_growth",
+        "unit": "percent",
+        "target_min": 1.0,
+        "target_max": 4.0,
+        "target_deadline": null,
+        "target_horizon": "FY27",
+        "normalized_claim": "Deliver 1%-4% revenue growth in FY27."
+      }
+    },
+    {
+      "candidate_id": "515666b53fd93e15e337c2e4f0557cd28a00c12be44b3daad3b7ff951f660a5b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Ninety-percent utilization is current performance and the planned 1.6 million capacity expansion is not tied to a bounded completion date.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "03f6ff97b05fef8b98a18ecedd579fd9333b22e26fc28b09e591f5abc7a68a1a",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The additional 120 beds are contingent on occupancy rather than a dated commissioning commitment, and the expected 50% figure is not bound to a clear horizon in the candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "d72c8947b2db12587083a6f1a3792098f08cf4a293199814626bd7f4fe7c342c",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "INR6,700 crore is already spent and roughly INR21,000 crore is the implied remainder.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPEX_GUIDANCE",
+        "metric": "capital_expenditure",
+        "unit": "INR crore",
+        "target_min": 28000.0,
+        "target_max": 28000.0,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Undertake about INR28,000 crore of capital expenditure this year."
+      }
+    },
+    {
+      "candidate_id": "c58be90f316dcfd32a67bfb467d983f3a7d97b74f966072f03863c3227c2ee9c",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The candidate references a stiffer profitability target but never states the target level.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "bed307dd297ecf2855a6b083c9196f50c47a00faf1d9ffa58012a2dbebec661b",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The immediately preceding blind context explicitly binds the 10-million-pen figure to calendar 2026 and the potential Canadian launch.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "VOLUME_PLAN",
+        "metric": "canadian_launch_pen_volume",
+        "unit": "million pens",
+        "target_min": 10.0,
+        "target_max": 10.0,
+        "target_deadline": null,
+        "target_horizon": "calendar 2026 potential Canadian launch",
+        "normalized_claim": "Plan for about 10 million pens for the potential Canadian launch in calendar 2026."
+      }
+    },
+    {
+      "candidate_id": "e82a42404a7f1bc5cf3dd759cf506d61d0999da6b958d8f7d5697ad5c8825c39",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Returning to 65%-70% utilization is contingent on approval of a new line and has no bounded deadline.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ce392d5e2a7e26a3816a4a1dac2410d6ca367d3e5c122320ba3c615d7c944050",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The approximately US$600 million plan is explicitly subject to plus/minus variation and is not tied to a clear annual or other bounded horizon in the candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "233bf7c5e1b0123966ac384397c0da864facfabcfab9040f348d43079f4daa30",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The same passage also gives a clinker-conversion-ratio milestone; V001 normalizes the first complete future target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPACITY_TARGET",
+        "metric": "energy_capacity",
+        "unit": "GW",
+        "target_min": 1.8,
+        "target_max": 1.8,
+        "target_deadline": null,
+        "target_horizon": "FY27",
+        "normalized_claim": "Reach 1.8 GW of the referenced energy capacity by FY27."
+      }
+    },
+    {
+      "candidate_id": "bf9b1b44fca76bb1d66cf72a92eaa233d70673eb392ffb460ce3a18e1b32170a",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Resolving the government issue 'one way or other' has no deadline or defined resolution criterion.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "f760eddc7ec984597f400beac826752d966c78d96a6ec2cabd85ae4d9fdbbe9f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Continuing market-share momentum while scaling products is directional and no market-share target or deadline is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "79fc350d7030e60e4987ce1d4409e5acb8537b50dcddce610758028be6676177",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The '18 plus/minus a little bit' level is not bound to a clear metric and target period in the blind candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    }
+  ]
+}

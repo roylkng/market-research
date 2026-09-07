@@ -4,25 +4,219 @@
   "batch_sha256": "886b2af516a5f3d49014203483467fd738f9f8f71fd7eda2b5fa3c886f11d651",
   "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
   "judgments": [
-    {"candidate_id":"06e5f41106370d2fd26b9ab005b64a03420c474c0bf6d8dbce4582ec57fd64e9","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management gives an objective completion milestone and a 40-month horizon. The 400-bed reference is project context and is not separately normalized.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PROJECT_COMPLETION_MILESTONE","metric":"referenced_project_completion","unit":"status","target_min":null,"target_max":null,"target_deadline":null,"target_horizon":"within 40 months","normalized_claim":"Complete the referenced project within 40 months."}},
-    {"candidate_id":"c17ce65f9d609fc8880fd2693ac4d7a583550a0c11a158467d948b1b039d8c64","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"INR115 crore is revenue already earned in the current quarter. The forward statement concerns intending to report smart-meter segment numbers, which is a disclosure process rather than an operating delivery commitment.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"7b07da5c5016f986934e636fa2b75fb61a5dd1b4c700b8550344679048c4121b","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The 23% EBITDA margin and 110-bps decline are reported period results described as being in line with prior guidance. No new future commitment is stated.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"d930a274af6326129eb519415cac566a2005074a307c96a0de69c10768eaebcb","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management says it will work toward a 20% level, but the blind candidate provides no bounded delivery horizon. Strong continuing growth is qualitative context.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"80a2e4c7f7ed44748638c98e7a4dbd793a50895040f4e928778764bc753c5bec","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"The 9.3%-to-8.2% movement is historical. 'Margin quality to improve going forward' has neither an explicit comparison threshold nor a bounded horizon under V001.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"9939039b4e89b0f58a8a06055b6aa39feec4e1199dda3239b91b9b47b52e483f","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management provides a specific geographic market-entry milestone within 12 months. The hoped-for FY27 pilot launch is not separately encoded to avoid multiple claims from one candidate.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"MARKET_ENTRY_MILESTONE","metric":"delhi_ncr_market_entry","unit":"status","target_min":null,"target_max":null,"target_deadline":null,"target_horizon":"next 12 months","normalized_claim":"Enter the Delhi NCR market within the next 12 months."}},
-    {"candidate_id":"5cac5fc11d64e634fa155939548156100163f17fc67974835155db2ff608338a","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management uses last year's approximately 5% price growth as the explicit reference and expects a similar trend in FY27. V001 conservatively normalizes the target at about 5%.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PRICE_GROWTH_TARGET","metric":"price_growth","unit":"percent","target_min":5.0,"target_max":5.0,"target_deadline":null,"target_horizon":"FY27","normalized_claim":"Deliver approximately 5% price growth in FY27."}},
-    {"candidate_id":"d9bf6a1c432ec5fd2597d9c2a6825bc314f986a8cfc04a028c779aa1abc4da19","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"The next-year horizon is explicit, but 'significant growth' in Animal Health is not an objective threshold under frozen V001. The CropScience commercialization statement is clipped before its own timing is established.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"faf66428283519df4d025ef5b6911abff2c4689c3d0968d8ecf64e13264a4c6d","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"17.55 million tons is an objective capacity endpoint, but the completion timing is clipped at 'January' with no year. Publication timing is hidden by design, so V001 cannot infer which January is intended.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"b5d227b2a4f0396989bea09852401117ba17288d68ca0f225e8a979e6a4ae0f0","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"FY26 is bounded, but 'double-digit revenue growth' does not state an explicit numeric threshold under frozen V001 and is therefore not conservatively resolvable.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"1db92b17bf958dd956b902ee2e5574bb0043df8a8adfee639648f6c8fd17bb2e","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The 90%-95% capacity-utilization expectation is measurable, but no deadline or bounded horizon is visible in the blind candidate.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"7b6a90d1ca350e2ba52b3f120999be72db7b911531b50355d00ed770feab129d","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management explicitly says it will continue to drive the stated CAGR in the referenced portfolios. V001 preserves this as an ongoing minimum growth commitment and does not separately encode the qualitative margin-improvement statement.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"REVENUE_GROWTH_TARGET","metric":"referenced_portfolio_cagr","unit":"percent CAGR","target_min":20.0,"target_max":null,"target_deadline":null,"target_horizon":"ongoing","normalized_claim":"Continue to deliver at least 20% CAGR in the referenced portfolios on an ongoing basis."}},
-    {"candidate_id":"0adced08a8e4927b63da67f8605a9126e6e8fca8a1294952d819dc071fbc9593","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The candidate explains already-realized Q1 revenue growth relative to management's prior expectation and attributes a one-off 50-bps impact. It contains no new future commitment.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"8f191627432c2804938760c31904c228c0733945708826868a21bdd23f3a7ca7","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"Management expects to have a clearer monetization strategy within 12 months and only potentially to sell land. This is a planning/process milestone, not an objective operating or transaction-delivery commitment.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"6257eba38eec6d70aad4b791d8f59f555773733c48f22034ebff2ed748ea8dcf","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The operational bed-capacity target, current baseline, and March deadline are explicit. The acquisition-integration comment is context and is not separately normalized.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"BED_CAPACITY_TARGET","metric":"operational_bed_capacity","unit":"beds","target_min":430.0,"target_max":430.0,"target_deadline":null,"target_horizon":"by March","normalized_claim":"Increase operational bed capacity from 376 to 430 beds by March."}},
-    {"candidate_id":"bb0a4eb01b7a1c2aea7fa84c9075e71bb0f2d1c662f71e16fbdfb22dd85becf8","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The passage describes more than INR1,000 crore of investment and plant modernization/line expansion that has already been occurring over the last five years. No distinct future endpoint or horizon is stated.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"4e4273e9055a7c8bf051cb7b1e69d584f9103a15d1ff3c15ed56cfdabfd60b70","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The cost-takeout program is described as multi-year and 'a couple of hundred million euros', while next year is only when management wants to capture as much benefit as possible. The amount attributable to a bounded horizon is not explicit.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"9f04d7cd92fdef4c2eb1f422cab321f765e4578e043ce62f4f0725dd6e9432c3","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"The next-financial-year horizon is explicit, but 'meaningful growth' has no numeric or objective relative threshold. The 43 filed and 21 final ANDAs are current facts.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"d80bbe512bb19817a1ad6ca31bcc76120c1cd2b5410ceb73e14fae9d0a808f7e","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Deployment over the next few years is not tied to an identifiable delivery quantity, while the possible 5%-10% ratio tweaking does not identify which ratios are targeted or a specific endpoint.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"a84d7a69f1bdab1ed955ff165d0357bdb684fc5150e81824ce61222d98b479c5","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The preceding context explicitly discusses the trajectory of the year, and management states a plan to launch about 20 U.S. products. V001 retains the source-relative annual horizon without inferring a calendar or fiscal year from hidden publication metadata.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PRODUCT_LAUNCH_TARGET","metric":"us_product_launches","unit":"products","target_min":20.0,"target_max":20.0,"target_deadline":null,"target_horizon":"the stated year","normalized_claim":"Launch approximately 20 products in the United States during the stated year."}}
+    {
+      "candidate_id": "06e5f41106370d2fd26b9ab005b64a03420c474c0bf6d8dbce4582ec57fd64e9",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management gives an objective completion milestone and a 40-month horizon. The 400-bed reference is project context and is not separately normalized.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PROJECT_COMPLETION_MILESTONE",
+        "metric": "referenced_project_completion",
+        "unit": "status",
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "within 40 months",
+        "normalized_claim": "Complete the referenced project within 40 months."
+      }
+    },
+    {
+      "candidate_id": "c17ce65f9d609fc8880fd2693ac4d7a583550a0c11a158467d948b1b039d8c64",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "INR115 crore is revenue already earned in the current quarter. The forward statement concerns intending to report smart-meter segment numbers, which is a disclosure process rather than an operating delivery commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "7b07da5c5016f986934e636fa2b75fb61a5dd1b4c700b8550344679048c4121b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The 23% EBITDA margin and 110-bps decline are reported period results described as being in line with prior guidance. No new future commitment is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "d930a274af6326129eb519415cac566a2005074a307c96a0de69c10768eaebcb",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management says it will work toward a 20% level, but the blind candidate provides no bounded delivery horizon. Strong continuing growth is qualitative context.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "80a2e4c7f7ed44748638c98e7a4dbd793a50895040f4e928778764bc753c5bec",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The 9.3%-to-8.2% movement is historical. 'Margin quality to improve going forward' has neither an explicit comparison threshold nor a bounded horizon under V001.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "9939039b4e89b0f58a8a06055b6aa39feec4e1199dda3239b91b9b47b52e483f",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management provides a specific geographic market-entry milestone within 12 months. The hoped-for FY27 pilot launch is not separately encoded to avoid multiple claims from one candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "MARKET_ENTRY_MILESTONE",
+        "metric": "delhi_ncr_market_entry",
+        "unit": "status",
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "next 12 months",
+        "normalized_claim": "Enter the Delhi NCR market within the next 12 months."
+      }
+    },
+    {
+      "candidate_id": "5cac5fc11d64e634fa155939548156100163f17fc67974835155db2ff608338a",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management uses last year's approximately 5% price growth as the explicit reference and expects a similar trend in FY27. V001 conservatively normalizes the target at about 5%.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PRICE_GROWTH_TARGET",
+        "metric": "price_growth",
+        "unit": "percent",
+        "target_min": 5.0,
+        "target_max": 5.0,
+        "target_deadline": null,
+        "target_horizon": "FY27",
+        "normalized_claim": "Deliver approximately 5% price growth in FY27."
+      }
+    },
+    {
+      "candidate_id": "d9bf6a1c432ec5fd2597d9c2a6825bc314f986a8cfc04a028c779aa1abc4da19",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The next-year horizon is explicit, but 'significant growth' in Animal Health is not an objective threshold under frozen V001. The CropScience commercialization statement is clipped before its own timing is established.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "faf66428283519df4d025ef5b6911abff2c4689c3d0968d8ecf64e13264a4c6d",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "17.55 million tons is an objective capacity endpoint, but the completion timing is clipped at 'January' with no year. Publication timing is hidden by design, so V001 cannot infer which January is intended.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "b5d227b2a4f0396989bea09852401117ba17288d68ca0f225e8a979e6a4ae0f0",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "FY26 is bounded, but 'double-digit revenue growth' does not state an explicit numeric threshold under frozen V001 and is therefore not conservatively resolvable.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "1db92b17bf958dd956b902ee2e5574bb0043df8a8adfee639648f6c8fd17bb2e",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The 90%-95% capacity-utilization expectation is measurable, but no deadline or bounded horizon is visible in the blind candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "7b6a90d1ca350e2ba52b3f120999be72db7b911531b50355d00ed770feab129d",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management explicitly says it will continue to drive the stated CAGR in the referenced portfolios. V001 preserves this as an ongoing minimum growth commitment and does not separately encode the qualitative margin-improvement statement.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "REVENUE_GROWTH_TARGET",
+        "metric": "referenced_portfolio_cagr",
+        "unit": "percent CAGR",
+        "target_min": 20.0,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "ongoing",
+        "normalized_claim": "Continue to deliver at least 20% CAGR in the referenced portfolios on an ongoing basis."
+      }
+    },
+    {
+      "candidate_id": "0adced08a8e4927b63da67f8605a9126e6e8fca8a1294952d819dc071fbc9593",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The candidate explains already-realized Q1 revenue growth relative to management's prior expectation and attributes a one-off 50-bps impact. It contains no new future commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "8f191627432c2804938760c31904c228c0733945708826868a21bdd23f3a7ca7",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "Management expects to have a clearer monetization strategy within 12 months and only potentially to sell land. This is a planning/process milestone, not an objective operating or transaction-delivery commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "6257eba38eec6d70aad4b791d8f59f555773733c48f22034ebff2ed748ea8dcf",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The operational bed-capacity target, current baseline, and March deadline are explicit. The acquisition-integration comment is context and is not separately normalized.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "BED_CAPACITY_TARGET",
+        "metric": "operational_bed_capacity",
+        "unit": "beds",
+        "target_min": 430.0,
+        "target_max": 430.0,
+        "target_deadline": null,
+        "target_horizon": "by March",
+        "normalized_claim": "Increase operational bed capacity from 376 to 430 beds by March."
+      }
+    },
+    {
+      "candidate_id": "bb0a4eb01b7a1c2aea7fa84c9075e71bb0f2d1c662f71e16fbdfb22dd85becf8",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The passage describes more than INR1,000 crore of investment and plant modernization/line expansion that has already been occurring over the last five years. No distinct future endpoint or horizon is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "4e4273e9055a7c8bf051cb7b1e69d584f9103a15d1ff3c15ed56cfdabfd60b70",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The cost-takeout program is described as multi-year and 'a couple of hundred million euros', while next year is only when management wants to capture as much benefit as possible. The amount attributable to a bounded horizon is not explicit.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "9f04d7cd92fdef4c2eb1f422cab321f765e4578e043ce62f4f0725dd6e9432c3",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The next-financial-year horizon is explicit, but 'meaningful growth' has no numeric or objective relative threshold. The 43 filed and 21 final ANDAs are current facts.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "d80bbe512bb19817a1ad6ca31bcc76120c1cd2b5410ceb73e14fae9d0a808f7e",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Deployment over the next few years is not tied to an identifiable delivery quantity, while the possible 5%-10% ratio tweaking does not identify which ratios are targeted or a specific endpoint.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "a84d7a69f1bdab1ed955ff165d0357bdb684fc5150e81824ce61222d98b479c5",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The preceding context explicitly discusses the trajectory of the year, and management states a plan to launch about 20 U.S. products. V001 retains the source-relative annual horizon without inferring a calendar or fiscal year from hidden publication metadata.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PRODUCT_LAUNCH_TARGET",
+        "metric": "us_product_launches",
+        "unit": "products",
+        "target_min": 20.0,
+        "target_max": 20.0,
+        "target_deadline": null,
+        "target_horizon": "the stated year",
+        "normalized_claim": "Launch approximately 20 products in the United States during the stated year."
+      }
+    }
   ]
 }

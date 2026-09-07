@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "batch_file": "batch-0019.json",
+  "batch_sha256": "beb36bfcefc6a8b7a47d3faf37bc387a74a988d83dca72f065679e7317f0b01e",
+  "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
+  "judgments": [
+    {
+      "candidate_id": "1c1d9b03eee2702085b8d76c839d36a69eee965c1ba86ff47abd9da9e1e7b2f2",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER",
+      "note": "The analyst is restating prior comments about 2026 drug launches; this candidate is not a fresh management commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "a556e9cffd2612199c71b546e7cc72be8d2d0634c44d75c8d5d092b555305ebe",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The same answer gives EBITDA and PAT growth targets; V001 normalizes the first complete target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "VOLUME_GROWTH_GUIDANCE",
+        "metric": "volume_growth",
+        "unit": "percent",
+        "target_min": 15.0,
+        "target_max": 20.0,
+        "target_deadline": null,
+        "target_horizon": "FY27",
+        "normalized_claim": "Deliver 15%-20% volume growth in FY27."
+      }
+    },
+    {
+      "candidate_id": "07aedc2f39adaf33904cc7617203717e4e1d9eece4b34d04d0182cdd42e3a1cb",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Growing equal to or probably above the market next year lacks a fixed benchmark spread or company growth target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "08140f845abeb9088e627c69c43af5936c7932c0cd31d6d987263d24d685b5bb",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The 10-15 day disruption and alternate-fuel response describe a past operating event, not a future commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "791c9e7e360ab207b635c116ad504ae476c17a5912ac576f055eb1e88c3ec775",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "FY27 INR800 and a later four-digit target are additional milestones; V001 normalizes the first bounded target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "EBITDA_TARGET",
+        "metric": "ebitda_per_metric_ton",
+        "unit": "INR per metric ton",
+        "target_min": 500.0,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Exceed INR500 EBITDA per metric ton this year."
+      }
+    },
+    {
+      "candidate_id": "d7f060ded48f7b780d7967f42f06556eaa2a626beaee567006189b38678a95f4",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Crossing INR20,000 crore of revenue is measurable but the candidate does not bind it to a clear target period.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "b70325e68d6c67c1593f426060a2c02dc0d9c589031fb7869f630cd8855537c7",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "About 5% annual growth is stated without a sufficiently identified company metric in the blind candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "0ce52bf7c7dc09be61380c0e0f26a9e46e831ec6dcd10f2fb8cb4afd0cf7e42b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management only says it will overcome the seasonal issue; the 18.5%-20% margin range appears in the analyst's subsequent question and is not a commitment here.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "e88d5c259e313a83ef20bba380cecf61e9cac543faf66bb511485aaf13ef80f7",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": null,
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "BED_CAPACITY_COMMISSIONING",
+        "metric": "nanavati_phase1_beds_commissioned",
+        "unit": "beds",
+        "target_min": 268.0,
+        "target_max": 268.0,
+        "target_deadline": null,
+        "target_horizon": "within 90 days",
+        "normalized_claim": "Commission the 268-bed Nanavati Phase I facility within 90 days."
+      }
+    },
+    {
+      "candidate_id": "97b36f3c31f133715bcd298adec1c85f90529f419537b7c3171a59e514b64dcc",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The passage describes a future decision point around 2029-30 rather than committing to a measurable growth outcome.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "fd013ef8bfdcce2f0831a1dbe1b90f0571a2bb4abecff33a452c63dff36d8d9b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Using the quarter for pre-launch activity is an action intention; the senior-living launch itself is not given a bounded launch deadline.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "1a73af08f2ac1d00a94bba24679f479b6df311d044df7a4dbde1fd7b321b84a7",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Continuing the same FY26 growth momentum into FY27 does not freeze a numeric growth threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ccccd0d1a3bfdabd5be4ff944cf9c0891e3efc7df98fd9007192b2aa073d2a54",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Continuing the current growth trajectory for two years lacks a measurable growth threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "a76785bbe2890b5a20f8dc88bb51a94b370c2c1a8f05b5d3fcb0999f4dffa5f2",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": null,
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PRODUCT_LAUNCH",
+        "metric": "referenced_product_launch",
+        "unit": null,
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "within the next 1-2 quarters",
+        "normalized_claim": "Launch the referenced completed product within the next 1-2 quarters."
+      }
+    },
+    {
+      "candidate_id": "ff74bb9fb39d38c93d7f751a8388149be8e66b075d7060510631d37c0fec9d04",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The future phrase refers to taking questions; the INR1,057 crore billing and 7% growth figures are reported Q4 FY26 results.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ca393d0da105b0508217e465d87939398fca86864e03e751733db44f70e4d7b8",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The passage reports that FY24 targets were already surpassed and gives Q3 performance; it contains no new future target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "8616cdd7702a9d64cf92a9a9812d7ac1c6694ff38b83e087982d09d1c83e474f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "ROCE is expected to continue growing, but no future ROCE threshold or deadline is committed; 17.7% and about 19% are historical/current values.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "42abea27a9b18a34238444c5130b26eb02e7b14e05be7eefe8e1ea063f5c0c6b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Tea prices returning to normal by Q3 is an external commodity expectation and 'normal' is not a fixed measurable threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "560a24af3af59c5de72126c9951ae484973e2156360aaa3d1faef507e66a230b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Keeping gross net-debt-to-EBITDA around 2 is specific, but no bounded target period is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "c593fcbcd966ee545c312adc70a33bbb145884519d6f0e4e0608c28cf1a28ec2",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The 15% B2B average-bill increase is current performance; the future wording describes discretionary market-by-market actions rather than a measurable target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    }
+  ]
+}

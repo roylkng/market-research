@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "batch_file": "batch-0016.json",
+  "batch_sha256": "901a9841e0953da15fb2c8388ac7eb0d94bb77c361ba5dd5eb03aa3d1e748636",
+  "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
+  "judgments": [
+    {
+      "candidate_id": "3987ffbffc32de1db8e8eb4a4a98c0f999c8c0cb60129b8b881d8efa113751fa",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The passage describes a long conversion runway but gives no bounded conversion target or deadline; under-10% is current mix context.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "85e418bfa23c99f1dac927341f23b45d8e1e94a0713a27e8506fe831a7bdd85b",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The 3.5 GWh figure is current installed capacity; V001 normalizes the explicit 10-plus GWh annual target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPACITY_TARGET",
+        "metric": "battery_energy_storage_capacity",
+        "unit": "GWh",
+        "target_min": 10.0,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Reach more than 10 GWh of battery energy storage capacity this year."
+      }
+    },
+    {
+      "candidate_id": "46917cba55201f92d52d83e869ab8aa8883c2bec509b4596727ff76d392d217e",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The expected portfolio/energy-margin development is qualitative and no measurable margin target is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "fa09b9887c3adc0db084491053f2d60e5a12cef84cc6d790b4cc7cfeb0222a80",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER",
+      "note": "This is an analyst question referring to unchanged 18%-20% guidance rather than a management commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "21231c1c48c50d773c79c1f5f4eb9dda6707472f1216f9077c6b458c29f5a6df",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The passage also says revenues begin this quarter; V001 normalizes the objectively checkable full-operation milestone.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "OPERATING_MILESTONE",
+        "metric": "europe_cmo_added_capacity_operational_status",
+        "unit": null,
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "next quarter",
+        "normalized_claim": "Make the referenced added European CMO capacity fully operational by next quarter."
+      }
+    },
+    {
+      "candidate_id": "9bfe091c68fad55fb8d9549d69ff041b41ab286dac2bb853c7113e9e4ef78476",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Responsible growth and a significant EBITDA-growth contribution are qualitative; the 12-18 month profitability path is background context without a specific target in the candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "9b307aa8324e30bc8242265d7874c4393c235087115f71f2a1bff3781344e4e8",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The blind context identifies Phase 1 as the initial solid-oral/potent-molecule capacity build; the completion milestone and horizon are explicit.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PROJECT_COMPLETION",
+        "metric": "phase1_solid_oral_capacity_project_completion",
+        "unit": null,
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "mid-2027",
+        "normalized_claim": "Complete Phase 1 of the referenced solid-oral capacity expansion by mid-2027."
+      }
+    },
+    {
+      "candidate_id": "0690de69c82f003c6b850977a07363b380cece33583fe5a9bfb4ee861b4f7e1d",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Mid-teens and early-double-digit capacity growth are not frozen numeric thresholds, so the candidate is not objectively resolvable under V001.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "124e26369f84fe6d304e84d8dd439511b75f45e4965496eeb0f303170a0edf4b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The roughly INR20 crore cost is described as the normal/current cost of the business, not a bounded future commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "48fa69f6ec6b63dc5dff2669e00496ab77e330f52d13ca1b7df01bf7cec28688",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Expected Q1 seasonality pressure is qualitative and lacks a measurable target threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "605f5d20a9f806caab1267843bb9ecabc224317764562d462276bd6ae40cdd30",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "This is a bounded operational commitment with an explicit annual horizon; the later switch to Pottangi depends on mine production.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "OPERATING_PLAN",
+        "metric": "fifth_stream_bauxite_feed_source",
+        "unit": null,
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Feed the new fifth stream from the existing bauxite mine during this year."
+      }
+    },
+    {
+      "candidate_id": "6042b66d75a1c1c43fd1d1880d5aafb2c9f1dbfd8651b63b483dc64de30e7ca9",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The 50-50 joint-venture split is current structural context and no future sharing deadline or target is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "6beada2e24bed7083c63d9f9caa43e8b0d73d3ef9fa551d88ef15ef3ffb39fda",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The 10-12 year statement describes average R&D-to-launch latency rather than a specific product launch commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "92cd477bc54367be60d346ce950b0c6d3c27727b65325535e26e2a5966701083",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The excerpt reports supply-chain resilience and current demand conditions without a bounded future management commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "113e2f267df7c008477c3e6049377738c752f0e67ef2d319cd6beb7faf18f248",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Q3 looking positive and growth going up as deals ramp are qualitative and have no measurable target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "5a49495ec43f7fde3bc8081bbe0afca4f772b723f05d0f4660d0f6095a7410f8",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Participation in tenders is an intention and the possible tender finalization is an external outcome stated as 'might'; no company-controlled measurable target is given.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "38319cdf508e86560df9d897bf21e762ce06f032a19b50b636381f48773fb0c6",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Pricing growth is only expected to progressively decline in H2; no bounded pricing-growth target is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "847835135426c6995583c3ddabeaf7010e94edc338b8d2821519fa4889bb014f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Sustaining 'normative' margin levels through Q4 FY26 lacks a numeric or otherwise fixed margin threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ca8d2569c80ef9c0e276c1360c8bad5c9408d26a3319cf446dc51e3a5293b44e",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The passage further allocates the total across transmission, distribution and smart metering; V001 normalizes the explicit total-capex commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPEX_GUIDANCE",
+        "metric": "capital_expenditure",
+        "unit": "INR crore",
+        "target_min": 22000.0,
+        "target_max": 22000.0,
+        "target_deadline": null,
+        "target_horizon": "next year",
+        "normalized_claim": "Spend about INR22,000 crore on capital expenditure next year."
+      }
+    },
+    {
+      "candidate_id": "38801ab7cdf3e6f8ac8ca66f9ed0fce14b29858513d8b23ec905f59c987680d1",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Returning to a 'higher growth rate' in Foods by Q4 does not define the growth threshold to be achieved.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    }
+  ]
+}

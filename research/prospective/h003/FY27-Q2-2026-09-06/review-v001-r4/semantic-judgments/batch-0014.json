@@ -1,28 +1,195 @@
 {
   "schema_version": 1,
   "batch_file": "batch-0014.json",
-  "batch_sha256": "080d59b7c027cc8471ae8f508657628a6579be7b3fa58740ff423bfc76170400",
+  "batch_sha256": "2a949b8bc7e3e7e4179b8fe6d3a060b63829e4b346473ed5562361d533fe24d3",
   "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
   "judgments": [
-    {"candidate_id":"46f83ea163b1120cb27b3580d25c74d5601e31bf51106951b050c80ba20e9816","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"EBITDA margin is expected to settle around 15%-16%, but no target period is stated in the reviewer-visible evidence.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"6934203c7b99e15d1331024f41d50266a34883d2b77fede67a9bfcb08e6b780a","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Operational margins are expected to improve next year, but no measurable improvement threshold is stated.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"f32def0f4a55f880b9d121e7c3af4b90ce5484b7f2577c61ff3e21d5f0740d4f","disposition":"REJECTED","reason_code":"REJECT_UNRELATED_CONTEXT_VALUE","note":"The 45% value is not cleanly tied to an identifiable future metric in this candidate; the surrounding margin commentary is qualitative.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"1a006c9517cc8b018a0c0f794cd61d9599253d33aed9d25a1f191beb2f26f949","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"H2 growth is described only as single-digit to higher-single-digit, which V001 does not convert into an unstated numeric interval.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"73cdbcbc9fcbd1a06ac1aa3980d891b48d1956d9a866bf9b31d3a3fdf5ef14af","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The candidate also gives a next-year range; V001 normalizes the first complete current-year commitment.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PROJECT_CAPITALIZATION_TARGET","metric":"project_value_commissioned_or_capitalized","unit":"INR crore","target_min":20000.0,"target_max":20000.0,"target_deadline":null,"target_horizon":"this year","normalized_claim":"Commission or capitalize approximately INR20,000 crore of projects this year."}},
-    {"candidate_id":"3fbe6ec0a03d16c9d2482a4f3cf3b729fb7d34bcf46d9ac66c8b0c84aa96e816","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"Maintaining consistency of a strategy is not a measurable delivery commitment.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"3f292fb6683e73da9e4e1970fc6cf936b1a8439ea50b7bbcd6636caa65a3061a","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The PPA-tied percentages describe the present contracted status of capacity across FY26-FY28, not a new future commitment to reach those percentages.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"7638c4dceb1174f7747a4f2e3693248dbfba4dc0a0378243df7796e4d5bc6bf0","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The paints business is described as currently performing in line with expectations and utilization is already ramping at commissioned plants.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"969dc5008797432d9928c195472325f13e695a8e8ff6b08bbffb3fd803165643","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"ARPOB growth guidance of 5%-6% is stated for the normal course but without a bounded reporting period.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"99999129a88c265e964209d56e66c83d45ba3d07c4c618d972b870fa03b3d039","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Future company growth is described as double-digit conditional on industry growth, with no bounded target period and no exact company threshold.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"06ccbfcb78d4bbee1c191c2d706e144b118824922293fca193ce375a25767c66","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management says the current-year guidance remains unchanged but the actual guidance level is not visible in this candidate.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"48af744e3bf059c18471325cf51928baf4262df77f0c97ea772c0d001e419a8f","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":null,"duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PRODUCTION_GUIDANCE","metric":"alumina_production","unit":"lakh tons","target_min":2.0,"target_max":2.0,"target_deadline":null,"target_horizon":"this year","normalized_claim":"Produce around 2 lakh tons of alumina from the referenced refinery this year."}},
-    {"candidate_id":"8507ab5f02ba6581a3e8eb7870158cb6dd89de17c977d8fc3cc6c2310e3d072f","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management explicitly declines to put a number on FY27 growth and says it will update Q3/Q4 first.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"ccd6d27a70eb98e22d8f9a21378fdf6591df9c55b22bab6f69c2b397af9d4835","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The same candidate also provides a consolidated EBITDA target. V001 normalizes the first complete FY30 metric only.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"REVENUE_TARGET","metric":"top_line_revenue","unit":"INR crore","target_min":100.0,"target_max":100.0,"target_deadline":null,"target_horizon":"FY30","normalized_claim":"Reach approximately INR100 crore of top-line revenue by FY30."}},
-    {"candidate_id":"52de97a71e4551f4264199d62c435b3f9d9bf9520872aa597fb6a6bdb8da4604","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management explicitly declines to provide a precise second-half bidding-pipeline number; the 1-1.5 year reference only describes projects identified by CTU.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"dde824e54953c202f9995ae3f9540247b7f74fcae14f85bb539d2138fe75dc00","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The 11%-13% EBITDA-margin range is tied only to an undefined near-to-mid-term horizon, which is not a bounded resolution period for V001.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"520fd58b660286e2f2acc615eaa7c175ed39e4e39815f8ca81d320dfbd971899","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management expects the Q4 market opening to support more share, but states no measurable Q4 sales or market-share target.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"ca5134faea624480fdd9050bb371f80e64e2f431a0e13db26ed6e756485e5d55","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Moving the business into profitability is a commitment, but no resolution horizon is stated and INR10 is not identified as the profitability target metric.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"7a5ca8e361b16a1f0aaa46e40e2997f4d924857db3682dae6ae0d9fd75ac73d7","disposition":"REJECTED","reason_code":"REJECT_OTHER_WITH_EXPLICIT_NOTE","note":"The commitment is only to provide information at another meeting after six months, not an operating or financial delivery target.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"85ef8fd291789731e137e14bf7e5861a045e3590ac8b085a01b9ea55aa72a50a","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"Management expects year-on-year growth but explicitly says it is not providing guidance and gives no measurable growth target.","duplicate_of_candidate_id":null,"normalized_claim":null}
+    {
+      "candidate_id": "46f83ea163b1120cb27b3580d25c74d5601e31bf51106951b050c80ba20e9816",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "EBITDA margin is expected to settle around 15%-16%, but no target period is stated in the reviewer-visible evidence.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "6934203c7b99e15d1331024f41d50266a34883d2b77fede67a9bfcb08e6b780a",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Operational margins are expected to improve next year, but no measurable improvement threshold is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "f32def0f4a55f880b9d121e7c3af4b90ce5484b7f2577c61ff3e21d5f0740d4f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_UNRELATED_CONTEXT_VALUE",
+      "note": "The 45% value is not cleanly tied to an identifiable future metric in this candidate; the surrounding margin commentary is qualitative.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "1a006c9517cc8b018a0c0f794cd61d9599253d33aed9d25a1f191beb2f26f949",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "H2 growth is described only as single-digit to higher-single-digit, which V001 does not convert into an unstated numeric interval.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "73cdbcbc9fcbd1a06ac1aa3980d891b48d1956d9a866bf9b31d3a3fdf5ef14af",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The candidate also gives a next-year range; V001 normalizes the first complete current-year commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PROJECT_CAPITALIZATION_TARGET",
+        "metric": "project_value_commissioned_or_capitalized",
+        "unit": "INR crore",
+        "target_min": 20000.0,
+        "target_max": 20000.0,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Commission or capitalize approximately INR20,000 crore of projects this year."
+      }
+    },
+    {
+      "candidate_id": "3fbe6ec0a03d16c9d2482a4f3cf3b729fb7d34bcf46d9ac66c8b0c84aa96e816",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "Maintaining consistency of a strategy is not a measurable delivery commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "3f292fb6683e73da9e4e1970fc6cf936b1a8439ea50b7bbcd6636caa65a3061a",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The PPA-tied percentages describe the present contracted status of capacity across FY26-FY28, not a new future commitment to reach those percentages.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "7638c4dceb1174f7747a4f2e3693248dbfba4dc0a0378243df7796e4d5bc6bf0",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The paints business is described as currently performing in line with expectations and utilization is already ramping at commissioned plants.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "969dc5008797432d9928c195472325f13e695a8e8ff6b08bbffb3fd803165643",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "ARPOB growth guidance of 5%-6% is stated for the normal course but without a bounded reporting period.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "99999129a88c265e964209d56e66c83d45ba3d07c4c618d972b870fa03b3d039",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Future company growth is described as double-digit conditional on industry growth, with no bounded target period and no exact company threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "06ccbfcb78d4bbee1c191c2d706e144b118824922293fca193ce375a25767c66",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management says the current-year guidance remains unchanged but the actual guidance level is not visible in this candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "48af744e3bf059c18471325cf51928baf4262df77f0c97ea772c0d001e419a8f",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": null,
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PRODUCTION_GUIDANCE",
+        "metric": "alumina_production",
+        "unit": "lakh tons",
+        "target_min": 2.0,
+        "target_max": 2.0,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Produce around 2 lakh tons of alumina from the referenced refinery this year."
+      }
+    },
+    {
+      "candidate_id": "8507ab5f02ba6581a3e8eb7870158cb6dd89de17c977d8fc3cc6c2310e3d072f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management explicitly declines to put a number on FY27 growth and says it will update Q3/Q4 first.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ccd6d27a70eb98e22d8f9a21378fdf6591df9c55b22bab6f69c2b397af9d4835",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The same candidate also provides a consolidated EBITDA target. V001 normalizes the first complete FY30 metric only.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "REVENUE_TARGET",
+        "metric": "top_line_revenue",
+        "unit": "INR crore",
+        "target_min": 100.0,
+        "target_max": 100.0,
+        "target_deadline": null,
+        "target_horizon": "FY30",
+        "normalized_claim": "Reach approximately INR100 crore of top-line revenue by FY30."
+      }
+    },
+    {
+      "candidate_id": "52de97a71e4551f4264199d62c435b3f9d9bf9520872aa597fb6a6bdb8da4604",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management explicitly declines to provide a precise second-half bidding-pipeline number; the 1-1.5 year reference only describes projects identified by CTU.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "dde824e54953c202f9995ae3f9540247b7f74fcae14f85bb539d2138fe75dc00",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The 11%-13% EBITDA-margin range is tied only to an undefined near-to-mid-term horizon, which is not a bounded resolution period for V001.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "520fd58b660286e2f2acc615eaa7c175ed39e4e39815f8ca81d320dfbd971899",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management expects the Q4 market opening to support more share, but states no measurable Q4 sales or market-share target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "ca5134faea624480fdd9050bb371f80e64e2f431a0e13db26ed6e756485e5d55",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Moving the business into profitability is a commitment, but no resolution horizon is stated and INR10 is not identified as the profitability target metric.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "7a5ca8e361b16a1f0aaa46e40e2997f4d924857db3682dae6ae0d9fd75ac73d7",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_OTHER_WITH_EXPLICIT_NOTE",
+      "note": "The commitment is only to provide information at another meeting after six months, not an operating or financial delivery target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "85ef8fd291789731e137e14bf7e5861a045e3590ac8b085a01b9ea55aa72a50a",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "Management expects year-on-year growth but explicitly says it is not providing guidance and gives no measurable growth target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    }
   ]
 }

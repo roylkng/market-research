@@ -4,25 +4,237 @@
   "batch_sha256": "acb0761d9a5888abb800db641d5268f07611d9081c5e60c8b2bb375c45507d4a",
   "reviewer_version": "GPT-5.6-Sol-H003-V001-r4-semantic-v1",
   "judgments": [
-    {"candidate_id":"7333cde94810853a54bc66e4ccef0193e54fafe016590e1262ee3e3c35441929","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management states a specific launch date of March 21. V001 preserves the source-relative date without inferring a calendar year from hidden publication metadata.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"PRODUCT_LAUNCH_MILESTONE","metric":"india_product_launch","unit":"status","target_min":null,"target_max":null,"target_deadline":null,"target_horizon":"March 21","normalized_claim":"Launch the referenced product in India on March 21."}},
-    {"candidate_id":"f22d291088c4ada2952360f7e759c67442c7a972ee6f430a9781eb0e39e48831","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The annual revenue threshold and current-year horizon are explicit. The blind excerpt omits the currency, so the unit is retained conservatively as source-currency millions. The separate 'single digit growth' statement is not normalized.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"REVENUE_TARGET","metric":"annual_revenue","unit":"source-currency million","target_min":500.0,"target_max":null,"target_deadline":null,"target_horizon":"this year","normalized_claim":"Reach at least about 500 million in source-currency annual revenue this year."}},
-    {"candidate_id":"9224898930c5a872b4ba1a3618fd6cb0219b21bb440b09b4922a5d86e56bc45f","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The 2-million-ton specialty-tube target is numeric, but no bounded delivery horizon is visible in the blind candidate.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"4885b4d5c27d05c36abb34098f5759492c4b4dcfb7d8fefda1e493bc04dcfa1c","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management gives an explicit €1 billion annual regional-revenue milestone and FY26-end deadline.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"REVENUE_TARGET","metric":"regional_annual_revenue","unit":"EUR billion","target_min":1.0,"target_max":null,"target_deadline":null,"target_horizon":"end of FY26","normalized_claim":"Exceed €1 billion in annual revenue for the referenced region by the end of FY26."}},
-    {"candidate_id":"65e5b9700928e2d414f0ede47510c01230b95b8f5311a8ea4853311dad9285dc","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"Management says a per-square-foot realization target expected in four years was already achieved in about 1.5 years. This is retrospective delivery evidence, not a new future commitment.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"bde7933cea838b8ad8ba01ab6fce8f1fa026c9b2e9583c332e680e3aecb235ca","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management explicitly targets about INR18,000 crore of capex this year. The next-year INR25,000-INR30,000 crore statement and capitalization target are not separately encoded to avoid multiple claims from one candidate.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"CAPEX_GUIDANCE","metric":"capital_expenditure","unit":"INR crore","target_min":18000.0,"target_max":18000.0,"target_deadline":null,"target_horizon":"this year","normalized_claim":"Undertake approximately INR18,000 crore of capital expenditure this year."}},
-    {"candidate_id":"7420869b7d84acf5d82fbf54e9afbe33ef26ece7fb5c846c09a28864f3854a6f","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"The two-to-three-year horizon is bounded, but funding a 'significant portion' from internal accruals has no objective percentage or amount threshold.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"bc32bc395f444ecbdf5d9ea535217b4c33c33fec1354d34b86ece69df037b30c","disposition":"REJECTED","reason_code":"REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER","note":"The forward FY26 passage is explicitly an analyst question. Management immediately before it says the requested calculation is not available yet.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"4842002fd55398ee1faa7ddedf48753ec95e051c7d68ca1baa8985c1f67d6fcb","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The passage describes products already being produced at existing plants and prior performance versus expectations. No future delivery endpoint is visible.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"357f5071ffcfe78cfa41d27f31b06267cf2d19a2b8b1b8da2b8064eb720b844d","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management explicitly declines to quantify magnitude but commits to positive growth in the Bio division from FY27 onward. A directional growth outcome is objectively resolvable.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"RELATIVE_GROWTH_TARGET","metric":"bio_division_growth","unit":"relative status","target_min":null,"target_max":null,"target_deadline":null,"target_horizon":"FY27 and onward","normalized_claim":"Deliver positive growth in the Bio division from FY27 onward."}},
-    {"candidate_id":"c2be0cdfc00d307464b4d6046012e7d8c644d2f344fa8339c5f9c32a41eb1ecd","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The EBITDA-margin range and FY30 deadline are explicit and independently resolvable.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"EBITDA_MARGIN_GUIDANCE","metric":"ebitda_margin","unit":"percent","target_min":8.0,"target_max":10.0,"target_deadline":null,"target_horizon":"FY30","normalized_claim":"Reach EBITDA margin in the guided 8%-10% range by FY30."}},
-    {"candidate_id":"057d505600c9c30a2d518893f5f9e1c22d57a22b88674b4889d87792d4596fbe","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The 200-odd MW and 150 MW wind-capacity additions are measurable, but the blind candidate provides no bounded commissioning horizon.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"7ddcb29932da2fc6879333f0c35b1a1ccfac4835a492626a41e1023e0a595354","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"A 10,000-plus margin level is mentioned, but its precise unit/definition and bounded horizon are absent from the blind context.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"1118a6b41bd9b41d997c7db8ce7f4add533072a80e38c2ee657ba487ed54c686","disposition":"REJECTED","reason_code":"REJECT_CURRENT_OR_HISTORICAL_FACT","note":"The passage explains current tax-accounting treatment and why the apparent 35% tax rate differs from an underlying 25% rate. The future adjustment is conditional accounting treatment, not an operating delivery target.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"a3ad6a3244b89544c51fb2183a389009da125bbff9bc09b5b8b4d28823f23736","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"The capacity endpoint and June-2027 deadline are explicit. The INR13,000-INR14,000 crore capex is supporting means and is not separately normalized.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"CAPACITY_TARGET","metric":"installed_capacity","unit":"GW","target_min":4.7,"target_max":4.7,"target_deadline":"2027-06","target_horizon":"by June 2027","normalized_claim":"Scale the referenced installed capacity to 4.7 GW by June 2027."}},
-    {"candidate_id":"e8b68a4bc576445f41fa0a8100887de68e570b31405a5fadd62126d54d6f9ccd","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"The five-to-six-year passage says only that management expects to 'see some numbers' from rents or profits while investing for growth. It does not state an objective threshold.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"f6bcd7bb61593a1ffe1738340073b77707051b120ecc4398c970d4c43c3fd94b","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"EBITDA of INR617 crore is the FY25 starting fact. Growing to a 'much larger number over a period of time' has neither a target amount nor a bounded horizon.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"6e2572cb070155e19d4d1cc241a3e798d75ee40cd51b8619053ecd467f8b74d2","disposition":"ACCEPTED","reason_code":"ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT","note":"Management explicitly identifies approximately INR70 crore per quarter as its net-financing-cost guidance. The possible INR250 crore figure is ambiguous and is not separately normalized.","duplicate_of_candidate_id":null,"normalized_claim":{"claim_type":"FINANCING_COST_GUIDANCE","metric":"net_financing_cost_per_quarter","unit":"INR crore per quarter","target_min":70.0,"target_max":70.0,"target_deadline":null,"target_horizon":"ongoing quarterly guidance","normalized_claim":"Keep net financing cost at approximately INR70 crore per quarter under the stated guidance."}},
-    {"candidate_id":"7f32bdd50ee44f23c7eea81a9adb05eb8e33bcfe891e08aa36744144cca0f5d6","disposition":"REJECTED","reason_code":"REJECT_NOT_OBJECTIVELY_RESOLVABLE","note":"The next-two-year horizon is explicit, but 'similar quarterly run rate' does not state the run-rate amount or an unambiguous reference metric in the blind candidate.","duplicate_of_candidate_id":null,"normalized_claim":null},
-    {"candidate_id":"5e5ec8429cea1cf6008adbe424d2149502045a95d97ff8b75239c4443bb6d6ea","disposition":"REJECTED","reason_code":"REJECT_GENERIC_ASPIRATION","note":"Management says it intends to follow a route used in prior acquisitions. The subsequent 50% commissioning statement is part of an analyst question and no future commissioning target is stated.","duplicate_of_candidate_id":null,"normalized_claim":null}
+    {
+      "candidate_id": "7333cde94810853a54bc66e4ccef0193e54fafe016590e1262ee3e3c35441929",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management states a specific launch date of March 21. V001 preserves the source-relative date without inferring a calendar year from hidden publication metadata.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "PRODUCT_LAUNCH_MILESTONE",
+        "metric": "india_product_launch",
+        "unit": "status",
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "March 21",
+        "normalized_claim": "Launch the referenced product in India on March 21."
+      }
+    },
+    {
+      "candidate_id": "f22d291088c4ada2952360f7e759c67442c7a972ee6f430a9781eb0e39e48831",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The annual revenue threshold and current-year horizon are explicit. The blind excerpt omits the currency, so the unit is retained conservatively as source-currency millions. The separate 'single digit growth' statement is not normalized.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "REVENUE_TARGET",
+        "metric": "annual_revenue",
+        "unit": "source-currency million",
+        "target_min": 500.0,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Reach at least about 500 million in source-currency annual revenue this year."
+      }
+    },
+    {
+      "candidate_id": "9224898930c5a872b4ba1a3618fd6cb0219b21bb440b09b4922a5d86e56bc45f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The 2-million-ton specialty-tube target is numeric, but no bounded delivery horizon is visible in the blind candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "4885b4d5c27d05c36abb34098f5759492c4b4dcfb7d8fefda1e493bc04dcfa1c",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management gives an explicit €1 billion annual regional-revenue milestone and FY26-end deadline.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "REVENUE_TARGET",
+        "metric": "regional_annual_revenue",
+        "unit": "EUR billion",
+        "target_min": 1.0,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "end of FY26",
+        "normalized_claim": "Exceed €1 billion in annual revenue for the referenced region by the end of FY26."
+      }
+    },
+    {
+      "candidate_id": "65e5b9700928e2d414f0ede47510c01230b95b8f5311a8ea4853311dad9285dc",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "Management says a per-square-foot realization target expected in four years was already achieved in about 1.5 years. This is retrospective delivery evidence, not a new future commitment.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "bde7933cea838b8ad8ba01ab6fce8f1fa026c9b2e9583c332e680e3aecb235ca",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management explicitly targets about INR18,000 crore of capex this year. The next-year INR25,000-INR30,000 crore statement and capitalization target are not separately encoded to avoid multiple claims from one candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPEX_GUIDANCE",
+        "metric": "capital_expenditure",
+        "unit": "INR crore",
+        "target_min": 18000.0,
+        "target_max": 18000.0,
+        "target_deadline": null,
+        "target_horizon": "this year",
+        "normalized_claim": "Undertake approximately INR18,000 crore of capital expenditure this year."
+      }
+    },
+    {
+      "candidate_id": "7420869b7d84acf5d82fbf54e9afbe33ef26ece7fb5c846c09a28864f3854a6f",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The two-to-three-year horizon is bounded, but funding a 'significant portion' from internal accruals has no objective percentage or amount threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "bc32bc395f444ecbdf5d9ea535217b4c33c33fec1354d34b86ece69df037b30c",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_QUESTION_OR_NON_MANAGEMENT_SPEAKER",
+      "note": "The forward FY26 passage is explicitly an analyst question. Management immediately before it says the requested calculation is not available yet.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "4842002fd55398ee1faa7ddedf48753ec95e051c7d68ca1baa8985c1f67d6fcb",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The passage describes products already being produced at existing plants and prior performance versus expectations. No future delivery endpoint is visible.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "357f5071ffcfe78cfa41d27f31b06267cf2d19a2b8b1b8da2b8064eb720b844d",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management explicitly declines to quantify magnitude but commits to positive growth in the Bio division from FY27 onward. A directional growth outcome is objectively resolvable.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "RELATIVE_GROWTH_TARGET",
+        "metric": "bio_division_growth",
+        "unit": "relative status",
+        "target_min": null,
+        "target_max": null,
+        "target_deadline": null,
+        "target_horizon": "FY27 and onward",
+        "normalized_claim": "Deliver positive growth in the Bio division from FY27 onward."
+      }
+    },
+    {
+      "candidate_id": "c2be0cdfc00d307464b4d6046012e7d8c644d2f344fa8339c5f9c32a41eb1ecd",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The EBITDA-margin range and FY30 deadline are explicit and independently resolvable.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "EBITDA_MARGIN_GUIDANCE",
+        "metric": "ebitda_margin",
+        "unit": "percent",
+        "target_min": 8.0,
+        "target_max": 10.0,
+        "target_deadline": null,
+        "target_horizon": "FY30",
+        "normalized_claim": "Reach EBITDA margin in the guided 8%-10% range by FY30."
+      }
+    },
+    {
+      "candidate_id": "057d505600c9c30a2d518893f5f9e1c22d57a22b88674b4889d87792d4596fbe",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The 200-odd MW and 150 MW wind-capacity additions are measurable, but the blind candidate provides no bounded commissioning horizon.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "7ddcb29932da2fc6879333f0c35b1a1ccfac4835a492626a41e1023e0a595354",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "A 10,000-plus margin level is mentioned, but its precise unit/definition and bounded horizon are absent from the blind context.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "1118a6b41bd9b41d997c7db8ce7f4add533072a80e38c2ee657ba487ed54c686",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_CURRENT_OR_HISTORICAL_FACT",
+      "note": "The passage explains current tax-accounting treatment and why the apparent 35% tax rate differs from an underlying 25% rate. The future adjustment is conditional accounting treatment, not an operating delivery target.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "a3ad6a3244b89544c51fb2183a389009da125bbff9bc09b5b8b4d28823f23736",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "The capacity endpoint and June-2027 deadline are explicit. The INR13,000-INR14,000 crore capex is supporting means and is not separately normalized.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "CAPACITY_TARGET",
+        "metric": "installed_capacity",
+        "unit": "GW",
+        "target_min": 4.7,
+        "target_max": 4.7,
+        "target_deadline": "2027-06",
+        "target_horizon": "by June 2027",
+        "normalized_claim": "Scale the referenced installed capacity to 4.7 GW by June 2027."
+      }
+    },
+    {
+      "candidate_id": "e8b68a4bc576445f41fa0a8100887de68e570b31405a5fadd62126d54d6f9ccd",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "The five-to-six-year passage says only that management expects to 'see some numbers' from rents or profits while investing for growth. It does not state an objective threshold.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "f6bcd7bb61593a1ffe1738340073b77707051b120ecc4398c970d4c43c3fd94b",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "EBITDA of INR617 crore is the FY25 starting fact. Growing to a 'much larger number over a period of time' has neither a target amount nor a bounded horizon.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "6e2572cb070155e19d4d1cc241a3e798d75ee40cd51b8619053ecd467f8b74d2",
+      "disposition": "ACCEPTED",
+      "reason_code": "ACCEPT_MEASURABLE_MANAGEMENT_COMMITMENT",
+      "note": "Management explicitly identifies approximately INR70 crore per quarter as its net-financing-cost guidance. The possible INR250 crore figure is ambiguous and is not separately normalized.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": {
+        "claim_type": "FINANCING_COST_GUIDANCE",
+        "metric": "net_financing_cost_per_quarter",
+        "unit": "INR crore per quarter",
+        "target_min": 70.0,
+        "target_max": 70.0,
+        "target_deadline": null,
+        "target_horizon": "ongoing quarterly guidance",
+        "normalized_claim": "Keep net financing cost at approximately INR70 crore per quarter under the stated guidance."
+      }
+    },
+    {
+      "candidate_id": "7f32bdd50ee44f23c7eea81a9adb05eb8e33bcfe891e08aa36744144cca0f5d6",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_NOT_OBJECTIVELY_RESOLVABLE",
+      "note": "The next-two-year horizon is explicit, but 'similar quarterly run rate' does not state the run-rate amount or an unambiguous reference metric in the blind candidate.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    },
+    {
+      "candidate_id": "5e5ec8429cea1cf6008adbe424d2149502045a95d97ff8b75239c4443bb6d6ea",
+      "disposition": "REJECTED",
+      "reason_code": "REJECT_GENERIC_ASPIRATION",
+      "note": "Management says it intends to follow a route used in prior acquisitions. The subsequent 50% commissioning statement is part of an analyst question and no future commissioning target is stated.",
+      "duplicate_of_candidate_id": null,
+      "normalized_claim": null
+    }
   ]
 }
