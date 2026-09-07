@@ -7,10 +7,9 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 import run_h002_historical_v2_phase_b_shard as base
 import run_h002_historical_v2_phase_b_shard_r2 as resolver
+import yaml
 
 from marketlab.h002_historical_identity import historical_symbol_variants
 from marketlab.h002_historical_pit_outcomes import load_phase_a_manifest_pit
@@ -82,8 +81,7 @@ def _member_from_record(record: dict[str, Any]) -> UniverseMember:
 def _cluster_symbol(symbol: str) -> str:
     """Cluster only explicitly registered identity-preserving ticker aliases."""
 
-    variants = historical_symbol_variants(symbol)
-    return sorted(variants)[0]
+    return min(historical_symbol_variants(symbol))
 
 
 def _record_key(record: dict[str, Any]) -> tuple[str, str]:
