@@ -1,0 +1,212 @@
+{
+  "ACTIONABLE_AVOIDANCE": {
+    "conditions": [
+      {
+        "name": "WATCHLIST_FILTER_passed",
+        "passed": false,
+        "requirement": "true",
+        "value": false
+      },
+      {
+        "name": "pooled_momentum30_spread_gt_0",
+        "passed": true,
+        "requirement": ">0",
+        "value": 1.6668145548214666
+      },
+      {
+        "name": "pooled_momentum30_company_cluster_ci_low_gt_0",
+        "passed": false,
+        "requirement": ">0",
+        "value": -0.2943374767863934
+      },
+      {
+        "name": "negative_ue_mean_excess_vs_momentum30_lt_0",
+        "passed": true,
+        "requirement": "<0",
+        "value": -1.0108004475227839
+      },
+      {
+        "name": "negative_ue_underperforms_momentum30_in_at_least_4_represented_quarters",
+        "passed": false,
+        "requirement": ">=4 quarters",
+        "value": {
+          "negative_means": {
+            "FY26-Q1": 0.1386638236504129,
+            "FY26-Q3": -1.1912037137527431,
+            "FY26-Q4": -0.01859400995053505,
+            "FY27-Q1": -4.060716264269035
+          },
+          "underperforming_quarters": 3
+        }
+      },
+      {
+        "name": "leave_one_quarter_out_nifty50_spread_gt_0_for_every_eligible_omission",
+        "passed": true,
+        "requirement": "all >0",
+        "value": {
+          "FY25-Q4": 1.67364127841157,
+          "FY26-Q1": 1.7164670362694827,
+          "FY26-Q2": 1.914513863471541,
+          "FY26-Q3": 1.804167833810831,
+          "FY26-Q4": 2.032682098130316,
+          "FY27-Q1": 1.0281728610297858
+        }
+      }
+    ],
+    "passed": false
+  },
+  "CAPITAL_READY": {
+    "passed": false,
+    "reason": "prospective_H002_FY27Q2_not_completed"
+  },
+  "LONG_ALPHA_CANDIDATE": {
+    "conditions": [
+      {
+        "name": "WATCHLIST_FILTER_passed",
+        "passed": false,
+        "requirement": "true",
+        "value": false
+      },
+      {
+        "name": "positive_ue_pooled_mean_excess_vs_nifty50_after_50bps_gt_0",
+        "passed": true,
+        "requirement": ">0",
+        "value": 1.4752502509566439
+      },
+      {
+        "name": "positive_ue_mean_excess_vs_nifty50_after_50bps_gt_0_in_at_least_4_represented_quarters",
+        "passed": true,
+        "requirement": ">=4 quarters",
+        "value": {
+          "means": {
+            "FY25-Q4": 3.4058874034251274,
+            "FY26-Q1": 1.0051491622979527,
+            "FY26-Q2": -2.1465272089508938,
+            "FY26-Q3": 2.437745737806353,
+            "FY26-Q4": 0.7074037675350076,
+            "FY27-Q1": 1.9188991318513064
+          },
+          "positive_quarters": 5
+        }
+      },
+      {
+        "name": "positive_ue_pooled_mean_excess_vs_momentum30_after_50bps_gt_0",
+        "passed": true,
+        "requirement": ">0",
+        "value": 0.1560141072986829
+      },
+      {
+        "name": "positive_group_result_not_reversed_after_removing_top_2_winners",
+        "passed": true,
+        "requirement": ">0 vs Nifty 50",
+        "value": 1.8102120782144797
+      }
+    ],
+    "passed": false
+  },
+  "WATCHLIST_FILTER": {
+    "conditions": [
+      {
+        "name": "minimum_sample",
+        "passed": true,
+        "requirement": "all minimum-sample conditions pass",
+        "value": true
+      },
+      {
+        "name": "pooled_nifty50_spread_gt_0",
+        "passed": true,
+        "requirement": ">0",
+        "value": 1.6954153816348978
+      },
+      {
+        "name": "pooled_nifty50_company_cluster_ci_low_gt_0",
+        "passed": false,
+        "requirement": ">0",
+        "value": -0.1690511021336613
+      },
+      {
+        "name": "leave_one_company_out_min_nifty50_spread_gt_0",
+        "passed": true,
+        "requirement": ">0",
+        "value": 1.3698542017435065
+      },
+      {
+        "name": "positive_spread_in_at_least_3_represented_quarters",
+        "passed": true,
+        "requirement": ">=3 quarters",
+        "value": {
+          "positive_quarters": 4,
+          "spreads": {
+            "FY26-Q1": 1.6434204810070665,
+            "FY26-Q3": 1.6675408482638834,
+            "FY26-Q4": 0.6041176472807103,
+            "FY27-Q1": 4.182213772258543
+          }
+        }
+      }
+    ],
+    "passed": false
+  },
+  "diagnostics": {
+    "leave_one_quarter_out_nifty50_spreads": {
+      "FY25-Q4": 1.67364127841157,
+      "FY26-Q1": 1.7164670362694827,
+      "FY26-Q2": 1.914513863471541,
+      "FY26-Q3": 1.804167833810831,
+      "FY26-Q4": 2.032682098130316,
+      "FY27-Q1": 1.0281728610297858
+    },
+    "momentum_quarter_spreads": {
+      "FY26-Q1": 1.6384983041867351,
+      "FY26-Q3": 1.8829049692444928,
+      "FY26-Q4": 0.14754418603859054,
+      "FY27-Q1": 4.165300835690169
+    },
+    "primary_quarter_spreads": {
+      "FY26-Q1": 1.6434204810070665,
+      "FY26-Q3": 1.6675408482638834,
+      "FY26-Q4": 0.6041176472807103,
+      "FY27-Q1": 4.182213772258543
+    }
+  },
+  "gate_id": "H002-HR002-OUTCOME-GATE-V1",
+  "live_capital_allowed": false,
+  "minimum_sample": {
+    "conditions": [
+      {
+        "name": "completed_observations",
+        "passed": true,
+        "requirement": ">=250",
+        "value": 352
+      },
+      {
+        "name": "represented_quarters",
+        "passed": true,
+        "requirement": ">=4",
+        "value": 6
+      },
+      {
+        "name": "positive_observations",
+        "passed": true,
+        "requirement": ">=100",
+        "value": 269
+      },
+      {
+        "name": "negative_observations",
+        "passed": true,
+        "requirement": ">=40",
+        "value": 82
+      },
+      {
+        "name": "unresolved_outcome_errors",
+        "passed": true,
+        "requirement": "=0",
+        "value": 0
+      }
+    ],
+    "passed": true
+  },
+  "phase_b_manifest_sha256": "721f7cc23b3e1f14921c9976123627219b38ccc02fed659c9d856f92b1a1a0d3",
+  "schema_version": 1,
+  "verdict": "EXPLORATORY_ONLY"
+}
