@@ -27,34 +27,80 @@ jobs:
           git fetch origin main --depth=1
           git fetch origin 2682d91a2be0dc3b69876ef397791515ff9146f2 --depth=1
           git show 2682d91a2be0dc3b69876ef397791515ff9146f2:research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json > /tmp/h003-candidate-report.json
+          git show origin/main:registry/h003_review_rule.yaml > /tmp/h003-review-rule.yaml
+      - name: Normalize non-ISO deadlines without changing review semantics
+        run: |
           python - <<'PY'
-          import json, subprocess
+          import json, re
           from pathlib import Path
-          import yaml
 
-          files = subprocess.check_output(
-              ['git', 'ls-tree', '-r', '--name-only', 'origin/main'], text=True
-          ).splitlines()
-          matches = []
-          for path in files:
-              if not path.endswith(('.yaml', '.yml', '.json')):
-                  continue
-              try:
-                  raw = subprocess.check_output(['git', 'show', f'origin/main:{path}'])
-                  doc = yaml.safe_load(raw)
-              except Exception:
-                  continue
-              if isinstance(doc, dict) and doc.get('id') == 'H003-V001':
-                  matches.append((path, raw))
-          if len(matches) != 1:
-              raise SystemExit(f'expected exactly one H003-V001 rule, found {[m[0] for m in matches]}')
-          Path('/tmp/h003-review-rule.yaml').write_bytes(matches[0][1])
-          print('review_rule=' + matches[0][0])
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments')
+          iso_date = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+          changes = []
+          for path in sorted(root.glob('batch-*.json')):
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              dirty = False
+              for j in doc.get('judgments', []):
+                  if j.get('disposition') != 'ACCEPTED':
+                      continue
+                  nc = j.get('normalized_claim')
+                  if not isinstance(nc, dict):
+                      continue
+                  old = nc.get('target_deadline')
+                  if not old or iso_date.fullmatch(str(old)):
+                      continue
+                  horizon = (nc.get('target_horizon') or '').strip()
+                  old_s = str(old).strip()
+                  if not horizon:
+                      new_horizon = old_s
+                  elif old_s.casefold() in horizon.casefold():
+                      new_horizon = horizon
+                  else:
+                      new_horizon = f'{horizon}; stated deadline: {old_s}'
+                  nc['target_deadline'] = None
+                  nc['target_horizon'] = new_horizon
+                  changes.append({
+                      'batch_file': path.name,
+                      'candidate_id': j['candidate_id'],
+                      'old_target_deadline': old_s,
+                      'new_target_horizon': new_horizon,
+                  })
+                  dirty = True
+              if dirty:
+                  path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+          out = root.parent / 'deadline-normalization.json'
+          out.write_text(json.dumps({
+              'schema_version': 1,
+              'rule': 'Move non-YYYY-MM-DD target_deadline values to target_horizon; disposition and normalized_claim text unchanged.',
+              'changed_count': len(changes),
+              'changes': changes,
+          }, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(f'normalized_non_iso_deadlines={len(changes)}')
+          if not changes:
+              raise SystemExit('expected at least one non-ISO deadline to normalize')
+          PY
+      - name: Recompile decisions canonically
+        run: |
+          git show origin/main:scripts/compile_h003_review_judgments.py > /tmp/compile_h003_review_judgments.py
+          python /tmp/compile_h003_review_judgments.py \
+            --batch-manifest research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20/manifest.json \
+            --batch-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/batches20 \
+            --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
+            --judgments-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/semantic-judgments \
+            --out-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
+            --repo-root .
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions/manifest.json').read_text())
+          assert d['compiled_batch_count']==117 and d['compiled_candidate_count']==2322 and d['complete'] is True, d
+          print('canonical_compile=complete')
           PY
       - name: Freeze complete H003 review ledger
         run: |
           git show origin/main:scripts/freeze_h003_review.py > /tmp/freeze_h003_review.py
           OUT=research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/final-ledger
+          rm -rf "$OUT"
           mkdir -p "$OUT"
           python /tmp/freeze_h003_review.py \
             --candidate-report /tmp/h003-candidate-report.json \
@@ -78,9 +124,9 @@ jobs:
           for c in claims:
               by[c['symbol']].append(c)
 
-          def bucket(c):
+          def buckets(c):
               text = ' '.join(str(c.get(k) or '') for k in ('claim_type','metric','normalized_claim')).lower()
-              tags = []
+              tags=[]
               if any(x in text for x in ('revenue','sales','growth','volume','market_share','market share','production')): tags.append('growth')
               if any(x in text for x in ('margin','ebitda','profit','breakeven','cost','savings')): tags.append('profitability')
               if any(x in text for x in ('commission','launch','capacity','project','installation','bed','outlet','city')): tags.append('execution')
@@ -89,50 +135,45 @@ jobs:
               return tags
 
           def horizon_class(c):
-              h = f"{c.get('target_deadline') or ''} {c.get('target_horizon') or ''}".lower()
-              if re.search(r'\b(q[1-4]|h[12]|this quarter|next quarter|this year|current year|next year|fy2[5-8]|202[5-8]|\d+\s*(month|months))\b', h):
-                  return 'near_medium'
-              if re.search(r'203\d|3[- ]?5 years|4[- ]?5 years|5 years|decade', h):
-                  return 'long'
+              h=f"{c.get('target_deadline') or ''} {c.get('target_horizon') or ''}".lower()
+              if re.search(r'\b(q[1-4]|h[12]|this quarter|next quarter|this year|current year|next year|fy2[5-8]|202[5-8]|\d+\s*(month|months))\b', h): return 'near_medium'
+              if re.search(r'203\d|204\d|3[- ]?5 years|4[- ]?5 years|5 years|decade', h): return 'long'
               return 'other'
 
-          rows = []
-          grouped = {}
+          rows=[]; grouped={}
           for sym in sorted(by):
-              cs = by[sym]
-              buckets = Counter(t for c in cs for t in bucket(c))
-              horizons = Counter(horizon_class(c) for c in cs)
-              source_dates = {c.get('source_date') for c in cs}
-              source_urls = {c.get('source_url') for c in cs}
-              claim_types = Counter(c['claim_type'] for c in cs)
-              metrics = Counter(c['metric'] for c in cs)
+              cs=by[sym]
+              b=Counter(t for c in cs for t in buckets(c))
+              hz=Counter(horizon_class(c) for c in cs)
+              ct=Counter(c['claim_type'] for c in cs)
+              mt=Counter(c['metric'] for c in cs)
               rows.append({
-                  'symbol': sym,
-                  'accepted_claim_count': len(cs),
-                  'distinct_claim_type_count': len(claim_types),
-                  'distinct_metric_count': len(metrics),
-                  'distinct_source_date_count': len(source_dates),
-                  'distinct_source_count': len(source_urls),
-                  'growth_claim_count': buckets['growth'],
-                  'profitability_claim_count': buckets['profitability'],
-                  'execution_claim_count': buckets['execution'],
-                  'balance_sheet_claim_count': buckets['balance_sheet'],
-                  'capital_intensity_claim_count': buckets['capital_intensity'],
-                  'near_medium_claim_count': horizons['near_medium'],
-                  'long_horizon_claim_count': horizons['long'],
-                  'claim_type_counts': dict(sorted(claim_types.items())),
-                  'metric_counts': dict(sorted(metrics.items())),
+                  'symbol':sym,
+                  'accepted_claim_count':len(cs),
+                  'distinct_claim_type_count':len(ct),
+                  'distinct_metric_count':len(mt),
+                  'distinct_source_date_count':len({c.get('source_date') for c in cs}),
+                  'distinct_source_count':len({c.get('source_url') for c in cs}),
+                  'growth_claim_count':b['growth'],
+                  'profitability_claim_count':b['profitability'],
+                  'execution_claim_count':b['execution'],
+                  'balance_sheet_claim_count':b['balance_sheet'],
+                  'capital_intensity_claim_count':b['capital_intensity'],
+                  'near_medium_claim_count':hz['near_medium'],
+                  'long_horizon_claim_count':hz['long'],
+                  'claim_type_counts':dict(sorted(ct.items())),
+                  'metric_counts':dict(sorted(mt.items())),
               })
-              grouped[sym] = cs
-          rows.sort(key=lambda r: (-r['accepted_claim_count'], -r['distinct_claim_type_count'], r['symbol']))
-          payload = {'schema_version':1, 'company_count_with_accepted_claims':len(rows), 'accepted_claim_count':len(claims), 'companies':rows}
-          raw = json.dumps(payload, sort_keys=True, separators=(',',':'), ensure_ascii=False).encode()
-          payload['sha256'] = hashlib.sha256(raw).hexdigest()
-          (root/'company-summary.json').write_text(json.dumps(payload, indent=2, sort_keys=True)+'\n')
-          (root/'company-claims.json').write_text(json.dumps(grouped, indent=2, sort_keys=True)+'\n')
-          print(json.dumps({'companies':len(rows),'claims':len(claims),'top':rows[:15]}, indent=2))
+              grouped[sym]=cs
+          rows.sort(key=lambda r:(-r['accepted_claim_count'],-r['distinct_claim_type_count'],r['symbol']))
+          unsigned={'schema_version':1,'company_count_with_accepted_claims':len(rows),'accepted_claim_count':len(claims),'companies':rows}
+          raw=json.dumps(unsigned,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode()
+          payload={**unsigned,'sha256':hashlib.sha256(raw).hexdigest()}
+          (root/'company-summary.json').write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          (root/'company-claims.json').write_text(json.dumps(grouped,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({'companies':len(rows),'claims':len(claims),'top':rows[:20]},indent=2))
           PY
-      - name: Commit frozen ledger
+      - name: Commit frozen ledger and normalization proof
         run: |
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
