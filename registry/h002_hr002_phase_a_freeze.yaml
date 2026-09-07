@@ -1,0 +1,25 @@
+schema_version: 1
+freeze_id: H002-HR002-PHASE-A-FREEZE-V1
+replay_rule_id: H002-HR002
+phase: A_SIGNAL_CAPTURE_ONLY
+phase_a_manifest_path: research/historical/h002/H002-HR002/phase-a/fixed-u001-six-quarter-signals.json
+phase_a_manifest_sha256: 6e87b416af5915f0d204a3672779bd3a2209a8fa2c375783587825af88dd4bfe
+observation_count: 600
+signal_count: 369
+status_counts:
+  SIGNAL: 369
+  NO_SIGNAL: 5
+  SKIPPED: 200
+  UNCOVERED: 26
+signal_bucket_counts:
+  POSITIVE: 283
+  NEGATIVE: 85
+  ZERO: 1
+  NO_SIGNAL: 1
+outcome_data_included: false
+live_capital_allowed: false
+frozen_on_date: '2026-09-07'
+notes:
+  - Phase A contains no securities-return outcome data.
+  - This fixed-2026-cohort historical replay remains survivorship-sensitive and is supporting evidence, not the prospective proof.
+  - All Phase-B work must bind exactly to the manifest SHA and signal count above.
