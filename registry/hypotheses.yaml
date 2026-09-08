@@ -133,7 +133,7 @@ hypotheses:
   - id: H004
     name: pre_momentum_catalyst_repricing
     created: 2026-09-08
-    status: FROZEN_FOR_HISTORICAL_REPLAY
+    status: FROZEN
     mechanism: >-
       Material public earnings inflections, operating turnarounds, and quantified
       corporate catalysts can create an expectation gap before obvious stock-level
@@ -148,9 +148,20 @@ hypotheses:
     signal:
       rule_id: H004-R001
       rule_file: registry/h004_signal_rule.yaml
+      formula: information_anchor_then_early_execution_trigger_v1
       stage_1: information_driven_watchlist_no_stock_momentum
       stage_2: early_price_volume_execution_trigger_for_stage_1_names_only
       primary_outcome: max_forward_20_session_return_gte_25pct
+    decision:
+      entry_delay_sessions: 1
+      holding_period_sessions: 20
+      entry_price: first_realistically_executable_price_first_30_minutes_next_session
+      historical_daily_proxy: next_session_open
+      paper_only: true
+    benchmarks:
+      - nifty_500
+      - sector_matched
+      - momentum_only_baseline
     guardrails:
       - design_set_2026_08_31_to_2026_09_07_excluded_from_validation
       - public_source_timestamp_must_precede_decision
