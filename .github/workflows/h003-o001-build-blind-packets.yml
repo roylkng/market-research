@@ -1,0 +1,163 @@
+name: H003-O001 build blind outcome packets
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-build-blind-packets.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Final protocol verification before later-source access
+        run: |
+          python - <<'PY'
+          from marketlab.h003_outcomes import load_and_validate_outcome_rule
+          d = load_and_validate_outcome_rule('registry/h003_outcome_rule.yaml')
+          assert d['id'] == 'H003-O001'
+          assert d['sha256'] == 'b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b'
+          assert d['live_capital'] is False
+          print('H003-O001 frozen rule verified')
+          PY
+          ruff check src scripts tests
+          pytest -q
+      - name: Download retained H003-E002 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: h003-e002-full-34055026723-1
+          path: /tmp/h003-e002-full
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34055026723
+      - name: Locate and verify source artifact layout
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path('/tmp/h003-e002-full')
+          candidates = []
+          for path in root.rglob('report.json'):
+              try:
+                  d = json.loads(path.read_text())
+              except Exception:
+                  continue
+              if d.get('rule_id') == 'H003-E002' and d.get('processed_source_count') == 794:
+                  candidates.append(path)
+          if len(candidates) != 1:
+              raise SystemExit(f'expected one H003-E002 report, found {len(candidates)}')
+          report = candidates[0]
+          if hashlib.sha256(report.read_bytes()).hexdigest() != '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b':
+              raise SystemExit('candidate report raw file SHA mismatch')
+          store = report.parent / 'store'
+          if not store.is_dir():
+              raise SystemExit(f'candidate store missing at {store}')
+          with open(os.environ['GITHUB_ENV'], 'a') as handle:
+              handle.write(f'H003_REPORT={report}\n')
+              handle.write(f'H003_STORE={store}\n')
+          print(f'report={report}')
+          print(f'store={store}')
+          PY
+      - name: Build deterministic blind packets and private binding
+        run: |
+          OUT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          PRIVATE=/tmp/h003-o001-private
+          rm -rf "$OUT" "$PRIVATE"
+          mkdir -p "$OUT" "$PRIVATE"
+          python scripts/build_h003_outcome_packets.py \
+            --ledger research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen/ledger.json \
+            --claim-audit research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001/audit.json \
+            --outcome-rule registry/h003_outcome_rule.yaml \
+            --candidate-report "$H003_REPORT" \
+            --store-root "$H003_STORE" \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --blind-out "$OUT/blind-packets.json" \
+            --binding-out "$PRIVATE/binding-map.json" \
+            --manifest-out "$OUT/manifest.json"
+      - name: Fail closed on package leakage or coverage drift
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          manifest = json.loads((out / 'manifest.json').read_text())
+          package = json.loads((out / 'blind-packets.json').read_text())
+          assert manifest['packet_count'] == 869
+          assert package['packet_count'] == 869
+          assert manifest['outcome_data_accessed'] is False
+          assert manifest['market_outcomes_included'] is False
+          assert package['market_outcomes_included'] is False
+          assert manifest['live_capital_allowed'] is False
+          assert package['live_capital_allowed'] is False
+          assert 'bindings' not in package
+          assert all('symbol' not in packet for packet in package['packets'])
+          assert all('claim_id' not in packet for packet in package['packets'])
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+      - name: Upload private packet binding without exposing it to reviewer
+        id: upload_binding
+        uses: actions/upload-artifact@v4
+        with:
+          name: h003-o001-private-binding-${{ github.run_id }}
+          path: /tmp/h003-o001-private/binding-map.json
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 6
+      - name: Record blind-package provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          out = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          manifest = json.loads((out / 'manifest.json').read_text())
+          meta = {
+              'schema_version': 1,
+              'outcome_rule_id': 'H003-O001',
+              'outcome_rule_sha256': 'b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b',
+              'protocol_commit_sha': os.environ['GITHUB_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'source_extraction_run_id': '34055026723',
+              'source_artifact_id': '9996081772',
+              'source_artifact_zip_sha256': '556ce5f413369d015b7424368bcd8f62804782c90b9087455b94ba68f28c6364',
+              'source_candidate_report_file_sha256': '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b',
+              'review_ledger_sha256': 'cb1e204685e66c37f274ac83b0c7f9729bb55401a58d1e51e6b50ac270052e4d',
+              'claim_audit_sha256': 'e5828081241005325306644765ddac64300dbc9084315325964873d65071770a',
+              'blind_package_sha256': manifest['blind_package_sha256'],
+              'binding_package_sha256': manifest['binding_package_sha256'],
+              'outcome_module_file_sha256': hashlib.sha256(Path('src/marketlab/h003_outcomes.py').read_bytes()).hexdigest(),
+              'packet_builder_file_sha256': hashlib.sha256(Path('scripts/build_h003_outcome_packets.py').read_bytes()).hexdigest(),
+              'private_binding_artifact_name': f"h003-o001-private-binding-{os.environ['GITHUB_RUN_ID']}",
+              'private_binding_artifact_id': '${{ steps.upload_binding.outputs.artifact-id }}',
+              'private_binding_artifact_digest': '${{ steps.upload_binding.outputs.artifact-digest }}',
+              'outcome_data_accessed': False,
+              'market_outcomes_included': False,
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(meta, indent=2, sort_keys=True))
+          PY
+      - name: Commit only blind package and public provenance
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          git commit -m 'H003-O001: freeze blind later-source evidence packets'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
