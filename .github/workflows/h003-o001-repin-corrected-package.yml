@@ -27,16 +27,23 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
+          previous = 'a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb'
+          current = '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+
           path = Path('src/marketlab/h003_review_batches.py')
           text = path.read_text(encoding='utf-8')
-          old = 'BLIND_PACKAGE_SHA256 = "a94a99c8f5fbad4aa0c5409f47362543cec879d07ec8a8006a8937c38bcfdb01"'
-          new = 'BLIND_PACKAGE_SHA256 = "a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb"'
+          old = f'BLIND_PACKAGE_SHA256 = "{previous}"'
+          new = f'BLIND_PACKAGE_SHA256 = "{current}"'
           if old not in text and new not in text:
               raise SystemExit('H003 sharder package pin anchor not found')
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          test = Path('tests/test_h003_corrected_blind_package_pin.py')
+          test.write_text('''from __future__ import annotations\n\nimport json\nfrom pathlib import Path\n\nfrom marketlab.h003_review_batches import BLIND_PACKAGE_SHA256, validate_source_document\n\nCURRENT_PACKAGE_SHA256 = \"70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24\"\nINVALIDATED_PACKAGE_SHA256S = {\n    \"a94a99c8f5fbad4aa0c5409f47362543cec879d07ec8a8006a8937c38bcfdb01\",\n    \"a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb\",\n}\nROOT = Path(\"research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001\")\n\n\ndef test_sharder_is_pinned_to_current_contact_scrubbed_package() -> None:\n    package = json.loads((ROOT / \"blind-packets.json\").read_text(encoding=\"utf-8\"))\n    manifest = json.loads((ROOT / \"manifest.json\").read_text(encoding=\"utf-8\"))\n\n    assert BLIND_PACKAGE_SHA256 == CURRENT_PACKAGE_SHA256\n    assert BLIND_PACKAGE_SHA256 not in INVALIDATED_PACKAGE_SHA256S\n    assert package[\"package_sha256\"] == CURRENT_PACKAGE_SHA256\n    assert manifest[\"blind_package_sha256\"] == CURRENT_PACKAGE_SHA256\n    assert len(validate_source_document(package, manifest)) == 869\n''', encoding='utf-8')
           PY
-      - name: Verify corrected package pin and full repository
+      - name: Verify contact-scrubbed package pin and full repository
         run: |
+          ruff check --fix tests/test_h003_corrected_blind_package_pin.py
           ruff check src scripts tests
           pytest -q
       - name: Commit only corrected package provenance pin
@@ -45,8 +52,8 @@ jobs:
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add src/marketlab/h003_review_batches.py tests/test_h003_corrected_blind_package_pin.py
           if git diff --cached --quiet; then
-            echo 'corrected package pin already committed'
+            echo 'contact-scrubbed package pin already committed'
             exit 0
           fi
-          git commit -m 'H003-O001: pin sharder to corrected blind package'
+          git commit -m 'H003-O001: pin sharder to contact-scrubbed package'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
