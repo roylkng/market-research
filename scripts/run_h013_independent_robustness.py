@@ -1,4 +1,5 @@
 """Run frozen H013 independent robustness on legacy NSE market data."""
+
 from __future__ import annotations
 
 import argparse
@@ -13,7 +14,6 @@ from datetime import date
 from pathlib import Path
 
 import numpy as np
-
 import run_h010_historical_robustness as base
 
 START = date(2022, 6, 1)
@@ -139,9 +139,7 @@ def evaluate(root: Path, sessions, prices, index, actions) -> None:
             entry_bar = bars[entry]
             if abs(float(entry_bar["high"]) - float(entry_bar["low"])) < 1e-12:
                 continue
-            closes = np.asarray(
-                [float(bars[sessions[j]]["close"]) for j in range(i - 125, i - 4)]
-            )
+            closes = np.asarray([float(bars[sessions[j]]["close"]) for j in range(i - 125, i - 4)])
             log_returns = np.diff(np.log(closes))
             volatility = float(np.std(log_returns, ddof=1) * math.sqrt(120))
             raw120 = float(closes[-1] / closes[0] - 1)
@@ -155,11 +153,9 @@ def evaluate(root: Path, sessions, prices, index, actions) -> None:
                     "symbol": symbol,
                     "score": raw120 / volatility,
                     "raw120skip5": raw120,
-                    "mom60": float(bars[decision]["close"])
-                    / float(bars[sessions[i - 60]]["close"])
+                    "mom60": float(bars[decision]["close"]) / float(bars[sessions[i - 60]]["close"])
                     - 1,
-                    "mom20": float(bars[decision]["close"])
-                    / float(bars[sessions[i - 20]]["close"])
+                    "mom20": float(bars[decision]["close"]) / float(bars[sessions[i - 20]]["close"])
                     - 1,
                     "stock_return": stock_return,
                     "nifty500_return": benchmark_return,
@@ -214,9 +210,7 @@ def evaluate(root: Path, sessions, prices, index, actions) -> None:
         values = []
         for cohort in active:
             group = grouped[cohort["decision_date"]]
-            indexes = rng.choice(
-                len(group), size=int(cohort["selected_count"]), replace=False
-            )
+            indexes = rng.choice(len(group), size=int(cohort["selected_count"]), replace=False)
             values.extend(group[idx]["excess"] for idx in indexes)
         random_means.append(float(np.mean(values)))
     random_p = (1 + sum(value >= mean_excess for value in random_means)) / (DRAWS + 1)
@@ -225,9 +219,7 @@ def evaluate(root: Path, sessions, prices, index, actions) -> None:
         if row["stock_return"] > 0:
             positive_by_symbol[row["symbol"]] += row["stock_return"]
     positive_total = sum(positive_by_symbol.values())
-    concentration = (
-        max(positive_by_symbol.values()) / positive_total if positive_total else None
-    )
+    concentration = max(positive_by_symbol.values()) / positive_total if positive_total else None
     quarters = defaultdict(list)
     for cohort in active:
         day = date.fromisoformat(cohort["decision_date"])
