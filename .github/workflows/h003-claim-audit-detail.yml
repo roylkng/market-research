@@ -1,0 +1,36 @@
+name: H003 claim audit detail
+
+on:
+  push:
+    branches:
+      - research/h003-v001-claim-audit-20260908
+    paths:
+      - .github/workflows/h003-claim-audit-detail.yml
+
+permissions:
+  contents: read
+
+jobs:
+  detail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-claim-audit-20260908
+      - name: Print outcome-blind repeat and horizon details
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001/audit.json')
+          a = json.loads(p.read_text())
+          assert a['outcome_data_accessed'] is False
+          print('TOP_HORIZON_PATTERNS')
+          print(json.dumps(a['abstract_horizon_only_counts'][:80], indent=2, sort_keys=True))
+          print('STRICT_REPEAT_FAMILIES')
+          print(json.dumps(a['strict_repeated_families'], indent=2, sort_keys=True))
+          print('BROAD_REPEAT_FAMILIES')
+          print(json.dumps(a['broad_repeated_families'], indent=2, sort_keys=True))
+          print('TOP_COMPANY_CLAIM_COUNTS')
+          print(json.dumps(a['company_claim_counts'][:30], indent=2, sort_keys=True))
+          PY
