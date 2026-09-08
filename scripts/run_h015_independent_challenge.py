@@ -175,6 +175,27 @@ def acquire_market(root: Path):
             )
             if retry_raw is not None:
                 i_raw, i_meta = retry_raw, retry_meta
+            else:
+                alt_url = i_url.replace(
+                    "https://archives.nseindia.com/",
+                    "https://nsearchives.nseindia.com/",
+                    1,
+                )
+                alt_raw, alt_meta = base.fetch_public(
+                    alt_url,
+                    kind="index-alt-official-host",
+                    attempts=4,
+                )
+                diagnostics["serial_retries"].append(
+                    {
+                        "date": day.isoformat(),
+                        "side": "index-alt-official-host",
+                        "initial_status": retry_meta.get("status"),
+                        "retry_status": alt_meta.get("status"),
+                    }
+                )
+                if alt_raw is not None:
+                    i_raw, i_meta, i_url = alt_raw, alt_meta, alt_url
         elif b_raw is None and i_raw is not None:
             retry_raw, retry_meta = base.fetch_public(
                 b_url, kind="legacy-bhavcopy-serial-retry", attempts=8
