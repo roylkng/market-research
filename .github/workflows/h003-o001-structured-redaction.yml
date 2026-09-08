@@ -1,0 +1,58 @@
+name: H003-O001 structured blind-packet redaction
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-structured-redaction.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Redact every reviewer-visible structured text field
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/marketlab/h003_outcomes.py')
+          text = path.read_text()
+          old = '''        normalized_claim=redact_company_identity(str(claim["normalized_claim"]), redaction_terms),\n        claim_type=str(claim["claim_type"]),\n        metric=str(claim["metric"]),\n        unit=None if claim.get("unit") is None else str(claim["unit"]),\n        target_min=claim.get("target_min"),\n        target_max=claim.get("target_max"),\n        target_deadline=claim.get("target_deadline"),\n        target_horizon=claim.get("target_horizon"),\n'''
+          new = '''        normalized_claim=redact_company_identity(str(claim["normalized_claim"]), redaction_terms),\n        claim_type=redact_company_identity(str(claim["claim_type"]), redaction_terms),\n        metric=redact_company_identity(str(claim["metric"]), redaction_terms),\n        unit=(\n            None\n            if claim.get("unit") is None\n            else redact_company_identity(str(claim["unit"]), redaction_terms)\n        ),\n        target_min=claim.get("target_min"),\n        target_max=claim.get("target_max"),\n        target_deadline=claim.get("target_deadline"),\n        target_horizon=(\n            None\n            if claim.get("target_horizon") is None\n            else redact_company_identity(str(claim["target_horizon"]), redaction_terms)\n        ),\n'''
+          if new not in text:
+              if old not in text:
+                  raise SystemExit('structured redaction anchor not found')
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+
+          test = Path('tests/test_h003_outcome_structured_redaction.py')
+          test.write_text('''from __future__ import annotations\n\nfrom marketlab.h003_outcomes import (\n    ScoredPassage,\n    SourcePassage,\n    build_blind_outcome_payload,\n)\n\n\ndef test_all_reviewer_visible_text_fields_are_identity_redacted() -> None:\n    claim = {\n        "claim_id": "H003C-12345678901234567890",\n        "source_date": "2025-01-01",\n        "normalized_claim": "ExampleBrand will launch ExampleBrand vehicles.",\n        "claim_type": "ExampleBrand guidance",\n        "metric": "ExampleBrand vehicles",\n        "unit": "ExampleBrand units",\n        "target_min": 10.0,\n        "target_max": None,\n        "target_deadline": None,\n        "target_horizon": "ExampleBrand FY26",\n    }\n    passage = SourcePassage(\n        source_alias="EVIDENCE_SOURCE_001",\n        source_text_sha256="a" * 64,\n        exchange_published_at_utc="2026-04-01T10:00:00Z",\n        page_number=1,\n        line_start=1,\n        line_end=1,\n        text="ExampleBrand delivered the target.",\n        passage_id="H003P-" + "b" * 24,\n    )\n    selected = [ScoredPassage(passage=passage, score=5.0, matched_tokens=("target",))]\n    packet = build_blind_outcome_payload(\n        claim,\n        selected,\n        redaction_terms=["ExampleBrand"],\n    )\n    rendered = str(packet.to_dict())\n    assert "ExampleBrand" not in rendered\n    assert packet.normalized_claim.startswith("[COMPANY]")\n    assert packet.claim_type.startswith("[COMPANY]")\n    assert packet.metric.startswith("[COMPANY]")\n    assert packet.unit is not None and packet.unit.startswith("[COMPANY]")\n    assert packet.target_horizon is not None and packet.target_horizon.startswith("[COMPANY]")\n    assert packet.evidence[0].text.startswith("[COMPANY]")\n''')
+          PY
+      - name: Verify structured-redaction patch
+        run: |
+          ruff check --fix src/marketlab/h003_outcomes.py tests/test_h003_outcome_structured_redaction.py
+          ruff check src scripts tests
+          pytest -q
+      - name: Commit only structured-redaction implementation and test
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add src/marketlab/h003_outcomes.py tests/test_h003_outcome_structured_redaction.py
+          if git diff --cached --quiet; then
+            echo 'structured redaction already applied'
+            exit 0
+          fi
+          git commit -m 'H003-O001: redact structured blind packet text'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
