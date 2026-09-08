@@ -24,16 +24,16 @@ jobs:
         run: |
           python - <<'PY'
           import json
-          from marketlab.nse import NSEClient
+          from marketlab.nse import NSEClient, NSEEndpoint
 
           client = NSEClient(timeout=20, attempts=4)
-          for name, endpoint, params in [
+          for name, url, params in [
               ('RESULTS_COMPARISON', 'https://www.nseindia.com/api/results-comparision', {'symbol':'ENTERO'}),
               ('LEGACY_ENTERO', 'https://www.nseindia.com/api/corporates-financial-results', {'index':'equities','period':'Quarterly','symbol':'ENTERO'}),
               ('LEGACY_ALL', 'https://www.nseindia.com/api/corporates-financial-results', {'index':'equities','period':'Quarterly'}),
           ]:
               try:
-                  payload, _ = client._json_get_with_raw(endpoint, params=params)
+                  payload, _ = client._json_get_with_raw(NSEEndpoint(name, url), params=params)
                   print('===', name, '===')
                   print(json.dumps(payload, indent=2)[:50000])
               except Exception as exc:
