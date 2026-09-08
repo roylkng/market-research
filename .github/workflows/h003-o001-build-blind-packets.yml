@@ -29,7 +29,7 @@ jobs:
           from marketlab.h003_outcomes import load_and_validate_outcome_rule
           d = load_and_validate_outcome_rule('registry/h003_outcome_rule.yaml')
           assert d['id'] == 'H003-O001'
-          assert d['sha256'] == 'b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b'
+          assert d['sha256'] == '36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1'
           assert d['live_capital'] is False
           print('H003-O001 frozen rule verified')
           PY
@@ -131,7 +131,7 @@ jobs:
           meta = {
               'schema_version': 1,
               'outcome_rule_id': 'H003-O001',
-              'outcome_rule_sha256': 'b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b',
+              'outcome_rule_sha256': '36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1',
               'protocol_commit_sha': os.environ['GITHUB_SHA'],
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'source_extraction_run_id': '34055026723',
@@ -139,7 +139,7 @@ jobs:
               'source_artifact_zip_sha256': '556ce5f413369d015b7424368bcd8f62804782c90b9087455b94ba68f28c6364',
               'source_candidate_report_file_sha256': '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b',
               'review_ledger_sha256': 'cb1e204685e66c37f274ac83b0c7f9729bb55401a58d1e51e6b50ac270052e4d',
-              'claim_audit_sha256': 'e5828081241005325306644765ddac64300dbc9084315325964873d65071770a',
+              'claim_audit_sha256': '0e14c74b9696b2be8cdf3b68184d423054e0a50ec8ed141cea23edc75948d9a1',
               'blind_package_sha256': manifest['blind_package_sha256'],
               'binding_package_sha256': manifest['binding_package_sha256'],
               'outcome_module_file_sha256': hashlib.sha256(Path('src/marketlab/h003_outcomes.py').read_bytes()).hexdigest(),
