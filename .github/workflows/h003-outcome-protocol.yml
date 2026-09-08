@@ -1,0 +1,44 @@
+name: H003 frozen outcome protocol
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - registry/h003_outcome_rule.yaml
+      - src/marketlab/h003_outcomes.py
+      - tests/test_h003_outcomes.py
+      - .github/workflows/h003-outcome-protocol.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Validate frozen H003-O001 rule
+        run: |
+          python - <<'PY'
+          from marketlab.h003_outcomes import load_and_validate_outcome_rule
+          d = load_and_validate_outcome_rule('registry/h003_outcome_rule.yaml')
+          print(f"H003 outcome rule valid: {d['id']} sha256={d['sha256']}")
+          assert d['live_capital'] is False
+          PY
+      - name: Lint and test before opening outcome evidence
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Record pre-evidence implementation hashes
+        run: |
+          sha256sum \
+            registry/h003_outcome_rule.yaml \
+            src/marketlab/h003_outcomes.py \
+            tests/test_h003_outcomes.py
