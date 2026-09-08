@@ -1,10 +1,10 @@
 """H005 ranker. Fitting and retrospective ranking are not validation approval."""
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
 import hashlib
 import json
-from typing import Iterable
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
 
 import numpy as np
 import pandas as pd
