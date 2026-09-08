@@ -1,0 +1,79 @@
+name: H018 wire checkpoint-safe acquisition
+
+on:
+  push:
+    branches:
+      - research/h018-promotion-audit-20260908
+    paths:
+      - .github/workflows/h018-apply-checkpoint-acquisition.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Wire H018 runner to durable acquisition only
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/run_h018_low_volatility_50.py')
+          text = path.read_text(encoding='utf-8')
+          import_old = 'import numpy as np\nimport run_h016_nse_style_dual_momentum as h16\n'
+          import_new = (
+              'import numpy as np\n'
+              'import h018_checkpoint_market as h018_market\n'
+              'import run_h016_nse_style_dual_momentum as h16\n'
+          )
+          if import_new not in text:
+              if import_old not in text:
+                  raise SystemExit('H018 import anchor not found')
+              text = text.replace(import_old, import_new, 1)
+
+          old = '    sessions, prices, index, market_manifest, diagnostics = h16.h15.acquire_market(root)\n'
+          new = '    sessions, prices, index, market_manifest, diagnostics = h018_market.acquire_market(root)\n'
+          if new not in text:
+              if old not in text:
+                  raise SystemExit('H018 acquisition call anchor not found')
+              text = text.replace(old, new, 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+          ruff check --fix scripts/run_h018_low_volatility_50.py scripts/h018_checkpoint_market.py
+          ruff format scripts/run_h018_low_volatility_50.py scripts/h018_checkpoint_market.py
+      - name: Verify no H018 research semantics changed
+        run: |
+          ruff check src scripts tests
+          pytest -q
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import run_h018_low_volatility_50 as h18
+          assert h18.MARKET_START.isoformat() == '2013-11-01'
+          assert h18.MARKET_END.isoformat() == '2017-05-31'
+          assert h18.DECISION_MONTHS == ((2014, 11), (2015, 5), (2015, 11), (2016, 5), (2016, 11))
+          assert h18.SELECT_COUNT == 50
+          assert h18.RANDOM_SEED == 1818
+          assert h18.RANDOM_DRAWS == 10_000
+          print('H018 frozen signal/selection constants unchanged')
+          PY
+      - name: Commit only H018 acquisition durability plumbing
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add scripts/h018_checkpoint_market.py scripts/run_h018_low_volatility_50.py
+          if git diff --cached --quiet; then
+            echo 'H018 checkpoint acquisition already wired'
+            exit 0
+          fi
+          git commit -m 'H018: checkpoint market acquisition before outcome'
+          git push origin HEAD:research/h018-promotion-audit-20260908
