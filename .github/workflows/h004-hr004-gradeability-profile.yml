@@ -1,0 +1,34 @@
+name: H004 HR004 gradeability profile
+
+on:
+  push:
+    branches:
+      - research/h004-catalyst-candidates-v1-20260908
+    paths:
+      - .github/workflows/h004-hr004-gradeability-profile.yml
+      - scripts/profile_h004_catalyst_gradeability.py
+
+permissions:
+  contents: write
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h004-catalyst-candidates-v1-20260908
+          fetch-depth: 0
+      - name: Profile retained queue
+        run: |
+          python scripts/profile_h004_catalyst_gradeability.py \
+            --input research/historical/h004/H004-HR004-catalyst/filtered-candidates.json \
+            --out research/historical/h004/H004-HR004-catalyst/gradeability-profile.json
+      - name: Commit profile
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/historical/h004/H004-HR004-catalyst/gradeability-profile.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "H004-HR004: retain materiality evidence profile"
+          git push origin HEAD:research/h004-catalyst-candidates-v1-20260908
