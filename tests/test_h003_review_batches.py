@@ -7,9 +7,9 @@ import pytest
 
 from marketlab.h003_review_batches import (
     BATCH_SIZE,
-    H003ReviewBatchError,
     OUTCOME_RULE_ID,
     OUTCOME_RULE_SHA256,
+    H003ReviewBatchError,
     canonical_hash,
     shard_blind_packets,
     validate_source_document,
@@ -145,7 +145,12 @@ def test_sharding_is_deterministic_and_exact(tmp_path) -> None:
     assert first["private_binding_accessed"] is False
     assert first["market_outcomes_included"] is False
     assert first["live_capital_allowed"] is False
-    for filename in ("batch-0001.json", "batch-0002.json", "batch-0003.json", "manifest.json"):
+    for filename in (
+        "batch-0001.json",
+        "batch-0002.json",
+        "batch-0003.json",
+        "manifest.json",
+    ):
         assert (out_a / filename).read_bytes() == (out_b / filename).read_bytes()
 
 
