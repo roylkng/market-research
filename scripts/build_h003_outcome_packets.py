@@ -175,7 +175,7 @@ def main() -> int:
     parser.add_argument("--manifest-out", type=Path, required=True)
     args = parser.parse_args()
 
-    rule = load_and_validate_outcome_rule(args.outcome_rule)
+    load_and_validate_outcome_rule(args.outcome_rule)
     ledger = load_frozen_ledger(args.ledger)
     load_claim_audit(args.claim_audit)
     corpus, records = load_report_and_records(args.candidate_report)
@@ -186,13 +186,17 @@ def main() -> int:
     record_by_source_id: dict[str, dict[str, Any]] = {}
     for record in records:
         if record.get("status") != "TEXT_READY":
-            raise H003OutcomeError(f"non-TEXT_READY source in complete report: {record.get('source_id')}")
+            raise H003OutcomeError(
+                f"non-TEXT_READY source in complete report: {record.get('source_id')}"
+            )
         timestamp = _parse_timestamp(
             str(record.get("exchange_published_at_utc")),
             field="record.exchange_published_at_utc",
         )
         if timestamp > cutoff:
-            raise H003OutcomeError(f"source exceeds frozen outcome cutoff: {record.get('source_id')}")
+            raise H003OutcomeError(
+                f"source exceeds frozen outcome cutoff: {record.get('source_id')}"
+            )
         source_id = str(record.get("source_id") or "")
         symbol = str(record.get("symbol") or "").upper()
         if source_id in record_by_source_id:

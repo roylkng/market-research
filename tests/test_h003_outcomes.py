@@ -6,8 +6,8 @@ import pytest
 import yaml
 
 from marketlab.h003_outcomes import (
-    H003OutcomeError,
     OUTCOME_RULE_SHA256,
+    H003OutcomeError,
     SourcePassage,
     build_blind_outcome_payload,
     build_outcome_review_decision,
@@ -113,7 +113,12 @@ def test_retrieval_is_deterministic_under_input_reordering() -> None:
     items = [
         passage(alias="E2", timestamp="2025-08-01T03:00:00Z", text="volume growth was 18", line=3),
         passage(alias="E1", timestamp="2025-07-01T03:00:00Z", text="volume growth was 18", line=2),
-        passage(alias="E1", timestamp="2025-07-01T03:00:00Z", text="annual volume growth target FY26", line=5),
+        passage(
+            alias="E1",
+            timestamp="2025-07-01T03:00:00Z",
+            text="annual volume growth target FY26",
+            line=5,
+        ),
     ]
     first = select_evidence_passages(claim(), items)
     second = select_evidence_passages(claim(), list(reversed(items)))
@@ -131,8 +136,7 @@ def test_equal_score_prefers_earlier_source() -> None:
 
 def test_per_source_cap_is_two() -> None:
     items = [
-        passage(alias="E1", text=f"volume growth target FY26 {i}", line=i)
-        for i in range(1, 8)
+        passage(alias="E1", text=f"volume growth target FY26 {i}", line=i) for i in range(1, 8)
     ]
     selected = select_evidence_passages(claim(), items)
     assert len(selected) == 2
@@ -140,8 +144,7 @@ def test_per_source_cap_is_two() -> None:
 
 def test_total_cap_is_twelve() -> None:
     items = [
-        passage(alias=f"E{i:02d}", text="volume growth target FY26", line=i)
-        for i in range(1, 20)
+        passage(alias=f"E{i:02d}", text="volume growth target FY26", line=i) for i in range(1, 20)
     ]
     selected = select_evidence_passages(claim(), items)
     assert len(selected) == 12
@@ -167,11 +170,11 @@ def test_source_passages_use_three_line_windows_without_crossing_pages() -> None
 
 
 def test_passage_ids_are_content_bound() -> None:
-    kwargs = dict(
-        source_alias="E1",
-        source_text_sha256="b" * 64,
-        exchange_published_at_utc="2025-02-01T01:00:00Z",
-    )
+    kwargs = {
+        "source_alias": "E1",
+        "source_text_sha256": "b" * 64,
+        "exchange_published_at_utc": "2025-02-01T01:00:00Z",
+    }
     a = build_source_passages(canonical_text="one\ntwo\nthree", **kwargs)[0]
     b = build_source_passages(canonical_text="one\ntwo\nfour", **kwargs)[0]
     assert a.passage_id != b.passage_id
@@ -179,9 +182,7 @@ def test_passage_ids_are_content_bound() -> None:
 
 def test_company_redaction_is_case_insensitive() -> None:
     value = "TestCo and TESTCO LIMITED discussed TestCo Industries."
-    redacted = redact_company_identity(
-        value, ["TESTCO", "TestCo Limited", "TestCo Industries"]
-    )
+    redacted = redact_company_identity(value, ["TESTCO", "TestCo Limited", "TestCo Industries"])
     assert "testco" not in redacted.casefold()
     assert redacted.count("[COMPANY]") == 3
 
@@ -271,15 +272,15 @@ def test_review_decision_is_hash_deterministic() -> None:
     selected = select_evidence_passages(claim(), [passage()])
     packet = build_blind_outcome_payload(claim(), selected, redaction_terms=["TESTCO"])
     evidence_id = packet.evidence[0].passage_id
-    kwargs = dict(
-        packet=packet,
-        status="MET",
-        evidence_passage_ids=[evidence_id],
-        observed_value=18.0,
-        observed_unit="%",
-        timing_interpretation="FY26 ends 2026-03-31",
-        normalized_observation="Eligible evidence explicitly reports target achievement.",
-        reviewer_version="test",
-        reviewed_at_utc="2026-09-08T10:00:00Z",
-    )
+    kwargs = {
+        "packet": packet,
+        "status": "MET",
+        "evidence_passage_ids": [evidence_id],
+        "observed_value": 18.0,
+        "observed_unit": "%",
+        "timing_interpretation": "FY26 ends 2026-03-31",
+        "normalized_observation": "Eligible evidence explicitly reports target achievement.",
+        "reviewer_version": "test",
+        "reviewed_at_utc": "2026-09-08T10:00:00Z",
+    }
     assert build_outcome_review_decision(**kwargs) == build_outcome_review_decision(**kwargs)

@@ -4,10 +4,11 @@ import hashlib
 import json
 import math
 import re
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 import yaml
 
@@ -489,9 +490,7 @@ def build_blind_outcome_payload(
     claim_id = str(claim.get("claim_id") or "")
     if not claim_id.startswith("H003C-"):
         raise H003OutcomeError("claim_id is not a frozen H003 claim id")
-    packet_id = "H003O-" + _canonical_hash(
-        {"rule": OUTCOME_RULE_SHA256, "claim_id": claim_id}
-    )[:24]
+    packet_id = "H003O-" + _canonical_hash({"rule": OUTCOME_RULE_SHA256, "claim_id": claim_id})[:24]
     evidence = tuple(
         BlindOutcomePassage(
             passage_id=item.passage.passage_id,
@@ -512,9 +511,7 @@ def build_blind_outcome_payload(
         outcome_rule_sha256=OUTCOME_RULE_SHA256,
         packet_id=packet_id,
         source_date=str(claim["source_date"]),
-        normalized_claim=redact_company_identity(
-            str(claim["normalized_claim"]), redaction_terms
-        ),
+        normalized_claim=redact_company_identity(str(claim["normalized_claim"]), redaction_terms),
         claim_type=str(claim["claim_type"]),
         metric=str(claim["metric"]),
         unit=None if claim.get("unit") is None else str(claim["unit"]),
