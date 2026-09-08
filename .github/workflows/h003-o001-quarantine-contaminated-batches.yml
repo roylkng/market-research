@@ -1,0 +1,99 @@
+name: H003-O001 quarantine contaminated review batches
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-quarantine-contaminated-batches.yml
+
+permissions:
+  contents: write
+
+jobs:
+  quarantine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify repository and corrected package before quarantine
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Generate and compile only reviewer-contaminated exclusions
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from marketlab.h003_outcome_review import compile_judgment_batch, decision_status_counts
+          from marketlab.h003_review_quarantine import quarantine_judgment_batch
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          incident = json.loads((root / 'blindness-incident-20260908.json').read_text())
+          semantic = root / 'semantic-judgments'
+          compiled = root / 'compiled-decisions'
+          semantic.mkdir(parents=True, exist_ok=True)
+          compiled.mkdir(parents=True, exist_ok=True)
+
+          for number in (1, 2):
+              source_path = root / 'review-batches' / f'batch-{number:04d}.json'
+              source = json.loads(source_path.read_text())
+              judgment = quarantine_judgment_batch(source, incident)
+              if judgment.get('reviewer_contaminated_exclusion') is not True:
+                  raise SystemExit(f'batch {number} did not become a reviewer-contaminated exclusion')
+              if any(row.get('status') != 'UNRESOLVED' for row in judgment['judgments']):
+                  raise SystemExit(f'batch {number} quarantine emitted a resolved status')
+              semantic_path = semantic / f'batch-{number:04d}.json'
+              semantic_path.write_text(json.dumps(judgment, indent=2, sort_keys=True) + '\n')
+
+              decision = compile_judgment_batch(source, judgment)
+              counts = decision_status_counts(decision)
+              if counts != {'UNRESOLVED': source['packet_count']}:
+                  raise SystemExit(f'batch {number} compiled quarantine counts unexpected: {counts}')
+              compiled_path = compiled / f'batch-{number:04d}.json'
+              compiled_path.write_text(json.dumps(decision, indent=2, sort_keys=True) + '\n')
+              print(f'H003 quarantine batch {number}: {counts}')
+          PY
+      - name: Fail closed on quarantine coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          packet_ids = []
+          for number in (1, 2):
+              source = json.loads((root / 'review-batches' / f'batch-{number:04d}.json').read_text())
+              judgment = json.loads((root / 'semantic-judgments' / f'batch-{number:04d}.json').read_text())
+              decision = json.loads((root / 'compiled-decisions' / f'batch-{number:04d}.json').read_text())
+              assert len(source['packets']) == 20
+              assert len(judgment['judgments']) == 20
+              assert len(decision['decisions']) == 20
+              assert all(row['status'] == 'UNRESOLVED' for row in decision['decisions'])
+              assert judgment['private_binding_accessed'] is False
+              assert judgment['market_outcomes_accessed'] is False
+              assert decision['private_binding_accessed'] is False
+              assert decision['market_outcomes_accessed'] is False
+              packet_ids.extend(row['packet_id'] for row in decision['decisions'])
+          assert len(packet_ids) == 40
+          assert len(set(packet_ids)) == 40
+          print('H003 reviewer-contaminated quarantine valid: 40/40 UNRESOLVED exclusions')
+          PY
+      - name: Commit only frozen quarantine judgments and compiled decisions
+        run: |
+          ROOT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$ROOT/semantic-judgments/batch-0001.json" \
+                  "$ROOT/semantic-judgments/batch-0002.json" \
+                  "$ROOT/compiled-decisions/batch-0001.json" \
+                  "$ROOT/compiled-decisions/batch-0002.json"
+          git commit -m 'H003-O001: freeze reviewer-contaminated exclusions'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
