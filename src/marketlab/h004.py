@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+import collections.abc
 from dataclasses import dataclass
 from typing import Any
 
@@ -43,7 +43,9 @@ class H004Evaluation:
         }
 
 
-def _float(row: Mapping[str, Any], key: str, default: float = 0.0) -> float:
+def _float(
+    row: collections.abc.Mapping[str, Any], key: str, default: float = 0.0
+) -> float:
     value = row.get(key, default)
     if value in (None, ""):
         return default
@@ -53,7 +55,7 @@ def _float(row: Mapping[str, Any], key: str, default: float = 0.0) -> float:
         return default
 
 
-def _bool(row: Mapping[str, Any], key: str) -> bool:
+def _bool(row: collections.abc.Mapping[str, Any], key: str) -> bool:
     value = row.get(key, False)
     if isinstance(value, bool):
         return value
@@ -62,7 +64,7 @@ def _bool(row: Mapping[str, Any], key: str) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
-def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
+def evaluate_h004_row(row: collections.abc.Mapping[str, Any]) -> H004Evaluation:
     """Evaluate one point-in-time H004 candidate row.
 
     This function intentionally does not inspect future returns. Stock-level
@@ -104,10 +106,7 @@ def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
     earnings_anchor = (
         not earnings_invalidated
         and not speculative_base_effect
-        and (
-            earnings_tests == 4
-            or (earnings_tests >= 3 and catalyst_grade >= 3)
-        )
+        and (earnings_tests == 4 or (earnings_tests >= 3 and catalyst_grade >= 3))
     )
 
     prior_loss_or_low_margin = _bool(row, "prior_comparable_loss") or _float(
