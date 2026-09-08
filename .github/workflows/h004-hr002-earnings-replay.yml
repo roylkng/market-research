@@ -1,4 +1,4 @@
-name: H004 HR002 earnings replay
+name: H004 HR002 earnings replay v2
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - research/h004-pre-momentum-v1-20260908
     paths:
       - .github/workflows/h004-hr002-earnings-replay.yml
-      - scripts/run_h004_earnings_replay.py
+      - scripts/run_h004_earnings_replay_v2.py
 
 permissions:
   contents: write
@@ -14,7 +14,7 @@ permissions:
 jobs:
   replay:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,12 +25,13 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Run H004 earnings replay
+      - name: Run corrected H004 earnings replay v2
         run: |
-          python scripts/run_h004_earnings_replay.py \
-            --event-start 2025-07-01 \
+          rm -rf research/historical/h004/H004-HR002-earnings
+          python scripts/run_h004_earnings_replay_v2.py \
+            --event-start 2025-10-01 \
             --event-end 2026-07-31 \
-            --price-start 2025-03-01 \
+            --price-start 2025-05-01 \
             --price-end 2026-08-31 \
             --out-dir research/historical/h004/H004-HR002-earnings
       - name: Commit replay evidence
@@ -42,5 +43,5 @@ jobs:
             echo "replay output unchanged"
             exit 0
           fi
-          git commit -m "H004-HR002: retain broad earnings replay"
+          git commit -m "H004-HR002: retain corrected earnings replay v2"
           git push origin HEAD:research/h004-pre-momentum-v1-20260908
