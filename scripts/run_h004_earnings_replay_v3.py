@@ -13,6 +13,25 @@ import run_h004_earnings_replay_v2 as replay
 LEGACY_START = date(2024, 7, 1)
 LEGACY_END = date(2025, 9, 30)
 _LEGACY_INDEX: dict[tuple[str, str], list[dict[str, Any]]] | None = None
+_BASE_XBRL_METRICS = replay.xbrl_period_metrics
+
+
+def operating_xbrl_period_metrics(raw: bytes) -> dict[str, Any] | None:
+    metrics = _BASE_XBRL_METRICS(raw)
+    if metrics is None:
+        return None
+    pbei = metrics["profit_before_exceptional_and_tax_inr"]
+    finance = metrics["finance_costs_inr"]
+    depreciation = metrics["depreciation_inr"]
+    other_income = metrics.get("other_income_inr") or 0.0
+    revenue = metrics["revenue_inr"]
+    operating_ebitda = pbei - other_income + finance + depreciation
+    metrics["ebitda_proxy_inr"] = operating_ebitda
+    metrics["ebitda_margin_pct"] = operating_ebitda / revenue * 100.0
+    metrics["ebitda_proxy_definition"] = (
+        "profit_before_exceptional_and_tax - other_income + finance_costs + depreciation"
+    )
+    return metrics
 
 
 def two_month_chunks(start: date, end: date):
@@ -93,5 +112,6 @@ def bulk_prior_filing(
 
 
 if __name__ == "__main__":
+    replay.xbrl_period_metrics = operating_xbrl_period_metrics
     replay.prior_filing = bulk_prior_filing
     replay.main()
