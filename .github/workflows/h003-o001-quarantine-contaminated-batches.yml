@@ -22,10 +22,23 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Verify repository and corrected package before quarantine
+      - name: Verify repository and zero-contact package before quarantine
         run: |
           ruff check src scripts tests
           pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          incident = json.loads((root / 'blindness-incident-20260908.json').read_text())
+          batches = json.loads((root / 'review-batches' / 'manifest.json').read_text())
+          assert audit['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert audit['affected_packet_count'] == 0
+          assert incident['reviewer_contaminated_source_batches'] == [1, 2, 3, 4]
+          assert batches['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          print('H003 quarantine inputs verified')
+          PY
       - name: Generate and compile only reviewer-contaminated exclusions
         run: |
           python - <<'PY'
@@ -42,7 +55,7 @@ jobs:
           semantic.mkdir(parents=True, exist_ok=True)
           compiled.mkdir(parents=True, exist_ok=True)
 
-          for number in (1, 2):
+          for number in (1, 2, 3, 4):
               source_path = root / 'review-batches' / f'batch-{number:04d}.json'
               source = json.loads(source_path.read_text())
               judgment = quarantine_judgment_batch(source, incident)
@@ -69,7 +82,7 @@ jobs:
 
           root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
           packet_ids = []
-          for number in (1, 2):
+          for number in (1, 2, 3, 4):
               source = json.loads((root / 'review-batches' / f'batch-{number:04d}.json').read_text())
               judgment = json.loads((root / 'semantic-judgments' / f'batch-{number:04d}.json').read_text())
               decision = json.loads((root / 'compiled-decisions' / f'batch-{number:04d}.json').read_text())
@@ -77,14 +90,15 @@ jobs:
               assert len(judgment['judgments']) == 20
               assert len(decision['decisions']) == 20
               assert all(row['status'] == 'UNRESOLVED' for row in decision['decisions'])
+              assert judgment['reviewer_contaminated_exclusion'] is True
               assert judgment['private_binding_accessed'] is False
               assert judgment['market_outcomes_accessed'] is False
               assert decision['private_binding_accessed'] is False
               assert decision['market_outcomes_accessed'] is False
               packet_ids.extend(row['packet_id'] for row in decision['decisions'])
-          assert len(packet_ids) == 40
-          assert len(set(packet_ids)) == 40
-          print('H003 reviewer-contaminated quarantine valid: 40/40 UNRESOLVED exclusions')
+          assert len(packet_ids) == 80
+          assert len(set(packet_ids)) == 80
+          print('H003 reviewer-contaminated quarantine valid: 80/80 UNRESOLVED exclusions')
           PY
       - name: Commit only frozen quarantine judgments and compiled decisions
         run: |
@@ -93,7 +107,11 @@ jobs:
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add "$ROOT/semantic-judgments/batch-0001.json" \
                   "$ROOT/semantic-judgments/batch-0002.json" \
+                  "$ROOT/semantic-judgments/batch-0003.json" \
+                  "$ROOT/semantic-judgments/batch-0004.json" \
                   "$ROOT/compiled-decisions/batch-0001.json" \
-                  "$ROOT/compiled-decisions/batch-0002.json"
-          git commit -m 'H003-O001: freeze reviewer-contaminated exclusions'
+                  "$ROOT/compiled-decisions/batch-0002.json" \
+                  "$ROOT/compiled-decisions/batch-0003.json" \
+                  "$ROOT/compiled-decisions/batch-0004.json"
+          git commit -m 'H003-O001: freeze 80 reviewer-contaminated exclusions'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
