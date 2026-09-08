@@ -39,3 +39,29 @@ experiments:
       experiment_type: prospective_paper
       required: true
       live_capital_allowed: false
+
+  - id: EXP-2026-09-08-H004
+    hypothesis_id: H004
+    experiment_type: point_in_time_historical_replay_then_prospective_daily_watchlist
+    frozen_at: 2026-09-08
+    status: FROZEN
+    dataset:
+      market: India
+      primary_universe: NSE_main_board_EQ_median_20d_traded_value_gte_2cr
+      discovery_universe: NSE_main_board_EQ_median_20d_traded_value_gte_25lakh
+      design_set_excluded:
+        start: 2026-08-31
+        end: 2026-09-07
+      point_in_time_required: true
+    artifacts:
+      - hypotheses/H004_pre_momentum_catalyst.md
+      - experiments/H004_pre_momentum_catalyst/SPEC.md
+      - registry/h004_signal_rule.yaml
+    primary_metrics:
+      - future_explosive_mover_recall
+      - stage2_precision
+      - median_lead_time
+    follow_up:
+      experiment_type: prospective_daily_paper_watchlist
+      required: true
+      live_capital_allowed: false
