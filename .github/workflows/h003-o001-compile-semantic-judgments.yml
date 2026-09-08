@@ -1,0 +1,101 @@
+name: H003-O001 compile blind semantic judgments
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - src/marketlab/h003_outcome_review.py
+      - tests/test_h003_outcome_review.py
+      - scripts/compile_h003_outcome_judgments.py
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/semantic-judgments/**
+      - .github/workflows/h003-o001-compile-semantic-judgments.yml
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify repository before compiling judgments
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Compile every frozen blind judgment batch
+        run: |
+          set -euo pipefail
+          ROOT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          mkdir -p "$ROOT/compiled-decisions"
+          rm -f "$ROOT/compiled-decisions"/batch-*.json
+          for judgments in "$ROOT"/semantic-judgments/batch-*.json; do
+            test -f "$judgments"
+            name=$(basename "$judgments")
+            source="$ROOT/review-batches/$name"
+            test -f "$source"
+            python scripts/compile_h003_outcome_judgments.py \
+              --source-batch "$source" \
+              --judgments "$judgments" \
+              --out "$ROOT/compiled-decisions/$name"
+          done
+      - name: Fail closed on compiled coverage or identity leakage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          judgments = sorted((root / 'semantic-judgments').glob('batch-*.json'))
+          compiled = sorted((root / 'compiled-decisions').glob('batch-*.json'))
+          assert judgments, 'no semantic judgment batches found'
+          assert [p.name for p in compiled] == [p.name for p in judgments]
+
+          forbidden = {
+              'symbol', 'company_name', 'claim_id', 'claim_hash', 'candidate_id',
+              'original_source_id', 'source_bindings', 'source_url', 'stock_return',
+              'benchmark_return', 'gross_excess', 'net_excess',
+          }
+          all_packet_ids = []
+          status_counts = {}
+          total = 0
+          for path in compiled:
+              document = json.loads(path.read_text())
+              assert document['private_binding_accessed'] is False
+              assert document['market_outcomes_accessed'] is False
+              assert document['live_capital_allowed'] is False
+              source = json.loads((root / 'review-batches' / path.name).read_text())
+              assert document['decision_count'] == source['packet_count']
+              assert document['source_batch_sha256'] == source['batch_sha256']
+              rendered = json.dumps(document, sort_keys=True).casefold()
+              for key in forbidden:
+                  assert f'"{key.casefold()}"' not in rendered, f'forbidden key {key} in {path}'
+              packet_ids = [row['packet_id'] for row in document['decisions']]
+              assert len(packet_ids) == len(set(packet_ids))
+              all_packet_ids.extend(packet_ids)
+              total += len(packet_ids)
+              for row in document['decisions']:
+                  status = row['status']
+                  status_counts[status] = status_counts.get(status, 0) + 1
+          assert len(all_packet_ids) == len(set(all_packet_ids)), 'duplicate packet across batches'
+          print(f'compiled blind decisions valid: batches={len(compiled)} decisions={total} statuses={status_counts}')
+          PY
+      - name: Commit only compiled blind decisions
+        run: |
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/compiled-decisions
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          if git diff --cached --quiet; then
+            echo 'compiled decisions already current'
+            exit 0
+          fi
+          git commit -m 'H003-O001: compile frozen blind semantic judgments'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
