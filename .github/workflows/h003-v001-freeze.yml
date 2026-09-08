@@ -22,6 +22,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
+      - name: Verify recovery code before unblinding
+        run: |
+          ruff check src scripts tests
+          pytest -q
       - name: Verify completed blind-review manifest
         run: |
           python - <<'PY'
@@ -44,15 +48,17 @@ jobs:
       - name: Freeze and unblind completed H003 review
         run: |
           OUT=research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen
+          rm -rf "$OUT"
           mkdir -p "$OUT"
-          python scripts/freeze_h003_review.py \
+          python scripts/freeze_h003_review_v2.py \
             --candidate-report /tmp/h003-candidate-report.json \
             --review-rule registry/h003_review_rule.yaml \
             --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
             --mechanical-decisions research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/mechanical-decisions.json \
             --semantic-decisions-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
             --ledger-out "$OUT/ledger.json" \
-            --summary-out "$OUT/summary.json"
+            --summary-out "$OUT/summary.json" \
+            --deadline-audit-out "$OUT/deadline-audit.json"
       - name: Verify frozen ledger and record lineage
         run: |
           python - <<'PY'
@@ -60,26 +66,38 @@ jobs:
           from pathlib import Path
           out = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen')
           s = json.loads((out / 'summary.json').read_text())
+          a = json.loads((out / 'deadline-audit.json').read_text())
           assert s['complete'] is True
           assert s['candidate_count'] == 2692
           assert s['reviewed_count'] == 2692
           assert s['accepted_count'] + s['rejected_count'] == 2692
           assert s['claim_outcome_count'] == 0
           assert s['live_capital_allowed'] is False
+          assert a['accepted_claim_count'] == s['accepted_count']
+          assert a['deadline_status_counts'].get('DEFERRED_UNPARSED', 0) == 0
           meta = {
-              'schema_version': 1,
+              'schema_version': 2,
               'review_source_commit': 'f5f731df2363c798b46bf88bf2716666a00105fd',
               'compiled_manifest_sha256': '0498308e0862665a76c11e261f0a1513b899ebc489631a66640a6605133a947b',
               'candidate_report_file_sha256': '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b',
               'candidate_report_canonical_sha256': '46fa48f58fe33f302d026bda5dd53e0e94c82fa5016547467d3d8778a81b2bbc',
               'extraction_source_commit': '62355096b5b435f5ee2c3cbd96354cd7b4b98025',
+              'deadline_rule_id': 'H003-D001',
               'workflow_run_id': os.environ['GITHUB_RUN_ID'],
               'ledger_file_sha256': hashlib.sha256((out / 'ledger.json').read_bytes()).hexdigest(),
               'summary_file_sha256': hashlib.sha256((out / 'summary.json').read_bytes()).hexdigest(),
+              'deadline_audit_file_sha256': hashlib.sha256((out / 'deadline-audit.json').read_bytes()).hexdigest(),
+              'deadline_module_sha256': hashlib.sha256(Path('src/marketlab/h003_deadlines.py').read_bytes()).hexdigest(),
+              'freeze_script_sha256': hashlib.sha256(Path('scripts/freeze_h003_review_v2.py').read_bytes()).hexdigest(),
               'live_capital_allowed': False,
           }
           (out / 'run-metadata.json').write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n')
           print(json.dumps(s, indent=2, sort_keys=True))
+          print(json.dumps({
+              'deadline_status_counts': a['deadline_status_counts'],
+              'canonical_deadline_count': a['canonical_deadline_count'],
+              'deferred_deadline_count': a['deferred_deadline_count'],
+          }, indent=2, sort_keys=True))
           PY
       - name: Commit immutable frozen review evidence
         run: |
