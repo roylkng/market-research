@@ -27,6 +27,33 @@ RANDOM_DRAWS = 10_000
 FRICTION = 0.005
 
 
+def parse_nifty500_source_date(raw_csv: bytes, session_date: date) -> dict[str, float]:
+    """Parse Nifty 500, allowing only source-date-confirmed MM-DD transposition."""
+    try:
+        return base.parse_nifty500(raw_csv, session_date)
+    except ValueError:
+        text = raw_csv.decode("utf-8-sig")
+        rows = [
+            row
+            for row in csv.DictReader(io.StringIO(text))
+            if " ".join(str(row.get("Index Name") or "").split()).casefold() == "nifty 500"
+        ]
+        if len(rows) != 1:
+            raise
+        row = rows[0]
+        parts = str(row.get("Index Date") or "").strip().split("-")
+        if len(parts) != 3 or not all(part.isdigit() for part in parts):
+            raise
+        fallback_date = date(int(parts[2]), int(parts[0]), int(parts[1]))
+        if fallback_date != session_date:
+            raise
+        opened = float(row["Open Index Value"])
+        closed = float(row["Closing Index Value"])
+        if not all(math.isfinite(value) and value > 0 for value in (opened, closed)):
+            raise ValueError("nonpositive Nifty 500 OHLC in source-date fallback")
+        return {"open": opened, "close": closed}
+
+
 def legacy_bhavcopy_url(day: date) -> str:
     month = day.strftime("%b").upper()
     return (
@@ -184,7 +211,7 @@ def acquire_market(root: Path):
         manifest.extend([b_retained, i_retained])
         try:
             equities = parse_legacy_bhavcopy(b_raw, day)
-            nifty = base.parse_nifty500(i_raw, day)
+            nifty = parse_nifty500_source_date(i_raw, day)
         except ValueError as exc:
             diagnostics["parse_errors"].append({"date": day.isoformat(), "error": str(exc)})
             continue
