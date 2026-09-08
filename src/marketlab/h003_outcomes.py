@@ -513,13 +513,21 @@ def build_blind_outcome_payload(
         packet_id=packet_id,
         source_date=str(claim["source_date"]),
         normalized_claim=redact_company_identity(str(claim["normalized_claim"]), redaction_terms),
-        claim_type=str(claim["claim_type"]),
-        metric=str(claim["metric"]),
-        unit=None if claim.get("unit") is None else str(claim["unit"]),
+        claim_type=redact_company_identity(str(claim["claim_type"]), redaction_terms),
+        metric=redact_company_identity(str(claim["metric"]), redaction_terms),
+        unit=(
+            None
+            if claim.get("unit") is None
+            else redact_company_identity(str(claim["unit"]), redaction_terms)
+        ),
         target_min=claim.get("target_min"),
         target_max=claim.get("target_max"),
         target_deadline=claim.get("target_deadline"),
-        target_horizon=claim.get("target_horizon"),
+        target_horizon=(
+            None
+            if claim.get("target_horizon") is None
+            else redact_company_identity(str(claim["target_horizon"]), redaction_terms)
+        ),
         evidence=evidence,
     )
     unsigned = provisional.to_dict()
