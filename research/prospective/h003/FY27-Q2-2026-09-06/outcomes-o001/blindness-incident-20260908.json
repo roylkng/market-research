@@ -1,10 +1,12 @@
 {
   "schema_version": 1,
   "incident_id": "H003-O001-BLINDNESS-001",
-  "status": "REMEDIATION_CODE_GREEN_REBUILD_RETRY",
+  "status": "STRUCTURED_REDACTION_GREEN_REBUILD_REQUESTED",
   "detected_at_utc": "2026-09-08T17:35:00Z",
   "remediation_code_commit": "6f2560aa4b2745745057eef3ad8cd85482227c94",
   "quarantine_lint_fix_commit": "59909dbf14c843f19c799813a9fbf80895bc5133",
+  "generic_descriptor_fix_commit": "9c76b9921f208c95b9d732e2f54bd9e436761ae2",
+  "structured_redaction_commit": "b25a19972decad6cc43ed2a6edb463cde9693e15",
   "outcome_rule_id": "H003-O001",
   "outcome_rule_sha256": "36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1",
   "invalidated_blind_package_sha256": "a94a99c8f5fbad4aa0c5409f47362543cec879d07ec8a8006a8937c38bcfdb01",
@@ -12,7 +14,9 @@
   "reason": "Explicit current-company short-name variants and transcript speaker names survived the intended identity redaction. This violates H003-O001 blind_review.company_identity_visible=false even though symbol and full legal company name were removed.",
   "observed_examples": [
     "A current-company shortened legal-name variant survived because the redaction list retained a trailing industry descriptor.",
-    "Transcript speaker labels containing identifiable management names survived because speaker labels were not part of the redaction set."
+    "Transcript speaker labels containing identifiable management names survived because speaker labels were not part of the redaction set.",
+    "A first remediation attempt over-redacted the generic descriptor 'Vehicles'; the alias generator was narrowed to distinctive identity tokens.",
+    "Reviewer-visible structured text fields are now redacted using the same identity-term set as evidence prose."
   ],
   "market_outcomes_accessed": false,
   "private_binding_opened": false,
@@ -26,6 +30,7 @@
     "Expand current-company redaction to distinctive shortened legal-name variants and meaningful company-name tokens.",
     "Extract and redact transcript speaker labels before blind packet emission.",
     "Fail closed if any generated current-company alias variant survives a packet.",
+    "Redact all reviewer-visible structured text fields using the same identity-term set.",
     "Regenerate all 869 packets from the same frozen sources and unchanged lexical retrieval rule.",
     "Re-run deterministic 20-packet sharding from the corrected package.",
     "Do not semantically score regenerated source batches 1 or 2. Force them UNRESOLVED as reviewer-contaminated exclusions.",
