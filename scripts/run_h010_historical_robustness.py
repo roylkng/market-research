@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Run H010's frozen backward historical robustness test from official NSE sources."""
 
 from __future__ import annotations
@@ -29,10 +28,7 @@ from marketlab.marketdata import index_snapshot_url, udiff_url
 from marketlab.nse import NSEClient, NSEEndpoint
 
 IST = ZoneInfo("Asia/Kolkata")
-USER_AGENT = (
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-    "Chrome/152.0 Safari/537.36"
-)
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152.0 Safari/537.36"
 LEGACY = NSEEndpoint(
     "legacy_financials",
     "https://www.nseindia.com/api/corporates-financial-results",
@@ -154,7 +150,7 @@ def acquire_result_events(root: Path) -> tuple[list[dict[str, object]], list[dic
         meta = retain(root, raw, url=url, kind="legacy-result-listing")
         manifests.append(meta)
         if not isinstance(payload, list):
-            raise ValueError("legacy result listing must be a JSON list")
+            raise TypeError("legacy result listing must be a JSON list")
         for source in payload:
             if not isinstance(source, dict):
                 continue
@@ -314,9 +310,7 @@ def parse_nifty500(raw_csv: bytes, session_date: date) -> dict[str, float]:
         if parsed == session_date:
             matches.append(row)
     if len(matches) != 1:
-        raise ValueError(
-            f"expected one Nifty 500 row on {session_date}; found {len(matches)}"
-        )
+        raise ValueError(f"expected one Nifty 500 row on {session_date}; found {len(matches)}")
     row = matches[0]
     try:
         opened = float(row["Open Index Value"])
@@ -534,9 +528,7 @@ def adjusted_volume(value: float, *, day: date, through: date, actions: list[Act
 
 def unresolved_crossing(actions: list[Action], start: date, end: date) -> list[str]:
     return [
-        action.subject
-        for action in actions
-        if action.unresolved and start < action.ex_date <= end
+        action.subject for action in actions if action.unresolved and start < action.ex_date <= end
     ]
 
 
@@ -912,9 +904,7 @@ def evaluate(rows: list[dict[str, object]]) -> dict[str, object]:
             float(primary["median_excess_pp"]) > float(baseline20["median_excess_pp"])
         ),
         "median_excess_beats_unconditional_by_3pp": (
-            float(primary["median_excess_pp"])
-            - float(unconditional["median_excess_pp"])
-            >= 3.0
+            float(primary["median_excess_pp"]) - float(unconditional["median_excess_pp"]) >= 3.0
         ),
         "max_company_positive_pnl_share_lte_20pct": (
             primary["max_company_positive_pnl_share"] is not None
@@ -926,9 +916,7 @@ def evaluate(rows: list[dict[str, object]]) -> dict[str, object]:
     }
     return {
         "status": (
-            "HISTORICAL_ROBUSTNESS_PASS"
-            if all(gates.values())
-            else "HISTORICAL_ROBUSTNESS_FAIL"
+            "HISTORICAL_ROBUSTNESS_PASS" if all(gates.values()) else "HISTORICAL_ROBUSTNESS_FAIL"
         ),
         "evaluable_events": len(rows),
         "primary_top10": primary,
@@ -973,12 +961,8 @@ def main() -> None:
             "market_symbols": len(bars),
             "exclusions": dict(sorted(exclusions.items())),
             "listing_source_count": len(listing_manifest),
-            "market_source_status": dict(
-                Counter(str(item["status"]) for item in market_manifest)
-            ),
-            "corporate_action_source_sha256": [
-                manifest["sha256"] for manifest in action_manifests
-            ],
+            "market_source_status": dict(Counter(str(item["status"]) for item in market_manifest)),
+            "corporate_action_source_sha256": [manifest["sha256"] for manifest in action_manifests],
             "outcome_opened_at_utc": datetime.now(UTC).isoformat(),
             "evidence_classification": "BACKWARD_HISTORICAL_ROBUSTNESS_ONLY",
         }
