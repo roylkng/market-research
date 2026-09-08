@@ -11,6 +11,14 @@ TOKEN_PATTERN = re.compile(r"[A-Za-z][A-Za-z0-9.'’&-]*")
 SPEAKER_LABEL_PATTERN = re.compile(
     r"(?<!\w)([A-Z][A-Za-z.'’&-]*(?:\s+[A-Z][A-Za-z.'’&-]*){1,4})\s*:"
 )
+CONTACT_IDENTIFIER_PATTERNS = (
+    re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE),
+    re.compile(r"\b(?:https?://|www\.)[^\s<>\"\]]+", re.IGNORECASE),
+    re.compile(
+        r"(?<![\w@])(?:[A-Z0-9-]+\.)+(?:com|co\.in|co\.uk|in|org|net|io|ai|co|edu|gov|biz|info)(?!\w)",
+        re.IGNORECASE,
+    ),
+)
 
 # These are generic corporate/industry descriptors, not identity-bearing tokens.
 # Full legal/root company names are still redacted. This set only prevents an
@@ -197,6 +205,11 @@ def combined_redaction_terms(
 
 def assert_identity_scrubbed(packet_document: dict[str, Any], terms: Iterable[str]) -> None:
     rendered = __import__("json").dumps(packet_document, ensure_ascii=False)
+    for pattern in CONTACT_IDENTIFIER_PATTERNS:
+        if pattern.search(rendered):
+            raise H003IdentityRedactionError(
+                "explicit contact identifier survived blind packet"
+            )
     for term in terms:
         cleaned = str(term).strip()
         if not cleaned:

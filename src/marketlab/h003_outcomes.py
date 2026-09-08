@@ -430,6 +430,16 @@ def select_evidence_passages(
     return tuple(selected)
 
 
+CONTACT_EMAIL_PATTERN = re.compile(
+    r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE
+)
+CONTACT_URL_PATTERN = re.compile(r"\b(?:https?://|www\.)[^\s<>\"\]]+", re.IGNORECASE)
+CONTACT_DOMAIN_PATTERN = re.compile(
+    r"(?<![\w@])(?:[A-Z0-9-]+\.)+(?:com|co\.in|co\.uk|in|org|net|io|ai|co|edu|gov|biz|info)(?!\w)",
+    re.IGNORECASE,
+)
+
+
 def redact_company_identity(value: str, redaction_terms: Sequence[str]) -> str:
     result = value
     terms = sorted(
@@ -440,6 +450,8 @@ def redact_company_identity(value: str, redaction_terms: Sequence[str]) -> str:
     for term in terms:
         pattern = rf"(?<!\w){re.escape(term)}(?!\w)"
         result = re.sub(pattern, "[COMPANY]", result, flags=re.IGNORECASE)
+    for pattern in (CONTACT_EMAIL_PATTERN, CONTACT_URL_PATTERN, CONTACT_DOMAIN_PATTERN):
+        result = pattern.sub("[CONTACT]", result)
     return result
 
 
