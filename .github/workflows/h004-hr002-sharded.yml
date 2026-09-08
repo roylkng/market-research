@@ -1,0 +1,94 @@
+name: H004 HR002 sharded earnings replay
+
+on:
+  push:
+    branches:
+      - research/h004-earnings-sharded-v1-20260908
+    paths:
+      - .github/workflows/h004-hr002-sharded.yml
+      - scripts/merge_h004_earnings_shards.py
+
+permissions:
+  contents: write
+
+jobs:
+  shard:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: 2025Q4
+            event_start: '2025-10-01'
+            event_end: '2025-12-31'
+            price_start: '2025-06-01'
+            price_end: '2026-02-15'
+          - id: 2026Q1
+            event_start: '2026-01-01'
+            event_end: '2026-03-31'
+            price_start: '2025-09-01'
+            price_end: '2026-05-15'
+          - id: 2026Q2
+            event_start: '2026-04-01'
+            event_end: '2026-06-30'
+            price_start: '2025-12-01'
+            price_end: '2026-08-15'
+          - id: 2026Q3JUL
+            event_start: '2026-07-01'
+            event_end: '2026-07-31'
+            price_start: '2026-03-01'
+            price_end: '2026-08-31'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h004-earnings-sharded-v1-20260908
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Run frozen quarter shard
+        run: |
+          python scripts/run_h004_earnings_replay_v3.py \
+            --event-start ${{ matrix.event_start }} \
+            --event-end ${{ matrix.event_end }} \
+            --price-start ${{ matrix.price_start }} \
+            --price-end ${{ matrix.price_end }} \
+            --out-dir /tmp/h004-${{ matrix.id }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h004-${{ matrix.id }}
+          path: /tmp/h004-${{ matrix.id }}
+          retention-days: 7
+
+  merge:
+    needs: shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h004-earnings-sharded-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: h004-*
+          path: /tmp/h004-shards
+      - name: Merge immutable event ledgers
+        run: |
+          python scripts/merge_h004_earnings_shards.py \
+            --shards-root /tmp/h004-shards \
+            --out-dir research/historical/h004/H004-HR002-earnings-sharded
+      - name: Commit merged evidence
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/historical/h004/H004-HR002-earnings-sharded
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "H004-HR002: retain sharded earnings replay"
+          git push origin HEAD:research/h004-earnings-sharded-v1-20260908
