@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from marketlab.h003_outcomes import OUTCOME_RULE_ID, OUTCOME_RULE_SHA256
 from marketlab.h003_outcome_review import validate_source_batch
+from marketlab.h003_outcomes import OUTCOME_RULE_ID, OUTCOME_RULE_SHA256
 
 QUARANTINE_REVIEWER_VERSION = "h003-o001-reviewer-contamination-exclusion-v1"
 EXPECTED_INCIDENT_ID = "H003-O001-BLINDNESS-001"
