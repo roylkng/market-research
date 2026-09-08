@@ -1,0 +1,38 @@
+name: H004 HR004 source filter
+
+on:
+  push:
+    branches:
+      - research/h004-catalyst-candidates-v1-20260908
+    paths:
+      - .github/workflows/h004-hr004-filter.yml
+      - scripts/filter_h004_catalyst_candidates.py
+      - research/historical/h004/H004-HR004-catalyst/SOURCE-FILTER-CONTRACT.md
+
+permissions:
+  contents: write
+
+jobs:
+  filter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h004-catalyst-candidates-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply source-only filter
+        run: |
+          python scripts/filter_h004_catalyst_candidates.py \
+            --input research/historical/h004/H004-HR004-catalyst/candidates.json \
+            --out-dir research/historical/h004/H004-HR004-catalyst
+      - name: Commit filtered queue
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/historical/h004/H004-HR004-catalyst/filtered-*.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "H004-HR004: retain filtered catalyst queue"
+          git push origin HEAD:research/h004-catalyst-candidates-v1-20260908
