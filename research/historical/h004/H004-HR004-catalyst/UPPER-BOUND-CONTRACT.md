@@ -15,7 +15,8 @@ Rules:
 - Stage-2 uses the same daily-data subset available in HR002: at least two of +2% to +8% one-day recognition, volume >=2x prior-20 median, and close within 5% of prior-60-session high; prior-5-session return must stay <15%; flat positive circuit proxy is non-executable,
 - entry proxy is next-session open after Stage-2,
 - precision label is max high over next 20 symbol sessions >=25% from entry,
-- full-market episode recall uses the already-frozen HR003 primary episode ledger; an episode is recalled if a candidate-derived Stage-2 signal for the same symbol produces an entry after the candidate and before the episode's +25% hit date,
+- full-market episode recall uses the already-frozen HR003 primary episode ledger; an episode is recalled only when a candidate-derived **Stage-2 trigger date is on or after that episode's frozen `start_date` and strictly before its first +25% `hit_date`** for the same symbol,
+- a Stage-2 signal earlier than the frozen episode start does not receive recall credit even if it was directionally useful; this makes the upper-bound join conservative and prevents stale signals from claiming later episodes,
 - duplicate candidate-derived Stage-2 entries for the same symbol/date collapse to one signal.
 
 Report:
