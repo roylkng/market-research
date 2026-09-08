@@ -1,0 +1,59 @@
+{
+  "by_trigger_quarter": {
+    "2025-Q4": {
+      "hits": 2,
+      "precision": 0.006688963210702341,
+      "signals": 299
+    },
+    "2026-Q1": {
+      "hits": 20,
+      "precision": 0.08130081300813008,
+      "signals": 246
+    },
+    "2026-Q2": {
+      "hits": 38,
+      "precision": 0.1237785016286645,
+      "signals": 307
+    },
+    "2026-Q3": {
+      "hits": 5,
+      "precision": 0.04672897196261682,
+      "signals": 107
+    }
+  },
+  "candidate_derived_stage2_hit_count": 65,
+  "candidate_derived_stage2_signal_count": 959,
+  "closest_frozen_momentum_budget": {
+    "episode_recall": 0.05387523629489603,
+    "episode_recall_count": 114,
+    "hit_count": 153,
+    "median_close_20d_return_pct": -3.2218655089381096,
+    "median_lead_sessions_before_25pct": 1.0,
+    "median_max_20d_return_pct": 9.514872531638641,
+    "precision": 0.15,
+    "signal_count": 1020,
+    "top_n_per_day": 5
+  },
+  "excluded_candidates": {
+    "ALREADY_MOVING": 352,
+    "BELOW_PRIMARY_LIQUIDITY": 670,
+    "INSUFFICIENT_HISTORY": 161,
+    "NO_PRE_EVENT_ROW": 1,
+    "NO_PRICE_SYMBOL": 40,
+    "NO_SYMBOL_ROW_ON_DECISION": 169
+  },
+  "experiment": "H004-HR004-CATALYST-UPPER-BOUND",
+  "filtered_candidate_count": 3846,
+  "full_market_episode_recall_count_upper_bound": 155,
+  "full_market_episode_recall_upper_bound": 0.07325141776937619,
+  "full_market_primary_episode_count": 2116,
+  "interpretation_rule": "Actual semantically graded catalyst performance cannot exceed this return-blind filtered-candidate ceiling under the same tape trigger.",
+  "live_capital_allowed": false,
+  "median_lead_sessions_to_25pct": 11,
+  "median_stage2_close_20d_return_pct": -1.2908242612752696,
+  "median_stage2_max_20d_return_pct": 6.388039415562341,
+  "primary_pre_momentum_stage1_candidate_count": 2453,
+  "schema_version": 1,
+  "stage2_precision_upper_bound": 0.06777893639207508,
+  "status": "UPPER_BOUND_NOT_REAL_SIGNAL"
+}
