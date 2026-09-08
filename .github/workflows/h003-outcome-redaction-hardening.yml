@@ -1,0 +1,62 @@
+name: H003 pre-evidence identity-redaction hardening
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-outcome-redaction-hardening.yml
+
+permissions:
+  contents: write
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Apply exact pre-evidence redaction hardening
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path('src/marketlab/h003_outcomes.py')
+          text = source.read_text()
+          old = '''    for term in terms:\n        result = re.sub(re.escape(term), "[COMPANY]", result, flags=re.IGNORECASE)\n    return result\n'''
+          new = '''    for term in terms:\n        pattern = rf"(?<!\\w){re.escape(term)}(?!\\w)"\n        result = re.sub(pattern, "[COMPANY]", result, flags=re.IGNORECASE)\n    return result\n'''
+          if old not in text:
+              raise SystemExit('expected redaction body not found')
+          source.write_text(text.replace(old, new, 1))
+
+          builder = Path('scripts/build_h003_outcome_packets.py')
+          text = builder.read_text()
+          old = '''        rendered = json.dumps(packet_document, ensure_ascii=False).casefold()\n        for forbidden in (symbol, str(member.get("company_name") or "")):\n            forbidden = forbidden.strip().casefold()\n            if forbidden and forbidden in rendered:\n                raise H003OutcomeError(\n                    f"explicit company identity survived blind packet: {claim['claim_id']}"\n                )\n'''
+          new = '''        rendered = json.dumps(packet_document, ensure_ascii=False)\n        for forbidden in (symbol, str(member.get("company_name") or "")):\n            forbidden = forbidden.strip()\n            pattern = rf"(?<!\\w){re.escape(forbidden)}(?!\\w)" if forbidden else None\n            if pattern and re.search(pattern, rendered, flags=re.IGNORECASE):\n                raise H003OutcomeError(\n                    f"explicit company identity survived blind packet: {claim['claim_id']}"\n                )\n'''
+          if old not in text:
+              raise SystemExit('expected identity scan body not found')
+          builder.write_text(text.replace(old, new, 1))
+
+          tests = Path('tests/test_h003_outcomes.py')
+          text = tests.read_text()
+          addition = '''\n\ndef test_short_symbol_redaction_does_not_corrupt_other_words() -> None:\n    value = "LT reported results and LT reiterated guidance."\n    redacted = redact_company_identity(value, ["LT"])\n    assert "reported results" in redacted\n    assert "LT" not in redacted\n    assert redacted.count("[COMPANY]") == 2\n'''
+          if 'test_short_symbol_redaction_does_not_corrupt_other_words' not in text:
+              tests.write_text(text + addition)
+          PY
+          ruff check --fix src/marketlab/h003_outcomes.py scripts/build_h003_outcome_packets.py tests/test_h003_outcomes.py
+          ruff format src/marketlab/h003_outcomes.py scripts/build_h003_outcome_packets.py tests/test_h003_outcomes.py
+          ruff check src scripts tests
+          pytest -q
+      - name: Commit hardened pre-evidence implementation
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add src/marketlab/h003_outcomes.py scripts/build_h003_outcome_packets.py tests/test_h003_outcomes.py
+          git commit -m 'H003-O001: harden blind identity redaction'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
