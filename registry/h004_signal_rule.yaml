@@ -1,0 +1,134 @@
+version: 1
+rule_id: H004-R001
+hypothesis_id: H004
+live_capital_allowed: false
+
+universe:
+  market: India
+  venue: NSE
+  security_type: main_board_common_equity_EQ
+  excluded:
+    - SME
+    - ETF
+    - REIT
+    - InvIT
+    - preference_share
+    - suspended
+  primary_median_20d_traded_value_inr_min: 20000000
+  discovery_median_20d_traded_value_inr_min: 2500000
+  minimum_price_history_sessions: 60
+  nominal_share_price_filter: none
+
+pre_momentum:
+  prior_5d_return_pct_max_exclusive: 10
+  prior_20d_return_pct_max_exclusive: 20
+  prior_1d_return_pct_max_exclusive: 8
+
+anchors:
+  earnings_inflection:
+    revenue_yoy_pct_min: 20
+    operating_profit_yoy_pct_min: 30
+    pat_yoy_pct_min: 40
+    margin_change_pp_min: 1
+    allow_loss_to_profit_as_margin_test: true
+    required_numeric_tests: 4
+    allow_three_tests_with_catalyst_grade_min: 3
+  turnaround:
+    prior_loss_or_op_margin_pct_max: 3
+    current_loss_narrowing_pct_min: 50
+    margin_change_pp_min: 2
+    revenue_yoy_pct_min: 5
+  corporate_catalyst:
+    independent_anchor_grade_min: 3
+    grade_4:
+      - change_of_control_or_strategic_acquisition
+      - material_regulatory_market_opening
+      - order_value_pct_ttm_revenue_gte_25
+      - commercial_capacity_increase_pct_gte_25
+      - material_guidance_raise_pct_gte_20
+    grade_3:
+      - order_value_pct_ttm_revenue_gte_10_lt_25
+      - quantified_network_or_capacity_increase_pct_gte_10_lt_25
+      - first_commercial_operation_of_material_new_business
+      - quantified_new_product_or_customer_ramp_with_near_term_horizon
+
+quality_guardrails:
+  other_income_or_exceptional_pct_pbt_warning_gte: 30
+  primary_absolute_quarterly_pat_inr_crore_min: 2
+  speculative_base_effect_below_primary_pat: true
+  hard_reject:
+    - rising_promoter_pledge_or_encumbrance
+    - qualified_audit_or_unresolved_auditor_resignation
+  earnings_anchor_invalidators:
+    - improvement_primarily_from_tax_reversal
+    - improvement_primarily_from_asset_sale
+    - improvement_primarily_from_deconsolidation_gain
+    - management_explicitly_says_quarter_is_non_recurring
+
+context:
+  cannot_create_signal_without_anchor: true
+  features:
+    - sector_breadth
+    - sector_relative_strength
+    - documented_sector_fii_dii_flow
+    - valuation_vs_sector_and_own_history
+    - net_cash_or_leverage_capacity
+    - free_float_market_cap_elasticity
+
+expectation_gap:
+  minimum_sessions_after_earnings_event: 3
+  event_to_decision_return_pct_max: 7
+  requires_pre_momentum_eligibility: true
+
+stage2_trigger:
+  minimum_conditions: 2
+  conditions:
+    one_day_return_pct:
+      min: 2
+      max: 8
+    volume_vs_prior_20d_median_min: 2.0
+    delivery_ratio_vs_prior_20d_median_min: 1.5
+    sector_relative_return_pp_min: 2
+    close_within_pct_of_prior_60d_high_max: 5
+  restrictions:
+    upper_circuit_cannot_be_first_executable_trigger: true
+    prior_5d_return_pct_max_exclusive: 15
+    one_sided_no_offer: NOT_EXECUTABLE
+
+entry:
+  primary: first_realistically_executable_price_first_30_minutes_next_session
+  historical_daily_proxy: next_session_open
+  proxy_tag: OPEN_PROXY
+
+outcomes:
+  primary:
+    name: explosive_20d_v1
+    max_forward_sessions: 20
+    max_return_pct_min: 25
+  secondary:
+    - name: explosive_10d_20
+      max_forward_sessions: 10
+      max_return_pct_min: 20
+    - name: explosive_20d_40
+      max_forward_sessions: 20
+      max_return_pct_min: 40
+  additional:
+    - close_return_5d
+    - close_return_10d
+    - close_return_20d
+    - nifty500_excess_return
+    - sector_excess_return
+    - maximum_adverse_excursion_before_mfe
+
+success_gate:
+  explosive_mover_recall_min: 0.50
+  stage2_precision_min: 0.20
+  median_lead_time_sessions_min: 2
+  median_20d_excess_vs_nifty500_must_be_positive: true
+  max_single_company_share_positive_pnl: 0.20
+  distinct_positive_calendar_quarters_min: 4
+  must_improve_recall_vs_momentum_baseline_at_comparable_signal_count: true
+
+design_set_excluded_from_validation:
+  start_date: 2026-08-31
+  end_date: 2026-09-07
