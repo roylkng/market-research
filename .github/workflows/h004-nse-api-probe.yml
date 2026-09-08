@@ -20,29 +20,23 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Inspect legacy and integrated XBRL facts
+      - name: Probe dated legacy result discovery
         run: |
           python - <<'PY'
-          import xml.etree.ElementTree as ET
-          from marketlab.nse import NSEClient
+          import json
+          from marketlab.nse import NSEClient, NSEEndpoint
 
           client = NSEClient(timeout=20, attempts=4)
-          urls = {
-            'legacy_q1_fy25': 'https://nsearchives.nseindia.com/corporate/xbrl/INDAS_112416_1227245_14082024083735.xml',
-            'integrated_q1_fy27': 'https://nsearchives.nseindia.com/corporate/xbrl/INDAS_168634_1588632_07082026064009.xml',
-          }
-          wanted = ('revenue','profit','finance','depreciation','exception','otherincome','rounding','symbol','period')
-          for label, url in urls.items():
-              raw = client.archive_bytes(url)
-              root = ET.fromstring(raw)
-              print('===', label, len(raw), '===')
-              contexts = []
-              for elem in root.iter():
-                  tag = elem.tag.rsplit('}',1)[-1]
-                  text = (elem.text or '').strip()
-                  if tag == 'context':
-                      contexts.append(elem.attrib.get('id'))
-                  if text and any(k in tag.lower() for k in wanted):
-                      print(tag, elem.attrib.get('contextRef'), elem.attrib.get('unitRef'), text[:500])
-              print('CONTEXTS', contexts[:100], 'count', len(contexts))
+          endpoint = NSEEndpoint('legacy_financials', 'https://www.nseindia.com/api/corporates-financial-results')
+          variants = [
+              {'index':'equities','period':'Quarterly','from_date':'01-07-2024','to_date':'31-08-2024'},
+              {'index':'equities','period':'Quarterly','from_date':'01-10-2024','to_date':'30-11-2024'},
+              {'index':'equities','period':'Quarterly','from_date':'01-01-2025','to_date':'28-02-2025'},
+          ]
+          for params in variants:
+              payload, _ = client._json_get_with_raw(endpoint, params=params)
+              print('PARAMS', params)
+              print('TYPE', type(payload).__name__, 'COUNT', len(payload) if isinstance(payload, list) else None)
+              if isinstance(payload, list):
+                  print(json.dumps(payload[:5], indent=2)[:20000])
           PY
