@@ -1,0 +1,113 @@
+name: H003-O001 compile blind manual review notes
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - src/marketlab/h003_review_notes.py
+      - scripts/compile_h003_manual_review_notes.py
+      - tests/test_h003_review_notes.py
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-notes/**
+      - .github/workflows/h003-o001-compile-manual-review-notes.yml
+
+permissions:
+  contents: write
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify review-notes compiler and frozen blind inputs
+        run: |
+          ruff check src scripts tests
+          pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          workset = json.loads((root / 'manual-review-workset-v1' / 'manifest.json').read_text())
+          incident = json.loads((root / 'blindness-incident-20260908.json').read_text())
+          expected = '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert audit['source_blind_package_sha256'] == expected
+          assert audit['affected_packet_count'] == 0
+          assert workset['source_blind_package_sha256'] == expected
+          assert workset['manual_card_count'] == 691
+          assert workset['safe_unresolved_count'] == 98
+          assert incident['reviewer_contaminated_source_batches'] == [1, 2, 3, 4]
+          print('H003 blind review-notes inputs verified')
+          PY
+      - name: Compile every frozen manual review note batch
+        run: |
+          set -euo pipefail
+          ROOT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          NOTES="$ROOT/manual-review-notes"
+          mkdir -p "$ROOT/semantic-judgments" "$ROOT/compiled-decisions"
+          if ! compgen -G "$NOTES/batch-*.json" > /dev/null; then
+            echo 'compiler verified; no manual review notes frozen yet'
+            exit 0
+          fi
+          for notes in "$NOTES"/batch-*.json; do
+            name=$(basename "$notes")
+            number=${name#batch-}
+            number=${number%.json}
+            value=$((10#$number))
+            if [ "$value" -lt 5 ] || [ "$value" -gt 44 ]; then
+              echo "manual note batch outside permitted range: $name" >&2
+              exit 1
+            fi
+            python scripts/compile_h003_manual_review_notes.py \
+              --source-batch "$ROOT/review-batches/$name" \
+              --workset "$ROOT/manual-review-workset-v1/$name" \
+              --notes "$notes" \
+              --judgments-out "$ROOT/semantic-judgments/$name" \
+              --decisions-out "$ROOT/compiled-decisions/$name"
+          done
+      - name: Fail closed on quarantine and compiled-note integrity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          # Quarantine must remain intact regardless of manual-review progress.
+          for number in range(1, 5):
+              path = root / 'compiled-decisions' / f'batch-{number:04d}.json'
+              assert path.is_file(), f'missing quarantine batch {number}'
+              d = json.loads(path.read_text())
+              assert d['decision_count'] == 20
+              assert all(row['status'] == 'UNRESOLVED' for row in d['decisions'])
+
+          notes_root = root / 'manual-review-notes'
+          note_paths = sorted(notes_root.glob('batch-*.json')) if notes_root.exists() else []
+          for note_path in note_paths:
+              decision = json.loads((root / 'compiled-decisions' / note_path.name).read_text())
+              source = json.loads((root / 'review-batches' / note_path.name).read_text())
+              assert decision['decision_count'] == source['packet_count']
+              assert decision['source_batch_sha256'] == source['batch_sha256']
+              assert decision['private_binding_accessed'] is False
+              assert decision['market_outcomes_accessed'] is False
+              assert decision['live_capital_allowed'] is False
+          print(f'H003 compiled manual note batches valid: {len(note_paths)}')
+          PY
+      - name: Commit only derived blind judgments and decisions
+        run: |
+          ROOT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$ROOT/semantic-judgments" "$ROOT/compiled-decisions"
+          if git diff --cached --quiet; then
+            echo 'no derived manual-review outputs changed'
+            exit 0
+          fi
+          git commit -m 'H003-O001: compile blind manual review notes'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
