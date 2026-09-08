@@ -36,18 +36,16 @@ jobs:
 
           root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
           package = json.loads((root / 'blind-packets.json').read_text(encoding='utf-8'))
-          batch_manifest = json.loads((root / 'review-batches' / 'manifest.json').read_text(encoding='utf-8'))
-
-          packet_to_batch = {}
-          for row in batch_manifest['batches']:
-              batch = json.loads((root / 'review-batches' / row['filename']).read_text(encoding='utf-8'))
-              for packet in batch['packets']:
-                  packet_to_batch[packet['packet_id']] = batch['batch_number']
+          sorted_ids = sorted(packet['packet_id'] for packet in package['packets'])
+          packet_to_batch = {
+              packet_id: index // 20 + 1
+              for index, packet_id in enumerate(sorted_ids)
+          }
 
           patterns = {
               'EMAIL': re.compile(r'(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b'),
               'URL': re.compile(r'(?i)\b(?:https?://|www\.)[^\s<>"\]]+'),
-              'DOMAIN': re.compile(r'(?i)(?<![\w@])(?:[A-Z0-9-]+\.)+(?:com|in|org|net|io|ai|co|biz|info)(?!\w)'),
+              'DOMAIN': re.compile(r'(?i)(?<![\w@])(?:[A-Z0-9-]+\.)+(?:com|co\.in|co\.uk|in|org|net|io|ai|co|edu|gov|biz|info)(?!\w)'),
           }
 
           rows = []
@@ -90,8 +88,9 @@ jobs:
                       batch_counts[batch_number][label] += 1
 
           document = {
-              'schema_version': 1,
-              'audit_id': 'H003-O001-CONTACT-LEAK-A001',
+              'schema_version': 2,
+              'audit_id': 'H003-O001-CONTACT-LEAK-A002',
+              'supersedes': 'H003-O001-CONTACT-LEAK-A001',
               'source_blind_package_sha256': package['package_sha256'],
               'packet_count': package['packet_count'],
               'affected_packet_count': len(rows),
@@ -101,13 +100,14 @@ jobs:
                   str(batch): dict(sorted(counts.items()))
                   for batch, counts in sorted(batch_counts.items())
               },
+              'batch_mapping': 'sorted_packet_id_zero_index_div_20_plus_1',
               'actual_identifier_values_retained': False,
               'private_binding_accessed': False,
               'market_outcomes_accessed': False,
               'live_capital_allowed': False,
               'rows': rows,
           }
-          out = root / 'contact-leak-audit-a001.json'
+          out = root / 'contact-leak-audit-a002.json'
           out.write_text(json.dumps(document, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           print(json.dumps({
               'affected_packet_count': document['affected_packet_count'],
@@ -115,28 +115,29 @@ jobs:
               'class_counts': document['class_counts'],
           }, indent=2, sort_keys=True))
           PY
-      - name: Verify audit contains no identifier values
+      - name: Require zero explicit contact identifiers
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          path = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a001.json')
+          path = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a002.json')
           d = json.loads(path.read_text())
-          assert d['source_blind_package_sha256'] == 'a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb'
+          assert d['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
           assert d['packet_count'] == 869
+          assert d['affected_packet_count'] == 0
+          assert d['affected_batches'] == []
+          assert d['rows'] == []
           assert d['actual_identifier_values_retained'] is False
           assert d['private_binding_accessed'] is False
           assert d['market_outcomes_accessed'] is False
           assert d['live_capital_allowed'] is False
-          allowed = {'packet_id', 'batch_number', 'leak_classes', 'affected_passage_ids'}
-          assert all(set(row) == allowed for row in d['rows'])
-          print('H003 contact leakage audit is reviewer-safe')
+          print('H003 contact-scrubbed package audit valid: 0/869 affected')
           PY
       - name: Commit only reviewer-safe leakage audit
         run: |
-          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a001.json
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a002.json
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add "$TARGET"
-          git commit -m 'H003-O001: retain reviewer-safe contact leakage audit'
+          git commit -m 'H003-O001: retain zero-contact leakage audit'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
