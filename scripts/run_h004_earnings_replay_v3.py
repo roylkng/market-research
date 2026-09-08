@@ -16,6 +16,21 @@ _LEGACY_INDEX: dict[tuple[str, str], list[dict[str, Any]]] | None = None
 _BASE_XBRL_METRICS = replay.xbrl_period_metrics
 
 
+def shift_year(value: date, years: int) -> date:
+    try:
+        return value.replace(year=value.year + years)
+    except ValueError:
+        return value.replace(year=value.year + years, day=28)
+
+
+def prior_year_day(value: date) -> date:
+    return shift_year(value, -1)
+
+
+def next_year_day(value: date) -> date:
+    return shift_year(value, 1)
+
+
 def operating_xbrl_period_metrics(raw: bytes) -> dict[str, Any] | None:
     metrics = _BASE_XBRL_METRICS(raw)
     if metrics is None:
@@ -80,13 +95,41 @@ def bulk_legacy_index(client: NSEClient) -> dict[tuple[str, str], list[dict[str,
     return index
 
 
+def integrated_prior_exact(
+    prior_index: dict[tuple[str, str], list[dict[str, Any]]],
+    current: dict[str, Any],
+) -> dict[str, Any] | None:
+    symbol = str(current.get("symbol") or "").strip().upper()
+    current_qe = replay.parse_integrated_quarter_end(current.get("qe_Date"))
+    if not symbol or not current_qe:
+        return None
+    target = prior_year_day(current_qe)
+    cutoff = replay.current_broadcast(current)
+    candidates = []
+    for row in prior_index.get((symbol, replay.basis_of(current)), []):
+        qe = replay.parse_integrated_quarter_end(row.get("qe_Date"))
+        if not qe or abs((qe - target).days) > 7:
+            continue
+        try:
+            published = replay.current_broadcast(row)
+        except (KeyError, ValueError):
+            continue
+        if published >= cutoff:
+            continue
+        candidates.append((published, row))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda item: item[0])
+    return candidates[-1][1]
+
+
 def bulk_prior_filing(
     client: NSEClient,
     prior_index: dict[tuple[str, str], list[dict[str, Any]]],
     current: dict[str, Any],
     unused_cache: dict[str, list[dict[str, Any]]],
 ) -> tuple[dict[str, Any] | None, str | None]:
-    integrated = replay.integrated_prior(prior_index, current)
+    integrated = integrated_prior_exact(prior_index, current)
     if integrated is not None:
         return integrated, "INTEGRATED"
 
@@ -94,7 +137,7 @@ def bulk_prior_filing(
     current_qe = replay.parse_integrated_quarter_end(current.get("qe_Date"))
     if not symbol or not current_qe:
         return None, None
-    target = replay.previous_year_day(current_qe)
+    target = prior_year_day(current_qe)
     cutoff = replay.current_broadcast(current)
     candidates = []
     for row in bulk_legacy_index(client).get((symbol, replay.basis_of(current)), []):
@@ -114,4 +157,8 @@ def bulk_prior_filing(
 if __name__ == "__main__":
     replay.xbrl_period_metrics = operating_xbrl_period_metrics
     replay.prior_filing = bulk_prior_filing
+    # V2's final period-audit helper is directionally named incorrectly. Lookup
+    # uses the explicit prior_year_day above; the audit must project the prior
+    # period forward one year to compare it with the current period.
+    replay.previous_year_day = next_year_day
     replay.main()
