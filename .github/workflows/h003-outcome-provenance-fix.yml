@@ -66,24 +66,18 @@ jobs:
           rule['sha256'] = new_rule_sha
           rule_path.write_text(yaml.safe_dump(rule, sort_keys=False, allow_unicode=True))
 
-          replace_paths = [
-              Path('src/marketlab/h003_outcomes.py'),
-              Path('scripts/build_h003_outcome_packets.py'),
-              Path('.github/workflows/h003-outcome-protocol.yml'),
-              Path('.github/workflows/h003-o001-build-blind-packets.yml'),
-          ]
-          for path in replace_paths:
-              text = path.read_text()
-              text = text.replace(stale_audit_sha, actual_audit_sha)
-              text = text.replace(old_rule_sha, new_rule_sha)
-              path.write_text(text)
+          module_path = Path('src/marketlab/h003_outcomes.py')
+          text = module_path.read_text()
+          text = text.replace(stale_audit_sha, actual_audit_sha)
+          text = text.replace(old_rule_sha, new_rule_sha)
+          module_path.write_text(text)
 
           print(f'audit_sha={actual_audit_sha}')
           print(f'old_rule_sha={old_rule_sha}')
           print(f'new_rule_sha={new_rule_sha}')
           PY
-          ruff check --fix src/marketlab/h003_outcomes.py scripts/build_h003_outcome_packets.py tests/test_h003_outcomes.py
-          ruff format src/marketlab/h003_outcomes.py scripts/build_h003_outcome_packets.py tests/test_h003_outcomes.py
+          ruff check --fix src/marketlab/h003_outcomes.py tests/test_h003_outcomes.py
+          ruff format src/marketlab/h003_outcomes.py tests/test_h003_outcomes.py
       - name: Revalidate entire pre-evidence protocol
         run: |
           python - <<'PY'
@@ -98,15 +92,10 @@ jobs:
           PY
           ruff check src scripts tests
           pytest -q
-      - name: Commit provenance correction
+      - name: Commit normal repository files only
         run: |
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
-          git add \
-            registry/h003_outcome_rule.yaml \
-            src/marketlab/h003_outcomes.py \
-            scripts/build_h003_outcome_packets.py \
-            .github/workflows/h003-outcome-protocol.yml \
-            .github/workflows/h003-o001-build-blind-packets.yml
+          git add registry/h003_outcome_rule.yaml src/marketlab/h003_outcomes.py
           git commit -m 'H003-O001: correct frozen audit provenance pointer'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
