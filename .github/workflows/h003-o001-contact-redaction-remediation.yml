@@ -1,0 +1,71 @@
+name: H003-O001 contact identifier redaction remediation
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-contact-redaction-remediation.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Patch contact redaction and fail-closed assertion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          outcomes = Path('src/marketlab/h003_outcomes.py')
+          text = outcomes.read_text(encoding='utf-8')
+          old = '''def redact_company_identity(value: str, redaction_terms: Sequence[str]) -> str:\n    result = value\n    terms = sorted(\n        {str(term).strip() for term in redaction_terms if str(term).strip()},\n        key=len,\n        reverse=True,\n    )\n    for term in terms:\n        pattern = rf"(?<!\\w){re.escape(term)}(?!\\w)"\n        result = re.sub(pattern, "[COMPANY]", result, flags=re.IGNORECASE)\n    return result\n'''
+          new = '''CONTACT_EMAIL_PATTERN = re.compile(\n    r"\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b", re.IGNORECASE\n)\nCONTACT_URL_PATTERN = re.compile(r"\\b(?:https?://|www\\.)[^\\s<>\\\"\\]]+", re.IGNORECASE)\nCONTACT_DOMAIN_PATTERN = re.compile(\n    r"(?<![\\w@])(?:[A-Z0-9-]+\\.)+(?:com|co\\.in|co\\.uk|in|org|net|io|ai|co|edu|gov|biz|info)(?!\\w)",\n    re.IGNORECASE,\n)\n\n\ndef redact_company_identity(value: str, redaction_terms: Sequence[str]) -> str:\n    result = value\n    terms = sorted(\n        {str(term).strip() for term in redaction_terms if str(term).strip()},\n        key=len,\n        reverse=True,\n    )\n    for term in terms:\n        pattern = rf"(?<!\\w){re.escape(term)}(?!\\w)"\n        result = re.sub(pattern, "[COMPANY]", result, flags=re.IGNORECASE)\n    for pattern in (CONTACT_EMAIL_PATTERN, CONTACT_URL_PATTERN, CONTACT_DOMAIN_PATTERN):\n        result = pattern.sub("[CONTACT]", result)\n    return result\n'''
+          if new not in text:
+              if old not in text:
+                  raise SystemExit('redact_company_identity anchor not found')
+              text = text.replace(old, new, 1)
+          outcomes.write_text(text, encoding='utf-8')
+
+          identity = Path('src/marketlab/h003_identity_redaction.py')
+          itext = identity.read_text(encoding='utf-8')
+          anchor = '''SPEAKER_LABEL_PATTERN = re.compile(\n    r"(?<!\\w)([A-Z][A-Za-z.'’&-]*(?:\\s+[A-Z][A-Za-z.'’&-]*){1,4})\\s*:"\n)\n'''
+          replacement = anchor + '''CONTACT_IDENTIFIER_PATTERNS = (\n    re.compile(r"\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b", re.IGNORECASE),\n    re.compile(r"\\b(?:https?://|www\\.)[^\\s<>\\\"\\]]+", re.IGNORECASE),\n    re.compile(\n        r"(?<![\\w@])(?:[A-Z0-9-]+\\.)+(?:com|co\\.in|co\\.uk|in|org|net|io|ai|co|edu|gov|biz|info)(?!\\w)",\n        re.IGNORECASE,\n    ),\n)\n'''
+          if 'CONTACT_IDENTIFIER_PATTERNS = (' not in itext:
+              if anchor not in itext:
+                  raise SystemExit('identity pattern anchor not found')
+              itext = itext.replace(anchor, replacement, 1)
+
+          assert_anchor = '''def assert_identity_scrubbed(packet_document: dict[str, Any], terms: Iterable[str]) -> None:\n    rendered = __import__("json").dumps(packet_document, ensure_ascii=False)\n'''
+          assert_replacement = assert_anchor + '''    for pattern in CONTACT_IDENTIFIER_PATTERNS:\n        if pattern.search(rendered):\n            raise H003IdentityRedactionError(\n                "explicit contact identifier survived blind packet"\n            )\n'''
+          if 'explicit contact identifier survived blind packet' not in itext:
+              if assert_anchor not in itext:
+                  raise SystemExit('identity assertion anchor not found')
+              itext = itext.replace(assert_anchor, assert_replacement, 1)
+          identity.write_text(itext, encoding='utf-8')
+
+          test = Path('tests/test_h003_contact_redaction.py')
+          test.write_text('''from __future__ import annotations\n\nimport pytest\n\nfrom marketlab.h003_identity_redaction import (\n    H003IdentityRedactionError,\n    assert_identity_scrubbed,\n)\nfrom marketlab.h003_outcomes import redact_company_identity\n\n\n@pytest.mark.parametrize(\n    (\"raw\", \"forbidden\"),\n    [\n        (\"Email: mail@examplecompany.com\", \"examplecompany.com\"),\n        (\"Web: www.examplecompany.com\", \"examplecompany.com\"),\n        (\"See https://www.examplecompany.com/investors/report.pdf\", \"examplecompany.com\"),\n        (\"portal examplecompany.co.in investor relations\", \"examplecompany.co.in\"),\n    ],\n)\ndef test_contact_identifiers_are_redacted(raw: str, forbidden: str) -> None:\n    redacted = redact_company_identity(raw, [])\n    assert forbidden not in redacted.casefold()\n    assert \"[CONTACT]\" in redacted\n\n\ndef test_contact_identifier_assertion_fails_closed() -> None:\n    with pytest.raises(H003IdentityRedactionError, match=\"contact identifier survived\"):\n        assert_identity_scrubbed(\n            {\"evidence\": [{\"text\": \"Email mail@examplecompany.com\"}]},\n            [],\n        )\n\n\ndef test_contact_identifier_assertion_accepts_redacted_packet() -> None:\n    assert_identity_scrubbed(\n        {\"evidence\": [{\"text\": \"Email [CONTACT] Web [CONTACT]\"}]},\n        [],\n    )\n''', encoding='utf-8')
+          PY
+      - name: Verify remediation before commit
+        run: |
+          ruff check --fix src/marketlab/h003_outcomes.py src/marketlab/h003_identity_redaction.py tests/test_h003_contact_redaction.py
+          ruff check src scripts tests
+          pytest -q
+      - name: Commit only contact-redaction implementation
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add src/marketlab/h003_outcomes.py src/marketlab/h003_identity_redaction.py tests/test_h003_contact_redaction.py
+          git commit -m 'H003-O001: redact explicit contact identifiers'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
