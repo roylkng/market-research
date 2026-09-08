@@ -1,0 +1,53 @@
+name: H005 restore native evidence
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-restore-native.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: h005-enrichment-delta
+          run-id: 34214649763
+          github-token: ${{ github.token }}
+          path: /tmp/h005-restore
+      - name: Preserve input file inventory
+        run: find /tmp/h005-restore/raw -type f -printf '%f\n' | sort > /tmp/h005-restore-base.txt
+      - name: Restore original sources
+        run: python scripts/restore_h005_native_sources.py --root /tmp/h005-restore
+      - name: Package immutable restored delta
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path('/tmp/h005-restore'); out=pathlib.Path('/tmp/h005-native-delta')
+          (out/'raw').mkdir(parents=True,exist_ok=True)
+          base=set(pathlib.Path('/tmp/h005-restore-base.txt').read_text().splitlines())
+          for src in (root/'raw').glob('*'):
+              if src.name not in base: shutil.copy2(src,out/'raw'/src.name)
+          for pattern in ('*-v3.json','native-restoration-manifest.json','restoration-summary.json'):
+              for src in root.glob(pattern): shutil.copy2(src,out/src.name)
+          shutil.copy2('scripts/restore_h005_native_sources.py',out/'restore-source.py')
+          files={str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}
+          manifest={'source_head':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'base_artifact_ids':[10051043682,10051326136],'files':files,'live_capital_allowed':False}
+          (out/'native-delta-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h005-native-restoration-delta
+          path: /tmp/h005-native-delta
+          retention-days: 30
