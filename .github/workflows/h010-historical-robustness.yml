@@ -1,0 +1,71 @@
+name: H010 historical robustness
+
+on:
+  push:
+    branches:
+      - research/h005-result-repricing-ranker-v1-20260908
+    paths:
+      - .github/workflows/h010-historical-robustness.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Normalize only non-semantic formatting before first outcome
+        run: |
+          ruff check --fix scripts/run_h010_historical_robustness.py
+          ruff format scripts/run_h010_historical_robustness.py
+          ruff check scripts/run_h010_historical_robustness.py
+          if ! git diff --quiet -- scripts/run_h010_historical_robustness.py; then
+            git config user.name "marketlab-research-bot"
+            git config user.email "marketlab-research-bot@users.noreply.github.com"
+            git add scripts/run_h010_historical_robustness.py
+            git commit -m "style: normalize frozen H010 robustness runner"
+            git push origin HEAD:research/h005-result-repricing-ranker-v1-20260908
+          fi
+      - name: Verify repository before opening H010 outcomes
+        run: |
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - name: Run frozen H010 one-shot robustness test
+        run: |
+          rm -rf /tmp/h010-evidence
+          python scripts/run_h010_historical_robustness.py --out /tmp/h010-evidence \
+            | tee /tmp/h010-run.log
+          cp /tmp/h010-run.log /tmp/h010-evidence/run.log
+      - name: Upload H010 result tables
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h010-historical-robustness-results
+          path: |
+            /tmp/h010-evidence/robustness-summary.json
+            /tmp/h010-evidence/robustness-predictions.csv
+            /tmp/h010-evidence/h010-selected-top10.csv
+            /tmp/h010-evidence/result-events.json
+            /tmp/h010-evidence/source-manifest.json
+            /tmp/h010-evidence/run.log
+          retention-days: 30
+      - name: Upload retained source bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h010-historical-robustness-sources
+          path: /tmp/h010-evidence/raw
+          retention-days: 30
+          compression-level: 0
