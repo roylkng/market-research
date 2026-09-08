@@ -5,9 +5,9 @@ from typing import Any
 from marketlab.h003_outcome_review import validate_source_batch
 from marketlab.h003_outcomes import OUTCOME_RULE_ID, OUTCOME_RULE_SHA256
 
-QUARANTINE_REVIEWER_VERSION = "h003-o001-reviewer-contamination-exclusion-v1"
+QUARANTINE_REVIEWER_VERSION = "h003-o001-reviewer-contamination-exclusion-v2"
 EXPECTED_INCIDENT_ID = "H003-O001-BLINDNESS-001"
-EXPECTED_CONTAMINATED_BATCHES = (1, 2)
+EXPECTED_CONTAMINATED_BATCHES = (1, 2, 3, 4)
 
 
 class H003ReviewQuarantineError(ValueError):
@@ -62,7 +62,7 @@ def quarantine_judgment_batch(
                 "observed_value": None,
                 "observed_unit": None,
                 "timing_interpretation": (
-                    "Reviewer identity contamination occurred in the invalidated predecessor "
+                    "Reviewer identity contamination occurred in an invalidated predecessor "
                     "blind package. This packet is excluded from resolved-outcome features "
                     "regardless of the corrected packet evidence."
                 ),
