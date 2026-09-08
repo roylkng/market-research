@@ -1,0 +1,83 @@
+name: H003-O001 shard blind outcome review
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - src/marketlab/h003_review_batches.py
+      - tests/test_h003_review_batches.py
+      - scripts/shard_h003_outcome_review.py
+      - .github/workflows/h003-o001-shard-blind-review.yml
+
+permissions:
+  contents: write
+
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify implementation before sharding
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Shard only the frozen public blind package
+        run: |
+          OUT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-batches
+          python scripts/shard_h003_outcome_review.py \
+            --blind-packets research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/blind-packets.json \
+            --public-manifest research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manifest.json \
+            --out "$OUT"
+      - name: Fail closed on review-batch coverage or leakage
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-batches')
+          manifest = json.loads((root / 'manifest.json').read_text())
+          assert manifest['outcome_rule_id'] == 'H003-O001'
+          assert manifest['packet_count'] == 869
+          assert manifest['batch_size'] == 20
+          assert manifest['batch_count'] == 44
+          assert [row['packet_count'] for row in manifest['batches'][:-1]] == [20] * 43
+          assert manifest['batches'][-1]['packet_count'] == 9
+          assert manifest['private_binding_accessed'] is False
+          assert manifest['market_outcomes_included'] is False
+          assert manifest['live_capital_allowed'] is False
+
+          ids = []
+          for row in manifest['batches']:
+              path = root / row['filename']
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == row['file_sha256']
+              batch = json.loads(path.read_text())
+              assert batch['private_binding_accessed'] is False
+              assert batch['market_outcomes_included'] is False
+              assert batch['live_capital_allowed'] is False
+              ids.extend(packet['packet_id'] for packet in batch['packets'])
+          assert len(ids) == 869
+          assert len(ids) == len(set(ids))
+          assert ids == sorted(ids)
+          print(f"H003 blind review sharding valid: {len(ids)} packets across {manifest['batch_count']} batches")
+          PY
+      - name: Commit only immutable blind review batches
+        run: |
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-batches
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          if git diff --cached --quiet; then
+            echo 'review batches already frozen'
+            exit 0
+          fi
+          git commit -m 'H003-O001: freeze blind semantic review batches'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
