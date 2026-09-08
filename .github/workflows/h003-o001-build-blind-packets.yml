@@ -1,4 +1,5 @@
-# Corrected provenance trigger. No research semantics changed.
+# Regenerate only when the reviewed packet builder changes. The blindness incident
+# and quarantine records are retained; only derived blind-review artifacts are replaced.
 name: H003-O001 build blind outcome packets
 
 on:
@@ -6,7 +7,7 @@ on:
     branches:
       - research/h003-v001-outcome-protocol-20260908
     paths:
-      - .github/workflows/h003-o001-build-blind-packets.yml
+      - scripts/build_h003_outcome_packets.py
 
 permissions:
   actions: read
@@ -79,8 +80,11 @@ jobs:
         run: |
           OUT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
           PRIVATE=/tmp/h003-o001-private
-          rm -rf "$OUT" "$PRIVATE"
+          rm -rf "$PRIVATE"
           mkdir -p "$OUT" "$PRIVATE"
+          rm -f "$OUT/blind-packets.json" "$OUT/manifest.json" "$OUT/run-metadata.json"
+          rm -rf "$OUT/review-batches" "$OUT/semantic-judgments" "$OUT/compiled-decisions"
+          test -s "$OUT/blindness-incident-20260908.json"
           python scripts/build_h003_outcome_packets.py \
             --ledger research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen/ledger.json \
             --claim-audit research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001/audit.json \
@@ -99,6 +103,9 @@ jobs:
           out = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
           manifest = json.loads((out / 'manifest.json').read_text())
           package = json.loads((out / 'blind-packets.json').read_text())
+          incident = json.loads((out / 'blindness-incident-20260908.json').read_text())
+          assert incident['incident_id'] == 'H003-O001-BLINDNESS-001'
+          assert incident['reviewer_contaminated_source_batches'] == [1, 2]
           assert manifest['packet_count'] == 869
           assert package['packet_count'] == 869
           assert manifest['outcome_data_accessed'] is False
@@ -144,10 +151,12 @@ jobs:
               'blind_package_sha256': manifest['blind_package_sha256'],
               'binding_package_sha256': manifest['binding_package_sha256'],
               'outcome_module_file_sha256': hashlib.sha256(Path('src/marketlab/h003_outcomes.py').read_bytes()).hexdigest(),
+              'identity_redaction_module_file_sha256': hashlib.sha256(Path('src/marketlab/h003_identity_redaction.py').read_bytes()).hexdigest(),
               'packet_builder_file_sha256': hashlib.sha256(Path('scripts/build_h003_outcome_packets.py').read_bytes()).hexdigest(),
               'private_binding_artifact_name': f"h003-o001-private-binding-{os.environ['GITHUB_RUN_ID']}",
               'private_binding_artifact_id': '${{ steps.upload_binding.outputs.artifact-id }}',
               'private_binding_artifact_digest': '${{ steps.upload_binding.outputs.artifact-digest }}',
+              'blindness_incident_retained': True,
               'outcome_data_accessed': False,
               'market_outcomes_included': False,
               'live_capital_allowed': False,
@@ -155,10 +164,10 @@ jobs:
           (out / 'run-metadata.json').write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n')
           print(json.dumps(meta, indent=2, sort_keys=True))
           PY
-      - name: Commit only blind package and public provenance
+      - name: Commit corrected blind package and public provenance
         run: |
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001
-          git commit -m 'H003-O001: freeze blind later-source evidence packets'
+          git commit -m 'H003-O001: regenerate identity-scrubbed blind packets'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
