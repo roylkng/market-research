@@ -52,10 +52,10 @@ jobs:
           helper_text = helper.read_text(encoding='utf-8')
           worker_old = '''    try:\n        payload: dict[str, Any] = {"ok": True, "result": _resolved_fetch(day)}\n    except Exception as exc:  # pragma: no cover - defensive process boundary\n        payload = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}\n'''
           worker_new = '''    payload: dict[str, Any] = {"ok": True, "result": _resolved_fetch(day)}\n'''
-          if worker_new not in helper_text:
-              if worker_old not in helper_text:
-                  raise SystemExit('H018 worker boundary anchor not found')
+          if worker_old in helper_text:
               helper_text = helper_text.replace(worker_old, worker_new, 1)
+          elif worker_new not in helper_text:
+              raise SystemExit('H018 worker boundary anchor not found')
 
           decode_old = '                    except Exception as exc:\n'
           decode_new = (
@@ -69,10 +69,10 @@ jobs:
               '                        ValueError,\n'
               '                    ) as exc:\n'
           )
-          if decode_new not in helper_text:
-              if decode_old not in helper_text:
-                  raise SystemExit('H018 decode boundary anchor not found')
+          if decode_old in helper_text:
               helper_text = helper_text.replace(decode_old, decode_new, 1)
+          elif decode_new not in helper_text:
+              raise SystemExit('H018 decode boundary anchor not found')
           helper.write_text(helper_text, encoding='utf-8')
           PY
           ruff check --fix scripts/run_h018_low_volatility_50.py scripts/h018_checkpoint_market.py
