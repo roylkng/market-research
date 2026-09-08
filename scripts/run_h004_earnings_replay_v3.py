@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import calendar
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from marketlab.nse import NSEClient
@@ -12,8 +12,11 @@ import run_h004_earnings_replay_v2 as replay
 
 LEGACY_START = date(2024, 7, 1)
 LEGACY_END = date(2025, 9, 30)
+INTEGRATED_START = date(2025, 7, 1)
 _LEGACY_INDEX: dict[tuple[str, str], list[dict[str, Any]]] | None = None
 _BASE_XBRL_METRICS = replay.xbrl_period_metrics
+_BASE_CURRENT_BROADCAST = replay.current_broadcast
+_BASE_FETCH_FILINGS = replay.base.fetch_filings
 
 
 def shift_year(value: date, years: int) -> date:
@@ -29,6 +32,19 @@ def prior_year_day(value: date) -> date:
 
 def next_year_day(value: date) -> date:
     return shift_year(value, 1)
+
+
+def safe_current_broadcast(row: dict[str, Any]) -> datetime:
+    try:
+        return _BASE_CURRENT_BROADCAST(row)
+    except (KeyError, TypeError, ValueError):
+        # Main's date filter drops this sentinel before a row can become an
+        # observation. Missing exchange timestamps are never guessed.
+        return datetime(1900, 1, 1)
+
+
+def narrowed_integrated_filings(client: NSEClient, start: date, end: date) -> list[dict]:
+    return _BASE_FETCH_FILINGS(client, max(start, INTEGRATED_START), end)
 
 
 def operating_xbrl_period_metrics(raw: bytes) -> dict[str, Any] | None:
@@ -104,15 +120,15 @@ def integrated_prior_exact(
     if not symbol or not current_qe:
         return None
     target = prior_year_day(current_qe)
-    cutoff = replay.current_broadcast(current)
+    cutoff = _BASE_CURRENT_BROADCAST(current)
     candidates = []
     for row in prior_index.get((symbol, replay.basis_of(current)), []):
         qe = replay.parse_integrated_quarter_end(row.get("qe_Date"))
         if not qe or abs((qe - target).days) > 7:
             continue
         try:
-            published = replay.current_broadcast(row)
-        except (KeyError, ValueError):
+            published = _BASE_CURRENT_BROADCAST(row)
+        except (KeyError, TypeError, ValueError):
             continue
         if published >= cutoff:
             continue
@@ -129,16 +145,14 @@ def bulk_prior_filing(
     current: dict[str, Any],
     unused_cache: dict[str, list[dict[str, Any]]],
 ) -> tuple[dict[str, Any] | None, str | None]:
-    integrated = integrated_prior_exact(prior_index, current)
-    if integrated is not None:
-        return integrated, "INTEGRATED"
-
+    # Prefer the bulk legacy index because it provides a complete historical
+    # exchange filing list without per-symbol queries. Integrated is a fallback.
     symbol = str(current.get("symbol") or "").strip().upper()
     current_qe = replay.parse_integrated_quarter_end(current.get("qe_Date"))
     if not symbol or not current_qe:
         return None, None
     target = prior_year_day(current_qe)
-    cutoff = replay.current_broadcast(current)
+    cutoff = _BASE_CURRENT_BROADCAST(current)
     candidates = []
     for row in bulk_legacy_index(client).get((symbol, replay.basis_of(current)), []):
         qe = replay.parse_legacy_quarter_end(row.get("toDate"))
@@ -148,13 +162,19 @@ def bulk_prior_filing(
         if abs((qe - target).days) > 7:
             continue
         candidates.append((published, row))
-    if not candidates:
-        return None, None
-    candidates.sort(key=lambda item: item[0])
-    return candidates[-1][1], "LEGACY_BULK"
+    if candidates:
+        candidates.sort(key=lambda item: item[0])
+        return candidates[-1][1], "LEGACY_BULK"
+
+    integrated = integrated_prior_exact(prior_index, current)
+    if integrated is not None:
+        return integrated, "INTEGRATED"
+    return None, None
 
 
 if __name__ == "__main__":
+    replay.current_broadcast = safe_current_broadcast
+    replay.base.fetch_filings = narrowed_integrated_filings
     replay.xbrl_period_metrics = operating_xbrl_period_metrics
     replay.prior_filing = bulk_prior_filing
     # V2's final period-audit helper is directionally named incorrectly. Lookup
