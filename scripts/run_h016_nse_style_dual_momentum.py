@@ -1,4 +1,5 @@
 """Run frozen H016 NSE-style dual-horizon momentum challenge."""
+
 from __future__ import annotations
 
 import argparse
@@ -11,7 +12,6 @@ from datetime import date
 from pathlib import Path
 
 import numpy as np
-
 import run_h015_independent_challenge as h15
 
 MARKET_START = date(2019, 11, 1)
@@ -245,9 +245,7 @@ def evaluate(cohorts):
         sampled = []
         for cohort in cohorts:
             rows = cohort["eligible_with_outcomes"]
-            indexes = rng.choice(
-                len(rows), size=int(cohort["selected_count"]), replace=False
-            )
+            indexes = rng.choice(len(rows), size=int(cohort["selected_count"]), replace=False)
             sampled.extend(float(rows[index]["gross_excess"]) for index in indexes)
         random_means[draw] = float(np.mean(sampled))
     observed = float(primary["mean_gross_excess"])
@@ -257,9 +255,7 @@ def evaluate(cohorts):
     for row in primary_rows:
         positive_by_isin[str(row["isin"])] += max(0.0, float(row["gross_stock_return"]))
     positive_total = sum(positive_by_isin.values())
-    concentration = (
-        max(positive_by_isin.values()) / positive_total if positive_total > 0 else None
-    )
+    concentration = max(positive_by_isin.values()) / positive_total if positive_total > 0 else None
     cohort_means = [float(row["mean_gross_excess"]) for row in cohort_results]
     consecutive_fail = any(
         cohort_means[index] <= 0 and cohort_means[index + 1] <= 0
@@ -275,8 +271,7 @@ def evaluate(cohorts):
         "median_gross_excess_gt_0": float(primary["median_gross_excess"]) > 0,
         "beat_rate_ge_55pct": float(primary["gross_beat_rate"]) >= 0.55,
         "positive_cohorts_ge_4": positive_cohorts >= 4,
-        "beats_full_company_cohort_by_2pp": observed
-        >= float(full["mean_gross_excess"]) + 0.02,
+        "beats_full_company_cohort_by_2pp": observed >= float(full["mean_gross_excess"]) + 0.02,
         "random_p_le_005": random_p <= 0.05,
         "isin_concentration_le_015": concentration is not None and concentration <= 0.15,
         "no_two_consecutive_nonpositive_cohorts": not consecutive_fail,
