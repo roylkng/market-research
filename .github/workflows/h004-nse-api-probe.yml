@@ -20,30 +20,36 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Probe integrated financial filings and global announcements
+      - name: Probe integrated filing XBRL taxonomy
         run: |
           python - <<'PY'
-          import json
+          import xml.etree.ElementTree as ET
           from marketlab.nse import NSEClient
 
           client = NSEClient(timeout=20, attempts=4)
-          filings = client.integrated_filings(
+          payload = client.integrated_filings(
+              symbol='ENTERO',
               from_date='01-08-2026',
-              to_date='07-08-2026',
+              to_date='15-08-2026',
               page=1,
-              size=5,
+              size=20,
           )
-          print('===FILINGS===')
-          print(json.dumps(filings, indent=2)[:30000])
-
-          payload, _ = client._json_get_with_raw(
-              client.CORPORATE_ANNOUNCEMENT_ENDPOINT,
-              params={
-                  'index': 'equities',
-                  'from_date': '01-08-2026',
-                  'to_date': '07-08-2026',
-              },
-          )
-          print('===ANNOUNCEMENTS===')
-          print(json.dumps(payload, indent=2)[:30000])
+          rows = payload.get('data', []) if isinstance(payload, dict) else []
+          rows = [r for r in rows if r.get('consolidated') == 'Consolidated'] or rows
+          if not rows:
+              raise SystemExit('no ENTERO filing')
+          row = rows[0]
+          print('FILING', row)
+          raw = client.archive_bytes(row['xbrl'])
+          print('XBRL_BYTES', len(raw))
+          root = ET.fromstring(raw)
+          wanted = ('revenue','income','profit','expense','tax','ebit','finance','operation','segment')
+          seen = []
+          for elem in root.iter():
+              tag = elem.tag.rsplit('}', 1)[-1]
+              text = (elem.text or '').strip()
+              if text and any(k in tag.lower() for k in wanted):
+                  seen.append((tag, elem.attrib.get('contextRef'), text))
+          for item in seen[:500]:
+              print('|'.join(str(x) for x in item))
           PY
