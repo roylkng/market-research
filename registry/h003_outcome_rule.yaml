@@ -1,14 +1,15 @@
 schema_version: 1
 id: H003-O001
 status: FROZEN
-purpose: Resolve frozen H003 management commitments from later same-company exchange-source evidence without market-outcome access.
+purpose: Resolve frozen H003 management commitments from later same-company exchange-source
+  evidence without market-outcome access.
 cohort_id: FY27-Q2-2026-09-06
 immutable_inputs:
   review_rule_id: H003-V001
   review_rule_sha256: 8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244
   review_ledger_sha256: cb1e204685e66c37f274ac83b0c7f9729bb55401a58d1e51e6b50ac270052e4d
   claim_audit_id: H003-A001
-  claim_audit_sha256: e5828081241005325306644765ddac64300dbc9084315325964873d65071770a
+  claim_audit_sha256: 0e14c74b9696b2be8cdf3b68184d423054e0a50ec8ed141cea23edc75948d9a1
   source_rule_id: H003-C001
   source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
   source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
@@ -37,14 +38,14 @@ retrieval:
   method: DETERMINISTIC_LEXICAL_V1
   unit: PARAGRAPH_OR_3_LINE_WINDOW
   query_fields:
-    - normalized_claim
-    - metric
-    - claim_type
-    - unit
-    - target_min
-    - target_max
-    - target_deadline
-    - target_horizon
+  - normalized_claim
+  - metric
+  - claim_type
+  - unit
+  - target_min
+  - target_max
+  - target_deadline
+  - target_horizon
   tokenization: CASEFOLD_ALPHANUMERIC
   numeric_tokens_weight: 3.0
   metric_tokens_weight: 2.0
@@ -57,16 +58,23 @@ retrieval:
   retrieval_parameters_may_change_after_review: false
 outcomes:
   allowed:
-    - MET
-    - PARTIAL
-    - MISSED
-    - LATE
-    - UNRESOLVED
-  MET: Later eligible evidence explicitly establishes that the frozen commitment was achieved within its applicable commitment horizon.
-  PARTIAL: Later eligible evidence explicitly quantifies meaningful partial delivery while establishing that the full frozen commitment was not achieved within the applicable horizon.
-  MISSED: Later eligible evidence explicitly establishes that the commitment period ended without achieving the frozen target, or management explicitly reports non-achievement at or after the applicable horizon.
-  LATE: Later eligible evidence explicitly establishes achievement after the frozen commitment horizon or explicitly reports delay beyond it.
-  UNRESOLVED: Evidence is insufficient, ambiguous, conflicting, not mature, conditionally inapplicable, or timing cannot be mapped without guessing.
+  - MET
+  - PARTIAL
+  - MISSED
+  - LATE
+  - UNRESOLVED
+  MET: Later eligible evidence explicitly establishes that the frozen commitment was
+    achieved within its applicable commitment horizon.
+  PARTIAL: Later eligible evidence explicitly quantifies meaningful partial delivery
+    while establishing that the full frozen commitment was not achieved within the
+    applicable horizon.
+  MISSED: Later eligible evidence explicitly establishes that the commitment period
+    ended without achieving the frozen target, or management explicitly reports non-achievement
+    at or after the applicable horizon.
+  LATE: Later eligible evidence explicitly establishes achievement after the frozen
+    commitment horizon or explicitly reports delay beyond it.
+  UNRESOLVED: Evidence is insufficient, ambiguous, conflicting, not mature, conditionally
+    inapplicable, or timing cannot be mapped without guessing.
   no_negative_inference_from_silence: true
   ambiguous_timing_forces_unresolved: true
   conflicting_evidence_forces_unresolved: true
@@ -88,10 +96,10 @@ independence:
   material_sensitivity_to_broad_collapse: ROBUSTNESS_FAIL
 feature_contract:
   resolved_outcomes:
-    - MET
-    - PARTIAL
-    - MISSED
-    - LATE
+  - MET
+  - PARTIAL
+  - MISSED
+  - LATE
   unresolved_excluded_from_denominator: true
   minimum_resolved_prior_families: 3
   prior_met_rate_formula: MET / (MET + PARTIAL + MISSED + LATE)
@@ -106,4 +114,4 @@ fail_closed:
   missing_decision_after_full_review: ABORT
   unparseable_or_ambiguous_evidence: UNRESOLVED
 live_capital: false
-sha256: b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b
+sha256: 36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1
