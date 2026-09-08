@@ -1,3 +1,5 @@
+# Shard only public blind packets. Package changes are an explicit trigger, but
+# GitHub-token-generated commits still require an external/manual workflow edit.
 name: H003-O001 shard blind outcome review
 
 on:
@@ -5,6 +7,8 @@ on:
     branches:
       - research/h003-v001-outcome-protocol-20260908
     paths:
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/blind-packets.json
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manifest.json
       - src/marketlab/h003_review_batches.py
       - tests/test_h003_review_batches.py
       - scripts/shard_h003_outcome_review.py
