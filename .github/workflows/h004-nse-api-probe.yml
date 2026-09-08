@@ -20,10 +20,10 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Probe integrated filing XBRL taxonomy
+      - name: Probe iXBRL comparative table
         run: |
           python - <<'PY'
-          import xml.etree.ElementTree as ET
+          from bs4 import BeautifulSoup
           from marketlab.nse import NSEClient
 
           client = NSEClient(timeout=20, attempts=4)
@@ -39,17 +39,23 @@ jobs:
           if not rows:
               raise SystemExit('no ENTERO filing')
           row = rows[0]
-          print('FILING', row)
-          raw = client.archive_bytes(row['xbrl'])
-          print('XBRL_BYTES', len(raw))
-          root = ET.fromstring(raw)
-          wanted = ('revenue','income','profit','expense','tax','ebit','finance','operation','segment')
-          seen = []
-          for elem in root.iter():
-              tag = elem.tag.rsplit('}', 1)[-1]
-              text = (elem.text or '').strip()
-              if text and any(k in tag.lower() for k in wanted):
-                  seen.append((tag, elem.attrib.get('contextRef'), text))
-          for item in seen[:500]:
-              print('|'.join(str(x) for x in item))
+          raw = client.archive_bytes(row['ixbrl'])
+          print('IXBRL_BYTES', len(raw), row['ixbrl'])
+          soup = BeautifulSoup(raw.decode('utf-8', errors='replace'), 'html.parser')
+          print('TABLE_COUNT', len(soup.find_all('table')))
+          keys = ('revenue from operations', 'finance costs', 'depreciation', 'profit before exceptional', 'profit before tax', 'profit (loss) for period')
+          matches = 0
+          for tr in soup.find_all('tr'):
+              cells = [' '.join(c.get_text(' ', strip=True).split()) for c in tr.find_all(['th','td'])]
+              line = ' | '.join(cells)
+              low = line.lower()
+              if any(k in low for k in keys):
+                  print('ROW', line[:6000])
+                  matches += 1
+          print('MATCHED_ROWS', matches)
+          print('INLINE_CONTEXTS')
+          for tag in soup.find_all(['ix:nonfraction','ix:nonnumeric']):
+              name = tag.get('name') or ''
+              if any(k in name.lower() for k in ('revenue','profit','finance','depreciation')):
+                  print(name, tag.get('contextref'), ' '.join(tag.get_text(' ', strip=True).split())[:300])
           PY
