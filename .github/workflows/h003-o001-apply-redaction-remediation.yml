@@ -62,6 +62,8 @@ jobs:
           PY
       - name: Verify remediation before commit
         run: |
+          ruff check --fix scripts/build_h003_outcome_packets.py scripts/compile_h003_outcome_judgments.py
+          ruff format --check src scripts tests
           ruff check src scripts tests
           pytest -q
       - name: Commit only redaction implementation and mechanical compiler lint fix
