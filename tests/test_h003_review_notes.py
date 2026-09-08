@@ -7,9 +7,9 @@ import pytest
 from marketlab.h003_outcomes import OUTCOME_RULE_ID, OUTCOME_RULE_SHA256
 from marketlab.h003_review_batches import canonical_hash
 from marketlab.h003_review_notes import (
-    H003ReviewNotesError,
     SOURCE_BLIND_PACKAGE_SHA256,
     WORKSET_ID,
+    H003ReviewNotesError,
     compile_review_notes,
 )
 
