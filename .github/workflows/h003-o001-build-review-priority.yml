@@ -1,0 +1,130 @@
+name: H003-O001 build blind resolution priority queue
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-build-review-priority.yml
+
+permissions:
+  contents: write
+
+jobs:
+  priority:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify blind workset
+        run: |
+          ruff check src scripts tests
+          pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          workset = json.loads((root / 'manual-review-workset-v1' / 'manifest.json').read_text())
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          assert workset['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert workset['manual_card_count'] == 691
+          assert audit['affected_packet_count'] == 0
+          print('H003 priority inputs verified')
+          PY
+      - name: Build priority queue without assigning outcomes
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          work = root / 'manual-review-workset-v1'
+          patterns = {
+              'ACHIEVEMENT': re.compile(r'(?i)\b(achiev(?:ed|ement)|met the|exceed(?:ed|ing)|crossed|reached|delivered)\b'),
+              'COMPLETION': re.compile(r'(?i)\b(complet(?:ed|ion)|commission(?:ed|ing)|commenc(?:ed|ement)|operational|went live|commercial supplies|commercial operations?)\b'),
+              'ACTUAL_RESULT': re.compile(r'(?i)\b(actual(?:ly)?|full[- ]year|for the year|during the year|we did|we have done|we spent|capex of|cash flow of)\b'),
+              'NEGATIVE_OUTCOME': re.compile(r'(?i)\b(delay(?:ed)?|postpon(?:ed|ement)|miss(?:ed)?|shortfall|fell short|not achiev(?:ed|e)|could not|defer(?:red)?|slipp(?:ed|age)|partial(?:ly)?)\b'),
+              'PROGRESS_PERCENT': re.compile(r'(?i)\b(?:9[0-9]|100)\s*%\s+(?:complete|completion|compliance|achieved|done)\b'),
+          }
+
+          rows = []
+          label_counts = Counter()
+          batch_counts = defaultdict(Counter)
+          for number in range(5, 45):
+              doc = json.loads((work / f'batch-{number:04d}.json').read_text())
+              for card in doc['manual_cards']:
+                  text = '\n'.join(str(row['text']) for row in card['evidence'])
+                  labels = [label for label, pattern in patterns.items() if pattern.search(text)]
+                  if not labels:
+                      continue
+                  rows.append({
+                      'batch_number': number,
+                      'packet_id': card['packet_id'],
+                      'blind_payload_sha256': card['blind_payload_sha256'],
+                      'matched_labels': sorted(labels),
+                  })
+                  for label in labels:
+                      label_counts[label] += 1
+                      batch_counts[number][label] += 1
+
+          document = {
+              'schema_version': 1,
+              'queue_id': 'H003-O001-REVIEW-PRIORITY-V1',
+              'source_blind_package_sha256': '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24',
+              'covered_batches': [5, 44],
+              'manual_workset_count': 691,
+              'priority_packet_count': len(rows),
+              'nonpriority_packet_count': 691 - len(rows),
+              'label_counts': dict(sorted(label_counts.items())),
+              'batch_counts': {
+                  str(batch): dict(sorted(counts.items()))
+                  for batch, counts in sorted(batch_counts.items())
+              },
+              'semantic_outcomes_assigned': False,
+              'priority_is_not_a_judgment': True,
+              'private_binding_accessed': False,
+              'market_outcomes_accessed': False,
+              'live_capital_allowed': False,
+              'rows': sorted(rows, key=lambda row: (row['batch_number'], row['packet_id'])),
+          }
+          path = root / 'review-priority-v1.json'
+          path.write_text(json.dumps(document, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({
+              'priority_packet_count': document['priority_packet_count'],
+              'nonpriority_packet_count': document['nonpriority_packet_count'],
+              'label_counts': document['label_counts'],
+          }, indent=2, sort_keys=True))
+          PY
+      - name: Verify priority queue is non-semantic
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          d = json.loads((root / 'review-priority-v1.json').read_text())
+          assert d['manual_workset_count'] == 691
+          assert d['priority_packet_count'] + d['nonpriority_packet_count'] == 691
+          assert d['semantic_outcomes_assigned'] is False
+          assert d['priority_is_not_a_judgment'] is True
+          assert d['private_binding_accessed'] is False
+          assert d['market_outcomes_accessed'] is False
+          assert d['live_capital_allowed'] is False
+          assert all(set(row) == {'batch_number', 'packet_id', 'blind_payload_sha256', 'matched_labels'} for row in d['rows'])
+          print('H003 blind priority queue verified')
+          PY
+      - name: Commit only reviewer-safe priority queue
+        run: |
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-priority-v1.json
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m 'H003-O001: freeze blind review priority queue'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
