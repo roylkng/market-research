@@ -1,0 +1,72 @@
+{
+  "by_calendar_quarter": {
+    "2026-Q3": {
+      "events": 425,
+      "future_explosive": 26,
+      "stage2_hits": 1,
+      "stage2_precision": 0.045454545454545456,
+      "stage2_recall": 0.07692307692307693,
+      "stage2_signals": 22
+    }
+  },
+  "counts": {
+    "future_explosive_result_events": 26,
+    "primary_evaluable_events": 425,
+    "result_event_tape_baseline_hits": 16,
+    "result_event_tape_baseline_signals": 192,
+    "stage1_signals": 58,
+    "stage2_hits": 1,
+    "stage2_signals": 22,
+    "strict_quality_stage2_hits": 0,
+    "strict_quality_stage2_signals": 20
+  },
+  "coverage": {
+    "below_discovery_liquidity": 44,
+    "current_filings": 699,
+    "current_xbrl_not_quarterly_or_unparseable": 45,
+    "financially_evaluable_events": 481,
+    "insufficient_forward_price_history": 3,
+    "insufficient_price_history": 21,
+    "market_evaluable_events": 565,
+    "missing_price_symbol": 14,
+    "missing_prior_year_filing": 36,
+    "missing_symbol_on_decision_session": 52,
+    "prior_period_mismatch": 1,
+    "prior_xbrl_not_quarterly_or_unparseable": 2
+  },
+  "data_contract": {
+    "current_financials": "original NSE Integrated Filing Financials XBRL",
+    "market_data": "official NSE UDiFF daily bhavcopy",
+    "pre_event_price_policy": "last close observable before filing; intraday filings use prior-session close proxy",
+    "prior_financials": "same-basis same-quarter original NSE Integrated or legacy XBRL",
+    "xbrl_units": "actual INR, normalized only for display PAT crore"
+  },
+  "event_window": {
+    "end": "2026-07-31",
+    "start": "2026-07-01"
+  },
+  "experiment": "H004-HR002-EARNINGS-SUBENGINE-V2",
+  "live_capital_allowed": false,
+  "metrics": {
+    "median_lead_sessions_to_25pct": 14,
+    "median_stage2_close_20d_return_pct": 4.980095866425193,
+    "median_stage2_max_20d_return_pct": 9.468719187078644,
+    "result_event_tape_baseline_precision": 0.08333333333333333,
+    "result_event_tape_baseline_recall": 0.8846153846153846,
+    "stage1_recall_of_future_explosive_result_events": 0.07692307692307693,
+    "stage2_precision": 0.045454545454545456,
+    "stage2_recall_of_future_explosive_result_events": 0.07692307692307693,
+    "strict_quality_stage2_precision": 0.0
+  },
+  "miss_taxonomy": {
+    "NO_EARNINGS_INFLECTION": 20,
+    "PRE_MOMENTUM_RULE": 4
+  },
+  "price_window": {
+    "end": "2026-08-31",
+    "start": "2026-03-01"
+  },
+  "schema_version": 2,
+  "stage1_valid_sessions": 10,
+  "status": "HISTORICAL_RECONSTRUCTION_NOT_OUT_OF_SAMPLE"
+}
