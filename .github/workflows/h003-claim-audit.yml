@@ -1,0 +1,77 @@
+name: H003 outcome-blind claim audit
+
+on:
+  push:
+    branches:
+      - research/h003-v001-claim-audit-20260908
+    paths:
+      - .github/workflows/h003-claim-audit.yml
+      - scripts/audit_h003_claim_independence.py
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-claim-audit-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify branch before audit
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Verify immutable frozen H003 input
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen')
+          meta = json.loads((root / 'run-metadata.json').read_text())
+          assert meta['workflow_run_id'] == '34249898892'
+          assert meta['review_source_commit'] == 'f5f731df2363c798b46bf88bf2716666a00105fd'
+          assert meta['ledger_file_sha256'] == hashlib.sha256((root / 'ledger.json').read_bytes()).hexdigest()
+          assert meta['live_capital_allowed'] is False
+          print('immutable frozen H003 input verified')
+          PY
+      - name: Run outcome-blind horizon and independence audit
+        run: |
+          OUT=research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001
+          mkdir -p "$OUT"
+          python scripts/audit_h003_claim_independence.py \
+            --ledger research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen/ledger.json \
+            --out "$OUT/audit.json"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          out = Path('research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001')
+          audit = json.loads((out / 'audit.json').read_text())
+          assert audit['outcome_data_accessed'] is False
+          assert audit['live_capital_allowed'] is False
+          assert audit['accepted_claim_count'] == 869
+          meta = {
+              'schema_version': 1,
+              'audit_id': 'H003-A001',
+              'source_freeze_commit': '88cc7079088b3dfd48b5925b3d71033bf2ba1bdb',
+              'source_review_ledger_sha256': 'cb1e204685e66c37f274ac83b0c7f9729bb55401a58d1e51e6b50ac270052e4d',
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'audit_file_sha256': hashlib.sha256((out / 'audit.json').read_bytes()).hexdigest(),
+              'audit_script_sha256': hashlib.sha256(Path('scripts/audit_h003_claim_independence.py').read_bytes()).hexdigest(),
+              'outcome_data_accessed': False,
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n')
+          PY
+      - name: Commit audit evidence
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add research/prospective/h003/FY27-Q2-2026-09-06/claim-audit-a001
+          git commit -m 'H003-A001: retain outcome-blind claim audit'
+          git push origin HEAD:research/h003-v001-claim-audit-20260908
