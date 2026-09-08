@@ -1,0 +1,130 @@
+# H004-HR002 sharded earnings replay
+
+Status: **historical reconstruction, not out-of-sample validation**
+
+Four calendar shards ran the same frozen H004 earnings implementation independently and were merged by immutable event identity. No thresholds were changed between shards.
+
+```json
+{
+  "by_calendar_quarter": {
+    "2025-Q4": {
+      "events": 444,
+      "future_explosive": 7,
+      "stage2_hits": 0,
+      "stage2_precision": 0.0,
+      "stage2_recall": 0.0,
+      "stage2_signals": 12
+    },
+    "2026-Q1": {
+      "events": 971,
+      "future_explosive": 42,
+      "stage2_hits": 3,
+      "stage2_precision": 0.08333333333333333,
+      "stage2_recall": 0.09523809523809523,
+      "stage2_signals": 36
+    },
+    "2026-Q2": {
+      "events": 5,
+      "future_explosive": 1,
+      "stage2_hits": 0,
+      "stage2_precision": 0.0,
+      "stage2_recall": 0.0,
+      "stage2_signals": 1
+    },
+    "2026-Q3": {
+      "events": 425,
+      "future_explosive": 26,
+      "stage2_hits": 1,
+      "stage2_precision": 0.045454545454545456,
+      "stage2_recall": 0.07692307692307693,
+      "stage2_signals": 22
+    }
+  },
+  "counts": {
+    "future_explosive_result_events": 76,
+    "primary_evaluable_events": 1845,
+    "result_event_tape_baseline_hits": 33,
+    "result_event_tape_baseline_signals": 843,
+    "stage1_signals": 149,
+    "stage2_hits": 4,
+    "stage2_signals": 71,
+    "strict_quality_stage2_hits": 3,
+    "strict_quality_stage2_signals": 62
+  },
+  "coverage": {
+    "below_discovery_liquidity": 1034,
+    "current_filings": 6659,
+    "current_xbrl_not_quarterly_or_unparseable": 283,
+    "financially_evaluable_events": 2445,
+    "insufficient_forward_price_history": 62,
+    "insufficient_price_history": 472,
+    "market_evaluable_events": 4389,
+    "missing_price_symbol": 271,
+    "missing_prior_year_filing": 1650,
+    "missing_symbol_on_decision_session": 431,
+    "prior_period_mismatch": 2,
+    "prior_xbrl_fetch_failure": 1,
+    "prior_xbrl_not_quarterly_or_unparseable": 8
+  },
+  "data_contract": {
+    "current_financials": "original NSE Integrated Filing Financials XBRL",
+    "market_data": "official NSE UDiFF daily bhavcopy",
+    "operating_ebitda_proxy": "PBT before exceptional/tax - other income + finance cost + depreciation",
+    "prior_financials": "same-basis same-quarter original NSE legacy/integrated XBRL",
+    "xbrl_units": "actual INR"
+  },
+  "event_window": {
+    "end": "2026-07-31",
+    "start": "2025-10-01"
+  },
+  "experiment": "H004-HR002-EARNINGS-SUBENGINE-V2",
+  "live_capital_allowed": false,
+  "metrics": {
+    "median_lead_sessions_to_25pct": 11.5,
+    "median_stage2_close_20d_return_pct": 0.25100401606426015,
+    "median_stage2_max_20d_return_pct": 6.646551724137928,
+    "result_event_tape_baseline_precision": 0.03914590747330961,
+    "result_event_tape_baseline_recall": 0.6447368421052632,
+    "stage1_recall_of_future_explosive_result_events": 0.10526315789473684,
+    "stage2_precision": 0.056338028169014086,
+    "stage2_recall_of_future_explosive_result_events": 0.07894736842105263,
+    "strict_quality_stage2_precision": 0.04838709677419355
+  },
+  "miss_taxonomy": {
+    "NO_EARNINGS_INFLECTION": 55,
+    "NO_STAGE2_TRIGGER": 2,
+    "PRE_MOMENTUM_RULE": 13
+  },
+  "price_window_union": {
+    "end": "2026-08-31",
+    "start": "2025-06-01"
+  },
+  "schema_version": 2,
+  "sharded_execution": {
+    "discovery_rows_merged": 600,
+    "model_thresholds_changed": false,
+    "primary_rows_merged": 1845,
+    "shard_count": 4,
+    "shard_event_windows": [
+      {
+        "end": "2025-12-31",
+        "start": "2025-10-01"
+      },
+      {
+        "end": "2026-03-31",
+        "start": "2026-01-01"
+      },
+      {
+        "end": "2026-06-30",
+        "start": "2026-04-01"
+      },
+      {
+        "end": "2026-07-31",
+        "start": "2026-07-01"
+      }
+    ]
+  },
+  "stage1_valid_sessions": 10,
+  "status": "HISTORICAL_RECONSTRUCTION_NOT_OUT_OF_SAMPLE"
+}
+```
