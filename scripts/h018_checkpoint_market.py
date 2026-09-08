@@ -113,10 +113,7 @@ def _worker(day: date, output_path: str) -> None:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(".tmp")
-    try:
-        payload: dict[str, Any] = {"ok": True, "result": _resolved_fetch(day)}
-    except Exception as exc:  # pragma: no cover - defensive process boundary
-        payload = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+    payload: dict[str, Any] = {"ok": True, "result": _resolved_fetch(day)}
     with temporary.open("wb") as handle:
         pickle.dump(payload, handle, protocol=pickle.HIGHEST_PROTOCOL)
     os.replace(temporary, path)
@@ -175,10 +172,14 @@ def _retain_result(root: Path, result: dict[str, Any], diagnostics: dict[str, li
         retained: list[dict[str, object]] = []
         if b_raw is not None:
             retained.append(
-                h15.base.retain(root, b_raw, url=str(result["bhavcopy_url"]), kind="legacy-bhavcopy")
+                h15.base.retain(
+                    root, b_raw, url=str(result["bhavcopy_url"]), kind="legacy-bhavcopy"
+                )
             )
         if i_raw is not None:
-            retained.append(h15.base.retain(root, i_raw, url=str(result["index_url"]), kind="index"))
+            retained.append(
+                h15.base.retain(root, i_raw, url=str(result["index_url"]), kind="index")
+            )
         diagnostics["source_mismatches"].append(
             {
                 "date": day.isoformat(),
@@ -253,7 +254,15 @@ def _run_pass(root: Path, days: list[date], diagnostics: dict[str, list], pass_n
                             diagnostics["worker_errors"].append(
                                 {"date": day.isoformat(), "error": payload.get("error")}
                             )
-                    except Exception as exc:
+                    except (
+                        OSError,
+                        pickle.UnpicklingError,
+                        EOFError,
+                        AttributeError,
+                        KeyError,
+                        TypeError,
+                        ValueError,
+                    ) as exc:
                         diagnostics["worker_errors"].append(
                             {"date": day.isoformat(), "error": f"result decode: {exc}"}
                         )

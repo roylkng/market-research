@@ -9,6 +9,7 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
+import h018_checkpoint_market as h018_market
 import numpy as np
 import run_h016_nse_style_dual_momentum as h16
 
@@ -168,7 +169,7 @@ def main() -> None:
 
     h16.h15.MARKET_START = MARKET_START
     h16.h15.MARKET_END = MARKET_END
-    sessions, prices, index, market_manifest, diagnostics = h16.h15.acquire_market(root)
+    sessions, prices, index, market_manifest, diagnostics = h018_market.acquire_market(root)
     h16.h15.base.MARKET_START = MARKET_START
     h16.h15.base.MARKET_END = MARKET_END
     actions, action_manifest = h16.h15.base.acquire_actions(root)
