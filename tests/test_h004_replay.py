@@ -82,7 +82,7 @@ def test_replay_exposes_all_frozen_gate_metrics() -> None:
     assert result.gate_lead_time
     assert result.gate_median_excess
     assert not result.gate_winner_concentration
-    assert not result.gate_beats_momentum
+    assert result.gate_beats_momentum
     assert not result.promoted
 
 
