@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Any
 
 from marketlab.h003_outcomes import (
@@ -163,15 +162,3 @@ def decision_status_counts(document: dict[str, Any]) -> dict[str, int]:
         status = str(decision.get("status"))
         counts[status] = counts.get(status, 0) + 1
     return dict(sorted(counts.items()))
-
-
-def source_batch_as_dict(document: Any) -> dict[str, Any]:
-    if not isinstance(document, dict):
-        raise H003OutcomeReviewError("source batch must deserialize to an object")
-    return document
-
-
-def compiled_decisions_as_dict(document: Any) -> dict[str, Any]:
-    if not isinstance(document, dict):
-        raise H003OutcomeReviewError("compiled decisions must deserialize to an object")
-    return document
