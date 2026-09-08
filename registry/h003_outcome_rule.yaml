@@ -1,0 +1,109 @@
+schema_version: 1
+id: H003-O001
+status: FROZEN
+purpose: Resolve frozen H003 management commitments from later same-company exchange-source evidence without market-outcome access.
+cohort_id: FY27-Q2-2026-09-06
+immutable_inputs:
+  review_rule_id: H003-V001
+  review_rule_sha256: 8b5f3d89b04b486ab2d1e6e9508f9b2ffb69bf51781fa13cbf1db9e81bdc2244
+  review_ledger_sha256: cb1e204685e66c37f274ac83b0c7f9729bb55401a58d1e51e6b50ac270052e4d
+  claim_audit_id: H003-A001
+  claim_audit_sha256: e5828081241005325306644765ddac64300dbc9084315325964873d65071770a
+  source_rule_id: H003-C001
+  source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
+  source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
+  source_cutoff_utc: '2026-09-06T12:21:06.431463Z'
+  accepted_claim_count: 869
+evidence_eligibility:
+  same_company_only: true
+  strictly_after_claim_source_publication: true
+  at_or_before_source_cutoff: true
+  exchange_source_only: true
+  source_hash_verification_required: true
+  missing_later_mention_is_failure: false
+  outside_web_or_manual_source_substitution_allowed: false
+  price_return_benchmark_or_future_market_data_allowed: false
+blind_review:
+  company_identity_visible: false
+  symbol_visible: false
+  source_url_or_exchange_sequence_visible: false
+  market_outcomes_visible: false
+  original_normalized_commitment_visible: true
+  original_timing_language_visible: true
+  later_evidence_publication_dates_visible: true
+  later_evidence_text_visible: true
+  review_decisions_frozen_before_return_data_access: true
+retrieval:
+  method: DETERMINISTIC_LEXICAL_V1
+  unit: PARAGRAPH_OR_3_LINE_WINDOW
+  query_fields:
+    - normalized_claim
+    - metric
+    - claim_type
+    - unit
+    - target_min
+    - target_max
+    - target_deadline
+    - target_horizon
+  tokenization: CASEFOLD_ALPHANUMERIC
+  numeric_tokens_weight: 3.0
+  metric_tokens_weight: 2.0
+  other_query_tokens_weight: 1.0
+  recency_tiebreak: EARLIER_SOURCE_FIRST
+  max_passages_per_claim: 12
+  max_passages_per_source: 2
+  minimum_nonstopword_overlap: 1
+  zero_match_behavior: EMPTY_EVIDENCE_PACKET
+  retrieval_parameters_may_change_after_review: false
+outcomes:
+  allowed:
+    - MET
+    - PARTIAL
+    - MISSED
+    - LATE
+    - UNRESOLVED
+  MET: Later eligible evidence explicitly establishes that the frozen commitment was achieved within its applicable commitment horizon.
+  PARTIAL: Later eligible evidence explicitly quantifies meaningful partial delivery while establishing that the full frozen commitment was not achieved within the applicable horizon.
+  MISSED: Later eligible evidence explicitly establishes that the commitment period ended without achieving the frozen target, or management explicitly reports non-achievement at or after the applicable horizon.
+  LATE: Later eligible evidence explicitly establishes achievement after the frozen commitment horizon or explicitly reports delay beyond it.
+  UNRESOLVED: Evidence is insufficient, ambiguous, conflicting, not mature, conditionally inapplicable, or timing cannot be mapped without guessing.
+  no_negative_inference_from_silence: true
+  ambiguous_timing_forces_unresolved: true
+  conflicting_evidence_forces_unresolved: true
+horizon_policy:
+  canonical_deadline_used_when_present: true
+  natural_language_horizon_may_be_interpreted_only_if_unambiguous_from_literal_text_and_immutable_source_date: true
+  interpretation_must_be_retained_with_decision: true
+  otherwise: UNRESOLVED
+  current_date_or_post_cutoff_knowledge_may_not_resolve_maturity: true
+independence:
+  primary_unit: STRICT_PROMISE_FAMILY
+  strict_family_rule: H003-A001 strict_promise_key
+  strict_repeated_family_count: 2
+  strict_repeated_claim_count: 4
+  primary_family_representative: EARLIEST_SOURCE_PUBLICATION
+  broad_family_collapse: SENSITIVITY_ONLY
+  broad_repeated_family_count: 7
+  broad_repeated_claim_count: 14
+  material_sensitivity_to_broad_collapse: ROBUSTNESS_FAIL
+feature_contract:
+  resolved_outcomes:
+    - MET
+    - PARTIAL
+    - MISSED
+    - LATE
+  unresolved_excluded_from_denominator: true
+  minimum_resolved_prior_families: 3
+  prior_met_rate_formula: MET / (MET + PARTIAL + MISSED + LATE)
+  claim_type_weighting: NONE
+  only_outcomes_observable_by_asof_enter_feature: true
+  family_counted_once: true
+fail_closed:
+  source_hash_mismatch: ABORT
+  input_hash_mismatch: ABORT
+  eligible_source_boundary_violation: ABORT
+  duplicate_decision: ABORT
+  missing_decision_after_full_review: ABORT
+  unparseable_or_ambiguous_evidence: UNRESOLVED
+live_capital: false
+sha256: b808dc76e4ff54e8e6bf156e65c5495c0b9b8ce980a39feec4008f4d630d1f7b
