@@ -7,6 +7,7 @@ on:
     paths:
       - registry/h003_outcome_rule.yaml
       - src/marketlab/h003_outcomes.py
+      - scripts/build_h003_outcome_packets.py
       - tests/test_h003_outcomes.py
       - .github/workflows/h003-outcome-protocol.yml
 
@@ -41,4 +42,5 @@ jobs:
           sha256sum \
             registry/h003_outcome_rule.yaml \
             src/marketlab/h003_outcomes.py \
+            scripts/build_h003_outcome_packets.py \
             tests/test_h003_outcomes.py
