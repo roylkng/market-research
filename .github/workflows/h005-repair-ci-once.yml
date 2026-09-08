@@ -1,0 +1,142 @@
+name: H005 one-shot acquisition script repair
+
+on:
+  push:
+    branches:
+      - research/h005-result-repricing-ranker-v1-20260908
+    paths:
+      - .github/workflows/h005-repair-ci-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install repository dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Apply semantic lint repairs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('scripts/acquire_h005_corpus.py')
+          s = p.read_text()
+          s = s.replace(
+              'from datetime import UTC, date, datetime, time as dtime, timedelta\n',
+              'from datetime import UTC, date, datetime, timedelta\nfrom datetime import time as dtime\n',
+          )
+          s = s.replace(
+              'from urllib.parse import urlencode, urlparse\n',
+              'from urllib.parse import urlencode, urlparse\nfrom zoneinfo import ZoneInfo\n',
+          )
+          s = s.replace(
+              'from marketlab.nse import NSEClient, NSEEndpoint\n',
+              'from marketlab.nse import NSEAcquisitionError, NSEClient, NSEEndpoint\n',
+          )
+          s = s.replace(
+              'ALLOWED = {"nsearchives.nseindia.com", "archives.nseindia.com"}\n',
+              'ALLOWED = {"nsearchives.nseindia.com", "archives.nseindia.com"}\nIST = ZoneInfo("Asia/Kolkata")\n',
+          )
+          s = s.replace(
+              'return datetime.strptime(str(value).strip(), fmt).date()',
+              'return datetime.strptime(str(value).strip(), fmt).replace(tzinfo=IST).date()',
+          )
+          s = s.replace(
+              'published = datetime.strptime(str(row.get("broadcast_Date") or row.get("broadCastDate")),\n                                      "%d-%b-%Y %H:%M:%S")',
+              'published = datetime.strptime(\n            str(row.get("broadcast_Date") or row.get("broadCastDate")),\n            "%d-%b-%Y %H:%M:%S",\n        ).replace(tzinfo=IST)',
+          )
+          s = s.replace(
+              'except Exception as e:\n        return None, {"url": url, "kind": kind, "status": "FETCH_FAILED", "error": str(e)}',
+              'except (NSEAcquisitionError, KeyError, TypeError, ValueError) as e:\n        return None, {"url": url, "kind": kind, "status": "FETCH_FAILED", "error": str(e)}',
+          )
+          s = s.replace(
+              'day = datetime.strptime(meta["url"].split("_0_0_0_")[1][:8], "%Y%m%d").date()',
+              'day = datetime.strptime(\n            meta["url"].split("_0_0_0_")[1][:8], "%Y%m%d"\n        ).replace(tzinfo=UTC).date()',
+          )
+          s = s.replace(
+              'except Exception as e:\n            errors.append({"date": day.isoformat(), "error": str(e), "source_sha256": meta["sha256"]})',
+              'except (OSError, UnicodeDecodeError, csv.Error, zipfile.BadZipFile, KeyError, TypeError, ValueError) as e:\n            errors.append({"date": day.isoformat(), "error": str(e), "source_sha256": meta["sha256"]})',
+          )
+          s = s.replace(
+              'datetime.combine(date.fromisoformat(r["date"]), dtime(15,30)) < first',
+              'datetime.combine(date.fromisoformat(r["date"]), dtime(15, 30), tzinfo=IST) < first',
+          )
+          s = s.replace(
+              'datetime.combine(date.fromisoformat(reaction),dtime(20))',
+              'datetime.combine(date.fromisoformat(reaction), dtime(20), tzinfo=IST)',
+          )
+          s = s.replace(
+              'datetime.combine(date.fromisoformat(reaction),dtime(9,15))',
+              'datetime.combine(date.fromisoformat(reaction), dtime(9, 15), tzinfo=IST)',
+          )
+          p.write_text(s)
+
+          p = Path('scripts/complete_h005_sources_serial.py')
+          s = p.read_text()
+          s = s.replace('import xml.etree.ElementTree as ET\n', 'import xml.etree.ElementTree as ET\n\nimport requests\n')
+          s = s.replace(
+              'from acquire_h005_corpus import ALLOWED, dump, retain\nfrom marketlab.nse import NSEClient\n',
+              'from acquire_h005_corpus import ALLOWED, dump, retain\n\nfrom marketlab.nse import NSEAcquisitionError, NSEClient\n',
+          )
+          s = s.replace(
+              'except Exception as exc:',
+              'except (NSEAcquisitionError, ET.ParseError, requests.RequestException, ValueError) as exc:',
+          )
+          p.write_text(s)
+
+          p = Path('scripts/enrich_h005_corpus.py')
+          s = p.read_text().replace(
+              'from acquire_h005_corpus import ALLOWED, dump, fetch_many, months, normalize, query\nfrom marketlab.nse import NSEClient\n',
+              'from acquire_h005_corpus import ALLOWED, dump, fetch_many, months, normalize, query\n\nfrom marketlab.nse import NSEClient\n',
+          )
+          p.write_text(s)
+
+          p = Path('scripts/finalize_h005_sources.py')
+          s = p.read_text()
+          s = s.replace('import xml.etree.ElementTree as ET\n', 'import xml.etree.ElementTree as ET\n\nimport requests\n')
+          s = s.replace(
+              'from acquire_h005_corpus import ALLOWED, dump, retain\nfrom marketlab.nse import NSEClient\n',
+              'from acquire_h005_corpus import ALLOWED, dump, retain\n\nfrom marketlab.nse import NSEAcquisitionError, NSEClient\n',
+          )
+          s = s.replace(
+              'except Exception as exc:',
+              'except (NSEAcquisitionError, ET.ParseError, requests.RequestException, ValueError) as exc:',
+          )
+          p.write_text(s)
+
+          p = Path('scripts/restore_h005_native_sources.py')
+          s = p.read_text()
+          s = s.replace(
+              'from acquire_h005_corpus import dump, retain\nfrom marketlab.nse import NSEClient\n',
+              'from acquire_h005_corpus import dump, retain\n\nfrom marketlab.nse import NSEAcquisitionError, NSEClient\n',
+          )
+          s = s.replace(
+              'except Exception as exc:',
+              'except (NSEAcquisitionError, OSError, ValueError) as exc:',
+          )
+          p.write_text(s)
+          PY
+          ruff check --fix scripts/acquire_h005_corpus.py scripts/complete_h005_sources_serial.py scripts/enrich_h005_corpus.py scripts/finalize_h005_sources.py scripts/restore_h005_native_sources.py
+      - name: Verify full repository
+        run: |
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - name: Commit verified repair and remove one-shot workflow
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git rm .github/workflows/h005-repair-ci-once.yml
+          git add scripts/acquire_h005_corpus.py scripts/complete_h005_sources_serial.py scripts/enrich_h005_corpus.py scripts/finalize_h005_sources.py scripts/restore_h005_native_sources.py
+          git commit -m "fix: harden H005 acquisition timing and exception handling"
+          git push origin HEAD:research/h005-result-repricing-ranker-v1-20260908
