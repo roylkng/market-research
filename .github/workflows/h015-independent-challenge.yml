@@ -53,17 +53,11 @@ jobs:
                   parts = str(row.get("Index Date") or "").strip().split("-")
                   if len(parts) != 3 or not all(part.isdigit() for part in parts):
                       raise
-                  try:
-                      fallback_date = date(int(parts[2]), int(parts[0]), int(parts[1]))
-                  except ValueError:
-                      raise
+                  fallback_date = date(int(parts[2]), int(parts[0]), int(parts[1]))
                   if fallback_date != session_date:
                       raise
-                  try:
-                      opened = float(row["Open Index Value"])
-                      closed = float(row["Closing Index Value"])
-                  except (KeyError, TypeError, ValueError):
-                      raise
+                  opened = float(row["Open Index Value"])
+                  closed = float(row["Closing Index Value"])
                   if not all(math.isfinite(value) and value > 0 for value in (opened, closed)):
                       raise ValueError("nonpositive Nifty 500 OHLC in source-date fallback")
                   return {"open": opened, "close": closed}
