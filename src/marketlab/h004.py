@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import collections.abc
 from dataclasses import dataclass
-from typing import Any
 
 
 PRIMARY_TRADED_VALUE_MIN = 20_000_000.0
@@ -25,7 +23,7 @@ class H004Evaluation:
     trigger_conditions: tuple[str, ...]
     not_executable: bool
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> dict[str, object]:
         return {
             "stage1_eligible": self.stage1_eligible,
             "primary_universe": self.primary_universe,
@@ -43,19 +41,17 @@ class H004Evaluation:
         }
 
 
-def _float(
-    row: collections.abc.Mapping[str, Any], key: str, default: float = 0.0
-) -> float:
+def _float(row: dict[str, object], key: str, default: float = 0.0) -> float:
     value = row.get(key, default)
     if value in (None, ""):
         return default
     try:
-        return float(value)
+        return float(value)  # type: ignore[arg-type]
     except (TypeError, ValueError):
         return default
 
 
-def _bool(row: collections.abc.Mapping[str, Any], key: str) -> bool:
+def _bool(row: dict[str, object], key: str) -> bool:
     value = row.get(key, False)
     if isinstance(value, bool):
         return value
@@ -64,7 +60,7 @@ def _bool(row: collections.abc.Mapping[str, Any], key: str) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
-def evaluate_h004_row(row: collections.abc.Mapping[str, Any]) -> H004Evaluation:
+def evaluate_h004_row(row: dict[str, object]) -> H004Evaluation:
     """Evaluate one point-in-time H004 candidate row.
 
     This function intentionally does not inspect future returns. Stock-level
