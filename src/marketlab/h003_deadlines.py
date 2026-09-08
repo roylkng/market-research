@@ -219,6 +219,17 @@ def canonicalize_target_deadline(
             "end of stated month",
         )
 
+    explicit_calendar_year = re.fullmatch(r"end of (?:calendar )?(\d{4})", lowered)
+    if explicit_calendar_year:
+        year = int(explicit_calendar_year.group(1))
+        return _future_or_deferred(
+            raw,
+            source,
+            date(year, 12, 31),
+            "CALENDAR_YEAR",
+            "explicit calendar-year end",
+        )
+
     # A bare four-digit year is interpreted conservatively as no later than that
     # calendar-year end. This is the widest deterministic bound consistent with
     # phrases such as 'by 2030'.
