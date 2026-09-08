@@ -1,4 +1,5 @@
 """Run frozen H015 point-in-time company-selection challenge on legacy NSE data."""
+
 from __future__ import annotations
 
 import argparse
@@ -7,7 +8,6 @@ import io
 import json
 import math
 import statistics
-import time
 import zipfile
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -15,7 +15,6 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import numpy as np
-
 import run_h010_historical_robustness as base
 
 MARKET_START = date(2022, 6, 1)
@@ -134,7 +133,9 @@ def acquire_market(root: Path):
         "serial_retries": [],
     }
 
-    for day, b_url, b_raw, b_meta, i_url, i_raw, i_meta in sorted(results, key=lambda item: item[0]):
+    for day, b_url, b_raw, b_meta, i_url, i_raw, i_meta in sorted(
+        results, key=lambda item: item[0]
+    ):
         if b_raw is not None and i_raw is None:
             retry_raw, retry_meta = base.fetch_public(i_url, kind="index-serial-retry", attempts=8)
             diagnostics["serial_retries"].append(
@@ -249,7 +250,10 @@ def build_point_in_time_cohorts(sessions, prices, index, actions):
                 continue
             if any(day not in bars for day in history):
                 continue
-            if statistics.median(float(bars[day]["turnover"]) for day in liquidity_days) < MIN_TURNOVER:
+            if (
+                statistics.median(float(bars[day]["turnover"]) for day in liquidity_days)
+                < MIN_TURNOVER
+            ):
                 continue
             if predecision_action_crossing(actions.get(symbol, ()), start, decision):
                 continue
@@ -265,11 +269,9 @@ def build_point_in_time_cohorts(sessions, prices, index, actions):
                 "isin": isin,
                 "score": raw120 / volatility,
                 "raw120skip5": raw120,
-                "mom60": float(bars[decision]["close"])
-                / float(bars[sessions[i - 60]]["close"])
+                "mom60": float(bars[decision]["close"]) / float(bars[sessions[i - 60]]["close"])
                 - 1,
-                "mom20": float(bars[decision]["close"])
-                / float(bars[sessions[i - 20]]["close"])
+                "mom20": float(bars[decision]["close"]) / float(bars[sessions[i - 20]]["close"])
                 - 1,
                 "mom60_20_sessions_ago": float(bars[sessions[i - 20]]["close"])
                 / float(bars[sessions[i - 80]]["close"])
@@ -287,9 +289,7 @@ def build_point_in_time_cohorts(sessions, prices, index, actions):
         sma120 = statistics.mean(index[sessions[j]]["close"] for j in range(i - 119, i + 1))
         nifty60 = index[decision]["close"] / index[sessions[i - 60]]["close"] - 1
         breadth_now = float(np.mean([float(row["mom60"]) > 0 for row in eligible]))
-        breadth_20 = float(
-            np.mean([float(row["mom60_20_sessions_ago"]) > 0 for row in eligible])
-        )
+        breadth_20 = float(np.mean([float(row["mom60_20_sessions_ago"]) > 0 for row in eligible]))
         breadth_change = breadth_now - breadth_20
         broad_regime = index[decision]["close"] > sma120 and nifty60 > 0
         breadth_confirmed = breadth_now >= 0.55 or breadth_change >= 0.10
@@ -308,7 +308,9 @@ def build_point_in_time_cohorts(sessions, prices, index, actions):
         count = max(20, math.ceil(len(eligible) * 0.10))
         selected_symbols = [
             row["symbol"]
-            for row in sorted(eligible, key=lambda row: (-float(row["score"]), str(row["symbol"])))[:count]
+            for row in sorted(eligible, key=lambda row: (-float(row["score"]), str(row["symbol"])))[
+                :count
+            ]
         ]
         cohort.update(
             status="ACTIVE",
@@ -481,9 +483,7 @@ def evaluate(cohorts):
         raise ValueError("H015 produced no active selected observations")
 
     primary_metrics = aggregate_metrics(primary_rows)
-    comparator_metrics = {
-        name: aggregate_metrics(rows) for name, rows in comparator_rows.items()
-    }
+    comparator_metrics = {name: aggregate_metrics(rows) for name, rows in comparator_rows.items()}
     full_metrics = aggregate_metrics(all_eligible_rows)
     positive_cohort_rate = float(
         np.mean([float(row["mean_gross_excess"]) > 0 for row in cohort_results])
@@ -499,24 +499,18 @@ def evaluate(cohorts):
             values.extend(float(rows[pos]["gross_excess"]) for pos in idx)
         random_means[draw] = float(np.mean(values))
     observed_mean = float(primary_metrics["mean_gross_excess"])
-    random_p = float(
-        (1 + np.sum(random_means >= observed_mean)) / (RANDOM_DRAWS + 1)
-    )
+    random_p = float((1 + np.sum(random_means >= observed_mean)) / (RANDOM_DRAWS + 1))
 
     positive_by_isin = defaultdict(float)
     for row in primary_rows:
         positive_by_isin[str(row["isin"])] += max(0.0, float(row["gross_stock_return"]))
     positive_total = sum(positive_by_isin.values())
-    concentration = (
-        max(positive_by_isin.values()) / positive_total if positive_total > 0 else None
-    )
+    concentration = max(positive_by_isin.values()) / positive_total if positive_total > 0 else None
 
     quarters = defaultdict(list)
     for row in cohort_results:
         day = date.fromisoformat(str(row["decision_date"]))
-        quarters[f"{day.year}Q{(day.month - 1) // 3 + 1}"].append(
-            float(row["mean_gross_excess"])
-        )
+        quarters[f"{day.year}Q{(day.month - 1) // 3 + 1}"].append(float(row["mean_gross_excess"]))
     quarter_medians = {
         quarter: float(np.median(values))
         for quarter, values in quarters.items()
