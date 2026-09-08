@@ -13,7 +13,7 @@ def load_json(path: Path) -> dict[str, object]:
     except (OSError, json.JSONDecodeError) as exc:
         raise ValueError(f"could not read JSON {path}: {exc}") from exc
     if not isinstance(document, dict):
-        raise ValueError(f"JSON root must be an object: {path}")
+        raise TypeError(f"JSON root must be an object: {path}")
     return document
 
 

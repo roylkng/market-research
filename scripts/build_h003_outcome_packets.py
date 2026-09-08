@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.claims import ManagementClaim
+from marketlab.h003_identity_redaction import (
+    assert_identity_scrubbed,
+    combined_redaction_terms,
+)
 from marketlab.h003_outcomes import (
     CLAIM_AUDIT_SHA256,
     EXPECTED_ACCEPTED_CLAIMS,
@@ -293,19 +297,12 @@ def main() -> int:
                 all_passages.append(rebuilt)
 
         selected = select_evidence_passages(claim, all_passages)
-        terms = redaction_terms(member, symbol)
+        terms = combined_redaction_terms(member, symbol, selected)
         packet = build_blind_outcome_payload(claim, selected, redaction_terms=terms)
         packet_document = packet.to_dict()
 
-        # Fail if the most explicit frozen identity strings survive the packet.
-        rendered = json.dumps(packet_document, ensure_ascii=False)
-        for forbidden in (symbol, str(member.get("company_name") or "")):
-            forbidden = forbidden.strip()
-            pattern = rf"(?<!\w){re.escape(forbidden)}(?!\w)" if forbidden else None
-            if pattern and re.search(pattern, rendered, flags=re.IGNORECASE):
-                raise H003OutcomeError(
-                    f"explicit company identity survived blind packet: {claim['claim_id']}"
-                )
+        # Fail closed on every generated company alias and transcript speaker label.
+        assert_identity_scrubbed(packet_document, terms)
 
         if not packet.evidence:
             empty_packets += 1
