@@ -1,0 +1,142 @@
+name: H003-O001 audit blind contact-identifier leakage
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-audit-contact-leakage.yml
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify repository before audit
+        run: |
+          ruff check src scripts tests
+          pytest -q
+      - name: Audit reviewer-visible contact identifiers without retaining values
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from collections import Counter, defaultdict
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          package = json.loads((root / 'blind-packets.json').read_text(encoding='utf-8'))
+          batch_manifest = json.loads((root / 'review-batches' / 'manifest.json').read_text(encoding='utf-8'))
+
+          packet_to_batch = {}
+          for row in batch_manifest['batches']:
+              batch = json.loads((root / 'review-batches' / row['filename']).read_text(encoding='utf-8'))
+              for packet in batch['packets']:
+                  packet_to_batch[packet['packet_id']] = batch['batch_number']
+
+          patterns = {
+              'EMAIL': re.compile(r'(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b'),
+              'URL': re.compile(r'(?i)\b(?:https?://|www\.)[^\s<>"\]]+'),
+              'DOMAIN': re.compile(r'(?i)(?<![\w@])(?:[A-Z0-9-]+\.)+(?:com|in|org|net|io|ai|co|biz|info)(?!\w)'),
+          }
+
+          rows = []
+          batch_counts = defaultdict(Counter)
+          class_counts = Counter()
+          for packet in package['packets']:
+              hits = set()
+              passage_ids = []
+              visible_fields = [
+                  packet.get('normalized_claim'),
+                  packet.get('claim_type'),
+                  packet.get('metric'),
+                  packet.get('unit'),
+                  packet.get('target_horizon'),
+              ]
+              for value in visible_fields:
+                  text = str(value or '')
+                  for label, pattern in patterns.items():
+                      if pattern.search(text):
+                          hits.add(label)
+              for passage in packet.get('evidence', []):
+                  text = str(passage.get('text') or '')
+                  passage_hit = False
+                  for label, pattern in patterns.items():
+                      if pattern.search(text):
+                          hits.add(label)
+                          passage_hit = True
+                  if passage_hit:
+                      passage_ids.append(passage['passage_id'])
+              if hits:
+                  batch_number = packet_to_batch[packet['packet_id']]
+                  rows.append({
+                      'packet_id': packet['packet_id'],
+                      'batch_number': batch_number,
+                      'leak_classes': sorted(hits),
+                      'affected_passage_ids': sorted(passage_ids),
+                  })
+                  for label in hits:
+                      class_counts[label] += 1
+                      batch_counts[batch_number][label] += 1
+
+          document = {
+              'schema_version': 1,
+              'audit_id': 'H003-O001-CONTACT-LEAK-A001',
+              'source_blind_package_sha256': package['package_sha256'],
+              'packet_count': package['packet_count'],
+              'affected_packet_count': len(rows),
+              'affected_batches': sorted({row['batch_number'] for row in rows}),
+              'class_counts': dict(sorted(class_counts.items())),
+              'batch_counts': {
+                  str(batch): dict(sorted(counts.items()))
+                  for batch, counts in sorted(batch_counts.items())
+              },
+              'actual_identifier_values_retained': False,
+              'private_binding_accessed': False,
+              'market_outcomes_accessed': False,
+              'live_capital_allowed': False,
+              'rows': rows,
+          }
+          out = root / 'contact-leak-audit-a001.json'
+          out.write_text(json.dumps(document, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps({
+              'affected_packet_count': document['affected_packet_count'],
+              'affected_batches': document['affected_batches'],
+              'class_counts': document['class_counts'],
+          }, indent=2, sort_keys=True))
+          PY
+      - name: Verify audit contains no identifier values
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a001.json')
+          d = json.loads(path.read_text())
+          assert d['source_blind_package_sha256'] == 'a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb'
+          assert d['packet_count'] == 869
+          assert d['actual_identifier_values_retained'] is False
+          assert d['private_binding_accessed'] is False
+          assert d['market_outcomes_accessed'] is False
+          assert d['live_capital_allowed'] is False
+          allowed = {'packet_id', 'batch_number', 'leak_classes', 'affected_passage_ids'}
+          assert all(set(row) == allowed for row in d['rows'])
+          print('H003 contact leakage audit is reviewer-safe')
+          PY
+      - name: Commit only reviewer-safe leakage audit
+        run: |
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a001.json
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m 'H003-O001: retain reviewer-safe contact leakage audit'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
