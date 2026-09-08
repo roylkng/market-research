@@ -1,5 +1,5 @@
-# Regenerate only when the reviewed packet builder changes. The blindness incident
-# and quarantine records are retained; only derived blind-review artifacts are replaced.
+# Regenerate only when the reviewed packet builder changes or the quarantined
+# blindness incident explicitly requests a rebuild. The incident record is retained.
 name: H003-O001 build blind outcome packets
 
 on:
@@ -8,6 +8,7 @@ on:
       - research/h003-v001-outcome-protocol-20260908
     paths:
       - scripts/build_h003_outcome_packets.py
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/blindness-incident-20260908.json
 
 permissions:
   actions: read
