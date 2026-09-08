@@ -9,7 +9,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from acquire_h005_corpus import dump, retain
-from marketlab.nse import NSEClient
+
+from marketlab.nse import NSEAcquisitionError, NSEClient
 
 LOCAL = threading.local()
 CALENDAR_DOCUMENTS = (
@@ -40,7 +41,7 @@ def main() -> None:
             LOCAL.client = NSEClient(timeout=18, attempts=1)
         try:
             return retain(root, LOCAL.client.archive_bytes(url), url, kind)
-        except Exception as exc:
+        except (NSEAcquisitionError, OSError, ValueError) as exc:
             # One attempt per original URL. No proxies, alternate credentials or login bypass.
             return {"url": url, "kind": kind, "status": "FETCH_FAILED", "error": str(exc)}
 

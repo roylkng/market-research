@@ -15,18 +15,21 @@ import time
 import zipfile
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import UTC, date, datetime, time as dtime, timedelta
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as dtime
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
+from zoneinfo import ZoneInfo
 
 import requests
 
 from marketlab.marketdata import index_snapshot_url, udiff_url
-from marketlab.nse import NSEClient, NSEEndpoint
+from marketlab.nse import NSEAcquisitionError, NSEClient, NSEEndpoint
 
 LEGACY = NSEEndpoint("legacy_financials", "https://www.nseindia.com/api/corporates-financial-results")
 LOCAL = threading.local()
 ALLOWED = {"nsearchives.nseindia.com", "archives.nseindia.com"}
+IST = ZoneInfo("Asia/Kolkata")
 
 
 def dump(path: Path, value: object) -> None:
@@ -99,7 +102,7 @@ def months(start: date, end: date):
 def parse_date(value: object) -> date | None:
     for fmt in ("%d-%b-%Y", "%Y-%m-%d", "%d-%m-%Y"):
         try:
-            return datetime.strptime(str(value).strip(), fmt).date()
+            return datetime.strptime(str(value).strip(), fmt).replace(tzinfo=IST).date()
         except ValueError:
             pass
     return None
@@ -107,8 +110,10 @@ def parse_date(value: object) -> date | None:
 
 def normalize(row: dict, source: str) -> dict | None:
     try:
-        published = datetime.strptime(str(row.get("broadcast_Date") or row.get("broadCastDate")),
-                                      "%d-%b-%Y %H:%M:%S")
+        published = datetime.strptime(
+            str(row.get("broadcast_Date") or row.get("broadCastDate")),
+            "%d-%b-%Y %H:%M:%S",
+        ).replace(tzinfo=IST)
     except ValueError:
         return None
     end = parse_date(row.get("qe_Date") or row.get("toDate"))
@@ -129,7 +134,7 @@ def query(client: NSEClient, root: Path, endpoint: NSEEndpoint, params: dict, ki
         payload, raw = client._json_get_with_raw(endpoint, params=params)
         meta = retain(root, raw, url, kind)
         return payload, meta
-    except Exception as e:
+    except (NSEAcquisitionError, KeyError, TypeError, ValueError) as e:
         return None, {"url": url, "kind": kind, "status": "FETCH_FAILED", "error": str(e)}
 
 
@@ -138,7 +143,9 @@ def read_market(root: Path, manifest: list[dict]):
     for meta in manifest:
         if meta["kind"] != "bhavcopy" or meta["status"] != "OK":
             continue
-        day = datetime.strptime(meta["url"].split("_0_0_0_")[1][:8], "%Y%m%d").date()
+        day = datetime.strptime(
+            meta["url"].split("_0_0_0_")[1][:8], "%Y%m%d"
+        ).replace(tzinfo=UTC).date()
         try:
             with zipfile.ZipFile(io.BytesIO((root / meta["raw_path"]).read_bytes())) as z:
                 if len(z.namelist()) != 1:
@@ -161,7 +168,7 @@ def read_market(root: Path, manifest: list[dict]):
             sessions.append(day.isoformat())
             for symbol, row in parsed:
                 prices[symbol].append(row)
-        except Exception as e:
+        except (OSError, UnicodeDecodeError, csv.Error, zipfile.BadZipFile, KeyError, TypeError, ValueError) as e:
             errors.append({"date": day.isoformat(), "error": str(e), "source_sha256": meta["sha256"]})
     for rows in prices.values():
         rows.sort(key=lambda r: r["date"])
@@ -238,7 +245,7 @@ def main() -> None:
     for (symbol, quarter_end), group in sorted(groups.items()):
         group.sort(key=lambda r:(r["published"],r["url"]))
         first = datetime.fromisoformat(group[0]["published"])
-        before = [r for r in prices.get(symbol,[]) if datetime.combine(date.fromisoformat(r["date"]), dtime(15,30)) < first]
+        before = [r for r in prices.get(symbol,[]) if datetime.combine(date.fromisoformat(r["date"]), dtime(15, 30), tzinfo=IST) < first]
         if len(before)<60:
             exclusions["insufficient_pre_event_history"] += 1
             continue
@@ -249,10 +256,10 @@ def main() -> None:
         if reaction is None:
             exclusions["no_reaction_session"] += 1
             continue
-        cutoff = datetime.combine(date.fromisoformat(reaction),dtime(20))
+        cutoff = datetime.combine(date.fromisoformat(reaction), dtime(20), tzinfo=IST)
         eligible = [r for r in group if datetime.fromisoformat(r["published"]) <= cutoff]
         for variant in ("H005-A","H005-B"):
-            bound = datetime.combine(date.fromisoformat(reaction),dtime(9,15)) if variant=="H005-A" else cutoff
+            bound = datetime.combine(date.fromisoformat(reaction), dtime(9, 15), tzinfo=IST) if variant=="H005-A" else cutoff
             pool = [r for r in eligible if datetime.fromisoformat(r["published"]) < bound]
             consolidated = [r for r in pool if r["basis"]=="C"]
             pool = consolidated or pool

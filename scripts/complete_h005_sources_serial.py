@@ -10,8 +10,10 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import urlparse
 
+import requests
 from acquire_h005_corpus import ALLOWED, dump, retain
-from marketlab.nse import NSEClient
+
+from marketlab.nse import NSEAcquisitionError, NSEClient
 
 
 def main() -> None:
@@ -72,7 +74,7 @@ def main() -> None:
             results.append(meta)
             available[url] = meta
             consecutive_denials = 0
-        except Exception as exc:
+        except (NSEAcquisitionError, ET.ParseError, requests.RequestException, ValueError) as exc:
             results.append({"url": url, "kind": work[url] + "-serial-xbrl",
                             "status": "FETCH_FAILED", "error": str(exc)})
         finally:

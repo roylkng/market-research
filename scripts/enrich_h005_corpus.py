@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from acquire_h005_corpus import ALLOWED, dump, fetch_many, months, normalize, query
+
 from marketlab.nse import NSEClient
 
 

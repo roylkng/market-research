@@ -11,8 +11,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from urllib.parse import urlparse
 
+import requests
 from acquire_h005_corpus import ALLOWED, dump, retain
-from marketlab.nse import NSEClient
+
+from marketlab.nse import NSEAcquisitionError, NSEClient
 
 LOCAL = threading.local()
 
@@ -38,7 +40,7 @@ def fetch_initialized(root: Path, url: str, kind: str) -> dict:
         result = retain(root, raw, url, kind)
         result["client"] = "INITIALIZED_PUBLIC_NSE_SESSION"
         return result
-    except Exception as exc:
+    except (NSEAcquisitionError, ET.ParseError, requests.RequestException, ValueError) as exc:
         return {"url": url, "kind": kind, "status": "FETCH_FAILED", "error": str(exc)}
     finally:
         time.sleep(0.03)
