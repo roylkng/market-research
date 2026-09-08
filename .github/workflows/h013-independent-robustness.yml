@@ -1,0 +1,70 @@
+name: H013 independent robustness
+
+on:
+  push:
+    branches:
+      - research/h005-result-repricing-ranker-v1-20260908
+    paths:
+      - .github/workflows/h013-independent-robustness.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Normalize runner before opening outcomes
+        run: |
+          ruff check --fix scripts/run_h013_independent_robustness.py
+          ruff format scripts/run_h013_independent_robustness.py
+          ruff check scripts/run_h013_independent_robustness.py
+          if ! git diff --quiet -- scripts/run_h013_independent_robustness.py; then
+            git config user.name "marketlab-research-bot"
+            git config user.email "marketlab-research-bot@users.noreply.github.com"
+            git add scripts/run_h013_independent_robustness.py
+            git commit -m "style: normalize frozen H013 independent runner"
+            git push origin HEAD:research/h005-result-repricing-ranker-v1-20260908
+          fi
+      - name: Verify repository before first independent H013 outcome
+        run: |
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - name: Run frozen independent robustness replay
+        run: |
+          rm -rf /tmp/h013-independent
+          python scripts/run_h013_independent_robustness.py --out /tmp/h013-independent \
+            | tee /tmp/h013-independent.log
+          cp /tmp/h013-independent.log /tmp/h013-independent/run.log
+      - name: Upload independent robustness results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h013-independent-robustness-results
+          path: |
+            /tmp/h013-independent/robustness-summary.json
+            /tmp/h013-independent/cohorts.json
+            /tmp/h013-independent/selected.csv
+            /tmp/h013-independent/source-manifest.json
+            /tmp/h013-independent/run.log
+          retention-days: 30
+      - name: Upload retained official source bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h013-independent-robustness-sources
+          path: /tmp/h013-independent/raw
+          retention-days: 30
+          compression-level: 0
