@@ -3,9 +3,8 @@ from __future__ import annotations
 import json
 from datetime import date
 
-import pytest
-
 import h018_nifty500_historical_source as source
+import pytest
 
 
 def envelope(rows: list[dict[str, str]]) -> bytes:
