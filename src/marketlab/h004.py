@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 
 PRIMARY_TRADED_VALUE_MIN = 20_000_000.0
@@ -64,7 +65,7 @@ def _bool(row: Mapping[str, Any], key: str) -> bool:
 def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
     """Evaluate one point-in-time H004 candidate row.
 
-    This function intentionally does not inspect future returns.  Stock-level
+    This function intentionally does not inspect future returns. Stock-level
     price/volume information is prohibited from the Stage-1 anchor and is used
     only for the Stage-2 execution trigger.
     """
@@ -85,10 +86,7 @@ def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
     earnings_tests += _float(row, "revenue_yoy_pct") >= 20.0
     earnings_tests += _float(row, "operating_profit_yoy_pct") >= 30.0
     earnings_tests += _float(row, "pat_yoy_pct") >= 40.0
-    margin_test = (
-        _float(row, "margin_change_pp") >= 1.0
-        or _bool(row, "loss_to_profit")
-    )
+    margin_test = _float(row, "margin_change_pp") >= 1.0 or _bool(row, "loss_to_profit")
     earnings_tests += margin_test
 
     earnings_invalidated = any(
@@ -112,10 +110,9 @@ def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
         )
     )
 
-    prior_loss_or_low_margin = (
-        _bool(row, "prior_comparable_loss")
-        or _float(row, "prior_operating_margin_pct", 100.0) <= 3.0
-    )
+    prior_loss_or_low_margin = _bool(row, "prior_comparable_loss") or _float(
+        row, "prior_operating_margin_pct", 100.0
+    ) <= 3.0
     turnaround_anchor = (
         prior_loss_or_low_margin
         and (
@@ -161,7 +158,7 @@ def evaluate_h004_row(row: Mapping[str, Any]) -> H004Evaluation:
     )
 
     # Ranking points are secondary to the anchor rules and are frozen before
-    # broad replay.  They do not contain stock-level momentum.
+    # broad replay. They do not contain stock-level momentum.
     watch_points = 0
     watch_points += earnings_tests
     watch_points += min(max(catalyst_grade, 0), 4)
