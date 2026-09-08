@@ -438,7 +438,8 @@ def redact_company_identity(value: str, redaction_terms: Sequence[str]) -> str:
         reverse=True,
     )
     for term in terms:
-        result = re.sub(re.escape(term), "[COMPANY]", result, flags=re.IGNORECASE)
+        pattern = rf"(?<!\w){re.escape(term)}(?!\w)"
+        result = re.sub(pattern, "[COMPANY]", result, flags=re.IGNORECASE)
     return result
 
 

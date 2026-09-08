@@ -298,10 +298,11 @@ def main() -> int:
         packet_document = packet.to_dict()
 
         # Fail if the most explicit frozen identity strings survive the packet.
-        rendered = json.dumps(packet_document, ensure_ascii=False).casefold()
+        rendered = json.dumps(packet_document, ensure_ascii=False)
         for forbidden in (symbol, str(member.get("company_name") or "")):
-            forbidden = forbidden.strip().casefold()
-            if forbidden and forbidden in rendered:
+            forbidden = forbidden.strip()
+            pattern = rf"(?<!\w){re.escape(forbidden)}(?!\w)" if forbidden else None
+            if pattern and re.search(pattern, rendered, flags=re.IGNORECASE):
                 raise H003OutcomeError(
                     f"explicit company identity survived blind packet: {claim['claim_id']}"
                 )

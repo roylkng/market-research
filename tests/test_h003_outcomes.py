@@ -284,3 +284,11 @@ def test_review_decision_is_hash_deterministic() -> None:
         "reviewed_at_utc": "2026-09-08T10:00:00Z",
     }
     assert build_outcome_review_decision(**kwargs) == build_outcome_review_decision(**kwargs)
+
+
+def test_short_symbol_redaction_does_not_corrupt_other_words() -> None:
+    value = "LT reported results and LT reiterated guidance."
+    redacted = redact_company_identity(value, ["LT"])
+    assert "reported results" in redacted
+    assert "LT" not in redacted
+    assert redacted.count("[COMPANY]") == 2
