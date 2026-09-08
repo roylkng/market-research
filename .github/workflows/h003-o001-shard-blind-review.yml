@@ -1,4 +1,4 @@
-# Shard only public blind packets. Corrected package pin validated at d461c0d5.
+# Shard only the zero-contact-audited public blind package pinned to 70240c32.
 # GitHub-token-generated commits still require an external/manual workflow edit.
 name: H003-O001 shard blind outcome review
 
@@ -9,6 +9,7 @@ on:
     paths:
       - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/blind-packets.json
       - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manifest.json
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/contact-leak-audit-a002.json
       - src/marketlab/h003_review_batches.py
       - tests/test_h003_review_batches.py
       - scripts/shard_h003_outcome_review.py
@@ -29,10 +30,30 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Verify implementation before sharding
+      - name: Verify implementation and zero-contact audit before sharding
         run: |
           ruff check src scripts tests
           pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          package = json.loads((root / 'blind-packets.json').read_text())
+          manifest = json.loads((root / 'manifest.json').read_text())
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          expected = '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert package['package_sha256'] == expected
+          assert manifest['blind_package_sha256'] == expected
+          assert audit['source_blind_package_sha256'] == expected
+          assert audit['affected_packet_count'] == 0
+          assert audit['affected_batches'] == []
+          assert audit['rows'] == []
+          assert audit['private_binding_accessed'] is False
+          assert audit['market_outcomes_accessed'] is False
+          assert audit['live_capital_allowed'] is False
+          print('H003 zero-contact package gate verified before sharding')
+          PY
       - name: Shard only the frozen public blind package
         run: |
           OUT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-batches
@@ -50,6 +71,7 @@ jobs:
           root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-batches')
           manifest = json.loads((root / 'manifest.json').read_text())
           assert manifest['outcome_rule_id'] == 'H003-O001'
+          assert manifest['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
           assert manifest['packet_count'] == 869
           assert manifest['batch_size'] == 20
           assert manifest['batch_count'] == 44
@@ -83,5 +105,5 @@ jobs:
             echo 'review batches already frozen'
             exit 0
           fi
-          git commit -m 'H003-O001: freeze blind semantic review batches'
+          git commit -m 'H003-O001: freeze zero-contact blind semantic review batches'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
