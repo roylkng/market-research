@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "incident_id": "H003-O001-BLINDNESS-001",
+  "status": "OPEN_REMEDIATION",
+  "detected_at_utc": "2026-09-08T17:35:00Z",
+  "outcome_rule_id": "H003-O001",
+  "outcome_rule_sha256": "36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1",
+  "invalidated_blind_package_sha256": "a94a99c8f5fbad4aa0c5409f47362543cec879d07ec8a8006a8937c38bcfdb01",
+  "invalidated_blind_file_sha256": "77001283cbac78f9f98a8bcfa03d703afb003f895de6fba81f313286f41a6399",
+  "reason": "Explicit current-company short-name variants and transcript speaker names survived the intended identity redaction. This violates H003-O001 blind_review.company_identity_visible=false even though symbol and full legal company name were removed.",
+  "observed_examples": [
+    "A current-company shortened legal-name variant survived because the redaction list retained a trailing industry descriptor.",
+    "Transcript speaker labels containing identifiable management names survived because speaker labels were not part of the redaction set."
+  ],
+  "market_outcomes_accessed": false,
+  "private_binding_opened": false,
+  "live_capital_allowed": false,
+  "reviewer_contaminated_source_batches": [1, 2],
+  "reviewer_contamination_policy": "All packets assigned to source batches 1 and 2 after deterministic re-sharding must be excluded from resolved-outcome features and forced to UNRESOLVED without further semantic evidence scoring by this reviewer.",
+  "invalidated_semantic_judgments": [
+    "semantic-judgments/batch-0001.json"
+  ],
+  "remediation_requirements": [
+    "Expand current-company redaction to distinctive shortened legal-name variants and meaningful company-name tokens.",
+    "Extract and redact transcript speaker labels before blind packet emission.",
+    "Fail closed if any generated current-company alias variant survives a packet.",
+    "Regenerate all 869 packets from the same frozen sources and unchanged lexical retrieval rule.",
+    "Re-run deterministic 20-packet sharding from the corrected package.",
+    "Do not semantically score regenerated source batches 1 or 2. Force them UNRESOLVED as reviewer-contaminated exclusions.",
+    "Do not open the private packet binding or any market-return data before every remaining blind judgment is frozen."
+  ]
+}
