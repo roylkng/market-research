@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 PRIMARY_TRADED_VALUE_MIN = 20_000_000.0
 DISCOVERY_TRADED_VALUE_MIN = 2_500_000.0
 
