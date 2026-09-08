@@ -4,12 +4,12 @@ import argparse
 import hashlib
 import json
 import math
-from datetime import date, datetime
+import time
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
-
 import run_h015_independent_challenge as h15
 
 URL = "https://www.niftyindices.com/Backpage.aspx/getHistoricaldatatabletoString"
@@ -115,7 +115,8 @@ def parse_official_history(
         parsed: date | None = None
         for fmt in ("%d %b %Y", "%d-%b-%Y"):
             try:
-                parsed = datetime.strptime(date_text, fmt).date()
+                value = time.strptime(date_text, fmt)
+                parsed = date(value.tm_year, value.tm_mon, value.tm_mday)
                 break
             except ValueError:
                 continue
