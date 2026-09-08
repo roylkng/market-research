@@ -1,0 +1,69 @@
+name: H005 sequential recovery checkpoint
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-serial-recovery.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: h005-initialized-source-delta
+          run-id: 34216615908
+          github-token: ${{ github.token }}
+          path: /tmp/h005-serial
+      - name: Preserve initial raw-file inventory
+        run: find /tmp/h005-serial/raw -type f -printf '%f\n' | sort > /tmp/h005-serial-base.txt
+      - name: Sequential public source retrieval
+        run: python scripts/complete_h005_sources_serial.py --root /tmp/h005-serial
+      - name: Retain independent calendar amendment
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'scripts')
+          from pathlib import Path
+          from marketlab.nse import NSEClient
+          from acquire_h005_corpus import retain,dump
+          root=Path('/tmp/h005-serial')
+          url='https://nsearchives.nseindia.com/content/circulars/CMTR72260.pdf'
+          raw=NSEClient(timeout=15,attempts=1).archive_bytes(url)
+          dump(root/'calendar-amendment-manifest.json',retain(root,raw,url,'calendar-circular'))
+          PY
+      - name: Package content-addressed delta
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path('/tmp/h005-serial')
+          out=pathlib.Path('/tmp/h005-serial-delta')
+          (out/'raw').mkdir(parents=True,exist_ok=True)
+          base=set(pathlib.Path('/tmp/h005-serial-base.txt').read_text().splitlines())
+          for src in (root/'raw').glob('*'):
+              if src.name not in base:
+                  shutil.copy2(src,out/'raw'/src.name)
+          for pattern in ('*-v5.json','serial-source-*.json','calendar-amendment-manifest.json'):
+              for src in root.glob(pattern):
+                  shutil.copy2(src,out/src.name)
+          shutil.copy2('scripts/complete_h005_sources_serial.py',out/'serial-source.py')
+          files={str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}
+          manifest={'source_head':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'base_artifact_ids':[10051043682,10051326136,10051686129,10052192394],'files':files,'live_capital_allowed':False}
+          (out/'serial-delta-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h005-serial-source-delta
+          path: /tmp/h005-serial-delta
+          retention-days: 30
