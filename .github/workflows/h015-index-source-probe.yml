@@ -22,33 +22,66 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e .
-      - name: Fetch exact official NSE historical Nifty 500 row
+      - name: Probe exact official NSE archive copies for 19-Jun-2024
         run: |
           mkdir -p /tmp/h015-index-probe
           python - <<'PY'
+          import csv
+          import hashlib
+          import io
           import json
           from pathlib import Path
-          from marketlab.nse import NSEClient, NSEEndpoint
 
-          endpoint = NSEEndpoint(
-              "historical_index",
-              "https://www.nseindia.com/api/historical/indicesHistory",
-          )
-          client = NSEClient(timeout=20, attempts=4)
-          payload, raw = client._json_get_with_raw(
-              endpoint,
-              params={
-                  "indexType": "NIFTY 500",
-                  "from": "19-06-2024",
-                  "to": "19-06-2024",
-              },
-          )
+          import requests
+
           root = Path("/tmp/h015-index-probe")
-          (root / "raw.json").write_bytes(raw)
-          (root / "parsed.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
-          print(json.dumps(payload, indent=2, sort_keys=True))
+          urls = [
+              "https://archives.nseindia.com/content/indices/ind_close_all_19062024.csv",
+              "https://nsearchives.nseindia.com/content/indices/ind_close_all_19062024.csv",
+          ]
+          results = []
+          for number, url in enumerate(urls):
+              response = requests.get(
+                  url,
+                  headers={
+                      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152.0 Safari/537.36",
+                      "Accept": "text/csv,text/plain,*/*",
+                  },
+                  timeout=(10, 30),
+                  allow_redirects=True,
+              )
+              item = {
+                  "requested_url": url,
+                  "final_url": response.url,
+                  "status_code": response.status_code,
+                  "content_type": response.headers.get("Content-Type"),
+                  "bytes": len(response.content),
+              }
+              if response.status_code == 200 and response.content:
+                  item["sha256"] = hashlib.sha256(response.content).hexdigest()
+                  path = root / f"source-{number}.csv"
+                  path.write_bytes(response.content)
+                  try:
+                      rows = list(csv.DictReader(io.StringIO(response.content.decode("utf-8-sig"))))
+                  except (UnicodeDecodeError, csv.Error) as exc:
+                      item["parse_error"] = str(exc)
+                  else:
+                      matches = [
+                          row
+                          for row in rows
+                          if " ".join(str(row.get("Index Name") or "").split()).casefold()
+                          == "nifty 500"
+                      ]
+                      item["row_count"] = len(rows)
+                      item["nifty500_rows"] = matches
+              results.append(item)
+          (root / "probe.json").write_text(json.dumps(results, indent=2, sort_keys=True) + "\n")
+          print(json.dumps(results, indent=2, sort_keys=True))
+          if not any(item.get("nifty500_rows") for item in results):
+              raise SystemExit("no official archive copy yielded a Nifty 500 row")
           PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: h015-official-index-fallback-probe
           path: /tmp/h015-index-probe
