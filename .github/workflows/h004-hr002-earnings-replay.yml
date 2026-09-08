@@ -45,4 +45,6 @@ jobs:
             exit 0
           fi
           git commit -m "H004-HR002: retain corrected earnings replay v3"
+          git fetch origin research/h004-pre-momentum-v1-20260908
+          git rebase origin/research/h004-pre-momentum-v1-20260908
           git push origin HEAD:research/h004-pre-momentum-v1-20260908
