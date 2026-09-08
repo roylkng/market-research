@@ -26,6 +26,17 @@ jobs:
         run: |
           ruff check src scripts tests
           pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          incident = json.loads((root / 'blindness-incident-20260908.json').read_text())
+          assert audit['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert audit['affected_packet_count'] == 0
+          assert incident['reviewer_contaminated_source_batches'] == [1, 2, 3, 4]
+          print('H003 triage inputs verified')
+          PY
       - name: Build only genuinely fail-safe UNRESOLVED triage
         run: |
           python - <<'PY'
@@ -39,7 +50,7 @@ jobs:
           counts = Counter()
           by_batch = defaultdict(Counter)
 
-          for batch_number in range(4, 45):
+          for batch_number in range(5, 45):
               path = batches / f'batch-{batch_number:04d}.json'
               batch = json.loads(path.read_text(encoding='utf-8'))
               for packet in batch['packets']:
@@ -47,10 +58,8 @@ jobs:
                   if not isinstance(evidence, list):
                       raise SystemExit(f"invalid evidence list: {packet['packet_id']}")
 
-                  # H003-O001 allows early achievement. A future target deadline or
-                  # horizon therefore cannot by itself force UNRESOLVED when later
-                  # eligible evidence exists. Only an empty evidence packet is
-                  # mechanically safe to triage without semantic review.
+                  # Early achievement remains possible even when a stated deadline is
+                  # beyond the cutoff. Only zero later evidence is mechanically safe.
                   if not evidence:
                       disposition = 'SAFE_UNRESOLVED'
                       reason = 'EMPTY_EVIDENCE_NO_NEGATIVE_INFERENCE'
@@ -69,26 +78,28 @@ jobs:
                   counts[disposition] += 1
                   by_batch[batch_number][disposition] += 1
 
-          expected = 869 - 60
+          expected = 869 - 80
           if len(rows) != expected:
               raise SystemExit(f'triage coverage mismatch: {len(rows)} expected {expected}')
           if len({row['packet_id'] for row in rows}) != len(rows):
               raise SystemExit('duplicate packet id in triage')
 
           document = {
-              'schema_version': 2,
-              'triage_revision': 'H003-O001-TRIAGE-V2',
-              'supersedes': 'review-triage-v1.json',
+              'schema_version': 3,
+              'triage_revision': 'H003-O001-TRIAGE-V3',
+              'supersedes': ['review-triage-v1.json', 'review-triage-v2.json'],
               'supersession_reason': (
-                  'V1 incorrectly treated future commitment horizons as mechanically '
-                  'UNRESOLVED even though H003-O001 permits explicit early achievement. '
-                  'V2 allows automatic UNRESOLVED only for empty evidence packets.'
+                  'V1 incorrectly allowed future horizons as a shortcut. V2 fixed that '
+                  'but was bound to the superseded package and began at batch 4. V3 is '
+                  'bound to the zero-contact package and starts after the frozen 1-4 quarantine.'
               ),
               'outcome_rule_id': 'H003-O001',
               'outcome_rule_sha256': '36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1',
-              'source_blind_package_sha256': 'a21efa55f8d72f3d2ac6ceef56d57b9897232f25f2e4c8f13d6449481ad77cfb',
+              'source_blind_package_sha256': '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24',
+              'zero_contact_audit_id': 'H003-O001-CONTACT-LEAK-A002',
               'source_cutoff_date': '2026-09-06',
-              'covered_batches': [4, 44],
+              'quarantined_batches': [1, 2, 3, 4],
+              'covered_batches': [5, 44],
               'packet_count': len(rows),
               'counts': dict(sorted(counts.items())),
               'batch_counts': {
@@ -102,7 +113,7 @@ jobs:
               'live_capital_allowed': False,
               'rows': rows,
           }
-          out = root / 'review-triage-v2.json'
+          out = root / 'review-triage-v3.json'
           out.write_text(json.dumps(document, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           print(json.dumps({
               'packet_count': len(rows),
@@ -117,9 +128,12 @@ jobs:
           from pathlib import Path
 
           root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
-          document = json.loads((root / 'review-triage-v2.json').read_text())
-          assert document['schema_version'] == 2
-          assert document['packet_count'] == 809
+          document = json.loads((root / 'review-triage-v3.json').read_text())
+          assert document['schema_version'] == 3
+          assert document['packet_count'] == 789
+          assert document['quarantined_batches'] == [1, 2, 3, 4]
+          assert document['covered_batches'] == [5, 44]
+          assert document['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
           assert document['safe_unresolved_reasons'] == ['EMPTY_EVIDENCE_NO_NEGATIVE_INFERENCE']
           assert document['semantic_outcomes_assigned'] is False
           assert document['private_binding_accessed'] is False
@@ -127,7 +141,7 @@ jobs:
           assert document['live_capital_allowed'] is False
 
           by_id = {}
-          for batch_number in range(4, 45):
+          for batch_number in range(5, 45):
               batch = json.loads((root / 'review-batches' / f'batch-{batch_number:04d}.json').read_text())
               for packet in batch['packets']:
                   by_id[packet['packet_id']] = packet
@@ -141,13 +155,13 @@ jobs:
                   assert row['disposition'] == 'MANUAL_SEMANTIC_REVIEW'
                   assert packet['evidence'] != []
                   assert row['reason'] is None
-          print('H003 conservative review triage v2 valid')
+          print('H003 conservative review triage v3 valid')
           PY
       - name: Commit only corrected public blind triage report
         run: |
-          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-triage-v2.json
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/review-triage-v3.json
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add "$TARGET"
-          git commit -m 'H003-O001: freeze corrected conservative blind review triage'
+          git commit -m 'H003-O001: freeze zero-contact blind review triage v3'
           git push origin HEAD:research/h003-v001-outcome-protocol-20260908
