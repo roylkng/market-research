@@ -20,22 +20,29 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Probe legacy financial comparison endpoints
+      - name: Inspect legacy and integrated XBRL facts
         run: |
           python - <<'PY'
-          import json
-          from marketlab.nse import NSEClient, NSEEndpoint
+          import xml.etree.ElementTree as ET
+          from marketlab.nse import NSEClient
 
           client = NSEClient(timeout=20, attempts=4)
-          for name, url, params in [
-              ('RESULTS_COMPARISON', 'https://www.nseindia.com/api/results-comparision', {'symbol':'ENTERO'}),
-              ('LEGACY_ENTERO', 'https://www.nseindia.com/api/corporates-financial-results', {'index':'equities','period':'Quarterly','symbol':'ENTERO'}),
-              ('LEGACY_ALL', 'https://www.nseindia.com/api/corporates-financial-results', {'index':'equities','period':'Quarterly'}),
-          ]:
-              try:
-                  payload, _ = client._json_get_with_raw(NSEEndpoint(name, url), params=params)
-                  print('===', name, '===')
-                  print(json.dumps(payload, indent=2)[:50000])
-              except Exception as exc:
-                  print('ERROR', name, repr(exc))
+          urls = {
+            'legacy_q1_fy25': 'https://nsearchives.nseindia.com/corporate/xbrl/INDAS_112416_1227245_14082024083735.xml',
+            'integrated_q1_fy27': 'https://nsearchives.nseindia.com/corporate/xbrl/INDAS_168634_1588632_07082026064009.xml',
+          }
+          wanted = ('revenue','profit','finance','depreciation','exception','otherincome','rounding','symbol','period')
+          for label, url in urls.items():
+              raw = client.archive_bytes(url)
+              root = ET.fromstring(raw)
+              print('===', label, len(raw), '===')
+              contexts = []
+              for elem in root.iter():
+                  tag = elem.tag.rsplit('}',1)[-1]
+                  text = (elem.text or '').strip()
+                  if tag == 'context':
+                      contexts.append(elem.attrib.get('id'))
+                  if text and any(k in tag.lower() for k in wanted):
+                      print(tag, elem.attrib.get('contextRef'), elem.attrib.get('unitRef'), text[:500])
+              print('CONTEXTS', contexts[:100], 'count', len(contexts))
           PY
