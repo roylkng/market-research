@@ -1,0 +1,66 @@
+name: H015 point-in-time independent challenge
+
+on:
+  push:
+    branches:
+      - research/h005-result-repricing-ranker-v1-20260908
+    paths:
+      - .github/workflows/h015-independent-challenge.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  challenge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen H015 runner before opening outcomes
+        run: |
+          ruff check scripts/run_h015_independent_challenge.py
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - name: Run frozen H015 point-in-time challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/h015-independent
+          mkdir -p /tmp/h015-independent
+          python scripts/run_h015_independent_challenge.py --out /tmp/h015-independent \
+            | tee /tmp/h015-independent/run.log
+          test -s /tmp/h015-independent/point-in-time-selections.json
+          test -s /tmp/h015-independent/challenge-summary.json
+          test -s /tmp/h015-independent/selected.csv
+      - name: Upload H015 challenge results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h015-independent-challenge-results
+          path: |
+            /tmp/h015-independent/point-in-time-selections.json
+            /tmp/h015-independent/challenge-summary.json
+            /tmp/h015-independent/selected.csv
+            /tmp/h015-independent/market-acquisition-diagnostics.json
+            /tmp/h015-independent/market-source-manifest.json
+            /tmp/h015-independent/source-manifest.json
+            /tmp/h015-independent/run.log
+          retention-days: 30
+      - name: Upload retained official source bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h015-independent-challenge-sources
+          path: /tmp/h015-independent/raw
+          retention-days: 30
+          compression-level: 0
