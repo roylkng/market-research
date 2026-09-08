@@ -1,0 +1,90 @@
+name: H003-V001 freeze completed blind review
+
+on:
+  push:
+    branches:
+      - research/h003-v001-freeze-20260908
+    paths:
+      - .github/workflows/h003-v001-freeze.yml
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-freeze-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify completed blind-review manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions/manifest.json')
+          m = json.loads(p.read_text())
+          assert m['complete'] is True
+          assert m['compiled_batch_count'] == 117
+          assert m['compiled_candidate_count'] == 2322
+          assert m['missing_batch_count'] == 0
+          assert m['manifest_sha256'] == '0498308e0862665a76c11e261f0a1513b899ebc489631a66640a6605133a947b'
+          print('completed semantic review manifest verified')
+          PY
+      - name: Recover exact source-bound candidate report
+        run: |
+          git fetch origin run/h003-e002-full-extraction-20260907 --depth=1
+          git show origin/run/h003-e002-full-extraction-20260907:research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full/report.json > /tmp/h003-candidate-report.json
+          echo '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b  /tmp/h003-candidate-report.json' | sha256sum -c -
+      - name: Freeze and unblind completed H003 review
+        run: |
+          OUT=research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen
+          mkdir -p "$OUT"
+          python scripts/freeze_h003_review.py \
+            --candidate-report /tmp/h003-candidate-report.json \
+            --review-rule registry/h003_review_rule.yaml \
+            --blind-payloads research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/blind-payloads.json \
+            --mechanical-decisions research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/mechanical-decisions.json \
+            --semantic-decisions-dir research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/compiled-decisions \
+            --ledger-out "$OUT/ledger.json" \
+            --summary-out "$OUT/summary.json"
+      - name: Verify frozen ledger and record lineage
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          out = Path('research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen')
+          s = json.loads((out / 'summary.json').read_text())
+          assert s['complete'] is True
+          assert s['candidate_count'] == 2692
+          assert s['reviewed_count'] == 2692
+          assert s['accepted_count'] + s['rejected_count'] == 2692
+          assert s['claim_outcome_count'] == 0
+          assert s['live_capital_allowed'] is False
+          meta = {
+              'schema_version': 1,
+              'review_source_commit': 'f5f731df2363c798b46bf88bf2716666a00105fd',
+              'compiled_manifest_sha256': '0498308e0862665a76c11e261f0a1513b899ebc489631a66640a6605133a947b',
+              'candidate_report_file_sha256': '068d0550960a981bc6d30b970e7588ed460ff2756d02fa53de695a5caaacc69b',
+              'candidate_report_canonical_sha256': '46fa48f58fe33f302d026bda5dd53e0e94c82fa5016547467d3d8778a81b2bbc',
+              'extraction_source_commit': '62355096b5b435f5ee2c3cbd96354cd7b4b98025',
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'ledger_file_sha256': hashlib.sha256((out / 'ledger.json').read_bytes()).hexdigest(),
+              'summary_file_sha256': hashlib.sha256((out / 'summary.json').read_bytes()).hexdigest(),
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(json.dumps(meta, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(s, indent=2, sort_keys=True))
+          PY
+      - name: Commit immutable frozen review evidence
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add research/prospective/h003/FY27-Q2-2026-09-06/review-v001-r4/frozen
+          git commit -m 'H003-V001: freeze complete blind review ledger'
+          git push origin HEAD:research/h003-v001-freeze-20260908
