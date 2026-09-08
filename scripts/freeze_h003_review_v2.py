@@ -144,7 +144,7 @@ def load_decisions(mechanical_path: Path, semantic_dir: Path) -> tuple[ReviewDec
 
 
 def _source_date(candidate) -> str:
-    timestamp = datetime.fromisoformat(candidate.exchange_published_at_utc.replace("Z", "+00:00"))
+    timestamp = datetime.fromisoformat(candidate.exchange_published_at_utc)
     if timestamp.tzinfo is None:
         raise H003ReviewError(
             f"candidate publication timestamp lacks timezone: {candidate.candidate_id}"
@@ -291,14 +291,24 @@ def main() -> int:
     )
 
     print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
-    print(json.dumps({key: audit[key] for key in (
-        "deadline_rule_id",
-        "accepted_claim_count",
-        "canonical_deadline_count",
-        "deferred_deadline_count",
-        "deadline_status_counts",
-        "audit_sha256",
-    )}, indent=2, sort_keys=True), flush=True)
+    print(
+        json.dumps(
+            {
+                key: audit[key]
+                for key in (
+                    "deadline_rule_id",
+                    "accepted_claim_count",
+                    "canonical_deadline_count",
+                    "deferred_deadline_count",
+                    "deadline_status_counts",
+                    "audit_sha256",
+                )
+            },
+            indent=2,
+            sort_keys=True,
+        ),
+        flush=True,
+    )
     return 0
 
 
