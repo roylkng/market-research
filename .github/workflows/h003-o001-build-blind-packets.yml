@@ -106,7 +106,7 @@ jobs:
           package = json.loads((out / 'blind-packets.json').read_text())
           incident = json.loads((out / 'blindness-incident-20260908.json').read_text())
           assert incident['incident_id'] == 'H003-O001-BLINDNESS-001'
-          assert incident['reviewer_contaminated_source_batches'] == [1, 2]
+          assert incident['reviewer_contaminated_source_batches'] == [1, 2, 3, 4]
           assert manifest['packet_count'] == 869
           assert package['packet_count'] == 869
           assert manifest['outcome_data_accessed'] is False
