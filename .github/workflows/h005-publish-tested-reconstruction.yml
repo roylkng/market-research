@@ -1,0 +1,128 @@
+name: H005 publish verified reconstruction
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-publish-tested-reconstruction.yml]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact local source transfer before extracting anything
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import base64,hashlib,io,json,os,pathlib,urllib.request,zipfile
+          specs=[('5ebf8fe5b510d08db8a22f6aa32eaf8faa6eec6a','5ebf8fe5b510d08db8a22f6aa32eaf8faa6eec6a'),('c20ea2352c147337136f90ffd262a43423b78c6c','ba2628df47dc602b06fe70f6bbc98aa215fba5a2'),('428338fb4d7c0576ff694a004f4fe1ee241afbda','428338fb4d7c0576ff694a004f4fe1ee241afbda')]
+          chunks=[]
+          for actual,expected in specs:
+              request=urllib.request.Request('https://api.github.com/repos/roylkng/market-research/git/blobs/'+actual,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+              payload=json.load(urllib.request.urlopen(request,timeout=20))
+              encoded=''.join(payload['content'].split())
+              if actual!=expected:
+                  # Repair a known text-transfer insertion, then require the exact
+                  # independently computed original Git blob identity. No code is
+                  # accepted merely because this repair ran.
+                  left='7cg9PTs4v'
+                  right='Hn8enUbOpDk0'
+                  if encoded.count(left)!=1 or encoded.count(right)!=1:
+                      raise ValueError('transfer repair anchors are ambiguous')
+                  start=encoded.index(left)+len(left)
+                  end=encoded.index(right,start)
+                  encoded=encoded[:start]+'Tw/'+encoded[end:]
+              raw=base64.b64decode(encoded,validate=True)
+              digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+              if digest!=expected:
+                  raise ValueError('source-transfer blob mismatch: '+digest)
+              chunks.append(raw)
+          raw=b''.join(chunks)
+          expected_zip='91d445dd2f61ff15c3502ffc20e6d66fbaad55879ac201ab9a8ce81dc1c36782'
+          if hashlib.sha256(raw).hexdigest()!=expected_zip:
+              raise ValueError('complete source archive checksum mismatch')
+          names={'src/marketlab/h005_dataset.py','src/marketlab/h005_research.py','tests/test_h005_dataset.py','tests/test_h005_research.py','scripts/run_h005_design.py'}
+          with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+              if set(archive.namelist())!=names|{'SOURCE_MANIFEST.json'} or len(archive.namelist())!=6:
+                  raise ValueError('unexpected source archive paths')
+              manifest=json.loads(archive.read('SOURCE_MANIFEST.json'))['files']
+              if set(manifest)!=names:
+                  raise ValueError('source manifest path mismatch')
+              for name in sorted(names):
+                  item=archive.getinfo(name)
+                  if item.file_size>100000:
+                      raise ValueError('source file size limit')
+                  content=archive.read(name)
+                  if hashlib.sha256(content).hexdigest()!=manifest[name]:
+                      raise ValueError('individual source checksum mismatch')
+                  dest=pathlib.Path(name)
+                  if dest.exists():
+                      raise ValueError('refusing to overwrite an existing source path')
+                  dest.parent.mkdir(parents=True,exist_ok=True)
+                  dest.write_bytes(content)
+          out=pathlib.Path('/tmp/h005-published-evidence');out.mkdir()
+          (out/'unformatted-source.zip').write_bytes(raw)
+          print('Verified exact local source ZIP and all five source files')
+          PY
+      - name: Install repository-pinned research dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Normalize only new reconstruction code and acquisition scripts
+        run: |
+          ruff check --fix src/marketlab/h005_dataset.py src/marketlab/h005_research.py tests/test_h005_dataset.py tests/test_h005_research.py scripts/run_h005_design.py scripts/acquire_h005_corpus.py scripts/enrich_h005_corpus.py scripts/restore_h005_native_sources.py scripts/finalize_h005_sources.py scripts/complete_h005_sources_serial.py
+          ruff format src/marketlab/h005_dataset.py src/marketlab/h005_research.py tests/test_h005_dataset.py tests/test_h005_research.py scripts/run_h005_design.py scripts/acquire_h005_corpus.py scripts/enrich_h005_corpus.py scripts/restore_h005_native_sources.py scripts/finalize_h005_sources.py scripts/complete_h005_sources_serial.py
+      - name: Verify the complete repository without weakening any test
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src tests scripts | tee /tmp/h005-published-evidence/lint.txt
+          pytest -q | tee /tmp/h005-published-evidence/tests.txt
+          marketlab validate-registry registry/hypotheses.yaml | tee /tmp/h005-published-evidence/registry.txt
+          git diff --check
+      - name: Commit tested source to the existing research branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Market Research Assistant'
+          git config user.email 'market-research-assistant@users.noreply.github.com'
+          git add src/marketlab/h005_dataset.py src/marketlab/h005_research.py tests/test_h005_dataset.py tests/test_h005_research.py scripts/run_h005_design.py scripts/acquire_h005_corpus.py scripts/enrich_h005_corpus.py scripts/restore_h005_native_sources.py scripts/finalize_h005_sources.py scripts/complete_h005_sources_serial.py
+          git commit -m 'feat: add source-audited H005 reconstruction and real-data design diagnostics'
+          askpass=$(mktemp)
+          trap 'rm -f "$askpass"' EXIT
+          printf '#!/bin/sh\ncase "$1" in *Password*) printf "%%s" "$GH_TOKEN";; *) printf "x-access-token";; esac\n' > "$askpass"
+          chmod 700 "$askpass"
+          export GIT_ASKPASS="$askpass" GIT_TERMINAL_PROMPT=0
+          git remote set-url origin https://x-access-token@github.com/roylkng/market-research.git
+          git push origin HEAD:research/h005-result-repricing-ranker-v1-20260908
+          git rev-parse HEAD > /tmp/h005-published-evidence/published-commit.txt
+      - name: Retain tested files and pinned parser wheel for offline reproduction
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib,shutil,subprocess
+          out=pathlib.Path('/tmp/h005-published-evidence');out.mkdir(exist_ok=True)
+          paths=['src/marketlab/h005_dataset.py','src/marketlab/h005_research.py','tests/test_h005_dataset.py','tests/test_h005_research.py','scripts/run_h005_design.py','scripts/acquire_h005_corpus.py','scripts/enrich_h005_corpus.py','scripts/restore_h005_native_sources.py','scripts/finalize_h005_sources.py','scripts/complete_h005_sources_serial.py']
+          for name in paths:
+              src=pathlib.Path(name)
+              if src.exists():
+                  dest=out/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dest)
+          files={str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}
+          (out/'manifest.json').write_text(json.dumps({'files':files,'checked_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()},indent=2,sort_keys=True)+'\n')
+          PY
+          python -m pip download --no-deps pypdf==6.17.0 -d /tmp/h005-published-evidence/wheels
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h005-published-source-and-checks
+          path: /tmp/h005-published-evidence
+          retention-days: 30
