@@ -1,0 +1,172 @@
+name: H018 apply frozen equity-session index-gap support
+
+on:
+  push:
+    branches: [research/h018-promotion-audit-20260908]
+    paths: [.github/workflows/h018-apply-equity-index-gap.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Apply frozen source-completeness support
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          market = Path('scripts/h018_checkpoint_market.py')
+          text = market.read_text(encoding='utf-8')
+          text = text.replace(
+              'if document.get("status") not in {"COMMON_SESSION", "NO_SESSION"}:',
+              'if document.get("status") not in {\n        "COMMON_SESSION",\n        "NO_SESSION",\n        "EQUITY_SESSION_INDEX_GAP",\n    }: ',
+              1,
+          )
+          start = text.index('def _reconstruct(root: Path, days: list[date], diagnostics: dict[str, list]):')
+          end = text.index('\n\ndef acquire_market(root: Path):', start)
+          replacement = '''def _reconstruct(root: Path, days: list[date], diagnostics: dict[str, list]):
+              prices: dict[str, dict[date, dict[str, object]]] = {}
+              index: dict[date, dict[str, float]] = {}
+              sessions: list[date] = []
+              manifest: list[dict[str, object]] = []
+
+              for day in days:
+                  checkpoint = _complete_checkpoint(root, day)
+                  if checkpoint is None or checkpoint["status"] == "NO_SESSION":
+                      continue
+
+                  b_meta = checkpoint["bhavcopy"]
+                  b_path = root / str(b_meta["raw_path"])
+                  b_raw = b_path.read_bytes()
+                  if h15.base.sha256(b_raw) != b_meta["sha256"]:
+                      raise ValueError(f"H018 checkpoint bhavcopy hash mismatch on {day}")
+                  equities = h15.parse_legacy_bhavcopy(b_raw, day)
+                  sessions.append(day)
+                  manifest.append(b_meta)
+                  for symbol, bar in equities.items():
+                      prices.setdefault(symbol, {})[day] = bar
+
+                  if checkpoint["status"] == "EQUITY_SESSION_INDEX_GAP":
+                      diagnostics["equity_session_index_gaps"].append(day.isoformat())
+                      continue
+
+                  i_meta = checkpoint["index"]
+                  i_path = root / str(i_meta["raw_path"])
+                  i_raw = i_path.read_bytes()
+                  if h15.base.sha256(i_raw) != i_meta["sha256"]:
+                      raise ValueError(f"H018 checkpoint index hash mismatch on {day}")
+                  index[day] = _parse_nifty500_h018(i_raw, day)
+                  manifest.append(i_meta)
+
+              sessions = sorted(set(sessions))
+              pending = [day.isoformat() for day in days if _complete_checkpoint(root, day) is None]
+              diagnostics["unresolved_dates"] = pending
+              diagnostics["equity_session_index_gaps"] = sorted(
+                  set(diagnostics["equity_session_index_gaps"])
+              )
+              h15.base.dump(root / "market-acquisition-diagnostics.json", diagnostics)
+              h15.base.dump(root / "market-source-manifest.json", manifest)
+              if pending:
+                  raise ValueError(f"H018 market acquisition incomplete on {len(pending)} calendar dates")
+              if len(sessions) < 400:
+                  raise ValueError(f"insufficient equity market sessions: {len(sessions)}")
+              return sessions, prices, index, manifest, diagnostics
+          '''
+          # Remove indentation introduced by embedding this function in the workflow script.
+          import textwrap
+          text = text[:start] + textwrap.dedent(replacement) + text[end:]
+          marker = '        "unresolved_dates": [],\n'
+          if '"equity_session_index_gaps"' not in text[text.index('def acquire_market'):]:
+              if marker not in text:
+                  raise SystemExit('H018 diagnostics marker not found')
+              text = text.replace(marker, marker + '        "equity_session_index_gaps": [],\n', 1)
+          market.write_text(text, encoding='utf-8')
+
+          runner = Path('scripts/run_h018_low_volatility_50.py')
+          text = runner.read_text(encoding='utf-8')
+          if 'def require_outcome_benchmark_dates(' not in text:
+              marker = '\n\ndef select(rows, key: str):\n'
+              helper = '''\n\ndef require_outcome_benchmark_dates(cohorts, index):
+                  """Fail closed unless every frozen H018 outcome endpoint has a real benchmark row."""
+                  required = sorted(
+                      {
+                          date.fromisoformat(str(cohort[field]))
+                          for cohort in cohorts
+                          for field in ("entry_date", "exit_date")
+                      }
+                  )
+                  missing = [day for day in required if day not in index]
+                  if missing:
+                      joined = ", ".join(day.isoformat() for day in missing)
+                      raise ValueError(f"H018 benchmark unavailable at frozen outcome endpoint(s): {joined}")
+                  return required
+              '''
+              import textwrap
+              if marker not in text:
+                  raise SystemExit('H018 runner select marker not found')
+              text = text.replace(marker, textwrap.dedent(helper) + marker, 1)
+              old = '''    frozen = freeze_selections(sessions, prices, actions)
+              h16.h15.base.dump(root / "point-in-time-selections.json", frozen)
+
+              with_outcomes = h16.attach_outcomes(frozen, sessions, prices, index, actions)
+              '''
+              new = '''    frozen = freeze_selections(sessions, prices, actions)
+              required_benchmark_dates = require_outcome_benchmark_dates(frozen, index)
+              h16.h15.base.dump(root / "point-in-time-selections.json", frozen)
+
+              with_outcomes = h16.attach_outcomes(frozen, sessions, prices, index, actions)
+              '''
+              if old not in text:
+                  raise SystemExit('H018 outcome attachment marker not found')
+              text = text.replace(old, new, 1)
+              old2 = '''    summary["market_symbols"] = len(prices)
+              summary["market_acquisition_diagnostics"] = diagnostics
+              '''
+              new2 = '''    summary["market_symbols"] = len(prices)
+              summary["required_benchmark_dates"] = [
+                  day.isoformat() for day in required_benchmark_dates
+              ]
+              summary["market_acquisition_diagnostics"] = diagnostics
+              '''
+              if old2 not in text:
+                  raise SystemExit('H018 summary marker not found')
+              text = text.replace(old2, new2, 1)
+          runner.write_text(text, encoding='utf-8')
+
+          test = Path('tests/test_h018_equity_session_index_gap.py')
+          test.write_text('''from datetime import date\nimport json\nimport sys\nfrom pathlib import Path\n\nimport pytest\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))\nimport h018_checkpoint_market as market\nimport run_h018_low_volatility_50 as h018\n\n\ndef test_equity_session_index_gap_is_a_complete_checkpoint(tmp_path):\n    day = date(2015, 3, 12)\n    path = tmp_path / "checkpoints" / f"{day.isoformat()}.json"\n    path.parent.mkdir(parents=True)\n    path.write_text(json.dumps({\n        "schema_version": market.CHECKPOINT_SCHEMA,\n        "date": day.isoformat(),\n        "status": "EQUITY_SESSION_INDEX_GAP",\n        "bhavcopy": {"raw_path": "raw/example", "sha256": "example"},\n    }))\n    assert market._complete_checkpoint(tmp_path, day)["status"] == "EQUITY_SESSION_INDEX_GAP"\n\n\ndef test_unknown_checkpoint_status_still_fails_closed(tmp_path):\n    day = date(2015, 3, 12)\n    path = tmp_path / "checkpoints" / f"{day.isoformat()}.json"\n    path.parent.mkdir(parents=True)\n    path.write_text(json.dumps({\n        "schema_version": market.CHECKPOINT_SCHEMA,\n        "date": day.isoformat(),\n        "status": "EQUITY_SESSION_GUESSED",\n    }))\n    assert market._complete_checkpoint(tmp_path, day) is None\n\n\ndef test_required_benchmark_endpoint_gate_accepts_real_rows():\n    cohorts = [{"entry_date": "2014-12-01", "exit_date": "2015-05-29"}]\n    index = {date(2014, 12, 1): {"open": 1.0, "close": 1.0}, date(2015, 5, 29): {"open": 1.0, "close": 1.0}}\n    assert h018.require_outcome_benchmark_dates(cohorts, index) == [date(2014, 12, 1), date(2015, 5, 29)]\n\n\ndef test_required_benchmark_endpoint_gate_rejects_gap():\n    cohorts = [{"entry_date": "2014-12-01", "exit_date": "2015-05-29"}]\n    with pytest.raises(ValueError, match="2015-05-29"):\n        h018.require_outcome_benchmark_dates(\n            cohorts, {date(2014, 12, 1): {"open": 1.0, "close": 1.0}}\n        )\n''', encoding='utf-8')
+          PY
+          ruff check --fix scripts/h018_checkpoint_market.py scripts/run_h018_low_volatility_50.py tests/test_h018_equity_session_index_gap.py
+          ruff format scripts/h018_checkpoint_market.py scripts/run_h018_low_volatility_50.py tests/test_h018_equity_session_index_gap.py
+          ruff check src tests scripts
+          pytest -q tests/test_h018_equity_session_index_gap.py tests/test_h018_source_compat.py
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+          git diff --check
+      - name: Commit verified support
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- scripts/h018_checkpoint_market.py scripts/run_h018_low_volatility_50.py tests/test_h018_equity_session_index_gap.py; then
+            echo 'Frozen H018 equity-session index-gap support already applied.'
+            exit 0
+          fi
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add scripts/h018_checkpoint_market.py scripts/run_h018_low_volatility_50.py tests/test_h018_equity_session_index_gap.py
+          git commit -m 'fix: preserve frozen H018 equity sessions with benchmark gaps'
+          git push origin HEAD:research/h018-promotion-audit-20260908
