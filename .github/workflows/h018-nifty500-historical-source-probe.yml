@@ -29,7 +29,7 @@ jobs:
       - name: Verify source-probe code before network access
         run: |
           ruff check scripts/h018_nifty500_historical_source.py tests/test_h018_nifty500_historical_source.py
-          pytest -q tests/test_h018_nifty500_historical_source.py
+          PYTHONPATH=scripts pytest -q tests/test_h018_nifty500_historical_source.py
       - name: Download retained 2016-2017 H018 checkpoints
         uses: actions/download-artifact@v4
         with:
