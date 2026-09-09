@@ -1,0 +1,48 @@
+name: H003-O001 export blind workset v2
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-export-blind-workset-v2.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - name: Verify blind-only export boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          manifest = json.loads((root / 'manual-review-workset-v2' / 'manifest.json').read_text())
+          assert manifest['source_blind_package_sha256'] == '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert manifest['manual_card_count'] == 691
+          assert manifest['safe_unresolved_count'] == 98
+          assert manifest['private_binding_accessed'] is False
+          assert manifest['market_outcomes_accessed'] is False
+          assert manifest['live_capital_allowed'] is False
+          print('blind export boundary verified')
+          PY
+      - name: Build checksum manifest
+        run: |
+          ROOT=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2
+          (cd "$ROOT" && sha256sum batch-*.json manifest.json | sort > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h003-o001-blind-workset-v2-${{ github.run_id }}
+          path: |
+            research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2
+            registry/h003_outcome_rule.yaml
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
