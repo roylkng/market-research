@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -42,12 +43,82 @@ jobs:
           assert h18.RANDOM_DRAWS == 10_000
           print('H018 frozen challenge contract verified')
           PY
+      - name: Prepare H018 output root
+        run: mkdir -p /tmp/h018-independent
+      - name: Restore retained official-source checkpoints from interrupted run
+        uses: actions/download-artifact@v4
+        with:
+          name: h018-independent-challenge-checkpoints-34265875607
+          path: /tmp/h018-independent
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34265875607
+      - name: Verify restored checkpoints and every retained source byte
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('/tmp/h018-independent').resolve()
+          checkpoint_dir = root / 'checkpoints'
+          files = sorted(checkpoint_dir.glob('*.json'))
+          if len(files) != 516:
+              raise SystemExit(f'expected 516 retained checkpoints, found {len(files)}')
+
+          common = 0
+          no_session = 0
+          seen_dates = []
+          for path in files:
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              if doc.get('schema_version') != 1:
+                  raise SystemExit(f'bad checkpoint schema: {path}')
+              if doc.get('date') != path.stem:
+                  raise SystemExit(f'checkpoint date/path mismatch: {path}')
+              seen_dates.append(path.stem)
+              status = doc.get('status')
+              if status == 'NO_SESSION':
+                  no_session += 1
+                  continue
+              if status != 'COMMON_SESSION':
+                  raise SystemExit(f'unknown checkpoint status: {path}')
+              common += 1
+              for key in ('bhavcopy', 'index'):
+                  meta = doc.get(key)
+                  if not isinstance(meta, dict):
+                      raise SystemExit(f'missing {key} metadata: {path}')
+                  rel = str(meta.get('raw_path') or '')
+                  candidate = (root / rel).resolve()
+                  if root not in candidate.parents:
+                      raise SystemExit(f'checkpoint path escapes root: {path}')
+                  if not candidate.is_file():
+                      raise SystemExit(f'missing retained source: {candidate}')
+                  raw = candidate.read_bytes()
+                  digest = hashlib.sha256(raw).hexdigest()
+                  if digest != meta.get('sha256'):
+                      raise SystemExit(f'source hash mismatch: {candidate}')
+                  if len(raw) != meta.get('bytes'):
+                      raise SystemExit(f'source byte-size mismatch: {candidate}')
+
+          if common != 351 or no_session != 165:
+              raise SystemExit(
+                  f'unexpected checkpoint status counts: common={common}, no_session={no_session}'
+              )
+          if seen_dates[0] != '2016-01-01' or seen_dates[-1] != '2017-05-31':
+              raise SystemExit(
+                  f'unexpected retained checkpoint span: {seen_dates[0]}..{seen_dates[-1]}'
+              )
+          print(
+              f'H018 restored checkpoint corpus verified: {len(files)} checkpoints, '
+              f'{common} common sessions, {no_session} no-session days'
+          )
+          PY
       - name: Run frozen H018 challenge with durable market checkpoints
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/h018-independent
-          mkdir -p /tmp/h018-independent
           python scripts/run_h018_low_volatility_50.py --out /tmp/h018-independent \
             | tee /tmp/h018-independent/run.log
           test -s /tmp/h018-independent/point-in-time-selections.json
