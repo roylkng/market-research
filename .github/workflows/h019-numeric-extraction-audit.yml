@@ -29,6 +29,7 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Verify audit before accounting evidence
         run: |
+          ruff check --fix scripts/h019_numeric_extraction_audit.py
           ruff check scripts/h019_numeric_extraction_audit.py
           python -m py_compile scripts/h019_numeric_extraction_audit.py
           pytest -q
