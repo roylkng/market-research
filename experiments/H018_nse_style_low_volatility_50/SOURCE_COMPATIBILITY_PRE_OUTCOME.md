@@ -34,13 +34,23 @@ India Index Services & Products Limited announced the rebranding of `CNX 500` to
 
 This establishes a source-label change, not a benchmark-identity change.
 
+## Historical date delimiter
+
+The pre-outcome acquisition-only accelerator run `34328827482` retained official source bytes but did not calculate H018 selections or outcomes. Its parser diagnostics exposed 59 valid 2014 common-session files whose broad-index row is `CNX 500` and whose `Index Date` uses `DD/MM/YYYY` rather than `DD-MM-YYYY`.
+
+For example, the retained official 2014-06-09 index snapshot contains the exact row prefix:
+
+`CNX 500,09/06/2014,6164.55,...,6196.7,...`
+
+The prior compatibility parser rejected these rows only because it split the source date on `-`. The benchmark label and OHLC data were otherwise valid.
+
 ## Frozen H018-only compatibility rule
 
 Before the first H018-v1 outcome is opened, the H018 market parser is allowed to resolve the frozen Nifty 500 benchmark using exactly this rule:
 
 1. First use the existing strict `Nifty 500` parser unchanged.
 2. Only if that parser fails and `session_date < 2015-11-09`, accept exactly one source row whose normalized `Index Name` is exactly `CNX 500`.
-3. The source row's own date must parse as `DD-MM-YYYY` and equal the requested `session_date` exactly.
+3. The source row's own date must parse as exactly one of `DD-MM-YYYY` or `DD/MM/YYYY` and equal the requested `session_date` exactly. No other delimiter, field order, inferred transposition, or fuzzy parsing is allowed in the CNX compatibility path.
 4. `Open Index Value` and `Closing Index Value` must both be finite and strictly positive.
 5. Multiple `CNX 500` rows, missing values, a date mismatch, or any other ambiguity must fail closed.
 6. `CNX 500 Shariah`, other CNX indices, aliases inferred by substring, or any post-2015-11-08 `CNX 500` row are not accepted by this compatibility rule.
@@ -49,6 +59,6 @@ This rule is H018 acquisition plumbing only. Shared H015/H016/H017 parsers remai
 
 ## Checkpoint reuse rule
 
-The next H018 run may restore the exact retained checkpoint/raw-source artifact from run `34265875607` before acquisition begins. Restored bytes must continue to pass the existing per-source SHA-256 verification. The runner may acquire only unresolved dates after restore.
+A subsequent H018 run may restore exact retained checkpoint/raw-source artifacts before acquisition begins. Restored bytes must continue to pass per-source SHA-256 verification. The runner may acquire only unresolved dates after restore.
 
 Checkpoint reuse changes runtime and durability only. It cannot change any frozen H018 research semantics.
