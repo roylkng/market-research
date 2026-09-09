@@ -16,10 +16,11 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from urllib.parse import urlencode, urlparse
 from xml.etree import ElementTree as ET
+from zoneinfo import ZoneInfo
 
 import requests
 
-from marketlab.nse import NSEClient, NSEEndpoint
+from marketlab.nse import NSEAcquisitionError, NSEClient, NSEEndpoint
 
 LEGACY = NSEEndpoint(
     "legacy_financials",
@@ -30,6 +31,7 @@ START = date(2016, 1, 1)
 END = date(2020, 12, 31)
 SAMPLE_PER_YEAR = 40
 USER_AGENT = "Mozilla/5.0 marketlab-h019-source-audit/1"
+IST = ZoneInfo("Asia/Kolkata")
 
 CONCEPT_PATTERNS = {
     "revenue": ("revenuefromoperations", "revenue", "totalincome"),
@@ -81,7 +83,8 @@ def parse_date(value: object) -> date | None:
     text = str(value or "").strip()
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(text, fmt).date()
+            parsed = time.strptime(text, fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     return None
@@ -91,7 +94,7 @@ def parse_publication(value: object) -> datetime | None:
     text = str(value or "").strip()
     for fmt in ("%d-%b-%Y %H:%M:%S", "%d-%m-%Y %H:%M:%S"):
         try:
-            return datetime.strptime(text, fmt)
+            return datetime.strptime(text, fmt).replace(tzinfo=IST)
         except ValueError:
             continue
     return None
@@ -177,7 +180,7 @@ def main() -> None:
             payload, raw = client._json_get_with_raw(LEGACY, params=params)
             meta = retain(root, raw, url=url, kind="annual-listing")
             listing_manifest.append(meta)
-        except Exception as exc:
+        except (NSEAcquisitionError, KeyError, TypeError, ValueError) as exc:
             listing_manifest.append(
                 {"url": url, "kind": "annual-listing", "status": "FETCH_FAILED", "error": str(exc)}
             )
@@ -257,7 +260,10 @@ def main() -> None:
     consecutive_counts = {str(length): 0 for length in (2, 3, 4, 5)}
     for years in by_symbol.values():
         for length in (2, 3, 4, 5):
-            if any(all(start + offset in years for offset in range(length)) for start in range(START.year, END.year - length + 2)):
+            if any(
+                all(start + offset in years for offset in range(length))
+                for start in range(START.year, END.year - length + 2)
+            ):
                 consecutive_counts[str(length)] += 1
 
     year_counts = Counter(int(filing["listing_year"]) for filing in filings)
