@@ -1,0 +1,251 @@
+name: H018 fast static checkpoint acquisition
+
+on:
+  push:
+    branches:
+      - research/h018-promotion-audit-20260908
+    paths:
+      - .github/workflows/h018-fast-static-checkpoint-acquisition.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install repository environment
+        run: python -m pip install -e '.[dev]'
+      - name: Prepare output root
+        run: mkdir -p /tmp/h018-fast
+      - name: Restore retained verified H018 checkpoints
+        uses: actions/download-artifact@v4
+        with:
+          name: h018-independent-challenge-checkpoints-34265875607
+          path: /tmp/h018-fast
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34265875607
+      - name: Acquire unresolved static official sources only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import sys
+          import threading
+          import time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import date
+          from pathlib import Path
+          from urllib.parse import urlparse, urlunparse
+
+          import requests
+
+          sys.path.insert(0, 'scripts')
+          import h018_checkpoint_market as h18
+          import run_h015_independent_challenge as h15
+
+          ROOT = Path('/tmp/h018-fast')
+          PRIMARY = 'archives.nseindia.com'
+          SECONDARY = 'nsearchives.nseindia.com'
+          ALLOWED = {PRIMARY, SECONDARY}
+          THREADS = 16
+          LOCAL = threading.local()
+
+          diagnostics = {
+              'serial_retries': [],
+              'fetch_failures': [],
+              'source_mismatches': [],
+              'parse_errors': [],
+              'worker_errors': [],
+              'hard_timeouts': [],
+              'unresolved_dates': [],
+          }
+
+          def session():
+              if not hasattr(LOCAL, 'session'):
+                  s = requests.Session()
+                  s.headers.update({'User-Agent': h15.base.USER_AGENT, 'Accept': '*/*'})
+                  LOCAL.session = s
+              return LOCAL.session
+
+          def with_host(url: str, host: str) -> str:
+              parsed = urlparse(url)
+              if (parsed.hostname or '').lower() not in ALLOWED:
+                  raise ValueError(f'non-official source host: {parsed.hostname}')
+              return urlunparse(parsed._replace(netloc=host))
+
+          def fetch_host(url: str):
+              last = None
+              for attempt in range(2):
+                  try:
+                      response = session().get(url, timeout=(5, 15), allow_redirects=True)
+                      final_host = (urlparse(response.url).hostname or '').lower()
+                      if final_host not in ALLOWED:
+                          raise ValueError(f'redirect outside official archive hosts: {final_host}')
+                      if response.status_code == 404:
+                          return {'status': 'HTTP_404', 'url': url, 'raw': None}
+                      if response.status_code in {403, 429} or response.status_code >= 500:
+                          last = f'HTTP_{response.status_code}'
+                          if attempt == 0:
+                              time.sleep(0.25)
+                              continue
+                      response.raise_for_status()
+                      if not response.content:
+                          raise ValueError('empty response')
+                      return {'status': 'OK', 'url': response.url, 'raw': response.content}
+                  except (requests.RequestException, ValueError) as exc:
+                      last = f'{type(exc).__name__}: {exc}'
+                      if attempt == 0:
+                          time.sleep(0.25)
+              return {'status': 'FETCH_FAILED', 'url': url, 'raw': None, 'error': last}
+
+          def fetch_pair(primary_url: str):
+              first = fetch_host(with_host(primary_url, PRIMARY))
+              if first['status'] == 'OK':
+                  return {'raw': first['raw'], 'url': first['url'], 'status': 'OK', 'attempts': [first]}
+              second = fetch_host(with_host(primary_url, SECONDARY))
+              attempts = [first, second]
+              if second['status'] == 'OK':
+                  return {'raw': second['raw'], 'url': second['url'], 'status': 'OK', 'attempts': attempts}
+              if first['status'] == 'HTTP_404' and second['status'] == 'HTTP_404':
+                  return {'raw': None, 'url': primary_url, 'status': 'DUAL_HOST_HTTP_404', 'attempts': attempts}
+              return {'raw': None, 'url': primary_url, 'status': 'AMBIGUOUS', 'attempts': attempts}
+
+          def fetch_day(day: date):
+              b_url = h15.legacy_bhavcopy_url(day)
+              i_url = h15.base.index_snapshot_url(day)
+              return day, fetch_pair(b_url), fetch_pair(i_url)
+
+          old = sorted((ROOT / 'checkpoints').glob('*.json'))
+          if len(old) != 516:
+              raise SystemExit(f'expected 516 restored checkpoints, found {len(old)}')
+
+          all_days = h15.calendar_days(date(2013, 11, 1), date(2015, 12, 31))
+          unresolved = [day for day in all_days if h18._complete_checkpoint(ROOT, day) is None]
+          print(f'fast static acquisition starting: {len(unresolved)} unresolved pre-2016 dates', flush=True)
+
+          results = []
+          with ThreadPoolExecutor(max_workers=THREADS) as pool:
+              futures = {pool.submit(fetch_day, day): day for day in unresolved}
+              for number, future in enumerate(as_completed(futures), 1):
+                  day = futures[future]
+                  try:
+                      results.append(future.result())
+                  except Exception as exc:
+                      diagnostics['worker_errors'].append({'date': day.isoformat(), 'error': f'{type(exc).__name__}: {exc}'})
+                  if number % 100 == 0:
+                      print(f'fast static requests {number}/{len(unresolved)}', flush=True)
+
+          common_written = 0
+          no_session_written = 0
+          ambiguous = []
+          for day, bhav, index in sorted(results, key=lambda item: item[0]):
+              if h18._complete_checkpoint(ROOT, day) is not None:
+                  continue
+              if bhav['status'] == 'DUAL_HOST_HTTP_404' and index['status'] == 'DUAL_HOST_HTTP_404':
+                  h18._atomic_json(
+                      h18._checkpoint_path(ROOT, day),
+                      {
+                          'schema_version': h18.CHECKPOINT_SCHEMA,
+                          'date': day.isoformat(),
+                          'status': 'NO_SESSION',
+                          'bhavcopy_status': 'HTTP_404',
+                          'index_status': 'HTTP_404',
+                          'no_session_confirmation': 'DUAL_OFFICIAL_HOST_404_BOTH_SOURCES',
+                      },
+                  )
+                  no_session_written += 1
+                  continue
+              if bhav['raw'] is not None and index['raw'] is not None:
+                  before = h18._complete_checkpoint(ROOT, day)
+                  ok = h18._retain_result(
+                      ROOT,
+                      {
+                          'date': day.isoformat(),
+                          'bhavcopy_url': bhav['url'],
+                          'bhavcopy_raw': bhav['raw'],
+                          'bhavcopy_meta': {'status': 'OK'},
+                          'index_url': index['url'],
+                          'index_raw': index['raw'],
+                          'index_meta': {'status': 'OK'},
+                          'serial_retries': [],
+                      },
+                      diagnostics,
+                  )
+                  if ok and before is None and h18._complete_checkpoint(ROOT, day) is not None:
+                      common_written += 1
+                  continue
+              ambiguous.append({
+                  'date': day.isoformat(),
+                  'bhavcopy_status': bhav['status'],
+                  'index_status': index['status'],
+                  'bhavcopy_attempts': [{k: v for k, v in row.items() if k != 'raw'} for row in bhav['attempts']],
+                  'index_attempts': [{k: v for k, v in row.items() if k != 'raw'} for row in index['attempts']],
+              })
+
+          all_checkpoints = sorted((ROOT / 'checkpoints').glob('*.json'))
+          common = 0
+          no_session = 0
+          for path in all_checkpoints:
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              if doc.get('status') == 'COMMON_SESSION':
+                  common += 1
+              elif doc.get('status') == 'NO_SESSION':
+                  no_session += 1
+              else:
+                  raise SystemExit(f'unknown checkpoint status in {path}')
+
+          remaining = [
+              day.isoformat()
+              for day in h15.calendar_days(date(2013, 11, 1), date(2017, 5, 31))
+              if h18._complete_checkpoint(ROOT, day) is None
+          ]
+          summary = {
+              'status': 'H018_STATIC_SOURCE_ACQUISITION_ONLY',
+              'market_selection_outcomes_opened': False,
+              'restored_checkpoint_count': 516,
+              'new_common_sessions': common_written,
+              'new_no_session_days': no_session_written,
+              'total_checkpoints': len(all_checkpoints),
+              'total_common_sessions': common,
+              'total_no_session_days': no_session,
+              'remaining_unresolved_count': len(remaining),
+              'remaining_unresolved_dates': remaining,
+              'ambiguous_count': len(ambiguous),
+              'ambiguous': ambiguous,
+              'parser_diagnostics': diagnostics,
+          }
+          (ROOT / 'fast-acquisition-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps({k: v for k, v in summary.items() if k not in {'ambiguous', 'remaining_unresolved_dates', 'parser_diagnostics'}}, indent=2), flush=True)
+
+          forbidden = ('point-in-time-selections.json', 'challenge-summary.json', 'selected.csv')
+          for name in forbidden:
+              if (ROOT / name).exists():
+                  raise SystemExit(f'acquisition-only job created forbidden outcome file: {name}')
+          PY
+      - name: Upload accelerated checkpoint corpus
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h018-fast-static-checkpoints-${{ github.run_id }}
+          path: |
+            /tmp/h018-fast/checkpoints
+            /tmp/h018-fast/raw
+            /tmp/h018-fast/fast-acquisition-summary.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
