@@ -1,0 +1,199 @@
+name: H019 corporate-action safety audit
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-corporate-action-safety-audit.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: mkdir -p /tmp/h019-actions/input /tmp/h019-actions/out/raw
+      - name: Restore complete pre-outcome input universe
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-complete-input-universe-v2-34336759431
+          path: /tmp/h019-actions/input
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34336759431
+      - name: Audit official NSE action crossings only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import sys
+          from collections import Counter, defaultdict
+          from datetime import date
+          from pathlib import Path
+          from urllib.parse import urlencode
+
+          sys.path.insert(0, 'scripts')
+          import run_h010_historical_robustness as base
+          from marketlab.nse import NSEClient
+
+          root = Path('/tmp/h019-actions')
+          inp = root / 'input'
+          out = root / 'out'
+          source = json.loads((inp/'complete-input-universe-summary.json').read_text())
+          cohorts = json.loads((inp/'complete-input-candidates.json').read_text())
+          assert source['return_outcomes_opened'] is False
+          assert source['selection_score_frozen'] is False
+          assert source['source_universe_truncated'] is False
+
+          client = NSEClient(timeout=20, attempts=4)
+          rows = []
+          manifests = []
+          for year in range(2020, 2024):
+              for month in range(1, 13):
+                  start = date(year, month, 1)
+                  if month == 12:
+                      end = date(year, 12, 31)
+                  else:
+                      end = date(year, month + 1, 1) - base.timedelta(days=1)
+                  params = {
+                      'index': 'equities',
+                      'from_date': start.strftime('%d-%m-%Y'),
+                      'to_date': end.strftime('%d-%m-%Y'),
+                  }
+                  payload, raw = client._json_get_with_raw(client.CORPORATE_ACTION_ENDPOINT, params=params)
+                  url = client.CORPORATE_ACTION_ENDPOINT.url + '?' + urlencode(params)
+                  meta = base.retain(out, raw, url=url, kind='h019-corporate-actions')
+                  manifests.append(meta)
+                  if isinstance(payload, list):
+                      rows.extend(item for item in payload if isinstance(item, dict))
+                  elif isinstance(payload, dict):
+                      candidate = payload.get('data') or payload.get('records') or []
+                      if isinstance(candidate, list):
+                          rows.extend(item for item in candidate if isinstance(item, dict))
+                  print('actions', year, month, len(rows), flush=True)
+
+          deduped = {}
+          for row in rows:
+              key = (
+                  str(row.get('symbol') or '').strip().upper(),
+                  str(row.get('exDate') or '').strip(),
+                  ' '.join(str(row.get('subject') or '').split()),
+              )
+              deduped[key] = row
+          by_symbol = defaultdict(list)
+          for row in deduped.values():
+              symbol = str(row.get('symbol') or '').strip().upper()
+              ex_date = base.parse_date(row.get('exDate'))
+              subject = ' '.join(str(row.get('subject') or '').split())
+              if not symbol or ex_date is None or not subject:
+                  continue
+              parsed = base.parse_action(row)
+              by_symbol[symbol].append({
+                  'ex_date': ex_date,
+                  'subject': subject,
+                  'parsed': parsed,
+              })
+          for group in by_symbol.values():
+              group.sort(key=lambda item:(item['ex_date'], item['subject']))
+
+          crossing = []
+          raw_crossing_subjects = Counter()
+          resolved_count = unresolved_count = unparsed_count = 0
+          candidates_with_any = set()
+          candidates_with_unresolved = set()
+          candidates_with_resolved = set()
+          candidates_with_unparsed = set()
+          for cohort in cohorts:
+              decision = date.fromisoformat(cohort['decision_date'])
+              for candidate in cohort['candidates']:
+                  symbol = candidate['symbol']
+                  latest_quarter = date.fromisoformat(candidate['filings'][-1]['quarter_end'])
+                  candidate_key = f"{decision.isoformat()}|{symbol}"
+                  events = [
+                      item for item in by_symbol.get(symbol, [])
+                      if latest_quarter < item['ex_date'] <= decision
+                  ]
+                  if not events:
+                      continue
+                  candidates_with_any.add(candidate_key)
+                  for event in events:
+                      raw_crossing_subjects[event['subject']] += 1
+                      parsed = event['parsed']
+                      if parsed is None:
+                          status = 'UNPARSED'
+                          factor = None
+                          unresolved = None
+                          unparsed_count += 1
+                          candidates_with_unparsed.add(candidate_key)
+                      elif parsed.unresolved or parsed.factor is None:
+                          status = 'UNRESOLVED'
+                          factor = parsed.factor
+                          unresolved = True
+                          unresolved_count += 1
+                          candidates_with_unresolved.add(candidate_key)
+                      else:
+                          status = 'RESOLVED_FACTOR'
+                          factor = parsed.factor
+                          unresolved = False
+                          resolved_count += 1
+                          candidates_with_resolved.add(candidate_key)
+                      crossing.append({
+                          'candidate_key': candidate_key,
+                          'decision_date': decision.isoformat(),
+                          'symbol': symbol,
+                          'latest_quarter_end': latest_quarter.isoformat(),
+                          'ex_date': event['ex_date'].isoformat(),
+                          'subject': event['subject'],
+                          'status': status,
+                          'factor': factor,
+                          'unresolved': unresolved,
+                      })
+
+          # We expect ordinary dividends to dominate unparsed events. Keep exact subjects so
+          # any capital-changing unparsed class can be audited before valuation is frozen.
+          summary = {
+              'status': 'H019_CORPORATE_ACTION_SAFETY_AUDIT_ONLY',
+              'return_outcomes_opened': False,
+              'selection_score_frozen': False,
+              'raw_action_rows': len(rows),
+              'deduped_action_rows': len(deduped),
+              'candidate_observations': sum(len(cohort['candidates']) for cohort in cohorts),
+              'candidates_with_any_crossing_action': len(candidates_with_any),
+              'candidates_with_resolved_factor_action': len(candidates_with_resolved),
+              'candidates_with_unresolved_share_action': len(candidates_with_unresolved),
+              'candidates_with_unparsed_crossing_action': len(candidates_with_unparsed),
+              'crossing_event_status': {
+                  'RESOLVED_FACTOR': resolved_count,
+                  'UNRESOLVED': unresolved_count,
+                  'UNPARSED': unparsed_count,
+              },
+              'top_unparsed_subjects': raw_crossing_subjects.most_common(100),
+              'live_capital_allowed': False,
+          }
+          (out/'corporate-action-manifest.json').write_text(json.dumps(manifests,indent=2,sort_keys=True)+'\n')
+          (out/'corporate-action-crossings.json').write_text(json.dumps(crossing,indent=2,sort_keys=True)+'\n')
+          (out/'corporate-action-safety-summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(summary,indent=2), flush=True)
+          forbidden = ('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((out/name).exists() for name in forbidden):
+              raise SystemExit('corporate-action audit created forbidden outcome artifact')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-corporate-action-safety-${{ github.run_id }}
+          path: /tmp/h019-actions/out
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
