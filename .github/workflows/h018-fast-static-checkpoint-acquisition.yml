@@ -27,15 +27,15 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Prepare output root
         run: mkdir -p /tmp/h018-fast
-      - name: Restore retained verified H018 checkpoints
+      - name: Restore first accelerated H018 checkpoint corpus
         uses: actions/download-artifact@v4
         with:
-          name: h018-independent-challenge-checkpoints-34265875607
+          name: h018-fast-static-checkpoints-34328827482
           path: /tmp/h018-fast
           github-token: ${{ github.token }}
           repository: roylkng/market-research
-          run-id: 34265875607
-      - name: Acquire unresolved static official sources only
+          run-id: 34328827482
+      - name: Acquire only still-unresolved static official sources
         shell: bash
         run: |
           set -euo pipefail
@@ -128,12 +128,14 @@ jobs:
               return day, fetch_pair(b_url), fetch_pair(i_url)
 
           old = sorted((ROOT / 'checkpoints').glob('*.json'))
-          if len(old) != 516:
-              raise SystemExit(f'expected 516 restored checkpoints, found {len(old)}')
+          if len(old) != 980:
+              raise SystemExit(f'expected 980 restored checkpoints, found {len(old)}')
 
-          all_days = h15.calendar_days(date(2013, 11, 1), date(2015, 12, 31))
+          all_days = h15.calendar_days(date(2013, 11, 1), date(2017, 5, 31))
           unresolved = [day for day in all_days if h18._complete_checkpoint(ROOT, day) is None]
-          print(f'fast static acquisition starting: {len(unresolved)} unresolved pre-2016 dates', flush=True)
+          if len(unresolved) != 328:
+              raise SystemExit(f'expected 328 unresolved dates, found {len(unresolved)}')
+          print(f'second fast static acquisition starting: {len(unresolved)} unresolved dates', flush=True)
 
           results = []
           with ThreadPoolExecutor(max_workers=THREADS) as pool:
@@ -145,7 +147,7 @@ jobs:
                   except Exception as exc:
                       diagnostics['worker_errors'].append({'date': day.isoformat(), 'error': f'{type(exc).__name__}: {exc}'})
                   if number % 100 == 0:
-                      print(f'fast static requests {number}/{len(unresolved)}', flush=True)
+                      print(f'second fast static requests {number}/{len(unresolved)}', flush=True)
 
           common_written = 0
           no_session_written = 0
@@ -208,13 +210,13 @@ jobs:
 
           remaining = [
               day.isoformat()
-              for day in h15.calendar_days(date(2013, 11, 1), date(2017, 5, 31))
+              for day in all_days
               if h18._complete_checkpoint(ROOT, day) is None
           ]
           summary = {
               'status': 'H018_STATIC_SOURCE_ACQUISITION_ONLY',
               'market_selection_outcomes_opened': False,
-              'restored_checkpoint_count': 516,
+              'restored_checkpoint_count': 980,
               'new_common_sessions': common_written,
               'new_no_session_days': no_session_written,
               'total_checkpoints': len(all_checkpoints),
