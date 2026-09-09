@@ -82,8 +82,6 @@ jobs:
           }
           (root/'parser-validation-summary.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
           print(json.dumps({k:v for k,v in out.items() if k!='failures'},indent=2),flush=True)
-          # The deep audit already implies at most a small source-missing tail. A parser
-          # that rejects more than 5% is not fit for the broad-era H019 design.
           if len(parsed) < 114:
               raise SystemExit(f'H019 parser coverage below 95% on audited source sample: {len(parsed)}/120')
           PY
