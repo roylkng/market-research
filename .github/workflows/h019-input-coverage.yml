@@ -1,0 +1,239 @@
+name: H019 point-in-time input coverage
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-input-coverage.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: mkdir -p /tmp/h019-coverage
+      - name: Restore outcome-blind financial metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-source-feasibility-34334321485
+          path: /tmp/h019-coverage/input
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34334321485
+      - name: Build input-only liquidity and financial-history coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, statistics, sys, threading, time
+          from collections import Counter, defaultdict
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import date, datetime, time as dtime, timedelta
+          from pathlib import Path
+          from urllib.parse import urlparse
+          from zoneinfo import ZoneInfo
+          import requests
+
+          sys.path.insert(0,'scripts')
+          import run_h015_independent_challenge as h15
+          from acquire_h005_corpus import ALLOWED, dump, retain
+
+          IST=ZoneInfo('Asia/Kolkata')
+          root=Path('/tmp/h019-coverage'); inp=root/'input'
+          normalized=json.loads((inp/'normalized-listings.json').read_text())
+          source_summary=json.loads((inp/'source-feasibility-summary.json').read_text())
+          assert source_summary['return_outcomes_opened'] is False
+          assert source_summary['selection_score_frozen'] is False
+
+          decisions=(date(2020,12,31),date(2021,6,30),date(2021,12,31),date(2022,6,30),date(2022,12,31),date(2023,6,30),date(2023,12,31))
+          LIQUIDITY_FLOOR=20_000_000.0
+          MAX_SOURCE_UNIVERSE=500
+          LOOKBACK_CALENDAR_DAYS=45
+
+          # Resolve bank taxonomy by exact XBRL URL from retained listing bytes.
+          bank_by_url=defaultdict(set)
+          for meta in json.loads((inp/'listing-manifest.json').read_text()):
+              raw=json.loads((inp/meta['raw_path']).read_text())
+              for row in raw:
+                  url=str(row.get('xbrl') or '').strip()
+                  code=str(row.get('bank') or '').strip().upper()
+                  if url and url.lower().endswith('.xml') and code:
+                      bank_by_url[url].add(code)
+          conflicting={url:sorted(codes) for url,codes in bank_by_url.items() if len(codes)>1}
+          if conflicting:
+              raise SystemExit(f'bank-code conflicts on exact XBRL URLs: {len(conflicting)}')
+          bank_by_url={url:next(iter(codes)) for url,codes in bank_by_url.items()}
+
+          # Deduplicate identical normalized rows and index by symbol/basis/quarter end.
+          filings=defaultdict(list)
+          seen=set()
+          for row in normalized:
+              key=(row['symbol'],row['basis'],row['quarter_end'],row['published'],row['url'])
+              if key in seen: continue
+              seen.add(key)
+              bank=bank_by_url.get(row['url'])
+              if bank is None: continue
+              record=dict(row); record['bank']=bank
+              filings[(row['symbol'],row['basis'],date.fromisoformat(row['quarter_end']))].append(record)
+          for rows in filings.values():
+              rows.sort(key=lambda r:(r['published'],r['url']))
+
+          def previous_quarter(q):
+              if (q.month,q.day)==(3,31): return date(q.year-1,12,31)
+              if (q.month,q.day)==(6,30): return date(q.year,3,31)
+              if (q.month,q.day)==(9,30): return date(q.year,6,30)
+              if (q.month,q.day)==(12,31): return date(q.year,9,30)
+              return None
+
+          def history_for(symbol,basis,cutoff):
+              available={}
+              for (sym,b,qend),rows in filings.items():
+                  if sym!=symbol or b!=basis: continue
+                  eligible=[r for r in rows if datetime.fromisoformat(r['published']) <= cutoff]
+                  if eligible: available[qend]=max(eligible,key=lambda r:(r['published'],r['url']))
+              if not available: return None
+              latest=max(available)
+              if (cutoff.date()-latest).days > 150: return None
+              chain=[latest]
+              for _ in range(7):
+                  prior=previous_quarter(chain[-1])
+                  if prior is None or prior not in available: return None
+                  chain.append(prior)
+              chosen=[available[q] for q in reversed(chain)]
+              if any(row['bank']!='N' for row in chosen): return None
+              return chosen
+
+          symbols=sorted({key[0] for key in filings})
+          metadata_by_decision={}
+          for nominal in decisions:
+              cutoff=datetime.combine(nominal,dtime(20,0),tzinfo=IST)
+              rows=[]
+              for symbol in symbols:
+                  consolidated=history_for(symbol,'C',cutoff)
+                  standalone=history_for(symbol,'S',cutoff)
+                  chosen=consolidated or standalone
+                  if chosen is None: continue
+                  rows.append({'symbol':symbol,'basis':'C' if consolidated else 'S','filings':chosen})
+              metadata_by_decision[nominal]=rows
+              print('metadata',nominal,len(rows),flush=True)
+
+          # Fetch only predecision bhavcopies. No date after any nominal decision is requested.
+          work=set()
+          for nominal in decisions:
+              for offset in range(LOOKBACK_CALENDAR_DAYS+1):
+                  day=nominal-timedelta(days=offset)
+                  work.add(day)
+          LOCAL=threading.local()
+          def fetch_day(day):
+              urls=(
+                  h15.legacy_bhavcopy_url(day),
+                  h15.legacy_bhavcopy_url(day).replace('https://archives.nseindia.com/','https://nsearchives.nseindia.com/',1),
+              )
+              last=[]
+              for url in urls:
+                  raw,meta=h15.base.fetch_public(url,kind='h019-input-bhavcopy',attempts=3)
+                  last.append(meta)
+                  if raw is None: continue
+                  try:
+                      bars=h15.parse_legacy_bhavcopy(raw,day)
+                  except ValueError: continue
+                  retained=retain(root,raw,url,'h019-input-bhavcopy')
+                  return day,bars,retained,last
+              return day,None,None,last
+
+          fetched=[]
+          with ThreadPoolExecutor(max_workers=10) as pool:
+              futures={pool.submit(fetch_day,day):day for day in sorted(work)}
+              for n,future in enumerate(as_completed(futures),1):
+                  fetched.append(future.result())
+                  if n%50==0: print('market',n,'/',len(work),flush=True)
+          by_day={day:(bars,meta) for day,bars,meta,_ in fetched if bars is not None}
+          fetch_diag={day.isoformat():attempts for day,bars,meta,attempts in fetched if bars is None}
+
+          cohorts=[]
+          for nominal in decisions:
+              sessions=sorted(day for day in by_day if nominal-timedelta(days=LOOKBACK_CALENDAR_DAYS)<=day<=nominal)
+              if len(sessions)<20: raise SystemExit(f'fewer than 20 sessions near {nominal}: {len(sessions)}')
+              decision=sessions[-1]
+              trailing=sessions[-20:]
+              candidates=[]
+              for row in metadata_by_decision[nominal]:
+                  symbol=row['symbol']
+                  values=[]; decision_bar=None; isins=[]
+                  for day in trailing:
+                      bar=by_day[day][0].get(symbol)
+                      if bar is not None:
+                          values.append(float(bar['turnover'])); isins.append(str(bar['isin']))
+                          if day==decision: decision_bar=bar
+                  if decision_bar is None or len(values)<15: continue
+                  if len(set(isins))!=1: continue
+                  median=statistics.median(values)
+                  if median < LIQUIDITY_FLOOR: continue
+                  candidates.append({
+                      **row,
+                      'decision_date':decision.isoformat(),
+                      'decision_close':float(decision_bar['close']),
+                      'isin':str(decision_bar['isin']),
+                      'liquidity_sessions':len(values),
+                      'median_20d_traded_value':median,
+                  })
+              candidates.sort(key=lambda r:(-r['median_20d_traded_value'],r['symbol']))
+              source_universe=candidates[:MAX_SOURCE_UNIVERSE]
+              cohorts.append({
+                  'nominal_decision_date':nominal.isoformat(),
+                  'decision_date':decision.isoformat(),
+                  'metadata_complete_nonfinancial':len(metadata_by_decision[nominal]),
+                  'liquidity_eligible':len(candidates),
+                  'source_universe_cap':MAX_SOURCE_UNIVERSE,
+                  'source_universe_count':len(source_universe),
+                  'source_universe':source_universe,
+              })
+              print('cohort',nominal,'decision',decision,'liq',len(candidates),'source',len(source_universe),flush=True)
+
+          unique_urls={filing['url'] for cohort in cohorts for row in cohort['source_universe'] for filing in row['filings']}
+          summary={
+              'status':'H019_INPUT_COVERAGE_ONLY',
+              'return_outcomes_opened':False,
+              'selection_score_frozen':False,
+              'decisions':[d.isoformat() for d in decisions],
+              'liquidity_floor_inr':LIQUIDITY_FLOOR,
+              'source_universe_cap':MAX_SOURCE_UNIVERSE,
+              'market_days_requested':len(work),
+              'market_sessions_retained':len(by_day),
+              'market_fetch_unresolved':len(fetch_diag),
+              'unique_xbrl_urls_required_for_capped_source_universes':len(unique_urls),
+              'cohorts':[{k:v for k,v in cohort.items() if k!='source_universe'} for cohort in cohorts],
+              'live_capital_allowed':False,
+          }
+          dump(root/'input-coverage-summary.json',summary)
+          dump(root/'cohort-input-candidates.json',cohorts)
+          dump(root/'required-xbrl-urls.json',sorted(unique_urls))
+          dump(root/'market-fetch-diagnostics.json',fetch_diag)
+          print(json.dumps(summary,indent=2),flush=True)
+          forbidden=('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((root/name).exists() for name in forbidden): raise SystemExit('outcome artifact created')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-input-coverage-${{ github.run_id }}
+          path: |
+            /tmp/h019-coverage/input-coverage-summary.json
+            /tmp/h019-coverage/cohort-input-candidates.json
+            /tmp/h019-coverage/required-xbrl-urls.json
+            /tmp/h019-coverage/market-fetch-diagnostics.json
+            /tmp/h019-coverage/raw
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
