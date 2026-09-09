@@ -28,8 +28,10 @@ jobs:
         run: python -m pip install -e '.[dev]'
       - name: Verify source-only contract
         run: |
+          ruff check --fix scripts/h019_annual_report_feasibility.py
           ruff check scripts/h019_annual_report_feasibility.py
           python -m py_compile scripts/h019_annual_report_feasibility.py
+          git diff --check
           python - <<'PY'
           from pathlib import Path
           text = Path('scripts/h019_annual_report_feasibility.py').read_text(encoding='utf-8').casefold()
