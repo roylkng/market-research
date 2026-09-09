@@ -1,0 +1,206 @@
+name: H003-O001 build date-visible manual review workset v2
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-build-manual-review-workset-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Verify frozen blind inputs and incident
+        run: |
+          ruff check src scripts tests
+          pytest -q
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          triage = json.loads((root / 'review-triage-v3.json').read_text())
+          audit = json.loads((root / 'contact-leak-audit-a002.json').read_text())
+          source_manifest = json.loads((root / 'review-batches' / 'manifest.json').read_text())
+          expected = '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24'
+          assert triage['source_blind_package_sha256'] == expected
+          assert triage['counts'] == {'MANUAL_SEMANTIC_REVIEW': 691, 'SAFE_UNRESOLVED': 98}
+          assert audit['affected_packet_count'] == 0
+          assert source_manifest['source_blind_package_sha256'] == expected
+          assert (root / 'review-date-visibility-incident-20260909.md').is_file()
+          print('H003 v2 inputs verified')
+          PY
+      - name: Build lossless date-visible reviewer workset v2
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import shutil
+          from pathlib import Path
+
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          out = root / 'manual-review-workset-v2'
+          if out.exists():
+              shutil.rmtree(out)
+          out.mkdir(parents=True)
+          triage = json.loads((root / 'review-triage-v3.json').read_text())
+          triage_by_id = {row['packet_id']: row for row in triage['rows']}
+
+          manual_total = 0
+          safe_total = 0
+          batch_entries = []
+          for number in range(5, 45):
+              source = json.loads((root / 'review-batches' / f'batch-{number:04d}.json').read_text())
+              cards = []
+              safe = []
+              for packet in source['packets']:
+                  row = triage_by_id[packet['packet_id']]
+                  if row['blind_payload_sha256'] != packet['payload_sha256']:
+                      raise SystemExit(f"triage payload hash drift: {packet['packet_id']}")
+                  if row['disposition'] == 'SAFE_UNRESOLVED':
+                      if packet['evidence'] != []:
+                          raise SystemExit(f"safe packet unexpectedly has evidence: {packet['packet_id']}")
+                      safe.append({
+                          'packet_id': packet['packet_id'],
+                          'blind_payload_sha256': packet['payload_sha256'],
+                          'reason': row['reason'],
+                      })
+                      safe_total += 1
+                      continue
+                  if row['disposition'] != 'MANUAL_SEMANTIC_REVIEW' or not packet['evidence']:
+                      raise SystemExit(f"invalid manual triage row: {packet['packet_id']}")
+
+                  evidence = [
+                      {
+                          'passage_id': item['passage_id'],
+                          'exchange_published_at_utc': item['exchange_published_at_utc'],
+                          'text': item['text'],
+                      }
+                      for item in packet['evidence']
+                  ]
+                  cards.append({
+                      'packet_id': packet['packet_id'],
+                      'blind_payload_sha256': packet['payload_sha256'],
+                      'source_date': packet['source_date'],
+                      'normalized_claim': packet['normalized_claim'],
+                      'claim_type': packet['claim_type'],
+                      'metric': packet['metric'],
+                      'unit': packet['unit'],
+                      'target_min': packet['target_min'],
+                      'target_max': packet['target_max'],
+                      'target_deadline': packet['target_deadline'],
+                      'target_horizon': packet['target_horizon'],
+                      'evidence': evidence,
+                  })
+                  manual_total += 1
+
+              document = {
+                  'schema_version': 2,
+                  'workset_id': 'H003-O001-MANUAL-WORKSET-V2',
+                  'outcome_rule_id': 'H003-O001',
+                  'outcome_rule_sha256': '36cd0dab185a8f73bc3233cf16bc1685dc9ae9e25c27eb35b305343b1ea028b1',
+                  'source_blind_package_sha256': '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24',
+                  'source_batch_number': number,
+                  'source_batch_sha256': source['batch_sha256'],
+                  'manual_card_count': len(cards),
+                  'safe_unresolved_count': len(safe),
+                  'manual_cards': cards,
+                  'safe_unresolved': safe,
+                  'later_evidence_publication_dates_visible': True,
+                  'evidence_text_transformed': False,
+                  'private_binding_accessed': False,
+                  'market_outcomes_accessed': False,
+                  'live_capital_allowed': False,
+              }
+              filename = f'batch-{number:04d}.json'
+              raw = json.dumps(document, indent=2, sort_keys=True, ensure_ascii=False) + '\n'
+              (out / filename).write_text(raw, encoding='utf-8')
+              batch_entries.append({
+                  'filename': filename,
+                  'batch_number': number,
+                  'manual_card_count': len(cards),
+                  'safe_unresolved_count': len(safe),
+                  'file_sha256': hashlib.sha256(raw.encode('utf-8')).hexdigest(),
+              })
+
+          if manual_total != 691 or safe_total != 98:
+              raise SystemExit(f'workset coverage mismatch manual={manual_total} safe={safe_total}')
+          manifest = {
+              'schema_version': 2,
+              'workset_id': 'H003-O001-MANUAL-WORKSET-V2',
+              'source_blind_package_sha256': '70240c328f1812866b53e97f94b867335eb668f37918e952223d17f9e3fa9b24',
+              'covered_batches': [5, 44],
+              'manual_card_count': manual_total,
+              'safe_unresolved_count': safe_total,
+              'packet_count': manual_total + safe_total,
+              'batch_count': len(batch_entries),
+              'batches': batch_entries,
+              'later_evidence_publication_dates_visible': True,
+              'evidence_text_transformed': False,
+              'private_binding_accessed': False,
+              'market_outcomes_accessed': False,
+              'live_capital_allowed': False,
+          }
+          (out / 'manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+      - name: Verify v2 is lossless and exposes only frozen date plus text
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001')
+          work = root / 'manual-review-workset-v2'
+          manual = safe = 0
+          forbidden = {'symbol', 'company_name', 'claim_id', 'source_url', 'original_source_id'}
+          for number in range(5, 45):
+              source = json.loads((root / 'review-batches' / f'batch-{number:04d}.json').read_text())
+              doc = json.loads((work / f'batch-{number:04d}.json').read_text())
+              by_id = {row['packet_id']: row for row in source['packets']}
+              assert doc['source_batch_sha256'] == source['batch_sha256']
+              assert doc['later_evidence_publication_dates_visible'] is True
+              for card in doc['manual_cards']:
+                  packet = by_id[card['packet_id']]
+                  expected = [
+                      {
+                          'passage_id': item['passage_id'],
+                          'exchange_published_at_utc': item['exchange_published_at_utc'],
+                          'text': item['text'],
+                      }
+                      for item in packet['evidence']
+                  ]
+                  assert card['evidence'] == expected
+                  assert card['blind_payload_sha256'] == packet['payload_sha256']
+                  assert forbidden.isdisjoint(card)
+                  for evidence in card['evidence']:
+                      assert set(evidence) == {'passage_id', 'exchange_published_at_utc', 'text'}
+                  manual += 1
+              for row in doc['safe_unresolved']:
+                  assert by_id[row['packet_id']]['evidence'] == []
+                  safe += 1
+          assert manual == 691 and safe == 98
+          manifest = json.loads((work / 'manifest.json').read_text())
+          assert manifest['later_evidence_publication_dates_visible'] is True
+          assert manifest['manual_card_count'] == 691
+          assert manifest['safe_unresolved_count'] == 98
+          print('H003 date-visible reviewer workset v2 valid: 691 manual + 98 safe unresolved')
+          PY
+      - name: Commit only public blind reviewer workset v2
+        run: |
+          TARGET=research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m 'H003-O001: freeze date-visible blind manual review workset v2'
+          git push origin HEAD:research/h003-v001-outcome-protocol-20260908
