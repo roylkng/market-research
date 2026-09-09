@@ -1,0 +1,133 @@
+name: H019 XBRL corpus acquisition audit
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-xbrl-corpus-audit.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - run: mkdir -p /tmp/h019-audit/input /tmp/h019-audit/shards /tmp/h019-audit/out
+      - name: Restore canonical complete input universe
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-complete-input-universe-v2-34336759431
+          path: /tmp/h019-audit/input
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34336759431
+      - name: Restore all eight deterministic acquisition shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: h019-xbrl-shard-*-34337340087
+          path: /tmp/h019-audit/shards
+          merge-multiple: false
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34337340087
+      - name: Verify URL partition and retained source hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          root=Path('/tmp/h019-audit')
+          canonical=json.loads((root/'input'/'complete-required-xbrl-urls.json').read_text())
+          input_summary=json.loads((root/'input'/'complete-input-universe-summary.json').read_text())
+          if input_summary.get('return_outcomes_opened') is not False or input_summary.get('selection_score_frozen') is not False:
+              raise SystemExit('canonical H019 input artifact is not outcome-blind')
+          if len(canonical)!=14938 or len(set(canonical))!=14938:
+              raise SystemExit('canonical URL census is not exactly 14938 unique URLs')
+
+          dirs=sorted(path for path in (root/'shards').iterdir() if path.is_dir())
+          if len(dirs)!=8:
+              raise SystemExit(f'expected 8 shard artifact directories, found {len(dirs)}')
+
+          seen={}
+          shard_summaries=[]
+          retry=[]
+          raw_digests=set()
+          status_counts=Counter()
+          for directory in dirs:
+              manifests=list(directory.glob('shard-*-manifest.json'))
+              if len(manifests)!=1:
+                  raise SystemExit(f'expected exactly one shard manifest in {directory}; found {len(manifests)}')
+              manifest=json.loads(manifests[0].read_text())
+              if manifest.get('return_outcomes_opened') is not False or manifest.get('selection_score_frozen') is not False:
+                  raise SystemExit(f'shard manifest not outcome-blind: {manifests[0]}')
+              if manifest.get('status')!='H019_XBRL_ACQUISITION_ONLY' or manifest.get('shard_count')!=8:
+                  raise SystemExit(f'unexpected shard contract: {manifests[0]}')
+              rows=manifest['results']
+              if len(rows)!=manifest['assigned'] or manifest['ok']+manifest['failed']!=manifest['assigned']:
+                  raise SystemExit(f'shard count mismatch: {manifests[0]}')
+              shard_summaries.append({k:manifest[k] for k in ('shard','assigned','ok','failed')})
+              raw_root=directory/'raw'
+              for row in rows:
+                  url=row['url']
+                  if url in seen:
+                      raise SystemExit(f'URL appears in multiple shards: {url}')
+                  seen[url]=manifest['shard']
+                  status=row.get('status')
+                  status_counts[status]+=1
+                  if status!='OK':
+                      retry.append({'url':url,'shard':manifest['shard'],'status':status,'attempts':row.get('attempts',[]),'error':row.get('error')})
+                      continue
+                  digest=row.get('sha256')
+                  source=raw_root/digest
+                  if not source.is_file():
+                      raise SystemExit(f'missing retained XBRL bytes for {url}: {source}')
+                  raw=source.read_bytes()
+                  actual=hashlib.sha256(raw).hexdigest()
+                  if actual!=digest or len(raw)!=row.get('bytes'):
+                      raise SystemExit(f'retained XBRL integrity mismatch for {url}')
+                  raw_digests.add(digest)
+
+          if set(seen)!=set(canonical):
+              missing=sorted(set(canonical)-set(seen))
+              extra=sorted(set(seen)-set(canonical))
+              raise SystemExit(f'shard partition mismatch: missing={len(missing)} extra={len(extra)}')
+          if sum(item['assigned'] for item in shard_summaries)!=14938:
+              raise SystemExit('assigned shard census does not sum to 14938')
+          retry.sort(key=lambda row:row['url'])
+          summary={
+              'status':'H019_XBRL_CORPUS_AUDIT_ONLY',
+              'return_outcomes_opened':False,
+              'selection_score_frozen':False,
+              'canonical_urls':14938,
+              'assigned_urls':len(seen),
+              'ok_urls':status_counts.get('OK',0),
+              'failed_urls':len(retry),
+              'unique_retained_source_digests':len(raw_digests),
+              'status_counts':dict(sorted(status_counts.items())),
+              'shards':sorted(shard_summaries,key=lambda row:row['shard']),
+              'live_capital_allowed':False,
+          }
+          out=root/'out'
+          (out/'xbrl-corpus-audit-summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          (out/'xbrl-retry-urls.json').write_text(json.dumps(retry,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(summary,indent=2),flush=True)
+          forbidden=('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((out/name).exists() for name in forbidden): raise SystemExit('audit created forbidden outcome artifact')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-xbrl-corpus-audit-${{ github.run_id }}
+          path: /tmp/h019-audit/out
+          if-no-files-found: error
+          retention-days: 30
