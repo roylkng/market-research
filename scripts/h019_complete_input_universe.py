@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import re
 import statistics
 import zipfile
 from collections import defaultdict
-from datetime import date, datetime, time as dtime, timedelta
+from datetime import date, datetime, timedelta
+from datetime import time as dtime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -28,7 +30,9 @@ DECISIONS = (
 LIQUIDITY_FLOOR = 20_000_000.0
 LOOKBACK_DAYS = 45
 EXPECTED_LIQUIDITY_COUNTS = (385, 504, 564, 448, 506, 572, 679)
-_BHAVCOPY_NAME = re.compile(r"^cm(?P<day>\d{2})(?P<month>[A-Z]{3})(?P<year>\d{4})bhav\.csv$", re.I)
+_BHAVCOPY_NAME = re.compile(
+    r"^cm(?P<day>\d{2})(?P<month>[A-Z]{3})(?P<year>\d{4})bhav\.csv$", re.IGNORECASE
+)
 
 
 class H019InputError(ValueError):
@@ -37,13 +41,6 @@ class H019InputError(ValueError):
 
 def legacy_bhavcopy_source_date(raw_zip: bytes) -> date:
     """Derive the authoritative session date from the legacy NSE ZIP member name."""
-    try:
-        with zipfile.ZipFile(Path("unused")):
-            pass
-    except (FileNotFoundError, zipfile.BadZipFile):
-        pass
-    import io
-
     try:
         with zipfile.ZipFile(io.BytesIO(raw_zip)) as archive:
             names = archive.namelist()
@@ -57,7 +54,7 @@ def legacy_bhavcopy_source_date(raw_zip: bytes) -> date:
         raise H019InputError(f"unexpected legacy bhavcopy member name: {member}")
     token = f"{match.group('day')}{match.group('month').upper()}{match.group('year')}"
     try:
-        return datetime.strptime(token, "%d%b%Y").date()
+        return datetime.strptime(token, "%d%b%Y").replace(tzinfo=IST).date()
     except ValueError as exc:
         raise H019InputError(f"invalid legacy bhavcopy date token: {token}") from exc
 
@@ -208,9 +205,7 @@ def materialize(source_root: Path, coverage_root: Path, output_root: Path) -> di
     all_urls: set[str] = set()
     for nominal in DECISIONS:
         sessions = sorted(
-            day
-            for day in bars_by_day
-            if nominal - timedelta(days=LOOKBACK_DAYS) <= day <= nominal
+            day for day in bars_by_day if nominal - timedelta(days=LOOKBACK_DAYS) <= day <= nominal
         )
         if len(sessions) < 20:
             raise H019InputError(f"fewer than 20 retained sessions near {nominal}")

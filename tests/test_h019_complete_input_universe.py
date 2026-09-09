@@ -18,9 +18,7 @@ def archive(member: str) -> bytes:
 
 
 def test_legacy_bhavcopy_date_comes_from_member_name() -> None:
-    assert h019.legacy_bhavcopy_source_date(archive("cm31DEC2020bhav.csv")) == date(
-        2020, 12, 31
-    )
+    assert h019.legacy_bhavcopy_source_date(archive("cm31DEC2020bhav.csv")) == date(2020, 12, 31)
 
 
 def test_legacy_bhavcopy_date_accepts_archive_subdirectory() -> None:
