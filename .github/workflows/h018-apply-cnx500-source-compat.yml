@@ -1,0 +1,77 @@
+name: H018 apply frozen CNX 500 source compatibility
+
+on:
+  push:
+    branches:
+      - research/h018-promotion-audit-20260908
+    paths:
+      - .github/workflows/h018-apply-cnx500-source-compat.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install repository environment
+        run: python -m pip install -e '.[dev]'
+      - name: Apply exactly the pre-outcome frozen H018 source-label compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/h018_checkpoint_market.py')
+          text = path.read_text(encoding='utf-8')
+
+          if 'def _parse_nifty500_h018(' not in text:
+              text = text.replace(
+                  'from __future__ import annotations\n\nimport json\n',
+                  'from __future__ import annotations\n\nimport csv\nimport io\nimport json\nimport math\n',
+                  1,
+              )
+              marker = 'CHECKPOINT_SCHEMA = 1\n\n\n'
+              compat = '''CHECKPOINT_SCHEMA = 1\nCNX_500_RENAME_DATE = date(2015, 11, 9)\n\n\ndef _parse_nifty500_h018(raw_csv: bytes, session_date: date) -> dict[str, float]:\n    \"\"\"Resolve the frozen Nifty 500 benchmark across its official 2015 rename.\"\"\"\n    try:\n        return h15.parse_nifty500_source_date(raw_csv, session_date)\n    except ValueError as original:\n        if session_date >= CNX_500_RENAME_DATE:\n            raise original\n\n        text = raw_csv.decode(\"utf-8-sig\")\n        rows = [\n            row\n            for row in csv.DictReader(io.StringIO(text))\n            if \" \".join(str(row.get(\"Index Name\") or \"\").split()).casefold()\n            == \"cnx 500\"\n        ]\n        if len(rows) != 1:\n            raise original\n        row = rows[0]\n        parts = str(row.get(\"Index Date\") or \"\").strip().split(\"-\")\n        if len(parts) != 3 or not all(part.isdigit() for part in parts):\n            raise original\n        source_date = date(int(parts[2]), int(parts[1]), int(parts[0]))\n        if source_date != session_date:\n            raise original\n        try:\n            opened = float(row[\"Open Index Value\"])\n            closed = float(row[\"Closing Index Value\"])\n        except (KeyError, TypeError, ValueError):\n            raise original\n        if not all(math.isfinite(value) and value > 0 for value in (opened, closed)):\n            raise ValueError(\"nonpositive CNX 500 OHLC in frozen H018 source compatibility\")\n        return {\"open\": opened, \"close\": closed}\n\n\n'''
+              if marker not in text:
+                  raise SystemExit('H018 checkpoint constant marker not found')
+              text = text.replace(marker, compat, 1)
+              text = text.replace(
+                  'h15.parse_nifty500_source_date(i_raw, day)',
+                  '_parse_nifty500_h018(i_raw, day)',
+              )
+              path.write_text(text, encoding='utf-8')
+
+          test = Path('tests/test_h018_source_compat.py')
+          test.write_text('''from datetime import date\nimport sys\nfrom pathlib import Path\n\nimport pytest\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1] / \"scripts\"))\nimport h018_checkpoint_market as h018\n\n\nHEADER = (\n    \"Index Name,Index Date,Open Index Value,High Index Value,Low Index Value,\"\n    \"Closing Index Value,Points Change,Change(%),Volume,Turnover (Rs. Cr.),P/E,P/B,Div Yield\\n\"\n)\n\n\ndef _row(name: str, day: str) -> bytes:\n    return (HEADER + f\"{name},{day},6864.15,6944.05,6864.15,6918.05,72.75,1.06,1,1,1,1,1\\n\").encode()\n\n\ndef test_h018_accepts_official_cnx500_name_before_rename():\n    parsed = h018._parse_nifty500_h018(_row(\"CNX 500\", \"28-11-2014\"), date(2014, 11, 28))\n    assert parsed == {\"open\": 6864.15, \"close\": 6918.05}\n\n\ndef test_h018_rejects_cnx500_name_on_or_after_rename():\n    with pytest.raises(ValueError):\n        h018._parse_nifty500_h018(_row(\"CNX 500\", \"09-11-2015\"), date(2015, 11, 9))\n\n\ndef test_h018_rejects_wrong_source_date():\n    with pytest.raises(ValueError):\n        h018._parse_nifty500_h018(_row(\"CNX 500\", \"27-11-2014\"), date(2014, 11, 28))\n\n\ndef test_h018_keeps_existing_nifty500_path():\n    parsed = h018._parse_nifty500_h018(_row(\"Nifty 500\", \"16-11-2015\"), date(2015, 11, 16))\n    assert parsed == {\"open\": 6864.15, \"close\": 6918.05}\n''', encoding='utf-8')
+          PY
+          ruff check --fix scripts/h018_checkpoint_market.py tests/test_h018_source_compat.py
+          ruff format scripts/h018_checkpoint_market.py tests/test_h018_source_compat.py
+          ruff check scripts/h018_checkpoint_market.py tests/test_h018_source_compat.py
+          pytest -q tests/test_h018_source_compat.py
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+          git diff --check
+      - name: Commit verified compatibility repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- scripts/h018_checkpoint_market.py tests/test_h018_source_compat.py; then
+            echo 'Frozen H018 source compatibility already applied.'
+            exit 0
+          fi
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add scripts/h018_checkpoint_market.py tests/test_h018_source_compat.py
+          git commit -m 'fix: resolve frozen H018 CNX 500 source label'
+          git push origin HEAD:research/h018-promotion-audit-20260908
