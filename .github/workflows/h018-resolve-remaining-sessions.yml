@@ -1,0 +1,360 @@
+name: H018 resolve remaining official sessions
+
+on:
+  push:
+    branches:
+      - research/h018-promotion-audit-20260908
+    paths:
+      - .github/workflows/h018-resolve-remaining-sessions.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Prepare resolver root
+        run: mkdir -p /tmp/h018-resolve
+      - name: Restore second accelerated source corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: h018-fast-static-checkpoints-34329703489
+          path: /tmp/h018-resolve
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34329703489
+      - name: Resolve remaining dates without opening outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import sys
+          import threading
+          import time
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from datetime import date
+          from pathlib import Path
+          from urllib.parse import urlparse, urlunparse
+
+          import requests
+
+          sys.path.insert(0, 'scripts')
+          import h018_checkpoint_market as h18
+          import run_h015_independent_challenge as h15
+
+          ROOT = Path('/tmp/h018-resolve')
+          THREADS = 8
+          LOCAL = threading.local()
+          NSE_ARCHIVE_HOSTS = ('archives.nseindia.com', 'nsearchives.nseindia.com')
+          NIFTY_HOSTS = ('www.niftyindices.com', 'niftyindices.com')
+          ALLOWED = set(NSE_ARCHIVE_HOSTS + NIFTY_HOSTS)
+
+          diagnostics = {
+              'serial_retries': [],
+              'fetch_failures': [],
+              'source_mismatches': [],
+              'parse_errors': [],
+              'worker_errors': [],
+              'hard_timeouts': [],
+              'unresolved_dates': [],
+          }
+
+          def session():
+              if not hasattr(LOCAL, 'session'):
+                  s = requests.Session()
+                  s.headers.update({
+                      'User-Agent': h15.base.USER_AGENT,
+                      'Accept': 'text/csv,application/zip,application/octet-stream,*/*',
+                      'Referer': 'https://www.nseindia.com/',
+                  })
+                  LOCAL.session = s
+              return LOCAL.session
+
+          def replace_host(url: str, host: str) -> str:
+              parsed = urlparse(url)
+              return urlunparse(parsed._replace(netloc=host))
+
+          def fetch(url: str, attempts: int = 3):
+              last = None
+              for attempt in range(attempts):
+                  try:
+                      response = session().get(url, timeout=(6, 20), allow_redirects=True)
+                      final_host = (urlparse(response.url).hostname or '').lower()
+                      if final_host not in ALLOWED:
+                          raise ValueError(f'redirect outside frozen official hosts: {final_host}')
+                      if response.status_code == 404:
+                          return {'status': 'HTTP_404', 'url': response.url, 'raw': None}
+                      if response.status_code in {403, 429} or response.status_code >= 500:
+                          last = f'HTTP_{response.status_code}'
+                          if attempt + 1 < attempts:
+                              time.sleep(0.5 * (attempt + 1))
+                              continue
+                      response.raise_for_status()
+                      raw = response.content
+                      if not raw:
+                          raise ValueError('empty response')
+                      return {
+                          'status': 'HTTP_200',
+                          'url': response.url,
+                          'raw': raw,
+                          'content_type': response.headers.get('content-type'),
+                      }
+                  except (requests.RequestException, ValueError) as exc:
+                      last = f'{type(exc).__name__}: {exc}'
+                      if attempt + 1 < attempts:
+                          time.sleep(0.5 * (attempt + 1))
+              return {'status': 'FETCH_FAILED', 'url': url, 'raw': None, 'error': last}
+
+          def validate_bhav(result, day):
+              raw = result.get('raw')
+              if raw is None:
+                  return False
+              try:
+                  h15.parse_legacy_bhavcopy(raw, day)
+                  return True
+              except ValueError as exc:
+                  result['parse_error'] = str(exc)
+                  return False
+
+          def validate_index(result, day):
+              raw = result.get('raw')
+              if raw is None:
+                  return False
+              try:
+                  h18._parse_nifty500_h018(raw, day)
+                  return True
+              except (UnicodeDecodeError, ValueError) as exc:
+                  result['parse_error'] = str(exc)
+                  return False
+
+          def resolve_day(day):
+              bhav_base = h15.legacy_bhavcopy_url(day)
+              index_archive_base = h15.base.index_snapshot_url(day)
+              stamp = day.strftime('%d%m%Y')
+
+              bhav_attempts = []
+              valid_bhav = None
+              for host in NSE_ARCHIVE_HOSTS:
+                  result = fetch(replace_host(bhav_base, host))
+                  result['valid'] = validate_bhav(result, day)
+                  bhav_attempts.append(result)
+                  if result['valid']:
+                      valid_bhav = result
+                      break
+
+              index_attempts = []
+              valid_index = None
+              for host in NSE_ARCHIVE_HOSTS:
+                  result = fetch(replace_host(index_archive_base, host))
+                  result['valid'] = validate_index(result, day)
+                  index_attempts.append(result)
+                  if result['valid']:
+                      valid_index = result
+                      break
+              if valid_index is None:
+                  for host in NIFTY_HOSTS:
+                      result = fetch(f'https://{host}/Daily_Snapshot/ind_close_all_{stamp}.csv')
+                      result['valid'] = validate_index(result, day)
+                      index_attempts.append(result)
+                      if result['valid']:
+                          valid_index = result
+                          break
+
+              return {
+                  'date': day.isoformat(),
+                  'valid_bhav': valid_bhav,
+                  'valid_index': valid_index,
+                  'bhav_attempts': bhav_attempts,
+                  'index_attempts': index_attempts,
+              }
+
+          summary_in = json.loads((ROOT / 'fast-acquisition-summary.json').read_text(encoding='utf-8'))
+          if summary_in.get('market_selection_outcomes_opened') is not False:
+              raise SystemExit('source artifact is not outcome-blind')
+          if summary_in.get('total_checkpoints') != 1029:
+              raise SystemExit(f"expected 1029 restored checkpoints, found {summary_in.get('total_checkpoints')}")
+
+          forbidden = ('point-in-time-selections.json', 'challenge-summary.json', 'selected.csv')
+          if any((ROOT / name).exists() for name in forbidden):
+              raise SystemExit('restored acquisition artifact contains outcome files')
+
+          all_days = h15.calendar_days(date(2013, 11, 1), date(2017, 5, 31))
+          unresolved = [day for day in all_days if h18._complete_checkpoint(ROOT, day) is None]
+          if len(unresolved) != 279:
+              raise SystemExit(f'expected 279 unresolved dates, found {len(unresolved)}')
+          print(f'H018 remaining-session resolver starting: {len(unresolved)} dates', flush=True)
+
+          resolved = []
+          with ThreadPoolExecutor(max_workers=THREADS) as pool:
+              futures = {pool.submit(resolve_day, day): day for day in unresolved}
+              for number, future in enumerate(as_completed(futures), 1):
+                  day = futures[future]
+                  try:
+                      resolved.append(future.result())
+                  except Exception as exc:
+                      diagnostics['worker_errors'].append({
+                          'date': day.isoformat(),
+                          'error': f'{type(exc).__name__}: {exc}',
+                      })
+                  if number % 50 == 0:
+                      print(f'H018 resolver requests {number}/{len(unresolved)}', flush=True)
+
+          common_written = 0
+          no_session_written = 0
+          still_unresolved = []
+          for row in sorted(resolved, key=lambda item: item['date']):
+              day = date.fromisoformat(row['date'])
+              if h18._complete_checkpoint(ROOT, day) is not None:
+                  continue
+              bhav = row['valid_bhav']
+              index = row['valid_index']
+
+              if bhav is not None and index is not None:
+                  ok = h18._retain_result(
+                      ROOT,
+                      {
+                          'date': day.isoformat(),
+                          'bhavcopy_url': bhav['url'],
+                          'bhavcopy_raw': bhav['raw'],
+                          'bhavcopy_meta': {'status': 'OK'},
+                          'index_url': index['url'],
+                          'index_raw': index['raw'],
+                          'index_meta': {'status': 'OK'},
+                          'serial_retries': [],
+                      },
+                      diagnostics,
+                  )
+                  if ok:
+                      common_written += 1
+                      continue
+
+              bhav_404 = any(item.get('status') == 'HTTP_404' for item in row['bhav_attempts'])
+              index_archive = row['index_attempts'][:2]
+              both_index_archive_404 = (
+                  len(index_archive) == 2
+                  and all(item.get('status') == 'HTTP_404' for item in index_archive)
+              )
+              any_valid_bhav = any(item.get('valid') for item in row['bhav_attempts'])
+              any_valid_index = any(item.get('valid') for item in row['index_attempts'])
+
+              if (
+                  not any_valid_bhav
+                  and not any_valid_index
+                  and bhav_404
+                  and both_index_archive_404
+              ):
+                  h18._atomic_json(
+                      h18._checkpoint_path(ROOT, day),
+                      {
+                          'schema_version': h18.CHECKPOINT_SCHEMA,
+                          'date': day.isoformat(),
+                          'status': 'NO_SESSION',
+                          'bhavcopy_status': 'NO_VALID_BHAVCOPY_WITH_OFFICIAL_404',
+                          'index_status': 'BOTH_NSE_INDEX_ARCHIVES_HTTP_404_NO_VALID_NIFTY_SNAPSHOT',
+                          'no_session_confirmation': 'FROZEN_MULTI_HOST_OFFICIAL_ABSENCE_RULE',
+                          'evidence': {
+                              'bhavcopy': [
+                                  {k: v for k, v in item.items() if k != 'raw'}
+                                  for item in row['bhav_attempts']
+                              ],
+                              'index': [
+                                  {k: v for k, v in item.items() if k != 'raw'}
+                                  for item in row['index_attempts']
+                              ],
+                          },
+                      },
+                  )
+                  no_session_written += 1
+                  continue
+
+              still_unresolved.append({
+                  'date': day.isoformat(),
+                  'has_valid_bhavcopy': any_valid_bhav,
+                  'has_valid_index': any_valid_index,
+                  'bhavcopy': [
+                      {k: v for k, v in item.items() if k != 'raw'}
+                      for item in row['bhav_attempts']
+                  ],
+                  'index': [
+                      {k: v for k, v in item.items() if k != 'raw'}
+                      for item in row['index_attempts']
+                  ],
+              })
+
+          checkpoints = sorted((ROOT / 'checkpoints').glob('*.json'))
+          common = 0
+          no_session = 0
+          for path in checkpoints:
+              doc = json.loads(path.read_text(encoding='utf-8'))
+              if doc.get('status') == 'COMMON_SESSION':
+                  common += 1
+              elif doc.get('status') == 'NO_SESSION':
+                  no_session += 1
+              else:
+                  raise SystemExit(f'unknown checkpoint status: {path}')
+
+          remaining = [
+              day.isoformat()
+              for day in all_days
+              if h18._complete_checkpoint(ROOT, day) is None
+          ]
+          if remaining != [row['date'] for row in still_unresolved]:
+              raise SystemExit('resolver remaining-date census mismatch')
+
+          summary = {
+              'status': 'H018_REMAINING_SESSION_RESOLUTION_ONLY',
+              'market_selection_outcomes_opened': False,
+              'restored_checkpoint_count': 1029,
+              'new_common_sessions': common_written,
+              'new_no_session_days': no_session_written,
+              'total_checkpoints': len(checkpoints),
+              'total_common_sessions': common,
+              'total_no_session_days': no_session,
+              'remaining_unresolved_count': len(remaining),
+              'remaining_unresolved_dates': remaining,
+              'remaining_details': still_unresolved,
+              'parser_diagnostics': diagnostics,
+          }
+          (ROOT / 'remaining-session-resolution-summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps({
+              'status': summary['status'],
+              'market_selection_outcomes_opened': False,
+              'new_common_sessions': common_written,
+              'new_no_session_days': no_session_written,
+              'total_checkpoints': len(checkpoints),
+              'total_common_sessions': common,
+              'total_no_session_days': no_session,
+              'remaining_unresolved_count': len(remaining),
+          }, indent=2), flush=True)
+
+          if any((ROOT / name).exists() for name in forbidden):
+              raise SystemExit('resolver created forbidden outcome file')
+          PY
+      - name: Upload resolved checkpoint corpus
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h018-resolved-session-checkpoints-${{ github.run_id }}
+          path: |
+            /tmp/h018-resolve/checkpoints
+            /tmp/h018-resolve/raw
+            /tmp/h018-resolve/remaining-session-resolution-summary.json
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
