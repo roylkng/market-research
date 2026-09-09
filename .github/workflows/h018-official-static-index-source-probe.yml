@@ -1,0 +1,107 @@
+name: H018 official static index source probe
+
+on:
+  push:
+    branches:
+      - research/h018-promotion-audit-20260908
+    paths:
+      - .github/workflows/h018-official-static-index-source-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Probe only official static pre-2016 benchmark routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import pathlib
+          import time
+          from urllib.parse import quote
+
+          import requests
+
+          out = pathlib.Path('/tmp/h018-static-probe')
+          out.mkdir(parents=True, exist_ok=True)
+          session = requests.Session()
+          session.headers.update({
+              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152 Safari/537.36',
+              'Accept': 'text/csv,text/plain,*/*',
+              'Referer': 'https://www.nseindia.com/',
+          })
+
+          # Representative trading dates straddling the archive boundary.
+          dates = ('28112014', '16112015', '01012016')
+          candidates = []
+          for d in dates:
+              candidates.extend([
+                  ('niftyindices_daily_snapshot_www', f'https://www.niftyindices.com/Daily_Snapshot/ind_close_all_{d}.csv'),
+                  ('niftyindices_daily_snapshot', f'https://niftyindices.com/Daily_Snapshot/ind_close_all_{d}.csv'),
+                  ('nse_archive_daily', f'https://archives.nseindia.com/content/indices/ind_close_all_{d}.csv'),
+                  ('nse_searchive_daily', f'https://nsearchives.nseindia.com/content/indices/ind_close_all_{d}.csv'),
+              ])
+
+          # Historical static-download path emitted by the legacy official NSE historical-index page.
+          for start, end in (('2-11-2015','16-11-2015'), ('17-11-2014','28-11-2014')):
+              fname = f'NIFTY 500{start}-{end}.csv'
+              encoded = quote(fname, safe='-')
+              candidates.extend([
+                  ('nse_archive_histdata', f'https://archives.nseindia.com/content/indices/histdata/{encoded}'),
+                  ('nse_searchive_histdata', f'https://nsearchives.nseindia.com/content/indices/histdata/{encoded}'),
+                  ('niftyindices_histdata_www', f'https://www.niftyindices.com/content/indices/histdata/{encoded}'),
+              ])
+
+          results = []
+          for i, (kind, url) in enumerate(candidates):
+              rec = {'kind': kind, 'url': url}
+              try:
+                  r = session.get(url, timeout=20, allow_redirects=True)
+                  body = r.content
+                  rec.update({
+                      'status_code': r.status_code,
+                      'final_url': r.url,
+                      'content_type': r.headers.get('content-type'),
+                      'bytes': len(body),
+                      'sha256': hashlib.sha256(body).hexdigest(),
+                      'prefix_text': body[:240].decode('utf-8', errors='replace'),
+                  })
+                  if body:
+                      p = out / f'{i:02d}-{kind}.bin'
+                      p.write_bytes(body)
+                      rec['retained_path'] = str(p)
+              except Exception as exc:
+                  rec['error'] = f'{type(exc).__name__}: {exc}'
+              results.append(rec)
+              time.sleep(0.5)
+
+          summary = {
+              'status': 'OFFICIAL_STATIC_SOURCE_PROBE_ONLY',
+              'market_selection_outcomes_opened': False,
+              'results': results,
+          }
+          (out / 'summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
+          print(json.dumps(summary, indent=2))
+          PY
+      - name: Upload exact probe responses
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h018-official-static-index-source-probe-${{ github.run_id }}
+          path: /tmp/h018-static-probe
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
