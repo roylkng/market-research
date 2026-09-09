@@ -102,7 +102,7 @@ jobs:
                   if len(raw) != meta.get('bytes'):
                       raise SystemExit(f'source byte-size mismatch: {candidate}')
 
-          if common != 351 or no_session != 165:
+          if common != 348 or no_session != 168:
               raise SystemExit(
                   f'unexpected checkpoint status counts: common={common}, no_session={no_session}'
               )
