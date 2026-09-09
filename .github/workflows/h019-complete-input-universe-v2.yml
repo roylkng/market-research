@@ -1,0 +1,72 @@
+name: H019 deterministic complete input universe
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-complete-input-universe-v2.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Validate deterministic materializer
+        run: |
+          ruff check scripts/h019_complete_input_universe.py tests/test_h019_complete_input_universe.py
+          pytest -q tests/test_h019_complete_input_universe.py
+      - run: mkdir -p /tmp/h019-complete/source /tmp/h019-complete/coverage /tmp/h019-complete/out
+      - name: Restore source metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-source-feasibility-34334321485
+          path: /tmp/h019-complete/source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34334321485
+      - name: Restore retained predecision market sources
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-input-coverage-34336062694
+          path: /tmp/h019-complete/coverage
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34336062694
+      - name: Materialize all liquidity-eligible candidates
+        run: |
+          python scripts/h019_complete_input_universe.py \
+            --source-root /tmp/h019-complete/source \
+            --coverage-root /tmp/h019-complete/coverage \
+            --out /tmp/h019-complete/out
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/h019-complete/out')
+          summary=json.loads((root/'complete-input-universe-summary.json').read_text())
+          assert summary['return_outcomes_opened'] is False
+          assert summary['selection_score_frozen'] is False
+          assert summary['source_universe_truncated'] is False
+          assert summary['cohort_counts']==[385,504,564,448,506,572,679]
+          assert summary['minimum_liquidity_eligible']==385
+          forbidden=('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          assert not any((root/name).exists() for name in forbidden)
+          print(json.dumps(summary,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-complete-input-universe-v2-${{ github.run_id }}
+          path: /tmp/h019-complete/out
+          if-no-files-found: error
+          retention-days: 30
