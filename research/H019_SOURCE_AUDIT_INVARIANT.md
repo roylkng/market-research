@@ -1,0 +1,1 @@
+Invariant: no H019 market-return outcome, ranking, candidate-winner list, or live-capital recommendation may be generated until the source audit is complete and the H019-v1 signal and validation gates are separately frozen.
