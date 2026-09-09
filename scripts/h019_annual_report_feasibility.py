@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import io
 import json
-import math
 import time
 import zipfile
 from collections import Counter, defaultdict
@@ -435,9 +434,7 @@ def main() -> None:
             )
     dump(root / "annual-report-content-sample.json", content_records)
 
-    disclosure_counts: dict[str, Counter[str]] = {
-        group: Counter() for group in groups
-    }
+    disclosure_counts: dict[str, Counter[str]] = {group: Counter() for group in groups}
     parsed_counts = Counter()
     for item in content_records:
         group = str(item["group"])
@@ -447,9 +444,7 @@ def main() -> None:
         parsed_counts[group] += 1
         presence = scan.get("text_disclosure_presence")
         if isinstance(presence, dict):
-            disclosure_counts[group].update(
-                name for name, present in presence.items() if present
-            )
+            disclosure_counts[group].update(name for name, present in presence.items() if present)
 
     summary = {
         "status": "H019_ANNUAL_REPORT_SOURCE_FEASIBILITY_ONLY",
