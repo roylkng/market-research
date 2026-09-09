@@ -1,0 +1,94 @@
+name: H019 point-in-time accounting ledger v1
+
+on:
+  push:
+    branches:
+      - research/h019-fundamental-inflection-source-audit-20260909
+    paths:
+      - .github/workflows/h019-accounting-ledger-v1.yml
+      - scripts/h019_accounting_ledger_v1.py
+      - tests/test_h019_accounting_ledger_v1.py
+      - research/H019_ACCOUNTING_LEDGER_V1_PLAN.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-source-audit-20260909
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install repository environment
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify ledger before source evidence
+        run: |
+          ruff check scripts/h019_accounting_ledger_v1.py tests/test_h019_accounting_ledger_v1.py
+          python -m py_compile scripts/h019_accounting_ledger_v1.py
+          pytest -q
+          git diff --check
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/h019_accounting_ledger_v1.py').read_text(encoding='utf-8').casefold()
+          forbidden = (
+              'bhavcopy', 'nifty500', 'gross_excess', 'net_excess',
+              'future_return', 'stock_return', 'selected.csv', 'challenge-summary',
+          )
+          for token in forbidden:
+              assert token not in text, token
+          print('H019 ledger v1 contains no security-outcome calculation path')
+          PY
+          sha256sum scripts/h019_numeric_extraction_audit_v3.py > /tmp/h019-v3-parser-before.sha256
+
+      - name: Run frozen source-only ledger audit
+        run: |
+          rm -rf /tmp/h019-accounting-ledger-v1
+          python scripts/h019_accounting_ledger_v1.py --out /tmp/h019-accounting-ledger-v1
+          test -s /tmp/h019-accounting-ledger-v1/ledger-summary.json
+          test -s /tmp/h019-accounting-ledger-v1/frozen-symbol-sample.json
+          test -s /tmp/h019-accounting-ledger-v1/metadata-frozen-report-selection.json
+          test -s /tmp/h019-accounting-ledger-v1/accounting-observations.json
+          test -s /tmp/h019-accounting-ledger-v1/asof-resolved-facts.json
+          test -s /tmp/h019-accounting-ledger-v1/symbol-history-coverage.json
+
+      - name: Verify immutable parser and integrity result
+        run: |
+          sha256sum -c /tmp/h019-v3-parser-before.sha256
+          git diff --exit-code -- scripts/h019_numeric_extraction_audit_v3.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path('/tmp/h019-accounting-ledger-v1')
+          summary = json.loads((root / 'ledger-summary.json').read_text())
+          sample = json.loads((root / 'frozen-symbol-sample.json').read_text())
+          assert summary['status'] == 'H019_ACCOUNTING_LEDGER_V1_COVERAGE_ONLY'
+          assert summary['market_outcomes_opened'] is False
+          assert summary['live_capital_allowed'] is False
+          assert summary['frozen_symbol_count'] == 100
+          assert sample['status'] == 'FROZEN_BEFORE_ANNUAL_REPORT_API'
+          assert len(sample['groups']['SURVIVOR_PROXY']) == 50
+          assert len(sample['groups']['EXIT_PROXY']) == 25
+          assert len(sample['groups']['NEW_PROXY']) == 25
+          assert summary['integrity_pass'] is True, summary['integrity_gates']
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload H019 ledger evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h019-accounting-ledger-v1-${{ github.run_id }}
+          path: /tmp/h019-accounting-ledger-v1
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
