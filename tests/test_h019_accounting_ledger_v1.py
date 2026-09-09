@@ -8,7 +8,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-import h019_accounting_ledger_v1 as ledger  # noqa: E402
+import h019_accounting_ledger_v1 as ledger
 
 
 def _record(year: int, available: str, suffix: str) -> dict[str, object]:
