@@ -31,18 +31,17 @@ jobs:
           import json
           import pathlib
           import time
+          import urllib.error
+          import urllib.request
           from urllib.parse import quote
-
-          import requests
 
           out = pathlib.Path('/tmp/h018-static-probe')
           out.mkdir(parents=True, exist_ok=True)
-          session = requests.Session()
-          session.headers.update({
+          headers = {
               'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152 Safari/537.36',
               'Accept': 'text/csv,text/plain,*/*',
               'Referer': 'https://www.nseindia.com/',
-          })
+          }
 
           # Representative trading dates straddling the archive boundary.
           dates = ('28112014', '16112015', '01012016')
@@ -55,7 +54,7 @@ jobs:
                   ('nse_searchive_daily', f'https://nsearchives.nseindia.com/content/indices/ind_close_all_{d}.csv'),
               ])
 
-          # Historical static-download path emitted by the legacy official NSE historical-index page.
+          # Static CSV path emitted by the legacy official NSE historical-index page.
           for start, end in (('2-11-2015','16-11-2015'), ('17-11-2014','28-11-2014')):
               fname = f'NIFTY 500{start}-{end}.csv'
               encoded = quote(fname, safe='-')
@@ -68,23 +67,36 @@ jobs:
           results = []
           for i, (kind, url) in enumerate(candidates):
               rec = {'kind': kind, 'url': url}
+              body = b''
               try:
-                  r = session.get(url, timeout=20, allow_redirects=True)
-                  body = r.content
+                  req = urllib.request.Request(url, headers=headers, method='GET')
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      body = r.read()
+                      rec.update({
+                          'status_code': r.status,
+                          'final_url': r.geturl(),
+                          'content_type': r.headers.get('content-type'),
+                      })
+              except urllib.error.HTTPError as exc:
+                  body = exc.read()
                   rec.update({
-                      'status_code': r.status_code,
-                      'final_url': r.url,
-                      'content_type': r.headers.get('content-type'),
+                      'status_code': exc.code,
+                      'final_url': exc.geturl(),
+                      'content_type': exc.headers.get('content-type'),
+                      'http_error': str(exc),
+                  })
+              except Exception as exc:
+                  rec['error'] = f'{type(exc).__name__}: {exc}'
+
+              if body:
+                  rec.update({
                       'bytes': len(body),
                       'sha256': hashlib.sha256(body).hexdigest(),
                       'prefix_text': body[:240].decode('utf-8', errors='replace'),
                   })
-                  if body:
-                      p = out / f'{i:02d}-{kind}.bin'
-                      p.write_bytes(body)
-                      rec['retained_path'] = str(p)
-              except Exception as exc:
-                  rec['error'] = f'{type(exc).__name__}: {exc}'
+                  p = out / f'{i:02d}-{kind}.bin'
+                  p.write_bytes(body)
+                  rec['retained_path'] = str(p)
               results.append(rec)
               time.sleep(0.5)
 
