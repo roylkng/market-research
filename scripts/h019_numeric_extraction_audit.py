@@ -588,10 +588,11 @@ def fetch_archive(url: str) -> bytes | None:
                 raise ValueError("structured filing redirected outside NSE archive hosts")
             if response.status_code == 404:
                 return None
-            if response.status_code in {403, 429} or response.status_code >= 500:
-                if attempt < 2:
-                    time.sleep(0.5 * (attempt + 1))
-                    continue
+            if (
+                response.status_code in {403, 429} or response.status_code >= 500
+            ) and attempt < 2:
+                time.sleep(0.5 * (attempt + 1))
+                continue
             response.raise_for_status()
             return response.content or None
         except (requests.RequestException, ValueError):
