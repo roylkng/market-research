@@ -1,0 +1,96 @@
+name: H019 audited-source parser validation
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-parser-source-validation.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Repository validation
+        run: |
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - run: mkdir -p /tmp/h019-parser
+      - name: Restore deterministic audited XBRLs
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-deep-schema-coverage-34335208786
+          path: /tmp/h019-parser/input
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34335208786
+      - name: Parse all audited documents with the frozen strict parser
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, sys
+          from collections import Counter, defaultdict
+          from datetime import date
+          from pathlib import Path
+
+          sys.path.insert(0,'scripts')
+          import h019_financials as h019
+
+          root=Path('/tmp/h019-parser')
+          inp=root/'input'
+          rows=json.loads((inp/'schema-v2-sample.json').read_text())
+          summary_in=json.loads((inp/'schema-v2-summary.json').read_text())
+          assert summary_in['return_outcomes_opened'] is False
+          assert summary_in['selection_score_frozen'] is False
+          parsed=[]; failures=[]; yearly=defaultdict(Counter)
+          for row in rows:
+              year=row['published_year']
+              raw=(inp/'raw'/row['source_sha256']).read_bytes()
+              try:
+                  value=h019.parse_quarterly_financials(raw,date.fromisoformat(row['quarter_end']))
+                  data=value.to_dict()
+                  if data['share_count'] <= 0 or data['revenue'] <= 0:
+                      raise AssertionError('parser returned invalid positive primitive')
+                  parsed.append({'published_year':year,'symbol':row['symbol'],'quarter_end':row['quarter_end'],'source_sha256':row['source_sha256']})
+                  yearly[str(year)]['parsed']+=1
+              except h019.H019FinancialError as exc:
+                  failures.append({'published_year':year,'symbol':row['symbol'],'quarter_end':row['quarter_end'],'source_sha256':row['source_sha256'],'error':str(exc)})
+                  yearly[str(year)]['failed_closed']+=1
+          out={
+              'status':'H019_STRICT_PARSER_SOURCE_VALIDATION_ONLY',
+              'return_outcomes_opened':False,
+              'selection_score_frozen':False,
+              'audited_documents':len(rows),
+              'parsed':len(parsed),
+              'failed_closed':len(failures),
+              'failure_reasons':dict(Counter(item['error'] for item in failures)),
+              'yearly':{key:dict(value) for key,value in sorted(yearly.items())},
+              'failures':failures,
+          }
+          (root/'parser-validation-summary.json').write_text(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          print(json.dumps({k:v for k,v in out.items() if k!='failures'},indent=2),flush=True)
+          # The deep audit already implies at most a small source-missing tail. A parser
+          # that rejects more than 5% is not fit for the broad-era H019 design.
+          if len(parsed) < 114:
+              raise SystemExit(f'H019 parser coverage below 95% on audited source sample: {len(parsed)}/120')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-parser-validation-${{ github.run_id }}
+          path: /tmp/h019-parser/parser-validation-summary.json
+          if-no-files-found: error
+          retention-days: 30
