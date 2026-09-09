@@ -1,0 +1,184 @@
+name: H019 deep schema coverage audit
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-schema-coverage-v2.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: mkdir -p /tmp/h019-schema-v2
+      - name: Restore source-feasibility metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-source-feasibility-34334321485
+          path: /tmp/h019-schema-v2/input
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34334321485
+      - name: Audit deterministic 120-document schema sample without outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, math, sys, time, xml.etree.ElementTree as ET
+          from collections import Counter, defaultdict
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import requests
+
+          sys.path.insert(0, 'scripts')
+          from acquire_h005_corpus import ALLOWED, dump, retain
+          from marketlab.nse import NSEClient
+
+          root=Path('/tmp/h019-schema-v2')
+          inp=root/'input'
+          listings=json.loads((inp/'normalized-listings.json').read_text())
+          source_summary=json.loads((inp/'source-feasibility-summary.json').read_text())
+          assert source_summary['return_outcomes_opened'] is False
+          assert source_summary['selection_score_frozen'] is False
+
+          # Unique XBRL documents, deterministic URL-hash sample, 20 per publication year.
+          by_year=defaultdict(dict)
+          for row in listings:
+              year=int(str(row['published'])[:4])
+              if 2018 <= year <= 2023:
+                  by_year[year].setdefault(row['url'],row)
+          sample=[]
+          for year in range(2018,2024):
+              rows=list(by_year[year].values())
+              rows.sort(key=lambda r:hashlib.sha256(r['url'].encode()).hexdigest())
+              if len(rows)<20: raise SystemExit(f'insufficient normalized URLs in {year}: {len(rows)}')
+              sample.extend(rows[:20])
+          assert len(sample)==120
+
+          exact={
+              'revenue':'RevenueFromOperations',
+              'profit':'ProfitLossForPeriod',
+              'pretax':'ProfitBeforeTax',
+              'pre_exception_pretax':'ProfitBeforeExceptionalItemsAndTax',
+              'expenses':'Expenses',
+              'paidup':'PaidUpValueOfEquityShareCapital',
+              'facevalue':'FaceValueOfEquityShareCapital',
+              'eps_basic':'BasicEarningsLossPerShareFromContinuingOperations',
+              'eps_diluted':'DilutedEarningsLossPerShareFromContinuingOperations',
+              'equity':'Equity',
+              'assets':'Assets',
+              'borrowings':'Borrowings',
+              'borrowings_current':'BorrowingsCurrent',
+              'borrowings_noncurrent':'BorrowingsNoncurrent',
+              'operating_cash_flow':'CashFlowsFromUsedInOperatingActivities',
+              'current_assets':'CurrentAssets',
+              'current_liabilities':'CurrentLiabilities',
+              'receivables':'TradeReceivablesCurrent',
+              'inventories':'Inventories',
+          }
+
+          client=NSEClient(timeout=18,attempts=1); client._initialize_session()
+          rows=[]
+          for n,item in enumerate(sample,1):
+              rec={k:item[k] for k in ('symbol','quarter_end','published','basis','url')}
+              rec['published_year']=int(str(item['published'])[:4])
+              try:
+                  url=item['url']
+                  if urlparse(url).scheme!='https' or urlparse(url).hostname not in ALLOWED:
+                      raise ValueError('URL outside official archive hosts')
+                  response=client.session.get(url,timeout=(8,18))
+                  if urlparse(response.url).hostname not in ALLOWED:
+                      raise ValueError('redirect outside official archive hosts')
+                  response.raise_for_status(); raw=response.content
+                  if not raw or len(raw)>20_000_000: raise ValueError('empty/oversized XBRL')
+                  doc=ET.fromstring(raw)
+                  if doc.tag.rsplit('}',1)[-1].casefold()!='xbrl': raise ValueError('not XBRL')
+                  meta=retain(root,raw,url,'h019-schema-v2-xbrl')
+                  facts=defaultdict(list)
+                  for e in doc.iter():
+                      name=e.tag.rsplit('}',1)[-1]
+                      text=(e.text or '').strip()
+                      if text: facts[name].append((text,dict(e.attrib)))
+                  present={key:bool(facts.get(tag)) for key,tag in exact.items()}
+                  finite={}
+                  for key,tag in exact.items():
+                      vals=[]
+                      for text,attrs in facts.get(tag,[]):
+                          try:
+                              value=float(text.replace(',',''))
+                              if math.isfinite(value): vals.append(value)
+                          except ValueError: pass
+                      finite[key]=bool(vals)
+                  paid=[]; face=[]
+                  for text,_ in facts.get(exact['paidup'],[]):
+                      try: paid.append(float(text.replace(',','')))
+                      except ValueError: pass
+                  for text,_ in facts.get(exact['facevalue'],[]):
+                      try: face.append(float(text.replace(',','')))
+                      except ValueError: pass
+                  shares_valid=any(p>0 for p in paid) and any(f>0 for f in face)
+                  rec.update(status='OK',source_sha256=meta['sha256'],concept_count=len(facts),present=present,finite=finite,share_count_primitives_valid=shares_valid)
+              except (ET.ParseError,requests.RequestException,ValueError) as exc:
+                  rec.update(status='FAILED',error=f'{type(exc).__name__}: {exc}')
+              rows.append(rec)
+              if n%20==0: print('schema-v2',n,'/',len(sample),flush=True)
+              time.sleep(0.08)
+
+          good=[r for r in rows if r['status']=='OK']
+          coverage={}
+          for key in exact:
+              coverage[key]={
+                  'present':sum(r['present'][key] for r in good),
+                  'finite':sum(r['finite'][key] for r in good),
+                  'tested':len(good),
+              }
+          yearly={}
+          for year in range(2018,2024):
+              yr=[r for r in good if r['published_year']==year]
+              yearly[str(year)]={
+                  'tested':len(yr),
+                  'share_count_primitives_valid':sum(r['share_count_primitives_valid'] for r in yr),
+                  'coverage':{key:sum(r['finite'][key] for r in yr) for key in exact},
+                  'concept_count_median':sorted(r['concept_count'] for r in yr)[len(yr)//2] if yr else None,
+              }
+          summary={
+              'status':'H019_DEEP_SCHEMA_COVERAGE_ONLY',
+              'return_outcomes_opened':False,
+              'selection_score_frozen':False,
+              'sample_rule':'20 lowest SHA256(url) unique normalized XBRLs per publication year 2018-2023',
+              'sample_planned':120,
+              'sample_status':dict(Counter(r['status'] for r in rows)),
+              'overall_coverage':coverage,
+              'share_count_primitives_valid':sum(r.get('share_count_primitives_valid',False) for r in good),
+              'yearly':yearly,
+              'live_capital_allowed':False,
+          }
+          dump(root/'schema-v2-sample.json',rows)
+          dump(root/'schema-v2-summary.json',summary)
+          print(json.dumps(summary,indent=2),flush=True)
+          forbidden=('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((root/x).exists() for x in forbidden): raise SystemExit('outcome artifact created')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-deep-schema-coverage-${{ github.run_id }}
+          path: |
+            /tmp/h019-schema-v2/schema-v2-sample.json
+            /tmp/h019-schema-v2/schema-v2-summary.json
+            /tmp/h019-schema-v2/raw
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
