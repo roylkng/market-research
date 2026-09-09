@@ -45,7 +45,14 @@ def _parse_nifty500_h018(raw_csv: bytes, session_date: date) -> dict[str, float]
         if len(rows) != 1:
             raise
         row = rows[0]
-        parts = str(row.get("Index Date") or "").strip().split("-")
+        source_token = str(row.get("Index Date") or "").strip()
+        if source_token.count("-") == 2 and "/" not in source_token:
+            delimiter = "-"
+        elif source_token.count("/") == 2 and "-" not in source_token:
+            delimiter = "/"
+        else:
+            raise
+        parts = source_token.split(delimiter)
         if len(parts) != 3 or not all(part.isdigit() for part in parts):
             raise
         source_date = date(int(parts[2]), int(parts[1]), int(parts[0]))

@@ -19,8 +19,13 @@ def _row(name: str, day: str) -> bytes:
     ).encode()
 
 
-def test_h018_accepts_official_cnx500_name_before_rename():
+def test_h018_accepts_official_cnx500_hyphen_date_before_rename():
     parsed = h018._parse_nifty500_h018(_row("CNX 500", "28-11-2014"), date(2014, 11, 28))
+    assert parsed == {"open": 6864.15, "close": 6918.05}
+
+
+def test_h018_accepts_official_cnx500_slash_date_before_rename():
+    parsed = h018._parse_nifty500_h018(_row("CNX 500", "09/06/2014"), date(2014, 6, 9))
     assert parsed == {"open": 6864.15, "close": 6918.05}
 
 
@@ -31,7 +36,12 @@ def test_h018_rejects_cnx500_name_on_or_after_rename():
 
 def test_h018_rejects_wrong_source_date():
     with pytest.raises(ValueError):
-        h018._parse_nifty500_h018(_row("CNX 500", "27-11-2014"), date(2014, 11, 28))
+        h018._parse_nifty500_h018(_row("CNX 500", "27/11/2014"), date(2014, 11, 28))
+
+
+def test_h018_rejects_mixed_cnx_date_delimiters():
+    with pytest.raises(ValueError):
+        h018._parse_nifty500_h018(_row("CNX 500", "28/11-2014"), date(2014, 11, 28))
 
 
 def test_h018_keeps_existing_nifty500_path():
