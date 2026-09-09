@@ -32,6 +32,7 @@ jobs:
 
       - name: Verify ledger before source evidence
         run: |
+          # Retriggered after the guarded pre-evidence import-format normalization.
           ruff check scripts/h019_accounting_ledger_v1.py tests/test_h019_accounting_ledger_v1.py
           python -m py_compile scripts/h019_accounting_ledger_v1.py
           pytest -q
