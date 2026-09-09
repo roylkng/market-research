@@ -1,0 +1,87 @@
+name: H019 frozen numeric extraction audit
+
+on:
+  push:
+    branches:
+      - research/h019-fundamental-inflection-source-audit-20260909
+    paths:
+      - .github/workflows/h019-numeric-extraction-audit.yml
+      - scripts/h019_numeric_extraction_audit.py
+      - research/H019_NUMERIC_EXTRACTION_AUDIT_PLAN_V2.md
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-source-audit-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install repository environment
+        run: python -m pip install -e '.[dev]'
+      - name: Verify audit before accounting evidence
+        run: |
+          ruff check scripts/h019_numeric_extraction_audit.py
+          python -m py_compile scripts/h019_numeric_extraction_audit.py
+          pytest -q
+          git diff --check
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/h019_numeric_extraction_audit.py').read_text(encoding='utf-8').casefold()
+          forbidden = (
+              'marketdata', 'bhavcopy', 'nifty500', 'gross_excess', 'net_excess',
+              'future_return', 'stock_return', 'selected.csv', 'challenge-summary',
+          )
+          for token in forbidden:
+              assert token not in text, token
+          print('H019 numeric audit contains no market-outcome path')
+          PY
+      - name: Restore frozen H019 annual-report corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-annual-report-source-audit-34352537129
+          path: /tmp/h019-v2-corpus
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34352537129
+      - name: Verify frozen corpus artifact contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/h019-v2-corpus')
+          summary = json.loads((root / 'source-audit-v2-summary.json').read_text())
+          assert summary['status'] == 'H019_ANNUAL_REPORT_SOURCE_FEASIBILITY_ONLY'
+          assert summary['market_outcomes_opened'] is False
+          rows = json.loads((root / 'annual-report-content-sample.json').read_text())
+          assert len(rows) == 12
+          assert sum(row['group'] == 'SURVIVOR_PROXY' for row in rows) == 6
+          assert sum(row['group'] == 'EXIT_PROXY' for row in rows) == 6
+          print('Frozen H019 v2 annual-report corpus verified')
+          PY
+      - name: Run frozen numeric extraction audit
+        run: |
+          rm -rf /tmp/h019-numeric-audit
+          python scripts/h019_numeric_extraction_audit.py \
+            --corpus-root /tmp/h019-v2-corpus \
+            --out /tmp/h019-numeric-audit
+          test -s /tmp/h019-numeric-audit/numeric-extraction-summary.json
+          test -s /tmp/h019-numeric-audit/pdf-numeric-extractions.json
+          test -s /tmp/h019-numeric-audit/structured-crosschecks.json
+      - name: Upload H019 numeric audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h019-numeric-extraction-audit-${{ github.run_id }}
+          path: /tmp/h019-numeric-audit
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
