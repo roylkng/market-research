@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import sys
 from datetime import date
+from pathlib import Path
 
-import h018_nifty500_historical_source as source
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import h018_nifty500_historical_source as source
 
 
 def envelope(rows: list[dict[str, str]]) -> bytes:
