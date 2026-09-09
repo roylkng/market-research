@@ -45,14 +45,14 @@ jobs:
           PY
       - name: Prepare H018 output root
         run: mkdir -p /tmp/h018-independent
-      - name: Restore retained official-source checkpoints from interrupted run
+      - name: Restore accelerated official-source checkpoints
         uses: actions/download-artifact@v4
         with:
-          name: h018-independent-challenge-checkpoints-34265875607
+          name: h018-fast-static-checkpoints-34328827482
           path: /tmp/h018-independent
           github-token: ${{ github.token }}
           repository: roylkng/market-research
-          run-id: 34265875607
+          run-id: 34328827482
       - name: Verify restored checkpoints and every retained source byte
         shell: bash
         run: |
@@ -60,24 +60,35 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
+          from datetime import date, timedelta
           from pathlib import Path
 
           root = Path('/tmp/h018-independent').resolve()
-          checkpoint_dir = root / 'checkpoints'
-          files = sorted(checkpoint_dir.glob('*.json'))
-          if len(files) != 516:
-              raise SystemExit(f'expected 516 retained checkpoints, found {len(files)}')
+          summary_path = root / 'fast-acquisition-summary.json'
+          summary = json.loads(summary_path.read_text(encoding='utf-8'))
+          if summary.get('status') != 'H018_STATIC_SOURCE_ACQUISITION_ONLY':
+              raise SystemExit('unexpected accelerated-source artifact status')
+          if summary.get('market_selection_outcomes_opened') is not False:
+              raise SystemExit('accelerated-source artifact opened an outcome')
+          if summary.get('remaining_unresolved_count') != 328:
+              raise SystemExit('accelerated-source unresolved census changed')
+
+          files = sorted((root / 'checkpoints').glob('*.json'))
+          if len(files) != 980:
+              raise SystemExit(f'expected 980 retained checkpoints, found {len(files)}')
 
           common = 0
           no_session = 0
-          seen_dates = []
+          seen_dates = set()
           for path in files:
               doc = json.loads(path.read_text(encoding='utf-8'))
               if doc.get('schema_version') != 1:
                   raise SystemExit(f'bad checkpoint schema: {path}')
               if doc.get('date') != path.stem:
                   raise SystemExit(f'checkpoint date/path mismatch: {path}')
-              seen_dates.append(path.stem)
+              if path.stem in seen_dates:
+                  raise SystemExit(f'duplicate checkpoint date: {path.stem}')
+              seen_dates.add(path.stem)
               status = doc.get('status')
               if status == 'NO_SESSION':
                   no_session += 1
@@ -96,23 +107,38 @@ jobs:
                   if not candidate.is_file():
                       raise SystemExit(f'missing retained source: {candidate}')
                   raw = candidate.read_bytes()
-                  digest = hashlib.sha256(raw).hexdigest()
-                  if digest != meta.get('sha256'):
+                  if hashlib.sha256(raw).hexdigest() != meta.get('sha256'):
                       raise SystemExit(f'source hash mismatch: {candidate}')
                   if len(raw) != meta.get('bytes'):
                       raise SystemExit(f'source byte-size mismatch: {candidate}')
 
-          if common != 348 or no_session != 168:
+          if common != 812 or no_session != 168:
               raise SystemExit(
                   f'unexpected checkpoint status counts: common={common}, no_session={no_session}'
               )
-          if seen_dates[0] != '2016-01-01' or seen_dates[-1] != '2017-05-31':
-              raise SystemExit(
-                  f'unexpected retained checkpoint span: {seen_dates[0]}..{seen_dates[-1]}'
-              )
+
+          expected_dates = set()
+          cursor = date(2013, 11, 1)
+          end = date(2017, 5, 31)
+          while cursor <= end:
+              expected_dates.add(cursor.isoformat())
+              cursor += timedelta(days=1)
+          missing = sorted(expected_dates - seen_dates)
+          if len(missing) != 328:
+              raise SystemExit(f'expected 328 unresolved dates, found {len(missing)}')
+          if missing != summary.get('remaining_unresolved_dates'):
+              raise SystemExit('accelerated-source missing-date list mismatch')
+          if '2016-06-20' not in missing:
+              raise SystemExit('known retained-corpus hole is unexpectedly absent')
+
+          forbidden = ('point-in-time-selections.json', 'challenge-summary.json', 'selected.csv')
+          if any((root / name).exists() for name in forbidden):
+              raise SystemExit('accelerated-source artifact contains outcome files')
+
           print(
-              f'H018 restored checkpoint corpus verified: {len(files)} checkpoints, '
-              f'{common} common sessions, {no_session} no-session days'
+              f'H018 accelerated corpus verified: {len(files)} checkpoints, '
+              f'{common} common sessions, {no_session} no-session days, '
+              f'{len(missing)} dates left for conservative acquisition'
           )
           PY
       - name: Run frozen H018 challenge with durable market checkpoints
@@ -147,6 +173,7 @@ jobs:
           path: |
             /tmp/h018-independent/checkpoints
             /tmp/h018-independent/raw
+            /tmp/h018-independent/fast-acquisition-summary.json
           if-no-files-found: warn
           retention-days: 30
           compression-level: 0
