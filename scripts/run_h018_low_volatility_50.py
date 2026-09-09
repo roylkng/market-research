@@ -64,6 +64,22 @@ def freeze_selections(sessions, prices, actions):
     return cohorts
 
 
+def require_outcome_benchmark_dates(cohorts, index):
+    """Fail closed unless every frozen H018 outcome endpoint has a real benchmark row."""
+    required = sorted(
+        {
+            date.fromisoformat(str(cohort[field]))
+            for cohort in cohorts
+            for field in ("entry_date", "exit_date")
+        }
+    )
+    missing = [day for day in required if day not in index]
+    if missing:
+        joined = ", ".join(day.isoformat() for day in missing)
+        raise ValueError(f"H018 benchmark unavailable at frozen outcome endpoint(s): {joined}")
+    return required
+
+
 def select(rows, key: str):
     return sorted(rows, key=lambda row: (-float(row[key]), str(row["symbol"])))[:SELECT_COUNT]
 
@@ -176,12 +192,14 @@ def main() -> None:
     h16.h15.base.dump(root / "source-manifest.json", market_manifest + action_manifest)
 
     frozen = freeze_selections(sessions, prices, actions)
+    required_benchmark_dates = require_outcome_benchmark_dates(frozen, index)
     h16.h15.base.dump(root / "point-in-time-selections.json", frozen)
 
     with_outcomes = h16.attach_outcomes(frozen, sessions, prices, index, actions)
     summary, selected = evaluate(with_outcomes)
     summary["common_sessions"] = len(sessions)
     summary["market_symbols"] = len(prices)
+    summary["required_benchmark_dates"] = [day.isoformat() for day in required_benchmark_dates]
     summary["market_acquisition_diagnostics"] = diagnostics
     h16.h15.base.dump(root / "challenge-summary.json", summary)
 

@@ -175,7 +175,11 @@ def _complete_checkpoint(root: Path, day: date) -> dict[str, Any] | None:
         return None
     if document.get("date") != day.isoformat():
         return None
-    if document.get("status") not in {"COMMON_SESSION", "NO_SESSION"}:
+    if document.get("status") not in {
+        "COMMON_SESSION",
+        "NO_SESSION",
+        "EQUITY_SESSION_INDEX_GAP",
+    }:
         return None
     return document
 
@@ -350,31 +354,40 @@ def _reconstruct(root: Path, days: list[date], diagnostics: dict[str, list]):
         checkpoint = _complete_checkpoint(root, day)
         if checkpoint is None or checkpoint["status"] == "NO_SESSION":
             continue
+
         b_meta = checkpoint["bhavcopy"]
-        i_meta = checkpoint["index"]
         b_path = root / str(b_meta["raw_path"])
-        i_path = root / str(i_meta["raw_path"])
         b_raw = b_path.read_bytes()
-        i_raw = i_path.read_bytes()
-        if h15.base.sha256(b_raw) != b_meta["sha256"] or h15.base.sha256(i_raw) != i_meta["sha256"]:
-            raise ValueError(f"H018 checkpoint source hash mismatch on {day}")
+        if h15.base.sha256(b_raw) != b_meta["sha256"]:
+            raise ValueError(f"H018 checkpoint bhavcopy hash mismatch on {day}")
         equities = h15.parse_legacy_bhavcopy(b_raw, day)
-        nifty = _parse_nifty500_h018(i_raw, day)
         sessions.append(day)
-        index[day] = nifty
-        manifest.extend([b_meta, i_meta])
+        manifest.append(b_meta)
         for symbol, bar in equities.items():
             prices.setdefault(symbol, {})[day] = bar
+
+        if checkpoint["status"] == "EQUITY_SESSION_INDEX_GAP":
+            diagnostics["equity_session_index_gaps"].append(day.isoformat())
+            continue
+
+        i_meta = checkpoint["index"]
+        i_path = root / str(i_meta["raw_path"])
+        i_raw = i_path.read_bytes()
+        if h15.base.sha256(i_raw) != i_meta["sha256"]:
+            raise ValueError(f"H018 checkpoint index hash mismatch on {day}")
+        index[day] = _parse_nifty500_h018(i_raw, day)
+        manifest.append(i_meta)
 
     sessions = sorted(set(sessions))
     pending = [day.isoformat() for day in days if _complete_checkpoint(root, day) is None]
     diagnostics["unresolved_dates"] = pending
+    diagnostics["equity_session_index_gaps"] = sorted(set(diagnostics["equity_session_index_gaps"]))
     h15.base.dump(root / "market-acquisition-diagnostics.json", diagnostics)
     h15.base.dump(root / "market-source-manifest.json", manifest)
     if pending:
         raise ValueError(f"H018 market acquisition incomplete on {len(pending)} calendar dates")
     if len(sessions) < 400:
-        raise ValueError(f"insufficient common market sessions: {len(sessions)}")
+        raise ValueError(f"insufficient equity market sessions: {len(sessions)}")
     return sessions, prices, index, manifest, diagnostics
 
 
@@ -388,6 +401,7 @@ def acquire_market(root: Path):
         "worker_errors": [],
         "hard_timeouts": [],
         "unresolved_dates": [],
+        "equity_session_index_gaps": [],
     }
 
     for pass_number in range(1, ACQUISITION_PASSES + 1):
