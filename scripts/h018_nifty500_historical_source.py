@@ -47,7 +47,7 @@ def request_payload(start: date, end: date) -> dict[str, str]:
     return {"cinfo": cinfo}
 
 
-def fetch_official_history(start: date, end: date) -> tuple[bytes, str]:
+def fetch_official_history(start: date, end: date) -> tuple[bytes, str, str]:
     response = requests.post(
         URL,
         headers={
@@ -68,7 +68,22 @@ def fetch_official_history(start: date, end: date) -> tuple[bytes, str]:
     response.raise_for_status()
     if not response.content:
         raise H018HistoricalIndexError("empty NSE Indices historical response")
-    return response.content, response.url
+    return response.content, response.url, response.headers.get("Content-Type", "")
+
+
+def response_capture_metadata(raw: bytes, final_url: str, content_type: str) -> dict[str, object]:
+    stripped = raw.lstrip()
+    prefix = raw[:240].decode("utf-8", errors="replace").replace("\r", " ").replace("\n", " ")
+    return {
+        "source_owner": "NSE Indices Limited",
+        "source_host": urlparse(final_url).hostname,
+        "source_endpoint": "/Backpage.aspx/getHistoricaldatatabletoString",
+        "source_sha256": sha256(raw),
+        "source_bytes": len(raw),
+        "response_content_type": content_type,
+        "first_non_whitespace_byte_hex": stripped[:1].hex() if stripped else None,
+        "response_prefix_text": prefix,
+    }
 
 
 def _positive_number(value: object, *, field: str, day: date) -> float:
@@ -191,6 +206,13 @@ def cross_validate_checkpoints(
     }
 
 
+def _write_json(path: Path, payload: dict[str, object]) -> None:
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, required=True)
@@ -200,29 +222,48 @@ def main() -> int:
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    raw, final_url = fetch_official_history(args.start, args.end)
-    history = parse_official_history(raw, start=args.start, end=args.end)
-    validation = cross_validate_checkpoints(history, args.checkpoint_root)
-    dates = sorted(history)
-    if dates[0] > date(2013, 11, 1) or dates[-1] < date(2017, 5, 31):
-        raise H018HistoricalIndexError("official NIFTY 500 history does not span frozen H018 window")
-    if len(history) < 800:
-        raise H018HistoricalIndexError(f"insufficient NIFTY 500 historical rows: {len(history)}")
-
+    raw, final_url, content_type = fetch_official_history(args.start, args.end)
+    capture = response_capture_metadata(raw, final_url, content_type)
     raw_dir = args.out / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    digest = sha256(raw)
+    digest = str(capture["source_sha256"])
     (raw_dir / digest).write_bytes(raw)
+    _write_json(args.out / "response-metadata.json", capture)
+
+    try:
+        history = parse_official_history(raw, start=args.start, end=args.end)
+        validation = cross_validate_checkpoints(history, args.checkpoint_root)
+        dates = sorted(history)
+        if dates[0] > date(2013, 11, 1) or dates[-1] < date(2017, 5, 31):
+            raise H018HistoricalIndexError("official NIFTY 500 history does not span frozen H018 window")
+        if len(history) < 800:
+            raise H018HistoricalIndexError(f"insufficient NIFTY 500 historical rows: {len(history)}")
+    except H018HistoricalIndexError as exc:
+        failure = {
+            "schema_version": 1,
+            "status": "SOURCE_PROBE_FAILED_CLOSED",
+            "live_capital_allowed": False,
+            "market_selection_outcomes_opened": False,
+            "requested_start": args.start.isoformat(),
+            "requested_end": args.end.isoformat(),
+            "error": str(exc),
+            **capture,
+        }
+        _write_json(args.out / "probe-failure.json", failure)
+        print(json.dumps(failure, indent=2, sort_keys=True), flush=True)
+        return 2
+
     summary = {
         "schema_version": 1,
         "status": "SOURCE_EQUIVALENCE_PROBE_ONLY",
         "live_capital_allowed": False,
         "market_selection_outcomes_opened": False,
-        "source_owner": "NSE Indices Limited",
-        "source_host": urlparse(final_url).hostname,
-        "source_endpoint": "/Backpage.aspx/getHistoricaldatatabletoString",
+        "source_owner": capture["source_owner"],
+        "source_host": capture["source_host"],
+        "source_endpoint": capture["source_endpoint"],
         "source_sha256": digest,
         "source_bytes": len(raw),
+        "response_content_type": content_type,
         "requested_start": args.start.isoformat(),
         "requested_end": args.end.isoformat(),
         "row_count": len(history),
@@ -230,10 +271,7 @@ def main() -> int:
         "last_row_date": dates[-1].isoformat(),
         **validation,
     }
-    (args.out / "probe-summary.json").write_text(
-        json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n",
-        encoding="utf-8",
-    )
+    _write_json(args.out / "probe-summary.json", summary)
     print(json.dumps(summary, indent=2, sort_keys=True), flush=True)
     return 0
 
