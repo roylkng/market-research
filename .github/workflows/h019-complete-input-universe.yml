@@ -1,0 +1,263 @@
+name: H019 complete point-in-time input universe
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-complete-input-universe.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - run: mkdir -p /tmp/h019-complete/source /tmp/h019-complete/coverage
+      - name: Restore source metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-source-feasibility-34334321485
+          path: /tmp/h019-complete/source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34334321485
+      - name: Restore retained predecision market sources
+        uses: actions/download-artifact@v4
+        with:
+          name: h019-input-coverage-34336062694
+          path: /tmp/h019-complete/coverage
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34336062694
+      - name: Reconstruct all liquidity-eligible candidates without source cap
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import statistics
+          import sys
+          from collections import defaultdict
+          from datetime import date, datetime, time as dtime, timedelta
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          sys.path.insert(0, 'scripts')
+          import run_h015_independent_challenge as h15
+
+          root = Path('/tmp/h019-complete')
+          source = root / 'source'
+          coverage = root / 'coverage'
+          IST = ZoneInfo('Asia/Kolkata')
+          decisions = (
+              date(2020,12,31), date(2021,6,30), date(2021,12,31),
+              date(2022,6,30), date(2022,12,31), date(2023,6,30), date(2023,12,31),
+          )
+          liquidity_floor = 20_000_000.0
+          lookback_days = 45
+
+          source_summary = json.loads((source/'source-feasibility-summary.json').read_text())
+          coverage_summary = json.loads((coverage/'input-coverage-summary.json').read_text())
+          assert source_summary['return_outcomes_opened'] is False
+          assert source_summary['selection_score_frozen'] is False
+          assert coverage_summary['return_outcomes_opened'] is False
+          assert coverage_summary['selection_score_frozen'] is False
+
+          # Reconstruct exact XBRL URL -> bank taxonomy from retained listing response bytes.
+          bank_by_url = defaultdict(set)
+          for meta in json.loads((source/'listing-manifest.json').read_text()):
+              payload = json.loads((source/meta['raw_path']).read_text())
+              for row in payload:
+                  url = str(row.get('xbrl') or '').strip()
+                  code = str(row.get('bank') or '').strip().upper()
+                  if url.lower().endswith('.xml') and code:
+                      bank_by_url[url].add(code)
+          conflicts = {url: sorted(codes) for url, codes in bank_by_url.items() if len(codes) != 1}
+          if conflicts:
+              raise SystemExit(f'bank taxonomy conflict on {len(conflicts)} exact XBRL URLs')
+          bank_by_url = {url: next(iter(codes)) for url, codes in bank_by_url.items()}
+
+          normalized = json.loads((source/'normalized-listings.json').read_text())
+          filings = defaultdict(list)
+          seen = set()
+          for row in normalized:
+              key = (row['symbol'], row['basis'], row['quarter_end'], row['published'], row['url'])
+              if key in seen:
+                  continue
+              seen.add(key)
+              code = bank_by_url.get(row['url'])
+              if code is None:
+                  continue
+              item = dict(row)
+              item['bank'] = code
+              filings[(row['symbol'], row['basis'], date.fromisoformat(row['quarter_end']))].append(item)
+          for rows in filings.values():
+              rows.sort(key=lambda r: (r['published'], r['url']))
+
+          by_symbol_basis = defaultdict(dict)
+          for (symbol, basis, quarter_end), rows in filings.items():
+              by_symbol_basis[(symbol, basis)][quarter_end] = rows
+
+          def previous_quarter(q):
+              if (q.month,q.day)==(3,31): return date(q.year-1,12,31)
+              if (q.month,q.day)==(6,30): return date(q.year,3,31)
+              if (q.month,q.day)==(9,30): return date(q.year,6,30)
+              if (q.month,q.day)==(12,31): return date(q.year,9,30)
+              return None
+
+          def history_for(symbol, basis, cutoff):
+              groups = by_symbol_basis.get((symbol,basis), {})
+              available = {}
+              for qend, rows in groups.items():
+                  eligible = [r for r in rows if datetime.fromisoformat(r['published']) <= cutoff]
+                  if eligible:
+                      available[qend] = max(eligible, key=lambda r:(r['published'],r['url']))
+              if not available:
+                  return None
+              latest = max(available)
+              if (cutoff.date() - latest).days > 150:
+                  return None
+              chain = [latest]
+              for _ in range(7):
+                  prior = previous_quarter(chain[-1])
+                  if prior is None or prior not in available:
+                      return None
+                  chain.append(prior)
+              chosen = [available[q] for q in reversed(chain)]
+              if any(row['bank'] != 'N' for row in chosen):
+                  return None
+              return chosen
+
+          symbols = sorted({symbol for symbol, _ in by_symbol_basis})
+          metadata = {}
+          for nominal in decisions:
+              cutoff = datetime.combine(nominal, dtime(20,0), tzinfo=IST)
+              rows = []
+              for symbol in symbols:
+                  consolidated = history_for(symbol,'C',cutoff)
+                  standalone = history_for(symbol,'S',cutoff)
+                  chosen = consolidated or standalone
+                  if chosen is None:
+                      continue
+                  rows.append({'symbol':symbol,'basis':'C' if consolidated else 'S','filings':chosen})
+              metadata[nominal] = rows
+
+          # Parse only already-retained predecision market bytes from the first coverage audit.
+          bars_by_day = {}
+          for raw_path in (coverage/'raw').glob('*'):
+              raw = raw_path.read_bytes()
+              # The source is content-addressed, so derive its date by trying only dates in the
+              # predeclared lookback windows and matching the parser. This avoids network access.
+              # Build candidate dates once and stop at the unique exact-date parse.
+              matched = []
+              for nominal in decisions:
+                  for offset in range(lookback_days+1):
+                      day = nominal - timedelta(days=offset)
+                      if day in bars_by_day:
+                          continue
+                      try:
+                          bars = h15.parse_legacy_bhavcopy(raw, day)
+                      except ValueError:
+                          continue
+                      matched.append((day,bars))
+              if len(matched) > 1:
+                  raise SystemExit('one retained bhavcopy parsed as multiple dates')
+              if matched:
+                  day,bars = matched[0]
+                  bars_by_day[day] = bars
+
+          expected_sessions = coverage_summary['market_sessions_retained']
+          if len(bars_by_day) != expected_sessions:
+              raise SystemExit(f'retained market-session reconstruction mismatch: {len(bars_by_day)} != {expected_sessions}')
+
+          cohorts = []
+          all_urls = set()
+          for nominal in decisions:
+              sessions = sorted(day for day in bars_by_day if nominal-timedelta(days=lookback_days) <= day <= nominal)
+              if len(sessions) < 20:
+                  raise SystemExit(f'fewer than 20 retained sessions near {nominal}')
+              decision = sessions[-1]
+              trailing = sessions[-20:]
+              candidates = []
+              for row in metadata[nominal]:
+                  values = []
+                  isins = []
+                  decision_bar = None
+                  for day in trailing:
+                      bar = bars_by_day[day].get(row['symbol'])
+                      if bar is None:
+                          continue
+                      values.append(float(bar['turnover']))
+                      isins.append(str(bar['isin']))
+                      if day == decision:
+                          decision_bar = bar
+                  if decision_bar is None or len(values) < 15 or len(set(isins)) != 1:
+                      continue
+                  median = statistics.median(values)
+                  if median < liquidity_floor:
+                      continue
+                  item = {
+                      **row,
+                      'decision_date': decision.isoformat(),
+                      'decision_close': float(decision_bar['close']),
+                      'isin': str(decision_bar['isin']),
+                      'liquidity_sessions': len(values),
+                      'median_20d_traded_value': median,
+                  }
+                  candidates.append(item)
+                  all_urls.update(filing['url'] for filing in row['filings'])
+              candidates.sort(key=lambda r:(-r['median_20d_traded_value'],r['symbol']))
+              cohorts.append({
+                  'nominal_decision_date': nominal.isoformat(),
+                  'decision_date': decision.isoformat(),
+                  'metadata_complete_nonfinancial': len(metadata[nominal]),
+                  'liquidity_eligible': len(candidates),
+                  'candidates': candidates,
+              })
+
+          expected = [c['liquidity_eligible'] for c in coverage_summary['cohorts']]
+          actual = [c['liquidity_eligible'] for c in cohorts]
+          if actual != expected:
+              raise SystemExit(f'complete-universe liquidity census mismatch: {actual} != {expected}')
+
+          summary = {
+              'status': 'H019_COMPLETE_INPUT_UNIVERSE_ONLY',
+              'return_outcomes_opened': False,
+              'selection_score_frozen': False,
+              'liquidity_floor_inr': liquidity_floor,
+              'cohort_counts': actual,
+              'minimum_liquidity_eligible': min(actual),
+              'maximum_liquidity_eligible': max(actual),
+              'unique_required_xbrl_urls': len(all_urls),
+              'source_universe_truncated': False,
+              'live_capital_allowed': False,
+          }
+          (root/'complete-input-universe-summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          (root/'complete-input-candidates.json').write_text(json.dumps(cohorts,indent=2,sort_keys=True)+'\n')
+          (root/'complete-required-xbrl-urls.json').write_text(json.dumps(sorted(all_urls),indent=2)+'\n')
+          print(json.dumps(summary,indent=2),flush=True)
+
+          forbidden=('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((root/name).exists() for name in forbidden):
+              raise SystemExit('complete input universe opened an H019 outcome')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-complete-input-universe-${{ github.run_id }}
+          path: |
+            /tmp/h019-complete/complete-input-universe-summary.json
+            /tmp/h019-complete/complete-input-candidates.json
+            /tmp/h019-complete/complete-required-xbrl-urls.json
+          if-no-files-found: error
+          retention-days: 30
