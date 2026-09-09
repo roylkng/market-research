@@ -7,7 +7,10 @@ owned by the frozen H018 runner.
 
 from __future__ import annotations
 
+import csv
+import io
 import json
+import math
 import os
 import pickle
 import time
@@ -22,6 +25,40 @@ MAX_WORKERS = 8
 DAY_TIMEOUT_SECONDS = 180
 ACQUISITION_PASSES = 2
 CHECKPOINT_SCHEMA = 1
+CNX_500_RENAME_DATE = date(2015, 11, 9)
+
+
+def _parse_nifty500_h018(raw_csv: bytes, session_date: date) -> dict[str, float]:
+    """Resolve the frozen Nifty 500 benchmark across its official 2015 rename."""
+    try:
+        return h15.parse_nifty500_source_date(raw_csv, session_date)
+    except ValueError:
+        if session_date >= CNX_500_RENAME_DATE:
+            raise
+
+        text = raw_csv.decode("utf-8-sig")
+        rows = [
+            row
+            for row in csv.DictReader(io.StringIO(text))
+            if " ".join(str(row.get("Index Name") or "").split()).casefold() == "cnx 500"
+        ]
+        if len(rows) != 1:
+            raise
+        row = rows[0]
+        parts = str(row.get("Index Date") or "").strip().split("-")
+        if len(parts) != 3 or not all(part.isdigit() for part in parts):
+            raise
+        source_date = date(int(parts[2]), int(parts[1]), int(parts[0]))
+        if source_date != session_date:
+            raise
+        try:
+            opened = float(row["Open Index Value"])
+            closed = float(row["Closing Index Value"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("invalid CNX 500 OHLC in frozen H018 source compatibility") from exc
+        if not all(math.isfinite(value) and value > 0 for value in (opened, closed)):
+            raise ValueError("nonpositive CNX 500 OHLC in frozen H018 source compatibility")
+        return {"open": opened, "close": closed}
 
 
 def _checkpoint_path(root: Path, day: date) -> Path:
@@ -199,7 +236,7 @@ def _retain_result(root: Path, result: dict[str, Any], diagnostics: dict[str, li
     i_retained = h15.base.retain(root, i_raw, url=str(result["index_url"]), kind="index")
     try:
         h15.parse_legacy_bhavcopy(b_raw, day)
-        h15.parse_nifty500_source_date(i_raw, day)
+        _parse_nifty500_h018(i_raw, day)
     except ValueError as exc:
         diagnostics["parse_errors"].append({"date": day.isoformat(), "error": str(exc)})
         return False
@@ -315,7 +352,7 @@ def _reconstruct(root: Path, days: list[date], diagnostics: dict[str, list]):
         if h15.base.sha256(b_raw) != b_meta["sha256"] or h15.base.sha256(i_raw) != i_meta["sha256"]:
             raise ValueError(f"H018 checkpoint source hash mismatch on {day}")
         equities = h15.parse_legacy_bhavcopy(b_raw, day)
-        nifty = h15.parse_nifty500_source_date(i_raw, day)
+        nifty = _parse_nifty500_h018(i_raw, day)
         sessions.append(day)
         index[day] = nifty
         manifest.extend([b_meta, i_meta])
