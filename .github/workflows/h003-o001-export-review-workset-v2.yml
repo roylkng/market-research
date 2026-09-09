@@ -1,0 +1,51 @@
+name: H003-O001 export date-visible blind review workset v2
+
+on:
+  push:
+    branches:
+      - research/h003-v001-outcome-protocol-20260908
+    paths:
+      - .github/workflows/h003-o001-export-review-workset-v2.yml
+      - research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2/**
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h003-v001-outcome-protocol-20260908
+          fetch-depth: 1
+      - name: Fail closed on reviewer export integrity
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2')
+          manifest = json.loads((root / 'manifest.json').read_text())
+          assert manifest['workset_id'] == 'H003-O001-MANUAL-WORKSET-V2'
+          assert manifest['manual_card_count'] == 691
+          assert manifest['safe_unresolved_count'] == 98
+          assert manifest['later_evidence_publication_dates_visible'] is True
+          assert manifest['private_binding_accessed'] is False
+          assert manifest['market_outcomes_accessed'] is False
+          assert manifest['live_capital_allowed'] is False
+          forbidden = {'symbol', 'company_name', 'claim_id', 'source_url', 'original_source_id'}
+          for path in sorted(root.glob('batch-*.json')):
+              doc = json.loads(path.read_text())
+              for card in doc['manual_cards']:
+                  assert forbidden.isdisjoint(card)
+                  for evidence in card['evidence']:
+                      assert set(evidence) == {'passage_id', 'exchange_published_at_utc', 'text'}
+          print('corrected blind reviewer export verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h003-o001-manual-review-workset-v2-${{ github.run_id }}
+          path: research/prospective/h003/FY27-Q2-2026-09-06/outcomes-o001/manual-review-workset-v2
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 6
