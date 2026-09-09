@@ -87,3 +87,18 @@ def test_missing_ohlc_fails_closed() -> None:
             start=date(2014, 1, 1),
             end=date(2014, 1, 31),
         )
+
+
+def test_response_capture_metadata_preserves_format_diagnostics() -> None:
+    raw = b"  <html><title>blocked</title></html>"
+    metadata = source.response_capture_metadata(
+        raw,
+        "https://www.niftyindices.com/Backpage.aspx/getHistoricaldatatabletoString",
+        "text/html; charset=utf-8",
+    )
+    assert metadata["source_owner"] == "NSE Indices Limited"
+    assert metadata["source_bytes"] == len(raw)
+    assert metadata["response_content_type"] == "text/html; charset=utf-8"
+    assert metadata["first_non_whitespace_byte_hex"] == "3c"
+    assert str(metadata["response_prefix_text"]).startswith("  <html>")
+    assert metadata["source_sha256"] == source.sha256(raw)
