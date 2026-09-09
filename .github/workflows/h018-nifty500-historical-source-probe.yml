@@ -67,10 +67,12 @@ jobs:
           print(json.dumps(d, indent=2, sort_keys=True))
           PY
       - name: Upload retained official NSE Indices response
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: h018-nifty500-historical-source-probe-${{ github.run_id }}
           path: /tmp/h018-nifty500-probe
+          if-no-files-found: error
           retention-days: 30
           compression-level: 0
       - name: Commit only source-equivalence summary
