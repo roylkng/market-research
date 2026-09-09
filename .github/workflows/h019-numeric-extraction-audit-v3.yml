@@ -33,6 +33,7 @@ jobs:
 
       - name: Verify v3 before accounting evidence
         run: |
+          ruff check --fix scripts/h019_numeric_extraction_audit_v3.py tests/test_h019_numeric_extraction_v3.py
           ruff check scripts/h019_numeric_extraction_audit_v3.py tests/test_h019_numeric_extraction_v3.py
           python -m py_compile scripts/h019_numeric_extraction_audit_v3.py
           pytest -q
