@@ -1,0 +1,53 @@
+name: H019 fix ledger pre-evidence lint
+
+on:
+  push:
+    branches:
+      - research/h019-fundamental-inflection-source-audit-20260909
+    paths:
+      - .github/workflows/h019-fix-ledger-pre-evidence.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-source-audit-20260909
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install repository environment
+        run: python -m pip install -e '.[dev]'
+
+      - name: Apply only auto-fixable lint normalization
+        run: |
+          ruff check --fix scripts/h019_accounting_ledger_v1.py tests/test_h019_accounting_ledger_v1.py
+          ruff check scripts/h019_accounting_ledger_v1.py tests/test_h019_accounting_ledger_v1.py
+          python -m py_compile scripts/h019_accounting_ledger_v1.py
+          pytest -q
+          git diff --check
+          python - <<'PY'
+          import subprocess
+          changed = subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
+          allowed = {
+              'scripts/h019_accounting_ledger_v1.py',
+              'tests/test_h019_accounting_ledger_v1.py',
+          }
+          assert set(changed) <= allowed, changed
+          assert changed, 'expected the two known pre-evidence lint normalizations'
+          print('Guarded changed files:', changed)
+          PY
+
+      - name: Commit verified lint-only normalization
+        run: |
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add scripts/h019_accounting_ledger_v1.py tests/test_h019_accounting_ledger_v1.py
+          git commit -m 'fix: normalize H019 ledger pre-evidence lint'
+          git push origin HEAD:research/h019-fundamental-inflection-source-audit-20260909
