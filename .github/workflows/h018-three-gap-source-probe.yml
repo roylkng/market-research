@@ -1,0 +1,102 @@
+name: H018 three benchmark-gap source probe
+
+on:
+  push:
+    branches: [research/h018-promotion-audit-20260908]
+    paths: [.github/workflows/h018-three-gap-source-probe.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+      - name: Probe exact official source responses only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, hashlib, io, json, pathlib
+          import urllib.error, urllib.parse, urllib.request, http.cookiejar
+          from datetime import date
+
+          out=pathlib.Path('/tmp/h018-three-gap-probe'); out.mkdir(parents=True,exist_ok=True)
+          ua='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/152.0.0.0 Safari/537.36'
+          dates=(date(2014,12,15),date(2015,3,12),date(2015,7,8))
+          records=[]
+
+          def fetch(url, data=None, headers=None):
+              req=urllib.request.Request(url,data=data,headers=headers or {},method='POST' if data is not None else 'GET')
+              try:
+                  with opener.open(req,timeout=30) as r:
+                      raw=r.read(); return r.status,r.geturl(),r.headers.get('content-type'),raw
+              except urllib.error.HTTPError as e:
+                  return e.code,e.geturl(),e.headers.get('content-type'),e.read()
+
+          jar=http.cookiejar.CookieJar()
+          opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          base_headers={'User-Agent':ua,'Accept':'text/csv,text/plain,*/*','Referer':'https://www.nseindia.com/'}
+
+          for d in dates:
+              stamp=d.strftime('%d%m%Y')
+              for host in ('www.niftyindices.com','niftyindices.com'):
+                  url=f'https://{host}/Daily_Snapshot/ind_close_all_{stamp}.csv'
+                  status,final,ctype,raw=fetch(url,headers=base_headers)
+                  p=out/f'{d.isoformat()}-{host}.bin'; p.write_bytes(raw)
+                  rows500=[]; header=[]
+                  try:
+                      text=raw.decode('utf-8-sig')
+                      reader=csv.DictReader(io.StringIO(text)); header=reader.fieldnames or []
+                      for row in reader:
+                          name=' '.join(str(row.get('Index Name') or '').split())
+                          if '500' in name.casefold():
+                              rows500.append({'Index Name':name,'Index Date':row.get('Index Date'),'Open Index Value':row.get('Open Index Value'),'Closing Index Value':row.get('Closing Index Value')})
+                  except Exception as exc:
+                      rows500=[{'parse_error':f'{type(exc).__name__}: {exc}'}]
+                  rec={'kind':'daily_snapshot','date':d.isoformat(),'url':url,'status':status,'final_url':final,'content_type':ctype,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'header':header,'rows_with_500':rows500,'prefix':raw[:160].decode('utf-8',errors='replace')}
+                  records.append(rec)
+                  print(json.dumps(rec,indent=2),flush=True)
+
+          # Warm the official historical-data page before POSTing the documented endpoint.
+          warm_headers={'User-Agent':ua,'Accept':'text/html,application/xhtml+xml,*/*'}
+          warm=urllib.request.Request('https://www.niftyindices.com/reports/historical-data',headers=warm_headers)
+          try:
+              with opener.open(warm,timeout=30) as r: r.read()
+          except Exception as exc:
+              print('warmup failed',type(exc).__name__,str(exc),flush=True)
+
+          payload={"cinfo":"{'name':'NIFTY 500','startDate':'15-Dec-2014','endDate':'08-Jul-2015','indexName':'NIFTY 500'}"}
+          body=json.dumps(payload).encode()
+          hist_headers={'User-Agent':ua,'Content-Type':'application/json; charset=UTF-8','Accept':'application/json, text/javascript, */*; q=0.01','X-Requested-With':'XMLHttpRequest','Referer':'https://www.niftyindices.com/reports/historical-data','Origin':'https://www.niftyindices.com'}
+          status,final,ctype,raw=fetch('https://www.niftyindices.com/Backpage.aspx/getHistoricaldatatabletoString',data=body,headers=hist_headers)
+          (out/'historical-response.bin').write_bytes(raw)
+          hrec={'kind':'historical_endpoint','status':status,'final_url':final,'content_type':ctype,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'prefix':raw[:240].decode('utf-8',errors='replace'),'cookies':[c.name for c in jar]}
+          try:
+              env=json.loads(raw.decode('utf-8-sig')); encoded=env.get('d') if isinstance(env,dict) else None
+              rows=json.loads(encoded) if isinstance(encoded,str) else []
+              wanted={d.strftime('%d %b %Y') for d in dates}|{d.strftime('%d-%b-%Y') for d in dates}
+              hrec['row_count']=len(rows) if isinstance(rows,list) else None
+              hrec['wanted_rows']=[r for r in rows if isinstance(r,dict) and str(r.get('HistoricalDate') or r.get('Date') or '').strip() in wanted]
+          except Exception as exc:
+              hrec['parse_error']=f'{type(exc).__name__}: {exc}'
+          records.append(hrec); print(json.dumps(hrec,indent=2),flush=True)
+
+          summary={'status':'H018_THREE_GAP_SOURCE_PROBE_ONLY','market_selection_outcomes_opened':False,'records':records}
+          (out/'summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
+          forbidden=('point-in-time-selections.json','challenge-summary.json','selected.csv')
+          if any((out/x).exists() for x in forbidden): raise SystemExit('probe opened outcome')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h018-three-gap-source-probe-${{ github.run_id }}
+          path: /tmp/h018-three-gap-probe
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
