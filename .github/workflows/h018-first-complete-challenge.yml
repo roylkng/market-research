@@ -1,0 +1,232 @@
+name: H018 first complete frozen challenge
+
+on:
+  push:
+    branches: [research/h018-promotion-audit-20260908]
+    paths: [.github/workflows/h018-first-complete-challenge.yml]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  challenge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h018-promotion-audit-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Verify repository and frozen H018 contract before first selection
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import h018_checkpoint_market as market
+          import run_h018_low_volatility_50 as h018
+
+          assert h018.MARKET_START.isoformat() == '2013-11-01'
+          assert h018.MARKET_END.isoformat() == '2017-05-31'
+          assert h018.DECISION_MONTHS == ((2014, 11), (2015, 5), (2015, 11), (2016, 5), (2016, 11))
+          assert h018.SELECT_COUNT == 50
+          assert h018.RANDOM_SEED == 1818
+          assert h018.RANDOM_DRAWS == 10_000
+          assert market.CNX_500_RENAME_DATE.isoformat() == '2015-11-09'
+          assert callable(h018.require_outcome_benchmark_dates)
+          print('H018 first-outcome contract verified')
+          PY
+      - name: Prepare H018 root
+        run: mkdir -p /tmp/h018-final
+      - name: Restore resolver corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: h018-resolved-session-checkpoints-34332594745
+          path: /tmp/h018-final
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 34332594745
+      - name: Complete exactly three frozen equity-session benchmark gaps
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import sys
+          from datetime import date
+          from pathlib import Path
+
+          sys.path.insert(0, 'scripts')
+          import h018_checkpoint_market as market
+          import run_h015_independent_challenge as h15
+
+          root = Path('/tmp/h018-final')
+          gaps = (date(2014, 12, 15), date(2015, 3, 12), date(2015, 7, 8))
+          expected_remaining = [day.isoformat() for day in gaps]
+          summary = json.loads((root / 'remaining-session-resolution-summary.json').read_text(encoding='utf-8'))
+          assert summary['market_selection_outcomes_opened'] is False
+          assert summary['total_checkpoints'] == 1305
+          assert summary['total_common_sessions'] == 879
+          assert summary['total_no_session_days'] == 426
+          assert summary['remaining_unresolved_dates'] == expected_remaining
+
+          forbidden = ('point-in-time-selections.json', 'challenge-summary.json', 'selected.csv')
+          if any((root / name).exists() for name in forbidden):
+              raise SystemExit('outcome file exists before first H018 selection')
+
+          for day in gaps:
+              if market._complete_checkpoint(root, day) is not None:
+                  raise SystemExit(f'gap checkpoint already exists: {day}')
+              primary = h15.legacy_bhavcopy_url(day)
+              candidates = (
+                  primary,
+                  primary.replace('https://archives.nseindia.com/', 'https://nsearchives.nseindia.com/', 1),
+              )
+              chosen = None
+              attempts = []
+              for url in candidates:
+                  raw, meta = h15.base.fetch_public(url, kind='h018-equity-index-gap-bhavcopy', attempts=6)
+                  attempts.append({'url': url, **meta})
+                  if raw is None:
+                      continue
+                  try:
+                      h15.parse_legacy_bhavcopy(raw, day)
+                  except ValueError:
+                      continue
+                  chosen = (url, raw)
+                  break
+              if chosen is None:
+                  raise SystemExit(f'failed to recover exact official bhavcopy for frozen gap {day}: {attempts}')
+              url, raw = chosen
+              retained = h15.base.retain(root, raw, url=url, kind='h018-equity-index-gap-bhavcopy')
+              market._atomic_json(
+                  market._checkpoint_path(root, day),
+                  {
+                      'schema_version': market.CHECKPOINT_SCHEMA,
+                      'date': day.isoformat(),
+                      'status': 'EQUITY_SESSION_INDEX_GAP',
+                      'bhavcopy': retained,
+                      'index_gap': {
+                          'status': 'OFFICIAL_BENCHMARK_SOURCE_UNAVAILABLE',
+                          'frozen_probe_run': 34333085593,
+                          'frozen_probe_artifact': 10096558700,
+                          'static_niftyindices_result': 'HTML_SITE_SHELL_NOT_CSV',
+                          'historical_endpoint_result': 'HTML_SITE_SHELL_NOT_JSON',
+                      },
+                  },
+              )
+
+          all_days = h15.calendar_days(date(2013, 11, 1), date(2017, 5, 31))
+          counts = {'COMMON_SESSION': 0, 'NO_SESSION': 0, 'EQUITY_SESSION_INDEX_GAP': 0}
+          for day in all_days:
+              checkpoint = market._complete_checkpoint(root, day)
+              if checkpoint is None:
+                  raise SystemExit(f'incomplete frozen market calendar on {day}')
+              counts[checkpoint['status']] += 1
+              if checkpoint['status'] != 'NO_SESSION':
+                  meta = checkpoint['bhavcopy']
+                  raw = (root / meta['raw_path']).read_bytes()
+                  if h15.base.sha256(raw) != meta['sha256']:
+                      raise SystemExit(f'bhavcopy hash mismatch on {day}')
+                  h15.parse_legacy_bhavcopy(raw, day)
+              if checkpoint['status'] == 'COMMON_SESSION':
+                  meta = checkpoint['index']
+                  raw = (root / meta['raw_path']).read_bytes()
+                  if h15.base.sha256(raw) != meta['sha256']:
+                      raise SystemExit(f'index hash mismatch on {day}')
+                  market._parse_nifty500_h018(raw, day)
+
+          assert len(all_days) == 1308
+          assert counts == {'COMMON_SESSION': 879, 'NO_SESSION': 426, 'EQUITY_SESSION_INDEX_GAP': 3}
+          (root / 'complete-market-calendar-summary.json').write_text(
+              json.dumps({
+                  'status': 'H018_COMPLETE_MARKET_CALENDAR_PRE_OUTCOME',
+                  'market_selection_outcomes_opened': False,
+                  'calendar_days': len(all_days),
+                  'counts': counts,
+                  'equity_session_index_gaps': expected_remaining,
+              }, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps({'calendar_days': len(all_days), 'counts': counts}, indent=2), flush=True)
+          PY
+      - name: Run unchanged frozen H018 selection and challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_h018_low_volatility_50.py --out /tmp/h018-final \
+            | tee /tmp/h018-final/run.log
+          test -s /tmp/h018-final/point-in-time-selections.json
+          test -s /tmp/h018-final/challenge-summary.json
+          test -s /tmp/h018-final/selected.csv
+      - name: Verify result artifact contract
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/h018-final')
+          summary = json.loads((root / 'challenge-summary.json').read_text())
+          selections = json.loads((root / 'point-in-time-selections.json').read_text())
+          assert summary['status'] == 'INDEPENDENT_HISTORICAL_CHALLENGE_ONLY'
+          assert summary['live_capital_allowed'] is False
+          assert len(selections) == 5
+          assert summary['selected_observations'] == 250
+          assert summary['common_sessions'] == 882
+          assert summary['market_acquisition_diagnostics']['unresolved_dates'] == []
+          assert summary['market_acquisition_diagnostics']['equity_session_index_gaps'] == [
+              '2014-12-15', '2015-03-12', '2015-07-08'
+          ]
+          required = summary['required_benchmark_dates']
+          assert len(required) >= 6
+          assert not {'2014-12-15','2015-03-12','2015-07-08'}.intersection(required)
+          assert len(summary['gates']) == 13
+          print(json.dumps({
+              'pass': summary['pass'],
+              'primary': summary['primary'],
+              'positive_cohort_count': summary['positive_cohort_count'],
+              'matched_random_p_mean': summary['matched_random_p_mean'],
+              'gates': summary['gates'],
+              'required_benchmark_dates': required,
+          }, indent=2), flush=True)
+          PY
+      - name: Upload H018 first complete results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h018-first-complete-results-${{ github.run_id }}
+          path: |
+            /tmp/h018-final/complete-market-calendar-summary.json
+            /tmp/h018-final/point-in-time-selections.json
+            /tmp/h018-final/challenge-summary.json
+            /tmp/h018-final/selected.csv
+            /tmp/h018-final/market-acquisition-diagnostics.json
+            /tmp/h018-final/market-source-manifest.json
+            /tmp/h018-final/source-manifest.json
+            /tmp/h018-final/run.log
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Upload complete retained source corpus
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h018-first-complete-source-corpus-${{ github.run_id }}
+          path: |
+            /tmp/h018-final/checkpoints
+            /tmp/h018-final/raw
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
