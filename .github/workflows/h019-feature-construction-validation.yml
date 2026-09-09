@@ -1,0 +1,40 @@
+name: H019 raw feature construction validation
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-feature-construction-validation.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Validate raw feature layer only
+        run: |
+          ruff check scripts/h019_financials.py scripts/h019_features.py tests/test_h019_financials.py tests/test_h019_features.py
+          pytest -q tests/test_h019_financials.py tests/test_h019_features.py
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,'scripts')
+          import h019_features as features
+          import h019_financials as financials
+          assert not hasattr(features, 'select')
+          assert not hasattr(features, 'score')
+          assert not hasattr(features, 'outcome')
+          assert callable(features.build_raw_features)
+          assert callable(financials.parse_quarterly_financials)
+          print('H019 raw feature layer validated with no selection/outcome API')
+          PY
+          git diff --check
