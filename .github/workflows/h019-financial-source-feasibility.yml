@@ -1,0 +1,217 @@
+name: H019 historical financial source feasibility
+
+on:
+  push:
+    branches: [research/h019-fundamental-inflection-20260909]
+    paths: [.github/workflows/h019-financial-source-feasibility.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h019-fundamental-inflection-20260909
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Audit official NSE historical result metadata and XBRL schemas only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h019-source
+          python - <<'PY'
+          import hashlib
+          import json
+          import sys
+          import time
+          import xml.etree.ElementTree as ET
+          from collections import Counter, defaultdict
+          from datetime import date
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          import requests
+
+          sys.path.insert(0, 'scripts')
+          from acquire_h005_corpus import ALLOWED, LEGACY, dump, normalize, query, retain
+          from marketlab.nse import NSEClient
+
+          root = Path('/tmp/h019-source')
+          client = NSEClient(timeout=20, attempts=3)
+          manifests = []
+          normalized = []
+          listing_stats = defaultdict(lambda: Counter())
+
+          def quarter_ranges(year):
+              return (
+                  (date(year,1,1), date(year,3,31)),
+                  (date(year,4,1), date(year,6,30)),
+                  (date(year,7,1), date(year,9,30)),
+                  (date(year,10,1), date(year,12,31)),
+              )
+
+          for period in ('Quarterly', 'Annual'):
+              for year in range(2017, 2024):
+                  for start, end in quarter_ranges(year):
+                      params = {
+                          'index': 'equities',
+                          'period': period,
+                          'from_date': start.strftime('%d-%m-%Y'),
+                          'to_date': end.strftime('%d-%m-%Y'),
+                      }
+                      payload, meta = query(client, root, LEGACY, params, f'h019-{period.lower()}-listing')
+                      manifests.append(meta)
+                      key = f'{year}:{period}'
+                      listing_stats[key]['requests'] += 1
+                      listing_stats[key][f"request_{meta.get('status','UNKNOWN')}"] += 1
+                      rows = payload if isinstance(payload, list) else []
+                      listing_stats[key]['rows'] += len(rows)
+                      for row in rows:
+                          if not isinstance(row, dict):
+                              continue
+                          symbol = str(row.get('symbol') or '').strip().upper()
+                          if symbol:
+                              listing_stats[key]['rows_with_symbol'] += 1
+                          if str(row.get('broadCastDate') or row.get('broadcast_Date') or '').strip():
+                              listing_stats[key]['rows_with_publication'] += 1
+                          if str(row.get('toDate') or row.get('qe_Date') or '').strip():
+                              listing_stats[key]['rows_with_period_end'] += 1
+                          if str(row.get('xbrl') or '').strip():
+                              listing_stats[key]['rows_with_xbrl_field'] += 1
+                          item = normalize(row, str(meta.get('sha256') or ''))
+                          if item:
+                              item['listing_period'] = period
+                              normalized.append(item)
+                              listing_stats[key]['normalized_rows'] += 1
+                      print(period, year, start, len(rows), meta.get('status'), flush=True)
+
+          # Distinct-symbol and basis counts are derived from metadata only.
+          by_key = defaultdict(list)
+          for row in normalized:
+              year = int(str(row['published'])[:4])
+              by_key[f"{year}:{row['listing_period']}"].append(row)
+          for key, rows in by_key.items():
+              listing_stats[key]['distinct_symbols'] = len({row['symbol'] for row in rows})
+              listing_stats[key]['consolidated_rows'] = sum(row['basis'] == 'C' for row in rows)
+              listing_stats[key]['standalone_rows'] = sum(row['basis'] == 'S' for row in rows)
+
+          # Deterministic, performance-blind sample: first 3 URL hashes per publication year.
+          unique = {}
+          for row in normalized:
+              unique.setdefault(row['url'], row)
+          sample = []
+          for year in range(2017, 2024):
+              candidates = [row for row in unique.values() if int(str(row['published'])[:4]) == year]
+              candidates.sort(key=lambda row: hashlib.sha256(row['url'].encode()).hexdigest())
+              sample.extend(candidates[:3])
+
+          concept_terms = {
+              'revenue': ('revenue','turnover','sales'),
+              'operating': ('operating','expense','ebit','ebitda'),
+              'profit': ('profit','lossaftertax','netprofit'),
+              'equity': ('equity','networth'),
+              'assets': ('asset',),
+              'debt': ('borrow','debt','loan'),
+              'operating_cash_flow': ('cashflowfromoperating','cashflowsfromoperating','operatingactivities'),
+              'eps': ('earningspershare','basiceps','dilutedeps'),
+              'receivables': ('receivable','trade receivable','tradereceivable'),
+              'inventory': ('inventor',),
+              'working_capital': ('currentasset','currentliabil'),
+          }
+
+          xclient = NSEClient(timeout=18, attempts=1)
+          xclient._initialize_session()
+          schema_rows = []
+          for number, row in enumerate(sample, 1):
+              url = row['url']
+              record = {
+                  'symbol': row['symbol'],
+                  'published_year': int(str(row['published'])[:4]),
+                  'quarter_end': row['quarter_end'],
+                  'basis': row['basis'],
+                  'url': url,
+                  'url_sha256': hashlib.sha256(url.encode()).hexdigest(),
+              }
+              try:
+                  if urlparse(url).scheme != 'https' or urlparse(url).hostname not in ALLOWED:
+                      raise ValueError('sample URL outside official NSE archive hosts')
+                  response = xclient.session.get(url, timeout=(8,18))
+                  if urlparse(response.url).hostname not in ALLOWED:
+                      raise ValueError('sample redirected outside official NSE archive hosts')
+                  response.raise_for_status()
+                  raw = response.content
+                  if not raw or len(raw) > 20_000_000:
+                      raise ValueError('empty or oversized filing')
+                  document = ET.fromstring(raw)
+                  if document.tag.rsplit('}',1)[-1].casefold() != 'xbrl':
+                      raise ValueError('not an XBRL root')
+                  meta = retain(root, raw, url, 'h019-schema-sample-xbrl')
+                  localnames = sorted({element.tag.rsplit('}',1)[-1] for element in document.iter()})
+                  folded = [(name, name.casefold().replace('_','').replace('-','').replace(' ','')) for name in localnames]
+                  matches = {}
+                  for category, terms in concept_terms.items():
+                      normalized_terms = [term.casefold().replace('_','').replace('-','').replace(' ','') for term in terms]
+                      found = [name for name, token in folded if any(term in token for term in normalized_terms)]
+                      matches[category] = found[:40]
+                  record.update({
+                      'status': 'OK',
+                      'source_sha256': meta['sha256'],
+                      'source_bytes': meta['bytes'],
+                      'concept_count': len(localnames),
+                      'concept_matches': matches,
+                  })
+              except (ET.ParseError, requests.RequestException, ValueError) as exc:
+                  record.update(status='FAILED', error=f'{type(exc).__name__}: {exc}')
+              schema_rows.append(record)
+              print('xbrl schema', number, '/', len(sample), record['published_year'], record['status'], flush=True)
+              time.sleep(0.10)
+
+          # Only schema availability is summarized. No financial values and no returns are read.
+          category_coverage = {}
+          good = [row for row in schema_rows if row['status'] == 'OK']
+          for category in concept_terms:
+              category_coverage[category] = {
+                  'documents_with_match': sum(bool(row['concept_matches'][category]) for row in good),
+                  'documents_tested': len(good),
+              }
+
+          summary = {
+              'status': 'H019_SOURCE_FEASIBILITY_ONLY',
+              'return_outcomes_opened': False,
+              'selection_score_frozen': False,
+              'window': {'start':'2017-01-01','end':'2023-12-31'},
+              'listing_requests': len(manifests),
+              'listing_request_status': dict(Counter(meta.get('status','UNKNOWN') for meta in manifests)),
+              'normalized_listing_rows': len(normalized),
+              'distinct_symbols': len({row['symbol'] for row in normalized}),
+              'listing_stats': {key: dict(value) for key, value in sorted(listing_stats.items())},
+              'xbrl_sample_planned': len(sample),
+              'xbrl_sample_status': dict(Counter(row['status'] for row in schema_rows)),
+              'category_coverage': category_coverage,
+              'live_capital_allowed': False,
+          }
+          dump(root / 'listing-manifest.json', manifests)
+          dump(root / 'normalized-listings.json', normalized)
+          dump(root / 'xbrl-schema-sample.json', schema_rows)
+          dump(root / 'source-feasibility-summary.json', summary)
+          print(json.dumps(summary, indent=2), flush=True)
+
+          forbidden = ('h019-selections.json','h019-outcomes.json','h019-challenge-summary.json','selected.csv')
+          if any((root / name).exists() for name in forbidden):
+              raise SystemExit('H019 source-feasibility probe created forbidden outcome artifact')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h019-source-feasibility-${{ github.run_id }}
+          path: /tmp/h019-source
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
