@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "hypothesis_id": "H021",
+  "created_date": "2026-09-11",
+  "universe_path": "research/prospective/universes/FY27-Q2-2026-09-06.json",
+  "universe_git_blob_sha": "8026e81faee3e913d2fba1dba72d60603b69fa07",
+  "source_index_name": "NIFTY 200",
+  "cohort_definition": "frozen 100-company U001 panel drawn from NIFTY 200",
+  "expected_member_count": 100,
+  "batching_rule": "frozen universe rank, contiguous 50-name batches",
+  "outcomes_opened": false,
+  "batches": [
+    {"batch_id":"B01","rank_min":1,"rank_max":50},
+    {"batch_id":"B02","rank_min":51,"rank_max":100}
+  ],
+  "rules": [
+    "Every frozen U001 member belongs to exactly one batch.",
+    "Source failure or no analyst coverage does not permit substitution.",
+    "Batch boundaries may not be changed using H021 returns.",
+    "Both batches belong to the same logical weekly capture and must retain their individual completion/error states."
+  ]
+}
