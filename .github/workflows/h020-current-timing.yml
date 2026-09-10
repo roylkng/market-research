@@ -1,0 +1,63 @@
+name: H020 current entry timing screen
+
+on:
+  push:
+    branches:
+      - research/h020-entry-timing-v1-20260910
+    paths:
+      - '.github/workflows/h020-current-timing.yml'
+      - 'src/marketlab/timing.py'
+      - 'scripts/run_h020_current.py'
+      - 'tests/test_timing.py'
+      - 'research/prospective/h020/current-candidates-2026-09-10.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate timing invariants
+        run: |
+          pytest -q tests/test_timing.py
+          ruff check src/marketlab/timing.py scripts/run_h020_current.py tests/test_timing.py
+
+      - name: Run frozen exploratory screen
+        run: |
+          rm -rf reports/current/h020-2026-09-10
+          python scripts/run_h020_current.py \
+            --candidates research/prospective/h020/current-candidates-2026-09-10.yaml \
+            --as-of 2026-09-10 \
+            --out-dir reports/current/h020-2026-09-10
+
+      - name: Anchor current run on branch
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add -f reports/current/h020-2026-09-10
+          git commit -m "H020: anchor Sep 10 exploratory timing run" || true
+          git push origin HEAD:research/h020-entry-timing-v1-20260910
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h020-current-timing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/current/h020-2026-09-10
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
