@@ -1,0 +1,70 @@
+name: H021 expectation-revision source feasibility
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/h021-expectation-revision-quality-v1-20260911
+    paths-ignore:
+      - 'reports/h021-source-feasibility/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-source-feasibility
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate source-probe invariants
+        run: pytest -q tests/test_h021_source_feasibility.py
+
+      - name: Run frozen source probe
+        run: |
+          python scripts/run_h021_source_feasibility.py \
+            --cohort research/prospective/h021/source-probe-cohort-v1.json \
+            --out-dir reports/h021-source-feasibility/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT} \
+            --sleep-seconds 2.5 \
+            --timeout 20
+
+      - name: Anchor source-only evidence
+        if: always()
+        run: |
+          OUT="reports/h021-source-feasibility/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          if [ ! -d "$OUT" ]; then
+            echo "No source report directory to anchor"
+            exit 0
+          fi
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUT"
+          if git diff --cached --quiet; then
+            echo "No source evidence changed"
+          else
+            git commit -m "H021: anchor source feasibility run ${GITHUB_RUN_ID} [skip ci]"
+            git push origin HEAD:research/h021-expectation-revision-quality-v1-20260911
+          fi
+
+      - name: Upload source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-source-feasibility-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/h021-source-feasibility/run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 90
