@@ -1,0 +1,71 @@
+name: H021 broker revision source probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/h021-expectation-revision-quality-v1-20260911
+    paths:
+      - 'scripts/probe_h021_broker_revision_pages.py'
+      - 'tests/test_h021_broker_source_probe.py'
+      - 'research/prospective/h021/broker-revision-source-probe-v1.json'
+      - '.github/workflows/h021-broker-revision-source-probe.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-broker-revision-source-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate parser
+        run: pytest -q tests/test_h021_broker_source_probe.py tests/test_h021.py
+
+      - name: Run source-only broker revision probe
+        run: |
+          python scripts/probe_h021_broker_revision_pages.py \
+            --config research/prospective/h021/broker-revision-source-probe-v1.json \
+            --out-dir reports/h021-broker-source-probe/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}
+
+      - name: Anchor source-only evidence
+        if: always()
+        run: |
+          OUT="reports/h021-broker-source-probe/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          if [ ! -d "$OUT" ]; then
+            echo "No source report directory to anchor"
+            exit 0
+          fi
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUT"
+          if git diff --cached --quiet; then
+            echo "No source evidence changed"
+          else
+            git commit -m "H021-B: anchor broker source probe ${GITHUB_RUN_ID} [skip ci]"
+            git push origin HEAD:research/h021-expectation-revision-quality-v1-20260911
+          fi
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-broker-source-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/h021-broker-source-probe/run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 90
