@@ -10,7 +10,9 @@ Historical company-level consensus-revision backtesting is not authorized. The c
 
 ## Universe
 
-Primary prospective market universe: the existing frozen FY27-Q2 NIFTY 200 universe at `research/prospective/universes/FY27-Q2-2026-09-06.json`, Git blob `8026e81faee3e913d2fba1dba72d60603b69fa07`. It was captured before H021 and is independent of analyst-provider success.
+Primary prospective market universe: the existing **frozen 100-company U001 panel drawn from NIFTY 200** at `research/prospective/universes/FY27-Q2-2026-09-06.json`, Git blob `8026e81faee3e913d2fba1dba72d60603b69fa07`. The existing H002 cohort-preparation contract independently confirms that U001 contains 100 companies. The panel was captured before H021 and is independent of analyst-provider success.
+
+H021 does not expand this panel to all 200 NIFTY 200 constituents after observing the source result. A later full-index experiment, if useful, requires a separately frozen universe version.
 
 Every frozen symbol must receive one data state per capture:
 
@@ -27,6 +29,8 @@ No failed symbol may be replaced.
 Capture once per week after the final completed Indian market session of the week. Intended operational cadence is Friday after market close. If Friday is not a completed NSE session, use the week's final completed session where feasible or record `NO_MARKET_SESSION` with calendar evidence.
 
 Each capture is immutable. Corrections create a new version with a reason.
+
+The 100-name panel is processed in two fixed contiguous rank batches of 50. Both are part of one logical weekly capture and neither may be silently omitted.
 
 ## Acquisition boundary
 
