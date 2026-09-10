@@ -5,7 +5,6 @@ from pathlib import Path
 
 from marketlab.h021 import validate_snapshot
 
-
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = ROOT / "research/prospective/h021/captures/2026-09-11-browser-baseline-v1.json"
 BATCHES = ROOT / "research/prospective/h021/capture-batches-v1.json"
