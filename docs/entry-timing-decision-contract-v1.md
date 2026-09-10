@@ -19,6 +19,52 @@ Reference inspected: registry/h004_signal_rule.yaml on research/h019-fundamental
 
 No successful backtest or calibrated probability is established by this document. An unvalidated timing overlay cannot rehabilitate a rejected stock-selection hypothesis.
 
+## External-method review, 2026-09-10
+
+This section records methodological ideas observed in current and standard public research. It does not treat any external recommendation as evidence that a stock will rise.
+
+### Fundamental analysts
+
+CFA Institute's current equity-valuation material describes the fundamental process as understanding the business, forecasting company performance, selecting a valuation model, converting forecasts to valuation, then making a recommendation. Fundamental analysis uses macroeconomic, industry and company information. Discounted-cash-flow and relative-multiple methods are standard approaches.
+
+Sources:
+- https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/equity-valuation-concepts-basic-tools
+- https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/company-analysis-forecasting
+- https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/free-cash-flow-valuation
+- https://www.cfainstitute.org/insights/professional-learning/refresher-readings/2026/market-based-valuation-price-and-enterprise-value-multiples
+
+Implication for MarketLab: forecast the operating drivers, cash conversion and valuation independently of the entry-timing signal. A technically strong stock with implausible valuation must not become a long-horizon selection solely because price is rising.
+
+### Current Indian technical recommendations
+
+Public broker/expert columns reviewed on September 10 repeatedly use:
+- breakouts from consolidation or resistance,
+- higher highs and higher lows,
+- price relative to moving averages,
+- RSI and MACD momentum,
+- volume expansion,
+- broad/sector-relative trend,
+- explicit entry zone, stop and target.
+
+Examples:
+- https://www.moneycontrol.com/news/business/markets/trade-spotlight-how-should-you-trade-urban-company-inox-wind-cg-power-apollo-hospitals-enterprise-adani-ports-and-others-on-september-10-14026632.html
+- https://www.moneycontrol.com/news/business/markets/trade-spotlight-how-should-you-trade-marico-narayana-hrudayalaya-granules-laurus-labs-caplin-point-tata-technologies-and-others-on-september-9-14025670.html
+- https://www.moneycontrol.com/news/business/markets/trade-spotlight-how-should-you-trade-ifci-balaji-amines-acme-solar-holdings-indraprastha-gas-tata-communications-and-others-on-september-7-14023879.html
+- https://www.livemint.com/market/stock-market-news/breakout-stocks-to-buy-or-sell-sumeet-bagadia-recommends-five-shares-to-buy-today-9-september-2026-11788915118182.html
+
+Implication for MarketLab: these ideas are useful as candidate observable features, but several are transformations of the same price series and must not be counted as independent evidence without testing. Named chart patterns and Fibonacci/time-cycle labels should not receive privileged status unless they beat simpler price/volume baselines out of sample.
+
+### Quantitative evidence
+
+Public academic summaries support testing momentum, volatility, volume and regime features rather than assuming a single chart indicator is sufficient. The equity momentum literature documents predictive persistence over multi-month horizons, while a broad factor-timing study found past factor returns and volatility among the strongest individual timing predictors. A separate volatility study found combinations of returns and volume can improve forecasts, though statistical forecast accuracy does not automatically imply trading profitability.
+
+Sources:
+- https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3217368
+- https://papers.ssrn.com/sol3/Delivery.cfm/4376898.pdf?abstractid=4376898&mirid=1&type=2
+- https://papers.ssrn.com/sol3/Delivery.cfm/SSRN_ID2369925_code148992.pdf?abstractid=1438041
+
+Implication for MarketLab: the first timing benchmark should be deliberately simple, for example price trend, relative momentum and volatility. RSI, MACD, Bollinger Bands and named candlestick patterns should enter only as challenger features. Complexity must demonstrate incremental out-of-sample value.
+
 ## Separate outputs, not one blended score
 
 Every company card must show:
@@ -60,13 +106,43 @@ Regime: broad/sector trend and breadth, interest rates, funding conditions, comm
 
 Missing or conflicting price/volume history blocks automatic entry classification. Indicator snippets from different vendors, exchanges, timestamps or adjustment methods must not be combined into an apparently precise technical signal.
 
+## Feature hierarchy for the first timing experiment
+
+Tier 0, required baselines:
+- 20-session and 60-session total return,
+- stock minus Nifty 500 return over the same windows,
+- stock minus sector return over the same windows,
+- realized volatility and maximum drawdown,
+- distance from trailing 20/60-session high and low.
+
+Tier 1, interpretable price-state challengers:
+- 20/50/200-session moving-average ordering and slope,
+- confirmed higher-high/higher-low or lower-high/lower-low state without future leakage,
+- range breakout/retest state,
+- volume or traded-value ratio versus prior 20 sessions.
+
+Tier 2, common technical indicators:
+- RSI,
+- MACD,
+- Bollinger Band position/width,
+- ATR-normalized distance from support/resistance.
+
+Tier 3, exploratory only:
+- named candlestick formations,
+- Fibonacci retracements/extensions,
+- Elliott-wave or time-cycle labels,
+- sentiment/news embeddings.
+
+Promotion rule: a higher tier is retained only if it adds stable walk-forward performance after costs over the simpler lower-tier model. Multiple indicators derived from the same underlying prices must be assessed for incremental information rather than voted as independent confirmations.
+
 ## Candidate experiment design, not a promoted strategy
 
-Compare three policies on the same point-in-time eligible company pool:
+Compare four policies on the same point-in-time eligible company pool:
 
 A. Enter at the first eligible next-session executable price after the business signal.
 B. Apply one simple preregistered trend filter.
 C. Apply a separately preregistered early-reversal/pullback filter.
+D. Apply a small multivariate timing model using only Tier 0 and Tier 1 inputs. Tier 2 and Tier 3 features are challenger variants, not defaults.
 
 All policies use the same initial capital, calendar start and terminal evaluation dates, cost treatment, position limits and exit assumptions. Uninvested capital remains in a consistently defined cash instrument. Waiting policies must include signals they never enter and the opportunity cost of missed winners.
 
