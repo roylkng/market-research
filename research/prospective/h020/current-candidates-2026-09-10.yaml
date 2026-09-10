@@ -1,12 +1,14 @@
-version: 1
+version: 2
 hypothesis_id: H020
 as_of: 2026-09-10
 benchmark_ticker: ^NSEI
 paper_only: true
-candidate_source: prior_forward_condition_and_h004_research_shortlist
+candidate_source: prior_internal_shortlist_plus_independent_public_market_calls
 notes:
   - Candidate selection is exploratory and not validation evidence.
   - TRANSRAILL and GENUSPOWER influenced timing-rule design and cannot validate H020.
+  - External challenge names were added after v1 to compare H020 timing states against Sep 10 public technical calls. They are not used to tune thresholds in this run.
+  - Public-call sources include Moneycontrol, LiveMint and Times of India articles published 2026-09-10.
 candidates:
   - symbol: TRANSRAILL
     ticker: TRANSRAILL.NS
@@ -74,3 +76,43 @@ candidates:
     ticker: NATIONALUM.NS
     business_lens: aluminium / mining
     business_note: Cyclical cash generation and expansion optionality, with commodity-price dependence.
+  - symbol: PAYTM
+    ticker: PAYTM.NS
+    business_lens: external technical challenge / fintech
+    business_note: Independent Sep 10 call cited market outperformance and a 52-week-high momentum setup. Included as a challenge, not an endorsed fundamental thesis.
+  - symbol: NYKAA
+    ticker: NYKAA.NS
+    business_lens: external technical challenge / consumer platform
+    business_note: Independent Sep 10 call cited multi-year price strength and continued momentum. Included as a challenge against the timing model.
+  - symbol: WABAG
+    ticker: WABAG.NS
+    business_lens: external technical challenge / water infrastructure
+    business_note: Independent Sep 10 market-call candidate. H020 tests the price state without importing the commentator target.
+  - symbol: MEDANTA
+    ticker: MEDANTA.NS
+    business_lens: external technical challenge / hospitals
+    business_note: Independent Sep 10 breakout-call candidate under the listed Global Health ticker MEDANTA.
+  - symbol: ADANIPOWER
+    ticker: ADANIPOWER.NS
+    business_lens: external technical challenge / power
+    business_note: Independent Sep 10 breakout-call candidate. Included to test whether relative trend survives the weak market regime.
+  - symbol: JSWINFRA
+    ticker: JSWINFRA.NS
+    business_lens: external technical challenge / infrastructure
+    business_note: Independent Sep 10 breakout-call candidate, not part of the internal fundamental shortlist.
+  - symbol: APOLLOHOSP
+    ticker: APOLLOHOSP.NS
+    business_lens: external technical challenge / hospitals
+    business_note: Moneycontrol Sep 10 call cited a volume-backed triangle breakout, RSI improvement and positive directional movement.
+  - symbol: ADANIPORTS
+    ticker: ADANIPORTS.NS
+    business_lens: external technical challenge / ports
+    business_note: Moneycontrol Sep 10 call cited a rebound from consolidation, volume support and improving RSI.
+  - symbol: HBLENGINE
+    ticker: HBLENGINE.NS
+    business_lens: external technical challenge / industrial technology
+    business_note: Sep 9 public call cited support near a 50-day average and volume-backed recovery.
+  - symbol: ARVIND
+    ticker: ARVIND.NS
+    business_lens: external technical challenge / textiles
+    business_note: Sep 9 public call cited range breakout, retracement to a 20-day average and recovery.
