@@ -19,16 +19,16 @@ def test_seed_baseline_is_valid_and_primary_eps_is_unavailable() -> None:
     assert all(row["consensus_eps"] is None for row in snapshot["observations"])
 
 
-def test_capture_batches_cover_frozen_nifty_200_exactly_once() -> None:
+def test_capture_batches_cover_frozen_u001_panel_exactly_once() -> None:
     batch_config = json.loads(BATCHES.read_text(encoding="utf-8"))
     universe = json.loads(UNIVERSE.read_text(encoding="utf-8"))
 
-    assert batch_config["expected_member_count"] == 200
-    assert len(universe["members"]) == 200
+    assert batch_config["expected_member_count"] == 100
+    assert len(universe["members"]) == 100
 
     covered_ranks: list[int] = []
     for batch in batch_config["batches"]:
         covered_ranks.extend(range(batch["rank_min"], batch["rank_max"] + 1))
 
-    assert covered_ranks == list(range(1, 201))
-    assert sorted(member["rank"] for member in universe["members"]) == list(range(1, 201))
+    assert covered_ranks == list(range(1, 101))
+    assert sorted(member["rank"] for member in universe["members"]) == list(range(1, 101))
