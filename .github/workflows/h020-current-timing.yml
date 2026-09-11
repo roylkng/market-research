@@ -10,6 +10,7 @@ on:
       - 'scripts/run_h020_current.py'
       - 'tests/test_timing.py'
       - 'research/prospective/h020/current-candidates-2026-09-10.yaml'
+      - 'research/prospective/h020/run-request.txt'
   workflow_dispatch:
 
 permissions:
@@ -36,20 +37,27 @@ jobs:
           pytest -q tests/test_timing.py
           ruff check src/marketlab/timing.py scripts/run_h020_current.py tests/test_timing.py
 
+      - name: Resolve market date
+        run: |
+          AS_OF="$(TZ=Asia/Kolkata date +%F)"
+          OUT_DIR="reports/current/h020-${AS_OF}"
+          echo "AS_OF=${AS_OF}" >> "$GITHUB_ENV"
+          echo "OUT_DIR=${OUT_DIR}" >> "$GITHUB_ENV"
+
       - name: Run frozen exploratory screen
         run: |
-          rm -rf reports/current/h020-2026-09-10
+          rm -rf "$OUT_DIR"
           python scripts/run_h020_current.py \
             --candidates research/prospective/h020/current-candidates-2026-09-10.yaml \
-            --as-of 2026-09-10 \
-            --out-dir reports/current/h020-2026-09-10
+            --as-of "$AS_OF" \
+            --out-dir "$OUT_DIR"
 
       - name: Anchor current run on branch
         run: |
           git config user.name 'marketlab-research-bot'
           git config user.email 'marketlab-research-bot@users.noreply.github.com'
-          git add -f reports/current/h020-2026-09-10
-          git commit -m "H020: anchor Sep 10 exploratory timing run" || true
+          git add -f "$OUT_DIR"
+          git commit -m "H020: anchor ${AS_OF} exploratory timing run" || true
           git push origin HEAD:research/h020-entry-timing-v1-20260910
 
       - name: Upload evidence
@@ -57,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: h020-current-timing-${{ github.run_id }}-${{ github.run_attempt }}
-          path: reports/current/h020-2026-09-10
+          path: ${{ env.OUT_DIR }}
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 90
