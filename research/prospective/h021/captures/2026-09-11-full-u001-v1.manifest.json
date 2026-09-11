@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "hypothesis_id": "H021",
+  "logical_capture_id": "2026-09-11-full-u001-v1",
+  "capture_date_ist": "2026-09-11",
+  "captured_at_utc": "2026-09-11T13:15:12Z",
+  "universe_path": "research/prospective/universes/FY27-Q2-2026-09-06.json",
+  "universe_git_blob_sha": "8026e81faee3e913d2fba1dba72d60603b69fa07",
+  "protocol_path": "research/H021_PROSPECTIVE_PROTOCOL_V1.md",
+  "batch_spec_path": "research/prospective/h021/capture-batches-v1.json",
+  "payload_path": "research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz",
+  "payload_encoding": "gzip",
+  "payload_uncompressed_sha256": "bd87a3bb942a60e7f625293577487b8850b67530b3126bea5bb7d9d9e999d434",
+  "payload_uncompressed_bytes": 42905,
+  "payload_gzip_sha256": "94bdbbc4fa4e8fa70f1535797f165dfbab52d0f937cade91425824422f9d2c33",
+  "payload_gzip_bytes": 5122,
+  "source_version": "H021-public-stockanalysis-spgi-plus-trendlyne-secondary-v1",
+  "coverage_summary": {
+    "total": 100,
+    "OBSERVED": 94,
+    "PARTIAL": 6,
+    "NO_COVERAGE": 0,
+    "SOURCE_BLOCKED": 0,
+    "IDENTITY_UNRESOLVED": 0,
+    "current_analyst_count_ge_5": 97,
+    "current_analyst_count_2_to_4": 2,
+    "current_analyst_count_lt_2_or_null": 1,
+    "explicit_consensus_eps": 100
+  },
+  "batch_summary": [
+    {"batch_id": "B01", "ranks": "1-50", "processed": 50},
+    {"batch_id": "B02", "ranks": "51-100", "processed": 50}
+  ],
+  "primary_revision_available": false,
+  "primary_revision_reason": "No compatible immutable H021 capture exists 28-35 calendar days before 2026-09-11.",
+  "prior_capture_search": "research/prospective/h021/captures contained only the same-day 8-name feasibility seed baseline before this full capture.",
+  "outcomes_opened": false,
+  "live_capital_allowed": false,
+  "notes": [
+    "All 100 frozen U001 symbols were processed without substitution.",
+    "Primary annual EPS/revenue fields use public StockAnalysis forecast pages, which identify S&P Global Market Intelligence as the financial forecast source.",
+    "Secondary profit-growth and fallback consensus fields use public indexed Trendlyne summaries under the capture-level hierarchy. Null is retained when incompatible or unavailable.",
+    "No HTTP 405/429, authentication, subscription, robots, or other access control was bypassed.",
+    "The gzip payload is the complete validated JSON snapshot. Decompress before passing it to marketlab.h021.validate_snapshot/compare_snapshots."
+  ]
+}
