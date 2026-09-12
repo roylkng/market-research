@@ -159,15 +159,18 @@ def validate_fund_state(state: dict) -> list[str]:
                 seen_ids.add(event_id)
 
     stored_sha = state.get("state_sha256")
-    if stored_sha is not None:
-        if not isinstance(stored_sha, str) or stored_sha != _raw_state_sha256(state):
-            errors.append("state_sha256 does not match canonical fund state")
+    if stored_sha is not None and (
+        not isinstance(stored_sha, str) or stored_sha != _raw_state_sha256(state)
+    ):
+        errors.append("state_sha256 does not match canonical fund state")
 
     return errors
 
 
 def state_sha256(state: dict) -> str:
-    errors = validate_fund_state({key: value for key, value in state.items() if key != "state_sha256"})
+    errors = validate_fund_state(
+        {key: value for key, value in state.items() if key != "state_sha256"}
+    )
     if errors:
         raise ValueError(errors)
     return _raw_state_sha256(state)
