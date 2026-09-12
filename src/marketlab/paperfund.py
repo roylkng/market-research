@@ -58,6 +58,12 @@ def _append_event(state: dict, event_type: str, payload: dict) -> None:
     state["events"].append(event)
 
 
+def _mutable_copy(state: dict) -> dict:
+    updated = copy.deepcopy(state)
+    updated.pop("state_sha256", None)
+    return updated
+
+
 def new_fund(*, book: str, policy_frozen_at: str) -> dict:
     if book not in BOOKS:
         raise ValueError(f"book must be one of {sorted(BOOKS)}")
@@ -139,7 +145,7 @@ def process_entry_batch(
     session_date: str,
     open_prices: dict[str, float],
 ) -> dict:
-    updated = copy.deepcopy(state)
+    updated = _mutable_copy(state)
     trade_date = _parse_date(session_date)
     if updated["last_session_date"] is not None:
         last_date = _parse_date(updated["last_session_date"])
@@ -306,7 +312,7 @@ def mark_session(
     session_date: str,
     bars: dict[str, dict[str, float]],
 ) -> dict:
-    updated = copy.deepcopy(state)
+    updated = _mutable_copy(state)
     market_date = _parse_date(session_date)
     if updated["last_session_date"] is not None:
         last_date = _parse_date(updated["last_session_date"])
@@ -411,7 +417,7 @@ def hard_invalidation_exit(
     if condition not in hard_conditions:
         raise ValueError("condition was not frozen as a HARD invalidation")
 
-    updated = copy.deepcopy(state)
+    updated = _mutable_copy(state)
     symbol = decision["symbol"]
     position = updated["open_positions"].get(symbol)
     if position is None:
