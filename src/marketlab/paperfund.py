@@ -236,8 +236,10 @@ def process_entry_batch(
             "last_mark_session": session_date,
             "checkpoint_20": None,
             "maturity_pending": False,
-            "max_adverse_excursion_pct": 0.0,
-            "max_favourable_excursion_pct": 0.0,
+            "max_adverse_excursion_pct": None,
+            "max_favourable_excursion_pct": None,
+            "excursion_observed_sessions": 0,
+            "excursion_missing_sessions": 0,
             "missing_mark_count": 0,
             "status": "OPEN",
         }
@@ -306,6 +308,39 @@ def _close_position(
     )
 
 
+def _update_excursions(position: dict, symbol: str, bar: dict[str, float]) -> None:
+    high_raw = bar.get("high")
+    low_raw = bar.get("low")
+    if high_raw is None and low_raw is None:
+        position["excursion_missing_sessions"] += 1
+        return
+    if high_raw is None or low_raw is None:
+        raise ValueError(f"high and low must be provided together for {symbol}")
+
+    high = float(high_raw)
+    low = float(low_raw)
+    close = float(position["current_price"])
+    if not math.isfinite(high) or not math.isfinite(low) or high <= 0 or low <= 0:
+        raise ValueError(f"invalid high/low for {symbol}")
+    if low > high or close < low - 1e-9 or close > high + 1e-9:
+        raise ValueError(f"inconsistent high/low/close for {symbol}")
+
+    entry = float(position["entry_price"])
+    adverse = (low / entry - 1.0) * 100.0
+    favourable = (high / entry - 1.0) * 100.0
+    prior_adverse = position["max_adverse_excursion_pct"]
+    prior_favourable = position["max_favourable_excursion_pct"]
+    position["max_adverse_excursion_pct"] = (
+        adverse if prior_adverse is None else min(float(prior_adverse), adverse)
+    )
+    position["max_favourable_excursion_pct"] = (
+        favourable
+        if prior_favourable is None
+        else max(float(prior_favourable), favourable)
+    )
+    position["excursion_observed_sessions"] += 1
+
+
 def mark_session(
     state: dict,
     *,
@@ -329,22 +364,13 @@ def mark_session(
         bar = bars.get(symbol)
         if bar is None:
             position["missing_mark_count"] += 1
+            position["excursion_missing_sessions"] += 1
         else:
             close = float(bar["close"])
             if not math.isfinite(close) or close <= 0:
                 raise ValueError(f"invalid close for {symbol}")
             position["current_price"] = close
-            high = float(bar.get("high", close))
-            low = float(bar.get("low", close))
-            entry = float(position["entry_price"])
-            adverse = low / entry - 1.0
-            favourable = high / entry - 1.0
-            position["max_adverse_excursion_pct"] = min(
-                float(position["max_adverse_excursion_pct"]), adverse * 100.0
-            )
-            position["max_favourable_excursion_pct"] = max(
-                float(position["max_favourable_excursion_pct"]), favourable * 100.0
-            )
+            _update_excursions(position, symbol, bar)
 
         if market_date > _parse_date(position["last_mark_session"]):
             position["holding_sessions"] += 1

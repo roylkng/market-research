@@ -61,6 +61,37 @@ def _is_finite_number(value: object) -> bool:
     )
 
 
+def _validate_excursions(position: dict, label: str, errors: list[str]) -> None:
+    observed = position.get("excursion_observed_sessions")
+    missing = position.get("excursion_missing_sessions")
+    for field, value in (
+        ("excursion_observed_sessions", observed),
+        ("excursion_missing_sessions", missing),
+    ):
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            errors.append(f"{label} {field} must be a non-negative integer")
+
+    adverse = position.get("max_adverse_excursion_pct")
+    favourable = position.get("max_favourable_excursion_pct")
+    for field, value in (
+        ("max_adverse_excursion_pct", adverse),
+        ("max_favourable_excursion_pct", favourable),
+    ):
+        if value is not None and not _is_finite_number(value):
+            errors.append(f"{label} {field} must be finite or null")
+
+    if isinstance(observed, int) and observed == 0 and (
+        adverse is not None or favourable is not None
+    ):
+        errors.append(f"{label} excursion values require observed high/low sessions")
+    elif (
+        isinstance(observed, int)
+        and observed > 0
+        and (adverse is None or favourable is None)
+    ):
+        errors.append(f"{label} observed excursions require both MAE and MFE")
+
+
 def validate_fund_state(state: dict) -> list[str]:
     errors: list[str] = []
     missing = REQUIRED_STATE_KEYS - state.keys()
@@ -126,6 +157,7 @@ def validate_fund_state(state: dict) -> list[str]:
                 errors.append(f"open position {symbol} status must equal OPEN")
             if not isinstance(position.get("analyst_decision_id"), str):
                 errors.append(f"open position {symbol} analyst_decision_id missing")
+            _validate_excursions(position, f"open position {symbol}", errors)
 
     closed = state.get("closed_positions")
     if not isinstance(closed, list):
@@ -134,6 +166,8 @@ def validate_fund_state(state: dict) -> list[str]:
         for index, position in enumerate(closed):
             if not isinstance(position, dict) or position.get("status") != "CLOSED":
                 errors.append(f"closed_positions[{index}] must have CLOSED status")
+                continue
+            _validate_excursions(position, f"closed_positions[{index}]", errors)
 
     rejected = state.get("rejected_entries")
     if not isinstance(rejected, list):
