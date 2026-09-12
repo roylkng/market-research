@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from marketlab.paperfund import mark_session, new_fund, process_entry_batch
+from marketlab.paperfund_state import state_sha256, validate_fund_state
 
 DEFAULT_POLICY_FROZEN_AT = "2026-09-11T18:46:13Z"
 
@@ -50,6 +51,9 @@ def main() -> None:
         if not isinstance(state_payload, dict):
             raise TypeError("state payload must be an object")
         state = state_payload
+        state_errors = validate_fund_state(state)
+        if state_errors:
+            raise ValueError({"state_errors": state_errors})
         if state.get("book") != args.book:
             raise ValueError("existing state book does not match --book")
     else:
@@ -78,6 +82,10 @@ def main() -> None:
         )
 
     state = mark_session(state, session_date=args.session_date, bars=bars)
+    state_errors = validate_fund_state(state)
+    if state_errors:
+        raise ValueError({"state_errors": state_errors})
+    state["state_sha256"] = state_sha256(state)
     _write_json(Path(args.out), state)
 
 
