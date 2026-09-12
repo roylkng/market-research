@@ -37,6 +37,22 @@ def _event_id(event: dict) -> str:
     return hashlib.sha256(raw).hexdigest()[:16]
 
 
+def _state_digest_payload(state: dict) -> dict:
+    payload = dict(state)
+    payload.pop("state_sha256", None)
+    return payload
+
+
+def _raw_state_sha256(state: dict) -> str:
+    raw = json.dumps(
+        _state_digest_payload(state),
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode()
+    return hashlib.sha256(raw).hexdigest()
+
+
 def _is_finite_number(value: object) -> bool:
     return (
         isinstance(value, (int, float))
@@ -142,17 +158,16 @@ def validate_fund_state(state: dict) -> list[str]:
             if isinstance(event_id, str):
                 seen_ids.add(event_id)
 
+    stored_sha = state.get("state_sha256")
+    if stored_sha is not None:
+        if not isinstance(stored_sha, str) or stored_sha != _raw_state_sha256(state):
+            errors.append("state_sha256 does not match canonical fund state")
+
     return errors
 
 
 def state_sha256(state: dict) -> str:
-    errors = validate_fund_state(state)
+    errors = validate_fund_state({key: value for key, value in state.items() if key != "state_sha256"})
     if errors:
         raise ValueError(errors)
-    raw = json.dumps(
-        state,
-        sort_keys=True,
-        separators=(",", ":"),
-        allow_nan=False,
-    ).encode()
-    return hashlib.sha256(raw).hexdigest()
+    return _raw_state_sha256(state)
