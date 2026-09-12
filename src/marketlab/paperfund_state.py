@@ -80,12 +80,16 @@ def _validate_excursions(position: dict, label: str, errors: list[str]) -> None:
         if value is not None and not _is_finite_number(value):
             errors.append(f"{label} {field} must be finite or null")
 
-    if isinstance(observed, int) and observed == 0:
-        if adverse is not None or favourable is not None:
-            errors.append(f"{label} excursion values require observed high/low sessions")
-    elif isinstance(observed, int) and observed > 0:
-        if adverse is None or favourable is None:
-            errors.append(f"{label} observed excursions require both MAE and MFE")
+    if isinstance(observed, int) and observed == 0 and (
+        adverse is not None or favourable is not None
+    ):
+        errors.append(f"{label} excursion values require observed high/low sessions")
+    elif (
+        isinstance(observed, int)
+        and observed > 0
+        and (adverse is None or favourable is None)
+    ):
+        errors.append(f"{label} observed excursions require both MAE and MFE")
 
 
 def validate_fund_state(state: dict) -> list[str]:
