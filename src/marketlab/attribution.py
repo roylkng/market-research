@@ -115,7 +115,7 @@ def _closed_position_for_event(
 def _open_position_for_symbol(fund_state: dict, symbol: str) -> dict:
     position = fund_state["open_positions"].get(symbol)
     if not isinstance(position, dict):
-        raise ValueError(f"no open position for checkpoint symbol {symbol}")
+        raise TypeError(f"no open position for checkpoint symbol {symbol}")
     return position
 
 
@@ -162,7 +162,7 @@ def _record_checkpoint(
     decision_id = str(position["analyst_decision_id"])
     link = attribution["position_benchmarks"].get(decision_id)
     if not isinstance(link, dict):
-        raise ValueError(f"missing benchmark entry link for {decision_id}")
+        raise TypeError(f"missing benchmark entry link for {decision_id}")
     if link["checkpoint_20"] is not None:
         raise ValueError(f"duplicate checkpoint attribution for {decision_id}")
     benchmark_return = benchmark_close / float(link["benchmark_entry_open"]) - 1.0
@@ -191,7 +191,7 @@ def _record_exit(
     decision_id = str(position["analyst_decision_id"])
     link = attribution["position_benchmarks"].get(decision_id)
     if not isinstance(link, dict):
-        raise ValueError(f"missing benchmark entry link for {decision_id}")
+        raise TypeError(f"missing benchmark entry link for {decision_id}")
     if link["exit"] is not None:
         raise ValueError(f"duplicate exit attribution for {decision_id}")
 
