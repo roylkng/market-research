@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from marketlab.paperfund import new_fund
+from marketlab.paperfund import mark_session, new_fund
 from marketlab.paperfund_state import state_sha256, validate_fund_state
 
 POLICY_FROZEN_AT = "2026-09-11T18:46:13Z"
@@ -33,6 +33,14 @@ def test_whole_state_hash_detects_cash_tampering() -> None:
     tampered = deepcopy(state)
     tampered["cash_net"] -= 1.0
     assert "state_sha256 does not match canonical fund state" in validate_fund_state(tampered)
+
+
+def test_mutation_discards_stale_whole_state_hash() -> None:
+    state = new_fund(book="PROSPECTIVE_VALIDATION", policy_frozen_at=POLICY_FROZEN_AT)
+    state["state_sha256"] = state_sha256(state)
+    updated = mark_session(state, session_date="2026-09-14", bars={})
+    assert "state_sha256" not in updated
+    assert validate_fund_state(updated) == []
 
 
 def test_book_identity_mismatch_is_detected() -> None:
