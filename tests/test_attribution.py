@@ -97,14 +97,18 @@ def entered_fund() -> tuple[dict, dict]:
     return fund, decision
 
 
+def make_attribution(fund: dict) -> dict:
+    return new_attribution_state(
+        fund,
+        benchmark_name="NIFTY 500",
+        benchmark_basis="PRICE",
+        benchmark_source_ref="fixture://official-nifty500-price",
+    )
+
+
 def test_first_session_links_entry_and_benchmark_shadow_nav() -> None:
     fund, _ = entered_fund()
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500 TRI",
-        benchmark_basis="TOTAL_RETURN",
-        benchmark_source_ref="fixture://nifty500-tri",
-    )
+    attribution = make_attribution(fund)
     attribution = advance_attribution(
         attribution,
         fund,
@@ -117,31 +121,26 @@ def test_first_session_links_entry_and_benchmark_shadow_nav() -> None:
     assert attribution["nav_history"][0]["benchmark_nav"] == pytest.approx(1_010_000.0)
     decision_id = next(iter(attribution["position_benchmarks"]))
     assert attribution["position_benchmarks"][decision_id]["benchmark_entry_open"] == 200.0
-    assert attribution["benchmark"]["dividend_mismatch"] is False
+    assert attribution["benchmark"]["dividend_mismatch"] is True
 
 
-def test_price_index_basis_discloses_dividend_mismatch() -> None:
+def test_total_return_basis_is_rejected_without_genuine_open_series() -> None:
     fund = new_fund(
         book="PROSPECTIVE_VALIDATION",
         policy_frozen_at=POLICY_FROZEN_AT,
     )
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500",
-        benchmark_basis="PRICE",
-        benchmark_source_ref="fixture://nifty500-price",
-    )
-    assert attribution["benchmark"]["dividend_mismatch"] is True
+    with pytest.raises(ValueError, match="requires PRICE basis"):
+        new_attribution_state(
+            fund,
+            benchmark_name="NIFTY 500 TRI",
+            benchmark_basis="TOTAL_RETURN",
+            benchmark_source_ref="fixture://daily-tri-close-only",
+        )
 
 
 def test_position_exit_computes_same_interval_benchmark_excess() -> None:
     fund, decision = entered_fund()
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500 TRI",
-        benchmark_basis="TOTAL_RETURN",
-        benchmark_source_ref="fixture://nifty500-tri",
-    )
+    attribution = make_attribution(fund)
     attribution = advance_attribution(
         attribution,
         fund,
@@ -179,12 +178,7 @@ def test_attribution_fails_if_prior_entry_session_was_skipped() -> None:
         session_date="2026-09-15",
         bars={"AAA": {"close": 103.0}},
     )
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500 TRI",
-        benchmark_basis="TOTAL_RETURN",
-        benchmark_source_ref="fixture://nifty500-tri",
-    )
+    attribution = make_attribution(fund)
     with pytest.raises(ValueError, match="missed prior-session ENTRY_FILLED"):
         advance_attribution(
             attribution,
@@ -199,12 +193,7 @@ def test_summary_reports_cash_drawdown_and_information_ratio_after_20_sessions()
         book="PROSPECTIVE_VALIDATION",
         policy_frozen_at=POLICY_FROZEN_AT,
     )
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500 TRI",
-        benchmark_basis="TOTAL_RETURN",
-        benchmark_source_ref="fixture://nifty500-tri",
-    )
+    attribution = make_attribution(fund)
     start = date(2026, 9, 14)
     benchmark_open = 100.0
     prior_close = benchmark_open
@@ -235,12 +224,7 @@ def test_benchmark_bar_must_be_positive_and_complete() -> None:
         policy_frozen_at=POLICY_FROZEN_AT,
     )
     fund = mark_session(fund, session_date="2026-09-14", bars={})
-    attribution = new_attribution_state(
-        fund,
-        benchmark_name="NIFTY 500 TRI",
-        benchmark_basis="TOTAL_RETURN",
-        benchmark_source_ref="fixture://nifty500-tri",
-    )
+    attribution = make_attribution(fund)
     with pytest.raises((TypeError, ValueError), match="benchmark close"):
         advance_attribution(
             attribution,
