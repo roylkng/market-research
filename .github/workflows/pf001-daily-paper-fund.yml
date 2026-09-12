@@ -1,0 +1,174 @@
+name: PF001 post-close paper fund
+
+on:
+  schedule:
+    # 18:00 IST, Monday-Friday. Exchange holidays fail closed as NO_SESSION.
+    - cron: '30 12 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pf001-daily-paper-fund
+  cancel-in-progress: false
+
+jobs:
+  advance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Resolve India session date
+        run: |
+          SESSION_DATE="$(TZ=Asia/Kolkata date +%F)"
+          echo "SESSION_DATE=${SESSION_DATE}" >> "$GITHUB_ENV"
+          echo "RUN_DIR=research/paper-funds/PF001/runs/${SESSION_DATE}" >> "$GITHUB_ENV"
+
+      - name: Select pending development decisions
+        run: |
+          python scripts/select_pending_pf001_decisions.py \
+            --state research/paper-funds/PF001/development-state.json \
+            --decision-dir research/analyst-decisions/v1 \
+            --session-date "$SESSION_DATE" \
+            --out /tmp/pf001-development-decisions.json
+
+      - name: Select pending validation decisions
+        run: |
+          python scripts/select_pending_pf001_decisions.py \
+            --state research/paper-funds/PF001/prospective-validation-state.json \
+            --decision-dir research/analyst-decisions/v1 \
+            --session-date "$SESSION_DATE" \
+            --out /tmp/pf001-validation-decisions.json
+
+      - name: Build official NSE session inputs
+        run: |
+          rm -rf /tmp/pf001-market
+          python scripts/build_pf001_official_session.py \
+            --session-date "$SESSION_DATE" \
+            --state research/paper-funds/PF001/development-state.json \
+            --state research/paper-funds/PF001/prospective-validation-state.json \
+            --decisions /tmp/pf001-development-decisions.json \
+            --decisions /tmp/pf001-validation-decisions.json \
+            --artifact-root .marketlab/pf001 \
+            --out-dir /tmp/pf001-market \
+            --attempts 4 \
+            --sleep-seconds 30 \
+            --allow-no-session
+
+      - name: Check exchange session
+        id: market_session
+        run: |
+          STATUS="$(python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/pf001-market/source-manifest.json').read_text())
+          print(payload['status'])
+          PY
+          )"
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          if [ "$STATUS" != "OK" ]; then
+            echo "No official NSE session inputs for $SESSION_DATE: $STATUS"
+          fi
+
+      - name: Advance development book
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          python scripts/run_pf001.py \
+            --session-date "$SESSION_DATE" \
+            --state research/paper-funds/PF001/development-state.json \
+            --decisions /tmp/pf001-development-decisions.json \
+            --bars /tmp/pf001-market/bars.json \
+            --book DEVELOPMENT \
+            --out /tmp/pf001-development-state.json
+
+      - name: Advance validation book
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          python scripts/run_pf001.py \
+            --session-date "$SESSION_DATE" \
+            --state research/paper-funds/PF001/prospective-validation-state.json \
+            --decisions /tmp/pf001-validation-decisions.json \
+            --bars /tmp/pf001-market/bars.json \
+            --book PROSPECTIVE_VALIDATION \
+            --out /tmp/pf001-validation-state.json
+
+      - name: Advance development attribution
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          ATTR_ARGS=()
+          if [ -f research/paper-funds/PF001/development-attribution.json ]; then
+            ATTR_ARGS+=(--attribution-state research/paper-funds/PF001/development-attribution.json)
+          fi
+          python scripts/run_pf001_attribution.py \
+            --session-date "$SESSION_DATE" \
+            --fund-state /tmp/pf001-development-state.json \
+            --benchmark-bar /tmp/pf001-market/benchmark-bar.json \
+            --benchmark-source-ref "$RUN_DIR/source-manifest.json" \
+            "${ATTR_ARGS[@]}" \
+            --out /tmp/pf001-development-attribution.json \
+            --summary-out /tmp/pf001-development-summary.json
+
+      - name: Advance validation attribution
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          ATTR_ARGS=()
+          if [ -f research/paper-funds/PF001/prospective-validation-attribution.json ]; then
+            ATTR_ARGS+=(--attribution-state research/paper-funds/PF001/prospective-validation-attribution.json)
+          fi
+          python scripts/run_pf001_attribution.py \
+            --session-date "$SESSION_DATE" \
+            --fund-state /tmp/pf001-validation-state.json \
+            --benchmark-bar /tmp/pf001-market/benchmark-bar.json \
+            --benchmark-source-ref "$RUN_DIR/source-manifest.json" \
+            "${ATTR_ARGS[@]}" \
+            --out /tmp/pf001-validation-attribution.json \
+            --summary-out /tmp/pf001-validation-summary.json
+
+      - name: Anchor session evidence
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          mkdir -p "$RUN_DIR"
+          cp /tmp/pf001-development-state.json research/paper-funds/PF001/development-state.json
+          cp /tmp/pf001-validation-state.json research/paper-funds/PF001/prospective-validation-state.json
+          cp /tmp/pf001-development-attribution.json research/paper-funds/PF001/development-attribution.json
+          cp /tmp/pf001-validation-attribution.json research/paper-funds/PF001/prospective-validation-attribution.json
+          cp /tmp/pf001-market/source-manifest.json "$RUN_DIR/source-manifest.json"
+          cp /tmp/pf001-market/bars.json "$RUN_DIR/bars.json"
+          cp /tmp/pf001-market/benchmark-bar.json "$RUN_DIR/benchmark-bar.json"
+          cp /tmp/pf001-development-decisions.json "$RUN_DIR/development-decisions.json"
+          cp /tmp/pf001-validation-decisions.json "$RUN_DIR/validation-decisions.json"
+          cp /tmp/pf001-development-summary.json "$RUN_DIR/development-attribution-summary.json"
+          cp /tmp/pf001-validation-summary.json "$RUN_DIR/validation-attribution-summary.json"
+
+      - name: Commit immutable ledger update
+        if: steps.market_session.outputs.status == 'OK'
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add research/paper-funds/PF001
+          git commit -m "PF001: advance ${SESSION_DATE} paper-fund ledger" || true
+          git push origin HEAD:main
+
+      - name: Upload retained official source bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pf001-official-market-data-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .marketlab/pf001
+            /tmp/pf001-market/source-manifest.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
