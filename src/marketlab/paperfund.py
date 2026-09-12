@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from marketlab.analyst import validate_decision
 
@@ -19,18 +20,19 @@ ENTRY_FRICTION = ROUND_TRIP_FRICTION / 2.0
 EXIT_FRICTION = ROUND_TRIP_FRICTION / 2.0
 CHECKPOINT_SESSION = 20
 MATURITY_SESSION = 60
+INDIA_TZ = ZoneInfo("Asia/Kolkata")
 
 
 def _parse_date(value: object) -> date:
     if not isinstance(value, str):
-        raise ValueError("date must be ISO YYYY-MM-DD")
+        raise TypeError("date must be ISO YYYY-MM-DD")
     return date.fromisoformat(value)
 
 
 def _parse_timestamp(value: object) -> datetime:
     if not isinstance(value, str):
-        raise ValueError("timestamp must be ISO string")
-    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        raise TypeError("timestamp must be ISO string")
+    parsed = datetime.fromisoformat(value)
     if parsed.tzinfo is None:
         raise ValueError("timestamp must be offset-aware")
     return parsed
@@ -141,8 +143,8 @@ def process_entry_batch(
     trade_date = _parse_date(session_date)
     if updated["last_session_date"] is not None:
         last_date = _parse_date(updated["last_session_date"])
-        if trade_date < last_date:
-            raise ValueError("entry session cannot precede last processed session")
+        if trade_date <= last_date:
+            raise ValueError("entry session must be later than last processed session")
 
     valid_decisions: list[dict] = []
     for decision in decisions:
@@ -157,18 +159,23 @@ def process_entry_batch(
 
     for decision in valid_decisions:
         symbol = str(decision["symbol"])
+        decision_date = _parse_timestamp(decision["decision_timestamp"]).astimezone(INDIA_TZ).date()
         if decision["analyst_action"] != "PORTFOLIO_ELIGIBLE":
             _reject(updated, decision, session_date, "ANALYST_NOT_PORTFOLIO_ELIGIBLE")
             continue
         if decision["validation_role"] != updated["book"]:
             _reject(updated, decision, session_date, "BOOK_ROLE_MISMATCH")
             continue
-        if updated["book"] == "PROSPECTIVE_VALIDATION":
-            if _parse_timestamp(decision["decision_timestamp"]) <= _parse_timestamp(
-                updated["policy_frozen_at"]
-            ):
-                _reject(updated, decision, session_date, "PRE_FREEZE_DECISION")
-                continue
+        if (
+            updated["book"] == "PROSPECTIVE_VALIDATION"
+            and _parse_timestamp(decision["decision_timestamp"])
+            <= _parse_timestamp(updated["policy_frozen_at"])
+        ):
+            _reject(updated, decision, session_date, "PRE_FREEZE_DECISION")
+            continue
+        if decision_date >= trade_date:
+            _reject(updated, decision, session_date, "DECISION_NOT_BEFORE_ENTRY_SESSION")
+            continue
         if _research_blocked(decision):
             _reject(updated, decision, session_date, "RESEARCH_INTEGRITY_BLOCK")
             continue
