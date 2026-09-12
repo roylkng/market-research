@@ -16,7 +16,7 @@ from marketlab.paperfund import (
     process_entry_batch,
 )
 
-POLICY_FROZEN_AT = "2026-09-12T00:30:00+05:30"
+POLICY_FROZEN_AT = "2026-09-11T18:46:13Z"
 
 
 def make_decision(
@@ -25,6 +25,7 @@ def make_decision(
     sector: str = "Industrials",
     role: str = "PROSPECTIVE_VALIDATION",
     timestamp: str = "2026-09-12T16:00:00+05:30",
+    evidence_timestamp: str = "2026-09-12T15:00:00+05:30",
     h020_state: str = "PAPER_ENTRY_ELIGIBLE_TREND",
 ) -> dict:
     return seal_decision(
@@ -44,7 +45,7 @@ def make_decision(
             "thesis_evidence": [
                 {
                     "source_ref": f"repo://research/{symbol}.json",
-                    "available_at": "2026-09-12T15:00:00+05:30",
+                    "available_at": evidence_timestamp,
                 }
             ],
             "valuation_assumptions": {"status": "ACCEPTABLE"},
@@ -107,7 +108,11 @@ def test_entry_uses_five_percent_unit_whole_shares_and_half_friction() -> None:
 
 def test_validation_book_rejects_pre_freeze_and_development_decisions() -> None:
     state = new_fund(book="PROSPECTIVE_VALIDATION", policy_frozen_at=POLICY_FROZEN_AT)
-    old = make_decision("OLD", timestamp="2026-09-11T16:00:00+05:30")
+    old = make_decision(
+        "OLD",
+        timestamp="2026-09-11T16:00:00+05:30",
+        evidence_timestamp="2026-09-11T15:00:00+05:30",
+    )
     dev = make_decision("DEV", role="DEVELOPMENT")
     state = process_entry_batch(
         state,
@@ -120,6 +125,23 @@ def test_validation_book_rejects_pre_freeze_and_development_decisions() -> None:
         "DEV": "BOOK_ROLE_MISMATCH",
         "OLD": "PRE_FREEZE_DECISION",
     }
+
+
+def test_same_session_decision_cannot_get_open_fill() -> None:
+    state = new_fund(book="PROSPECTIVE_VALIDATION", policy_frozen_at=POLICY_FROZEN_AT)
+    decision = make_decision(
+        "SAME",
+        timestamp="2026-09-14T10:00:00+05:30",
+        evidence_timestamp="2026-09-14T09:30:00+05:30",
+    )
+    state = process_entry_batch(
+        state,
+        [decision],
+        session_date="2026-09-14",
+        open_prices={"SAME": 100.0},
+    )
+    assert not state["open_positions"]
+    assert state["rejected_entries"][0]["reason"] == "DECISION_NOT_BEFORE_ENTRY_SESSION"
 
 
 def test_research_block_is_fail_closed() -> None:
