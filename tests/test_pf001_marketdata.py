@@ -88,10 +88,10 @@ def test_udiff_missing_symbol_is_explicit() -> None:
 
 def test_parse_official_nifty500_index_open_close() -> None:
     raw = (
-        "Index Name,Index Date,Open Index Value,Closing Index Value\n"
-        "Nifty 50,11-09-2026,23000,23100\n"
-        "Nifty 500,11-09-2026,21000,21150\n"
-    ).encode()
+        b"Index Name,Index Date,Open Index Value,Closing Index Value\n"
+        b"Nifty 50,11-09-2026,23000,23100\n"
+        b"Nifty 500,11-09-2026,21000,21150\n"
+    )
     bar = parse_pf001_nifty500_index(raw, session_date=date(2026, 9, 11))
     assert bar.benchmark_id == "nifty_500"
     assert bar.open_price == 21000.0
@@ -102,8 +102,8 @@ def test_parse_official_nifty500_index_open_close() -> None:
 
 def test_nifty500_missing_row_fails_closed() -> None:
     raw = (
-        "Index Name,Index Date,Open Index Value,Closing Index Value\n"
-        "Nifty 50,11-09-2026,23000,23100\n"
-    ).encode()
+        b"Index Name,Index Date,Open Index Value,Closing Index Value\n"
+        b"Nifty 50,11-09-2026,23000,23100\n"
+    )
     with pytest.raises(PF001MarketDataMissingRow):
         parse_pf001_nifty500_index(raw, session_date=date(2026, 9, 11))
