@@ -10,7 +10,7 @@ from marketlab.paperfund import INITIAL_NAV, gross_nav, net_nav
 from marketlab.paperfund_state import validate_fund_state
 
 ATTRIBUTION_ID = "PF001-ATTR-v1"
-BENCHMARK_BASES = {"TOTAL_RETURN", "PRICE"}
+PRIMARY_BENCHMARK_BASIS = "PRICE"
 
 
 def _parse_date(value: object) -> date:
@@ -53,8 +53,11 @@ def new_attribution_state(
     _fund_errors(fund_state)
     if not isinstance(benchmark_name, str) or not benchmark_name.strip():
         raise ValueError("benchmark_name must be non-empty")
-    if benchmark_basis not in BENCHMARK_BASES:
-        raise ValueError(f"benchmark_basis must be one of {sorted(BENCHMARK_BASES)}")
+    if benchmark_basis != PRIMARY_BENCHMARK_BASIS:
+        raise ValueError(
+            "PF001 attribution-v1 requires PRICE basis because the official NIFTY 500 TRI "
+            "series does not provide a genuine session-open TRI value"
+        )
     if not isinstance(benchmark_source_ref, str) or not benchmark_source_ref.strip():
         raise ValueError("benchmark_source_ref must be non-empty")
 
@@ -69,7 +72,7 @@ def new_attribution_state(
             "name": benchmark_name,
             "basis": benchmark_basis,
             "source_ref": benchmark_source_ref,
-            "dividend_mismatch": benchmark_basis == "PRICE",
+            "dividend_mismatch": True,
         },
         "first_session_date": None,
         "benchmark_start_open": None,
@@ -231,17 +234,19 @@ def _process_new_events(
     if last_seq > len(events):
         raise ValueError("attribution event cursor is ahead of fund event ledger")
 
+    current_date = _parse_date(session_date)
     new_events = events[last_seq:]
     for expected_seq, event in enumerate(new_events, last_seq + 1):
         if event.get("seq") != expected_seq:
             raise ValueError("fund event sequence changed under attribution")
         event_session = _event_session(event)
+        event_date = _parse_date(event_session) if event_session is not None else None
         event_type = event.get("event_type")
-        if event_session is not None and _parse_date(event_session) > _parse_date(session_date):
+        if event_date is not None and event_date > current_date:
             raise ValueError("fund event is future-dated relative to attribution session")
         if (
-            event_session is not None
-            and event_session < session_date
+            event_date is not None
+            and event_date < current_date
             and event_type in {"ENTRY_FILLED", "CHECKPOINT_20", "POSITION_CLOSED"}
         ):
             raise ValueError(
