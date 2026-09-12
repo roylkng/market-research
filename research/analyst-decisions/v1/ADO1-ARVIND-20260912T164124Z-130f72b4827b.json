@@ -1,0 +1,108 @@
+{
+  "analyst_action": "PORTFOLIO_ELIGIBLE",
+  "benchmark": "NIFTY 500",
+  "business_thesis": "Q1 FY27 showed broad operating acceleration: consolidated revenue grew 25% YoY, PAT grew 47%, Advanced Materials revenue grew 85%, and garment volume grew 13%. The Sep 11 H020 development screen still classified ARVIND as PAPER_ENTRY_ELIGIBLE_TREND despite a bearish market regime, while current valuation is meaningful but not in the extreme range seen in several other high-growth candidates. This is a development-book test of the complete analyst-to-PF001 pipeline, not independent validation evidence.",
+  "catalysts": [
+    {
+      "description": "Q2 FY27 result and whether Advanced Materials/garment growth remains broad-based",
+      "expected_window": "next 60 sessions"
+    }
+  ],
+  "company_name": "Arvind Limited",
+  "decision_id": "ADO1-ARVIND-20260912T164124Z-130f72b4827b",
+  "decision_timestamp": "2026-09-12T22:11:24+05:30",
+  "forecast": {
+    "calibration_status": "UNAVAILABLE",
+    "expected_benchmark_relative_return_pct": null,
+    "expected_mae_pct": null,
+    "p10_benchmark_relative_return_pct": null,
+    "p50_benchmark_relative_return_pct": null,
+    "p90_benchmark_relative_return_pct": null,
+    "probability_beat_benchmark": null
+  },
+  "horizon_sessions": 60,
+  "invalidations": [
+    {
+      "condition": "Q2 FY27 consolidated revenue growth falls below 10% year-over-year",
+      "severity": "SOFT"
+    },
+    {
+      "condition": "valuation expands materially without corresponding forward earnings upgrades",
+      "severity": "SOFT"
+    }
+  ],
+  "isin": "INE034A01011",
+  "live_capital_allowed": false,
+  "market_regime": "BEARISH",
+  "missing_information": [
+    "No valid H021 28-35 day EPS-revision comparison exists before 2026-10-09.",
+    "H019 point-in-time accounting-quality signal is not yet available for this decision.",
+    "ARVIND was used during H020/PF001 design discussion and is therefore development-only, not PF001 validation evidence."
+  ],
+  "object_type": "ANALYST_DECISION",
+  "record_sha256": "130f72b4827b6c05aaeaa20fa3ba6d74e4b75fdf75cc81aa8da8a39e9ce2f4b7",
+  "scenarios": {
+    "base": {
+      "benchmark_relative_return_pct": null,
+      "narrative": "Revenue/PAT growth moderates but remains healthy, relative strength persists, and valuation stays near the current forward multiple."
+    },
+    "bear": {
+      "benchmark_relative_return_pct": null,
+      "narrative": "Advanced Materials growth normalizes sharply, consolidated growth slows, or valuation compresses in the weak market regime."
+    },
+    "bull": {
+      "benchmark_relative_return_pct": null,
+      "narrative": "Advanced Materials and garment growth remain strong, earnings expectations rise, and the stock sustains relative strength as the market regime improves."
+    }
+  },
+  "schema_version": 1,
+  "sector": "Textiles",
+  "sector_regime": "MIXED_COMPANY_SPECIFIC_STRENGTH",
+  "signal_states": {
+    "h013": {
+      "evidence_ref": null,
+      "state": "NOT_DUE_PROSPECTIVE"
+    },
+    "h019": {
+      "evidence_ref": null,
+      "state": "MISSING_POINT_IN_TIME_QUALITY_SIGNAL"
+    },
+    "h020": {
+      "evidence_ref": "repo://blob/0277a2265cb77b0fd95acdec9aac492e91ff8d20/reports/current/h020-2026-09-11/report.md",
+      "state": "PAPER_ENTRY_ELIGIBLE_TREND"
+    },
+    "h021": {
+      "evidence_ref": "repo://commit/dc10d7b6f2391004cd7e90c3c0f6c0314a80d070/research/prospective/h021/captures/2026-09-11-full-u001-v1.md",
+      "state": "BASELINE_ONLY_NO_30D_REVISION"
+    }
+  },
+  "symbol": "ARVIND",
+  "thesis_evidence": [
+    {
+      "available_at": "2026-09-12T22:11:00+05:30",
+      "source_ref": "https://www.arvind.com/"
+    },
+    {
+      "available_at": "2026-09-12T22:11:00+05:30",
+      "source_ref": "https://stockanalysis.com/quote/nse/ARVIND/"
+    },
+    {
+      "available_at": "2026-09-11T17:48:24+05:30",
+      "source_ref": "repo://blob/0277a2265cb77b0fd95acdec9aac492e91ff8d20/reports/current/h020-2026-09-11/report.md"
+    },
+    {
+      "available_at": "2026-09-11T19:04:53+05:30",
+      "source_ref": "repo://commit/dc10d7b6f2391004cd7e90c3c0f6c0314a80d070/research/prospective/h021/captures/2026-09-11-full-u001-v1.md"
+    }
+  ],
+  "validation_role": "DEVELOPMENT",
+  "valuation_assumptions": {
+    "as_of_market_close": "2026-09-11",
+    "consensus_target_inr": 647.43,
+    "forward_pe": 25.28,
+    "share_price_inr": 576.8,
+    "source_ref": "https://stockanalysis.com/quote/nse/ARVIND/",
+    "status": "ACCEPTABLE_BUT_NOT_CHEAP",
+    "trailing_pe": 36.05
+  }
+}
