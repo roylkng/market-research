@@ -1,0 +1,159 @@
+name: H015 point-in-time independent challenge
+
+on:
+  push:
+    branches:
+      - research/h005-result-repricing-ranker-v1-20260908
+    paths:
+      - .github/workflows/h015-independent-challenge.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  challenge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h005-result-repricing-ranker-v1-20260908
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Apply frozen source repairs and normalize runner before outcomes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/run_h015_independent_challenge.py")
+          text = path.read_text()
+          marker = "FRICTION = 0.005\n"
+          helper = r'''
+
+          def parse_nifty500_source_date(raw_csv: bytes, session_date: date) -> dict[str, float]:
+              """Parse Nifty 500, allowing only source-date-confirmed MM-DD transposition."""
+              try:
+                  return base.parse_nifty500(raw_csv, session_date)
+              except ValueError:
+                  text = raw_csv.decode("utf-8-sig")
+                  rows = [
+                      row
+                      for row in csv.DictReader(io.StringIO(text))
+                      if " ".join(str(row.get("Index Name") or "").split()).casefold()
+                      == "nifty 500"
+                  ]
+                  if len(rows) != 1:
+                      raise
+                  row = rows[0]
+                  parts = str(row.get("Index Date") or "").strip().split("-")
+                  if len(parts) != 3 or not all(part.isdigit() for part in parts):
+                      raise
+                  fallback_date = date(int(parts[2]), int(parts[0]), int(parts[1]))
+                  if fallback_date != session_date:
+                      raise
+                  opened = float(row["Open Index Value"])
+                  closed = float(row["Closing Index Value"])
+                  if not all(math.isfinite(value) and value > 0 for value in (opened, closed)):
+                      raise ValueError("nonpositive Nifty 500 OHLC in source-date fallback")
+                  return {"open": opened, "close": closed}
+          '''
+          old_parser = "            nifty = base.parse_nifty500(i_raw, day)"
+          new_parser = "            nifty = parse_nifty500_source_date(i_raw, day)"
+          if "def parse_nifty500_source_date" not in text:
+              if text.count(marker) != 1:
+                  raise SystemExit("H015 parser insertion marker mismatch")
+              text = text.replace(marker, marker + helper, 1)
+          if old_parser in text:
+              if text.count(old_parser) != 1:
+                  raise SystemExit("H015 Nifty parser call is ambiguous")
+              text = text.replace(old_parser, new_parser, 1)
+          elif new_parser not in text:
+              raise SystemExit("H015 Nifty parser call not found")
+
+          old_host = '''            if retry_raw is not None:
+                          i_raw, i_meta = retry_raw, retry_meta
+          '''
+          new_host = '''            if retry_raw is not None:
+                          i_raw, i_meta = retry_raw, retry_meta
+                      else:
+                          alt_url = i_url.replace(
+                              "https://archives.nseindia.com/",
+                              "https://nsearchives.nseindia.com/",
+                              1,
+                          )
+                          alt_raw, alt_meta = base.fetch_public(
+                              alt_url,
+                              kind="index-alt-official-host",
+                              attempts=4,
+                          )
+                          diagnostics["serial_retries"].append(
+                              {
+                                  "date": day.isoformat(),
+                                  "side": "index-alt-official-host",
+                                  "initial_status": retry_meta.get("status"),
+                                  "retry_status": alt_meta.get("status"),
+                              }
+                          )
+                          if alt_raw is not None:
+                              i_raw, i_meta, i_url = alt_raw, alt_meta, alt_url
+          '''
+          if "index-alt-official-host" not in text:
+              if text.count(old_host) != 1:
+                  raise SystemExit("H015 official-host insertion marker mismatch")
+              text = text.replace(old_host, new_host, 1)
+          path.write_text(text)
+          PY
+          ruff check --fix scripts/run_h015_independent_challenge.py
+          ruff format scripts/run_h015_independent_challenge.py
+          ruff check scripts/run_h015_independent_challenge.py
+          if ! git diff --quiet -- scripts/run_h015_independent_challenge.py; then
+            git config user.name "marketlab-research-bot"
+            git config user.email "marketlab-research-bot@users.noreply.github.com"
+            git add scripts/run_h015_independent_challenge.py
+            git commit -m "fix: use verified alternate official NSE index host"
+            git push origin HEAD:research/h005-result-repricing-ranker-v1-20260908
+          fi
+      - name: Verify frozen H015 runner before opening outcomes
+        run: |
+          ruff check scripts/run_h015_independent_challenge.py
+          ruff check src tests scripts
+          pytest -q
+          marketlab validate-registry registry/hypotheses.yaml
+      - name: Run frozen H015 point-in-time challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/h015-independent
+          mkdir -p /tmp/h015-independent
+          python scripts/run_h015_independent_challenge.py --out /tmp/h015-independent \
+            | tee /tmp/h015-independent/run.log
+          test -s /tmp/h015-independent/point-in-time-selections.json
+          test -s /tmp/h015-independent/challenge-summary.json
+          test -s /tmp/h015-independent/selected.csv
+      - name: Upload H015 challenge results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h015-independent-challenge-results
+          path: |
+            /tmp/h015-independent/point-in-time-selections.json
+            /tmp/h015-independent/challenge-summary.json
+            /tmp/h015-independent/selected.csv
+            /tmp/h015-independent/market-acquisition-diagnostics.json
+            /tmp/h015-independent/market-source-manifest.json
+            /tmp/h015-independent/source-manifest.json
+            /tmp/h015-independent/run.log
+          retention-days: 30
+      - name: Upload retained official source bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h015-independent-challenge-sources
+          path: /tmp/h015-independent/raw
+          retention-days: 30
+          compression-level: 0
