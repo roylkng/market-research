@@ -20,35 +20,49 @@ Answer, separately and reproducibly:
 
 Timing and constraint counterfactuals remain separate shadow-book experiments. This attribution layer must not infer them from incomplete timestamps.
 
-## Benchmark hierarchy
+## Benchmark source decision
 
-Preferred benchmark: **NIFTY 500 TRI**.
+PF001 policy prefers NIFTY 500 TRI when a point-in-time total-return series can support the portfolio's execution interval.
 
-Allowed benchmark basis values:
+The official NSE Indices historical-data service exposes NIFTY price-index OHLC data but its Total Returns Index report publishes a daily TRI value rather than a genuine session-open TRI series. NSE Indices also documents that TRI incorporates constituent dividends into the index value.
 
-- `TOTAL_RETURN`
-- `PRICE`
+Because PF001 positions enter at the next session **open**, inventing a TRI open from the daily TRI close would create false precision.
 
-If a verified TRI observation cannot be supplied for a session, a NIFTY 500 price-index series may be used only if the entire continuous attribution segment is explicitly labelled `PRICE`.
+Therefore attribution-v1 freezes the following primary benchmark convention:
 
-Do not splice TRI and price-index observations inside one attribution segment.
+- benchmark: **NIFTY 500 price index**;
+- basis: `PRICE`;
+- source preference: official NSE Indices historical index data;
+- `dividend_mismatch = true` must always be reported.
 
-When `PRICE` is used, set `dividend_mismatch = true` because PF001 equity returns can include distributions/corporate-action economics that a price-only benchmark does not fully represent.
+Official reference pages:
+
+- `https://www.niftyindices.com/reports`
+- `https://www.niftyindices.com/resources/index-concepts/total-return-index`
+
+A daily NIFTY 500 TRI close series may be retained as a **secondary total-return reference**, but it is not used to manufacture position-level open-to-close excess returns in attribution-v1.
+
+A future attribution version may promote TRI to the primary benchmark only if it defines a point-in-time interval convention that does not fabricate an open value and is frozen before the relevant outcomes.
+
+## Required benchmark state
 
 Every attribution state must retain:
 
 - benchmark name;
-- basis;
+- `PRICE` basis;
 - source identity/reference;
 - first benchmark session;
 - initial benchmark open;
-- latest benchmark close.
+- latest benchmark close;
+- `dividend_mismatch = true`.
+
+Do not silently splice another benchmark or TRI values into the primary attribution state.
 
 ## Portfolio benchmark convention
 
 The benchmark-only shadow portfolio starts with the same PF001 initial NAV, INR 1,000,000.
 
-Its inception price is the **benchmark open on the first completed NSE session processed by the attribution ledger after this contract is active**.
+Its inception price is the **NIFTY 500 price-index open on the first completed NSE session processed by the attribution ledger after this contract is active**.
 
 Its current value is:
 
@@ -69,21 +83,23 @@ For every processed session calculate:
 - net cash weight;
 - gross and net drawdown from prior NAV peak.
 
-Primary portfolio comparison uses **net PF001 return minus benchmark return**.
+Primary portfolio comparison uses **net PF001 return minus NIFTY 500 price-index return**.
 
 Gross attribution remains visible so the cost of the frozen friction assumption is explicit.
+
+Because the primary benchmark is price-only, every user-facing performance report must retain the dividend-mismatch disclosure.
 
 ## Position-level benchmark convention
 
 For every PF001 fill:
 
-- benchmark entry = benchmark **open** from the same entry session;
-- benchmark exit = benchmark **close** from the actual PF001 exit session;
+- benchmark entry = NIFTY 500 price-index **open** from the same entry session;
+- benchmark exit = NIFTY 500 price-index **close** from the actual PF001 exit session;
 - benchmark position return = `exit_close / entry_open - 1`.
 
-This intentionally mirrors PF001's stock convention: next-session open entry and completed-session close exit.
+This mirrors PF001's stock convention: next-session open entry and completed-session close exit.
 
-At the 20-session checkpoint use the same position benchmark entry open and the checkpoint session benchmark close.
+At the 20-session checkpoint use the same benchmark entry open and the checkpoint session benchmark close.
 
 For every closed position calculate:
 
@@ -102,7 +118,7 @@ Attribution must be advanced for every completed PF001 market session.
 
 If a PF001 entry or exit event appears for an earlier session that the attribution ledger did not process, fail closed. Do not fetch a later historical value and pretend it was captured contemporaneously inside the ledger.
 
-Missing security marks are handled by PF001's implementation contract. The benchmark itself must have a valid positive open/close for every attribution session; otherwise that attribution session is `BLOCKED_BENCHMARK_DATA` and must not be silently interpolated.
+Missing security marks are handled by PF001's implementation contract. The benchmark itself must have a valid positive open and close for every attribution session; otherwise that attribution session is `BLOCKED_BENCHMARK_DATA` and must not be silently interpolated.
 
 ## Drawdown
 
@@ -148,6 +164,14 @@ At position level, retain both gross and friction-adjusted stock returns.
 
 Do not substitute a later tax/slippage model into PF001-v1 history. A more realistic India cost model is a challenger.
 
+## Secondary TRI reference
+
+Where official NIFTY 500 TRI daily values are retained, report them separately as close-based context.
+
+They may answer questions such as long-horizon total-return benchmark growth over common close dates, but they do **not** replace the primary exact-interval price-index attribution in v1.
+
+Never populate a TRI `open` field by copying the daily TRI close.
+
 ## Explicitly deferred attribution
 
 ### Timing contribution / CF-A
@@ -172,7 +196,7 @@ At any point the attribution report should expose:
 
 - attribution session count;
 - gross and net PF001 cumulative return;
-- benchmark cumulative return;
+- NIFTY 500 price-index cumulative return;
 - gross and net active return;
 - cost drag;
 - current and average cash weight;
@@ -182,7 +206,7 @@ At any point the attribution report should expose:
 - mean/median position net excess;
 - net benchmark beat rate;
 - exploratory information ratio when eligible;
-- benchmark basis and dividend-mismatch flag;
+- price-benchmark dividend-mismatch flag;
 - blocked/deferred attribution components.
 
 ## Scientific boundary
