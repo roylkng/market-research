@@ -1,0 +1,109 @@
+name: H022 one-shot historical Nifty 200 reconstruction
+
+on:
+  push:
+    branches:
+      - research/h022-historical-nifty200-membership-v1-20260913
+    paths:
+      - .github/workflows/h022-freeze-historical-nifty200-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OUT_DIR: research/historical/h022/historical-nifty200-universe-v1
+      ANCHOR_URL: https://archives.nseindia.com/content/indices/ind_nifty200list.csv
+      MARCH_RELEASE_URL: https://www.niftyindices.com/Press_Release/ind_prs23022026.pdf
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h022-historical-nifty200-membership-v1-20260913
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and validate
+        run: |
+          python -m pip install -e '.[dev]'
+          make validate
+
+      - name: Fetch exact official membership evidence
+        run: |
+          mkdir -p "$OUT_DIR" run-out/h022-historical-universe
+          curl --fail --location --retry 4 --retry-all-errors \
+            -A 'Mozilla/5.0' "$ANCHOR_URL" \
+            -o run-out/h022-historical-universe/nifty200-anchor.csv
+          curl --fail --location --retry 4 --retry-all-errors \
+            -A 'Mozilla/5.0' "$MARCH_RELEASE_URL" \
+            -o run-out/h022-historical-universe/march-2026-reconstitution.pdf
+          cp run-out/h022-historical-universe/nifty200-anchor.csv "$OUT_DIR/anchor-nifty200-2026-08-31.csv"
+
+      - name: Reconstruct historical base membership
+        run: |
+          python scripts/build_h022_historical_universe.py \
+            --rule registry/h022_historical_nifty200_universe_v1.yaml \
+            --anchor-csv run-out/h022-historical-universe/nifty200-anchor.csv \
+            --current-u001 research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --out "$OUT_DIR/membership-reconstruction.json" \
+            --summary-out "$OUT_DIR/summary.json"
+
+      - name: Anchor source provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT_DIR'])
+          anchor = Path('run-out/h022-historical-universe/nifty200-anchor.csv')
+          release = Path('run-out/h022-historical-universe/march-2026-reconstitution.pdf')
+          summary = json.loads((out / 'summary.json').read_text(encoding='utf-8'))
+          metadata = {
+              'schema_version': 1,
+              'rule_id': 'H022-UH001',
+              'anchor_source_url': os.environ['ANCHOR_URL'],
+              'anchor_as_of': '2026-08-31',
+              'anchor_raw_sha256': hashlib.sha256(anchor.read_bytes()).hexdigest(),
+              'anchor_byte_count': anchor.stat().st_size,
+              'march_reconstitution_source_url': os.environ['MARCH_RELEASE_URL'],
+              'march_reconstitution_raw_sha256': hashlib.sha256(release.read_bytes()).hexdigest(),
+              'march_reconstitution_byte_count': release.stat().st_size,
+              'reconstruction_sha256': summary['reconstruction_sha256'],
+              'captured_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'ad_hoc_base_membership_audit_status': summary['ad_hoc_base_membership_audit_status'],
+              'outcome_data_attached': False,
+              'live_capital_allowed': False,
+          }
+          (out / 'freeze-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Commit reconstruction and remove one-shot workflow
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add "$OUT_DIR"
+          git rm .github/workflows/h022-freeze-historical-nifty200-once.yml
+          git commit -m 'H022: freeze historical Nifty 200 membership reconstruction'
+          git push origin HEAD:research/h022-historical-nifty200-membership-v1-20260913
+
+      - name: Preserve exact source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h022-historical-nifty200-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: run-out/h022-historical-universe
+          if-no-files-found: warn
+          retention-days: 90
