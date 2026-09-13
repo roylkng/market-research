@@ -1,0 +1,74 @@
+schema_version: 1
+id: H022-UF001
+hypothesis_id: H022
+status: FROZEN_HISTORICAL_FEATURE_REPLAY
+created: 2026-09-13
+live_capital_allowed: false
+
+source_report:
+  path: research/historical/h022/expanded-e002-v1/report.json
+  report_sha256: 45f58e5f0ee72c477ed042fd56be54b4b7c297b78532a011350a44d0a68da861
+  source_bundle_sha256: 85d30df9286712c362102865c22ec3a27907e85599bd70d0c053bc95554cb34c
+  candidate_rule_id: H003-E002
+  candidate_rule_sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
+  expected_source_count: 1558
+  expected_candidate_count: 5090
+  expected_signal_eligible_candidate_count: 2419
+  expected_context_only_candidate_count: 2671
+  source_status_counts: {TEXT_READY: 1558}
+
+signal_semantics:
+  reuse: H022-R001
+  feature_version: management_forward_information_delta_v1
+  previous_call_definition: latest_same_symbol_call_with_strictly_earlier_exchange_publication_timestamp
+  equal_timestamp_policy: cannot_be_prior_to_each_other
+  context_only_calls_can_be_prior: true
+  first_call_policy: NO_SIGNAL_NO_PRIOR_TRANSCRIPT
+  forward_commitment_density_per_10k_chars: candidate_count / text_char_count * 10000
+  deadline_candidate_density_per_10k_chars: candidates_with_deadline / text_char_count * 10000
+  domain_breadth_density_per_10k_chars: unique_domain_markers / text_char_count * 10000
+  deadline_share: candidates_with_deadline / candidate_count
+  zero_candidate_deadline_share: 0.0
+  primary_signal: current_forward_commitment_density_per_10k_chars - prior_forward_commitment_density_per_10k_chars
+  secondary_signals:
+    - deadline_candidate_density_delta
+    - domain_breadth_density_delta
+    - deadline_share_delta
+    - current_forward_commitment_density_per_10k_chars
+
+challenge_eligibility:
+  challenge_start: 2025-10-01
+  challenge_end: 2026-09-06
+  current_source_must_have_membership_status: SIGNAL_ELIGIBLE
+  current_source_signal_eligible_must_be: true
+  context_only_current_source: NOT_EVALUATION_ELIGIBLE
+  pre_challenge_current_source: DESIGN_CONTEXT_NOT_EVALUATION_ELIGIBLE
+  prior_source_membership_unrestricted: true
+
+prohibited_inputs:
+  - stock_price
+  - stock_return
+  - benchmark_return
+  - valuation
+  - analyst_target
+  - h013
+  - h019
+  - h020
+  - h021
+  - post_publication_news
+  - later_call
+
+output_contract:
+  one_row_per_source: true
+  expected_row_count: 1558
+  challenge_signal_count_measured_not_assumed: true
+  outcome_data_attached: false
+  panel_hash_required: true
+
+research_boundary:
+  - exact_H022_R001_feature_formula_reused
+  - membership_affects_current_event_evaluation_eligibility_only
+  - context_calls_remain_valid_prior_public_information
+  - no_return_join_before_panel_hash_is_frozen
+  - no_threshold_or_formula_change_after_expanded_universe_exists
+  - no_live_capital
