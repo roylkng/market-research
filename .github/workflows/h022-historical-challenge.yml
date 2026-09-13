@@ -1,0 +1,129 @@
+name: H022 one-shot historical return challenge
+
+on:
+  push:
+    branches:
+      - research/h022-historical-return-challenge-v1-20260913
+    paths:
+      - .github/workflows/h022-historical-challenge.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h022-historical-challenge-v1
+  cancel-in-progress: false
+
+jobs:
+  challenge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      FEATURE_PANEL: research/historical/h022/management-information-delta-v1/feature-panel.json
+      UNIVERSE: research/prospective/universes/FY27-Q2-2026-09-06.json
+      STORE: run-out/h022-historical-challenge/store
+      OUT: research/historical/h022/management-information-delta-v1/challenge-2026-09-11
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h022-historical-return-challenge-v1-20260913
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and validate frozen repository contracts
+        run: |
+          python -m pip install -e '.[dev]'
+          make validate
+
+      - name: Verify frozen feature panel before opening outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.h022 import validate_feature_panel
+
+          path = Path('research/historical/h022/management-information-delta-v1/feature-panel.json')
+          panel = json.loads(path.read_text(encoding='utf-8'))
+          validate_feature_panel(panel)
+          expected = 'dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3'
+          if panel.get('panel_sha256') != expected:
+              raise SystemExit('H022 feature panel digest changed before outcome run')
+          if panel.get('outcome_data_attached') is not False:
+              raise SystemExit('H022 feature panel already contains outcomes')
+          if panel.get('challenge_signal_count') != 398:
+              raise SystemExit('H022 challenge signal count changed')
+          print(f"feature_panel_sha256={expected}; challenge_signals=398")
+          PY
+
+      - name: Run frozen historical challenge on official NSE evidence
+        run: |
+          mkdir -p "$OUT" "$STORE"
+          python scripts/run_h022_historical_challenge.py \
+            --feature-panel "$FEATURE_PANEL" \
+            --universe "$UNIVERSE" \
+            --store "$STORE" \
+            --report-out "$OUT/outcome-report.json" \
+            --summary-out "$OUT/outcome-summary.json" \
+            --evidence-manifest-out "$OUT/evidence-manifest.json"
+
+      - name: Enforce pre-frozen coverage/classification contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          out = Path('research/historical/h022/management-information-delta-v1/challenge-2026-09-11')
+          summary = json.loads((out / 'outcome-summary.json').read_text(encoding='utf-8'))
+          manifest = json.loads((out / 'evidence-manifest.json').read_text(encoding='utf-8'))
+          primary = summary['horizons']['60']
+          if summary['feature_panel_sha256'] != 'dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3':
+              raise SystemExit('summary feature-panel binding changed')
+          if summary['challenge_signal_count'] != 398:
+              raise SystemExit('summary challenge count changed')
+          if manifest['outcome_summary_sha256'] != summary['summary_sha256']:
+              raise SystemExit('summary/manifest digest mismatch')
+          allowed = {'INSUFFICIENT_COVERAGE', 'REJECTED', 'STRONG', 'PROMISING', 'INCONCLUSIVE'}
+          if summary['primary_classification'] not in allowed:
+              raise SystemExit('unknown H022 primary classification')
+          print(json.dumps({
+              'classification': summary['primary_classification'],
+              'mature': primary['mature_signal_count'],
+              'complete': primary['complete_count'],
+              'complete_share': primary['complete_share_of_mature'],
+              'status_counts': primary['status_counts'],
+              'spearman': primary['spearman_signal_vs_excess'],
+              'top_mean_excess_pp': primary['top_quintile_mean_excess_pp'],
+              'bottom_mean_excess_pp': primary['bottom_quintile_mean_excess_pp'],
+              'spread_pp': primary['top_minus_bottom_mean_excess_pp'],
+              'top_median_excess_pp': primary['top_quintile_median_excess_pp'],
+              'top_beat_rate': primary['top_quintile_benchmark_beat_rate'],
+              'bootstrap_ci': [
+                  primary['cluster_bootstrap_ci_95_low_pp'],
+                  primary['cluster_bootstrap_ci_95_high_pp'],
+              ],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Anchor compact challenge evidence and remove one-shot workflow
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git rm .github/workflows/h022-historical-challenge.yml
+          git add "$OUT"
+          git commit -m 'H022: anchor frozen historical challenge outcomes'
+          git push origin HEAD:research/h022-historical-return-challenge-v1-20260913
+
+      - name: Preserve exact raw market-data evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h022-historical-challenge-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            run-out/h022-historical-challenge
+            research/historical/h022/management-information-delta-v1/challenge-2026-09-11
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
