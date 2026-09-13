@@ -4,13 +4,13 @@ import argparse
 import hashlib
 import json
 from collections import defaultdict
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import requests
-
 import run_h022_historical_challenge as base_runner
+
 from marketlab.h022_expanded_features import validate_expanded_feature_panel
 from marketlab.h022_expanded_outcomes import (
     FEATURE_PANEL_SHA256,
