@@ -1,0 +1,89 @@
+name: H022 audit Aug31 Nifty200 release once
+
+on:
+  push:
+    branches:
+      - research/h022-historical-nifty200-membership-v1-20260913
+    paths:
+      - .github/workflows/h022-audit-aug31-n200-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      URL: https://www.niftyindices.com/Press_Release/ind_prs10082026_3.pdf
+      OUT_DIR: research/historical/h022/historical-nifty200-universe-v1/ad-hoc-audit
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h022-historical-nifty200-membership-v1-20260913
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Fetch and extract official release
+        run: |
+          mkdir -p "$OUT_DIR" /tmp/h022-audit
+          curl --fail --location --retry 4 --retry-all-errors -A 'Mozilla/5.0' "$URL" -o /tmp/h022-audit/aug31.pdf
+          python - <<'PY'
+          import hashlib
+          import io
+          import json
+          import os
+          import re
+          from datetime import UTC, datetime
+          from pathlib import Path
+          from pypdf import PdfReader
+
+          raw = Path('/tmp/h022-audit/aug31.pdf').read_bytes()
+          reader = PdfReader(io.BytesIO(raw), strict=False)
+          pages = [(page.extract_text() or '') for page in reader.pages]
+          text = '\n'.join(pages)
+          normalized = ' '.join(text.split())
+          contexts = []
+          for match in re.finditer(r'(?i)nifty\s*200', normalized):
+              contexts.append(normalized[max(0, match.start()-180): min(len(normalized), match.end()+220)])
+          base_pattern = re.compile(
+              r'(?i)(?:^|[^A-Za-z0-9])Nifty\s+200(?:[^A-Za-z0-9]|$)'
+          )
+          base_mentions = [ctx for ctx in contexts if base_pattern.search(ctx)]
+          result = {
+              'schema_version': 1,
+              'release_date': '2026-08-10',
+              'effective_date': '2026-08-31',
+              'source_url': os.environ['URL'],
+              'raw_sha256': hashlib.sha256(raw).hexdigest(),
+              'byte_count': len(raw),
+              'page_count': len(pages),
+              'nifty200_contexts': contexts,
+              'base_nifty200_context_count': len(base_mentions),
+              'classification': 'REVIEW_REQUIRED' if base_mentions else 'NO_BASE_NIFTY200_CHANGE',
+              'captured_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'outcome_data_attached': False,
+              'live_capital_allowed': False,
+          }
+          out = Path(os.environ['OUT_DIR'])
+          (out / 'aug31-2026-release-audit.json').write_text(
+              json.dumps(result, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (out / 'aug31-2026-release-text.txt').write_text(text, encoding='utf-8')
+          print(json.dumps(result, indent=2, sort_keys=True))
+          PY
+
+      - name: Anchor audit and remove workflow
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add "$OUT_DIR"
+          git rm .github/workflows/h022-audit-aug31-n200-once.yml
+          git commit -m 'H022: anchor Aug31 Nifty200 release audit'
+          git push origin HEAD:research/h022-historical-nifty200-membership-v1-20260913
