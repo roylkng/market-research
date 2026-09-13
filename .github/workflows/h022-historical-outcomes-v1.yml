@@ -1,0 +1,138 @@
+name: H022 historical outcomes v1
+
+on:
+  push:
+    branches:
+      - research/h022-historical-outcomes-v1-20260913
+    paths:
+      - .github/workflows/h022-historical-outcomes-v1.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h022-historical-outcomes-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OUT_DIR: research/historical/h022/management-information-delta-v1/outcomes-v1
+      RAW_DIR: /tmp/h022-official-raw
+      FEATURE_PANEL: research/historical/h022/management-information-delta-v1/feature-panel.json
+      UNIVERSE: research/prospective/universes/FY27-Q2-2026-09-06.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h022-historical-outcomes-v1-20260913
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen feature panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.h022 import validate_feature_panel
+          expected = 'dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3'
+          panel = json.loads(Path('research/historical/h022/management-information-delta-v1/feature-panel.json').read_text())
+          validate_feature_panel(panel)
+          if panel['panel_sha256'] != expected:
+              raise SystemExit(f"feature panel changed: {panel['panel_sha256']} != {expected}")
+          if panel['outcome_data_attached'] is not False:
+              raise SystemExit('feature panel already contains outcomes')
+          print('frozen H022 feature panel verified')
+          PY
+
+      - name: Collect official NSE historical inputs
+        run: |
+          rm -rf "$RAW_DIR" "$OUT_DIR"
+          mkdir -p "$RAW_DIR" "$OUT_DIR"
+          python scripts/collect_h022_outcome_inputs.py \
+            --feature-panel "$FEATURE_PANEL" \
+            --universe "$UNIVERSE" \
+            --out-dir "$OUT_DIR/inputs" \
+            --raw-dir "$RAW_DIR" \
+            --attempts 4 \
+            --sleep-seconds 3
+
+      - name: Evaluate frozen H022 challenge
+        run: |
+          python scripts/run_h022_historical_outcomes.py \
+            --feature-panel "$FEATURE_PANEL" \
+            --universe "$UNIVERSE" \
+            --index-sessions "$OUT_DIR/inputs/index-sessions.json" \
+            --stock-prices "$OUT_DIR/inputs/stock-prices.json" \
+            --corporate-actions "$OUT_DIR/inputs/corporate-actions.json" \
+            --outcome-out "$OUT_DIR/outcome-panel.json" \
+            --result-out "$OUT_DIR/result.json"
+
+      - name: Anchor result provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT_DIR'])
+          def digest(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          result = json.loads((out / 'result.json').read_text())
+          manifest = json.loads((out / 'inputs/source-manifest.json').read_text())
+          metadata = {
+              'schema_version': 1,
+              'hypothesis_id': 'H022',
+              'feature_rule_id': 'H022-R001',
+              'outcome_rule_id': 'H022-O001',
+              'feature_panel_sha256': 'dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3',
+              'outcome_rule_file_sha256': digest('registry/h022_outcome_rule.yaml'),
+              'source_manifest_file_sha256': digest(out / 'inputs/source-manifest.json'),
+              'outcome_panel_file_sha256': digest(out / 'outcome-panel.json'),
+              'result_file_sha256': digest(out / 'result.json'),
+              'availability_cutoff_session': manifest['availability_cutoff_session'],
+              'result_status': result['status'],
+              'complete_primary_count': result['complete_primary_count'],
+              'pending_primary_count': result['pending_primary_count'],
+              'blocked_corporate_action_count': result['blocked_corporate_action_count'],
+              'incomplete_source_count': result['incomplete_source_count'],
+              'survivor_panel_bias': True,
+              'evaluated_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+          }
+          (out / 'result-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, indent=2, sort_keys=True))
+          PY
+
+      - name: Commit compact historical evidence
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add "$OUT_DIR"
+          git commit -m 'H022: anchor frozen historical challenge outcomes'
+          git push origin HEAD:research/h022-historical-outcomes-v1-20260913
+
+      - name: Upload exact official raw source files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h022-official-historical-inputs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            /tmp/h022-official-raw
+            research/historical/h022/management-information-delta-v1/outcomes-v1/inputs/source-manifest.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90

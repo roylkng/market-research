@@ -1,0 +1,127 @@
+schema_version: 1
+id: H022-O001
+hypothesis_id: H022
+status: FROZEN_BEFORE_OUTCOME_FETCH
+created: 2026-09-13
+live_capital_allowed: false
+
+feature_panel:
+  path: research/historical/h022/management-information-delta-v1/feature-panel.json
+  sha256: dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3
+  feature_rule: H022-R001
+  record_count: 794
+  signal_count: 697
+  challenge_signal_count: 398
+  outcome_data_attached_at_freeze: false
+
+availability_cutoff:
+  last_completed_nse_session: 2026-09-11
+  no_price_or_return_after: 2026-09-11
+
+calendar:
+  source: official_nse_daily_index_snapshot
+  index: Nifty 500
+  session_definition: snapshot_contains_exact_Nifty_500_row
+  market_timezone: Asia/Kolkata
+  market_open_local: '09:15:00'
+  entry_session: first_calendar_session_whose_open_timestamp_is_strictly_after_exchange_publication_timestamp
+  holding_session_1: entry_session
+
+stock_price:
+  source: official_nse_cm_udiff_final_bhavcopy
+  series: EQ
+  identity: frozen_U001_symbol_plus_ISIN
+  entry_price: entry_session_open
+  exit_price: horizon_session_close
+  raw_price_basis: unadjusted
+
+benchmark:
+  source: official_nse_daily_index_snapshot
+  index: Nifty 500
+  basis: PRICE
+  entry_price: same_entry_session_open
+  exit_price: same_exit_session_close
+  dividend_mismatch: true
+
+horizons:
+  primary: 60
+  secondary: [20, 120]
+  incomplete_horizon_policy: PENDING_NOT_SCORED
+
+corporate_actions:
+  source: official_nse_corporate_actions_equities
+  audit_window: entry_through_exit_inclusive
+  blocked_share_change_tokens:
+    - bonus
+    - split
+    - sub-division
+    - subdivision
+    - consolidation
+    - rights
+    - scheme of arrangement
+    - demerger
+    - merger
+    - amalgamation
+  dividends_do_not_block_price_return
+  blocked_policy: EXCLUDE_FROM_PRIMARY_AND_REPORT
+  adjustment_v1: none
+
+returns:
+  stock_gross: exit_close / entry_open - 1
+  benchmark_gross: benchmark_exit_close / benchmark_entry_open - 1
+  excess: stock_gross - benchmark_gross
+  secondary_cost_adjusted_stock: stock_gross - 0.005
+  cost_adjusted_excess: secondary_cost_adjusted_stock - benchmark_gross
+
+primary_sample:
+  historical_split: CHALLENGE
+  feature_status: SIGNAL
+  horizon: 60
+  outcome_status: COMPLETE
+  corporate_action_status: CLEAR
+  survivor_panel_bias: true
+
+quintiles:
+  ranking_field: primary_signal
+  ranking_scope: all_complete_primary_challenge_rows
+  tie_method: average_rank
+  percentile_rank_formula: (average_rank - 1) / (n - 1)
+  bottom_quintile: percentile_rank <= 0.20
+  top_quintile: percentile_rank >= 0.80
+
+statistics:
+  spearman: primary_signal_vs_excess_return
+  top_mean_excess: true
+  top_median_excess: true
+  bottom_mean_excess: true
+  top_minus_bottom_mean_spread: true
+  top_beat_rate: excess_return > 0
+  company_cluster_bootstrap:
+    repetitions: 5000
+    random_seed: 20260913
+    statistic: top_minus_bottom_mean_spread
+  leave_one_company_out: true
+  overlapping_60_session_positions_by_symbol: report
+
+interpretation:
+  STRONG:
+    top_minus_bottom_mean_excess_pp_gte: 4.0
+    bootstrap_95ci_lower_gt: 0.0
+    top_quintile_beat_rate_gte: 0.55
+  PROMISING:
+    top_minus_bottom_mean_excess_pp_gte: 2.0
+    top_quintile_median_excess_pp_gt: 0.0
+    top_quintile_beat_rate_gte: 0.55
+  REJECTED_if_any:
+    - top_minus_bottom_mean_excess_pp_lte_0
+    - top_quintile_mean_excess_pp_lte_0
+  otherwise: INCONCLUSIVE
+
+research_boundary:
+  - no_change_to_H022_R001_after_outcomes
+  - no_future_sessions_beyond_2026_09_11
+  - pending_observations_remain_visible
+  - missing_source_data_remain_visible
+  - share_changing_actions_are_blocked_not_hand_adjusted
+  - current_U001_history_is_survivor_panel_development_evidence
+  - result_does_not_authorize_live_capital
