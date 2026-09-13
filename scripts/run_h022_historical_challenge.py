@@ -13,11 +13,11 @@ from urllib.parse import urlencode
 import requests
 
 from marketlab.h022 import validate_feature_panel
+from marketlab.h022_marketdata import parse_h022_nifty500_benchmark
 from marketlab.h022_outcomes import (
     HOLIDAYS,
     MARKET_DATA_CUTOFF,
     SPECIAL_SESSION_TIMES,
-    benchmark_bar_from_index,
     build_frozen_sessions,
     build_outcome_report,
     first_entry_session,
@@ -126,7 +126,7 @@ def _verify_and_capture_calendar(
         raw = _fetch_archive(http, url, required=True)
         assert raw is not None
         artifact = store.retain(raw, source_url=url, captured_at=captured_at, suffix=".csv")
-        bar = benchmark_bar_from_index(raw, session_date=day)
+        bar = parse_h022_nifty500_benchmark(raw, session_date=day)
         benchmark_bars[row.session_date] = {
             **bar,
             "raw_sha256": artifact.raw_sha256,
@@ -144,7 +144,7 @@ def _verify_and_capture_calendar(
             raw = _fetch_archive(http, url, required=False)
             if raw is not None:
                 try:
-                    bar = benchmark_bar_from_index(raw, session_date=cursor)
+                    bar = parse_h022_nifty500_benchmark(raw, session_date=cursor)
                 except PF001MarketDataError:
                     bar = None
                 if bar is not None and cursor not in SPECIAL_SESSION_TIMES:
