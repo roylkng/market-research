@@ -124,6 +124,12 @@ primary_evaluation:
     seed: 22022
   minimum_evaluable_observations: 200
   minimum_complete_share_of_mature_signals: 0.80
+  classification_precedence:
+    - INSUFFICIENT_COVERAGE
+    - REJECTED
+    - STRONG
+    - PROMISING
+    - INCONCLUSIVE
   advancement_rule_source: registry/h022_signal_rule.yaml
 
 secondary_evaluation:
