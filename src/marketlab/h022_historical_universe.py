@@ -40,6 +40,19 @@ def _canonical_hash(payload: Any) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def _json_compatible(value: Any) -> Any:
+    """Normalize YAML-native dates and nested containers to canonical JSON values."""
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(key): _json_compatible(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_json_compatible(item) for item in value]
+    if isinstance(value, tuple):
+        return [_json_compatible(item) for item in value]
+    return value
+
+
 def load_rule(raw_yaml: str) -> dict[str, Any]:
     document = yaml.safe_load(raw_yaml)
     if not isinstance(document, dict):
@@ -232,7 +245,7 @@ def reconstruct_historical_membership(
     ):
         raise HistoricalUniverseError("historical membership intervals overlap")
 
-    document: dict[str, Any] = {
+    raw_document: dict[str, Any] = {
         "schema_version": 1,
         "rule_id": RULE_ID,
         "hypothesis_id": HYPOTHESIS_ID,
@@ -255,6 +268,9 @@ def reconstruct_historical_membership(
         "outcome_data_attached": False,
         "live_capital_allowed": False,
     }
+    document = _json_compatible(raw_document)
+    if not isinstance(document, dict):
+        raise HistoricalUniverseError("historical membership reconstruction must be an object")
     document["reconstruction_sha256"] = _canonical_hash(document)
     return document
 
