@@ -1,0 +1,90 @@
+schema_version: 1
+id: H022-D002
+hypothesis_id: H022
+status: FROZEN_POST_OUTCOME_DIAGNOSTIC
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation: false
+
+purpose: >-
+  Explain whether the attenuation from the original current-U001 H022 replay to the
+  point-in-time Nifty 200 challenger is concentrated in current-U001 membership or
+  industry composition. This diagnostic is explanatory only and cannot promote H022.
+
+frozen_inputs:
+  expanded_outcome_report:
+    path: research/historical/h022/expanded-nifty200-challenge-v1/outcome-report.json
+    report_sha256: 310d3709393047db4ec5e2eacb9d333fac2d81b83e86bc65140dc4bc60c6d22f
+    git_blob_sha: 94c69e9d766f67ae2f5f194cbe3f50c3d73b616d
+  historical_membership:
+    path: research/historical/h022/historical-nifty200-universe-v1/membership-reconstruction.json
+    reconstruction_sha256: dee26ffc683781202da21e789cc45f480d625772e8510f3beb1f65aa4a6ba144
+    git_blob_sha: 00fc99d54e99b829d4e05a3d31131cd94abce75d
+  current_u001:
+    path: research/prospective/universes/FY27-Q2-2026-09-06.json
+    cohort_id: FY27-Q2-2026-09-06
+    captured_at_utc: 2026-09-06T12:21:06.431463Z
+    member_count: 100
+    git_blob_sha: 8026e81faee3e913d2fba1dba72d60603b69fa07
+
+primary_rows:
+  horizon_sessions: 60
+  required_outcome_status: COMPLETE
+  no_reweighting: true
+  no_return_winsorization: true
+  no_signal_transformation_except_standardization_for_regression: true
+
+composition_diagnostic:
+  groups:
+    - CURRENT_U001
+    - ADDITIONAL_HISTORICAL_NIFTY200
+  membership_rule: >-
+    CURRENT_U001 iff the symbol is in the frozen 100-company U001 file; otherwise
+    ADDITIONAL_HISTORICAL_NIFTY200. This is a composition diagnostic, not a causal
+    estimator of survivorship because current U001 also encodes current size and
+    non-financial selection.
+  report_each_group:
+    - observation_count
+    - symbol_count
+    - spearman_signal_vs_future_excess
+    - within_group_top_quintile_mean_excess_pp
+    - within_group_bottom_quintile_mean_excess_pp
+    - within_group_top_minus_bottom_spread_pp
+    - within_group_top_quintile_median_excess_pp
+    - within_group_top_quintile_beat_rate
+  regression: future_excess_on_zsignal_u001_indicator_and_interaction
+  cluster: symbol
+  bootstrap_iterations: 10000
+  bootstrap_seed: 22024
+  descriptive_classification:
+    BROAD_POSITIVE: additional_slope_gt_0_and_current_slope_gt_0
+    CURRENT_U001_CONCENTRATED: additional_slope_lte_0_and_current_slope_gt_0
+    ADDITIONAL_CONCENTRATED: additional_slope_gt_0_and_current_slope_lte_0
+    BROAD_NONPOSITIVE: additional_slope_lte_0_and_current_slope_lte_0
+
+industry_diagnostic:
+  source: frozen_industry_field_in_H022_UH001_reconstruction
+  manual_backfill_for_null_industry: prohibited
+  minimum_industry_coverage_share: 0.90
+  minimum_eligible_observations: 200
+  per_industry_detail_min_observations: 15
+  regression: future_excess_on_zsignal_plus_industry_fixed_effects
+  cluster: symbol
+  bootstrap_iterations: 10000
+  bootstrap_seed: 22024
+  leave_one_industry_out: true
+  classification:
+    DATA_INSUFFICIENT: coverage_below_gate_or_eligible_rows_below_gate
+    SUPPORTIVE_BREADTH: coefficient_gt_0_and_bootstrap_ci_low_gt_0_and_all_leave_one_industry_out_coefficients_gt_0
+    PARTIAL_BREADTH: coefficient_gt_0_and_all_leave_one_industry_out_coefficients_gt_0
+    SECTOR_SENSITIVE: coefficient_gt_0_and_any_leave_one_industry_out_coefficient_lte_0
+    NOT_ESTABLISHED: coefficient_lte_0
+
+research_boundaries:
+  - post_outcome_diagnostic_only
+  - no_H022_R001_feature_change
+  - no_H022_X001_execution_or_promotion_threshold_change
+  - no_manual_industry_labels
+  - no_sector_filter_is_promoted_from_this_result
+  - current_U001_indicator_is_not_a_pure_survivorship_indicator
+  - no_live_capital
