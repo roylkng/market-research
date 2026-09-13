@@ -4,7 +4,7 @@ import argparse
 import hashlib
 import json
 import time as time_module
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -22,7 +22,7 @@ from marketlab.pf001_marketdata import (
 
 IST = ZoneInfo("Asia/Kolkata")
 USER_AGENT = "Mozilla/5.0 (compatible; market-research-h022/1.0)"
-CALENDAR_START = date(2024, 8, 30)
+CALENDAR_START = date(2025, 10, 1)
 CORPORATE_ACTION_START = date(2025, 10, 1)
 
 
@@ -122,7 +122,7 @@ def _collect_calendar(
 
 
 def _entry_index(published_at: str, calendar: list[dict[str, Any]]) -> int | None:
-    parsed = datetime.fromisoformat(published_at.replace("Z", "+00:00")).astimezone(UTC)
+    parsed = datetime.fromisoformat(published_at).astimezone(UTC)
     for index, row in enumerate(calendar):
         session_day = date.fromisoformat(row["session_date"])
         open_utc = datetime.combine(session_day, NSE_OPEN, tzinfo=IST).astimezone(UTC)
@@ -131,7 +131,9 @@ def _entry_index(published_at: str, calendar: list[dict[str, Any]]) -> int | Non
     return None
 
 
-def _required_stock_dates(feature_panel: dict[str, Any], calendar: list[dict[str, Any]]) -> dict[str, set[str]]:
+def _required_stock_dates(
+    feature_panel: dict[str, Any], calendar: list[dict[str, Any]]
+) -> dict[str, set[str]]:
     required: dict[str, set[str]] = {}
     for row in feature_panel["records"]:
         if row.get("historical_split") != "CHALLENGE" or row.get("feature_status") != "SIGNAL":
@@ -215,9 +217,10 @@ def _parse_nse_date(value: object) -> str | None:
         return None
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(value.strip(), fmt).date().isoformat()
+            parsed = time_module.strptime(value.strip(), fmt)
         except ValueError:
             continue
+        return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday).isoformat()
     return None
 
 
@@ -260,7 +263,7 @@ def _collect_corporate_actions(
     path.write_bytes(raw)
     payload = json.loads(raw)
     if not isinstance(payload, list):
-        raise RuntimeError("NSE corporate-actions endpoint did not return a list")
+        raise TypeError("NSE corporate-actions endpoint did not return a list")
     actions: list[dict[str, Any]] = []
     for row in payload:
         if not isinstance(row, dict):
