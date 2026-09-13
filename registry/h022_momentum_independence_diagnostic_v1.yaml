@@ -1,0 +1,94 @@
+schema_version: 1
+id: H022-D001
+hypothesis_id: H022
+status: FROZEN_POST_OUTCOME_DIAGNOSTIC
+created: 2026-09-13
+live_capital_allowed: false
+
+purpose: >-
+  Test whether the already-observed H022 60-session historical-development relation
+  is largely explained by pre-publication stock relative momentum. This diagnostic
+  was designed after H022 outcomes were opened and therefore cannot upgrade H022
+  to validation or alter H022-R001/H022-X001.
+
+inputs:
+  outcome_report:
+    path: research/historical/h022/management-information-delta-v1/challenge-2026-09-11/outcome-report.json
+    sha256: 4298bfce4227e4c27d1edcf19b0651def6e8980356a6a9de2493d09a81bee6c5
+  feature_panel_sha256: dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3
+  primary_horizon_sessions: 60
+  include_only_outcome_status: COMPLETE
+
+momentum_control:
+  name: prior_60_session_relative_return
+  information_boundary: strictly_before_h022_entry_session
+  end_session: session_immediately_before_entry
+  start_session: 60th_frozen_nse_session_before_entry
+  stock_return: start_close_to_end_close
+  benchmark: NIFTY_500_PRICE_INDEX
+  benchmark_return: matching_start_close_to_end_close
+  relative_return_pp: stock_return_pct_minus_benchmark_return_pct
+  stock_source: official_nse_cm_udiff
+  benchmark_source: official_nse_daily_index_snapshot
+  missing_data: NO_CONTROL
+  share_changing_action_between_start_and_end: CONTROL_BLOCKED
+
+calendar:
+  start: 2025-06-15
+  end: 2026-09-11
+  regular_session: weekday_minus_frozen_nse_cm_holidays
+  special_sessions:
+    - session_date: 2025-10-21
+      open: '13:45:00'
+      close: '14:45:00'
+    - session_date: 2026-02-01
+      open: '09:15:00'
+      close: '15:30:00'
+  additional_2025_prechallenge_holidays:
+    - 2025-08-15
+    - 2025-08-27
+  official_2025_holiday_source: https://nsearchives.nseindia.com/content/circulars/CMTR65587.pdf
+
+corporate_actions:
+  source: NSE_corporate_actions_endpoint_exact_bytes
+  audit_window_start: 2025-06-15
+  audit_window_end: 2026-09-11
+  blocked_tokens_same_as_h022_x001: true
+  no_adjustment_factors_in_v1: true
+
+analysis:
+  primary_rows: H022_60_session_COMPLETE_rows_with_READY_momentum_control
+  diagnostics:
+    - spearman_h022_signal_vs_prior_relative_momentum
+    - spearman_prior_relative_momentum_vs_future_excess
+    - multiple_ols_future_excess_on_standardized_h022_and_standardized_prior_momentum
+    - symbol_cluster_bootstrap_h022_ols_coefficient_95ci
+    - residualized_h022_signal_spearman_vs_future_excess
+    - h022_top_minus_bottom_spread_within_prior_momentum_halves
+  ols_intercept: true
+  standardization: sample_mean_and_population_std_on_ready_rows
+  bootstrap:
+    resampling_unit: symbol
+    iterations: 10000
+    seed: 22023
+
+interpretation:
+  SUPPORTIVE_INDEPENDENCE:
+    conditions:
+      - standardized_h022_ols_coefficient_gt: 0
+      - cluster_bootstrap_h022_coefficient_ci_low_gt: 0
+      - residualized_h022_spearman_gt: 0
+  PARTIAL_INDEPENDENCE:
+    conditions:
+      - standardized_h022_ols_coefficient_gt: 0
+      - residualized_h022_spearman_gt: 0
+  NOT_ESTABLISHED:
+    otherwise: true
+
+research_boundary:
+  - this_is_post_outcome_diagnostic_not_preregistered_validation
+  - h022_r001_and_h022_x001_are_immutable
+  - momentum_inputs_must_precede_entry
+  - future_return_must_not_enter_momentum_control
+  - blocked_or_missing_controls_are_not_imputed
+  - no_live_capital
