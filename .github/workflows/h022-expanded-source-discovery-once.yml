@@ -1,0 +1,99 @@
+name: H022 expanded source discovery once
+
+on:
+  push:
+    branches:
+      - research/h022-expanded-transcript-corpus-v1-20260913
+    paths:
+      - .github/workflows/h022-expanded-source-discovery-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      OUT_DIR: research/historical/h022/expanded-source-corpus-v1
+      STORE: run-out/h022-expanded-source/store
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h022-expanded-transcript-corpus-v1-20260913
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and validate
+        run: |
+          python -m pip install -e '.[dev]'
+          make validate
+
+      - name: Discover official NSE transcript sources for 211-company union
+        run: |
+          mkdir -p "$OUT_DIR" "$STORE"
+          python scripts/build_h022_expanded_source_bundle.py \
+            --rule registry/h022_expanded_transcript_source_rule_v1.yaml \
+            --reconstruction research/historical/h022/historical-nifty200-universe-v1/membership-reconstruction.json \
+            --audit research/historical/h022/historical-nifty200-universe-v1/ad-hoc-membership-audit-v1.json \
+            --store "$STORE" \
+            --bundle-out "$OUT_DIR/source-bundle.json" \
+            --summary-out "$OUT_DIR/summary.json" \
+            --sleep-seconds 0.15
+
+      - name: Anchor discovery provenance
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          out = Path(os.environ['OUT_DIR'])
+          summary = json.loads((out / 'summary.json').read_text(encoding='utf-8'))
+          metadata = {
+              'schema_version': 1,
+              'rule_id': 'H022-US001',
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'captured_at_utc': datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+              'bundle_sha256': summary['bundle_sha256'],
+              'member_count': summary['member_count'],
+              'transcript_source_count': summary['transcript_source_count'],
+              'signal_eligible_source_count': summary['signal_eligible_source_count'],
+              'context_only_source_count': summary['context_only_source_count'],
+              'incomplete_count': summary['incomplete_count'],
+              'freeze_ready': summary['freeze_ready'],
+              'raw_discovery_artifact_path': 'run-out/h022-expanded-source/store',
+              'outcome_data_attached': False,
+              'live_capital_allowed': False,
+          }
+          (out / 'run-metadata.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+      - name: Commit measured source bundle and remove one-shot workflow
+        run: |
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add "$OUT_DIR"
+          git rm .github/workflows/h022-expanded-source-discovery-once.yml
+          git commit -m 'H022: anchor expanded historical transcript source coverage'
+          git push origin HEAD:research/h022-expanded-transcript-corpus-v1-20260913
+
+      - name: Preserve exact discovery bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h022-expanded-source-discovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            run-out/h022-expanded-source
+            research/historical/h022/expanded-source-corpus-v1
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
