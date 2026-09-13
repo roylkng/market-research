@@ -1,0 +1,68 @@
+schema_version: 1
+id: H022-D003
+hypothesis_id: H022
+status: FROZEN_POST_OUTCOME_DIAGNOSTIC
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation: false
+
+purpose: >-
+  Test whether the weak economics in the additional historical Nifty 200 group are
+  primarily caused by the inclusion of Financial Services, which were excluded from
+  the frozen U001 construction.
+
+frozen_input:
+  path: research/historical/h022/composition-sector-diagnostic-v1/diagnostic-panel.json
+  panel_sha256: 907a88c1ed2bfddd650ec589799660f1d26aa8d4c678f787bb3b9d765a05b17a
+  primary_horizon_sessions: 60
+  complete_rows: 559
+
+classification_source:
+  industry_field: frozen_H022_UH001_industry
+  financial_label: Financial Services
+  null_industry: EXCLUDE_FROM_D003
+  manual_backfill: prohibited
+  taxonomy_is_event_date_historical: false
+
+cells:
+  - CURRENT_U001_NONFINANCIAL
+  - ADDITIONAL_NONFINANCIAL
+  - ADDITIONAL_FINANCIAL
+
+report_each_cell:
+  - observation_count
+  - symbol_count
+  - spearman_signal_vs_future_excess
+  - within_cell_top_quintile_mean_excess_pp
+  - within_cell_bottom_quintile_mean_excess_pp
+  - within_cell_top_minus_bottom_spread_pp
+  - within_cell_top_quintile_median_excess_pp
+  - within_cell_top_quintile_beat_rate
+
+additional_group_regression:
+  sample: labelled_ADDITIONAL_HISTORICAL_NIFTY200_only
+  formula: future_excess_on_zsignal_financial_indicator_and_interaction
+  cluster: symbol
+  bootstrap_iterations: 10000
+  bootstrap_seed: 22025
+
+additional_nonfinancial_recovery_check:
+  minimum_observations: 100
+  descriptive_only: true
+  RECOVERS_PROMISING_STYLE:
+    top_minus_bottom_mean_excess_pp_gte: 2.0
+    top_quintile_median_excess_pp_gt: 0.0
+    top_quintile_beat_rate_gte: 0.55
+  otherwise: DOES_NOT_RECOVER_PROMISING_STYLE
+  note: >-
+    This intentionally reuses the economic shape of H022's PROMISING gates but cannot
+    classify or promote H022 because D003 is post-outcome and has no 200-observation
+    promotion gate.
+
+research_boundaries:
+  - post_outcome_diagnostic_only
+  - financial_services_is_a_static_frozen_taxonomy_label
+  - no_manual_sector_reclassification
+  - no_filter_from_this_result_can_replace_H022_R001
+  - current_U001_is_not_a_pure_survivorship_indicator
+  - no_live_capital
