@@ -1,0 +1,152 @@
+schema_version: 1
+id: H022-X001
+hypothesis_id: H022
+signal_rule_id: H022-R001
+status: FROZEN_HISTORICAL_DEVELOPMENT
+created: 2026-09-13
+live_capital_allowed: false
+
+feature_panel:
+  path: research/historical/h022/management-information-delta-v1/feature-panel.json
+  panel_sha256: dd992523238aebce5e9f6ee8535951fd869bf9d8615705d4fb5f420e8f85bee3
+  record_count: 794
+  challenge_signal_count: 398
+  outcome_data_attached_at_freeze: false
+
+research_classification:
+  evidence_class: HISTORICAL_SURVIVOR_PANEL_DEVELOPMENT
+  current_survivor_panel: true
+  may_promote_directly_to_validation: false
+
+market_data_cutoff:
+  last_completed_session: 2026-09-11
+  outcomes_after_cutoff_forbidden: true
+
+calendar:
+  timezone: Asia/Kolkata
+  regular_open: "09:15:00"
+  regular_close: "15:30:00"
+  session_rule: weekday_minus_frozen_trading_holidays_plus_frozen_special_live_sessions
+  verify_official_nifty500_snapshot_for_every_generated_session: true
+  check_weekends_and_frozen_holidays_for_unregistered_special_live_sessions: true
+  holidays_2025_challenge_window:
+    - 2025-10-02
+    - 2025-10-22
+    - 2025-11-05
+    - 2025-12-25
+  holiday_source_2025: https://nsearchives.nseindia.com/content/circulars/CMTR65587.pdf
+  holidays_2026_through_cutoff:
+    - 2026-01-15
+    - 2026-01-26
+    - 2026-03-03
+    - 2026-03-26
+    - 2026-03-31
+    - 2026-04-03
+    - 2026-04-14
+    - 2026-05-01
+    - 2026-05-28
+    - 2026-06-26
+  holiday_source_2026: https://nsearchives.nseindia.com/content/circulars/CMTR71775.pdf
+  ad_hoc_holiday_source_2026_01_15: https://nsearchives.nseindia.com/content/circulars/CMTR72260.pdf
+  special_live_sessions:
+    - session_date: 2025-10-21
+      open: "13:45:00"
+      close: "14:45:00"
+      source: https://nsearchives.nseindia.com/content/circulars/CMTR70319.pdf
+    - session_date: 2026-02-01
+      open: "09:15:00"
+      close: "15:30:00"
+      source: https://nsearchives.nseindia.com/content/circulars/CMTR72349.pdf
+      correction_reason: official_calendar_verification_before_any_h022_outcome_was_produced
+
+entry:
+  convention: first_nse_session_open_strictly_after_exchange_publication_timestamp
+  same_day_allowed_if_publication_strictly_before_session_open: true
+  price: official_nse_cm_udiff_open
+  identity_priority:
+    - exact_current_u001_isin_eq_row
+    - exact_current_u001_symbol_eq_row_with_observed_isin_recorded
+  missing_or_ambiguous_identity: EXCLUDE
+
+holding_period:
+  entry_session_counts_as_holding_session_1: true
+  horizons: [20, 60, 120]
+  exit_price: official_nse_cm_udiff_close
+  maturity: horizon_exit_session_must_be_on_or_before_market_data_cutoff
+  immature_status: NOT_MATURE
+
+benchmark:
+  id: NIFTY_500_PRICE_INDEX
+  entry: same_session_official_index_open
+  exit: same_horizon_session_official_index_close
+  excess_return_pp: stock_return_pct - benchmark_return_pct
+  dividend_basis: price_return_not_total_return
+
+costs:
+  secondary_round_trip_bps: 50
+  cost_adjusted_excess_pp: gross_excess_pp - 0.50
+
+corporate_actions:
+  source: NSE corporate-actions endpoint exact response bytes
+  fetch_once_per_symbol_from: 2025-10-01
+  fetch_once_per_symbol_to: 2026-09-11
+  block_if_ex_date_after_entry_and_on_or_before_exit: true
+  blocked_action_tokens:
+    - bonus
+    - split
+    - sub-division
+    - subdivision
+    - consolidation
+    - rights
+    - demerger
+    - spin-off
+    - spin off
+    - reduction of capital
+    - scheme of arrangement
+    - merger
+    - amalgamation
+  dividend_only_actions_do_not_block_price_return: true
+  unresolved_relevant_action_date_blocks_symbol: true
+  v1_adjustment_factors: none
+
+primary_evaluation:
+  split: CHALLENGE
+  horizon_sessions: 60
+  only_feature_status: SIGNAL
+  only_outcome_status: COMPLETE
+  quintiles: stable_count_balanced_rank_by_primary_signal_then_source_id
+  metrics:
+    - spearman_signal_vs_excess
+    - top_quintile_mean_excess_pp
+    - bottom_quintile_mean_excess_pp
+    - top_minus_bottom_mean_excess_pp
+    - top_quintile_median_excess_pp
+    - top_quintile_benchmark_beat_rate
+    - company_cluster_bootstrap_95ci_top_minus_bottom_spread
+  bootstrap:
+    resampling_unit: symbol
+    iterations: 10000
+    seed: 22022
+  minimum_evaluable_observations: 200
+  minimum_complete_share_of_mature_signals: 0.80
+  classification_precedence:
+    - INSUFFICIENT_COVERAGE
+    - REJECTED
+    - STRONG
+    - PROMISING
+    - INCONCLUSIVE
+  advancement_rule_source: registry/h022_signal_rule.yaml
+
+secondary_evaluation:
+  horizons: [20, 120]
+  same_metrics_where_mature: true
+  no_rule_tuning_from_secondary_results: true
+
+integrity:
+  - feature_panel_hash_must_match_before_market_data_acquisition
+  - outcome_code_must_not_change_h022_feature_values
+  - raw_official_market_and_corporate_action_evidence_retained_content_addressed
+  - missing_data_is_not_imputed
+  - corporate_action_blocked_outcomes_are_not_ranked
+  - immature_outcomes_are_not_ranked
+  - no_threshold_optimization_after_returns_open
