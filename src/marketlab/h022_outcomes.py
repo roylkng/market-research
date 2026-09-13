@@ -61,7 +61,7 @@ def _timestamp(value: object) -> datetime:
     if not isinstance(value, str):
         raise H022OutcomeError("event timestamp must be a string")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise H022OutcomeError(f"invalid event timestamp: {value}") from exc
     if parsed.tzinfo is None:
@@ -133,6 +133,9 @@ def _share_action_between(
     for action in actions:
         if str(action.get("symbol") or "").strip().upper() != symbol:
             continue
+        series = str(action.get("series") or "").strip().upper()
+        if series and series != "EQ":
+            continue
         raw_date = action.get("ex_date")
         if not isinstance(raw_date, str):
             continue
@@ -182,6 +185,10 @@ def build_outcome_panel(
             "benchmark_entry_open": None,
             "horizons": {},
         }
+        if feature["historical_split"] != "CHALLENGE":
+            row["outcome_status"] = "NOT_PRIMARY_SPLIT"
+            rows.append(row)
+            continue
         if feature["feature_status"] != "SIGNAL":
             row["outcome_status"] = "NO_FEATURE_SIGNAL"
             rows.append(row)
@@ -204,9 +211,15 @@ def build_outcome_panel(
             rows.append(row)
             continue
         if entry_security.get("isin") != identities[symbol]["isin"]:
-            raise H022OutcomeError(f"{symbol}: entry ISIN mismatch")
+            row["outcome_status"] = "ENTRY_IDENTITY_MISMATCH"
+            row["observed_entry_isin"] = entry_security.get("isin")
+            row["expected_isin"] = identities[symbol]["isin"]
+            rows.append(row)
+            continue
         if str(entry_security.get("series") or "").upper() != "EQ":
-            raise H022OutcomeError(f"{symbol}: entry series mismatch")
+            row["outcome_status"] = "ENTRY_SERIES_MISMATCH"
+            rows.append(row)
+            continue
         entry_price = _positive_float(entry_security.get("open"), f"{symbol} entry open")
         row["entry_price"] = entry_price
 
@@ -226,9 +239,19 @@ def build_outcome_panel(
                 }
                 continue
             if exit_security.get("isin") != identities[symbol]["isin"]:
-                raise H022OutcomeError(f"{symbol}: exit ISIN mismatch")
+                row["horizons"][horizon_key] = {
+                    "status": "EXIT_IDENTITY_MISMATCH",
+                    "exit_session": exit_session.session_date.isoformat(),
+                    "observed_isin": exit_security.get("isin"),
+                    "expected_isin": identities[symbol]["isin"],
+                }
+                continue
             if str(exit_security.get("series") or "").upper() != "EQ":
-                raise H022OutcomeError(f"{symbol}: exit series mismatch")
+                row["horizons"][horizon_key] = {
+                    "status": "EXIT_SERIES_MISMATCH",
+                    "exit_session": exit_session.session_date.isoformat(),
+                }
+                continue
             exit_price = _positive_float(exit_security.get("close"), f"{symbol} exit close")
             blocked_actions = _share_action_between(
                 corporate_actions,
@@ -238,7 +261,7 @@ def build_outcome_panel(
             )
             stock_return = exit_price / entry_price - 1.0
             benchmark_return = exit_session.close_price / entry_session.open_price - 1.0
-            horizon_row = {
+            row["horizons"][horizon_key] = {
                 "status": "COMPLETE",
                 "exit_session": exit_session.session_date.isoformat(),
                 "exit_price": exit_price,
@@ -251,7 +274,7 @@ def build_outcome_panel(
                 "corporate_action_status": "BLOCKED" if blocked_actions else "CLEAR",
                 "blocked_corporate_actions": blocked_actions,
             }
-            row["horizons"][horizon_key] = horizon_row
+
         primary = row["horizons"].get(str(PRIMARY_HORIZON), {})
         if primary.get("status") == "PENDING_NOT_MATURED":
             row["outcome_status"] = "PENDING_PRIMARY_HORIZON"
@@ -311,7 +334,7 @@ def summarize_challenge(outcome_panel: dict[str, Any]) -> dict[str, Any]:
         if row.get("historical_split") != "CHALLENGE" or row.get("feature_status") != "SIGNAL":
             continue
         status = row.get("outcome_status")
-        if status == "PENDING_PRIMARY_HORIZON":
+        if status in {"PENDING_PRIMARY_HORIZON", "PENDING_ENTRY_AFTER_CUTOFF"}:
             pending += 1
             continue
         if status == "BLOCKED_PRIMARY_CORPORATE_ACTION":
@@ -345,9 +368,11 @@ def summarize_challenge(outcome_panel: dict[str, Any]) -> dict[str, Any]:
 
     ranks = rankdata([row["signal"] for row in sample], method="average")
     for row, rank in zip(sample, ranks, strict=True):
-        pct = (float(rank) - 1.0) / (n - 1.0)
-        row["percentile_rank"] = pct
-        row["quintile"] = "TOP" if pct >= 0.80 else "BOTTOM" if pct <= 0.20 else "MIDDLE"
+        percentile_rank = (float(rank) - 1.0) / (n - 1.0)
+        row["percentile_rank"] = percentile_rank
+        row["quintile"] = (
+            "TOP" if percentile_rank >= 0.80 else "BOTTOM" if percentile_rank <= 0.20 else "MIDDLE"
+        )
 
     top = [row for row in sample if row["quintile"] == "TOP"]
     bottom = [row for row in sample if row["quintile"] == "BOTTOM"]
