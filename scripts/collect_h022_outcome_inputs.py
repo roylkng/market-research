@@ -189,14 +189,12 @@ def _collect_stock_prices(
             }
         )
         for symbol in sorted(required[raw_day]):
-            identity = identities[symbol]
             try:
                 bar = parse_pf001_udiff_equity(
                     raw,
                     symbol=symbol,
                     session_date=day,
-                    expected_isin=identity["isin"],
-                    series=identity["series"],
+                    series=identities[symbol]["series"],
                 )
             except PF001MarketDataMissingRow:
                 missing.append({"session_date": raw_day, "symbol": symbol})
