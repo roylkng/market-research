@@ -1,0 +1,76 @@
+schema_version: 1
+id: H022-US001
+hypothesis_id: H022
+status: FROZEN_HISTORICAL_SOURCE_RECONSTRUCTION
+created: 2026-09-13
+live_capital_allowed: false
+
+historical_universe:
+  reconstruction_path: research/historical/h022/historical-nifty200-universe-v1/membership-reconstruction.json
+  reconstruction_sha256: dee26ffc683781202da21e789cc45f480d625772e8510f3beb1f65aa4a6ba144
+  audit_path: research/historical/h022/historical-nifty200-universe-v1/ad-hoc-membership-audit-v1.json
+  audit_required_status: COMPLETE_NO_ADDITIONAL_PERMANENT_BASE_CHANGES
+  expanded_union_member_count: 211
+  challenge_start: 2025-10-01
+  challenge_end: 2026-09-06
+
+source_window:
+  start: 2024-09-01
+  cutoff_utc: 2026-09-06T12:21:06.431463Z
+  purpose: >-
+    Preserve earlier calls as point-in-time context for H022 deltas while only
+    allowing challenge-period signal events whose issuer is an actual Nifty 200
+    base member on the event publication date.
+
+discovery:
+  source: NSE_corporate_announcements
+  exact_response_bytes_required: true
+  symbol_scoped: true
+  request_from_date: 01-09-2024
+  request_to_date: 06-09-2026
+  no_alternate_source_substitution: true
+  incomplete_request: INCOMPLETE
+
+transcript_classification:
+  semantics: REUSE_H003_C001_EXACT_POLICY
+  implementation: marketlab.h003_sources.select_transcript_sources
+  h003_source_rule_id: H003-C001
+  h003_source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
+  qualifying_category: Analysts/Institutional Investor Meet/Con. Call Updates
+  requires_transcript_attachment: true
+  excluded_material:
+    - annual_general_meeting
+    - investor_day
+    - investor_presentation
+    - meeting_schedule
+    - one_on_one_notice
+
+membership_semantics:
+  publication_date_basis: Asia/Kolkata_calendar_date_from_exchange_published_at_utc
+  pre_challenge_calls:
+    status: CONTEXT_ONLY
+    can_be_previous_call: true
+    can_be_signal_event: false
+  challenge_calls:
+    member_on_exchange_publication_date: SIGNAL_ELIGIBLE
+    nonmember_on_exchange_publication_date: CONTEXT_ONLY
+    context_only_can_be_previous_call: true
+  temporary_demerger_dummy_entities: EXCLUDED_FROM_COMPANY_UNIVERSE
+
+bundle:
+  expected_member_count: 211
+  one_record_per_union_symbol: true
+  zero_source_company_retained: true
+  incomplete_company_blocks_freeze: true
+  all_discovery_bytes_content_addressed: true
+  bundle_must_be_hashed_before_pdf_extraction: true
+
+research_boundary:
+  - no_price_or_return_input
+  - no_post_cutoff_transcript
+  - transcript_classification_identical_to_H003_C001
+  - membership_filters_signal_eligibility_not_public_information_context
+  - preserve_zero_source_and_context_only_calls
+  - feature_formula_remains_H022_R001
+  - expanded_candidate_and_feature_panels_freeze_before_outcomes
+  - no_live_capital
