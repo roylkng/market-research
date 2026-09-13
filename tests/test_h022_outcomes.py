@@ -137,6 +137,23 @@ def test_primary_classification_requires_coverage() -> None:
     assert h022_outcomes.classify_primary(primary) == "INSUFFICIENT_COVERAGE"
 
 
+def test_primary_classification_locks_promising_beat_rate_threshold() -> None:
+    primary = {
+        "mature_signal_count": 250,
+        "complete_count": 240,
+        "complete_share_of_mature": 0.96,
+        "top_quintile_mean_excess_pp": 4.0,
+        "top_minus_bottom_mean_excess_pp": 3.0,
+        "top_quintile_median_excess_pp": 1.0,
+        "top_quintile_benchmark_beat_rate": 0.549,
+        "cluster_bootstrap_ci_95_low_pp": -1.0,
+    }
+    assert h022_outcomes.classify_primary(primary) == "INCONCLUSIVE"
+
+    primary["top_quintile_benchmark_beat_rate"] = 0.55
+    assert h022_outcomes.classify_primary(primary) == "PROMISING_HISTORICAL_DEVELOPMENT"
+
+
 def test_outcome_report_does_not_mutate_feature_panel(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(h022_outcomes, "validate_feature_panel", lambda _panel: None)
     monkeypatch.setattr(h022_outcomes, "CHALLENGE_SIGNAL_COUNT", 1)
