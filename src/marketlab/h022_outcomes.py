@@ -11,7 +11,8 @@ import time
 import zipfile
 from collections import defaultdict
 from dataclasses import asdict, dataclass
-from datetime import UTC, date, datetime, time as dt_time, timedelta
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as dt_time
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -20,6 +21,7 @@ from scipy import stats
 
 from marketlab.h022 import validate_feature_panel
 from marketlab.marketdata import index_snapshot_url, udiff_url
+from marketlab.pf001_marketdata import parse_pf001_nifty500_index
 
 IST = ZoneInfo("Asia/Kolkata")
 HYPOTHESIS_ID = "H022"
@@ -135,7 +137,13 @@ class ShareAction:
         return asdict(self)
 
 
-def _session(day: date, opened: dt_time, closed: dt_time, *, special: bool) -> HistoricalSession:
+def _session(
+    day: date,
+    opened: dt_time,
+    closed: dt_time,
+    *,
+    special: bool,
+) -> HistoricalSession:
     open_dt = datetime.combine(day, opened, tzinfo=IST).astimezone(UTC)
     close_dt = datetime.combine(day, closed, tzinfo=IST).astimezone(UTC)
     if open_dt >= close_dt:
@@ -215,7 +223,11 @@ def parse_share_action_audit(payload: object, *, symbol: str) -> dict[str, Any]:
         rows = [row for row in payload if isinstance(row, dict)]
     elif isinstance(payload, dict):
         candidate = payload.get("data") or payload.get("records") or []
-        rows = [row for row in candidate if isinstance(row, dict)] if isinstance(candidate, list) else []
+        rows = (
+            [row for row in candidate if isinstance(row, dict)]
+            if isinstance(candidate, list)
+            else []
+        )
     else:
         rows = []
 
@@ -469,7 +481,9 @@ def build_outcome_report(
                 }
                 continue
 
-            stock_return = _gross_return_pct(float(entry_stock["open"]), float(exit_stock["close"]))
+            stock_return = _gross_return_pct(
+                float(entry_stock["open"]), float(exit_stock["close"])
+            )
             benchmark_return = _gross_return_pct(
                 float(entry_benchmark["open"]), float(exit_benchmark["close"])
             )
@@ -502,7 +516,10 @@ def build_outcome_report(
 
 
 def _assign_quintiles(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    ordered = sorted(rows, key=lambda row: (float(row["primary_signal"]), str(row["source_id"])))
+    ordered = sorted(
+        rows,
+        key=lambda row: (float(row["primary_signal"]), str(row["source_id"])),
+    )
     count = len(ordered)
     assigned: list[dict[str, Any]] = []
     for index, row in enumerate(ordered):
@@ -512,7 +529,9 @@ def _assign_quintiles(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return assigned
 
 
-def _cluster_bootstrap_spread(rows: list[dict[str, Any]]) -> tuple[float | None, float | None, int]:
+def _cluster_bootstrap_spread(
+    rows: list[dict[str, Any]],
+) -> tuple[float | None, float | None, int]:
     by_symbol: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         by_symbol[str(row["symbol"])].append(row)
@@ -527,8 +546,16 @@ def _cluster_bootstrap_spread(rows: list[dict[str, Any]]) -> tuple[float | None,
         for _cluster in symbols:
             chosen = rng.choice(symbols)
             sample_rows.extend(by_symbol[chosen])
-        top = [float(row["gross_excess_pp"]) for row in sample_rows if row["quintile"] == 4]
-        bottom = [float(row["gross_excess_pp"]) for row in sample_rows if row["quintile"] == 0]
+        top = [
+            float(row["gross_excess_pp"])
+            for row in sample_rows
+            if row["quintile"] == 4
+        ]
+        bottom = [
+            float(row["gross_excess_pp"])
+            for row in sample_rows
+            if row["quintile"] == 0
+        ]
         if top and bottom:
             spreads.append(statistics.fmean(top) - statistics.fmean(bottom))
     if not spreads:
@@ -541,7 +568,11 @@ def evaluate_horizon(report: dict[str, Any], *, horizon: int) -> dict[str, Any]:
     if horizon not in HORIZONS:
         raise H022OutcomeError(f"unsupported evaluation horizon: {horizon}")
     key = str(horizon)
-    mature = [row for row in report["records"] if row["horizons"][key]["status"] != "NOT_MATURE"]
+    mature = [
+        row
+        for row in report["records"]
+        if row["horizons"][key]["status"] != "NOT_MATURE"
+    ]
     complete_base = [
         {
             "source_id": row["source_id"],
@@ -603,7 +634,8 @@ def evaluate_horizon(report: dict[str, Any], *, horizon: int) -> dict[str, Any]:
         result["top_quintile_mean_excess_pp"] = statistics.fmean(top_excess)
         result["bottom_quintile_mean_excess_pp"] = statistics.fmean(bottom_excess)
         result["top_minus_bottom_mean_excess_pp"] = (
-            result["top_quintile_mean_excess_pp"] - result["bottom_quintile_mean_excess_pp"]
+            result["top_quintile_mean_excess_pp"]
+            - result["bottom_quintile_mean_excess_pp"]
         )
         result["top_quintile_median_excess_pp"] = statistics.median(top_excess)
         result["top_quintile_mean_cost_adjusted_excess_pp"] = statistics.fmean(
@@ -652,7 +684,9 @@ def summarize_outcomes(report: dict[str, Any]) -> dict[str, Any]:
     unsigned.pop("report_sha256", None)
     if stored != _canonical_hash(unsigned):
         raise H022OutcomeError("H022 outcome report hash mismatch")
-    horizons = {str(horizon): evaluate_horizon(report, horizon=horizon) for horizon in HORIZONS}
+    horizons = {
+        str(horizon): evaluate_horizon(report, horizon=horizon) for horizon in HORIZONS
+    }
     classification = classify_primary(horizons[str(PRIMARY_HORIZON)])
     summary = {
         "schema_version": 1,
@@ -673,8 +707,6 @@ def summarize_outcomes(report: dict[str, Any]) -> dict[str, Any]:
 
 
 def benchmark_bar_from_index(raw_csv: bytes, *, session_date: date) -> dict[str, Any]:
-    from marketlab.pf001_marketdata import parse_pf001_nifty500_index
-
     parsed = parse_pf001_nifty500_index(raw_csv, session_date=session_date)
     return {
         **parsed.to_dict(),
