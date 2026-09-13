@@ -11,7 +11,6 @@ from marketlab.h003_candidates import (
     EXTRACTION_RULE_ID,
     EXTRACTION_RULE_SHA256,
     FrozenTranscriptSource,
-    SourceExtractionRecord,
 )
 
 RULE_ID = "H022-UE001"
