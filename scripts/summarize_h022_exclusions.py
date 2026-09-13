@@ -58,7 +58,7 @@ def build_summary(report: dict[str, Any]) -> dict[str, Any]:
                 raise TypeError("H022 outcome record must be an object")
             horizon_payload = record.get("horizons", {}).get(key)
             if not isinstance(horizon_payload, dict):
-                raise ValueError(f"H022 record is missing horizon {key}")
+                raise TypeError(f"H022 record is missing horizon {key}")
             status = str(horizon_payload.get("status") or "")
             if not status:
                 raise ValueError(f"H022 horizon {key} status is missing")
