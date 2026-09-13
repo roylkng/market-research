@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -29,6 +28,7 @@ from marketlab.h022_outcomes import (
 )
 from marketlab.marketdata import MarketArtifactStore, index_snapshot_url, udiff_url
 from marketlab.nse import NSEAcquisitionError, NSEClient
+from marketlab.pf001_marketdata import PF001MarketDataError
 
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -67,10 +67,11 @@ def _fetch_archive(
                 if required:
                     raise HistoricalRunError(f"required NSE archive returned 404: {url}")
                 return None
-            if response.status_code in {429} or response.status_code >= 500:
-                if attempt < attempts:
-                    time.sleep(0.5 * (2 ** (attempt - 1)))
-                    continue
+            if (
+                response.status_code == 429 or response.status_code >= 500
+            ) and attempt < attempts:
+                time.sleep(0.5 * (2 ** (attempt - 1)))
+                continue
             response.raise_for_status()
             if not response.content:
                 raise HistoricalRunError(f"NSE archive returned empty bytes: {url}")
@@ -144,7 +145,7 @@ def _verify_and_capture_calendar(
             if raw is not None:
                 try:
                     bar = benchmark_bar_from_index(raw, session_date=cursor)
-                except Exception:
+                except PF001MarketDataError:
                     bar = None
                 if bar is not None and cursor not in SPECIAL_SESSION_TIMES:
                     raise HistoricalRunError(
