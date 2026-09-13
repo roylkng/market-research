@@ -1,0 +1,135 @@
+schema_version: 1
+id: H022-UH001
+hypothesis_id: H022
+status: FROZEN_HISTORICAL_UNIVERSE_RECONSTRUCTION
+created: 2026-09-13
+live_capital_allowed: false
+
+purpose: >-
+  Reduce the current-Sep-2026 U001 survivor-panel bias by reconstructing the
+  point-in-time Nifty 200 base constituent universe over the H022 challenge
+  period, then rerun unchanged H022-R001 on an expanded official-transcript
+  corpus before opening returns.
+
+important_nonclaim: >-
+  This does not recreate historical U001 top-100 non-financial FFMC ranks.
+  NSE Indices historical constituent market-cap/weight data are treated as
+  unavailable to this public-data experiment unless a reproducible official
+  source is later established. The expanded challenge therefore uses the full
+  historical Nifty 200 base membership and is a separate universe challenger.
+
+challenge_window:
+  start: 2025-10-01
+  end: 2026-09-06
+
+anchor:
+  source_url: https://archives.nseindia.com/content/indices/ind_nifty200list.csv
+  source_semantics: current_official_constituent_csv_data_as_of_last_trading_day_previous_month
+  expected_as_of: 2026-08-31
+  expected_constituent_count: 200
+  required_columns:
+    - Company Name
+    - Industry
+    - Symbol
+    - Series
+    - ISIN Code
+  exact_bytes_must_be_retained: true
+
+periodic_reconstitution:
+  effective_date: 2026-03-30
+  source_url: https://www.niftyindices.com/Press_Release/ind_prs23022026.pdf
+  source_date: 2026-02-23
+  excluded:
+    - {company_name: ACC Ltd., symbol: ACC}
+    - {company_name: Bajaj Housing Finance Ltd., symbol: BAJAJHFL}
+    - {company_name: Bharti Hexacom Ltd., symbol: BHARTIHEXA}
+    - {company_name: Indraprastha Gas Ltd., symbol: IGL}
+    - {company_name: IRB Infrastructure Developers Ltd., symbol: IRB}
+    - {company_name: ITC Hotels Ltd., symbol: ITCHOTELS}
+    - {company_name: Life Insurance Corporation of India, symbol: LICI}
+    - {company_name: NTPC Green Energy Ltd., symbol: NTPCGREEN}
+    - {company_name: Sona BLW Precision Forgings Ltd., symbol: SONACOMS}
+    - {company_name: Tata Technologies Ltd., symbol: TATATECH}
+    - {company_name: Torrent Power Ltd., symbol: TORNTPOWER}
+  included:
+    - {company_name: Billionbrains Garage Ventures Ltd., symbol: GROWW}
+    - {company_name: GE Vernova T&D India Ltd., symbol: GVT&D}
+    - {company_name: ICICI Prudential Asset Management Company Ltd., symbol: ICICIAMC}
+    - {company_name: Laurus Labs Ltd., symbol: LAURUSLABS}
+    - {company_name: Lenskart Solutions Ltd., symbol: LENSKART}
+    - {company_name: LG Electronics India Ltd., symbol: LGEINDIA}
+    - {company_name: Multi Commodity Exchange of India Ltd., symbol: MCX}
+    - {company_name: Radico Khaitan Ltd., symbol: RADICO}
+    - {company_name: Tata Capital Ltd., symbol: TATACAP}
+    - {company_name: Tata Investment Corporation Ltd., symbol: TATAINVEST}
+    - {company_name: Tata Motors Ltd., symbol: TMCV}
+  expected_excluded_count: 11
+  expected_included_count: 11
+
+base_membership_intervals:
+  - interval_id: N200-BASE-2025-10-01_TO_2026-03-29
+    start: 2025-10-01
+    end: 2026-03-29
+    derivation: reverse_2026_03_30_reconstitution_from_2026_08_31_anchor
+  - interval_id: N200-BASE-2026-03-30_TO_2026-09-06
+    start: 2026-03-30
+    end: 2026-09-06
+    derivation: 2026_08_31_anchor_subject_to_ad_hoc_base_membership_audit
+
+temporary_demerger_constituents:
+  treatment: retain_as_index_mechanics_metadata_but_exclude_from_transcript_company_universe
+  rationale: zero_price_or_resulting_entity_dummy_rows_do_not_represent_preexisting_independent_transcript_coverage_companies
+  events:
+    - parent: TATAMOTORS
+      dummy_symbols: [DUMMYTATAM]
+      included_from: 2025-10-14
+      excluded_from: 2025-11-17
+      source_exclusion: https://www.niftyindices.com/Press_Release/ind_prs13112025.pdf
+    - parent: HINDUNILVR
+      dummy_symbols: [DUMMYHDLVR]
+      included_from: 2025-12-05
+      excluded_from: 2026-02-24
+      source_exclusion: https://niftyindices.com/Press_Release/ind_prs20022026_1.pdf
+    - parent: VEDL
+      dummy_symbols: [DUMMYVEDL1, DUMMYVEDL2, DUMMYVEDL3, DUMMYVEDL4]
+      included_from: 2026-04-30
+      source_inclusion: https://niftyindices.com/Press_Release/ind_prs23042026.pdf
+      removal_completed_by: 2026-06-24
+
+ad_hoc_base_membership_audit:
+  status: REQUIRED_BEFORE_EXPANDED_OUTCOME_EVALUATION
+  principle: >-
+    Every broad-market replacement/corporate-action release in the challenge
+    period must be checked for a permanent Nifty 200 base-member substitution.
+    Temporary demerger dummies are recorded separately. If any permanent base
+    substitution is found, the interval timeline must be versioned before any
+    expanded H022 returns are opened.
+
+expanded_universe:
+  include: union_of_base_members_across_all_challenge_intervals
+  include_financial_services: true
+  reason: avoid_using_current_or_hindsight_industry_exclusions_to_approximate_old_U001
+  no_substitution_for_missing_transcripts: true
+  expected_anchor_members: 200
+  expected_pre_march_members: 200
+  expected_union_members_if_no_other_permanent_substitutions: 211
+
+transcript_replay:
+  source: NSE_corporate_announcements_plus_original_NSE_archive_attachments
+  source_rule_semantics: reuse_H003_C001_management_call_transcript_classification
+  transcript_window_start: 2024-09-01
+  per_event_membership_required: true
+  zero_source_companies_retained: true
+  exact_source_publication_timestamp_required: true
+  H022_feature_rule: H022-R001
+  feature_formula_must_not_change: true
+  outcome_join_forbidden_until_expanded_feature_panel_is_frozen: true
+
+research_boundary:
+  - historical_Nifty200_challenger_is_not_historical_U001_reconstruction
+  - current_U001_industry_or_ffmc_rank_must_not_be_backfilled_as_historical_fact
+  - official_membership_and_transcript_sources_only
+  - ad_hoc_membership_audit_must_complete_before_return_join
+  - same_H022_R001_feature_formula
+  - feature_panel_frozen_before_outcomes
+  - no_live_capital
