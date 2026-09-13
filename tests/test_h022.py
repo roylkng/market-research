@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-import marketlab.h022 as h022
+from marketlab import h022
 
 
 def _candidate(source_id: str, symbol: str, published: str, *, deadline: bool = False, domain: str = "revenue") -> dict:
