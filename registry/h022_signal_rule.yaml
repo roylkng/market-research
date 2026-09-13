@@ -1,0 +1,115 @@
+schema_version: 1
+id: H022-R001
+hypothesis_id: H022
+name: management_forward_information_delta_v1
+status: FROZEN_HISTORICAL_DEVELOPMENT
+created: 2026-09-13
+live_capital_allowed: false
+
+source:
+  corpus: H003-E002 complete transcript candidate report
+  report_commit: 2682d91a2be0dc3b69876ef397791515ff9146f2
+  report_path: research/prospective/h003/FY27-Q2-2026-09-06/candidates-e002-full-sharded/report.json
+  report_sha256: cb48b1e18c76a3ea2d06b13383955c0f0c6efa6d3d65bd132ac3d5e59217ffea
+  extraction_rule_id: H003-E002
+  extraction_rule_sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
+  source_bundle_sha256: 583af88b3c070e15fe94a7782962c9e1fb1ce167e1412a08fd5c7b2f2dcaf7ee
+  expected_source_count: 794
+  expected_candidate_count: 2692
+
+universe:
+  type: current_survivor_panel_historical_development
+  base_cohort: U001 FY27-Q2-2026-09-06
+  companies: 100
+  transcript_window_start: 2024-09-01
+  transcript_cutoff_utc: 2026-09-06T12:21:06.431463Z
+  survivorship_bias: true
+  promotion_requires: historical_membership_reconstruction_or_prospective_confirmation
+
+feature_event:
+  information_timestamp: exchange_published_at_utc
+  previous_call_definition: latest transcript for the same symbol with a strictly earlier exchange publication timestamp
+  equal_timestamp_policy: calls at the same timestamp cannot be prior to one another
+  first_call_policy: NO_SIGNAL_NO_PRIOR_TRANSCRIPT
+
+features:
+  forward_commitment_density_per_10k_chars:
+    formula: candidate_count / text_char_count * 10000
+  deadline_candidate_density_per_10k_chars:
+    formula: candidates_with_nonempty_deadline_markers / text_char_count * 10000
+  domain_breadth_density_per_10k_chars:
+    formula: unique_domain_markers / text_char_count * 10000
+  deadline_share:
+    formula: candidates_with_nonempty_deadline_markers / candidate_count
+    zero_candidate_value: 0.0
+  primary_signal:
+    name: forward_commitment_density_delta
+    formula: current_forward_commitment_density_per_10k_chars - prior_forward_commitment_density_per_10k_chars
+    expected_direction: positive
+  secondary_signals:
+    - deadline_candidate_density_delta
+    - domain_breadth_density_delta
+    - deadline_share_delta
+    - current_forward_commitment_density_per_10k_chars
+
+prohibited_feature_inputs:
+  - stock_price
+  - future_return
+  - benchmark_return
+  - valuation
+  - analyst_target
+  - h013_momentum
+  - h020_timing
+  - h021_consensus_revision
+  - h019_accounting_score
+  - post_publication_news
+  - later_transcript
+
+historical_split:
+  design:
+    start: 2024-09-01
+    end: 2025-09-30
+  challenge:
+    start: 2025-10-01
+    end: 2026-09-06
+  split_basis: exchange_publication_date_utc
+  challenge_returns_must_remain_unopened_until_feature_panel_is_frozen
+
+outcome_contract:
+  entry: next_completed_nse_session_open_after_exchange_publication
+  primary_horizon_sessions: 60
+  secondary_horizon_sessions: [20, 120]
+  primary_benchmark: NIFTY_500_PRICE_INDEX
+  primary_return_measure: stock_return_minus_benchmark_return
+  secondary_cost_adjusted_round_trip_bps: 50
+  corporate_action_adjustment_required: true
+
+primary_evaluation:
+  challenge_only: true
+  metrics:
+    - spearman_signal_vs_60_session_excess
+    - top_quintile_mean_60_session_excess
+    - top_minus_bottom_quintile_mean_60_session_excess
+    - top_quintile_median_60_session_excess
+    - top_quintile_benchmark_beat_rate
+    - company_cluster_bootstrap_95ci_top_minus_bottom_spread
+  advancement:
+    strong:
+      top_minus_bottom_mean_excess_pp_gte: 4.0
+      bootstrap_ci_lower_gt: 0.0
+      top_quintile_beat_rate_gte: 0.55
+    promising:
+      top_minus_bottom_mean_excess_pp_gte: 2.0
+      top_quintile_median_excess_pp_gt: 0.0
+      top_quintile_beat_rate_gte: 0.55
+    rejected_if:
+      - top_minus_bottom_mean_excess_pp_lte_0
+      - top_quintile_mean_excess_pp_lte_0
+
+research_boundary:
+  - build_and_hash_feature_panel_before_any_return_join
+  - never_tune_feature_formula_on_challenge_returns
+  - current_survivor_panel_results_are_development_not_validation
+  - preserve_zero_candidate_transcripts
+  - preserve_first_calls_as_explicit_no_signal
+  - later_llm_or_embedding_features_are_separate_challengers
