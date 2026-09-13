@@ -151,7 +151,7 @@ def test_primary_classification_locks_promising_beat_rate_threshold() -> None:
     assert h022_outcomes.classify_primary(primary) == "INCONCLUSIVE"
 
     primary["top_quintile_benchmark_beat_rate"] = 0.55
-    assert h022_outcomes.classify_primary(primary) == "PROMISING_HISTORICAL_DEVELOPMENT"
+    assert h022_outcomes.classify_primary(primary) == "PROMISING"
 
 
 def test_outcome_report_does_not_mutate_feature_panel(monkeypatch: pytest.MonkeyPatch) -> None:
