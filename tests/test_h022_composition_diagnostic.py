@@ -142,13 +142,17 @@ def test_build_panel_preserves_missing_industry_without_backfill(
         ],
     }
     outcome = _hashed(outcome, "report_sha256")
+    reconstruction_members = [
+        {"symbol": "AAA", "industry": "Industrials"},
+        {"symbol": "BBB", "industry": None},
+    ] + [
+        {"symbol": f"DUMMY{index:03d}", "industry": "Other"}
+        for index in range(209)
+    ]
     reconstruction = {
         "schema_version": 1,
         "hypothesis_id": "H022",
-        "expanded_union_members": [
-            {"symbol": "AAA", "industry": "Industrials"},
-            {"symbol": "BBB", "industry": None},
-        ],
+        "expanded_union_members": reconstruction_members,
     }
     reconstruction = _hashed(reconstruction, "reconstruction_sha256")
     u001 = {
