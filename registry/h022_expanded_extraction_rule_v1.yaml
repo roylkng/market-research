@@ -1,0 +1,69 @@
+schema_version: 1
+id: H022-UE001
+hypothesis_id: H022
+status: FROZEN_HISTORICAL_EXTRACTION
+created: 2026-09-13
+live_capital_allowed: false
+
+source_bundle:
+  path: research/historical/h022/expanded-source-corpus-v1/source-bundle.json
+  rule_id: H022-US001
+  rule_sha256: 3e22fc99c90c11d5477fb81b5fe4d0f4cdf325ea2ae42817f9fc7b2c582403ab
+  bundle_sha256: 85d30df9286712c362102865c22ec3a27907e85599bd70d0c053bc95554cb34c
+  expected_member_count: 211
+  expected_source_count: 1558
+  expected_signal_eligible_source_count: 754
+  expected_context_only_source_count: 804
+  incomplete_count: 0
+  freeze_ready: true
+
+extraction_semantics:
+  reuse_rule: H003-E002
+  reuse_rule_sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
+  implementation:
+    parser: marketlab.h003_candidates.extract_pdf_pages
+    candidate_generator: marketlab.h003_candidates.generate_candidates
+    source_extractor: marketlab.h003_candidates.extract_source
+  parser:
+    library: pypdf
+    library_version: 6.17.0
+    strict: false
+    ocr_allowed: false
+  candidate_version: h003_future_commitment_candidate_v2
+  no_semantic_change: true
+
+membership_propagation:
+  source_membership_status_from: H022-US001
+  preserve_values:
+    - PRE_CHALLENGE_CONTEXT
+    - SIGNAL_ELIGIBLE
+    - CONTEXT_ONLY_NONMEMBER
+  signal_eligible_boolean_must_match_source_bundle: true
+  candidate_inherits_source_membership_without_reclassification: true
+
+completion:
+  deterministic_shards: 16
+  expected_source_count: 1558
+  all_sources_must_be_accounted_for: true
+  freeze_requires_all_sources_text_ready: true
+  no_text_blocks_freeze: true
+  parse_error_blocks_freeze: true
+  unresolved_fetch_error_blocks_freeze: true
+  duplicate_source_record_blocks_freeze: true
+
+outputs:
+  expanded_candidate_report_contains_outcomes: false
+  report_must_bind_source_bundle_sha256: true
+  report_must_bind_h003_e002_rule_sha256: true
+  report_must_report_signal_eligible_candidate_count: true
+  report_must_report_context_only_candidate_count: true
+
+research_boundary:
+  - H003_E002_candidate_semantics_are_unchanged
+  - H022_R001_feature_formula_is_unchanged
+  - no_price_or_return_input
+  - no_post_cutoff_transcript
+  - membership_status_is_provenance_not_a_candidate_feature
+  - expanded_candidate_report_freezes_before_expanded_H022_feature_panel
+  - expanded_feature_panel_freezes_before_returns
+  - no_live_capital
