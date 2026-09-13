@@ -57,6 +57,7 @@ HOLIDAYS = frozenset(
 )
 SPECIAL_SESSION_TIMES = {
     date(2025, 10, 21): (dt_time(13, 45), dt_time(14, 45)),
+    date(2026, 2, 1): (dt_time(9, 15), dt_time(15, 30)),
 }
 BLOCKED_ACTION_TOKENS = (
     "bonus",
