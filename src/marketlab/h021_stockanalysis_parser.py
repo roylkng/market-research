@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from urllib.parse import quote
 
 from bs4 import BeautifulSoup
@@ -68,7 +68,7 @@ def parse_period_ending(value: str) -> str | None:
         return None
     for pattern in ("%b %d, %Y", "%b %d %Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(cleaned, pattern).date().isoformat()
+            return datetime.strptime(cleaned, pattern).replace(tzinfo=UTC).date().isoformat()
         except ValueError:
             continue
     return None
@@ -91,9 +91,7 @@ def _parse_percent(value: str) -> float | None:
     cleaned = _clean(value)
     if cleaned in MISSING_MARKERS:
         return None
-    if cleaned.endswith("%"):
-        cleaned = cleaned[:-1]
-    return _parse_float(cleaned)
+    return _parse_float(cleaned.removesuffix("%"))
 
 
 def _parse_int(value: str) -> int | None:
