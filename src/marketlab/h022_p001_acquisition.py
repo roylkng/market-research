@@ -19,7 +19,6 @@ from marketlab.h022_prospective import (
     HYPOTHESIS_ID,
     PROSPECTIVE_START,
     PROTOCOL_ID,
-    H022ProspectiveError,
     _signal_record_hash,
     build_context_gate,
     seal_signal_record,
@@ -66,7 +65,7 @@ def _timestamp(value: object, *, field: str) -> datetime:
     if not isinstance(value, str):
         raise H022P001AcquisitionError(f"{field} must be an ISO timestamp")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise H022P001AcquisitionError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
