@@ -2,6 +2,11 @@ name: H021 weekly consensus capture
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - research/h021-weekly-acquisition-v1-20260914
+    paths:
+      - '.github/workflows/h021-weekly-consensus-capture.yml'
   schedule:
     # 18:15 Asia/Kolkata. The frozen NSE calendar decides whether today is
     # the final completed cash-market session of the week.
