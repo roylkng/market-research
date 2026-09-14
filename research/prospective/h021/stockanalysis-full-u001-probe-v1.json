@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "hypothesis_id": "H021-STOCKANALYSIS-FULL-U001-PROBE",
+  "created_date": "2026-09-14",
+  "purpose": "Run the validated target-aware StockAnalysis parser across the complete frozen 100-company H021 U001 panel before authorizing unattended weekly primary-field acquisition.",
+  "anchor_path": "research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz",
+  "universe_path": "research/prospective/universes/FY27-Q2-2026-09-06.json",
+  "batch_spec_path": "research/prospective/h021/capture-batches-v1.json",
+  "robots_url": "https://stockanalysis.com/robots.txt",
+  "user_agent": "marketlab-h021-research/1.0 (+https://github.com/roylkng/market-research)",
+  "timeout_seconds": 20,
+  "sleep_seconds_between_requests": 4.0,
+  "batch_ids": ["B01", "B02"],
+  "expected_total_symbols": 100,
+  "retain_raw_provider_html": false,
+  "outcomes_opened": false,
+  "live_capital_allowed": false
+}
