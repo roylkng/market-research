@@ -49,7 +49,10 @@ Therefore:
 - a non-session date does not produce a capture;
 - an NSE session with a later session in the same week does not produce a capture;
 - a holiday-shortened week captures on its last actual session;
+- a week containing an `unresolved_special_dates` entry fails closed until that possible special session is resolved and the calendar is reviewed;
 - a date outside the frozen calendar coverage fails closed rather than assuming a weekday is a market session.
+
+The current frozen calendar explicitly carries 2026-11-08 as an unresolved special-session date. The workflow must therefore refuse to seal the preceding week from an incomplete calendar rather than assume Friday, 2026-11-06 is the final session.
 
 The existing frozen calendar covers through 2026-12-31. Calendar continuity beyond that date requires a new reviewed calendar snapshot before unattended H021 capture can continue.
 
