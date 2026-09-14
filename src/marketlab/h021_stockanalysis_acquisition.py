@@ -40,7 +40,7 @@ class StructuralSourceDrift(RuntimeError):
 
 def _canonical_date(value: object, field: str) -> date:
     if not isinstance(value, str):
-        raise ValueError(f"{field} must be ISO YYYY-MM-DD")
+        raise TypeError(f"{field} must be ISO YYYY-MM-DD")
     try:
         parsed = date.fromisoformat(value)
     except ValueError as exc:
@@ -66,7 +66,7 @@ def weekly_session_decision(capture_date_ist: str, calendar: dict) -> WeeklySess
     sessions: list[date] = []
     for index, row in enumerate(raw_sessions):
         if not isinstance(row, dict):
-            raise ValueError(f"calendar session[{index}] must be an object")
+            raise TypeError(f"calendar session[{index}] must be an object")
         sessions.append(_canonical_date(row.get("session_date"), "session_date"))
     if len(sessions) != len(set(sessions)):
         raise ValueError("calendar contains duplicate session dates")
@@ -107,7 +107,7 @@ def anchor_targets(anchor: dict) -> dict[str, AnchorTarget]:
     targets: dict[str, AnchorTarget] = {}
     for index, row in enumerate(observations):
         if not isinstance(row, dict):
-            raise ValueError(f"anchor observation[{index}] must be an object")
+            raise TypeError(f"anchor observation[{index}] must be an object")
         symbol = row.get("symbol")
         fiscal_period = row.get("fiscal_period")
         period_ending = row.get("period_ending")
