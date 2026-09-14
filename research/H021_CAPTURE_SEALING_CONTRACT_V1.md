@@ -11,6 +11,8 @@ H021 depends on a prospective sequence of immutable analyst-consensus snapshots.
 
 This contract does not change the H021 hypothesis, source hierarchy, 100-company universe, weekly cadence, revision window, analyst-count threshold, top-decile selection rule, or outcome definition.
 
+A source-semantics audit completed on 2026-09-14 confirmed that the immutable Sep 11 anchor already contains `period_ending` and `eps_currency` for all 100 rows. Future capture sealing therefore requires those same semantics whenever a primary EPS value is retained.
+
 ## Frozen capture identity
 
 Every full weekly capture must carry:
@@ -25,9 +27,7 @@ Every full weekly capture must carry:
 - `research/H021_COMPARISON_CONTRACT_V1.md`
 - `research/prospective/h021/capture-batches-v1.json`
 
-The logical capture ID must be exactly `YYYY-MM-DD-full-u001-vN`, where the date equals `capture_date_ist` and `N` is a positive integer. This also prevents a capture ID from being interpreted as an arbitrary filesystem path.
-
-The India calendar date derived from `captured_at_utc` must equal `capture_date_ist`.
+The logical capture ID must be exactly `YYYY-MM-DD-full-u001-vN`, where the date equals `capture_date_ist` and `N` is a positive integer. The India calendar date derived from `captured_at_utc` must equal `capture_date_ist`.
 
 The first successfully sealed capture for a date uses `v1`. A correction uses a later version and must include a non-empty `correction_reason`. Correction versions preserve the original artifact rather than replacing it.
 
@@ -35,14 +35,7 @@ The first successfully sealed capture for a date uses `v1`. A correction uses a 
 
 A full capture contains exactly one row for every frozen U001 symbol and no other symbol. Source failure, lack of coverage, identity ambiguity, or provider blocking cannot remove a symbol or substitute another company.
 
-Each row must retain the frozen-universe identity:
-
-- symbol
-- ISIN
-- universe rank
-- fixed batch ID
-
-Ranks 1-50 belong to B01 and ranks 51-100 belong to B02.
+Each row must retain the frozen-universe symbol, ISIN, universe rank and fixed batch ID. Ranks 1-50 belong to B01 and ranks 51-100 belong to B02.
 
 ## Per-symbol data state
 
@@ -54,9 +47,16 @@ Every full-capture row has exactly one `data_state`:
 - `SOURCE_BLOCKED`
 - `IDENTITY_UNRESOLVED`
 
-Every row also retains explicit `retrieval_notes`.
+Every row also retains non-empty `retrieval_notes`.
 
-`NO_COVERAGE`, `SOURCE_BLOCKED`, and `IDENTITY_UNRESOLVED` are current-capture failures. They must not carry forward prior EPS, revenue/profit forecasts, analyst count, or target price. Those current fields remain null. This prevents a stale previous observation from masquerading as a current consensus value.
+Any row with non-null primary `consensus_eps` must also retain:
+
+- explicit `period_ending` as ISO `YYYY-MM-DD`
+- explicit uppercase three-letter `eps_currency`
+
+The sealer does not infer either field from the listing currency or company domicile. This is necessary because some NSE-listed companies have provider financial forecasts denominated in USD while others are in INR.
+
+`NO_COVERAGE`, `SOURCE_BLOCKED`, and `IDENTITY_UNRESOLVED` are current-capture failures. They must not carry forward prior `period_ending`, EPS, `eps_currency`, revenue/profit forecasts, analyst count, or target price. Those current fields remain null. This prevents stale prior semantics or values from masquerading as a current consensus observation.
 
 `PARTIAL` preserves only fields explicitly observed in the current capture. Missing fields remain null.
 
@@ -65,14 +65,16 @@ Every row also retains explicit `retrieval_notes`.
 `seal_h021_capture.py` converts a validated full-capture draft into exactly three artifacts using the logical capture ID:
 
 1. `<capture-id>.json.gz`: deterministic gzip of canonical sorted JSON
-2. `<capture-id>.manifest.json`: hashes, byte sizes, frozen identities, coverage counts, and batch summaries
+2. `<capture-id>.manifest.json`: hashes, byte sizes, frozen identities, coverage counts, EPS-semantic completeness, and batch summaries
 3. `<capture-id>.md`: human-readable capture summary
 
 The payload has both compressed and uncompressed SHA-256 hashes in the manifest. Verification also checks canonical JSON, deterministic gzip bytes, payload/manifest identity agreement, coverage totals, batch totals, and the manifest payload path.
 
+The current sealer version is `H021_CAPTURE_SEALER_V2`, introduced before the second full weekly capture to enforce period-ending and EPS-currency semantics. The legacy Sep 11 anchor remains untouched.
+
 If an artifact path already exists with identical bytes, sealing is idempotent. If the same logical capture ID is reused with different bytes, sealing fails. A correction therefore requires a new versioned capture ID and an explicit reason rather than rewriting history.
 
-Repository CI automatically validates every future schema-v2 H021 capture bundle committed under `research/prospective/h021/captures/`. A malformed payload, false manifest summary, missing report, identity drift, or tampered hash therefore fails the repository gate.
+Repository CI automatically validates every future schema-v2 H021 capture bundle committed under `research/prospective/h021/captures/`.
 
 ## Source boundary
 
@@ -88,10 +90,10 @@ A different provider or source-semantic contract requires a separately frozen so
 
 ## Information firewall
 
-Capture sealing may not consume stock prices, returns, H013, H019, H020, PF001, valuation, subsequent news, or H021 future outcomes.
+Capture sealing may not consume stock prices, returns, H013, H019, H020, PF001, valuation, subsequent news, FX conversion, or H021 future outcomes.
 
-The purpose of sealing is to preserve what was observable at the capture time. It cannot be used to repair, backfill, or improve a capture after later market outcomes are known.
+The purpose of sealing is to preserve what was observable at the capture time. It cannot be used to repair, backfill, convert, or improve a capture after later market outcomes are known.
 
 ## Legacy anchor
 
-The 2026-09-11 full U001 capture predates this sealer. Its gzip and uncompressed payload hashes, byte counts, frozen symbol set, explicit-EPS count, and analyst-count strata are independently verified in repository CI against its immutable manifest. It remains the valid first prospective full-panel anchor and is not rewritten into the new format.
+The 2026-09-11 full U001 capture predates this sealer. Its hashes, byte counts, frozen symbol set, EPS count, analyst-count strata, `period_ending`, and `eps_currency` were audited before any valid H021 revision cohort. It remains the valid first prospective full-panel anchor and is not rewritten into the new format.

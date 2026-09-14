@@ -11,6 +11,8 @@ This contract translates the already-frozen H021 prospective protocol into fail-
 
 The first full U001 consensus anchor is the immutable 2026-09-11 capture. No H021 primary revision signal exists until a later compatible full-panel capture falls inside the frozen 28-35 calendar-day window.
 
+A source-semantics audit completed on 2026-09-14, before any valid revision cohort, confirmed that all 100 rows in the Sep 11 anchor already retain both `period_ending` and `eps_currency`. The comparison contract therefore uses those existing point-in-time fields rather than reconstructing or backfilling the anchor.
+
 ## Frozen comparison pair
 
 A prior/current capture pair is eligible for the primary H021 comparison only when all of the following are true:
@@ -29,14 +31,18 @@ A pair outside these conditions is not a weaker H021 comparison. It is ineligibl
 
 For a symbol inside an eligible pair, the primary EPS-revision signal exists only when:
 
-- prior and current observations refer to the same fiscal period;
+- prior and current observations refer to the same fiscal-period label;
+- prior and current observations refer to the same explicit `period_ending` date;
 - both observations contain explicit consensus EPS and prior EPS is non-zero;
+- both EPS observations use the same explicit three-letter `eps_currency`;
 - analyst count is at least 5 at both captures;
 - the primary EPS observation remains within a compatible provider/source family.
 
+No FX conversion is introduced into the primary signal. H021 is a within-company expectation-revision experiment, so exact same-currency comparison is sufficient and avoids adding an undeclared market variable.
+
 A provider-domain change is treated as an incompatible EPS source for the primary comparison unless a separately frozen source-version protocol establishes equivalence before that comparison is opened.
 
-A fiscal-period rollover is retained explicitly as `NO_SIGNAL`. It must not disappear through an inner join on symbol plus fiscal period.
+A fiscal-period rollover, changed period endpoint, changed EPS currency, or changed provider family is retained explicitly as `NO_SIGNAL`. It must not disappear through an inner join or be repaired by conversion or inference.
 
 ## Explicit primary reason codes
 
@@ -44,8 +50,12 @@ Every frozen symbol receives one primary status:
 
 - `ELIGIBLE`
 - `FISCAL_PERIOD_MISMATCH`
-- `EPS_SOURCE_CHANGED`
 - `EPS_REVISION_UNAVAILABLE`
+- `PERIOD_END_UNAVAILABLE`
+- `PERIOD_END_MISMATCH`
+- `EPS_CURRENCY_UNAVAILABLE`
+- `EPS_CURRENCY_MISMATCH`
+- `EPS_SOURCE_CHANGED`
 - `ANALYST_COVERAGE_LT_5`
 
 This makes denominator loss observable rather than silently dropping names that fail the primary data contract.
@@ -56,7 +66,9 @@ For an eligible symbol:
 
 `eps_revision_pct = 100 * (EPS_current / EPS_prior - 1)`
 
-The primary cross-sectional rank uses this value only. No price return, H013 momentum, H020 timing state, accounting-quality variable, valuation variable, target price, revenue forecast, profit-growth forecast, or discretionary narrative may break a rank tie or alter the primary score.
+A numeric primary EPS revision is not computed when fiscal period, period endpoint, EPS currency, or provider-family semantics are incompatible. This prevents a clean-looking but meaningless percentage from entering diagnostics or ranks.
+
+The primary cross-sectional rank uses this value only. No price return, H013 momentum, H020 timing state, accounting-quality variable, valuation variable, target price, revenue forecast, profit-growth forecast, FX conversion, or discretionary narrative may break a rank tie or alter the primary score.
 
 The primary long cohort is the top decile of eligible rows. The nominal count is `ceil(0.10 * eligible_count)`, with a minimum of one when at least one eligible row exists. If multiple names tie at the cutoff EPS revision, all names at that exact cutoff are included. This preserves an EPS-only primary rule instead of injecting an undeclared tie-breaker.
 
@@ -74,6 +86,8 @@ The frozen anchor identity is:
 - universe: `research/prospective/universes/FY27-Q2-2026-09-06.json`
 - universe Git blob: `8026e81faee3e913d2fba1dba72d60603b69fa07`
 - source version: `H021-public-stockanalysis-spgi-plus-trendlyne-secondary-v1`
+- explicit `period_ending`: 100/100 rows
+- explicit `eps_currency`: 100/100 rows
 
 ## Earliest primary comparison
 
@@ -83,6 +97,6 @@ Captures before that date remain valuable prospective observations, source-conti
 
 ## Scientific boundary
 
-This contract is frozen before any valid H021 primary revision cohort or H021 return outcome exists. It exists to prevent implementation convenience from weakening the preregistered protocol after data begin to accumulate.
+This contract is frozen before any valid H021 primary revision cohort or H021 return outcome exists. The period-ending and EPS-currency clarification was added on 2026-09-14 after direct-source feasibility work exposed the distinction, while the immutable Sep 11 anchor already contained both fields for every company. No result was opened or reconstructed to make this change.
 
 No H021 return, benchmark return, price path, H013 score, H019 quality state, H020 timing state, PF001 result, or live-capital decision may influence these comparison rules. Live capital remains disabled.

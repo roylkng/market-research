@@ -18,9 +18,9 @@ python scripts/init_h021_capture_draft.py \
   --out /tmp/h021-YYYY-MM-DD-draft.json
 ```
 
-The initializer creates exactly one row per frozen symbol with immutable symbol/ISIN/rank/batch identity. All acquisition-dependent fields start deliberately incomplete: `data_state=PENDING`, source status is pending, forecast values are null, and the final capture timestamp is unset. The draft therefore cannot pass the sealer accidentally.
+The initializer creates exactly one row per frozen symbol with immutable symbol/ISIN/rank/batch identity. All acquisition-dependent fields start deliberately incomplete: `data_state=PENDING`, source status is pending, `period_ending` and `eps_currency` are null, forecast values are null, and the final capture timestamp is unset. The draft therefore cannot pass the sealer accidentally.
 
-2. Process both frozen batches and replace every pending row with current-capture evidence. Do not delete or substitute rows. Set the capture-level `captured_at_utc` only when the logical capture is complete.
+2. Process both frozen batches and replace every pending row with current-capture evidence. Do not delete or substitute rows. For every retained primary EPS, record the provider's explicit fiscal `period_ending` and `eps_currency`; do not infer either from listing currency or company domicile. Set the capture-level `captured_at_utc` only when the logical capture is complete.
 
 3. Validate and seal the completed draft with:
 
@@ -32,10 +32,12 @@ python scripts/seal_h021_capture.py \
   --out-dir research/prospective/h021/captures
 ```
 
+The sealer rejects a numeric primary EPS without explicit period-ending and EPS-currency semantics. It also rejects stale period/currency values on blocked, no-coverage, or unresolved rows.
+
 4. Commit only the three immutable sealed outputs on a reviewable branch. The temporary acquisition draft is working state, not H021 evidence.
 
-5. When a compatible prior capture exists 28-35 days earlier, run `scripts/compare_h021_captures.py` against the sealed capture directory.
+5. When a compatible prior capture exists 28-35 days earlier, run `scripts/compare_h021_captures.py` against the sealed capture directory. A primary revision additionally requires matching fiscal-period label, `period_ending`, `eps_currency`, and provider/source semantics. No FX conversion is performed.
 
-The initializer eliminates manual universe assembly. The sealing step is intentionally separate from source acquisition and refuses universe substitutions, stale carry-forward values for blocked names, identity drift, batch drift, unsafe capture IDs, and conflicting reuse of an existing logical capture ID.
+The initializer eliminates manual universe assembly. The sealing step is intentionally separate from source acquisition and refuses universe substitutions, stale carry-forward values for blocked names, identity drift, batch drift, unsafe capture IDs, semantic incompleteness, and conflicting reuse of an existing logical capture ID.
 
 No price or return data belong in a capture draft.

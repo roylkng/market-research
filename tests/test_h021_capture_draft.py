@@ -71,6 +71,8 @@ def test_draft_is_derived_exactly_from_frozen_identity() -> None:
     assert [row["batch_id"] for row in draft["observations"]] == ["B01", "B02"]
     assert all(row["data_state"] == PENDING_STATE for row in draft["observations"])
     assert all(row["source_status"] == PENDING_STATE for row in draft["observations"])
+    assert all(row["period_ending"] is None for row in draft["observations"])
+    assert all(row["eps_currency"] is None for row in draft["observations"])
 
 
 def test_incomplete_draft_is_intentionally_not_sealable() -> None:
@@ -82,6 +84,7 @@ def test_incomplete_draft_is_intentionally_not_sealable() -> None:
     assert any("invalid data_state" in error for error in errors)
     assert any("invalid fiscal_period" in error for error in errors)
     assert any("source_url" in error for error in errors)
+    assert any("retrieval_notes must be a non-empty string" in error for error in errors)
 
 
 def test_correction_draft_requires_explicit_reason() -> None:

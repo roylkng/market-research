@@ -30,10 +30,11 @@ CANONICAL_UNIVERSE_BLOB_SHA = "8026e81faee3e913d2fba1dba72d60603b69fa07"
 CANONICAL_PROTOCOL_PATH = "research/H021_PROSPECTIVE_PROTOCOL_V1.md"
 CANONICAL_COMPARISON_CONTRACT_PATH = "research/H021_COMPARISON_CONTRACT_V1.md"
 CANONICAL_BATCH_SPEC_PATH = "research/prospective/h021/capture-batches-v1.json"
-SEALER_VERSION = "H021_CAPTURE_SEALER_V1"
+SEALER_VERSION = "H021_CAPTURE_SEALER_V2"
 CAPTURE_ID_RE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})-full-u001-v(?P<version>[1-9]\d*)$"
 )
+CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
 IST = ZoneInfo("Asia/Kolkata")
 
 
@@ -73,6 +74,20 @@ def _parse_utc_timestamp(value: object) -> datetime | None:
     if parsed.tzinfo is None or parsed.utcoffset() != timedelta(0):
         return None
     return parsed.astimezone(UTC)
+
+
+def _valid_iso_date(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError:
+        return False
+    return parsed.isoformat() == value
+
+
+def _valid_currency(value: object) -> bool:
+    return isinstance(value, str) and CURRENCY_RE.fullmatch(value) is not None
 
 
 def _universe_members(universe: dict) -> list[dict]:
@@ -184,6 +199,21 @@ def _validate_capture_id(snapshot: dict) -> list[str]:
     return errors
 
 
+def _validate_primary_eps_semantics(row: dict, index: int) -> list[str]:
+    if row.get("consensus_eps") is None:
+        return []
+    errors: list[str] = []
+    if not _valid_iso_date(row.get("period_ending")):
+        errors.append(
+            f"observation[{index}] primary EPS requires ISO period_ending YYYY-MM-DD"
+        )
+    if not _valid_currency(row.get("eps_currency")):
+        errors.append(
+            f"observation[{index}] primary EPS requires uppercase 3-letter eps_currency"
+        )
+    return errors
+
+
 def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> list[str]:
     errors = list(validate_snapshot(snapshot))
     errors.extend(validate_capture_inputs(universe, batch_spec))
@@ -247,8 +277,10 @@ def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> l
         state = row.get("data_state")
         if state not in ALLOWED_CAPTURE_STATES:
             errors.append(f"observation[{index}] invalid data_state: {state!r}")
-        if not isinstance(row.get("retrieval_notes"), str):
-            errors.append(f"observation[{index}] retrieval_notes must be a string")
+        notes = row.get("retrieval_notes")
+        if not isinstance(notes, str) or not notes.strip():
+            errors.append(f"observation[{index}] retrieval_notes must be a non-empty string")
+        errors.extend(_validate_primary_eps_semantics(row, index))
         if member is None:
             continue
 
@@ -264,7 +296,9 @@ def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> l
             forbidden_values = {
                 field: row.get(field)
                 for field in (
+                    "period_ending",
                     "consensus_eps",
+                    "eps_currency",
                     "revenue_growth_forecast_pct",
                     "profit_growth_estimate_pct",
                     "analyst_count",
@@ -285,6 +319,15 @@ def coverage_summary(snapshot: dict) -> dict:
     observations = snapshot["observations"]
     states = Counter(row["data_state"] for row in observations)
     analyst_counts = [row.get("analyst_count") for row in observations]
+    explicit_eps = sum(row.get("consensus_eps") is not None for row in observations)
+    period_count = sum(_valid_iso_date(row.get("period_ending")) for row in observations)
+    currency_count = sum(_valid_currency(row.get("eps_currency")) for row in observations)
+    semantic_complete = sum(
+        row.get("consensus_eps") is not None
+        and _valid_iso_date(row.get("period_ending"))
+        and _valid_currency(row.get("eps_currency"))
+        for row in observations
+    )
     return {
         "total": len(observations),
         **{state: states.get(state, 0) for state in sorted(ALLOWED_CAPTURE_STATES)},
@@ -297,7 +340,10 @@ def coverage_summary(snapshot: dict) -> dict:
         "current_analyst_count_lt_2_or_null": sum(
             value is None or (isinstance(value, int) and value < 2) for value in analyst_counts
         ),
-        "explicit_consensus_eps": sum(row.get("consensus_eps") is not None for row in observations),
+        "explicit_consensus_eps": explicit_eps,
+        "explicit_period_ending": period_count,
+        "explicit_eps_currency": currency_count,
+        "primary_eps_semantics_complete": semantic_complete,
     }
 
 
@@ -347,6 +393,11 @@ def _report(snapshot: dict, summary: dict, batches: list[dict], payload_sha: str
         [
             "",
             f"Explicit consensus EPS: **{summary['explicit_consensus_eps']} / {summary['total']}**",
+            (
+                "Primary EPS semantics complete: "
+                f"**{summary['primary_eps_semantics_complete']} / "
+                f"{summary['explicit_consensus_eps']} EPS rows**"
+            ),
             "",
             f"Analyst count >=5: **{summary['current_analyst_count_ge_5']}**",
             f"Analyst count 2-4: **{summary['current_analyst_count_2_to_4']}**",
