@@ -8,6 +8,9 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 PROVIDER_MARKER = "S&P Global Market Intelligence"
+STOCKANALYSIS_SYMBOL_ALIASES = {
+    "BAJAJ-AUTO": "BAJAJ_AUTO",
+}
 FORECAST_CURRENCY_RE = re.compile(
     r"\bFinancial currency(?: is|:)?\s*([A-Z]{3})\b", re.IGNORECASE
 )
@@ -37,17 +40,20 @@ class ParsedAnnualForecast:
         return asdict(self)
 
 
-def forecast_url(symbol: str) -> str:
+def stockanalysis_symbol(symbol: str) -> str:
     if not isinstance(symbol, str) or not symbol.strip():
         raise ValueError("symbol must be a non-empty string")
-    encoded = quote(symbol.strip(), safe="-")
+    canonical_symbol = symbol.strip()
+    return STOCKANALYSIS_SYMBOL_ALIASES.get(canonical_symbol, canonical_symbol)
+
+
+def forecast_url(symbol: str) -> str:
+    encoded = quote(stockanalysis_symbol(symbol), safe="-")
     return f"https://stockanalysis.com/quote/nse/{encoded}/forecast/"
 
 
 def financials_url(symbol: str) -> str:
-    if not isinstance(symbol, str) or not symbol.strip():
-        raise ValueError("symbol must be a non-empty string")
-    encoded = quote(symbol.strip(), safe="-")
+    encoded = quote(stockanalysis_symbol(symbol), safe="-")
     return f"https://stockanalysis.com/quote/nse/{encoded}/financials/"
 
 
@@ -216,7 +222,7 @@ def parse_annual_forecast(
 
     soup = BeautifulSoup(html, "html.parser")
     page_text = _clean(soup.get_text(" ", strip=True))
-    identity = f"NSE:{symbol}"
+    identity = f"NSE:{stockanalysis_symbol(symbol)}"
     if identity not in page_text:
         raise ValueError(f"page identity marker missing: {identity}")
     if PROVIDER_MARKER not in page_text:
