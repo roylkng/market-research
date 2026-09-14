@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "hypothesis_id": "H021-DIRECT-SOURCE-PROBE",
+  "created_date": "2026-09-14",
+  "purpose": "Test whether the frozen H021 primary StockAnalysis/S&P Global public forecast pages are directly retrievable from GitHub Actions without bypassing access controls.",
+  "robots_url": "https://stockanalysis.com/robots.txt",
+  "user_agent": "marketlab-h021-research/1.0 (+https://github.com/roylkng/market-research)",
+  "timeout_seconds": 20,
+  "sleep_seconds": 3.0,
+  "symbols": [
+    "RELIANCE",
+    "INFY",
+    "TCS",
+    "M&M",
+    "NESTLEIND"
+  ],
+  "required_text_markers": [
+    "Financial Forecast",
+    "EPS Forecast",
+    "Revenue Forecast",
+    "No. Analysts",
+    "S&P Global Market Intelligence"
+  ],
+  "outcomes_opened": false,
+  "live_capital_allowed": false
+}
