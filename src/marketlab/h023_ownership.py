@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
@@ -69,7 +69,7 @@ def _parse_report_date(value: object) -> str:
     if not text:
         raise H023OwnershipError("NSE shareholding report date is missing")
     try:
-        parsed = datetime.strptime(text.upper(), REPORT_DATE_FORMAT).date()
+        parsed = datetime.strptime(text.upper(), REPORT_DATE_FORMAT).replace(tzinfo=IST).date()
     except ValueError as exc:
         raise H023OwnershipError(f"invalid NSE shareholding report date: {text}") from exc
     return parsed.isoformat()
@@ -123,7 +123,7 @@ def select_latest_distinct_filings(
                     symbol=wanted,
                     record_id=record_id,
                     report_date=report_date,
-                    broadcast_at_utc=broadcast.astimezone(ZoneInfo("UTC")).isoformat().replace(
+                    broadcast_at_utc=broadcast.astimezone(UTC).isoformat().replace(
                         "+00:00", "Z"
                     ),
                     xbrl_url=xbrl_url,
