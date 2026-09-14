@@ -19,7 +19,9 @@ def _snapshot(day: str, eps: float) -> dict:
             {
                 "symbol": "AAA",
                 "fiscal_period": "FY27",
+                "period_ending": "2027-03-31",
                 "consensus_eps": eps,
+                "eps_currency": "INR",
                 "revenue_growth_forecast_pct": 10.0,
                 "profit_growth_estimate_pct": 12.0,
                 "analyst_count": 6,
@@ -76,3 +78,8 @@ def test_compare_cli_reads_gzip_and_manifest_identity(tmp_path: Path) -> None:
     assert result["primary_top_decile_count"] == 1
     assert result["primary_top_decile_symbols"] == ["AAA"]
     assert result["source_version"] == "source-v1"
+    row = result["revision_observations"][0]
+    assert row["period_ending_prior"] == "2027-03-31"
+    assert row["period_ending_current"] == "2027-03-31"
+    assert row["eps_currency_prior"] == "INR"
+    assert row["eps_currency_current"] == "INR"
