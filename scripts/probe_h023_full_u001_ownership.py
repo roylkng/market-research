@@ -7,16 +7,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from probe_h023_nse_shareholding import (
-    _request_with_retries,
-    _session as _api_session,
-)
+from probe_h023_nse_shareholding import _request_with_retries
+from probe_h023_nse_shareholding import _session as _api_session
 from probe_h023_nse_shareholding_ixbrl import _rows
-from probe_h023_nse_shareholding_xbrl import (
-    _fetch,
-    _inventory_xbrl_records,
-    _session as _xbrl_session,
-)
+from probe_h023_nse_shareholding_xbrl import _fetch, _inventory_xbrl_records
+from probe_h023_nse_shareholding_xbrl import _session as _xbrl_session
 
 from marketlab.universe import load_universe_snapshot
 
