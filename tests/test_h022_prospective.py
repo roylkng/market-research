@@ -160,13 +160,25 @@ def test_e002_record_and_candidate_digests_are_verified() -> None:
     record = _e002_record(source_id="valid")
     prospective.validate_e002_record(record)
 
-    tampered = deepcopy(record)
-    tampered["candidates"][0]["excerpt"] = "We expect revenue growth of 25% next year."
-    unsigned = dict(tampered)
+    semantic_tamper = deepcopy(record)
+    semantic_tamper["candidates"][0]["excerpt"] = (
+        "We expect revenue growth of 25% next year."
+    )
+    unsigned = dict(semantic_tamper)
     unsigned.pop("record_id")
-    tampered["record_id"] = prospective._canonical_hash(unsigned)
+    semantic_tamper["record_id"] = prospective._canonical_hash(unsigned)
+    with pytest.raises(prospective.H022ProspectiveError):
+        prospective.validate_e002_record(semantic_tamper)
+
+    stale_candidate_digest = deepcopy(record)
+    stale_candidate_digest["candidates"][0]["excerpt"] = (
+        "We expect revenue growth of 20% next year. "
+    )
+    unsigned = dict(stale_candidate_digest)
+    unsigned.pop("record_id")
+    stale_candidate_digest["record_id"] = prospective._canonical_hash(unsigned)
     with pytest.raises(prospective.H022ProspectiveError, match="candidate digest mismatch"):
-        prospective.validate_e002_record(tampered)
+        prospective.validate_e002_record(stale_candidate_digest)
 
 
 def test_e002_accepts_anchor_only_future_markers_when_excerpt_has_more() -> None:
