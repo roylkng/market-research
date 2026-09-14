@@ -17,7 +17,7 @@ from marketlab.h023_ownership import (
     H023OwnershipError,
     parse_mutual_fund_ownership_xbrl,
     parser_contract,
-    select_latest_distinct_filings,
+    select_latest_adjacent_quarter_filings,
 )
 from marketlab.universe import load_universe_snapshot
 
@@ -60,7 +60,7 @@ def _availability_metadata(inventory: list[dict[str, Any]]) -> dict[str, Any]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Full-U001 source-only feasibility probe for H023 ownership"
+        description="Full-U001 adjacent-quarter source-only feasibility probe for H023 ownership"
     )
     parser.add_argument("--universe", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
@@ -76,8 +76,8 @@ def main() -> int:
     universe = load_universe_snapshot(args.universe)
     if len(universe.members) != 100:
         raise ValueError("H023 full-U001 probe requires the frozen 100-name U001 panel")
-    if args.filings_per_symbol < 1 or args.pause_seconds < 0:
-        raise ValueError("invalid H023 full-U001 probe configuration")
+    if args.filings_per_symbol != 2 or args.pause_seconds < 0:
+        raise ValueError("H023 adjacent-quarter audit requires exactly two filings per symbol")
 
     api_session = _api_session(args.timeout_seconds)
     xbrl_session = _xbrl_session()
@@ -93,6 +93,7 @@ def main() -> int:
             "master_status": "FAILED",
             "xbrl_reference_count": 0,
             "probed_filing_count": 0,
+            "adjacent_quarter_pair_complete": False,
             "successful_filing_count": 0,
             "parsed_filing_count": 0,
             "filings": [],
@@ -110,12 +111,9 @@ def main() -> int:
             all_inventory.extend(inventory)
             report["master_status"] = "COMPLETE"
             report["xbrl_reference_count"] = len(inventory)
-            selected = select_latest_distinct_filings(
-                payload,
-                symbol=symbol,
-                count=args.filings_per_symbol,
-            )
+            selected = select_latest_adjacent_quarter_filings(payload, symbol=symbol)
             report["probed_filing_count"] = len(selected)
+            report["adjacent_quarter_pair_complete"] = len(selected) == 2
             for selected_filing in selected:
                 filing: dict[str, Any] = {
                     "url": selected_filing.xbrl_url,
@@ -164,7 +162,8 @@ def main() -> int:
         symbol_reports.append(report)
         print(
             f"[{index:03d}/100] {symbol}: master={report['master_status']} "
-            f"xbrl={report['xbrl_reference_count']} fetched="
+            f"xbrl={report['xbrl_reference_count']} adjacent="
+            f"{report['adjacent_quarter_pair_complete']} fetched="
             f"{report['successful_filing_count']}/{report['probed_filing_count']} parsed="
             f"{report['parsed_filing_count']}/{report['probed_filing_count']}",
             flush=True,
@@ -176,6 +175,9 @@ def main() -> int:
         "master_complete_symbols": sum(row["master_status"] == "COMPLETE" for row in symbol_reports),
         "symbols_with_any_xbrl": sum(row["xbrl_reference_count"] > 0 for row in symbol_reports),
         "symbols_with_two_or_more_xbrl": sum(row["xbrl_reference_count"] >= 2 for row in symbol_reports),
+        "symbols_with_adjacent_quarter_pair": sum(
+            row["adjacent_quarter_pair_complete"] for row in symbol_reports
+        ),
         "symbols_with_all_probed_filings_fetched": sum(
             row["probed_filing_count"] == args.filings_per_symbol
             and row["successful_filing_count"] == args.filings_per_symbol
@@ -196,12 +198,12 @@ def main() -> int:
         ),
     }
     report = {
-        "schema_version": 2,
+        "schema_version": 3,
         "hypothesis_probe": "H023-OWNERSHIP-FULL-U001-SOURCE-PROBE",
         "purpose": (
             "Full frozen-U001 source-only feasibility audit of official NSE shareholding master "
-            "records and exact XML Mutual Fund aggregate ownership facts. No price/return input "
-            "is consumed."
+            "records and exact XML Mutual Fund aggregate ownership facts using only adjacent "
+            "standard calendar-quarter report dates. No price/return input is consumed."
         ),
         "universe_path": args.universe.as_posix(),
         "member_count": 100,
