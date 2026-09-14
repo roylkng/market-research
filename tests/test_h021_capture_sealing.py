@@ -65,7 +65,9 @@ def _snapshot(count: int = 4) -> dict:
                 "data_state": "OBSERVED",
                 "retrieval_notes": "explicit annual consensus observation",
                 "fiscal_period": "FY27",
+                "period_ending": "2027-03-31",
                 "consensus_eps": 10.0 + rank,
+                "eps_currency": "INR",
                 "revenue_growth_forecast_pct": 12.0,
                 "profit_growth_estimate_pct": 15.0,
                 "analyst_count": 6,
@@ -107,6 +109,9 @@ def test_build_capture_artifacts_is_deterministic_and_complete() -> None:
     assert first.manifest["coverage_summary"]["total"] == 4
     assert first.manifest["coverage_summary"]["OBSERVED"] == 4
     assert first.manifest["coverage_summary"]["explicit_consensus_eps"] == 4
+    assert first.manifest["coverage_summary"]["explicit_period_ending"] == 4
+    assert first.manifest["coverage_summary"]["explicit_eps_currency"] == 4
+    assert first.manifest["coverage_summary"]["primary_eps_semantics_complete"] == 4
     assert [row["processed"] for row in first.manifest["batch_summary"]] == [2, 2]
     assert gzip.decompress(first.payload_gzip) == first.payload_json
 
@@ -133,6 +138,17 @@ def test_full_capture_rejects_identity_and_batch_drift() -> None:
     assert any("batch_id mismatch" in error for error in errors)
 
 
+def test_full_capture_requires_period_end_and_currency_for_primary_eps() -> None:
+    snapshot = _snapshot()
+    snapshot["observations"][0]["period_ending"] = None
+    snapshot["observations"][1]["eps_currency"] = None
+
+    errors = validate_full_capture(snapshot, _universe(), _batches())
+
+    assert any("primary EPS requires ISO period_ending" in error for error in errors)
+    assert any("primary EPS requires uppercase 3-letter eps_currency" in error for error in errors)
+
+
 def test_full_capture_rejects_stale_values_for_source_blocked_row() -> None:
     snapshot = _snapshot()
     row = snapshot["observations"][0]
@@ -150,7 +166,9 @@ def test_full_capture_accepts_source_blocked_row_with_null_current_values() -> N
     row["data_state"] = "SOURCE_BLOCKED"
     row["retrieval_notes"] = "provider denied public retrieval"
     for field in (
+        "period_ending",
         "consensus_eps",
+        "eps_currency",
         "revenue_growth_forecast_pct",
         "profit_growth_estimate_pct",
         "analyst_count",
@@ -159,6 +177,15 @@ def test_full_capture_accepts_source_blocked_row_with_null_current_values() -> N
         row[field] = None
 
     assert validate_full_capture(snapshot, _universe(), _batches()) == []
+
+
+def test_full_capture_requires_nonempty_retrieval_notes() -> None:
+    snapshot = _snapshot()
+    snapshot["observations"][0]["retrieval_notes"] = ""
+
+    errors = validate_full_capture(snapshot, _universe(), _batches())
+
+    assert any("retrieval_notes must be a non-empty string" in error for error in errors)
 
 
 def test_full_capture_rejects_source_version_and_india_date_drift() -> None:
