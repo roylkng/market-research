@@ -77,9 +77,13 @@ signal_contract:
     - CONTEXT_ONLY_PRE_START
     - PROSPECTIVE_SIGNAL_ELIGIBLE
   prior_rule: >-
-    For the same symbol, choose the latest qualifying TEXT_READY source with a strictly earlier
-    NSE exchange publication timestamp. A source at the same timestamp cannot be prior.
-  ambiguous_equal_timestamp_current_group: NO_SIGNAL_AMBIGUOUS_TIMESTAMP
+    For the same symbol, identify the latest qualifying TEXT_READY publication timestamp that
+    is strictly earlier than the current timestamp. That timestamp group must contain exactly
+    one source to be usable as prior. If the latest earlier timestamp contains multiple sources,
+    seal NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP. Multiple current sources sharing one timestamp
+    may each use the same unique earlier prior; that multi-source current group can make the
+    next later call's prior ambiguous, exactly matching frozen historical H022 semantics.
+  ambiguous_prior_group: NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP
   no_prior: NO_SIGNAL_NO_PRIOR_TRANSCRIPT
   primary_signal: >-
     current forward-commitment candidate density per 10,000 transcript characters minus the
