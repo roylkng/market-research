@@ -4,6 +4,7 @@ import argparse
 import json
 import time
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -88,6 +89,16 @@ def _fetch_evidence(
     return build_xbrl_evidence(source, response.content)
 
 
+def _utc_timestamp(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise H023ProspectiveError(f"invalid source broadcast timestamp: {value}") from exc
+    if parsed.tzinfo is None:
+        raise H023ProspectiveError("source broadcast timestamp must include timezone")
+    return parsed.astimezone(UTC)
+
+
 def _eligible_event_keys(source_ledger: dict[str, Any]) -> list[tuple[str, str]]:
     keys: set[tuple[str, str]] = set()
     for row in source_ledger["records"]:
@@ -99,8 +110,7 @@ def _eligible_event_keys(source_ledger: dict[str, Any]) -> list[tuple[str, str]]
         )
         if current is None:
             continue
-        broadcast = str(current["broadcast_at_utc"])
-        if broadcast < PROSPECTIVE_START_UTC.isoformat().replace("+00:00", "Z"):
+        if _utc_timestamp(str(current["broadcast_at_utc"])) < PROSPECTIVE_START_UTC:
             continue
         keys.add((str(source["symbol"]), str(source["report_date"])))
     return sorted(keys, key=lambda item: (item[1], item[0]))
@@ -162,7 +172,7 @@ def main() -> int:
         master_hashes[symbol] = sha256_bytes(body)
         try:
             payload = response.json()
-        except requests.JSONDecodeError as exc:  # type: ignore[name-defined]
+        except ValueError as exc:
             raise H023AcquisitionError(f"{symbol}: NSE master response is not JSON") from exc
         sources = discover_standard_quarter_sources(payload, symbol=symbol)
         source_ids_by_symbol[symbol] = [str(source["source_id"]) for source in sources]
