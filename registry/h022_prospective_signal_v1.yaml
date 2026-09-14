@@ -1,0 +1,153 @@
+schema_version: 1
+id: H022-P001
+hypothesis_id: H022
+status: FROZEN_PROSPECTIVE
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation_by_itself: false
+
+purpose: >-
+  Seal H022 management-information-delta signals prospectively for the already-frozen U001
+  cohort, before any post-publication price outcome can enter the signal ledger.
+
+prospective_start:
+  utc: 2026-09-14T18:30:00Z
+  ist: 2026-09-15T00:00:00+05:30
+  rule: source exchange publication timestamp must be greater than or equal to start
+  rationale: >-
+    Use the next India calendar-day boundary so the protocol is fully committed before any
+    eligible observation exists. Sources published before this boundary can never become
+    P001 prospective signals.
+
+cohort:
+  id: FY27-Q2-2026-09-06
+  path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  git_blob_sha: 8026e81faee3e913d2fba1dba72d60603b69fa07
+  captured_at_utc: 2026-09-06T12:21:06.431463Z
+  expected_member_count: 100
+  universe_rule: U001-nifty200-top100-nonfinancial-ffmc-v2
+  end_condition: >-
+    P001 source eligibility ends immediately before the capture timestamp of the next frozen
+    U001 cohort. The successor cohort must use a separately frozen prospective ledger/protocol
+    record; sources are never reassigned retrospectively between cohorts.
+
+historical_context:
+  cutoff_utc: 2026-09-06T12:21:06.431463Z
+  expanded_e002_report:
+    path: research/historical/h022/expanded-e002-v1/report.json
+    report_sha256: 45f58e5f0ee72c477ed042fd56be54b4b7c297b78532a011350a44d0a68da861
+    source_bundle_sha256: 85d30df9286712c362102865c22ec3a27907e85599bd70d0c053bc95554cb34c
+  catchup_interval:
+    start_exclusive_utc: 2026-09-06T12:21:06.431463Z
+    end_exclusive_utc: 2026-09-14T18:30:00Z
+    disposition: CONTEXT_ONLY_PRE_START
+    requirement: >-
+      Every qualifying U001 transcript in this interval must be discovered, retained and
+      extracted before any P001 signal can be sealed. Catch-up sources may become prior
+      context but can never be scored as prospective P001 observations.
+
+source_contract:
+  discovery_semantics: H003-C001
+  source_rule_sha256: a48e9cd1e1d56b69429696168fb1a2097b288d3179c7830ac79cbd8582835f0e
+  discovery: official NSE corporate announcements, symbol scoped
+  attachment_hosts:
+    - nsearchives.nseindia.com
+    - archives.nseindia.com
+  qualifying_document_policy: >-
+    Reuse H003-C001 transcript/conference-call classification semantics. Do not broaden the
+    document class after prospective outcomes begin.
+  exact_exchange_publication_timestamp_required: true
+  raw_discovery_and_attachment_hashes_required: true
+
+extraction_contract:
+  rule_id: H003-E002
+  rule_sha256: 5aff200d6a2222a7cde972ad341bc43b927d9c5b6d26a58766893980515c24a2
+  parser_version: h003_pdf_text_v1
+  parser_library: pypdf
+  parser_library_version: 6.17.0
+  ocr_allowed: false
+  current_source_requires_status: TEXT_READY
+  extraction_failure_policy: BLOCK_SIGNAL_NOT_SKIP_SOURCE
+
+signal_contract:
+  feature_version: management_forward_information_delta_v1
+  current_source_disposition: PROSPECTIVE_SIGNAL_ELIGIBLE
+  prior_source_dispositions:
+    - HISTORICAL_BASELINE
+    - CONTEXT_ONLY_PRE_START
+    - PROSPECTIVE_SIGNAL_ELIGIBLE
+  prior_rule: >-
+    For the same symbol, identify the latest qualifying TEXT_READY publication timestamp that
+    is strictly earlier than the current timestamp. That timestamp group must contain exactly
+    one source to be usable as prior. If the latest earlier timestamp contains multiple sources,
+    seal NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP. Multiple current sources sharing one timestamp
+    may each use the same unique earlier prior; that multi-source current group can make the
+    next later call's prior ambiguous, exactly matching frozen historical H022 semantics.
+  ambiguous_prior_group: NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP
+  no_prior: NO_SIGNAL_NO_PRIOR_TRANSCRIPT
+  primary_signal: >-
+    current forward-commitment candidate density per 10,000 transcript characters minus the
+    corresponding density in the latest strictly earlier same-symbol transcript.
+  secondary_features:
+    - deadline_candidate_density_delta
+    - operating_domain_breadth_density_delta
+    - explicit_deadline_share_delta
+    - current_forward_commitment_density_level
+  forbidden_inputs:
+    - stock_price
+    - stock_return
+    - benchmark_return
+    - valuation
+    - broker_target
+    - analyst_revision
+    - momentum
+    - H019_quality_state
+    - H020_timing_state
+    - post_publication_news
+    - later_management_call
+
+immutability:
+  signal_record_hash: canonical_sha256
+  overwrite_existing_record_with_different_bytes: forbidden
+  source_id_unique_within_ledger: true
+  seal_fields:
+    - protocol_id
+    - cohort_id
+    - source_id
+    - symbol
+    - exchange_published_at_utc
+    - source_record_id
+    - raw_sha256
+    - text_sha256
+    - prior_source_id
+    - prior_exchange_published_at_utc
+    - primary_signal
+    - secondary_features
+    - signal_status
+    - signal_frozen_at_utc
+  revisions: >-
+    Later corrections must be appended as separate provenance records and cannot replace the
+    originally sealed prospective signal for outcome scoring.
+
+evaluation_boundary:
+  execution_semantics: H022-X001
+  entry: first NSE session open strictly after source publication timestamp
+  horizons_sessions: [20, 60, 120]
+  primary_horizon_sessions: 60
+  benchmark: NIFTY 500 price index over identical executable interval
+  round_trip_cost_stress_pp: 0.50
+  corporate_action_policy: reuse H022-X001
+  prospective_confirmation: >-
+    P001 signal capture does not itself create a validation label. A separately frozen
+    prospective evaluator may aggregate protocol-compatible future cohort ledgers only after
+    at least 200 complete primary observations, >=80% complete share of mature observations,
+    and adequate company breadth. It must reuse the already-frozen H022 R001 STRONG/PROMISING/
+    REJECTED/INCONCLUSIVE economic thresholds rather than tune new thresholds to outcomes.
+
+research_boundaries:
+  - no_post_start_signal_rule_change
+  - no_historical_reclassification_from_P001
+  - no_discretionary_name_selection_inside_frozen_cohort
+  - no_price_or_return_data_in_signal_generation
+  - no_live_capital
+  - PF001_or_any_portfolio_integration_requires_a_separate_pre_outcome_contract
