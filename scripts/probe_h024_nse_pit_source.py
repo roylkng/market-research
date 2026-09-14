@@ -5,7 +5,7 @@ import hashlib
 import json
 import time
 from collections import Counter, defaultdict
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -266,7 +266,7 @@ def main() -> int:
             "Source-only feasibility and raw-schema inventory for official NSE Regulation 7(2) "
             "PIT disclosures. No market price, benchmark return, or future outcome data consumed."
         ),
-        "generated_at_utc": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "generated_at_utc": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "source": {
             "page": PIT_PAGE,
             "endpoint": PIT_ENDPOINT,
