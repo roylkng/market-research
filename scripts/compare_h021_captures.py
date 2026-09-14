@@ -35,7 +35,7 @@ def _read_json(path: Path) -> dict:
     else:
         payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
-        raise ValueError(f"snapshot must be a JSON object: {path}")
+        raise TypeError(f"snapshot must be a JSON object: {path}")
     return payload
 
 
@@ -50,12 +50,15 @@ def _load_snapshot(path: Path) -> dict:
     for field in IDENTITY_FIELDS:
         manifest_value = manifest.get(field)
         snapshot_value = snapshot.get(field)
-        if snapshot_value is not None and manifest_value is not None:
-            if snapshot_value != manifest_value:
-                raise ValueError(
-                    f"snapshot/manifest {field} mismatch for {path}: "
-                    f"{snapshot_value!r} != {manifest_value!r}"
-                )
+        if (
+            snapshot_value is not None
+            and manifest_value is not None
+            and snapshot_value != manifest_value
+        ):
+            raise ValueError(
+                f"snapshot/manifest {field} mismatch for {path}: "
+                f"{snapshot_value!r} != {manifest_value!r}"
+            )
         if snapshot_value is None and manifest_value is not None:
             enriched[field] = manifest_value
     return enriched
@@ -79,10 +82,7 @@ def _select_prior_from_dir(
 ) -> tuple[Path, dict]:
     candidates: list[tuple[Path, dict]] = []
     for path in _candidate_paths(capture_dir, current_path):
-        try:
-            snapshot = _load_snapshot(path)
-        except (OSError, ValueError, json.JSONDecodeError):
-            continue
+        snapshot = _load_snapshot(path)
         if snapshot.get("hypothesis_id") != "H021":
             continue
         if not isinstance(snapshot.get("observations"), list):
