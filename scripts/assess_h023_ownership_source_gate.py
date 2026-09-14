@@ -7,10 +7,15 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+from marketlab.h023_ownership import MF_SHAREHOLDING_CONCEPT, parser_contract
+
+U001_PATH = "research/prospective/universes/FY27-Q2-2026-09-06.json"
+EXPECTED_SCHEMA_VERSION = 4
 GATES = {
     "master_complete_symbols_min": 95,
     "symbols_with_any_xbrl_min": 95,
     "symbols_with_two_or_more_xbrl_min": 90,
+    "symbols_with_adjacent_quarter_pair_min": 95,
     "symbols_with_all_probed_filings_fetched_min": 90,
     "symbols_with_mutual_funds_in_every_probed_filing_min": 80,
     "symbols_with_mutual_fund_percentage_concept_in_every_probed_filing_min": 80,
@@ -71,8 +76,18 @@ def _historical_availability_evidence(report: dict[str, Any]) -> list[dict[str, 
 
 
 def assess(report: dict[str, Any]) -> dict[str, Any]:
+    if report.get("schema_version") != EXPECTED_SCHEMA_VERSION:
+        raise ValueError(
+            f"H023 source report schema must equal {EXPECTED_SCHEMA_VERSION}"
+        )
     if report.get("member_count") != 100:
         raise ValueError("H023 full-U001 source report must contain frozen 100-name universe")
+    if report.get("universe_path") != U001_PATH:
+        raise ValueError("H023 source report is not bound to the frozen U001 path")
+    if report.get("filings_per_symbol") != 2:
+        raise ValueError("H023 source report must probe exactly two adjacent-quarter filings")
+    if report.get("parser_contract") != parser_contract():
+        raise ValueError("H023 source report parser contract does not match frozen code")
     if report.get("outcome_data_attached") is not False:
         raise ValueError("H023 source gate cannot consume outcome data")
     if report.get("live_capital_allowed") is not False:
@@ -113,6 +128,14 @@ def assess(report: dict[str, Any]) -> dict[str, Any]:
             >= GATES["dominant_mutual_fund_percentage_concept_share_min"],
         }
     )
+    checks.append(
+        {
+            "gate": "dominant_mutual_fund_percentage_concept_exact",
+            "observed": dominant_concept,
+            "required": MF_SHAREHOLDING_CONCEPT,
+            "passed": dominant_concept == MF_SHAREHOLDING_CONCEPT,
+        }
+    )
 
     availability_evidence = _historical_availability_evidence(report)
     historical_availability_proven = bool(availability_evidence)
@@ -123,13 +146,18 @@ def assess(report: dict[str, Any]) -> dict[str, Any]:
         else "REJECT_OWNERSHIP_SOURCE_FAMILY"
     )
     if source_feasible and historical_availability_proven:
-        decision = "PROCEED_PROSPECTIVELY_HISTORICAL_AVAILABILITY_REQUIRES_SEPARATE_AUDIT"
+        decision = (
+            "PROCEED_PROSPECTIVELY_HISTORICAL_AVAILABILITY_REQUIRES_SEPARATE_AUDIT"
+        )
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "hypothesis_candidate": "H023_MUTUAL_FUND_OWNERSHIP_ACCUMULATION",
         "decision": decision,
         "source_feasible": source_feasible,
+        "source_report_schema_version": EXPECTED_SCHEMA_VERSION,
+        "universe_path": U001_PATH,
+        "parser_contract": parser_contract(),
         "historical_backtest_authorized": False,
         "historical_availability_proven_by_master_probe": historical_availability_proven,
         "historical_availability_candidates": availability_evidence,
@@ -143,8 +171,7 @@ def assess(report: dict[str, Any]) -> dict[str, Any]:
             for concept, count in concept_counts.most_common(20)
         ],
         "next_step": (
-            "Freeze an explicit official-NSE parser contract for the dominant Mutual Fund "
-            "SCRR shareholding-percentage concept, then run a full-U001 latest-two-filing parser test."
+            "Freeze and implement H023 prospective event capture without inspecting returns."
             if source_feasible
             else "Abandon H023 ownership and pivot to hard order-book/backlog information."
         ),
