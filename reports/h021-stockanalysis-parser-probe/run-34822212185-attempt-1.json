@@ -1,0 +1,141 @@
+{
+  "anchor_path": "research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz",
+  "captured_at_utc": "2026-09-14T08:20:52.221374Z",
+  "config_path": "research/prospective/h021/stockanalysis-parser-probe-v1.json",
+  "decision": {
+    "parser_live_validation_pass": false,
+    "passed_rows": 4,
+    "reason": "At least one frozen parser-probe symbol did not yield the exact Sep 11 target period.",
+    "total_rows": 5
+  },
+  "hypothesis_id": "H021-STOCKANALYSIS-PARSER-PROBE",
+  "live_capital_allowed": false,
+  "outcomes_opened": false,
+  "robots": {
+    "content_length": 187,
+    "sha256": "f901eed408d5ba8370f14f2dae7848f26ed098236579f734ee45d685b8c82450",
+    "status_code": 200
+  },
+  "rows": [
+    {
+      "anchor_consensus_eps": 63.97,
+      "anchor_eps_currency": "INR",
+      "anchor_fiscal_period": "FY2027",
+      "anchor_period_ending": "2027-03-31",
+      "content_length": 175114,
+      "eps_currency_matches_anchor": true,
+      "parsed": {
+        "analyst_count": 24,
+        "consensus_eps": 63.97,
+        "eps_currency": "INR",
+        "eps_currency_source_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+        "fiscal_period": "FY2027",
+        "period_ending": "2027-03-31",
+        "provider": "S&P Global Market Intelligence",
+        "revenue_growth_forecast_pct": 11.95,
+        "source_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+        "symbol": "RELIANCE"
+      },
+      "parser_pass": true,
+      "sha256": "8c0f6646585861bf101945f03fecab8cd98128893bbf5f312ae835f976470acd",
+      "source_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+      "state": "HTTP",
+      "status_code": 200,
+      "symbol": "RELIANCE"
+    },
+    {
+      "anchor_consensus_eps": 0.86,
+      "anchor_eps_currency": "USD",
+      "anchor_fiscal_period": "FY2027",
+      "anchor_period_ending": "2027-03-31",
+      "content_length": 173013,
+      "parse_error": "financial forecast/reporting currency marker not found",
+      "parse_error_type": "ValueError",
+      "parser_pass": false,
+      "sha256": "351bd00908f5252774ac3a6376e094e53ee33180098e7969a708be81fc6998c1",
+      "source_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
+      "state": "HTTP",
+      "status_code": 200,
+      "symbol": "INFY"
+    },
+    {
+      "anchor_consensus_eps": 155.08,
+      "anchor_eps_currency": "INR",
+      "anchor_fiscal_period": "FY2027",
+      "anchor_period_ending": "2027-03-31",
+      "content_length": 175943,
+      "eps_currency_matches_anchor": true,
+      "parsed": {
+        "analyst_count": 41,
+        "consensus_eps": 155.08,
+        "eps_currency": "INR",
+        "eps_currency_source_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+        "fiscal_period": "FY2027",
+        "period_ending": "2027-03-31",
+        "provider": "S&P Global Market Intelligence",
+        "revenue_growth_forecast_pct": 8.97,
+        "source_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+        "symbol": "TCS"
+      },
+      "parser_pass": true,
+      "sha256": "a08e6c897fc30d3b7715ddc2517a072ba3ef42f639f8d15098ff101c76c640ef",
+      "source_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+      "state": "HTTP",
+      "status_code": 200,
+      "symbol": "TCS"
+    },
+    {
+      "anchor_consensus_eps": 137.07,
+      "anchor_eps_currency": "INR",
+      "anchor_fiscal_period": "FY2027",
+      "anchor_period_ending": "2027-03-31",
+      "content_length": 153223,
+      "eps_currency_matches_anchor": true,
+      "parsed": {
+        "analyst_count": 35,
+        "consensus_eps": 137.07,
+        "eps_currency": "INR",
+        "eps_currency_source_url": "https://stockanalysis.com/quote/nse/M%26M/forecast/",
+        "fiscal_period": "FY2027",
+        "period_ending": "2027-03-31",
+        "provider": "S&P Global Market Intelligence",
+        "revenue_growth_forecast_pct": -17.25,
+        "source_url": "https://stockanalysis.com/quote/nse/M%26M/forecast/",
+        "symbol": "M&M"
+      },
+      "parser_pass": true,
+      "sha256": "b9b8f49f9a5882db8f17f83a151999895dc363e82ca81b6dd1f8a10b6ee52b8a",
+      "source_url": "https://stockanalysis.com/quote/nse/M%26M/forecast/",
+      "state": "HTTP",
+      "status_code": 200,
+      "symbol": "M&M"
+    },
+    {
+      "anchor_consensus_eps": 21.53,
+      "anchor_eps_currency": "INR",
+      "anchor_fiscal_period": "FY2027",
+      "anchor_period_ending": "2027-03-31",
+      "content_length": 167742,
+      "eps_currency_matches_anchor": true,
+      "parsed": {
+        "analyst_count": 35,
+        "consensus_eps": 21.53,
+        "eps_currency": "INR",
+        "eps_currency_source_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+        "fiscal_period": "FY2027",
+        "period_ending": "2027-03-31",
+        "provider": "S&P Global Market Intelligence",
+        "revenue_growth_forecast_pct": 16.22,
+        "source_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+        "symbol": "NESTLEIND"
+      },
+      "parser_pass": true,
+      "sha256": "16a8413a64d9c39cfb5fd9b22eaed50757c9febc1cf63c8cc4db6ad34ccd565d",
+      "source_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+      "state": "HTTP",
+      "status_code": 200,
+      "symbol": "NESTLEIND"
+    }
+  ],
+  "schema_version": 1
+}
