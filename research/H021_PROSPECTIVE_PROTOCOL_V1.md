@@ -2,11 +2,14 @@
 
 Status: **FROZEN BEFORE H021 RETURN OUTCOMES**
 Frozen: 2026-09-11
+Semantic clarification frozen: 2026-09-14, before first valid revision cohort
 Live capital: disabled
 
 ## Source decision
 
 Historical company-level consensus-revision backtesting is not authorized. The completed source probes did not establish reproducible historical company-level consensus snapshots or a complete dated broker-revision sampling frame. H021 therefore proceeds prospectively.
+
+A 2026-09-14 direct-source audit subsequently established that the public StockAnalysis NSE forecast pages used for the primary annual EPS/revenue fields are directly retrievable from GitHub Actions under the observed robots policy. The same audit confirmed that the immutable 2026-09-11 full anchor already retains `period_ending` and `eps_currency` for all 100 rows. These findings clarify source semantics but do not open outcomes or alter the primary hypothesis.
 
 ## Universe
 
@@ -44,23 +47,36 @@ Capture at minimum:
 - symbol and stable identity where verified
 - source URL
 - source-observed market date/timestamp when visible
-- fiscal period
+- fiscal-period label
+- explicit fiscal `period_ending` date when primary EPS is available
 - consensus EPS if explicitly available
+- explicit `eps_currency` for the retained primary EPS
 - revenue forecast or revenue-growth forecast when explicitly available
 - profit/net-income forecast or profit-growth forecast when explicitly available
 - analyst count
 - consensus target price when explicitly available
 - source/data state and retrieval notes
 
-Null means unavailable. It is never converted to zero or neutral.
+`eps_currency` is the currency/basis used for the provider's financial EPS forecast, not an assumption from NSE listing currency, company domicile, or target-price currency. Some NSE listings in the frozen Sep 11 anchor use USD EPS forecasts while others use INR.
+
+Null means unavailable. It is never converted to zero or neutral. Missing period/currency semantics are not inferred.
 
 ## Primary revision signal
 
 `eps_revision_30d_pct = 100 * (EPS_current / EPS_prior - 1)`
 
-The prior observation must be an immutable capture 28-35 calendar days earlier, minimizing absolute distance from 30 days. Ties choose the earlier capture. Both observations must refer to the same fiscal period and compatible source-version semantics.
+The prior observation must be an immutable capture 28-35 calendar days earlier, minimizing absolute distance from 30 days. Ties choose the earlier capture.
 
-If either EPS value is unavailable or the prior value is zero, the primary signal is `NO_SIGNAL`.
+Both observations must refer to:
+
+- the same fiscal-period label
+- the same explicit `period_ending` date
+- the same explicit `eps_currency`
+- compatible frozen source-version/provider semantics
+
+No FX conversion enters the primary signal. If period endpoint, EPS currency, or source semantics differ or are unavailable, the primary signal is `NO_SIGNAL` and the reason is retained explicitly.
+
+If either EPS value is unavailable or the prior value is zero, the primary signal is also `NO_SIGNAL`.
 
 Revenue/profit-growth forecast changes and target-price revisions are secondary diagnostics only. They must not substitute for missing EPS.
 
@@ -80,13 +96,14 @@ Until a valid 28-35 day revision pair exists, H021 produces no primary long sign
 
 When the first valid cross-section exists:
 
-1. require `PRIMARY_COVERAGE`
-2. compute `eps_revision_30d_pct`
-3. rank the valid covered cross-section by EPS revision only
-4. evaluate the top decile as the primary long cohort
-5. report zero/negative-revision names and the full valid covered cohort as comparators
+1. require same fiscal-period label, period endpoint, EPS currency and source semantics
+2. require `PRIMARY_COVERAGE`
+3. compute `eps_revision_30d_pct`
+4. rank the valid covered cross-section by EPS revision only
+5. evaluate the top decile as the primary long cohort, including exact ties at the cutoff
+6. report zero/negative-revision names and the full valid covered cohort as comparators
 
-No H013, H020, RSI, MACD, price momentum, volume, valuation, or accounting-quality variable enters this primary rank.
+No H013, H020, RSI, MACD, price momentum, volume, valuation, accounting-quality variable, FX conversion, or discretionary narrative enters this primary rank.
 
 Predeclared secondary challengers:
 
@@ -124,7 +141,9 @@ Report median/mean excess, beat rate, raw return, maximum adverse excursion, pos
 
 ## Information firewall
 
-Before outcomes mature, do not change the primary formula, 28-35 day match rule, >=5 analyst primary stratum, or top-decile rule using those outcomes.
+Before outcomes mature, do not change the primary formula, 28-35 day match rule, semantic compatibility rules, >=5 analyst primary stratum, or top-decile rule using those outcomes.
+
+The 2026-09-14 period-ending/currency clarification was made after source-only direct retrieval testing exposed the distinction and before any valid H021 revision pair existed. The Sep 11 anchor already contained both fields for every frozen company and was not rewritten or reconstructed.
 
 Previously discussed names such as Transrail, Genus Power, Arvind, WABAG, Netweb, and Shaily may be captured but cannot become special-case tuning examples.
 
