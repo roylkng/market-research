@@ -169,6 +169,50 @@ def test_e002_record_and_candidate_digests_are_verified() -> None:
         prospective.validate_e002_record(tampered)
 
 
+def test_e002_accepts_anchor_only_future_markers_when_excerpt_has_more() -> None:
+    record = _e002_record(source_id="anchor-only")
+    candidate = record["candidates"][0]
+    anchor = "We expect revenue growth of 20% next year."
+    excerpt = f"{anchor} We plan capacity expansion."
+    lowered = excerpt.casefold()
+    candidate["excerpt"] = excerpt
+    candidate["line_end"] = 2
+    candidate["future_markers"] = [
+        marker for marker in FUTURE_MARKERS if marker in anchor.casefold()
+    ]
+    candidate["deadline_markers"] = [
+        marker for marker in DEADLINE_MARKERS if marker in lowered
+    ]
+    candidate["domain_markers"] = [
+        marker for marker in COMMITMENT_DOMAIN_MARKERS if marker in lowered
+    ]
+    candidate["quantitative_tokens"] = [
+        token.strip()
+        for token in QUANTITATIVE_PATTERN.findall(excerpt)
+        if token.strip()
+    ]
+    all_excerpt_future = [marker for marker in FUTURE_MARKERS if marker in lowered]
+    assert len(all_excerpt_future) > len(candidate["future_markers"])
+    candidate["candidate_id"] = prospective._canonical_hash(
+        {
+            "rule_id": EXTRACTION_RULE_ID,
+            "rule_sha256": EXTRACTION_RULE_SHA256,
+            "candidate_version": CANDIDATE_VERSION,
+            "source_id": record["source_id"],
+            "symbol": record["symbol"],
+            "raw_sha256": record["raw_sha256"],
+            "page_number": candidate["page_number"],
+            "line_start": candidate["line_start"],
+            "line_end": candidate["line_end"],
+            "excerpt": excerpt,
+        }
+    )
+    unsigned = dict(record)
+    unsigned.pop("record_id")
+    record["record_id"] = prospective._canonical_hash(unsigned)
+    prospective.validate_e002_record(record)
+
+
 def test_pre_start_source_is_not_prospectively_eligible() -> None:
     universe = _universe()
     current = _e002_record(

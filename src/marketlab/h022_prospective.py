@@ -95,7 +95,7 @@ def _timestamp(value: object, *, field: str) -> datetime:
     if not isinstance(value, str):
         raise H022ProspectiveError(f"{field} must be an ISO timestamp")
     try:
-        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.strip())
     except ValueError as exc:
         raise H022ProspectiveError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:
@@ -244,7 +244,7 @@ def _validate_candidate(
     if not isinstance(excerpt, str) or not (20 <= len(excerpt) <= 600):
         raise H022ProspectiveError(f"{source_id}: candidate excerpt length is invalid")
     lowered = excerpt.casefold()
-    future_hits = [marker for marker in FUTURE_MARKERS if marker in lowered]
+    stored_future_hits = candidate.get("future_markers")
     deadline_hits = [marker for marker in DEADLINE_MARKERS if marker in lowered]
     domain_hits = [marker for marker in COMMITMENT_DOMAIN_MARKERS if marker in lowered]
     quantitative_tokens = [
@@ -252,12 +252,19 @@ def _validate_candidate(
         for token in QUANTITATIVE_PATTERN.findall(excerpt)
         if token.strip()
     ]
-    if not future_hits or not domain_hits or not (deadline_hits or quantitative_tokens):
+    if (
+        not isinstance(stored_future_hits, list)
+        or not stored_future_hits
+        or len(stored_future_hits) != len(set(stored_future_hits))
+        or stored_future_hits
+        != [marker for marker in FUTURE_MARKERS if marker in stored_future_hits]
+        or any(marker not in lowered for marker in stored_future_hits)
+    ):
+        raise H022ProspectiveError(f"{source_id}: candidate future markers changed")
+    if not domain_hits or not (deadline_hits or quantitative_tokens):
         raise H022ProspectiveError(f"{source_id}: candidate no longer satisfies E002")
     if any(marker in lowered for marker in EXCLUDE_MARKERS):
         raise H022ProspectiveError(f"{source_id}: candidate contains E002 exclusion marker")
-    if candidate.get("future_markers") != future_hits:
-        raise H022ProspectiveError(f"{source_id}: candidate future markers changed")
     if candidate.get("deadline_markers") != deadline_hits:
         raise H022ProspectiveError(f"{source_id}: candidate deadline markers changed")
     if candidate.get("domain_markers") != domain_hits:
