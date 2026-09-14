@@ -19,6 +19,7 @@ SEMANTIC_FIELD_TOKENS = ("currency", "unit", "basis", "provider")
 LEGACY_SAFE_FIELDS = (
     "symbol",
     "fiscal_period",
+    "period_ending",
     "consensus_eps",
     "analyst_count",
     "source_url",
@@ -115,10 +116,15 @@ def audit_legacy_snapshot_semantics(snapshot: dict, symbols: list[str]) -> dict:
         any(field in row and row.get(field) is not None for field in semantic_fields)
         for row in rows
     )
+    rows_with_period_ending = sum(
+        isinstance(row.get("period_ending"), str) and bool(row["period_ending"].strip())
+        for row in rows
+    )
     return {
         "observation_count": len(rows),
         "observation_keys": all_keys,
         "semantic_field_names": semantic_fields,
         "rows_with_non_null_semantic_field": rows_with_semantic_fields,
+        "rows_with_period_ending": rows_with_period_ending,
         "selected_symbols": selected,
     }
