@@ -17,22 +17,22 @@ from marketlab.h023_selection import (
 
 def _source(*, record_id: str, report_date: str, broadcast: str) -> dict:
     row_digest = canonical_hash({"record_id": record_id, "broadcast": broadcast})
-    payload = {
+    xbrl_url = f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml"
+    identity = {
         "source_contract_id": "H023-NSE-SHAREHOLDING-XBRL-V1",
         "symbol": "AAA",
         "record_id": record_id,
         "report_date": report_date,
         "broadcast_at_utc": broadcast,
-        "xbrl_url": f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml",
-        "master_row_sha256": row_digest,
+        "xbrl_url": xbrl_url,
     }
     return {
-        "source_id": canonical_hash(payload),
+        "source_id": canonical_hash(identity),
         "symbol": "AAA",
         "record_id": record_id,
         "report_date": report_date,
         "broadcast_at_utc": broadcast,
-        "xbrl_url": payload["xbrl_url"],
+        "xbrl_url": xbrl_url,
         "master_row_sha256": row_digest,
     }
 
