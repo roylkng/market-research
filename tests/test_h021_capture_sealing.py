@@ -19,6 +19,7 @@ from marketlab.h021_capture import (
     build_capture_artifacts,
     validate_full_capture,
     verify_artifact_bytes,
+    verify_capture_bundle,
 )
 
 
@@ -171,6 +172,28 @@ def test_full_capture_rejects_source_version_and_india_date_drift() -> None:
     assert any("India date" in error for error in errors)
 
 
+def test_full_capture_rejects_unsafe_or_mismatched_capture_id() -> None:
+    snapshot = _snapshot()
+    snapshot["logical_capture_id"] = "../../escape"
+    errors = validate_full_capture(snapshot, _universe(), _batches())
+    assert any("YYYY-MM-DD-full-u001-vN" in error for error in errors)
+
+    snapshot = _snapshot()
+    snapshot["logical_capture_id"] = "2026-09-19-full-u001-v1"
+    errors = validate_full_capture(snapshot, _universe(), _batches())
+    assert any("date must equal capture_date_ist" in error for error in errors)
+
+
+def test_correction_version_requires_reason() -> None:
+    snapshot = _snapshot()
+    snapshot["logical_capture_id"] = "2026-09-18-full-u001-v2"
+    errors = validate_full_capture(snapshot, _universe(), _batches())
+    assert any("correction_reason" in error for error in errors)
+
+    snapshot["correction_reason"] = "Corrected one current-capture transcription error."
+    assert validate_full_capture(snapshot, _universe(), _batches()) == []
+
+
 def test_verify_artifact_bytes_detects_tampering() -> None:
     artifacts = build_capture_artifacts(_snapshot(), _universe(), _batches())
 
@@ -181,6 +204,24 @@ def test_verify_artifact_bytes_detects_tampering() -> None:
     tampered[-1] ^= 1
     with pytest.raises(ValueError):
         verify_artifact_bytes(bytes(tampered), artifacts.manifest)
+
+
+def test_verify_capture_bundle_rejects_false_manifest_summary() -> None:
+    artifacts = build_capture_artifacts(_snapshot(), _universe(), _batches())
+    manifest = copy.deepcopy(artifacts.manifest)
+    manifest["coverage_summary"]["OBSERVED"] = 3
+
+    with pytest.raises(ValueError, match="coverage_summary"):
+        verify_capture_bundle(artifacts.payload_gzip, manifest, _universe(), _batches())
+
+
+def test_verify_artifact_bytes_rejects_payload_manifest_identity_drift() -> None:
+    artifacts = build_capture_artifacts(_snapshot(), _universe(), _batches())
+    manifest = copy.deepcopy(artifacts.manifest)
+    manifest["capture_date_ist"] = "2026-09-19"
+
+    with pytest.raises(ValueError, match="capture_date_ist"):
+        verify_artifact_bytes(artifacts.payload_gzip, manifest)
 
 
 def _write_json(path: Path, payload: dict) -> None:
