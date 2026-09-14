@@ -25,7 +25,11 @@ Every full weekly capture must carry:
 - `research/H021_COMPARISON_CONTRACT_V1.md`
 - `research/prospective/h021/capture-batches-v1.json`
 
+The logical capture ID must be exactly `YYYY-MM-DD-full-u001-vN`, where the date equals `capture_date_ist` and `N` is a positive integer. This also prevents a capture ID from being interpreted as an arbitrary filesystem path.
+
 The India calendar date derived from `captured_at_utc` must equal `capture_date_ist`.
+
+The first successfully sealed capture for a date uses `v1`. A correction uses a later version and must include a non-empty `correction_reason`. Correction versions preserve the original artifact rather than replacing it.
 
 ## Complete frozen cross-section
 
@@ -64,9 +68,11 @@ Every row also retains explicit `retrieval_notes`.
 2. `<capture-id>.manifest.json`: hashes, byte sizes, frozen identities, coverage counts, and batch summaries
 3. `<capture-id>.md`: human-readable capture summary
 
-The payload has both compressed and uncompressed SHA-256 hashes in the manifest.
+The payload has both compressed and uncompressed SHA-256 hashes in the manifest. Verification also checks canonical JSON, deterministic gzip bytes, payload/manifest identity agreement, coverage totals, batch totals, and the manifest payload path.
 
 If an artifact path already exists with identical bytes, sealing is idempotent. If the same logical capture ID is reused with different bytes, sealing fails. A correction therefore requires a new versioned capture ID and an explicit reason rather than rewriting history.
+
+Repository CI automatically validates every future schema-v2 H021 capture bundle committed under `research/prospective/h021/captures/`. A malformed payload, false manifest summary, missing report, identity drift, or tampered hash therefore fails the repository gate.
 
 ## Source boundary
 
