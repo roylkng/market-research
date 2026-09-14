@@ -1,0 +1,146 @@
+name: H023 prospective ownership stream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '50 2 * * *'
+    - cron: '30 3 * * *'
+    - cron: '45 12 * * *'
+  push:
+    branches:
+      - research/h023-prospective-v1-20260914
+    paths:
+      - '.github/workflows/h023-prospective-stream.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h023-prospective-ownership-stream
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify implementation before source access
+        run: |
+          set -euo pipefail
+          ruff check \
+            src/marketlab/h023_ownership.py \
+            src/marketlab/h023_prospective.py \
+            src/marketlab/h023_acquisition.py \
+            scripts/run_h023_prospective_scan.py \
+            scripts/verify_h023_prospective_state.py \
+            tests/test_h023_ownership.py \
+            tests/test_h023_prospective.py
+          pytest -q tests/test_h023_ownership.py tests/test_h023_prospective.py
+          python scripts/verify_h023_prospective_state.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --state-dir research/prospective/h023
+
+      - name: Resolve prospective boundary
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=$(python - <<'PY'
+          from datetime import UTC, datetime
+          import os
+
+          boundary = datetime(2026, 9, 14, 18, 30, tzinfo=UTC)
+          now = datetime.now(UTC)
+          if now < boundary:
+              print('BEFORE_BOUNDARY')
+          elif os.environ.get('GITHUB_REF') != 'refs/heads/main':
+              print('NON_MAIN_REHEARSAL')
+          else:
+              print('READY')
+          PY
+          )
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "H023 workflow state: $STATE"
+
+      - name: Prepare isolated state
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_SHA=$(git rev-parse HEAD)
+          echo "start_sha=$START_SHA" >> "$GITHUB_ENV"
+          WORK="reports/h023-prospective/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK/state" "$WORK/raw"
+          cp research/prospective/h023/*.json "$WORK/state/"
+          echo "work_dir=$WORK" >> "$GITHUB_ENV"
+
+      - name: Acquire official NSE ownership state
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_h023_prospective_scan.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --state-dir "$work_dir/state" \
+            --raw-dir "$work_dir/raw" \
+            --report "$work_dir/report.json" \
+            --attempts 4 \
+            --pause-seconds 0.08
+
+      - name: Verify proposed canonical state offline
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_h023_prospective_state.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --state-dir "$work_dir/state"
+
+      - name: Fail closed if main changed during observation
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$start_sha"
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$start_sha" || {
+            echo "ERROR: main changed while H023 source observation was in flight"
+            exit 1
+          }
+
+      - name: Seal canonical H023 state
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$work_dir/state/source-ledger.json" research/prospective/h023/source-ledger.json
+          cp "$work_dir/state/event-ledger.json" research/prospective/h023/event-ledger.json
+          cp "$work_dir/state/scan-ledger.json" research/prospective/h023/scan-ledger.json
+          python scripts/verify_h023_prospective_state.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --state-dir research/prospective/h023
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/h023/*.json
+          git commit -m "H023: seal prospective ownership scan [skip ci]"
+          git push origin HEAD:main
+
+      - name: Upload raw source-only evidence
+        if: steps.gate.outputs.state == 'READY' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h023-prospective-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/h023-prospective
+          if-no-files-found: error
+          retention-days: 90
