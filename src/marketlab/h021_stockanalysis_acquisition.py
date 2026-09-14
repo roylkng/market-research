@@ -60,6 +60,24 @@ def weekly_session_decision(capture_date_ist: str, calendar: dict) -> WeeklySess
             f"{start.isoformat()}..{end.isoformat()}"
         )
 
+    raw_unresolved = calendar.get("unresolved_special_dates", [])
+    if not isinstance(raw_unresolved, list):
+        raise TypeError("calendar unresolved_special_dates must be a list")
+    unresolved = [
+        _canonical_date(value, "unresolved_special_date") for value in raw_unresolved
+    ]
+    unresolved_same_week = sorted(
+        value
+        for value in unresolved
+        if value.isocalendar()[:2] == requested.isocalendar()[:2]
+    )
+    if unresolved_same_week:
+        rendered = [value.isoformat() for value in unresolved_same_week]
+        raise ValueError(
+            "capture week contains unresolved NSE special-session date(s): "
+            f"{rendered}"
+        )
+
     raw_sessions = calendar.get("sessions")
     if not isinstance(raw_sessions, list) or not raw_sessions:
         raise ValueError("calendar sessions must be a non-empty list")
