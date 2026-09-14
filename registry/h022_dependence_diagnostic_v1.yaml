@@ -1,0 +1,86 @@
+schema_version: 1
+id: H022-D004
+hypothesis_id: H022
+status: FROZEN_POST_OUTCOME_DIAGNOSTIC
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation: false
+
+purpose: >-
+  Test whether the positive 60-session H022 relationship in the expanded point-in-time
+  Nifty 200 challenger is materially dependent on repeated company observations,
+  overlapping same-company holding windows, or calendar-month event clustering.
+  This is explanatory post-outcome analysis only and cannot promote H022.
+
+frozen_input:
+  expanded_outcome_report:
+    path: research/historical/h022/expanded-nifty200-challenge-v1/outcome-report.json
+    report_sha256: 310d3709393047db4ec5e2eacb9d333fac2d81b83e86bc65140dc4bc60c6d22f
+    git_blob_sha: 94c69e9d766f67ae2f5f194cbe3f50c3d73b616d
+  primary_horizon_sessions: 60
+  required_outcome_status: COMPLETE
+  expected_complete_rows: 559
+
+shared_rules:
+  no_return_winsorization: true
+  no_signal_redefinition: true
+  no_subgroup_filtering: true
+  signal_standardization: >-
+    Use one mean and population standard deviation estimated from all 559 complete rows;
+    reuse that same z-score scale for every diagnostic estimator.
+  bootstrap:
+    cluster: symbol
+    iterations: 10000
+    seed: 22026
+    interval: percentile_95
+
+estimators:
+  event_level_baseline:
+    model: future_60d_excess_pp ~ 1 + z_h022
+  company_balanced:
+    model: future_60d_excess_pp ~ 1 + z_h022
+    event_weight: 1 / complete_event_count_for_symbol
+    rationale: each company contributes equal total regression weight
+  first_complete_event_per_symbol:
+    selection: earliest exchange_published_at_utc then source_id
+    minimum_rows: 150
+    model: future_60d_excess_pp ~ 1 + z_h022
+    report_quintile_economics: true
+  nonoverlapping_events_per_symbol:
+    selection: >-
+      Sort by entry_session_date then source_id. Keep the first complete event for each
+      symbol, then keep a later event only when its entry_session_date is strictly after
+      the 60-session exit_session_date of the previously kept event for that symbol.
+      Selection may not use signal magnitude or return.
+    minimum_rows: 150
+    model: future_60d_excess_pp ~ 1 + z_h022
+    report_quintile_economics: true
+  publication_month_fixed_effects:
+    month_source: exchange_published_at_utc
+    minimum_distinct_months: 8
+    model: future_60d_excess_pp ~ 1 + z_h022 + publication_month_fixed_effects
+
+classification:
+  data_insufficient: >-
+    first-event rows < 150, nonoverlap rows < 150, or fewer than 8 publication months.
+  BROAD_POSITIVE: >-
+    company-balanced, first-event, nonoverlap, and publication-month-fixed-effect H022
+    slopes are all strictly positive.
+  SIGN_UNSTABLE: >-
+    Any of the four dependence-control H022 slopes is less than or equal to zero.
+  bootstrap_support:
+    ALL_INTERVALS_POSITIVE: all four 95% bootstrap lower bounds are > 0
+    MIXED_OR_UNCERTAIN: otherwise
+  sensitivity_flags:
+    REPEATED_COMPANY: company-balanced slope <= 0 or first-event slope <= 0
+    OVERLAP: nonoverlap slope <= 0
+    CALENDAR_MONTH: publication-month-fixed-effect slope <= 0
+
+research_boundaries:
+  - post_outcome_diagnostic_only
+  - no_H022_R001_feature_change
+  - no_H022_X001_execution_or_promotion_threshold_change
+  - no_new_selection_filter_promoted_from_this_result
+  - no_size_or_industry_conditioning_in_D004
+  - no_live_capital
+  - D004_can_only_inform_robustness_and_next_falsification
