@@ -197,7 +197,6 @@ def source_from_master_row(row: dict[str, Any], *, symbol: str) -> dict[str, Any
         "report_date": report_date,
         "broadcast_at_utc": _broadcast_utc(row.get("broadcastDate")),
         "xbrl_url": xbrl_url,
-        "master_row_sha256": master_row_sha256,
     }
     source = {
         "source_id": canonical_hash(payload),
