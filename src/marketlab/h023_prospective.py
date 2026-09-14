@@ -124,8 +124,7 @@ def validate_source(source: dict[str, Any]) -> None:
     _timestamp(source.get("broadcast_at_utc"), field=f"{source_id}.broadcast_at_utc")
     url = str(source.get("xbrl_url") or "")
     if not (
-        url.startswith("https://nsearchives.nseindia.com/")
-        or url.startswith("https://archives.nseindia.com/")
+        url.startswith(("https://nsearchives.nseindia.com/", "https://archives.nseindia.com/"))
     ):
         raise H023ProspectiveError(f"{source_id}: XBRL URL is not an approved NSE archive")
     if not _is_sha256(source.get("master_row_sha256")):
