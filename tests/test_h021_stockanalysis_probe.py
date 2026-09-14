@@ -5,6 +5,7 @@ from pathlib import Path
 
 from marketlab.h021_stockanalysis_probe import (
     REQUIRED_TEXT_MARKERS,
+    audit_legacy_snapshot_semantics,
     forecast_url,
     inspect_forecast_page,
     robots_allows,
@@ -85,11 +86,55 @@ def test_inspector_fails_on_missing_financial_marker() -> None:
     assert not result["probe_pass"]
 
 
+def test_legacy_semantics_audit_reports_missing_currency_fields_explicitly() -> None:
+    snapshot = {
+        "observations": [
+            {
+                "symbol": "INFY",
+                "fiscal_period": "FY27",
+                "consensus_eps": 0.86,
+                "analyst_count": 42,
+                "source_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
+                "source_status": "OBSERVED",
+                "source_observed_market_date": "2026-09-11",
+            },
+            {
+                "symbol": "WIPRO",
+                "fiscal_period": "FY27",
+                "consensus_eps": 13.31,
+                "analyst_count": 39,
+                "source_url": "https://stockanalysis.com/quote/nse/WIPRO/forecast/",
+                "source_status": "OBSERVED",
+                "source_observed_market_date": "2026-09-11",
+                "financial_currency": "INR",
+            },
+        ]
+    }
+
+    audit = audit_legacy_snapshot_semantics(snapshot, ["INFY", "WIPRO", "MISSING"])
+
+    assert audit["semantic_field_names"] == ["financial_currency"]
+    assert audit["rows_with_non_null_semantic_field"] == 1
+    assert audit["selected_symbols"][0]["symbol"] == "INFY"
+    assert "financial_currency" not in audit["selected_symbols"][0]
+    assert audit["selected_symbols"][1]["financial_currency"] == "INR"
+    assert audit["selected_symbols"][2] == {"symbol": "MISSING", "present": False}
+
+
 def test_frozen_probe_config_contains_no_outcome_inputs() -> None:
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     assert config["schema_version"] == 1
     assert config["hypothesis_id"] == "H021-DIRECT-SOURCE-PROBE"
     assert config["symbols"] == ["RELIANCE", "INFY", "TCS", "M&M", "NESTLEIND"]
+    assert config["legacy_anchor_path"].endswith("2026-09-11-full-u001-v1.json.gz")
+    assert config["legacy_semantic_symbols"] == [
+        "RELIANCE",
+        "INFY",
+        "TCS",
+        "HCLTECH",
+        "WIPRO",
+        "NESTLEIND",
+    ]
     assert config["required_text_markers"] == list(REQUIRED_TEXT_MARKERS)
     assert config["outcomes_opened"] is False
     assert config["live_capital_allowed"] is False
