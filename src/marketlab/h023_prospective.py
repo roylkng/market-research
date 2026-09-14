@@ -96,7 +96,6 @@ def _source_identity_payload(source: dict[str, Any]) -> dict[str, str]:
         "report_date": str(source["report_date"]),
         "broadcast_at_utc": str(source["broadcast_at_utc"]),
         "xbrl_url": str(source["xbrl_url"]),
-        "master_row_sha256": str(source["master_row_sha256"]),
     }
 
 
@@ -449,10 +448,6 @@ def append_sources(
         source_id = str(source["source_id"])
         existing = existing_by_id.get(source_id)
         if existing is not None:
-            if existing["source"] != source:
-                raise H023ProspectiveError(
-                    f"{source_id}: source reappeared with different immutable identity"
-                )
             continue
         key = (str(source["symbol"]), str(source["record_id"]))
         prior_id = existing_by_record.get(key)
