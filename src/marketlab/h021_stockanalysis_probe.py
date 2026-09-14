@@ -15,6 +15,16 @@ REQUIRED_TEXT_MARKERS = (
     "No. Analysts",
     "S&P Global Market Intelligence",
 )
+SEMANTIC_FIELD_TOKENS = ("currency", "unit", "basis", "provider")
+LEGACY_SAFE_FIELDS = (
+    "symbol",
+    "fiscal_period",
+    "consensus_eps",
+    "analyst_count",
+    "source_url",
+    "source_status",
+    "source_observed_market_date",
+)
 
 
 def forecast_url(symbol: str) -> str:
@@ -70,4 +80,45 @@ def inspect_forecast_page(
         "identity_verified": identity_verified,
         "required_marker_presence": marker_presence,
         "probe_pass": probe_pass,
+    }
+
+
+def audit_legacy_snapshot_semantics(snapshot: dict, symbols: list[str]) -> dict:
+    observations = snapshot.get("observations")
+    if not isinstance(observations, list):
+        raise ValueError("legacy snapshot observations must be a list")
+
+    rows = [row for row in observations if isinstance(row, dict)]
+    all_keys = sorted({key for row in rows for key in row})
+    semantic_fields = sorted(
+        key
+        for key in all_keys
+        if any(token in key.lower() for token in SEMANTIC_FIELD_TOKENS)
+    )
+    by_symbol = {row.get("symbol"): row for row in rows if isinstance(row.get("symbol"), str)}
+
+    selected: list[dict] = []
+    for symbol in symbols:
+        row = by_symbol.get(symbol)
+        if row is None:
+            selected.append({"symbol": symbol, "present": False})
+            continue
+        retained_fields = {
+            field: row.get(field)
+            for field in (*LEGACY_SAFE_FIELDS, *semantic_fields)
+            if field in row
+        }
+        retained_fields["present"] = True
+        selected.append(retained_fields)
+
+    rows_with_semantic_fields = sum(
+        any(field in row and row.get(field) is not None for field in semantic_fields)
+        for row in rows
+    )
+    return {
+        "observation_count": len(rows),
+        "observation_keys": all_keys,
+        "semantic_field_names": semantic_fields,
+        "rows_with_non_null_semantic_field": rows_with_semantic_fields,
+        "selected_symbols": selected,
     }
