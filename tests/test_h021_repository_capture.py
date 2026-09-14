@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from marketlab.h021 import validate_snapshot
+from marketlab.h021_capture import verify_capture_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 CAPTURE_DIR = ROOT / "research/prospective/h021/captures"
@@ -81,3 +82,20 @@ def test_full_u001_anchor_bytes_and_cross_section_match_manifest() -> None:
     assert summary["current_analyst_count_lt_2_or_null"] == sum(
         value is None or (isinstance(value, int) and value < 2) for value in analyst_counts
     )
+
+
+def test_every_new_sealer_capture_bundle_is_self_consistent() -> None:
+    universe = json.loads(UNIVERSE.read_text(encoding="utf-8"))
+    batches = json.loads(BATCHES.read_text(encoding="utf-8"))
+
+    for manifest_path in sorted(CAPTURE_DIR.glob("*-full-u001-v*.manifest.json")):
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("schema_version") != 2:
+            continue
+
+        payload_path = ROOT / manifest["payload_path"]
+        assert payload_path.parent.resolve() == CAPTURE_DIR.resolve()
+        assert payload_path.exists()
+        report_path = CAPTURE_DIR / f"{manifest['logical_capture_id']}.md"
+        assert report_path.exists()
+        verify_capture_bundle(payload_path.read_bytes(), manifest, universe, batches)
