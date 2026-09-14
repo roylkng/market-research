@@ -1,0 +1,60 @@
+name: H023 ownership source gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/h023-ownership-source-probe-v1-20260914
+    paths:
+      - '.github/workflows/h023-ownership-source-gate.yml'
+      - 'scripts/assess_h023_ownership_source_gate.py'
+      - 'research/probes/h023/nse-shareholding-full-u001-v1.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h023-ownership-source-gate
+  cancel-in-progress: true
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Lint source gate
+        run: ruff check scripts/assess_h023_ownership_source_gate.py
+      - name: Assess frozen source-only evidence
+        id: gate
+        shell: bash
+        run: |
+          set +e
+          mkdir -p research/probes/h023
+          python scripts/assess_h023_ownership_source_gate.py \
+            --report research/probes/h023/nse-shareholding-full-u001-v1.json \
+            --out research/probes/h023/ownership-source-decision-v1.json
+          CODE=$?
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Anchor deterministic source decision
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f research/probes/h023/ownership-source-decision-v1.json
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/probes/h023/ownership-source-decision-v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m "H023: freeze ownership source feasibility decision [skip ci]"
+            git push origin HEAD:research/h023-ownership-source-probe-v1-20260914
+          fi
+      - name: Enforce gate
+        shell: bash
+        run: exit "${{ steps.gate.outputs.exit_code }}"
