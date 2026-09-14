@@ -7,8 +7,8 @@ import pytest
 
 from marketlab.h021_stockanalysis_acquisition import (
     CAPTURE,
-    NOT_FINAL_SESSION,
     NO_SESSION,
+    NOT_FINAL_SESSION,
     weekly_session_decision,
 )
 
