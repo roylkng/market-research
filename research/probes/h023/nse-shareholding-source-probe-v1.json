@@ -1,0 +1,3290 @@
+{
+  "completed_at_utc": "2026-09-14T11:40:29.252818Z",
+  "endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+  "endpoint_parameters": {
+    "index": "equities",
+    "symbol": "<NSE_SYMBOL>"
+  },
+  "failure_count": 0,
+  "failures": [],
+  "hypothesis_probe": "H023-OWNERSHIP-SOURCE-PROBE",
+  "live_capital_allowed": false,
+  "outcome_data_attached": false,
+  "purpose": "Source-only feasibility probe of official NSE shareholding-pattern enumeration. No price, return, benchmark, or outcome input is consumed.",
+  "rows": [
+    {
+      "content_length": 40154,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=RELIANCE",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "16-JUL-2026 19:24:44"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "16-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "16-JUL-2026 19:24:48"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "21-APR-2026 13:25:14"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "21-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "21-APR-2026 13:25:18"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "21-JAN-2026 19:13:20"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "21-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "21-JAN-2026 19:13:24"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "17-OCT-2025 20:16:56"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "17-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "17-OCT-2025 20:17:01"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 20:10:12"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 20:10:16"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "21-APR-2025 16:10:34"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "21-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "21-APR-2025 16:10:39"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "21-JAN-2025 16:55:29"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "21-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "21-JAN-2025 16:55:33"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "08-NOV-2024 19:42:54"
+          },
+          {
+            "path": "[7].date",
+            "value": "29-OCT-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "08-NOV-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "08-NOV-2024 19:42:58"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "21-OCT-2024 20:22:59"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "21-OCT-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "21-OCT-2024 20:23:02"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "20-JUL-2024 18:48:46"
+          },
+          {
+            "path": "[9].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "20-JUL-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "20-JUL-2024 18:48:50"
+          }
+        ],
+        "quarter_like": [
+          {
+            "path": "[20].remarksWeb",
+            "value": "Note 1 Voting Rights under Category Public include 6799271 fully paid up equity shares held in the Unclaimed Suspense Account 34524889 fully paid up equity shares held by Investor Education and Protection Fund Authority on which voting rights are frozen  Shares under Category Public also include i 571616 partly paid up equity shares on which First Call as well as Second and Final Call has not been paid and accordingly voting rights in respect of these shares can only be exercised upon payment of First Call and Second and Final Call ii 2991800 partly paid up equity shares on which Second and Final Call has not been paid and accordingly voting rights in respect of these shares can only be exercised upon payment of Second and Final Call   The Company has received Second and Final Call on 419063478 equity shares and completed the corporate action for credit of 418797736 equity shares of Rs 10 each and these fully paid up equity shares are available for trading on the Stock Exchanges with effect from 10 December 2021  Note 2 Voting Rights on shares are in proportion to the amount paid up on the face value of such shares  Note 3 There is no change in the shareholding of Promoter and Promoter Group The percentage of Promoter and Promoter Group as shown in VIII A has increased as compared to the percentage shown in the shareholding pattern for the quarter ended 30 September 2021 because the shares underlying DRs which have gone up as on 08 December 2021 vis a vis as on 30 September 2021 are not considered for the purpose of calculating the shareholding percentage under the SCRR 1957  Note 4 The names of the persons or entities forming part of Promoter and Promoter Group are as per disclosures under the SEBI Substantial Acquisition of Shares and Takeovers Regulations 2011 furnished by the Promoter and Promoter Group and 4 promoter group entities out of 51 do not hold any shares  Note 5 In terms of Regulation 31A of SEBI Listing Obligations and Disclosure Requirements Regulations 2015 BSE and NSE have approved the reclassification of Reliance Industrial Infrastructure Limited holding 0.005 percentage of voting rights from the category of Promoter Group of the Company to Public Consequently Reliance Industrial Infrastructure Limited stands reclassified from category of Promoter Group of the Company to Public with effect from 8 October 2021  Note 6 Details of holding or exercise of right of the SBO in the reporting company the percentage mentioned are based on the initial disclosure filed with the Company and includes shares acquired or transferred inter se between the persons or entities belonging to Promoter and Promoter Group or Equity Shares allotted pursuant to the Rights Issue"
+          },
+          {
+            "path": "[21].remarksWeb",
+            "value": "Note 1 Shares under Category Public include 6833410 fully paid up equity shares held in the Unclaimed Suspense Account and 34593353 fully paid up equity shares held by Investor Education and Protection Fund Authority on which voting rights are frozen     Shares under Category Public also include 859742 partly paid up equity shares on which First Call has not been paid and accordingly voting rights in respect of these shares can only be exercised upon payment of First Call  Note 2 Voting Rights on shares are in proportion to the amount paid up on the face value of such shares     Note 3 As the shareholding pattern upload utility on the stock exchanges websites does not recognise voting rights in fractions the same have been rounded off to the nearest full figure  Note 4 The aggregate voting rights before rounding off wherever required of  i  Promoter and Promoter Group are 3210599974.50 ii Public shareholders are 3143661197.00 and iii  Non Promoter Non Public Shares underlying GDRs are 196280460.00  Note 5 There is no change in the shareholding of Promoter and Promoter Group The percentage of Promoter and Promoter Group as shown in VIII A has increased as compared to the percentage shown in the shareholding pattern for the quarter ended 30 June 2021 because the shares underlying DRs which have gone up as on 30 September 2021 vis a vis as on 30 June 2021 are not considered for the purpose of calculating the shareholding percentage under the SCRR 1957  Note 6 The names of the persons or entities forming part of Promoter and Promoter Group are as per disclosures under the SEBI Substantial Acquisition of Shares and Takeovers Regulations 2011 furnished by the Promoter and Promoter Group and include i Reliance Life Sciences Private Limited ii Sikka Ports and Terminals Limited iii Jamnagar Utilities and Power Private Limited and iv EWPL Holdings Private Limited  Note 7 Details of holding or exercise of right of the SBO in the reporting company The percentage mentioned are based on the initial disclosure filed with the Company and includes shares acquired or transferred inter se between the persons or entities belonging to Promoter and Promoter Group or Equity Shares allotted pursuant to the Rights Issue  Note 8 In terms of Regulation  31A  of  SEBI  Listing  Obligations  and  Disclosure  Requirements  Regulations 2015 BSE and NSE have approved the reclassification of Reliance Industrial Infrastructure Limited Limited holding 0.005 percentage of voting rights from the category of Promoter Group of the Company to Public Consequently Reliance Industrial Infrastructure Limited stands reclassified from category of Promoter  Group  of  the Company  to  Public  with  effect from 8 October 2021  Note 9 The names of the persons or entities forming part of Promoter and Promoter Group are as per disclosures under the SEBI Substantial Acquisition of Shares and Takeovers Regulations 2011 furnished by the Promoter and Promoter Group and include i Reliance Life Sciences Private Limited ii Sikka Ports and Terminals Limited iii Jamnagar Utilities and Power Private Limited and iv EWPL Holdings Private Limited  Note 10 Details of holding or exercise of right of the SBO in the reporting company The percentage mentioned are based on the initial disclosure filed with the Company and includes shares acquired or transferred inter se between the persons or entities belonging to Promoter and Promoter Group or Equity Shares allotted pursuant to the Rights Issue"
+          }
+        ],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1694620_16072026072434_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "510.29 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1655961_21042026012504_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "511.88 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1607627_21012026071311_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "495.53 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1552885_17102025081647_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "497.42 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489727_21072025081003_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "373.61 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198754_1421266_21042025041033_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195954_1355437_21012025045527_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_193683_1302277_08112024074252_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_193586_1284101_21102024082257_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_190705_1198040_20072024064844_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_188048_1102980_20042024122003_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_185154_1030860_19012024100622_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182882_965031_21102023021937_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_180083_896290_20072023113906_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_177846_829344_20042023095036_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_175390_776223_20012023081637_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_173207_741632_22102022104950_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170678_699879_21072022064050_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_168292_646671_21042022071744_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_165605_597539_21012022080551_WEB.xml"
+          },
+          {
+            "path": "[20].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_163339_571599_18122021033851_WEB.xml"
+          },
+          {
+            "path": "[21].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_163182_544379_21102021092856_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 22,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:21.770770Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/RELIANCE.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "55cc778de40d88805154ea9204442faf3759643e980f37aa5200ca8e06ae7d67",
+      "status_code": 200,
+      "symbol": "RELIANCE"
+    },
+    {
+      "content_length": 16840,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=INFY",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "15-JUL-2026 18:52:47"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "15-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "15-JUL-2026 18:52:52"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "16-APR-2026 16:50:39"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "16-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "16-APR-2026 16:50:43"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "18-JAN-2026 17:39:01"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "18-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "18-JAN-2026 17:39:07"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "11-DEC-2025 16:02:58"
+          },
+          {
+            "path": "[3].date",
+            "value": "04-DEC-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "11-DEC-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "11-DEC-2025 16:03:02"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "17-OCT-2025 21:38:19"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "17-OCT-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "17-OCT-2025 21:38:25"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "21-JUL-2025 20:40:03"
+          },
+          {
+            "path": "[5].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "21-JUL-2025 20:40:14"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "18-APR-2025 14:48:26"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "18-APR-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "18-APR-2025 14:48:31"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "20-JAN-2025 21:13:51"
+          },
+          {
+            "path": "[7].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "20-JAN-2025"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "20-JAN-2025 21:13:54"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "16-OCT-2024 21:01:44"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "16-OCT-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "16-OCT-2024 21:01:49"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "18-JUL-2024 19:09:19"
+          },
+          {
+            "path": "[9].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "18-JUL-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "18-JUL-2024 19:09:23"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1693581_15072026065242_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "275.90 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1652323_16042026045034_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "284.13 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1603602_18012026053756_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "286.23 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1584868_11122025040253_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "286.25 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1552953_17102025093815_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "282.01 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489786_21072025083959_WEB.xml"
+          },
+          {
+            "path": "[5].xbrlFileSize",
+            "value": "287.38 KB"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198016_1418484_18042025024826_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195760_1353991_20012025091350_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192403_1273522_16102024090143_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_190131_1192841_18072024070918_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_188120_1103504_20042024011247_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184825_1027875_18012024065107_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182533_961547_19102023082402_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_180207_897374_21072023041902_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_176970_822215_17042023063024_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_174992_773230_19012023040253_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_173151_741150_21102022093945_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170044_694609_19072022015449_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_167732_641638_19042022061812_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_164319_585353_12012022072813_WEB.xml"
+          },
+          {
+            "path": "[20].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_162513_538030_19102021032428_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 21,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:22.504287Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/INFY.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "0ce0116ecbe838b13491b99767ec71919746b406b55f1835534d0e1a157d1ff4",
+      "status_code": 200,
+      "symbol": "INFY"
+    },
+    {
+      "content_length": 16848,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=LT",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "16-JUL-2026 16:11:17"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "16-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "16-JUL-2026 16:11:21"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "16-APR-2026 18:19:28"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "16-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "16-APR-2026 18:19:32"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "21-JAN-2026 17:07:01"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "21-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "21-JAN-2026 17:07:06"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "18-OCT-2025 15:04:42"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "18-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "18-OCT-2025 15:04:46"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 14:12:07"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 14:12:12"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "17-APR-2025 11:44:04"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "17-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "17-APR-2025 11:44:08"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "14-JAN-2025 14:50:58"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "14-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "14-JAN-2025 14:51:02"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "14-OCT-2024 15:56:18"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "14-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "14-OCT-2024 15:56:22"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "18-JUL-2024 17:41:42"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "18-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "18-JUL-2024 17:41:46"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "12-APR-2024 16:59:00"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "12-APR-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "12-APR-2024 17:00:20"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1694210_16072026041111_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "180.84 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1652548_16042026061922_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "180.52 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1607244_21012026050656_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "180.58 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1553430_18102025030437_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "180.36 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1488584_21072025021203_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "179.93 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_197578_1416639_17042025114403_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_194590_1344852_14012025025057_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_191843_1268173_14102024035616_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_190085_1192260_18072024054140_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_186508_1089813_12042024045859_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_183581_1013481_10012024120159_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182283_959330_19102023105627_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_180701_942622_07102023074522_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_179450_890254_18072023041159_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_176385_816840_13042023111043_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_175265_775176_20012023040930_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_172378_737272_20102022052028_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_169934_693620_18072022062040_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_167001_635579_14042022051652_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_164654_588957_15012022045448_WEB.xml"
+          },
+          {
+            "path": "[20].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_162361_536988_19102021093432_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 21,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:23.258234Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/LT.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "25f10fd54969856bd1e6179e9ebafc64765debaa086bd4cc09915e5d4d916531",
+      "status_code": 200,
+      "symbol": "LT"
+    },
+    {
+      "content_length": 17151,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=ABB",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "01-SEP-2026 14:57:37"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "01-SEP-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "01-SEP-2026 14:57:41"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "17-APR-2026 17:42:08"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "17-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "17-APR-2026 17:42:13"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "13-JAN-2026 17:37:24"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "13-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "13-JAN-2026 17:37:28"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "14-OCT-2025 11:46:58"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "14-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "14-OCT-2025 11:47:02"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "15-JUL-2025 10:07:12"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "15-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "15-JUL-2025 10:07:16"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "10-APR-2025 16:12:59"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "10-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "10-APR-2025 16:13:03"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "17-JAN-2025 18:58:11"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "17-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "17-JAN-2025 18:58:14"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "16-OCT-2024 18:10:03"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "16-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "16-OCT-2024 18:10:07"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "17-JUL-2024 17:39:57"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "17-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "17-JUL-2024 17:40:01"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "17-APR-2024 11:50:10"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "17-APR-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "17-APR-2024 11:55:03"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1719755_01092026025725_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "111.75 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1653405_17042026054202_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "112.10 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1600045_13012026053718_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "112.13 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1547038_14102025114654_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "115.85 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1482664_15072025100710_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "85.39 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_196748_1411708_10042025041259_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195208_1350134_17012025065810_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192360_1273072_16102024061003_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_189856_1189919_17072024053957_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_187141_1095429_17042024115010_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184397_1023261_16012024052505_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182025_956992_18102023111508_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_178921_884687_14072023033337_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_176468_817548_13042023040105_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_174145_765460_13012023031448_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_171924_734035_19102022042610_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_169259_687448_13072022043613_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/-"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_164826_590534_17012022055252_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_161937_533508_14102021062440_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 20,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:24.062920Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/ABB.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "3db6538cb248fab7b3f0efbf8f4ba1e01c613804506c0a814ba8c2eeed274ba9",
+      "status_code": 200,
+      "symbol": "ABB"
+    },
+    {
+      "content_length": 19013,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=SUNPHARMA",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "17-JUL-2026 12:24:49"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "17-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "17-JUL-2026 12:24:53"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "17-JUN-2026 15:06:37"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].revisionDate",
+            "value": "17-JUN-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "17-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "17-JUN-2026 15:06:42"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "15-JAN-2026 16:36:59"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "15-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "15-JAN-2026 16:37:03"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "16-OCT-2025 12:49:51"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "16-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "16-OCT-2025 12:49:56"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 17:13:11"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 17:13:15"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "17-APR-2025 19:58:20"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "17-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "17-APR-2025 19:58:24"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "20-JAN-2025 19:55:24"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "20-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "20-JAN-2025 19:55:27"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "16-OCT-2024 19:01:17"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "16-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "16-OCT-2024 19:01:21"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "19-JUL-2024 11:58:00"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "19-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "19-JUL-2024 11:58:04"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "18-APR-2024 11:51:48"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "18-APR-2024"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1694893_17072026122439_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "257.05 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1682212_17062026123958_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "281.88 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1601600_15012026043651_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "248.33 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1549859_16102025124943_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "248.01 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489053_21072025051303_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "224.90 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_197857_1417896_17042025075818_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195742_1353889_20012025075522_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192385_1273313_16102024070115_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_190201_1193503_19072024115758_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_187414_1097458_18042024115146_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184298_1022316_16012024124452_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182566_961811_20102023104244_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_179973_895256_20072023050903_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_177869_829606_21042023111026_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_175071_773798_19012023060348_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_171715_732392_18102022064838_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170441_697740_20072022054551_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_167675_641139_19042022044454_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_165401_595452_20012022045845_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_162294_536338_18102021053631_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 20,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:24.918312Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/SUNPHARMA.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "8250a4e8157eaef9085a332e9947b48e42f005598a7db249fcef494778ef09c7",
+      "status_code": 200,
+      "symbol": "SUNPHARMA"
+    },
+    {
+      "content_length": 16374,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=DLF",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "06-JUL-2026 18:55:35"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "06-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "06-JUL-2026 18:55:39"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "07-APR-2026 21:00:40"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "07-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "07-APR-2026 21:00:44"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "16-JAN-2026 18:02:48"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "16-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "16-JAN-2026 18:02:53"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "17-OCT-2025 19:19:36"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "17-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "17-OCT-2025 19:19:40"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 22:27:50"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 22:27:55"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "04-APR-2025 19:06:06"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "04-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "04-APR-2025 19:06:09"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "06-JAN-2025 19:32:03"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "06-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "06-JAN-2025 19:32:08"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "04-OCT-2024 19:38:04"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "04-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "04-OCT-2024 19:38:08"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "03-JUL-2024 19:50:39"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "03-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "03-JUL-2024 19:50:45"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "08-APR-2024 19:05:16"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "08-APR-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "08-APR-2024 19:10:04"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1688574_06072026065528_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "423.59 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1646997_07042026090031_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "412.58 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1602668_16012026060241_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "407.65 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1552749_17102025071929_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "405.44 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489927_21072025102743_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "361.67 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_196331_1408632_04042025070604_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_193889_1338256_06012025073202_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_191103_1259418_04102024073803_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_188602_1169658_03072024075038_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_186042_1084192_08042024070514_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_183210_1007983_04012024060823_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_180539_940377_04102023095307_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_178235_874527_05072023082508_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_176136_813951_11042023020525_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_173490_757401_06012023081255_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170992_719705_07102022053038_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_168850_683163_10072022023657_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_166103_625777_07042022064406_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_164023_582309_11012022010935_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_161806_532242_13102021082531_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 20,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:25.662358Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/DLF.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "49ac4f568ca843b50d1f80d6b98394afdc849950b5c74f3dc8e5264f567353ca",
+      "status_code": 200,
+      "symbol": "DLF"
+    },
+    {
+      "content_length": 17663,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=INDIGO",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "21-JUL-2026 14:54:28"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "21-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "21-JUL-2026 14:54:32"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "21-APR-2026 14:15:31"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "21-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "21-APR-2026 14:15:35"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "20-JAN-2026 12:55:59"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "20-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "20-JAN-2026 12:56:04"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "19-OCT-2025 21:26:28"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "19-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "19-OCT-2025 21:26:32"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 18:07:37"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 18:07:43"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "18-APR-2025 18:23:11"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "18-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "18-APR-2025 18:23:14"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "20-JAN-2025 20:23:44"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "20-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "20-JAN-2025 20:23:48"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "11-OCT-2024 18:49:53"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "11-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "11-OCT-2024 18:49:57"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "09-JUL-2024 17:45:08"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "09-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "09-JUL-2024 17:45:12"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "08-APR-2024 19:28:58"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "08-APR-2024"
+          },
+          {
+            "path": "[9].systemDate",
+            "value": "08-APR-2024 19:30:09"
+          }
+        ],
+        "quarter_like": [
+          {
+            "path": "[1].remarksWeb",
+            "value": "During the quarter ended March 31, 2026, 9,000 ESOPs were exercised by eligible employees and the exercise price was paid in March 2026. However, the corresponding equity shares were allotted in April 2026. Accordingly, for the purpose of computing the No. of outstanding ESOPs granted in column XC, these 9,000 options have been considered as outstanding as on March 31, 2026, as there was no impact on the Companys paid-up share capital until the allotment was completed in April 2026. Consequently, the impact of these shares will be reflected in the shareholding pattern as of June 30, 2026."
+          },
+          {
+            "path": "[11].revisionRemark",
+            "value": "In the previously filed Shareholding Pattern for quarter ending September 30, 2023 by our Company i.e., InterGlobe Aviation Limited (��IndiGo��), we have inadvertently filed wrong ��number of fully paid equity shareholders held�� for the category ��Resident Individuals holding nominal share capital upto Rs. 2 Lakhs��. We have revised \"number of fully paid equity shareholders held�� for the category ��Resident Individuals holding nominal share capital upto Rs. 2 Lakhs��."
+          }
+        ],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1698091_21072026025421_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "211.60 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656028_21042026021525_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "264.18 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1605220_20012026125555_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "263.97 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1554161_19102025092623_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "259.69 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489299_21072025060733_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "192.59 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198196_1419119_18042025062310_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195750_1353932_20012025082343_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_191719_1266861_11102024064952_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_188881_1176829_09072024054507_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_186045_1084236_08042024072857_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184832_1027961_18012024071810_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182526_961454_19102023072608_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_179764_893209_19072023060141_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_177082_823080_18042023015138_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_173758_761398_11012023111135_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_172562_738381_20102022101738_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170417_697515_20072022050012_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_168173_645511_21042022015826_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_165016_592137_18012022052012_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_162958_542139_21102021123416_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 20,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:26.441446Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/INDIGO.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "b419290637ad76b0ed204aedbf1e823af20cd25f7c302e1d8d6f32c36ed62c49",
+      "status_code": 200,
+      "symbol": "INDIGO"
+    },
+    {
+      "content_length": 16284,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=DMART",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "14-JUL-2026 17:23:43"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "14-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "14-JUL-2026 17:23:48"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "21-APR-2026 19:29:10"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "21-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "21-APR-2026 19:29:14"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "12-MAY-2026 10:51:56"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].revisionDate",
+            "value": "06-MAY-2026"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "21-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "12-MAY-2026 10:52:00"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "17-OCT-2025 18:55:23"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "17-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "17-OCT-2025 18:55:28"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 19:22:17"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 19:22:21"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "21-APR-2025 15:16:47"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "21-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "21-APR-2025 15:16:50"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "21-JAN-2025 11:53:48"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "21-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "21-JAN-2025 11:53:52"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "18-OCT-2024 15:42:08"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "18-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "18-OCT-2024 15:42:12"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "12-JUL-2024 15:38:28"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "12-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "12-JUL-2024 15:38:32"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "19-APR-2024 18:25:41"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "19-APR-2024"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1692414_14072026052337_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "376.76 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656717_21042026072904_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "415.04 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1664146_06052026064459_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "356.24 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1552650_17102025065518_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "351.88 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489590_21072025072212_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "351.71 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198714_1421105_21042025031646_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195811_1354357_21012025115346_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192849_1277464_18102024034207_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_189247_1182174_12072024033827_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_187977_1102220_19042024062540_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184229_1021551_15012024054812_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_181507_951785_13102023065235_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_180265_898013_21072023065427_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_178022_831228_21042023065604_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_174242_766620_13012023082721_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_171654_731831_18102022050438_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_169377_688646_14072022015243_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_168259_646312_21042022053625_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_163751_579346_07012022071117_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_161915_533253_14102021053913_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 20,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:27.220357Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/DMART.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "a0dd6d0543152cce748e9d98e6e75b81e6b3b8a49bad7b8bd6bf16fa1297c477",
+      "status_code": 200,
+      "symbol": "DMART"
+    },
+    {
+      "content_length": 17201,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=MARUTI",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "17-JUL-2026 10:17:48"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "17-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "17-JUL-2026 10:17:53"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "17-APR-2026 17:17:51"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "17-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "17-APR-2026 17:17:55"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "21-JAN-2026 12:57:39"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "21-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "21-JAN-2026 12:57:47"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "18-OCT-2025 11:13:41"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "18-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "18-OCT-2025 11:13:46"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 09:44:17"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "21-JUL-2025 09:44:22"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "21-APR-2025 09:48:25"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "21-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "21-APR-2025 09:48:28"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "12-FEB-2025 16:55:45"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].revisionDate",
+            "value": "03-FEB-2025"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "20-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "12-FEB-2025 16:55:49"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "17-OCT-2024 11:27:01"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "17-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "17-OCT-2024 11:27:05"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "16-JUL-2024 16:58:54"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "16-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "16-JUL-2024 16:58:58"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "19-APR-2024 17:09:32"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "19-APR-2024"
+          }
+        ],
+        "quarter_like": [],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1694756_17072026101742_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "602.89 KB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1653341_17042026051746_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "600.17 KB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1606718_21012026125734_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "542.80 KB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1553079_18102025111337_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "601.98 KB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1488201_21072025094413_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "589.24 KB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198558_1420472_21042025094824_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195637_1368731_03022025114617_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192426_1273750_17102024112700_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_189634_1187549_16072024045853_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_187895_1101580_19042024050931_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_184158_1020666_15012024124109_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_183085_992568_30112023025949_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182768_963916_20102023064005_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_179684_892512_19072023040942_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_177391_825581_19042023025229_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_175257_775121_20012023035054_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_172257_736528_20102022033036_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170218_696016_19072022074717_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_167843_642680_20042022123932_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_165514_596445_21012022114454_WEB.xml"
+          },
+          {
+            "path": "[20].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_162772_540303_20102021032447_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 21,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:28.059910Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/MARUTI.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "1faaa9896da4f0a63a89579b7e9c2707e4683b5e37dcb112039ebdc5510a11c7",
+      "status_code": 200,
+      "symbol": "MARUTI"
+    },
+    {
+      "content_length": 24264,
+      "content_type": "application/json; charset=utf-8",
+      "final_host": "www.nseindia.com",
+      "final_url": "https://www.nseindia.com/api/corporate-share-holdings-master?index=equities&symbol=TATASTEEL",
+      "interesting_strings": {
+        "date_like": [
+          {
+            "path": "[0].broadcastDate",
+            "value": "20-JUL-2026 22:37:54"
+          },
+          {
+            "path": "[0].date",
+            "value": "30-JUN-2026"
+          },
+          {
+            "path": "[0].submissionDate",
+            "value": "20-JUL-2026"
+          },
+          {
+            "path": "[0].systemDate",
+            "value": "20-JUL-2026 22:37:58"
+          },
+          {
+            "path": "[1].broadcastDate",
+            "value": "20-APR-2026 19:23:30"
+          },
+          {
+            "path": "[1].date",
+            "value": "31-MAR-2026"
+          },
+          {
+            "path": "[1].submissionDate",
+            "value": "20-APR-2026"
+          },
+          {
+            "path": "[1].systemDate",
+            "value": "20-APR-2026 19:23:35"
+          },
+          {
+            "path": "[2].broadcastDate",
+            "value": "20-JAN-2026 23:20:40"
+          },
+          {
+            "path": "[2].date",
+            "value": "31-DEC-2025"
+          },
+          {
+            "path": "[2].submissionDate",
+            "value": "20-JAN-2026"
+          },
+          {
+            "path": "[2].systemDate",
+            "value": "20-JAN-2026 23:20:45"
+          },
+          {
+            "path": "[3].broadcastDate",
+            "value": "24-OCT-2025 15:15:57"
+          },
+          {
+            "path": "[3].date",
+            "value": "30-SEP-2025"
+          },
+          {
+            "path": "[3].revisionDate",
+            "value": "20-OCT-2025"
+          },
+          {
+            "path": "[3].submissionDate",
+            "value": "17-OCT-2025"
+          },
+          {
+            "path": "[3].systemDate",
+            "value": "24-OCT-2025 15:16:02"
+          },
+          {
+            "path": "[4].broadcastDate",
+            "value": "21-JUL-2025 20:35:53"
+          },
+          {
+            "path": "[4].date",
+            "value": "30-JUN-2025"
+          },
+          {
+            "path": "[4].submissionDate",
+            "value": "21-JUL-2025"
+          },
+          {
+            "path": "[4].systemDate",
+            "value": "23-JUL-2025 17:49:00"
+          },
+          {
+            "path": "[5].broadcastDate",
+            "value": "18-APR-2025 22:24:58"
+          },
+          {
+            "path": "[5].date",
+            "value": "31-MAR-2025"
+          },
+          {
+            "path": "[5].submissionDate",
+            "value": "18-APR-2025"
+          },
+          {
+            "path": "[5].systemDate",
+            "value": "18-APR-2025 22:25:02"
+          },
+          {
+            "path": "[6].broadcastDate",
+            "value": "20-JAN-2025 19:13:43"
+          },
+          {
+            "path": "[6].date",
+            "value": "31-DEC-2024"
+          },
+          {
+            "path": "[6].submissionDate",
+            "value": "20-JAN-2025"
+          },
+          {
+            "path": "[6].systemDate",
+            "value": "20-JAN-2025 19:13:47"
+          },
+          {
+            "path": "[7].broadcastDate",
+            "value": "17-OCT-2024 18:54:54"
+          },
+          {
+            "path": "[7].date",
+            "value": "30-SEP-2024"
+          },
+          {
+            "path": "[7].submissionDate",
+            "value": "17-OCT-2024"
+          },
+          {
+            "path": "[7].systemDate",
+            "value": "17-OCT-2024 18:54:58"
+          },
+          {
+            "path": "[8].broadcastDate",
+            "value": "18-JUL-2024 18:35:19"
+          },
+          {
+            "path": "[8].date",
+            "value": "30-JUN-2024"
+          },
+          {
+            "path": "[8].submissionDate",
+            "value": "18-JUL-2024"
+          },
+          {
+            "path": "[8].systemDate",
+            "value": "18-JUL-2024 18:35:24"
+          },
+          {
+            "path": "[9].broadcastDate",
+            "value": "17-APR-2024 17:30:15"
+          },
+          {
+            "path": "[9].date",
+            "value": "31-MAR-2024"
+          },
+          {
+            "path": "[9].submissionDate",
+            "value": "17-APR-2024"
+          }
+        ],
+        "quarter_like": [
+          {
+            "path": "[0].remarksWeb",
+            "value": "1. 1,16,83,930 Ordinary (Equity) Shares held by Rujuvalika Investments Limited (a wholly owned subsidiary of Tata Steel Limited w.e.f May 8, 2015), do not carry any voting rights. 2. Tata AIA Life Insurance Company Limited is not considered as part of Promoter Group and holds 1,20,74,431 Ordinary (Equity) Shares representing 0.097% of the paid-up Ordinary (Equity) Share Capital. Accordingly, holding of Tata AIA Life Insurance Company Ltd. is included under Public Shareholding under the head Institutions-Insurance Companies. 3. During the quarter ended June 30, 2018, Sir Ratan Tata Trust, Promoter Group Company, sold its entire shareholding in Tata Steel Limited. During the quarter ended March 31, 2026, Sir Dorabji Tata Trust sold 60,365 equity shares on March 9, 2026. The relevant disclosure in this regard was duly made to the Stock Exchanges under the SEBI (Prohibition of Insider Trading) Regulations, 2015. 4.During the quarter ended June 30, 2026, Tata Chemicals Limited, Promoter Group Company,  sold its entire shareholding of 309,00,510 Ordinary (Equity) Shares of the Company. Accordingly, it has ceased to be part of the Promoter Group. 5. Tata Sons Private Limited (TSPL) holds 31.76% in Tata Steel Limited as on June 30, 2026 and Tata Steel Limited is an associate of TSPL. TSPL being a Core Investment Company registered with RBI, is exempted under the Significant Beneficial Ownership (SBO) Rules. The Company does not have any other Significant Beneficial Owner under SBO Rules to be reported in the shareholding pattern as on June 30, 2026. 6. The total number of Ordinary (Equity) Shares include 4,370 Ordinary (Equity) Shares of face value Re.1/- each on which first and final call money has been received and the partly paid-up equity shares have been fully converted to fully paid-up equity shares but, are pending final listing and trading approval under the ISIN INE081A01020 (ISIN for fully paid-up shares), and hence, continue to be listed under the ISIN IN9081A010"
+          }
+        ],
+        "xbrl_like": [
+          {
+            "path": "[0].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697643_20072026103745_WEB.xml"
+          },
+          {
+            "path": "[0].xbrlFileSize",
+            "value": "1.53 MB"
+          },
+          {
+            "path": "[1].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1655524_20042026072320_WEB.xml"
+          },
+          {
+            "path": "[1].xbrlFileSize",
+            "value": "1.55 MB"
+          },
+          {
+            "path": "[2].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1606440_20012026112030_WEB.xml"
+          },
+          {
+            "path": "[2].xbrlFileSize",
+            "value": "1.50 MB"
+          },
+          {
+            "path": "[3].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1554483_20102025054016_WEB.xml"
+          },
+          {
+            "path": "[3].xbrlFileSize",
+            "value": "1.41 MB"
+          },
+          {
+            "path": "[4].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1489780_21072025083548_WEB.xml"
+          },
+          {
+            "path": "[4].xbrlFileSize",
+            "value": "1.42 MB"
+          },
+          {
+            "path": "[5].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_198263_1419375_18042025102456_WEB.xml"
+          },
+          {
+            "path": "[6].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_195719_1353778_20012025071341_WEB.xml"
+          },
+          {
+            "path": "[7].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_192653_1275850_17102024065452_WEB.xml"
+          },
+          {
+            "path": "[8].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_190117_1192622_18072024063517_WEB.xml"
+          },
+          {
+            "path": "[9].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_187298_1096619_17042024053014_WEB.xml"
+          },
+          {
+            "path": "[10].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_185483_1057274_16022024055646_WEB.xml"
+          },
+          {
+            "path": "[11].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_185414_1040647_31012024062725_WEB.xml"
+          },
+          {
+            "path": "[12].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_185136_1030638_19012024073850_WEB.xml"
+          },
+          {
+            "path": "[13].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_183090_993189_01122023064144_WEB.xml"
+          },
+          {
+            "path": "[14].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_182236_958785_18102023061710_WEB.xml"
+          },
+          {
+            "path": "[15].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_178831_883492_13072023052853_WEB.xml"
+          },
+          {
+            "path": "[16].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_177849_829357_20042023100913_WEB.xml"
+          },
+          {
+            "path": "[17].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_175706_806213_28032023073951_WEB.xml"
+          },
+          {
+            "path": "[18].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_174842_772215_18012023072159_WEB.xml"
+          },
+          {
+            "path": "[19].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_173114_740933_21102022075141_WEB.xml"
+          },
+          {
+            "path": "[20].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_170773_704389_10082022100610_WEB.xml"
+          },
+          {
+            "path": "[21].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_169370_688578_14072022011436_WEB.xml"
+          },
+          {
+            "path": "[22].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_167785_642189_20042022102137_WEB.xml"
+          },
+          {
+            "path": "[23].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_165780_619755_23032022070753_WEB.xml"
+          },
+          {
+            "path": "[24].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_164313_585262_12012022064439_WEB.xml"
+          },
+          {
+            "path": "[25].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_163408_575948_04012022070846_WEB.xml"
+          },
+          {
+            "path": "[26].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_163257_553099_09112021104354_WEB.xml"
+          },
+          {
+            "path": "[27].xbrl",
+            "value": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_161538_529800_12102021035826_WEB.xml"
+          }
+        ]
+      },
+      "json_shape": {
+        "length": 28,
+        "sample_object_keys": [
+          "broadcastDate",
+          "cgTimeStamp",
+          "countString",
+          "date",
+          "desc",
+          "employeeTrusts",
+          "format",
+          "index",
+          "industry",
+          "isin",
+          "name",
+          "newColumn",
+          "pr_and_prgrp",
+          "promoterDematNotes",
+          "publicShareholdingNotes",
+          "public_val",
+          "recordId",
+          "remarksWeb",
+          "revisedData",
+          "revisedDate",
+          "revisedRemark",
+          "revisedStatus",
+          "revisionDate",
+          "revisionRemark",
+          "shareholdingPatternNotes",
+          "submissionDate",
+          "symbol",
+          "systemDate",
+          "timeDifference",
+          "typeOfSubmission",
+          "underlyingDrs",
+          "xbrl",
+          "xbrlFileSize"
+        ],
+        "type": "array"
+      },
+      "observed_at_utc": "2026-09-14T11:40:28.822499Z",
+      "raw_artifact_path": "reports/h023-ownership-source-probe/run-34839346674-attempt-1/raw/TATASTEEL.json",
+      "requested_endpoint": "https://www.nseindia.com/api/corporate-share-holdings-master",
+      "sha256": "aa0b63a7f4a5e6dc6256416c740141039f8822c1e62358956ab7a33b7a93eba9",
+      "status_code": 200,
+      "symbol": "TATASTEEL"
+    }
+  ],
+  "schema_version": 1,
+  "started_at_utc": "2026-09-14T11:40:20.103707Z",
+  "success_count": 10,
+  "symbols": [
+    "RELIANCE",
+    "INFY",
+    "LT",
+    "ABB",
+    "SUNPHARMA",
+    "DLF",
+    "INDIGO",
+    "DMART",
+    "MARUTI",
+    "TATASTEEL"
+  ]
+}
