@@ -8,6 +8,7 @@ from marketlab.h021_stockanalysis_parser import (
     normalize_fiscal_period,
     parse_annual_forecast,
     parse_period_ending,
+    stockanalysis_symbol,
 )
 
 
@@ -42,8 +43,28 @@ def _financials_html(*, currency: str = "USD", identity: str = "NSE:AAA") -> byt
 
 
 def test_url_builders_encode_special_nse_symbols() -> None:
+    assert stockanalysis_symbol("M&M") == "M&M"
     assert forecast_url("M&M") == "https://stockanalysis.com/quote/nse/M%26M/forecast/"
     assert financials_url("M&M") == "https://stockanalysis.com/quote/nse/M%26M/financials/"
+
+
+def test_provider_alias_does_not_change_frozen_nse_symbol() -> None:
+    assert stockanalysis_symbol("BAJAJ-AUTO") == "BAJAJ_AUTO"
+    assert forecast_url("BAJAJ-AUTO") == (
+        "https://stockanalysis.com/quote/nse/BAJAJ_AUTO/forecast/"
+    )
+    assert financials_url("BAJAJ-AUTO") == (
+        "https://stockanalysis.com/quote/nse/BAJAJ_AUTO/financials/"
+    )
+
+    result = parse_annual_forecast(
+        symbol="BAJAJ-AUTO",
+        source_url=forecast_url("BAJAJ-AUTO"),
+        html=_forecast_html(identity="NSE:BAJAJ_AUTO"),
+        expected_fiscal_period="FY2027",
+        expected_period_ending="2027-03-31",
+    )
+    assert result.symbol == "BAJAJ-AUTO"
 
 
 def test_normalizers_use_canonical_period_identity() -> None:
