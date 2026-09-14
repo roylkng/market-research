@@ -351,9 +351,10 @@
     "availability_timestamp": "NSE broadcastDate interpreted as Asia/Kolkata",
     "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
     "context_ref": "MutualFundsOrUTI_ContextI",
-    "filing_order": "NSE broadcastDate descending, latest revision per distinct report date",
+    "eligible_report_dates": "standard calendar quarter ends only",
     "percentage_conversion": "fraction * 100",
-    "signal_primitive": "current_percentage - prior_distinct_report_percentage",
+    "prior_period": "immediately previous calendar quarter end",
+    "revision_selection": "latest public broadcast for each selected report date as of evaluation",
     "unit_ref": "pure",
     "value_semantics": "fraction_of_total_shares"
   },
@@ -362,10 +363,11 @@
       "ShareholdingAsAPercentageOfTotalNumberOfShares": 200
     }
   },
-  "purpose": "Full frozen-U001 source-only feasibility audit of official NSE shareholding master records and exact XML Mutual Fund aggregate ownership facts. No price/return input is consumed.",
-  "schema_version": 2,
+  "purpose": "Full frozen-U001 source-only feasibility audit of official NSE shareholding master records and exact XML Mutual Fund aggregate ownership facts using only adjacent standard calendar-quarter report dates. No price/return input is consumed.",
+  "schema_version": 3,
   "summary": {
     "master_complete_symbols": 100,
+    "symbols_with_adjacent_quarter_pair": 100,
     "symbols_with_all_probed_filings_fetched": 100,
     "symbols_with_any_xbrl": 100,
     "symbols_with_mutual_fund_percentage_concept_in_every_probed_filing": 100,
@@ -374,6 +376,7 @@
   },
   "symbol_reports": [
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -431,6 +434,7 @@
       "xbrl_reference_count": 22
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -457,13 +461,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1702388_27072026070346_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-24T12:48:30Z",
+          "broadcast_at_utc": "2026-04-20T09:19:50Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.1189,
-            "percentage": 11.89,
+            "fraction": 0.1203,
+            "percentage": 12.030000000000001,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -471,13 +475,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "210427",
-          "report_date": "2026-06-23",
+          "record_id": "209549",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1684108_24062026061825_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1654825_20042026024944_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -488,6 +492,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -545,6 +550,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -602,6 +608,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -659,6 +666,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -716,6 +724,7 @@
       "xbrl_reference_count": 17
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -773,6 +782,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -830,6 +840,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -887,6 +898,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -944,6 +956,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1001,6 +1014,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1058,6 +1072,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1115,6 +1130,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1172,6 +1188,7 @@
       "xbrl_reference_count": 28
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1198,13 +1215,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1690624_10072026055831_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-04T07:52:09Z",
+          "broadcast_at_utc": "2026-04-17T08:40:56Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.1329,
-            "percentage": 13.29,
+            "fraction": 0.1137,
+            "percentage": 11.37,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -1212,13 +1229,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "194953",
-          "report_date": "2024-12-31",
+          "record_id": "208982",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1569482_10112025111301_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1653017_17042026021047_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -1229,6 +1246,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1286,6 +1304,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1343,6 +1362,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1400,6 +1420,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1426,13 +1447,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1696379_20072026090038_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-04T10:20:22Z",
+          "broadcast_at_utc": "2026-04-21T15:27:25Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.07,
-            "percentage": 7.000000000000001,
+            "fraction": 0.0717,
+            "percentage": 7.17,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -1440,13 +1461,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "202929",
-          "report_date": "2025-09-30",
+          "record_id": "209446",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1607317_21012026053142_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656829_21042026085055_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -1457,6 +1478,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1514,6 +1536,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1571,6 +1594,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1628,6 +1652,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1685,6 +1710,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1742,6 +1768,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1799,6 +1826,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1856,6 +1884,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1913,6 +1942,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -1970,6 +2000,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2027,6 +2058,7 @@
       "xbrl_reference_count": 14
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2084,6 +2116,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2110,13 +2143,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697439_20072026071702_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-04T06:18:08Z",
+          "broadcast_at_utc": "2026-04-21T14:47:59Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.1572,
-            "percentage": 15.72,
+            "fraction": 0.1445,
+            "percentage": 14.45,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -2124,13 +2157,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "196053",
-          "report_date": "2024-12-31",
+          "record_id": "210247",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1550635_16102025055548_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656791_21042026081752_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2141,6 +2174,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2198,6 +2232,7 @@
       "xbrl_reference_count": 4
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2224,13 +2259,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1692317_14072026044019_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-07-08T13:49:19Z",
+          "broadcast_at_utc": "2026-04-16T10:50:15Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.1419,
-            "percentage": 14.19,
+            "fraction": 0.1392,
+            "percentage": 13.919999999999998,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -2238,13 +2273,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "206892",
-          "report_date": "2025-12-31",
+          "record_id": "208746",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1687661_02072026065451_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1652246_16042026042008_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2255,6 +2290,7 @@
       "xbrl_reference_count": 19
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2312,6 +2348,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2369,6 +2406,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2426,31 +2464,9 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
-        {
-          "broadcast_at_utc": "2026-07-16T14:55:37Z",
-          "error": null,
-          "mutual_fund_ownership": {
-            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
-            "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0673,
-            "percentage": 6.7299999999999995,
-            "unit_ref": "pure"
-          },
-          "percentage_concepts": {
-            "MUTUAL_FUNDS": [
-              "ShareholdingAsAPercentageOfTotalNumberOfShares"
-            ]
-          },
-          "record_id": "211578",
-          "report_date": "2026-07-07",
-          "status": "COMPLETE",
-          "terms": {
-            "MUTUAL_FUNDS": true
-          },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1694672_16072026082530_WEB.xml"
-        },
         {
           "broadcast_at_utc": "2026-07-10T14:41:37Z",
           "error": null,
@@ -2473,6 +2489,29 @@
             "MUTUAL_FUNDS": true
           },
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1690795_10072026081131_WEB.xml"
+        },
+        {
+          "broadcast_at_utc": "2026-06-30T11:30:27Z",
+          "error": null,
+          "mutual_fund_ownership": {
+            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+            "context_ref": "MutualFundsOrUTI_ContextI",
+            "fraction": 0.0271,
+            "percentage": 2.71,
+            "unit_ref": "pure"
+          },
+          "percentage_concepts": {
+            "MUTUAL_FUNDS": [
+              "ShareholdingAsAPercentageOfTotalNumberOfShares"
+            ]
+          },
+          "record_id": "207960",
+          "report_date": "2026-03-31",
+          "status": "COMPLETE",
+          "terms": {
+            "MUTUAL_FUNDS": true
+          },
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1686595_30062026042134_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2483,6 +2522,7 @@
       "xbrl_reference_count": 25
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2540,31 +2580,9 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
-        {
-          "broadcast_at_utc": "2026-08-21T10:11:21Z",
-          "error": null,
-          "mutual_fund_ownership": {
-            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
-            "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.1866,
-            "percentage": 18.66,
-            "unit_ref": "pure"
-          },
-          "percentage_concepts": {
-            "MUTUAL_FUNDS": [
-              "ShareholdingAsAPercentageOfTotalNumberOfShares"
-            ]
-          },
-          "record_id": "210242",
-          "report_date": "2026-03-31",
-          "status": "COMPLETE",
-          "terms": {
-            "MUTUAL_FUNDS": true
-          },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1712107_11082026072853_WEB.xml"
-        },
         {
           "broadcast_at_utc": "2026-07-21T08:54:07Z",
           "error": null,
@@ -2587,6 +2605,29 @@
             "MUTUAL_FUNDS": true
           },
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1698044_21072026022401_WEB.xml"
+        },
+        {
+          "broadcast_at_utc": "2026-08-21T10:11:21Z",
+          "error": null,
+          "mutual_fund_ownership": {
+            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+            "context_ref": "MutualFundsOrUTI_ContextI",
+            "fraction": 0.1866,
+            "percentage": 18.66,
+            "unit_ref": "pure"
+          },
+          "percentage_concepts": {
+            "MUTUAL_FUNDS": [
+              "ShareholdingAsAPercentageOfTotalNumberOfShares"
+            ]
+          },
+          "record_id": "210242",
+          "report_date": "2026-03-31",
+          "status": "COMPLETE",
+          "terms": {
+            "MUTUAL_FUNDS": true
+          },
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1712107_11082026072853_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2597,6 +2638,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2654,6 +2696,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2711,31 +2754,9 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
-        {
-          "broadcast_at_utc": "2026-07-20T13:07:09Z",
-          "error": null,
-          "mutual_fund_ownership": {
-            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
-            "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0827,
-            "percentage": 8.27,
-            "unit_ref": "pure"
-          },
-          "percentage_concepts": {
-            "MUTUAL_FUNDS": [
-              "ShareholdingAsAPercentageOfTotalNumberOfShares"
-            ]
-          },
-          "record_id": "212403",
-          "report_date": "2026-07-20",
-          "status": "COMPLETE",
-          "terms": {
-            "MUTUAL_FUNDS": true
-          },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697348_20072026063703_WEB.xml"
-        },
         {
           "broadcast_at_utc": "2026-07-20T12:36:46Z",
           "error": null,
@@ -2758,6 +2779,29 @@
             "MUTUAL_FUNDS": true
           },
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697244_20072026060641_WEB.xml"
+        },
+        {
+          "broadcast_at_utc": "2026-04-17T11:57:18Z",
+          "error": null,
+          "mutual_fund_ownership": {
+            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+            "context_ref": "MutualFundsOrUTI_ContextI",
+            "fraction": 0.0445,
+            "percentage": 4.45,
+            "unit_ref": "pure"
+          },
+          "percentage_concepts": {
+            "MUTUAL_FUNDS": [
+              "ShareholdingAsAPercentageOfTotalNumberOfShares"
+            ]
+          },
+          "record_id": "209115",
+          "report_date": "2026-03-31",
+          "status": "COMPLETE",
+          "terms": {
+            "MUTUAL_FUNDS": true
+          },
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1653365_17042026052714_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2768,6 +2812,7 @@
       "xbrl_reference_count": 22
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2825,6 +2870,7 @@
       "xbrl_reference_count": 24
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2882,6 +2928,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2939,6 +2986,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -2965,13 +3013,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697638_20072026102839_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-15T15:47:10Z",
+          "broadcast_at_utc": "2026-04-22T17:52:54Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.2978,
-            "percentage": 29.78,
+            "fraction": 0.4048,
+            "percentage": 40.48,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -2979,13 +3027,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "210401",
-          "report_date": "2026-06-03",
+          "record_id": "210294",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1681902_15062026091703_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1657463_22042026112248_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -2996,6 +3044,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3053,6 +3102,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3110,6 +3160,7 @@
       "xbrl_reference_count": 22
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3167,6 +3218,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3224,6 +3276,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3281,6 +3334,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3338,6 +3392,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3395,6 +3450,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3452,6 +3508,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3509,6 +3566,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3535,13 +3593,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1692414_14072026052337_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-05-12T05:21:56Z",
+          "broadcast_at_utc": "2026-04-21T13:59:10Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0669,
-            "percentage": 6.69,
+            "fraction": 0.0677,
+            "percentage": 6.77,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -3549,13 +3607,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "206949",
-          "report_date": "2025-12-31",
+          "record_id": "210222",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1664146_06052026064459_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656717_21042026072904_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -3566,6 +3624,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3623,6 +3682,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3680,6 +3740,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3737,6 +3798,7 @@
       "xbrl_reference_count": 27
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3794,6 +3856,7 @@
       "xbrl_reference_count": 25
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3851,6 +3914,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3908,6 +3972,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -3965,6 +4030,7 @@
       "xbrl_reference_count": 35
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4022,6 +4088,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4079,6 +4146,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4136,6 +4204,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4193,6 +4262,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4250,6 +4320,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4307,6 +4378,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4333,13 +4405,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1692557_14072026062925_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-07-04T12:39:19Z",
+          "broadcast_at_utc": "2026-04-19T13:08:36Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.018,
-            "percentage": 1.7999999999999998,
+            "fraction": 0.0431,
+            "percentage": 4.31,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -4347,13 +4419,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "210508",
-          "report_date": "2026-06-25",
+          "record_id": "209411",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1688278_04072026060913_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1654457_19042026063829_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -4364,6 +4436,7 @@
       "xbrl_reference_count": 26
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4421,31 +4494,9 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
-        {
-          "broadcast_at_utc": "2026-08-04T12:50:25Z",
-          "error": null,
-          "mutual_fund_ownership": {
-            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
-            "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0883,
-            "percentage": 8.83,
-            "unit_ref": "pure"
-          },
-          "percentage_concepts": {
-            "MUTUAL_FUNDS": [
-              "ShareholdingAsAPercentageOfTotalNumberOfShares"
-            ]
-          },
-          "record_id": "213013",
-          "report_date": "2026-07-30",
-          "status": "COMPLETE",
-          "terms": {
-            "MUTUAL_FUNDS": true
-          },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1707811_04082026062018_WEB.xml"
-        },
         {
           "broadcast_at_utc": "2026-07-14T14:30:33Z",
           "error": null,
@@ -4468,6 +4519,29 @@
             "MUTUAL_FUNDS": true
           },
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1692674_14072026080027_WEB.xml"
+        },
+        {
+          "broadcast_at_utc": "2026-04-10T05:56:41Z",
+          "error": null,
+          "mutual_fund_ownership": {
+            "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+            "context_ref": "MutualFundsOrUTI_ContextI",
+            "fraction": 0.0659,
+            "percentage": 6.59,
+            "unit_ref": "pure"
+          },
+          "percentage_concepts": {
+            "MUTUAL_FUNDS": [
+              "ShareholdingAsAPercentageOfTotalNumberOfShares"
+            ]
+          },
+          "record_id": "207824",
+          "report_date": "2026-03-31",
+          "status": "COMPLETE",
+          "terms": {
+            "MUTUAL_FUNDS": true
+          },
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1648455_10042026112635_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -4478,6 +4552,7 @@
       "xbrl_reference_count": 22
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4535,6 +4610,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4592,6 +4668,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4649,6 +4726,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4706,6 +4784,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4732,13 +4811,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1697354_20072026063756_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-04T10:00:54Z",
+          "broadcast_at_utc": "2026-04-18T13:50:04Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0882,
-            "percentage": 8.82,
+            "fraction": 0.0523,
+            "percentage": 5.2299999999999995,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -4746,13 +4825,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "200922",
-          "report_date": "2025-06-30",
+          "record_id": "209387",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1594856_05012026122600_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1654385_18042026071959_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -4763,6 +4842,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4820,6 +4900,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4877,6 +4958,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4934,6 +5016,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -4991,6 +5074,7 @@
       "xbrl_reference_count": 26
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5017,13 +5101,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1706022_31072026043401_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-08-03T07:15:02Z",
+          "broadcast_at_utc": "2026-04-16T11:59:05Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0921,
-            "percentage": 9.21,
+            "fraction": 0.0863,
+            "percentage": 8.63,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -5031,13 +5115,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "206975",
-          "report_date": "2025-12-31",
+          "record_id": "208805",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1653793_17042026095852_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1652420_16042026052900_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
@@ -5048,6 +5132,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5105,6 +5190,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5162,6 +5248,7 @@
       "xbrl_reference_count": 28
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5219,6 +5306,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5276,6 +5364,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5333,6 +5422,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5390,6 +5480,7 @@
       "xbrl_reference_count": 10
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5447,6 +5538,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5504,6 +5596,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5561,6 +5654,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5618,6 +5712,7 @@
       "xbrl_reference_count": 23
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5675,6 +5770,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5732,6 +5828,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5789,6 +5886,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5846,6 +5944,7 @@
       "xbrl_reference_count": 22
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5903,6 +6002,7 @@
       "xbrl_reference_count": 21
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -5960,6 +6060,7 @@
       "xbrl_reference_count": 24
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -6017,6 +6118,7 @@
       "xbrl_reference_count": 20
     },
     {
+      "adjacent_quarter_pair_complete": true,
       "error": null,
       "filings": [
         {
@@ -6043,13 +6145,13 @@
           "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1708681_05082026084803_WEB.xml"
         },
         {
-          "broadcast_at_utc": "2026-06-03T13:52:57Z",
+          "broadcast_at_utc": "2026-04-21T15:12:49Z",
           "error": null,
           "mutual_fund_ownership": {
             "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
             "context_ref": "MutualFundsOrUTI_ContextI",
-            "fraction": 0.0734,
-            "percentage": 7.340000000000001,
+            "fraction": 0.0531,
+            "percentage": 5.3100000000000005,
             "unit_ref": "pure"
           },
           "percentage_concepts": {
@@ -6057,13 +6159,13 @@
               "ShareholdingAsAPercentageOfTotalNumberOfShares"
             ]
           },
-          "record_id": "210372",
-          "report_date": "2026-05-25",
+          "record_id": "210254",
+          "report_date": "2026-03-31",
           "status": "COMPLETE",
           "terms": {
             "MUTUAL_FUNDS": true
           },
-          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1679309_03062026072249_WEB.xml"
+          "url": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1656820_21042026084245_WEB.xml"
         }
       ],
       "master_status": "COMPLETE",
