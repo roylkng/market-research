@@ -135,7 +135,10 @@ def main() -> int:
                     )
                     report["successful_filing_count"] += 1
                     try:
-                        ownership = parse_mutual_fund_ownership_xbrl(xbrl_response.content)
+                        ownership = parse_mutual_fund_ownership_xbrl(
+                            xbrl_response.content,
+                            expected_report_date=selected_filing.report_date,
+                        )
                     except H023OwnershipError as exc:
                         filing["status"] = "PARSE_FAILED"
                         filing["error"] = f"{type(exc).__name__}: {exc}"
@@ -198,12 +201,13 @@ def main() -> int:
         ),
     }
     report = {
-        "schema_version": 3,
+        "schema_version": 4,
         "hypothesis_probe": "H023-OWNERSHIP-FULL-U001-SOURCE-PROBE",
         "purpose": (
             "Full frozen-U001 source-only feasibility audit of official NSE shareholding master "
             "records and exact XML Mutual Fund aggregate ownership facts using only adjacent "
-            "standard calendar-quarter report dates. No price/return input is consumed."
+            "standard calendar-quarter report dates, exact context periods, and guarded Mutual "
+            "Fund taxonomy semantics. No price/return input is consumed."
         ),
         "universe_path": args.universe.as_posix(),
         "member_count": 100,
