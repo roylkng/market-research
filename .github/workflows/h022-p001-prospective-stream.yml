@@ -1,0 +1,163 @@
+name: H022 P001 prospective stream
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Two pre-open passes plus an after-close pass. Actual signal freeze time,
+    # not the cron target, determines H022-X001 executability.
+    - cron: '0 3 * * 1-5'   # 08:30 Asia/Kolkata
+    - cron: '35 3 * * 1-5'  # 09:05 Asia/Kolkata
+    - cron: '45 12 * * 1-5' # 18:15 Asia/Kolkata
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h022-p001-prospective-stream
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen P001 stream invariants
+        run: |
+          pytest -q \
+            tests/test_h022_prospective.py \
+            tests/test_h022_p001_acquisition.py \
+            tests/test_h022_p001_stream.py
+
+      - name: Resolve context readiness
+        id: state
+        shell: bash
+        run: |
+          set -euo pipefail
+          CONTEXT_DIR="research/prospective/h022/P001/context"
+          WORK="reports/h022-p001-stream/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          if [ -f "$CONTEXT_DIR/operational-context.json" ]; then
+            python scripts/verify_h022_p001_context.py \
+              --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+              --context-dir "$CONTEXT_DIR"
+            STATUS="RUN"
+          else
+            STATUS="CONTEXT_NOT_READY"
+          fi
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "work_dir=$WORK" >> "$GITHUB_OUTPUT"
+          echo "context_dir=$CONTEXT_DIR" >> "$GITHUB_OUTPUT"
+          echo "H022-P001 stream state: $STATUS"
+
+      - name: Scan full U001 prospective source window
+        if: steps.state.outputs.status == 'RUN'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.state.outputs.work_dir }}"
+          python scripts/scan_h022_p001_prospective.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --historical-report research/historical/h022/expanded-e002-v1/report.json \
+            --context-dir "${{ steps.state.outputs.context_dir }}" \
+            --source-ledger research/prospective/h022/P001/source-ledger.json \
+            --e002-ledger research/prospective/h022/P001/e002-ledger.json \
+            --signal-ledger research/prospective/h022/P001/signal-ledger.json \
+            --store "$WORK/store" \
+            --out-dir "$WORK/output" \
+            --pause-seconds 0.15 \
+            --fetch-attempts 4
+
+      - name: Verify prospective stream output offline
+        if: steps.state.outputs.status == 'RUN'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.state.outputs.work_dir }}"
+          python scripts/verify_h022_p001_stream.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --context-dir "${{ steps.state.outputs.context_dir }}" \
+            --source-ledger "$WORK/output/source-ledger.json" \
+            --e002-ledger "$WORK/output/e002-ledger.json" \
+            --signal-ledger "$WORK/output/signal-ledger.json" \
+            --scan-manifest "$WORK/output/scan-manifest.json" \
+            --summary "$WORK/output/summary.json"
+
+      - name: Refuse to anchor observations on changed rules
+        if: steps.state.outputs.status == 'RUN'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          START_SHA="${GITHUB_SHA}"
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+          if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+            echo "main moved during H022-P001 source scan; refusing to anchor observations"
+            echo "start=$START_SHA current_main=$CURRENT_MAIN"
+            exit 1
+          fi
+
+      - name: Anchor append-only stream and scan proof
+        if: steps.state.outputs.status == 'RUN'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.state.outputs.work_dir }}"
+          OUT="$WORK/output"
+          ROOT="research/prospective/h022/P001"
+          mkdir -p "$ROOT/scans"
+          cp "$OUT/source-ledger.json" "$ROOT/source-ledger.json"
+          cp "$OUT/e002-ledger.json" "$ROOT/e002-ledger.json"
+          cp "$OUT/signal-ledger.json" "$ROOT/signal-ledger.json"
+          SCAN_SHA="$(python - "$OUT/scan-manifest.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          print(json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))['scan_sha256'])
+          PY
+          )"
+          SCAN_PATH="$ROOT/scans/${SCAN_SHA}.json"
+          SUMMARY_PATH="$ROOT/scans/${SCAN_SHA}.summary.json"
+          if [ -e "$SCAN_PATH" ] || [ -e "$SUMMARY_PATH" ]; then
+            echo "P001 scan identity already exists; refusing overwrite: $SCAN_SHA"
+            exit 1
+          fi
+          cp "$OUT/scan-manifest.json" "$SCAN_PATH"
+          cp "$OUT/summary.json" "$SUMMARY_PATH"
+          python scripts/verify_h022_p001_stream.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --context-dir "${{ steps.state.outputs.context_dir }}" \
+            --source-ledger "$ROOT/source-ledger.json" \
+            --e002-ledger "$ROOT/e002-ledger.json" \
+            --signal-ledger "$ROOT/signal-ledger.json" \
+            --scan-manifest "$SCAN_PATH" \
+            --summary "$SUMMARY_PATH"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$ROOT/source-ledger.json" "$ROOT/e002-ledger.json" \
+            "$ROOT/signal-ledger.json" "$SCAN_PATH" "$SUMMARY_PATH"
+          git commit -m "H022: seal P001 prospective source scan ${SCAN_SHA} [skip ci]"
+          git push origin HEAD:main
+
+      - name: Upload scan and raw-source evidence
+        if: always() && steps.state.outputs.status == 'RUN'
+        uses: actions/upload-artifact@v4
+        with:
+          name: h022-p001-stream-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.state.outputs.work_dir }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Report context wait
+        if: steps.state.outputs.status == 'CONTEXT_NOT_READY'
+        run: echo "H022-P001 prospective scan skipped because mandatory context is not sealed"
