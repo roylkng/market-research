@@ -17,12 +17,6 @@ CALENDAR_PATH = Path(
 IST = ZoneInfo("Asia/Kolkata")
 
 
-class _FutureDate(date):
-    @classmethod
-    def today(cls) -> _FutureDate:
-        return cls(2027, 12, 31)
-
-
 def _load(path: Path) -> dict:
     payload = json.loads(path.read_text(encoding="utf-8"))
     assert isinstance(payload, dict)
@@ -141,6 +135,12 @@ def _benchmark_bar(session_date: str, *, open_price: float, close_price: float) 
     }
 
 
+def _evaluation_after(calendar: dict, session_index: int) -> str:
+    session = calendar["sessions"][session_index]
+    close = datetime.fromisoformat(session["close_timestamp_utc"].replace("Z", "+00:00"))
+    return (close + timedelta(minutes=5)).astimezone(UTC).isoformat().replace("+00:00", "Z")
+
+
 def test_actual_reviewed_calendar_retains_unresolved_special_date() -> None:
     sessions, unresolved = outcomes.load_reviewed_sessions(_load(CALENDAR_PATH))
     assert sessions[0].session_date == "2026-09-01"
@@ -148,10 +148,7 @@ def test_actual_reviewed_calendar_retains_unresolved_special_date() -> None:
     assert tuple(item.isoformat() for item in unresolved) == ("2026-11-08",)
 
 
-def test_late_signal_freeze_never_receives_first_open_outcome(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(outcomes, "date", _FutureDate)
+def test_late_signal_freeze_never_receives_first_open_outcome() -> None:
     calendar = _synthetic_calendar()
     signal = _signal(
         source_char="1",
@@ -163,6 +160,7 @@ def test_late_signal_freeze_never_receives_first_open_outcome(
         universe_snapshot=_load(UNIVERSE_PATH),
         calendar=calendar,
         market_data_cutoff_session=calendar["sessions"][-1]["session_date"],
+        evaluation_frozen_at_utc=_evaluation_after(calendar, -1),
         stock_bars={},
         benchmark_bars={},
         corporate_actions={},
@@ -179,10 +177,7 @@ def test_late_signal_freeze_never_receives_first_open_outcome(
     assert summary["horizons"]["60"]["challenge_signal_count"] == 0
 
 
-def test_complete_20_session_return_reuses_frozen_h022_math(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(outcomes, "date", _FutureDate)
+def test_complete_20_session_return_reuses_frozen_h022_math() -> None:
     calendar = _synthetic_calendar()
     signal = _signal(
         source_char="2",
@@ -196,6 +191,7 @@ def test_complete_20_session_return_reuses_frozen_h022_math(
         universe_snapshot=_load(UNIVERSE_PATH),
         calendar=calendar,
         market_data_cutoff_session=exit_20,
+        evaluation_frozen_at_utc=_evaluation_after(calendar, 19),
         stock_bars={
             (entry_date, "ABB"): _stock_bar(entry_date, open_price=100.0, close_price=101.0),
             (exit_20, "ABB"): _stock_bar(exit_20, open_price=109.0, close_price=110.0),
@@ -218,10 +214,7 @@ def test_complete_20_session_return_reuses_frozen_h022_math(
     assert row["horizons"]["60"]["status"] == "NOT_MATURE"
 
 
-def test_unresolved_november_special_session_blocks_primary_60_session_exit(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(outcomes, "date", _FutureDate)
+def test_unresolved_november_special_session_blocks_primary_60_session_exit() -> None:
     calendar = _load(CALENDAR_PATH)
     signal = _signal(
         source_char="3",
@@ -233,6 +226,7 @@ def test_unresolved_november_special_session_blocks_primary_60_session_exit(
         universe_snapshot=_load(UNIVERSE_PATH),
         calendar=calendar,
         market_data_cutoff_session="2026-12-31",
+        evaluation_frozen_at_utc="2026-12-31T10:05:00Z",
         stock_bars={},
         benchmark_bars={},
         corporate_actions={},
@@ -247,10 +241,7 @@ def test_unresolved_november_special_session_blocks_primary_60_session_exit(
     assert summary["horizons"]["60"]["mature_signal_count"] == 0
 
 
-def test_corporate_action_blocks_mature_horizon_without_return(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(outcomes, "date", _FutureDate)
+def test_corporate_action_blocks_mature_horizon_without_return() -> None:
     calendar = _synthetic_calendar()
     signal = _signal(
         source_char="4",
@@ -264,6 +255,7 @@ def test_corporate_action_blocks_mature_horizon_without_return(
         universe_snapshot=_load(UNIVERSE_PATH),
         calendar=calendar,
         market_data_cutoff_session=exit_20,
+        evaluation_frozen_at_utc=_evaluation_after(calendar, 19),
         stock_bars={(entry_date, "ABB"): _stock_bar(entry_date, open_price=100, close_price=100)},
         benchmark_bars={entry_date: _benchmark_bar(entry_date, open_price=200, close_price=200)},
         corporate_actions={
@@ -284,3 +276,25 @@ def test_corporate_action_blocks_mature_horizon_without_return(
     summary = outcomes.summarize_prospective_outcomes(report)
     assert summary["horizons"]["20"]["mature_signal_count"] == 1
     assert summary["horizons"]["20"]["complete_count"] == 0
+
+
+def test_evaluation_refuses_cutoff_session_that_has_not_closed() -> None:
+    calendar = _synthetic_calendar()
+    signal = _signal(
+        source_char="5",
+        published="2026-09-14T18:30:00Z",
+        frozen="2026-09-15T03:30:00Z",
+    )
+    first = calendar["sessions"][0]
+    open_time = first["open_timestamp_utc"]
+    with pytest.raises(outcomes.H022P001OutcomeError, match="had not completed"):
+        outcomes.build_prospective_outcome_report(
+            _ledger(signal),
+            universe_snapshot=_load(UNIVERSE_PATH),
+            calendar=calendar,
+            market_data_cutoff_session=first["session_date"],
+            evaluation_frozen_at_utc=open_time,
+            stock_bars={},
+            benchmark_bars={},
+            corporate_actions={},
+        )
