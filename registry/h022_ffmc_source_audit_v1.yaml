@@ -1,0 +1,103 @@
+schema_version: 1
+id: H022-D006
+hypothesis_id: H022
+status: BLOCKED_PUBLIC_SOURCE
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation: false
+
+purpose: >-
+  Audit whether the historical U001 universe rule can be reconstructed without hindsight.
+  U001 excludes Financial Services from the point-in-time NIFTY 200, ranks the remaining
+  constituents by NSE free-float market capitalization (ffmc) descending, breaks ties by
+  symbol, and keeps the first 100 companies. D006 asks whether the required historical
+  constituent-level FFMC inputs are available from reproducible official public sources.
+
+frozen_target:
+  universe_rule: U001-nifty200-top100-nonfinancial-ffmc-v2
+  source_rule_document: docs/universe-v1.md
+  required_point_in_time_fields:
+    - effective_or_capture_date
+    - nse_symbol
+    - isin
+    - nifty200_membership
+    - official_industry
+    - total_shares_outstanding_or_official_ffmc
+    - investible_weight_factor_if_ffmc_not_directly_available
+    - security_price_if_ffmc_not_directly_available
+    - free_float_market_capitalization
+  ranking:
+    exclude_industry_exact: Financial Services
+    rank: ffmc_descending
+    tie_break: symbol_ascending
+    take: 100
+
+source_audit:
+  official_nifty200_page:
+    url: https://www.niftyindices.com/indices/equity/broad-based-indices/nifty-200
+    finding: >-
+      Public current index page exposes current constituent downloads and describes the index,
+      but does not establish a public historical constituent-level FFMC time series.
+  official_iwf_methodology:
+    url: https://www.niftyindices.com/resources/investible-weight-factors
+    finding: >-
+      Public methodology confirms FFMC is full market capitalization multiplied by IWF and
+      that IWF is based on public shareholding disclosed quarterly. Methodology is sufficient
+      to define the quantity but not to supply historical constituent-level IWF snapshots.
+  official_index_calculation:
+    url: https://www.niftyindices.com/resources/tutorial/calculation-of-indices
+    finding: >-
+      Public calculation guidance defines free-float market capitalization as total shares
+      outstanding multiplied by IWF and stock price.
+  official_public_historical_reports:
+    url: https://www.niftyindices.com/reports
+    finding: >-
+      Public historical reports expose index-level historical OHLC and related index series;
+      they do not provide the complete historical constituent-level company/IWF/FFMC panel
+      required to rerun U001 rankings.
+  official_data_subscription:
+    url: https://www.niftyindices.com/offerings/data-subscription
+    finding: >-
+      NSE Indices explicitly offers ongoing and historical individual-security index data as
+      a subscription; constituent data includes company names, identifiers, market
+      capitalization, weights and prices.
+    contact: indices@nseids.co.in
+
+verdict:
+  classification: BLOCKED_PUBLIC_SOURCE
+  reason: >-
+    As of the 2026-09-14 audit, no complete free official public source was identified that
+    provides the historical constituent-level FFMC inputs needed to reproduce U001 exactly.
+    Official methodology is public, while the direct historical constituent data product is
+    explicitly subscription-based.
+
+forbidden_shortcuts:
+  - use_current_ffmc_for_past_dates
+  - use_current_iwf_for_past_dates
+  - use_current_shares_outstanding_for_past_dates
+  - infer_historical_ffmc_rank_from_current_index_weight
+  - select_the_historical_top100_using_future_membership_or_future_industry
+  - backfill_missing_historical_iwf_from_later_quarters_without_a_frozen_rule
+  - use_third_party_current_market_cap_as_historical_ffmc
+  - tune_a_size_cutoff_after_viewing_H022_returns
+
+acceptable_unblock_paths:
+  - >-
+    Acquire authoritative historical NSE Indices constituent data with enough dated fields to
+    reproduce FFMC ranks and preserve the licensed/raw provenance permitted by the data terms.
+  - >-
+    Build a separately frozen reconstruction from point-in-time official shareholding filings,
+    point-in-time shares outstanding, official prices, historical NIFTY 200 membership and the
+    applicable IWF methodology, then validate reconstructed FFMC/weights against authoritative
+    historical index constituent observations before opening H022 subgroup outcomes.
+  - >-
+    Do not reconstruct the historical FFMC slice; instead use immutable prospective U001
+    cohorts whose FFMC is captured at cohort freeze time and wait for prospective H022 outcomes.
+
+research_boundary:
+  historical_u001_style_ffmc_filter: BLOCKED
+  historical_nifty200_membership_reconstruction: AVAILABLE
+  h022_expanded_historical_classification: INCONCLUSIVE
+  original_survivor_panel_classification: PROMISING_HISTORICAL_DEVELOPMENT
+  prospective_confirmation_required: true
+  live_capital_allowed: false
