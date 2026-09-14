@@ -31,6 +31,11 @@ def test_actual_frozen_calendar_drives_weekly_h021_cadence() -> None:
     assert weekly_session_decision("2026-10-01", calendar).state == CAPTURE
 
 
+def test_h021_weekly_gate_fails_closed_on_unresolved_special_session_week() -> None:
+    with pytest.raises(ValueError, match="unresolved NSE special-session"):
+        weekly_session_decision("2026-11-06", _frozen_calendar())
+
+
 def test_h021_weekly_gate_stops_when_frozen_calendar_expires() -> None:
     with pytest.raises(ValueError, match="outside frozen calendar coverage"):
         weekly_session_decision("2027-01-01", _frozen_calendar())
