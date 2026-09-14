@@ -1,0 +1,216 @@
+{
+  "captured_at_utc": "2026-09-14T07:56:02.802402Z",
+  "config_path": "research/prospective/h021/stockanalysis-direct-probe-v1.json",
+  "decision": {
+    "direct_primary_retrieval_feasible": true,
+    "passed_pages": 5,
+    "reason": "All frozen public forecast pages were directly retrievable with required markers.",
+    "total_pages": 5
+  },
+  "hypothesis_id": "H021-DIRECT-SOURCE-PROBE",
+  "legacy_anchor_semantics": {
+    "observation_count": 100,
+    "observation_keys": [
+      "analyst_count",
+      "batch_id",
+      "consensus_eps",
+      "eps_currency",
+      "fiscal_period",
+      "period_ending",
+      "profit_growth_estimate_pct",
+      "revenue_growth_forecast_pct",
+      "source_observed_market_date",
+      "source_status",
+      "source_url",
+      "symbol",
+      "target_price_inr",
+      "universe_rank"
+    ],
+    "path": "research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz",
+    "rows_with_non_null_semantic_field": 100,
+    "selected_symbols": [
+      {
+        "analyst_count": 26,
+        "consensus_eps": 63.97,
+        "eps_currency": "INR",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-09-01",
+        "source_status": "OBSERVED",
+        "source_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+        "symbol": "RELIANCE"
+      },
+      {
+        "analyst_count": 42,
+        "consensus_eps": 0.86,
+        "eps_currency": "USD",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-07-29",
+        "source_status": "OBSERVED",
+        "source_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
+        "symbol": "INFY"
+      },
+      {
+        "analyst_count": 41,
+        "consensus_eps": 155.08,
+        "eps_currency": "INR",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-07-13",
+        "source_status": "OBSERVED",
+        "source_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+        "symbol": "TCS"
+      },
+      {
+        "analyst_count": 39,
+        "consensus_eps": 0.82,
+        "eps_currency": "USD",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-07-15",
+        "source_status": "OBSERVED",
+        "source_url": "https://stockanalysis.com/quote/nse/HCLTECH/forecast/",
+        "symbol": "HCLTECH"
+      },
+      {
+        "analyst_count": 40,
+        "consensus_eps": 13.31,
+        "eps_currency": "INR",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-07-18",
+        "source_status": "OBSERVED",
+        "source_url": "https://stockanalysis.com/quote/nse/WIPRO/forecast/",
+        "symbol": "WIPRO"
+      },
+      {
+        "analyst_count": 35,
+        "consensus_eps": 21.53,
+        "eps_currency": "INR",
+        "fiscal_period": "FY2027",
+        "present": true,
+        "source_observed_market_date": "2026-07-23",
+        "source_status": "PARTIAL",
+        "source_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+        "symbol": "NESTLEIND"
+      }
+    ],
+    "semantic_field_names": [
+      "eps_currency"
+    ]
+  },
+  "live_capital_allowed": false,
+  "outcomes_opened": false,
+  "pages": [
+    {
+      "content_length": 175114,
+      "content_type": "text/html",
+      "fetch_state": "HTTP",
+      "final_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+      "identity_marker": "NSE:RELIANCE",
+      "identity_verified": true,
+      "probe_pass": true,
+      "requested_url": "https://stockanalysis.com/quote/nse/RELIANCE/forecast/",
+      "required_marker_presence": {
+        "EPS Forecast": true,
+        "Financial Forecast": true,
+        "No. Analysts": true,
+        "Revenue Forecast": true,
+        "S&P Global Market Intelligence": true
+      },
+      "sha256": "148b95e0ad9fade687c7f6b04c873bd30739f8824c3807616121ce91a76b43e6",
+      "status_code": 200,
+      "symbol": "RELIANCE"
+    },
+    {
+      "content_length": 173016,
+      "content_type": "text/html",
+      "fetch_state": "HTTP",
+      "final_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
+      "identity_marker": "NSE:INFY",
+      "identity_verified": true,
+      "probe_pass": true,
+      "requested_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
+      "required_marker_presence": {
+        "EPS Forecast": true,
+        "Financial Forecast": true,
+        "No. Analysts": true,
+        "Revenue Forecast": true,
+        "S&P Global Market Intelligence": true
+      },
+      "sha256": "2686a1a7b6d65bb83040a766799d72d8cc712d1eb92d8c04ba5722b9788c33a0",
+      "status_code": 200,
+      "symbol": "INFY"
+    },
+    {
+      "content_length": 175946,
+      "content_type": "text/html",
+      "fetch_state": "HTTP",
+      "final_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+      "identity_marker": "NSE:TCS",
+      "identity_verified": true,
+      "probe_pass": true,
+      "requested_url": "https://stockanalysis.com/quote/nse/TCS/forecast/",
+      "required_marker_presence": {
+        "EPS Forecast": true,
+        "Financial Forecast": true,
+        "No. Analysts": true,
+        "Revenue Forecast": true,
+        "S&P Global Market Intelligence": true
+      },
+      "sha256": "cf140332e9a79639e8a2aac0e160bbbabf9dfc7784a923779e94c153230e10b0",
+      "status_code": 200,
+      "symbol": "TCS"
+    },
+    {
+      "content_length": 153226,
+      "content_type": "text/html",
+      "fetch_state": "HTTP",
+      "final_url": "https://stockanalysis.com/quote/nse/M%26M/forecast/",
+      "identity_marker": "NSE:M&M",
+      "identity_verified": true,
+      "probe_pass": true,
+      "requested_url": "https://stockanalysis.com/quote/nse/M%26M/forecast/",
+      "required_marker_presence": {
+        "EPS Forecast": true,
+        "Financial Forecast": true,
+        "No. Analysts": true,
+        "Revenue Forecast": true,
+        "S&P Global Market Intelligence": true
+      },
+      "sha256": "edaed36f40bae748700f421cd96e9abd66b45fc84d6415b2a0450449a242a925",
+      "status_code": 200,
+      "symbol": "M&M"
+    },
+    {
+      "content_length": 167745,
+      "content_type": "text/html",
+      "fetch_state": "HTTP",
+      "final_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+      "identity_marker": "NSE:NESTLEIND",
+      "identity_verified": true,
+      "probe_pass": true,
+      "requested_url": "https://stockanalysis.com/quote/nse/NESTLEIND/forecast/",
+      "required_marker_presence": {
+        "EPS Forecast": true,
+        "Financial Forecast": true,
+        "No. Analysts": true,
+        "Revenue Forecast": true,
+        "S&P Global Market Intelligence": true
+      },
+      "sha256": "e90fa504041b1ee632c7bfef902a1a2a93930fba9c57d531f6d9f62191d4ab8f",
+      "status_code": 200,
+      "symbol": "NESTLEIND"
+    }
+  ],
+  "robots": {
+    "content_length": 187,
+    "content_type": "text/plain; charset=utf-8",
+    "fetch_state": "HTTP",
+    "final_url": "https://stockanalysis.com/robots.txt",
+    "sha256": "f901eed408d5ba8370f14f2dae7848f26ed098236579f734ee45d685b8c82450",
+    "status_code": 200
+  },
+  "schema_version": 1
+}
