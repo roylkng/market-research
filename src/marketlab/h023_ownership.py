@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
@@ -11,6 +11,7 @@ MF_CONTEXT_REF = "MutualFundsOrUTI_ContextI"
 MF_SHAREHOLDING_CONCEPT = "ShareholdingAsAPercentageOfTotalNumberOfShares"
 BROADCAST_FORMAT = "%d-%b-%Y %H:%M:%S"
 REPORT_DATE_FORMAT = "%d-%b-%Y"
+STANDARD_QUARTER_ENDS = frozenset({(3, 31), (6, 30), (9, 30), (12, 31)})
 IST = ZoneInfo("Asia/Kolkata")
 
 
@@ -64,15 +65,26 @@ def _parse_broadcast(value: object) -> datetime:
         raise H023OwnershipError(f"invalid NSE broadcastDate: {text}") from exc
 
 
-def _parse_report_date(value: object) -> str:
+def _parse_report_date(value: object) -> date:
     text = _text(value)
     if not text:
         raise H023OwnershipError("NSE shareholding report date is missing")
     try:
-        parsed = datetime.strptime(text.upper(), REPORT_DATE_FORMAT).replace(tzinfo=IST).date()
+        return datetime.strptime(text.upper(), REPORT_DATE_FORMAT).replace(tzinfo=IST).date()
     except ValueError as exc:
         raise H023OwnershipError(f"invalid NSE shareholding report date: {text}") from exc
-    return parsed.isoformat()
+
+
+def _parse_as_of(value: str | None) -> datetime | None:
+    if value is None:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise H023OwnershipError(f"invalid as-of timestamp: {value}") from exc
+    if parsed.tzinfo is None:
+        raise H023OwnershipError("as-of timestamp must include timezone")
+    return parsed.astimezone(UTC)
 
 
 def _approved_xbrl_url(value: object) -> str:
@@ -86,20 +98,43 @@ def _approved_xbrl_url(value: object) -> str:
     return text
 
 
-def select_latest_distinct_filings(
+def is_standard_quarter_end(report_date: str) -> bool:
+    try:
+        parsed = date.fromisoformat(report_date)
+    except ValueError:
+        return False
+    return (parsed.month, parsed.day) in STANDARD_QUARTER_ENDS
+
+
+def previous_quarter_end(report_date: str) -> str:
+    try:
+        parsed = date.fromisoformat(report_date)
+    except ValueError as exc:
+        raise H023OwnershipError(f"invalid canonical report date: {report_date}") from exc
+    key = (parsed.month, parsed.day)
+    if key == (3, 31):
+        return date(parsed.year - 1, 12, 31).isoformat()
+    if key == (6, 30):
+        return date(parsed.year, 3, 31).isoformat()
+    if key == (9, 30):
+        return date(parsed.year, 6, 30).isoformat()
+    if key == (12, 31):
+        return date(parsed.year, 9, 30).isoformat()
+    raise H023OwnershipError(f"report date is not a standard quarter end: {report_date}")
+
+
+def _eligible_filings(
     payload: object,
     *,
     symbol: str,
-    count: int = 2,
-) -> tuple[OwnershipFiling, ...]:
+    as_of_utc: str | None = None,
+) -> tuple[tuple[datetime, OwnershipFiling], ...]:
     if not isinstance(payload, list):
         raise H023OwnershipError("NSE shareholding master payload must be a list")
-    if count < 1:
-        raise H023OwnershipError("filing count must be positive")
     wanted = symbol.strip().upper()
     if not wanted:
         raise H023OwnershipError("symbol is empty")
-
+    as_of = _parse_as_of(as_of_utc)
     candidates: list[tuple[datetime, OwnershipFiling]] = []
     for row in payload:
         if not isinstance(row, dict):
@@ -113,6 +148,8 @@ def select_latest_distinct_filings(
             xbrl_url = _approved_xbrl_url(row.get("xbrl"))
         except H023OwnershipError:
             continue
+        if as_of is not None and broadcast.astimezone(UTC) > as_of:
+            continue
         record_id = _text(row.get("recordId"))
         if not record_id:
             continue
@@ -122,7 +159,7 @@ def select_latest_distinct_filings(
                 OwnershipFiling(
                     symbol=wanted,
                     record_id=record_id,
-                    report_date=report_date,
+                    report_date=report_date.isoformat(),
                     broadcast_at_utc=broadcast.astimezone(UTC).isoformat().replace(
                         "+00:00", "Z"
                     ),
@@ -130,18 +167,65 @@ def select_latest_distinct_filings(
                 ),
             )
         )
-    candidates.sort(key=lambda item: (item[0], item[1].record_id), reverse=True)
+    return tuple(candidates)
 
-    selected: list[OwnershipFiling] = []
-    seen_report_dates: set[str] = set()
-    for _broadcast, filing in candidates:
-        if filing.report_date in seen_report_dates:
-            continue
-        selected.append(filing)
-        seen_report_dates.add(filing.report_date)
-        if len(selected) == count:
-            break
-    return tuple(selected)
+
+def select_latest_revision_for_report_date(
+    payload: object,
+    *,
+    symbol: str,
+    report_date: str,
+    as_of_utc: str | None = None,
+) -> OwnershipFiling | None:
+    if not is_standard_quarter_end(report_date):
+        raise H023OwnershipError(f"report date is not a standard quarter end: {report_date}")
+    matches = [
+        item
+        for item in _eligible_filings(payload, symbol=symbol, as_of_utc=as_of_utc)
+        if item[1].report_date == report_date
+    ]
+    if not matches:
+        return None
+    matches.sort(key=lambda item: (item[0], item[1].record_id), reverse=True)
+    return matches[0][1]
+
+
+def select_latest_adjacent_quarter_filings(
+    payload: object,
+    *,
+    symbol: str,
+    as_of_utc: str | None = None,
+) -> tuple[OwnershipFiling, ...]:
+    eligible = _eligible_filings(payload, symbol=symbol, as_of_utc=as_of_utc)
+    quarter_dates = sorted(
+        {
+            filing.report_date
+            for _broadcast, filing in eligible
+            if is_standard_quarter_end(filing.report_date)
+        },
+        reverse=True,
+    )
+    if not quarter_dates:
+        return ()
+    current_date = quarter_dates[0]
+    prior_date = previous_quarter_end(current_date)
+    current = select_latest_revision_for_report_date(
+        payload,
+        symbol=symbol,
+        report_date=current_date,
+        as_of_utc=as_of_utc,
+    )
+    prior = select_latest_revision_for_report_date(
+        payload,
+        symbol=symbol,
+        report_date=prior_date,
+        as_of_utc=as_of_utc,
+    )
+    if current is None:
+        return ()
+    if prior is None:
+        return (current,)
+    return (current, prior)
 
 
 def parse_mutual_fund_ownership_xbrl(raw: bytes) -> MutualFundOwnership:
@@ -204,7 +288,8 @@ def parser_contract() -> dict[str, Any]:
         "unit_ref": "pure",
         "value_semantics": "fraction_of_total_shares",
         "percentage_conversion": "fraction * 100",
-        "signal_primitive": "current_percentage - prior_distinct_report_percentage",
-        "filing_order": "NSE broadcastDate descending, latest revision per distinct report date",
         "availability_timestamp": "NSE broadcastDate interpreted as Asia/Kolkata",
+        "eligible_report_dates": "standard calendar quarter ends only",
+        "prior_period": "immediately previous calendar quarter end",
+        "revision_selection": "latest public broadcast for each selected report date as of evaluation",
     }
