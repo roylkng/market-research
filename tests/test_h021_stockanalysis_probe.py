@@ -86,12 +86,13 @@ def test_inspector_fails_on_missing_financial_marker() -> None:
     assert not result["probe_pass"]
 
 
-def test_legacy_semantics_audit_reports_missing_currency_fields_explicitly() -> None:
+def test_legacy_semantics_audit_reports_currency_and_period_completeness() -> None:
     snapshot = {
         "observations": [
             {
                 "symbol": "INFY",
-                "fiscal_period": "FY27",
+                "fiscal_period": "FY2027",
+                "period_ending": "2027-03-31",
                 "consensus_eps": 0.86,
                 "analyst_count": 42,
                 "source_url": "https://stockanalysis.com/quote/nse/INFY/forecast/",
@@ -100,24 +101,27 @@ def test_legacy_semantics_audit_reports_missing_currency_fields_explicitly() -> 
             },
             {
                 "symbol": "WIPRO",
-                "fiscal_period": "FY27",
+                "fiscal_period": "FY2027",
+                "period_ending": "2027-03-31",
                 "consensus_eps": 13.31,
                 "analyst_count": 39,
                 "source_url": "https://stockanalysis.com/quote/nse/WIPRO/forecast/",
                 "source_status": "OBSERVED",
                 "source_observed_market_date": "2026-09-11",
-                "financial_currency": "INR",
+                "eps_currency": "INR",
             },
         ]
     }
 
     audit = audit_legacy_snapshot_semantics(snapshot, ["INFY", "WIPRO", "MISSING"])
 
-    assert audit["semantic_field_names"] == ["financial_currency"]
+    assert audit["semantic_field_names"] == ["eps_currency"]
     assert audit["rows_with_non_null_semantic_field"] == 1
+    assert audit["rows_with_period_ending"] == 2
     assert audit["selected_symbols"][0]["symbol"] == "INFY"
-    assert "financial_currency" not in audit["selected_symbols"][0]
-    assert audit["selected_symbols"][1]["financial_currency"] == "INR"
+    assert audit["selected_symbols"][0]["period_ending"] == "2027-03-31"
+    assert "eps_currency" not in audit["selected_symbols"][0]
+    assert audit["selected_symbols"][1]["eps_currency"] == "INR"
     assert audit["selected_symbols"][2] == {"symbol": "MISSING", "present": False}
 
 
