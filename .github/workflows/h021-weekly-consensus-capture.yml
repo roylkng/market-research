@@ -1,0 +1,163 @@
+name: H021 weekly consensus capture
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 18:15 Asia/Kolkata. The frozen NSE calendar decides whether today is
+    # the final completed cash-market session of the week.
+    - cron: '45 12 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-weekly-consensus-capture
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate H021 acquisition and sealing invariants
+        run: |
+          pytest -q \
+            tests/test_h021_stockanalysis_parser.py \
+            tests/test_h021_stockanalysis_acquisition.py \
+            tests/test_h021_weekly_calendar_contract.py \
+            tests/test_h021_capture_draft.py \
+            tests/test_h021_capture_sealing.py \
+            tests/test_h021.py \
+            tests/test_h021_compare_cli.py
+
+      - name: Resolve India date and weekly session gate
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="$(python - <<'PY'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          print(datetime.now(ZoneInfo('Asia/Kolkata')).date().isoformat())
+          PY
+          )"
+          WORK="reports/h021-weekly-acquisition/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          python scripts/check_h021_weekly_session.py \
+            --capture-date "$CAPTURE_DATE" \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --out "$WORK/session-decision.json"
+          STATE="$(python - "$WORK/session-decision.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          payload = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          print(payload['state'])
+          PY
+          )"
+          echo "capture_date=$CAPTURE_DATE" >> "$GITHUB_OUTPUT"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "work_dir=$WORK" >> "$GITHUB_OUTPUT"
+          echo "H021 weekly gate: date=$CAPTURE_DATE state=$STATE"
+
+      - name: Acquire frozen U001 consensus observations
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.gate.outputs.work_dir }}"
+          python scripts/acquire_h021_weekly_capture.py \
+            --capture-date "${{ steps.gate.outputs.capture_date }}" \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --batches research/prospective/h021/capture-batches-v1.json \
+            --anchor research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz \
+            --config research/prospective/h021/weekly-acquisition-v1.json \
+            --out-draft "$WORK/capture-draft.json" \
+            --out-evidence "$WORK/source-evidence.json"
+
+      - name: Seal immutable H021 capture
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.gate.outputs.work_dir }}"
+          python scripts/seal_h021_capture.py \
+            --draft "$WORK/capture-draft.json" \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --batches research/prospective/h021/capture-batches-v1.json \
+            --out-dir research/prospective/h021/captures
+
+      - name: Build primary revision cohort when the frozen window exists
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          if [[ "$CAPTURE_DATE" < "2026-10-09" ]]; then
+            echo "No H021 primary comparison is permitted before 2026-10-09"
+            exit 0
+          fi
+          mkdir -p research/prospective/h021/comparisons
+          python scripts/compare_h021_captures.py \
+            --capture-dir research/prospective/h021/captures \
+            --current "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
+            --out "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json"
+
+      - name: Refuse to anchor observations on changed rules
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          START_SHA="${GITHUB_SHA}"
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+          if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+            echo "main moved during H021 acquisition; refusing to attach observations to changed rules"
+            echo "start=$START_SHA current_main=$CURRENT_MAIN"
+            exit 1
+          fi
+
+      - name: Anchor immutable capture and source evidence
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          WORK="${{ steps.gate.outputs.work_dir }}"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/h021/captures "$WORK/session-decision.json" "$WORK/source-evidence.json"
+          if [ -d research/prospective/h021/comparisons ]; then
+            git add research/prospective/h021/comparisons
+          fi
+          if git diff --cached --quiet; then
+            echo "No new H021 weekly evidence to anchor"
+            exit 0
+          fi
+          git commit -m "H021: seal weekly consensus capture ${CAPTURE_DATE} [skip ci]"
+          git push origin HEAD:main
+
+      - name: Upload acquisition evidence
+        if: always() && steps.gate.outputs.state == 'CAPTURE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-weekly-consensus-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.gate.outputs.work_dir }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Report no-capture day
+        if: steps.gate.outputs.state != 'CAPTURE'
+        run: |
+          echo "No H021 capture today: ${{ steps.gate.outputs.state }}"
