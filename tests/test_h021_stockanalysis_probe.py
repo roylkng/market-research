@@ -40,11 +40,11 @@ Disallow: /p/
 
 def test_inspector_requires_identity_and_frozen_markers() -> None:
     body = (
-        "<html><body><h1>Reliance Industries Limited (NSE:RELIANCE)</h1>"
-        "<h2>Financial Forecast</h2><p>EPS Forecast</p><p>Revenue Forecast</p>"
-        "<p>No. Analysts</p><p>Data Source: S&P Global Market Intelligence</p>"
-        "</body></html>"
-    ).encode()
+        b"<html><body><h1>Reliance Industries Limited (NSE:RELIANCE)</h1>"
+        b"<h2>Financial Forecast</h2><p>EPS Forecast</p><p>Revenue Forecast</p>"
+        b"<p>No. Analysts</p><p>Data Source: S&P Global Market Intelligence</p>"
+        b"</body></html>"
+    )
     result = inspect_forecast_page(
         symbol="RELIANCE",
         requested_url=forecast_url("RELIANCE"),
@@ -71,9 +71,9 @@ def test_inspector_requires_identity_and_frozen_markers() -> None:
 
 def test_inspector_fails_on_missing_financial_marker() -> None:
     body = (
-        "<html><body>NSE:RELIANCE Financial Forecast EPS Forecast Revenue Forecast "
-        "No. Analysts</body></html>"
-    ).encode()
+        b"<html><body>NSE:RELIANCE Financial Forecast EPS Forecast Revenue Forecast "
+        b"No. Analysts</body></html>"
+    )
     result = inspect_forecast_page(
         symbol="RELIANCE",
         requested_url=forecast_url("RELIANCE"),
