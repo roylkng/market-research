@@ -7,10 +7,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from marketlab.universe import load_universe_snapshot
 from probe_h023_nse_shareholding import _request_with_retries, _session
 from probe_h023_nse_shareholding_ixbrl import _rows
 from probe_h023_nse_shareholding_xbrl import _fetch, _inventory_xbrl_records
+
+from marketlab.universe import load_universe_snapshot
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -43,9 +44,19 @@ def _availability_metadata(inventory: list[dict[str, Any]]) -> dict[str, Any]:
                 keys[str(key)] += 1
                 text = str(value or "")
                 key_lower = str(key).casefold()
-                if any(token in key_lower for token in ("date", "time", "broadcast", "filing", "submit", "receipt", "report")):
-                    if ":" in text or "t" in text.casefold():
-                        timestamp_like.append({"key": str(key), "value": text[:200]})
+                if any(
+                    token in key_lower
+                    for token in (
+                        "date",
+                        "time",
+                        "broadcast",
+                        "filing",
+                        "submit",
+                        "receipt",
+                        "report",
+                    )
+                ) and (":" in text or "t" in text.casefold()):
+                    timestamp_like.append({"key": str(key), "value": text[:200]})
     return {
         "scalar_key_counts": dict(keys.most_common()),
         "timestamp_like_candidates": timestamp_like[:50],
