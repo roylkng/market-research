@@ -23,6 +23,34 @@ FISCAL_YEAR_RE = re.compile(r"^FY\s*(\d{4})$", re.IGNORECASE)
 MISSING_MARKERS = {"", "-", "--", "—", "N/A", "NA", "n/a"}
 
 
+class ForecastParseError(ValueError):
+    """Base class for fail-closed StockAnalysis forecast parser errors."""
+
+
+class ForecastIdentityError(ForecastParseError):
+    """The retrieved page cannot be tied to the frozen NSE identity."""
+
+
+class ForecastProviderError(ForecastParseError):
+    """The frozen S&P Global provider marker is absent."""
+
+
+class ForecastLayoutError(ForecastParseError):
+    """The annual forecast layout no longer matches the frozen parser contract."""
+
+
+class ForecastTargetPeriodError(ForecastParseError):
+    """The exact frozen fiscal period/period-ending column is unavailable."""
+
+
+class ForecastEpsError(ForecastParseError):
+    """The exact target annual consensus EPS is unavailable or unparsable."""
+
+
+class ForecastCurrencyError(ForecastParseError):
+    """The EPS currency is unavailable, ambiguous, or conflicting."""
+
+
 @dataclass(frozen=True)
 class ParsedAnnualForecast:
     symbol: str
@@ -114,7 +142,10 @@ def _row_key(value: str) -> str:
 def _table_rows(table) -> dict[str, list[str]]:
     rows: dict[str, list[str]] = {}
     for tr in table.find_all("tr"):
-        cells = [_clean(cell.get_text(" ", strip=True)) for cell in tr.find_all(["th", "td"])]
+        cells = [
+            _clean(cell.get_text(" ", strip=True))
+            for cell in tr.find_all(["th", "td"])
+        ]
         if len(cells) < 2:
             continue
         key = _row_key(cells[0])
@@ -131,7 +162,7 @@ def _find_financial_rows(soup: BeautifulSoup) -> dict[str, list[str]]:
         if required.issubset(rows):
             candidates.append(rows)
     if len(candidates) != 1:
-        raise ValueError(
+        raise ForecastLayoutError(
             f"expected exactly one annual financial forecast table; found {len(candidates)}"
         )
     return candidates[0]
@@ -144,13 +175,21 @@ def _extract_forecast_currency(page_text: str) -> str | None:
     return match.group(1).upper()
 
 
+def forecast_currency_from_html(html: bytes) -> str | None:
+    soup = BeautifulSoup(html, "html.parser")
+    page_text = _clean(soup.get_text(" ", strip=True))
+    return _extract_forecast_currency(page_text)
+
+
 def _extract_financials_currency(page_text: str) -> str | None:
     matches: set[str] = set()
     for pattern in FINANCIALS_CURRENCY_PATTERNS:
         for match in pattern.finditer(page_text):
             matches.add(match.group(1).upper())
     if len(matches) > 1:
-        raise ValueError(f"financials page exposes conflicting currencies: {sorted(matches)}")
+        raise ForecastCurrencyError(
+            f"financials page exposes conflicting currencies: {sorted(matches)}"
+        )
     return next(iter(matches)) if matches else None
 
 
@@ -166,7 +205,7 @@ def _resolve_currency(
         _extract_financials_currency(financials_text) if financials_text is not None else None
     )
     if forecast_currency and financials_currency and forecast_currency != financials_currency:
-        raise ValueError(
+        raise ForecastCurrencyError(
             "forecast and financials pages disagree on financial currency: "
             f"{forecast_currency} != {financials_currency}"
         )
@@ -174,7 +213,7 @@ def _resolve_currency(
         return forecast_currency, forecast_source_url
     if financials_currency is not None and financials_source_url is not None:
         return financials_currency, financials_source_url
-    raise ValueError("financial forecast/reporting currency marker not found")
+    raise ForecastCurrencyError("financial forecast/reporting currency marker not found")
 
 
 def _column_index(
@@ -191,7 +230,7 @@ def _column_index(
         if fiscal == expected_fiscal_period and period == expected_period_ending:
             matches.append(index)
     if len(matches) != 1:
-        raise ValueError(
+        raise ForecastTargetPeriodError(
             "expected exactly one matching annual forecast column for "
             f"{expected_fiscal_period}/{expected_period_ending}; found {len(matches)}"
         )
@@ -201,7 +240,7 @@ def _column_index(
 def _value_at(rows: dict[str, list[str]], key: str, index: int) -> str:
     values = rows[key]
     if index >= len(values):
-        raise ValueError(f"forecast row {key!r} is shorter than target column")
+        raise ForecastLayoutError(f"forecast row {key!r} is shorter than target column")
     return values[index]
 
 
@@ -215,7 +254,11 @@ def parse_annual_forecast(
     financials_html: bytes | None = None,
     financials_source_url: str | None = None,
 ) -> ParsedAnnualForecast:
-    if date.fromisoformat(expected_period_ending).isoformat() != expected_period_ending:
+    try:
+        parsed_period_ending = date.fromisoformat(expected_period_ending).isoformat()
+    except (TypeError, ValueError) as exc:
+        raise ValueError("expected_period_ending must be canonical ISO YYYY-MM-DD") from exc
+    if parsed_period_ending != expected_period_ending:
         raise ValueError("expected_period_ending must be canonical ISO YYYY-MM-DD")
     if normalize_fiscal_period(expected_fiscal_period) != expected_fiscal_period:
         raise ValueError("expected_fiscal_period must be canonical FYyyyy")
@@ -224,16 +267,18 @@ def parse_annual_forecast(
     page_text = _clean(soup.get_text(" ", strip=True))
     identity = f"NSE:{stockanalysis_symbol(symbol)}"
     if identity not in page_text:
-        raise ValueError(f"page identity marker missing: {identity}")
+        raise ForecastIdentityError(f"page identity marker missing: {identity}")
     if PROVIDER_MARKER not in page_text:
-        raise ValueError("S&P Global Market Intelligence provider marker missing")
+        raise ForecastProviderError("S&P Global Market Intelligence provider marker missing")
 
     financials_text: str | None = None
     if financials_html is not None:
         financials_soup = BeautifulSoup(financials_html, "html.parser")
         financials_text = _clean(financials_soup.get_text(" ", strip=True))
         if identity not in financials_text:
-            raise ValueError(f"financials page identity marker missing: {identity}")
+            raise ForecastIdentityError(
+                f"financials page identity marker missing: {identity}"
+            )
 
     rows = _find_financial_rows(soup)
     index = _column_index(
@@ -244,7 +289,7 @@ def parse_annual_forecast(
     )
     eps = _parse_float(_value_at(rows, "eps", index))
     if eps is None:
-        raise ValueError("target annual consensus EPS is unavailable or unparsable")
+        raise ForecastEpsError("target annual consensus EPS is unavailable or unparsable")
 
     revenue_growth = _parse_percent(_value_at(rows, "revenue growth", index))
     analyst_count = _parse_int(_value_at(rows, "no analysts", index))
