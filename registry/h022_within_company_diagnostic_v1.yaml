@@ -1,0 +1,89 @@
+schema_version: 1
+id: H022-D005
+hypothesis_id: H022
+status: FROZEN_POST_OUTCOME_DIAGNOSTIC
+created: 2026-09-14
+live_capital_allowed: false
+can_upgrade_h022_validation: false
+
+purpose: >-
+  Test whether H022 predicts 60-session excess returns from event-to-event variation
+  inside the same company, rather than from persistent company identity or source
+  characteristics. D005 is explanatory post-outcome analysis only.
+
+frozen_input:
+  d004_panel:
+    path: research/historical/h022/dependence-diagnostic-v1/diagnostic-panel.json
+    panel_sha256: e776474d6406cc40aedf0c3ce10d7caf87c2b0e86bc6af99d5df717d5980fcab
+    git_blob_sha: fc4ce62c661f6869fb0ec2561f5bea1947463aff
+    record_count: 559
+  primary_horizon_sessions: 60
+
+shared_rules:
+  no_return_winsorization: true
+  no_H022_feature_change: true
+  signal_standardization: >-
+    Standardize H022 once using the mean and population standard deviation of all 559
+    D004 rows, then use that common scale before within-company demeaning.
+  company_eligibility: at least 2 complete events
+  bootstrap:
+    cluster: company
+    iterations: 10000
+    seed: 22027
+    interval: percentile_95
+
+estimators:
+  company_fixed_effect:
+    transformation: >-
+      For eligible companies, subtract each company's mean z(H022) from each event and
+      subtract each company's mean future_60d_excess_pp from each event. Regress demeaned
+      future excess on demeaned z(H022) through the origin.
+    minimum_symbols: 100
+    minimum_rows: 300
+    report:
+      - slope_pp_per_full_panel_signal_sd
+      - within_spearman
+      - bootstrap_ci_95
+  nonoverlap_company_fixed_effect:
+    selection: >-
+      Reuse the frozen H022-D004 greedy same-company non-overlap rule before applying the
+      company fixed-effect transformation. Keep only symbols with at least 2 retained events.
+    minimum_symbols: 70
+    minimum_rows: 180
+    report:
+      - slope_pp_per_full_panel_signal_sd
+      - within_spearman
+      - bootstrap_ci_95
+  highest_vs_lowest_signal_pair:
+    selection: >-
+      For every eligible company with non-tied H022 values, select the event with the
+      highest H022 signal and the event with the lowest H022 signal. Break signal ties by
+      source_id. Compute future excess at the highest-signal event minus future excess at
+      the lowest-signal event. Future return may not affect event selection.
+    minimum_pairs: 100
+    report:
+      - mean_high_minus_low_excess_pp
+      - median_high_minus_low_excess_pp
+      - positive_pair_share
+      - company_bootstrap_mean_ci_95
+
+classification:
+  DATA_INSUFFICIENT: >-
+    Full within-company sample has fewer than 100 symbols or 300 rows, non-overlap sample
+    has fewer than 70 symbols or 180 rows, or fewer than 100 non-tied high-low pairs exist.
+  WITHIN_POSITIVE: >-
+    Full company-fixed-effect slope, non-overlap company-fixed-effect slope, and mean
+    highest-minus-lowest future-excess difference are all strictly positive.
+  WITHIN_SIGN_UNSTABLE: otherwise
+  bootstrap_support:
+    ALL_INTERVALS_POSITIVE: all three 95% bootstrap lower bounds are > 0
+    MIXED_OR_UNCERTAIN: otherwise
+
+research_boundaries:
+  - post_outcome_diagnostic_only
+  - no_H022_R001_feature_change
+  - no_H022_X001_execution_or_promotion_threshold_change
+  - no_new_selection_filter_promoted_from_this_result
+  - no_size_or_free_float_conditioning_in_D005
+  - no_live_capital
+  - D005_can_only_inform_robustness_and_next_falsification
