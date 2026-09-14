@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass
 from datetime import date, datetime
+from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 
@@ -37,8 +38,6 @@ class ParsedAnnualForecast:
 
 
 def forecast_url(symbol: str) -> str:
-    from urllib.parse import quote
-
     if not isinstance(symbol, str) or not symbol.strip():
         raise ValueError("symbol must be a non-empty string")
     encoded = quote(symbol.strip(), safe="-")
@@ -46,8 +45,6 @@ def forecast_url(symbol: str) -> str:
 
 
 def financials_url(symbol: str) -> str:
-    from urllib.parse import quote
-
     if not isinstance(symbol, str) or not symbol.strip():
         raise ValueError("symbol must be a non-empty string")
     encoded = quote(symbol.strip(), safe="-")
