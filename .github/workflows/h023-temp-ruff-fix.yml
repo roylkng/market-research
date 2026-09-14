@@ -1,0 +1,37 @@
+name: H023 temporary Ruff fix
+
+on:
+  push:
+    branches:
+      - research/h023-prospective-v1-20260914
+    paths:
+      - '.github/workflows/h023-temp-ruff-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h023-prospective-v1-20260914
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Apply safe Ruff fixes only
+        run: ruff check --fix src/marketlab/h023_prospective.py
+      - name: Commit formatter-only change
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          if ! git diff --quiet -- src/marketlab/h023_prospective.py; then
+            git add src/marketlab/h023_prospective.py
+            git commit -m "H023: apply safe Ruff fix to prospective core"
+            git push origin HEAD:research/h023-prospective-v1-20260914
+          fi
