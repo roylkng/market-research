@@ -10,7 +10,8 @@ on:
       - 'scripts/probe_h023_full_u001_ownership.py'
       - 'scripts/probe_h023_nse_shareholding.py'
       - 'scripts/probe_h023_nse_shareholding_xbrl.py'
-      - 'scripts/probe_h023_nse_shareholding_ixbrl.py'
+      - 'src/marketlab/h023_ownership.py'
+      - 'tests/test_h023_ownership.py'
 
 permissions:
   contents: write
@@ -32,13 +33,16 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Lint source-only probes
+      - name: Lint source-only parser and probe
         run: |
           ruff check \
+            src/marketlab/h023_ownership.py \
+            tests/test_h023_ownership.py \
             scripts/probe_h023_nse_shareholding.py \
             scripts/probe_h023_nse_shareholding_xbrl.py \
-            scripts/probe_h023_nse_shareholding_ixbrl.py \
             scripts/probe_h023_full_u001_ownership.py
+      - name: Test frozen parser contract
+        run: pytest -q tests/test_h023_ownership.py
       - name: Probe full frozen U001
         shell: bash
         run: |
