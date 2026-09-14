@@ -64,7 +64,10 @@ def _source(
         "xbrl_url": f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml",
         "master_row_sha256": master_row_sha256,
     }
-    return {"source_id": canonical_hash(payload), **{k: v for k, v in payload.items() if k != "source_contract_id"}}
+    return {
+        "source_id": canonical_hash(payload),
+        **{k: v for k, v in payload.items() if k != "source_contract_id"},
+    }
 
 
 def _ready(source: dict, percentage: float) -> dict:
@@ -193,7 +196,7 @@ def test_signal_record_uses_raw_percentage_point_delta_and_is_immutable() -> Non
     assert event_exists(event_ledger, symbol="S000", report_date="2026-09-30")
     assert append_event(event_ledger, copy.deepcopy(record)) == event_ledger
     changed = copy.deepcopy(record)
-    changed["mf_ownership_delta_pp"] = 2.0
+    changed["signal_frozen_at_utc"] = "2026-10-20T08:03:00Z"
     changed["record_sha256"] = canonical_hash(
         {k: v for k, v in changed.items() if k != "record_sha256"}
     )
@@ -292,7 +295,8 @@ def test_source_identity_drift_is_rejected() -> None:
 def test_scan_requires_exact_100_member_accounting() -> None:
     universe = _universe()
     master_hashes = {
-        row["symbol"]: canonical_hash({"master": row["symbol"]}) for row in universe["members"]
+        row["symbol"]: canonical_hash({"master": row["symbol"]})
+        for row in universe["members"]
     }
     source_ids = {row["symbol"]: [] for row in universe["members"]}
     record = build_scan_record(
