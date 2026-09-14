@@ -67,7 +67,7 @@ jobs:
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add research/probes/h023/nse-shareholding-full-u001-v1.json
           if ! git diff --cached --quiet; then
-            git commit -m "H023: anchor full-U001 ownership source audit [skip ci]"
+            git commit -m "H023: anchor full-U001 adjacent-quarter ownership audit"
             git push origin HEAD:research/h023-ownership-source-probe-v1-20260914
           fi
       - name: Upload full source-only evidence
