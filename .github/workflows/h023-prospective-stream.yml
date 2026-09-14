@@ -41,12 +41,17 @@ jobs:
           ruff check \
             src/marketlab/h023_ownership.py \
             src/marketlab/h023_prospective.py \
+            src/marketlab/h023_selection.py \
             src/marketlab/h023_acquisition.py \
             scripts/run_h023_prospective_scan.py \
             scripts/verify_h023_prospective_state.py \
             tests/test_h023_ownership.py \
-            tests/test_h023_prospective.py
-          pytest -q tests/test_h023_ownership.py tests/test_h023_prospective.py
+            tests/test_h023_prospective.py \
+            tests/test_h023_selection.py
+          pytest -q \
+            tests/test_h023_ownership.py \
+            tests/test_h023_prospective.py \
+            tests/test_h023_selection.py
           python scripts/verify_h023_prospective_state.py \
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --state-dir research/prospective/h023
