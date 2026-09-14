@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 MF_CONTEXT_REF = "MutualFundsOrUTI_ContextI"
 MF_SHAREHOLDING_CONCEPT = "ShareholdingAsAPercentageOfTotalNumberOfShares"
+MF_DETAIL_AXIS = "DetailsOfSharesHeldByMutualFundsOrUTIAxis"
 BROADCAST_FORMAT = "%d-%b-%Y %H:%M:%S"
 REPORT_DATE_FORMAT = "%d-%b-%Y"
 STANDARD_QUARTER_ENDS = frozenset({(3, 31), (6, 30), (9, 30), (12, 31)})
@@ -36,6 +37,7 @@ class MutualFundOwnership:
     context_ref: str
     concept: str
     unit_ref: str
+    report_date: str
     fraction: float
     percentage: float
 
@@ -49,6 +51,10 @@ def _local_name(tag: str) -> str:
     if ":" in tag:
         return tag.rsplit(":", 1)[1]
     return tag
+
+
+def _qname_local(value: str) -> str:
+    return value.rsplit(":", 1)[-1]
 
 
 def _text(value: object) -> str:
@@ -73,6 +79,16 @@ def _parse_report_date(value: object) -> date:
         return datetime.strptime(text.upper(), REPORT_DATE_FORMAT).replace(tzinfo=IST).date()
     except ValueError as exc:
         raise H023OwnershipError(f"invalid NSE shareholding report date: {text}") from exc
+
+
+def _parse_canonical_report_date(value: str) -> date:
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as exc:
+        raise H023OwnershipError(f"invalid canonical report date: {value}") from exc
+    if (parsed.month, parsed.day) not in STANDARD_QUARTER_ENDS:
+        raise H023OwnershipError(f"report date is not a standard quarter end: {value}")
+    return parsed
 
 
 def _parse_as_of(value: str | None) -> datetime | None:
@@ -107,10 +123,7 @@ def is_standard_quarter_end(report_date: str) -> bool:
 
 
 def previous_quarter_end(report_date: str) -> str:
-    try:
-        parsed = date.fromisoformat(report_date)
-    except ValueError as exc:
-        raise H023OwnershipError(f"invalid canonical report date: {report_date}") from exc
+    parsed = _parse_canonical_report_date(report_date)
     key = (parsed.month, parsed.day)
     if key == (3, 31):
         return date(parsed.year - 1, 12, 31).isoformat()
@@ -120,7 +133,7 @@ def previous_quarter_end(report_date: str) -> str:
         return date(parsed.year, 6, 30).isoformat()
     if key == (12, 31):
         return date(parsed.year, 9, 30).isoformat()
-    raise H023OwnershipError(f"report date is not a standard quarter end: {report_date}")
+    raise AssertionError("standard quarter-end dispatch is incomplete")
 
 
 def _eligible_filings(
@@ -177,8 +190,7 @@ def select_latest_revision_for_report_date(
     report_date: str,
     as_of_utc: str | None = None,
 ) -> OwnershipFiling | None:
-    if not is_standard_quarter_end(report_date):
-        raise H023OwnershipError(f"report date is not a standard quarter end: {report_date}")
+    _parse_canonical_report_date(report_date)
     matches = [
         item
         for item in _eligible_filings(payload, symbol=symbol, as_of_utc=as_of_utc)
@@ -228,19 +240,73 @@ def select_latest_adjacent_quarter_filings(
     return (current, prior)
 
 
-def parse_mutual_fund_ownership_xbrl(raw: bytes) -> MutualFundOwnership:
+def _exact_context(root: ET.Element) -> ET.Element:
+    matches = [
+        element
+        for element in root.iter()
+        if _local_name(element.tag).casefold() == "context"
+        and element.attrib.get("id") == MF_CONTEXT_REF
+    ]
+    if len(matches) != 1:
+        raise H023OwnershipError(
+            f"expected one exact Mutual Fund context {MF_CONTEXT_REF}, found {len(matches)}"
+        )
+    return matches[0]
+
+
+def _context_instant(context: ET.Element) -> date:
+    values = [
+        _text(element.text)
+        for element in context.iter()
+        if _local_name(element.tag).casefold() == "instant" and _text(element.text)
+    ]
+    if len(values) != 1:
+        raise H023OwnershipError(
+            f"expected one instant in Mutual Fund context, found {len(values)}"
+        )
+    try:
+        return date.fromisoformat(values[0])
+    except ValueError as exc:
+        raise H023OwnershipError(
+            f"invalid Mutual Fund context instant: {values[0]}"
+        ) from exc
+
+
+def _validate_detail_axis_semantics(root: ET.Element) -> None:
+    observed: set[str] = set()
+    for element in root.iter():
+        if _local_name(element.tag).casefold() != "typedmember":
+            continue
+        dimension = _text(element.attrib.get("dimension"))
+        local = _qname_local(dimension)
+        if "MutualFundsOrUTI" in local:
+            observed.add(local)
+    unexpected = observed - {MF_DETAIL_AXIS}
+    if unexpected:
+        raise H023OwnershipError(
+            "unexpected Mutual Fund XBRL detail axis: " + ", ".join(sorted(unexpected))
+        )
+
+
+def parse_mutual_fund_ownership_xbrl(
+    raw: bytes,
+    *,
+    expected_report_date: str,
+) -> MutualFundOwnership:
+    expected = _parse_canonical_report_date(expected_report_date)
     try:
         root = ET.fromstring(raw)
     except ET.ParseError as exc:
         raise H023OwnershipError(f"invalid NSE shareholding XML: {exc}") from exc
 
-    context_ids = {
-        element.attrib.get("id")
-        for element in root.iter()
-        if _local_name(element.tag).casefold() == "context" and element.attrib.get("id")
-    }
-    if MF_CONTEXT_REF not in context_ids:
-        raise H023OwnershipError(f"missing exact Mutual Fund context: {MF_CONTEXT_REF}")
+    context = _exact_context(root)
+    context_instant = _context_instant(context)
+    if context_instant != expected:
+        raise H023OwnershipError(
+            "Mutual Fund context period does not match NSE master report date: "
+            f"{context_instant.isoformat()} != {expected.isoformat()}"
+        )
+    _validate_detail_axis_semantics(root)
 
     matches: list[ET.Element] = []
     for element in root.iter():
@@ -269,12 +335,19 @@ def parse_mutual_fund_ownership_xbrl(raw: bytes) -> MutualFundOwnership:
         context_ref=MF_CONTEXT_REF,
         concept=MF_SHAREHOLDING_CONCEPT,
         unit_ref="pure",
+        report_date=expected.isoformat(),
         fraction=fraction,
         percentage=fraction * 100.0,
     )
 
 
 def ownership_delta_pp(current: MutualFundOwnership, prior: MutualFundOwnership) -> float:
+    current_date = _parse_canonical_report_date(current.report_date)
+    prior_date = _parse_canonical_report_date(prior.report_date)
+    if previous_quarter_end(current_date.isoformat()) != prior_date.isoformat():
+        raise H023OwnershipError(
+            "Mutual Fund ownership delta requires adjacent calendar quarters"
+        )
     result = current.percentage - prior.percentage
     if not math.isfinite(result):
         raise H023OwnershipError("Mutual Fund ownership delta is non-finite")
@@ -288,6 +361,11 @@ def parser_contract() -> dict[str, Any]:
         "unit_ref": "pure",
         "value_semantics": "fraction_of_total_shares",
         "percentage_conversion": "fraction * 100",
+        "context_period": "exact xbrli:instant equals selected NSE master report date",
+        "detail_axis_guard": (
+            "when Mutual Fund typed-member detail contexts exist, their dimension local-name "
+            f"must equal {MF_DETAIL_AXIS}"
+        ),
         "availability_timestamp": "NSE broadcastDate interpreted as Asia/Kolkata",
         "eligible_report_dates": "standard calendar quarter ends only",
         "prior_period": "immediately previous calendar quarter end",
