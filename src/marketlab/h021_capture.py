@@ -4,6 +4,7 @@ import gzip
 import hashlib
 import io
 import json
+import re
 from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -29,6 +30,10 @@ CANONICAL_UNIVERSE_BLOB_SHA = "8026e81faee3e913d2fba1dba72d60603b69fa07"
 CANONICAL_PROTOCOL_PATH = "research/H021_PROSPECTIVE_PROTOCOL_V1.md"
 CANONICAL_COMPARISON_CONTRACT_PATH = "research/H021_COMPARISON_CONTRACT_V1.md"
 CANONICAL_BATCH_SPEC_PATH = "research/prospective/h021/capture-batches-v1.json"
+SEALER_VERSION = "H021_CAPTURE_SEALER_V1"
+CAPTURE_ID_RE = re.compile(
+    r"^(?P<date>\d{4}-\d{2}-\d{2})-full-u001-v(?P<version>[1-9]\d*)$"
+)
 IST = ZoneInfo("Asia/Kolkata")
 
 
@@ -62,7 +67,7 @@ def _parse_utc_timestamp(value: object) -> datetime | None:
     if not isinstance(value, str):
         return None
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError:
         return None
     if parsed.tzinfo is None or parsed.utcoffset() != timedelta(0):
@@ -101,7 +106,11 @@ def validate_capture_inputs(universe: dict, batch_spec: dict) -> list[str]:
         return ["universe members must be a list"]
 
     expected_count = batch_spec.get("expected_member_count")
-    if not isinstance(expected_count, int) or expected_count <= 0:
+    if (
+        not isinstance(expected_count, int)
+        or isinstance(expected_count, bool)
+        or expected_count <= 0
+    ):
         errors.append("batch expected_member_count must be a positive integer")
     elif len(members) != expected_count:
         errors.append(
@@ -122,7 +131,7 @@ def validate_capture_inputs(universe: dict, batch_spec: dict) -> list[str]:
             errors.append(f"universe member[{index}] invalid symbol")
         else:
             symbols.append(symbol)
-        if not isinstance(rank, int) or rank <= 0:
+        if not isinstance(rank, int) or isinstance(rank, bool) or rank <= 0:
             errors.append(f"universe member[{index}] invalid rank")
         else:
             ranks.append(rank)
@@ -135,7 +144,7 @@ def validate_capture_inputs(universe: dict, batch_spec: dict) -> list[str]:
         errors.append("universe contains duplicate symbols")
     if len(ranks) != len(set(ranks)):
         errors.append("universe contains duplicate ranks")
-    if expected_count and sorted(ranks) != list(range(1, expected_count + 1)):
+    if isinstance(expected_count, int) and sorted(ranks) != list(range(1, expected_count + 1)):
         errors.append("universe ranks must cover 1..expected_member_count exactly once")
 
     if batch_spec.get("universe_path") != CANONICAL_UNIVERSE_PATH:
@@ -153,9 +162,32 @@ def _identity_maps(universe: dict) -> tuple[dict[str, dict], set[str]]:
     return by_symbol, set(by_symbol)
 
 
+def _validate_capture_id(snapshot: dict) -> list[str]:
+    logical_capture_id = snapshot.get("logical_capture_id")
+    if not isinstance(logical_capture_id, str):
+        return ["logical_capture_id must match YYYY-MM-DD-full-u001-vN"]
+
+    match = CAPTURE_ID_RE.fullmatch(logical_capture_id)
+    if match is None:
+        return ["logical_capture_id must match YYYY-MM-DD-full-u001-vN"]
+
+    errors: list[str] = []
+    capture_date = snapshot.get("capture_date_ist")
+    if match.group("date") != capture_date:
+        errors.append("logical_capture_id date must equal capture_date_ist")
+
+    version = int(match.group("version"))
+    if version > 1:
+        reason = snapshot.get("correction_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            errors.append("capture versions greater than v1 require a correction_reason")
+    return errors
+
+
 def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> list[str]:
     errors = list(validate_snapshot(snapshot))
     errors.extend(validate_capture_inputs(universe, batch_spec))
+    errors.extend(_validate_capture_id(snapshot))
 
     if snapshot.get("source_version") != CANONICAL_SOURCE_VERSION:
         errors.append("source_version does not match frozen H021 source version")
@@ -169,10 +201,6 @@ def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> l
         errors.append("comparison_contract_path does not match frozen H021 comparison contract")
     if snapshot.get("batch_spec_path") != CANONICAL_BATCH_SPEC_PATH:
         errors.append("batch_spec_path does not match frozen H021 batch spec")
-
-    logical_capture_id = snapshot.get("logical_capture_id")
-    if not isinstance(logical_capture_id, str) or not logical_capture_id.strip():
-        errors.append("logical_capture_id must be a non-empty string")
 
     captured_at = _parse_utc_timestamp(snapshot.get("captured_at_utc"))
     capture_date_raw = snapshot.get("capture_date_ist")
@@ -197,7 +225,11 @@ def validate_full_capture(snapshot: dict, universe: dict, batch_spec: dict) -> l
 
     universe_by_symbol, universe_symbols = _identity_maps(universe)
     observed_symbols = {
-        row.get("symbol") for row in observations if isinstance(row, dict) and row.get("symbol")
+        symbol
+        for row in observations
+        if isinstance(row, dict)
+        for symbol in [row.get("symbol")]
+        if isinstance(symbol, str) and symbol
     }
     missing_symbols = sorted(universe_symbols - observed_symbols)
     extra_symbols = sorted(observed_symbols - universe_symbols)
@@ -318,8 +350,10 @@ def _report(snapshot: dict, summary: dict, batches: list[dict], payload_sha: str
             "",
             f"Analyst count >=5: **{summary['current_analyst_count_ge_5']}**",
             f"Analyst count 2-4: **{summary['current_analyst_count_2_to_4']}**",
-            "Analyst count <2 or unavailable: "
-            f"**{summary['current_analyst_count_lt_2_or_null']}**",
+            (
+                "Analyst count <2 or unavailable: "
+                f"**{summary['current_analyst_count_lt_2_or_null']}**"
+            ),
             "",
             "## Frozen batches",
             "",
@@ -333,8 +367,10 @@ def _report(snapshot: dict, summary: dict, batches: list[dict], payload_sha: str
     rows.extend(
         [
             "",
-            "No price, return, H013, H019, H020, PF001, valuation, or outcome input is part of "
-            "this capture artifact.",
+            (
+                "No price, return, H013, H019, H020, PF001, valuation, or outcome input is "
+                "part of this capture artifact."
+            ),
             "",
         ]
     )
@@ -356,7 +392,7 @@ def build_capture_artifacts(snapshot: dict, universe: dict, batch_spec: dict) ->
     manifest = {
         "schema_version": 2,
         "hypothesis_id": "H021",
-        "sealer_version": "H021_CAPTURE_SEALER_V1",
+        "sealer_version": SEALER_VERSION,
         "logical_capture_id": logical_capture_id,
         "capture_date_ist": snapshot["capture_date_ist"],
         "captured_at_utc": snapshot["captured_at_utc"],
@@ -378,6 +414,8 @@ def build_capture_artifacts(snapshot: dict, universe: dict, batch_spec: dict) ->
         "outcomes_opened": False,
         "live_capital_allowed": False,
     }
+    if "correction_reason" in snapshot:
+        manifest["correction_reason"] = snapshot["correction_reason"]
     report = _report(snapshot, summary, batches, manifest["payload_uncompressed_sha256"])
     return CaptureArtifacts(
         logical_capture_id=logical_capture_id,
@@ -390,6 +428,12 @@ def build_capture_artifacts(snapshot: dict, universe: dict, batch_spec: dict) ->
 
 def verify_artifact_bytes(payload_gzip: bytes, manifest: dict) -> dict:
     errors: list[str] = []
+    if manifest.get("schema_version") != 2:
+        errors.append("manifest schema_version must equal 2")
+    if manifest.get("hypothesis_id") != "H021":
+        errors.append("manifest hypothesis_id must equal H021")
+    if manifest.get("sealer_version") != SEALER_VERSION:
+        errors.append("manifest sealer_version does not match H021 capture sealer")
     if manifest.get("payload_gzip_bytes") != len(payload_gzip):
         errors.append("gzip byte count does not match manifest")
     if manifest.get("payload_gzip_sha256") != _sha256(payload_gzip):
@@ -408,6 +452,47 @@ def verify_artifact_bytes(payload_gzip: bytes, manifest: dict) -> dict:
         raise ValueError("payload is not valid JSON") from exc
     if not isinstance(snapshot, dict):
         errors.append("payload JSON must be an object")
+    else:
+        if payload_json != canonical_json_bytes(snapshot):
+            errors.append("payload JSON is not canonical")
+        if payload_gzip != deterministic_gzip(payload_json):
+            errors.append("payload gzip is not deterministic sealer output")
+        for field in (
+            "logical_capture_id",
+            "capture_date_ist",
+            "captured_at_utc",
+            "source_version",
+            "universe_path",
+            "universe_git_blob_sha",
+            "protocol_path",
+            "comparison_contract_path",
+            "batch_spec_path",
+        ):
+            if snapshot.get(field) != manifest.get(field):
+                errors.append(f"payload/manifest {field} mismatch")
     if errors:
         raise ValueError({"artifact_errors": errors})
+    return snapshot
+
+
+def verify_capture_bundle(
+    payload_gzip: bytes,
+    manifest: dict,
+    universe: dict,
+    batch_spec: dict,
+) -> dict:
+    snapshot = verify_artifact_bytes(payload_gzip, manifest)
+    errors = validate_full_capture(snapshot, universe, batch_spec)
+    if manifest.get("coverage_summary") != coverage_summary(snapshot):
+        errors.append("manifest coverage_summary does not match payload")
+    if manifest.get("batch_summary") != batch_summary(snapshot, batch_spec):
+        errors.append("manifest batch_summary does not match payload")
+    expected_path = (
+        "research/prospective/h021/captures/"
+        f"{snapshot['logical_capture_id']}.json.gz"
+    )
+    if manifest.get("payload_path") != expected_path:
+        errors.append("manifest payload_path does not match logical_capture_id")
+    if errors:
+        raise ValueError({"capture_bundle_errors": errors})
     return snapshot
