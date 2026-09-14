@@ -11,8 +11,8 @@ from pathlib import Path
 import requests
 
 from marketlab.h021_stockanalysis_probe import (
-    ROBOTS_URL,
     REQUIRED_TEXT_MARKERS,
+    ROBOTS_URL,
     audit_legacy_snapshot_semantics,
     forecast_url,
     inspect_forecast_page,
