@@ -28,7 +28,7 @@ def _load_object(path: Path) -> dict:
 
 def _timestamp(value: object, *, field: str) -> datetime:
     if not isinstance(value, str):
-        raise ValueError(f"{field} must be an ISO timestamp")
+        raise TypeError(f"{field} must be an ISO timestamp")
     try:
         parsed = datetime.fromisoformat(value)
     except ValueError as exc:
