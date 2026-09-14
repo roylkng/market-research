@@ -1,0 +1,39 @@
+name: H022 P001 outcome lint debug
+
+on:
+  push:
+    branches:
+      - research/h022-p001-prospective-outcomes-v1-20260914
+    paths:
+      - '.github/workflows/h022-p001-outcomes-lint-debug.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Capture ruff
+        id: lint
+        shell: bash
+        run: |
+          set +e
+          ruff check src tests scripts > h022-p001-outcomes-ruff.txt 2>&1
+          CODE=$?
+          cat h022-p001-outcomes-ruff.txt
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h022-p001-outcomes-lint-debug-${{ github.run_id }}
+          path: h022-p001-outcomes-ruff.txt
+          if-no-files-found: error
+      - name: Preserve lint result
+        shell: bash
+        run: exit "${{ steps.lint.outputs.exit_code }}"
