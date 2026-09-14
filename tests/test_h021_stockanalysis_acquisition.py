@@ -4,8 +4,8 @@ import pytest
 
 from marketlab.h021_stockanalysis_acquisition import (
     CAPTURE,
-    NOT_FINAL_SESSION,
     NO_SESSION,
+    NOT_FINAL_SESSION,
     AnchorTarget,
     StructuralSourceDrift,
     finalize_capture,
