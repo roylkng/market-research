@@ -7,7 +7,14 @@ from datetime import date, datetime
 from bs4 import BeautifulSoup
 
 PROVIDER_MARKER = "S&P Global Market Intelligence"
-CURRENCY_RE = re.compile(r"\bFinancial currency(?: is|:)?\s*([A-Z]{3})\b", re.IGNORECASE)
+FORECAST_CURRENCY_RE = re.compile(
+    r"\bFinancial currency(?: is|:)?\s*([A-Z]{3})\b", re.IGNORECASE
+)
+FINANCIALS_CURRENCY_PATTERNS = (
+    re.compile(r"\bMillions\s+([A-Z]{3})\b", re.IGNORECASE),
+    re.compile(r"\bFinancial numbers in\s+([A-Z]{3})\b", re.IGNORECASE),
+    re.compile(r"\breports financials in\s+([A-Z]{3})\b", re.IGNORECASE),
+)
 FISCAL_YEAR_RE = re.compile(r"^FY\s*(\d{4})$", re.IGNORECASE)
 MISSING_MARKERS = {"", "-", "--", "—", "N/A", "NA", "n/a"}
 
@@ -23,9 +30,28 @@ class ParsedAnnualForecast:
     analyst_count: int | None
     provider: str
     source_url: str
+    eps_currency_source_url: str
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def forecast_url(symbol: str) -> str:
+    from urllib.parse import quote
+
+    if not isinstance(symbol, str) or not symbol.strip():
+        raise ValueError("symbol must be a non-empty string")
+    encoded = quote(symbol.strip(), safe="-")
+    return f"https://stockanalysis.com/quote/nse/{encoded}/forecast/"
+
+
+def financials_url(symbol: str) -> str:
+    from urllib.parse import quote
+
+    if not isinstance(symbol, str) or not symbol.strip():
+        raise ValueError("symbol must be a non-empty string")
+    encoded = quote(symbol.strip(), safe="-")
+    return f"https://stockanalysis.com/quote/nse/{encoded}/financials/"
 
 
 def _clean(value: str) -> str:
@@ -110,11 +136,44 @@ def _find_financial_rows(soup: BeautifulSoup) -> dict[str, list[str]]:
     return candidates[0]
 
 
-def _extract_currency(page_text: str) -> str:
-    match = CURRENCY_RE.search(page_text)
+def _extract_forecast_currency(page_text: str) -> str | None:
+    match = FORECAST_CURRENCY_RE.search(page_text)
     if match is None:
-        raise ValueError("financial forecast currency marker not found")
+        return None
     return match.group(1).upper()
+
+
+def _extract_financials_currency(page_text: str) -> str | None:
+    matches: set[str] = set()
+    for pattern in FINANCIALS_CURRENCY_PATTERNS:
+        for match in pattern.finditer(page_text):
+            matches.add(match.group(1).upper())
+    if len(matches) > 1:
+        raise ValueError(f"financials page exposes conflicting currencies: {sorted(matches)}")
+    return next(iter(matches)) if matches else None
+
+
+def _resolve_currency(
+    *,
+    forecast_text: str,
+    financials_text: str | None,
+    forecast_source_url: str,
+    financials_source_url: str | None,
+) -> tuple[str, str]:
+    forecast_currency = _extract_forecast_currency(forecast_text)
+    financials_currency = (
+        _extract_financials_currency(financials_text) if financials_text is not None else None
+    )
+    if forecast_currency and financials_currency and forecast_currency != financials_currency:
+        raise ValueError(
+            "forecast and financials pages disagree on financial currency: "
+            f"{forecast_currency} != {financials_currency}"
+        )
+    if forecast_currency is not None:
+        return forecast_currency, forecast_source_url
+    if financials_currency is not None and financials_source_url is not None:
+        return financials_currency, financials_source_url
+    raise ValueError("financial forecast/reporting currency marker not found")
 
 
 def _column_index(
@@ -152,6 +211,8 @@ def parse_annual_forecast(
     html: bytes,
     expected_fiscal_period: str,
     expected_period_ending: str,
+    financials_html: bytes | None = None,
+    financials_source_url: str | None = None,
 ) -> ParsedAnnualForecast:
     if date.fromisoformat(expected_period_ending).isoformat() != expected_period_ending:
         raise ValueError("expected_period_ending must be canonical ISO YYYY-MM-DD")
@@ -166,6 +227,13 @@ def parse_annual_forecast(
     if PROVIDER_MARKER not in page_text:
         raise ValueError("S&P Global Market Intelligence provider marker missing")
 
+    financials_text: str | None = None
+    if financials_html is not None:
+        financials_soup = BeautifulSoup(financials_html, "html.parser")
+        financials_text = _clean(financials_soup.get_text(" ", strip=True))
+        if identity not in financials_text:
+            raise ValueError(f"financials page identity marker missing: {identity}")
+
     rows = _find_financial_rows(soup)
     index = _column_index(
         rows["fiscal year"],
@@ -179,7 +247,12 @@ def parse_annual_forecast(
 
     revenue_growth = _parse_percent(_value_at(rows, "revenue growth", index))
     analyst_count = _parse_int(_value_at(rows, "no analysts", index))
-    currency = _extract_currency(page_text)
+    currency, currency_source = _resolve_currency(
+        forecast_text=page_text,
+        financials_text=financials_text,
+        forecast_source_url=source_url,
+        financials_source_url=financials_source_url,
+    )
 
     return ParsedAnnualForecast(
         symbol=symbol,
@@ -191,4 +264,5 @@ def parse_annual_forecast(
         analyst_count=analyst_count,
         provider=PROVIDER_MARKER,
         source_url=source_url,
+        eps_currency_source_url=currency_source,
     )
