@@ -2,6 +2,11 @@ name: H022 P001 prospective stream
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - research/h022-p001-prospective-stream-v1-20260914
+    paths:
+      - '.github/workflows/h022-p001-prospective-stream.yml'
   schedule:
     # Two pre-open passes plus an after-close pass. Actual signal freeze time,
     # not the cron target, determines H022-X001 executability.
