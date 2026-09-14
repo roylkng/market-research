@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import time
@@ -12,6 +13,7 @@ import requests
 from marketlab.h021_stockanalysis_probe import (
     ROBOTS_URL,
     REQUIRED_TEXT_MARKERS,
+    audit_legacy_snapshot_semantics,
     forecast_url,
     inspect_forecast_page,
     robots_allows,
@@ -39,6 +41,14 @@ def _load_config(path: Path) -> dict:
         raise ValueError("probe symbols must be a non-empty list")
     if len(symbols) != len(set(symbols)):
         raise ValueError("probe symbols must be unique")
+    legacy_anchor = payload.get("legacy_anchor_path")
+    if not isinstance(legacy_anchor, str) or not legacy_anchor.endswith(".json.gz"):
+        raise ValueError("legacy_anchor_path must identify the frozen gzip anchor")
+    semantic_symbols = payload.get("legacy_semantic_symbols")
+    if not isinstance(semantic_symbols, list) or not semantic_symbols:
+        raise ValueError("legacy_semantic_symbols must be a non-empty list")
+    if len(semantic_symbols) != len(set(semantic_symbols)):
+        raise ValueError("legacy_semantic_symbols must be unique")
     return payload
 
 
@@ -51,6 +61,14 @@ def _write_report(path: Path, report: dict) -> None:
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _load_legacy_anchor(path: Path) -> dict:
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    if not isinstance(payload, dict):
+        raise TypeError("legacy H021 anchor must contain a JSON object")
+    return payload
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
@@ -61,6 +79,8 @@ def main() -> None:
     user_agent = config["user_agent"]
     timeout = float(config["timeout_seconds"])
     sleep_seconds = float(config["sleep_seconds"])
+    legacy_anchor_path = Path(config["legacy_anchor_path"])
+    legacy_anchor = _load_legacy_anchor(legacy_anchor_path)
 
     session = requests.Session()
     session.headers.update(
@@ -77,6 +97,13 @@ def main() -> None:
         "config_path": str(args.config),
         "outcomes_opened": False,
         "live_capital_allowed": False,
+        "legacy_anchor_semantics": {
+            "path": str(legacy_anchor_path),
+            **audit_legacy_snapshot_semantics(
+                legacy_anchor,
+                config["legacy_semantic_symbols"],
+            ),
+        },
         "robots": {},
         "pages": [],
         "decision": {},
