@@ -1,0 +1,172 @@
+name: H021 StockAnalysis full U001 dry run
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/h021-full-u001-stockanalysis-dry-run-20260914
+    paths:
+      - '.github/workflows/h021-stockanalysis-full-u001-dry-run.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-stockanalysis-full-u001-dry-run
+  cancel-in-progress: true
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen parser invariants
+        run: pytest -q tests/test_h021_stockanalysis_parser.py
+
+      - name: Build deterministic full-U001 dry-run config
+        id: config
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUTDIR="reports/h021-stockanalysis-full-u001-dry-run/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$OUTDIR"
+          CONFIG="$OUTDIR/config.json"
+          REPORT="$OUTDIR/report.json"
+          python - "$CONFIG" <<'PY'
+          import gzip
+          import json
+          import sys
+          from pathlib import Path
+
+          config_path = Path(sys.argv[1])
+          base_path = Path("research/prospective/h021/stockanalysis-parser-probe-v1.json")
+          anchor_path = Path("research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz")
+
+          base = json.loads(base_path.read_text(encoding="utf-8"))
+          with gzip.open(anchor_path, "rt", encoding="utf-8") as handle:
+              anchor = json.load(handle)
+
+          observations = anchor.get("observations")
+          if not isinstance(observations, list) or len(observations) != 100:
+              raise SystemExit("frozen H021 anchor must contain exactly 100 observations")
+          symbols = [row.get("symbol") for row in observations]
+          if any(not isinstance(symbol, str) or not symbol for symbol in symbols):
+              raise SystemExit("frozen H021 anchor contains an invalid symbol")
+          if len(set(symbols)) != 100:
+              raise SystemExit("frozen H021 anchor symbols must be unique")
+
+          base["purpose"] = (
+              "Source-only full-U001 dry run of the frozen target-aware StockAnalysis parser. "
+              "This is not a weekly H021 capture and cannot become a revision cohort."
+          )
+          base["symbols"] = symbols
+          base["dry_run_scope"] = "ALL_FROZEN_U001_100"
+          base["not_h021_capture"] = True
+          base["not_revision_cohort"] = True
+          config_path.write_text(
+              json.dumps(base, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(f"resolved_symbols={len(symbols)} config={config_path}")
+          PY
+          echo "config_path=$CONFIG" >> "$GITHUB_OUTPUT"
+          echo "report_path=$REPORT" >> "$GITHUB_OUTPUT"
+          echo "out_dir=$OUTDIR" >> "$GITHUB_OUTPUT"
+
+      - name: Run robots-aware full-U001 source-only dry run
+        id: probe
+        shell: bash
+        run: |
+          set +e
+          python scripts/probe_h021_stockanalysis_parser.py \
+            --config "${{ steps.config.outputs.config_path }}" \
+            --out "${{ steps.config.outputs.report_path }}"
+          CODE=$?
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Validate complete universe accounting
+        if: always()
+        shell: bash
+        env:
+          EXIT_CODE: ${{ steps.probe.outputs.exit_code }}
+          CONFIG: ${{ steps.config.outputs.config_path }}
+          REPORT: ${{ steps.config.outputs.report_path }}
+        run: |
+          set -euo pipefail
+          test -f "$CONFIG"
+          test -f "$REPORT"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          config_path = Path(os.environ["CONFIG"])
+          report_path = Path(os.environ["REPORT"])
+          config = json.loads(config_path.read_text(encoding="utf-8"))
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+
+          symbols = config["symbols"]
+          rows = report.get("rows")
+          if len(symbols) != 100 or len(set(symbols)) != 100:
+              raise SystemExit("dry-run config does not contain exactly 100 unique symbols")
+          if not isinstance(rows, list) or len(rows) != 100:
+              raise SystemExit("dry-run report did not account for all 100 frozen symbols")
+          report_symbols = [row.get("symbol") for row in rows]
+          if report_symbols != symbols:
+              raise SystemExit("dry-run report symbol order/set differs from frozen config")
+          if report.get("outcomes_opened") is not False:
+              raise SystemExit("dry run must not open H021 outcomes")
+          if report.get("live_capital_allowed") is not False:
+              raise SystemExit("dry run must not authorize live capital")
+
+          report["source_only_dry_run"] = True
+          report["not_h021_capture"] = True
+          report["not_revision_cohort"] = True
+          report["probe_exit_code"] = int(os.environ.get("EXIT_CODE") or -1)
+          report["universe_accounting_complete"] = True
+          report_path.write_text(
+              json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          decision = report.get("decision", {})
+          print(
+              "full_u001_accounted=100/100 "
+              f"parsed={decision.get('parsed_rows')}/100 "
+              f"semantic_match={decision.get('semantic_match_rows')}/100 "
+              f"probe_exit={report['probe_exit_code']}"
+          )
+          PY
+
+      - name: Anchor full-U001 source-only evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUTDIR="${{ steps.config.outputs.out_dir }}"
+          test -d "$OUTDIR"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUTDIR"
+          if ! git diff --cached --quiet; then
+            git commit -m "H021: anchor full-U001 StockAnalysis dry run ${GITHUB_RUN_ID} [skip ci]"
+            git push origin HEAD:research/h021-full-u001-stockanalysis-dry-run-20260914
+          fi
+
+      - name: Upload source-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-stockanalysis-full-u001-dry-run-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.config.outputs.out_dir }}
+          if-no-files-found: error
+          retention-days: 90
