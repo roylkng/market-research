@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/h024-insider-source-probe.yml'
       - 'scripts/probe_h024_nse_pit_source.py'
+      - 'scripts/probe_h024_nse_pit_marketwide.py'
 
 permissions:
   contents: write
@@ -29,8 +30,11 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Lint source-only probe
-        run: ruff check scripts/probe_h024_nse_pit_source.py
+      - name: Lint source-only probes
+        run: |
+          ruff check \
+            scripts/probe_h024_nse_pit_source.py \
+            scripts/probe_h024_nse_pit_marketwide.py
       - name: Probe official NSE PIT source across frozen U001
         shell: bash
         run: |
@@ -41,23 +45,38 @@ jobs:
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --from-date 2025-09-15 \
             --to-date 2026-09-15 \
-            --out "$WORK/report.json" \
-            --raw-dir "$WORK/raw" \
+            --out "$WORK/u001-report.json" \
+            --raw-dir "$WORK/raw/u001" \
             --attempts 4 \
             --pause-seconds 0.10 \
             --row-samples-per-symbol 2
           echo "work_dir=$WORK" >> "$GITHUB_ENV"
-      - name: Retain compact source-only inventory
+      - name: Probe market-wide direct insider purchases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/probe_h024_nse_pit_marketwide.py \
+            --from-date 2025-09-15 \
+            --to-date 2026-09-15 \
+            --out "$work_dir/marketwide-report.json" \
+            --raw "$work_dir/raw/marketwide.json" \
+            --attempts 4
+      - name: Retain compact source-only inventories
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p research/probes/h024
-          cp "$work_dir/report.json" research/probes/h024/nse-pit-source-inventory-v1.json
+          cp "$work_dir/u001-report.json" \
+            research/probes/h024/nse-pit-source-inventory-v1.json
+          cp "$work_dir/marketwide-report.json" \
+            research/probes/h024/nse-pit-marketwide-inventory-v1.json
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add research/probes/h024/nse-pit-source-inventory-v1.json
+          git add \
+            research/probes/h024/nse-pit-source-inventory-v1.json \
+            research/probes/h024/nse-pit-marketwide-inventory-v1.json
           if ! git diff --cached --quiet; then
-            git commit -m "H024: anchor NSE PIT source inventory"
+            git commit -m "H024: anchor NSE PIT source inventories"
             git push origin HEAD:research/h024-insider-source-probe-v1-20260915
           fi
       - name: Upload exact source-only evidence
