@@ -137,7 +137,7 @@ def _benchmark_bar(session_date: str, *, open_price: float, close_price: float) 
 
 def _evaluation_after(calendar: dict, session_index: int) -> str:
     session = calendar["sessions"][session_index]
-    close = datetime.fromisoformat(session["close_timestamp_utc"].replace("Z", "+00:00"))
+    close = datetime.fromisoformat(session["close_timestamp_utc"])
     return (close + timedelta(minutes=5)).astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
