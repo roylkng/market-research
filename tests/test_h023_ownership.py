@@ -4,6 +4,7 @@ import pytest
 
 from marketlab.h023_ownership import (
     MF_CONTEXT_REF,
+    MF_DETAIL_AXIS,
     MF_SHAREHOLDING_CONCEPT,
     H023OwnershipError,
     is_standard_quarter_end,
@@ -16,23 +17,49 @@ from marketlab.h023_ownership import (
 )
 
 
-def _xml(*, value: str = "0.1011", unit: str = "pure", duplicates: int = 1) -> bytes:
+def _xml(
+    *,
+    value: str = "0.1011",
+    unit: str = "pure",
+    duplicates: int = 1,
+    report_date: str = "2026-06-30",
+    detail_axis: str | None = None,
+) -> bytes:
     facts = "".join(
         f'<shp:{MF_SHAREHOLDING_CONCEPT} contextRef="{MF_CONTEXT_REF}" '
         f'unitRef="{unit}" decimals="INF">{value}</shp:{MF_SHAREHOLDING_CONCEPT}>'
         for _ in range(duplicates)
     )
+    detail_context = ""
+    if detail_axis is not None:
+        detail_context = (
+            '<xbrli:context id="D_MutualFundsOrUTI_Context15">'
+            '<xbrli:entity><xbrli:identifier scheme="test">ENTITY</xbrli:identifier>'
+            '<xbrli:segment>'
+            f'<xbrldi:typedMember dimension="shp:{detail_axis}">'
+            '<shp:MutualFundsOrUTIDomain>D_MutualFundsOrUTI_Context15</shp:MutualFundsOrUTIDomain>'
+            '</xbrldi:typedMember>'
+            '</xbrli:segment></xbrli:entity>'
+            f'<xbrli:period><xbrli:instant>{report_date}</xbrli:instant></xbrli:period>'
+            '</xbrli:context>'
+        )
     return (
         '<?xml version="1.0" encoding="UTF-8"?>'
         '<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" '
+        'xmlns:xbrldi="http://xbrl.org/2006/xbrldi" '
         'xmlns:shp="http://example.test/shp">'
         f'<xbrli:context id="{MF_CONTEXT_REF}">'
         '<xbrli:entity><xbrli:identifier scheme="test">ENTITY</xbrli:identifier></xbrli:entity>'
-        '<xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>'
+        f'<xbrli:period><xbrli:instant>{report_date}</xbrli:instant></xbrli:period>'
         '</xbrli:context>'
+        f'{detail_context}'
         f'{facts}'
         '</xbrli:xbrl>'
     ).encode()
+
+
+def _parse(raw: bytes, *, report_date: str = "2026-06-30"):
+    return parse_mutual_fund_ownership_xbrl(raw, expected_report_date=report_date)
 
 
 def _row(
@@ -52,30 +79,46 @@ def _row(
 
 
 def test_exact_mutual_fund_fact_is_fraction_and_percentage() -> None:
-    parsed = parse_mutual_fund_ownership_xbrl(_xml(value="0.1011"))
+    parsed = _parse(_xml(value="0.1011", detail_axis=MF_DETAIL_AXIS))
     assert parsed.context_ref == MF_CONTEXT_REF
     assert parsed.concept == MF_SHAREHOLDING_CONCEPT
     assert parsed.unit_ref == "pure"
+    assert parsed.report_date == "2026-06-30"
     assert parsed.fraction == pytest.approx(0.1011)
     assert parsed.percentage == pytest.approx(10.11)
 
 
+def test_parser_allows_aggregate_context_without_named_fund_details() -> None:
+    parsed = _parse(_xml(value="0"))
+    assert parsed.percentage == 0.0
+
+
 def test_parser_rejects_missing_exact_context() -> None:
     raw = _xml().replace(MF_CONTEXT_REF.encode(), b"SomeOtherContext")
-    with pytest.raises(H023OwnershipError, match="missing exact Mutual Fund context"):
-        parse_mutual_fund_ownership_xbrl(raw)
+    with pytest.raises(H023OwnershipError, match="expected one exact Mutual Fund context"):
+        _parse(raw)
+
+
+def test_parser_rejects_context_period_mismatch() -> None:
+    with pytest.raises(H023OwnershipError, match="context period does not match"):
+        _parse(_xml(report_date="2026-03-31"), report_date="2026-06-30")
+
+
+def test_parser_rejects_unexpected_mutual_fund_detail_axis() -> None:
+    with pytest.raises(H023OwnershipError, match="unexpected Mutual Fund XBRL detail axis"):
+        _parse(_xml(detail_axis="UnexpectedMutualFundsOrUTIAxis"))
 
 
 def test_parser_rejects_duplicate_fact() -> None:
     with pytest.raises(H023OwnershipError, match="expected one Mutual Fund shareholding fact"):
-        parse_mutual_fund_ownership_xbrl(_xml(duplicates=2))
+        _parse(_xml(duplicates=2))
 
 
 def test_parser_rejects_wrong_unit_and_out_of_range_value() -> None:
     with pytest.raises(H023OwnershipError, match="unexpected Mutual Fund shareholding unit"):
-        parse_mutual_fund_ownership_xbrl(_xml(unit="shares"))
+        _parse(_xml(unit="shares"))
     with pytest.raises(H023OwnershipError, match="out of range"):
-        parse_mutual_fund_ownership_xbrl(_xml(value="1.01"))
+        _parse(_xml(value="1.01"))
 
 
 def test_quarter_end_helpers_are_exact() -> None:
@@ -165,10 +208,20 @@ def test_adjacent_quarter_selection_fails_closed_when_prior_quarter_missing() ->
     assert selected[0].report_date == "2026-06-30"
 
 
-def test_ownership_delta_is_percentage_points() -> None:
-    current = parse_mutual_fund_ownership_xbrl(_xml(value="0.1011"))
-    prior = parse_mutual_fund_ownership_xbrl(_xml(value="0.0875"))
+def test_ownership_delta_is_percentage_points_and_requires_adjacent_periods() -> None:
+    current = _parse(_xml(value="0.1011", report_date="2026-06-30"))
+    prior = _parse(
+        _xml(value="0.0875", report_date="2026-03-31"),
+        report_date="2026-03-31",
+    )
     assert ownership_delta_pp(current, prior) == pytest.approx(1.36)
+
+    stale = _parse(
+        _xml(value="0.08", report_date="2025-12-31"),
+        report_date="2025-12-31",
+    )
+    with pytest.raises(H023OwnershipError, match="requires adjacent calendar quarters"):
+        ownership_delta_pp(current, stale)
 
 
 def test_contract_freezes_exact_source_semantics() -> None:
@@ -179,6 +232,11 @@ def test_contract_freezes_exact_source_semantics() -> None:
         "unit_ref": "pure",
         "value_semantics": "fraction_of_total_shares",
         "percentage_conversion": "fraction * 100",
+        "context_period": "exact xbrli:instant equals selected NSE master report date",
+        "detail_axis_guard": (
+            "when Mutual Fund typed-member detail contexts exist, their dimension local-name "
+            f"must equal {MF_DETAIL_AXIS}"
+        ),
         "availability_timestamp": "NSE broadcastDate interpreted as Asia/Kolkata",
         "eligible_report_dates": "standard calendar quarter ends only",
         "prior_period": "immediately previous calendar quarter end",
