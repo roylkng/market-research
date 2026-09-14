@@ -3,9 +3,9 @@ from __future__ import annotations
 import pytest
 
 from marketlab.h023_ownership import (
-    H023OwnershipError,
     MF_CONTEXT_REF,
     MF_SHAREHOLDING_CONCEPT,
+    H023OwnershipError,
     ownership_delta_pp,
     parse_mutual_fund_ownership_xbrl,
     parser_contract,
