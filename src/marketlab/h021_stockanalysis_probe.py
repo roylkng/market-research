@@ -87,7 +87,7 @@ def inspect_forecast_page(
 def audit_legacy_snapshot_semantics(snapshot: dict, symbols: list[str]) -> dict:
     observations = snapshot.get("observations")
     if not isinstance(observations, list):
-        raise ValueError("legacy snapshot observations must be a list")
+        raise TypeError("legacy snapshot observations must be a list")
 
     rows = [row for row in observations if isinstance(row, dict)]
     all_keys = sorted({key for row in rows for key in row})
