@@ -9,9 +9,9 @@ import requests
 
 from marketlab.h023_ownership import (
     BROADCAST_FORMAT,
+    IST,
     REPORT_DATE_FORMAT,
     H023OwnershipError,
-    IST,
     is_standard_quarter_end,
     parse_mutual_fund_ownership_xbrl,
 )
@@ -164,7 +164,7 @@ def _report_date(value: object) -> str | None:
     if not raw:
         return None
     try:
-        parsed = datetime.strptime(raw.upper(), REPORT_DATE_FORMAT).date()
+        parsed = datetime.strptime(raw.upper(), REPORT_DATE_FORMAT).replace(tzinfo=IST).date()
     except ValueError:
         return None
     canonical = parsed.isoformat()
