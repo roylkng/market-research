@@ -1,0 +1,147 @@
+{
+  "decision": "PROCEED_PROSPECTIVELY_HISTORICAL_AVAILABILITY_REQUIRES_SEPARATE_AUDIT",
+  "dominant_mutual_fund_percentage_concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+  "dominant_mutual_fund_percentage_concept_count": 200,
+  "dominant_mutual_fund_percentage_concept_share": 1.0,
+  "gates": [
+    {
+      "gate": "master_complete_symbols",
+      "minimum": 95,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "symbols_with_any_xbrl",
+      "minimum": 95,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "symbols_with_two_or_more_xbrl",
+      "minimum": 90,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "symbols_with_all_probed_filings_fetched",
+      "minimum": 90,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "symbols_with_mutual_funds_in_every_probed_filing",
+      "minimum": 80,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "symbols_with_mutual_fund_percentage_concept_in_every_probed_filing",
+      "minimum": 80,
+      "observed": 100,
+      "passed": true
+    },
+    {
+      "gate": "dominant_mutual_fund_percentage_concept_share",
+      "minimum": 0.9,
+      "observed": 1.0,
+      "passed": true
+    }
+  ],
+  "historical_availability_candidates": [
+    {
+      "key": "broadcastDate",
+      "value": "21-APR-2025 16:10:34"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-JAN-2025 16:55:29"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "08-NOV-2024 19:42:54"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-OCT-2024 20:22:59"
+    },
+    {
+      "key": "submissionDate",
+      "value": "21-OCT-2024"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "20-JUL-2024 18:48:46"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "20-APR-2024 00:20:05"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "19-JAN-2024 22:06:24"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-OCT-2023 14:19:39"
+    },
+    {
+      "key": "submissionDate",
+      "value": "21-OCT-2023"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "20-JUL-2023 23:39:08"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "20-APR-2023 21:50:38"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "20-JAN-2023 20:40:15"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "23-OCT-2022 07:10:02"
+    },
+    {
+      "key": "submissionDate",
+      "value": "22-OCT-2022"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-JUL-2022 19:10:13"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "16-JUL-2026 19:24:44"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-APR-2022 19:40:36"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-JAN-2022 20:10:07"
+    },
+    {
+      "key": "broadcastDate",
+      "value": "21-APR-2026 13:25:14"
+    }
+  ],
+  "historical_availability_proven_by_master_probe": true,
+  "historical_backtest_authorized": false,
+  "hypothesis_candidate": "H023_MUTUAL_FUND_OWNERSHIP_ACCUMULATION",
+  "live_capital_allowed": false,
+  "mutual_fund_percentage_filing_count": 200,
+  "next_step": "Freeze an explicit official-NSE parser contract for the dominant Mutual Fund SCRR shareholding-percentage concept, then run a full-U001 latest-two-filing parser test.",
+  "outcome_data_attached": false,
+  "schema_version": 1,
+  "source_feasible": true,
+  "top_mutual_fund_percentage_concepts": [
+    {
+      "concept": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+      "count": 200
+    }
+  ]
+}
