@@ -125,11 +125,17 @@ For a current source, eligible prior context can come from:
 2. the pre-start catch-up ledger;
 3. an earlier sealed P001 source.
 
-The prior must be for the same symbol and have a **strictly earlier** NSE publication timestamp.
+For the same symbol, identify the **latest qualifying publication timestamp that is strictly earlier than the current timestamp**. That earlier timestamp group must contain exactly one source to be usable as prior.
 
-If multiple current qualifying transcripts share the exact same publication timestamp, that timestamp group cannot establish ordering between itself. The current event is therefore sealed as `NO_SIGNAL_AMBIGUOUS_TIMESTAMP` rather than guessed.
+This deliberately matches the frozen historical H022 grouping semantics:
 
-If no strictly earlier call exists, the status is `NO_SIGNAL_NO_PRIOR_TRANSCRIPT`.
+- if there is no strictly earlier timestamp, seal `NO_SIGNAL_NO_PRIOR_TRANSCRIPT`;
+- if the latest strictly earlier timestamp contains multiple qualifying sources, seal `NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP`;
+- if the latest strictly earlier timestamp contains exactly one source, use it as prior;
+- multiple **current** qualifying transcripts sharing one timestamp may each use that same unique earlier prior;
+- after such a multi-source timestamp has occurred, the next later transcript will see an ambiguous latest-prior group and therefore receive `NO_SIGNAL_AMBIGUOUS_PRIOR_TIMESTAMP`.
+
+No ordering is invented between sources that share an NSE publication timestamp.
 
 ## Forbidden signal inputs
 
