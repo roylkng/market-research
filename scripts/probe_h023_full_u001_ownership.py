@@ -9,10 +9,16 @@ from typing import Any
 
 from probe_h023_nse_shareholding import _request_with_retries
 from probe_h023_nse_shareholding import _session as _api_session
-from probe_h023_nse_shareholding_ixbrl import _rows
 from probe_h023_nse_shareholding_xbrl import _fetch, _inventory_xbrl_records
 from probe_h023_nse_shareholding_xbrl import _session as _xbrl_session
 
+from marketlab.h023_ownership import (
+    H023OwnershipError,
+    MF_SHAREHOLDING_CONCEPT,
+    parse_mutual_fund_ownership_xbrl,
+    parser_contract,
+    select_latest_distinct_filings,
+)
 from marketlab.universe import load_universe_snapshot
 
 
@@ -22,19 +28,6 @@ def _write_json(path: Path, payload: object) -> None:
         json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-
-
-def _percentage_concepts(rows: list[dict[str, Any]], *, term: str) -> list[str]:
-    concepts: set[str] = set()
-    for row in rows:
-        if row.get("term") != term:
-            continue
-        for concept in row.get("concepts", []):
-            name = str(concept.get("concept") or "")
-            lowered = name.casefold()
-            if "shareholding" in lowered and "percentage" in lowered:
-                concepts.add(name)
-    return sorted(concepts)
 
 
 def _availability_metadata(inventory: list[dict[str, Any]]) -> dict[str, Any]:
@@ -101,6 +94,7 @@ def main() -> int:
             "xbrl_reference_count": 0,
             "probed_filing_count": 0,
             "successful_filing_count": 0,
+            "parsed_filing_count": 0,
             "filings": [],
             "error": None,
         }
@@ -116,37 +110,51 @@ def main() -> int:
             all_inventory.extend(inventory)
             report["master_status"] = "COMPLETE"
             report["xbrl_reference_count"] = len(inventory)
-            selected = inventory[: args.filings_per_symbol]
+            selected = select_latest_distinct_filings(
+                payload,
+                symbol=symbol,
+                count=args.filings_per_symbol,
+            )
             report["probed_filing_count"] = len(selected)
-            for item in selected:
+            for selected_filing in selected:
                 filing: dict[str, Any] = {
-                    "url": item["url"],
-                    "parent_scalar_fields": item["parent_scalar_fields"],
-                    "status": "FAILED",
-                    "terms": {},
-                    "percentage_concepts": {},
+                    "url": selected_filing.xbrl_url,
+                    "record_id": selected_filing.record_id,
+                    "report_date": selected_filing.report_date,
+                    "broadcast_at_utc": selected_filing.broadcast_at_utc,
+                    "status": "PENDING",
+                    "terms": {"MUTUAL_FUNDS": False},
+                    "percentage_concepts": {"MUTUAL_FUNDS": []},
+                    "mutual_fund_ownership": None,
                     "error": None,
                 }
                 try:
                     xbrl_response = _fetch(
                         xbrl_session,
-                        url=item["url"],
+                        url=selected_filing.xbrl_url,
                         timeout=args.timeout_seconds,
                         attempts=args.attempts,
                     )
-                    parsed_rows = _rows(xbrl_response.content)
-                    filing["status"] = "COMPLETE"
                     report["successful_filing_count"] += 1
-                    for term in ("MUTUAL_FUNDS", "FPI", "INSURANCE"):
-                        present = any(row.get("term") == term for row in parsed_rows)
-                        concepts = _percentage_concepts(parsed_rows, term=term)
-                        filing["terms"][term] = present
-                        filing["percentage_concepts"][term] = concepts
-                        if present:
-                            category_coverage[term][symbol] += 1
-                        for concept in concepts:
-                            percentage_concept_counts[term][concept] += 1
+                    try:
+                        ownership = parse_mutual_fund_ownership_xbrl(xbrl_response.content)
+                    except H023OwnershipError as exc:
+                        filing["status"] = "PARSE_FAILED"
+                        filing["error"] = f"{type(exc).__name__}: {exc}"
+                    else:
+                        filing["status"] = "COMPLETE"
+                        filing["terms"]["MUTUAL_FUNDS"] = True
+                        filing["percentage_concepts"]["MUTUAL_FUNDS"] = [
+                            MF_SHAREHOLDING_CONCEPT
+                        ]
+                        filing["mutual_fund_ownership"] = ownership.to_dict()
+                        report["parsed_filing_count"] += 1
+                        category_coverage["MUTUAL_FUNDS"][symbol] += 1
+                        percentage_concept_counts["MUTUAL_FUNDS"][
+                            MF_SHAREHOLDING_CONCEPT
+                        ] += 1
                 except (RuntimeError, ValueError) as exc:
+                    filing["status"] = "FETCH_FAILED"
                     filing["error"] = f"{type(exc).__name__}: {exc}"
                 report["filings"].append(filing)
                 if args.pause_seconds:
@@ -156,8 +164,9 @@ def main() -> int:
         symbol_reports.append(report)
         print(
             f"[{index:03d}/100] {symbol}: master={report['master_status']} "
-            f"xbrl={report['xbrl_reference_count']} "
-            f"filings={report['successful_filing_count']}/{report['probed_filing_count']}",
+            f"xbrl={report['xbrl_reference_count']} fetched="
+            f"{report['successful_filing_count']}/{report['probed_filing_count']} parsed="
+            f"{report['parsed_filing_count']}/{report['probed_filing_count']}",
             flush=True,
         )
         if args.pause_seconds:
@@ -187,15 +196,17 @@ def main() -> int:
         ),
     }
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "hypothesis_probe": "H023-OWNERSHIP-FULL-U001-SOURCE-PROBE",
         "purpose": (
             "Full frozen-U001 source-only feasibility audit of official NSE shareholding master "
-            "records and inline-XBRL ownership categories. No price/return input is consumed."
+            "records and exact XML Mutual Fund aggregate ownership facts. No price/return input "
+            "is consumed."
         ),
         "universe_path": args.universe.as_posix(),
         "member_count": 100,
         "filings_per_symbol": args.filings_per_symbol,
+        "parser_contract": parser_contract(),
         "summary": summary,
         "category_symbol_filing_counts": {
             term: dict(sorted(counter.items())) for term, counter in sorted(category_coverage.items())
