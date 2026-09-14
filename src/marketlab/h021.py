@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from math import ceil
@@ -10,6 +11,7 @@ MAX_REVISION_INTERVAL_DAYS = 35
 TARGET_REVISION_INTERVAL_DAYS = 30
 PRIMARY_MIN_ANALYST_COUNT = 5
 PRIMARY_DECILE_FRACTION = 0.10
+CURRENCY_RE = re.compile(r"^[A-Z]{3}$")
 
 REQUIRED_OBSERVATION_FIELDS = {
     "symbol",
@@ -31,12 +33,18 @@ class RevisionObservation:
     prior_capture_date: str
     current_capture_date: str
     capture_interval_days: int
+    period_ending_prior: str | None
+    period_ending_current: str | None
+    eps_currency_prior: str | None
+    eps_currency_current: str | None
     analyst_count_prior: int | None
     analyst_count_current: int | None
     eps_revision_pct: float | None
     revenue_growth_forecast_change_pp: float | None
     profit_growth_estimate_change_pp: float | None
     target_price_revision_pct: float | None
+    period_compatible: bool
+    eps_currency_compatible: bool
     source_compatible: bool
     primary_coverage: bool
     primary_signal_available: bool
@@ -64,6 +72,20 @@ def _parse_iso_timestamp(value: object) -> datetime | None:
 
 def _nonempty_string(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _valid_iso_date(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError:
+        return False
+    return parsed.isoformat() == value
+
+
+def _valid_currency(value: object) -> bool:
+    return isinstance(value, str) and CURRENCY_RE.fullmatch(value) is not None
 
 
 def validate_snapshot(snapshot: dict) -> list[str]:
@@ -147,6 +169,18 @@ def validate_snapshot(snapshot: dict) -> list[str]:
         ):
             errors.append(
                 f"observation[{index}] analyst_count must be non-negative integer or null"
+            )
+
+        period_ending = row.get("period_ending")
+        if period_ending is not None and not _valid_iso_date(period_ending):
+            errors.append(
+                f"observation[{index}] period_ending must be ISO YYYY-MM-DD or null"
+            )
+
+        eps_currency = row.get("eps_currency")
+        if eps_currency is not None and not _valid_currency(eps_currency):
+            errors.append(
+                f"observation[{index}] eps_currency must be uppercase ISO-like 3-letter code or null"
             )
 
         source_url = row.get("source_url")
@@ -235,16 +269,30 @@ def _validate_comparison_contract(prior: dict, current: dict) -> int:
 def _primary_signal_reason(
     *,
     same_period: bool,
+    eps_available: bool,
+    period_ending_prior: object,
+    period_ending_current: object,
+    eps_currency_prior: object,
+    eps_currency_current: object,
+    period_compatible: bool,
+    eps_currency_compatible: bool,
     source_compatible: bool,
-    eps_revision_pct: float | None,
     primary_coverage: bool,
 ) -> str:
     if not same_period:
         return "FISCAL_PERIOD_MISMATCH"
+    if not eps_available:
+        return "EPS_REVISION_UNAVAILABLE"
+    if not _valid_iso_date(period_ending_prior) or not _valid_iso_date(period_ending_current):
+        return "PERIOD_END_UNAVAILABLE"
+    if not period_compatible:
+        return "PERIOD_END_MISMATCH"
+    if not _valid_currency(eps_currency_prior) or not _valid_currency(eps_currency_current):
+        return "EPS_CURRENCY_UNAVAILABLE"
+    if not eps_currency_compatible:
+        return "EPS_CURRENCY_MISMATCH"
     if not source_compatible:
         return "EPS_SOURCE_CHANGED"
-    if eps_revision_pct is None:
-        return "EPS_REVISION_UNAVAILABLE"
     if not primary_coverage:
         return "ANALYST_COVERAGE_LT_5"
     return "ELIGIBLE"
@@ -268,20 +316,43 @@ def compare_snapshots(prior: dict, current: dict) -> list[RevisionObservation]:
         before = prior_map[symbol]
         after = current_map[symbol]
         same_period = before["fiscal_period"] == after["fiscal_period"]
+        period_ending_prior = before.get("period_ending")
+        period_ending_current = after.get("period_ending")
+        eps_currency_prior = before.get("eps_currency")
+        eps_currency_current = after.get("eps_currency")
+        period_compatible = (
+            _valid_iso_date(period_ending_prior)
+            and _valid_iso_date(period_ending_current)
+            and period_ending_prior == period_ending_current
+        )
+        eps_currency_compatible = (
+            _valid_currency(eps_currency_prior)
+            and _valid_currency(eps_currency_current)
+            and eps_currency_prior == eps_currency_current
+        )
         source_compatible = _source_host(before) == _source_host(after)
         primary_coverage = _primary_coverage(before) and _primary_coverage(after)
+        prior_eps = before.get("consensus_eps")
+        current_eps = after.get("consensus_eps")
+        eps_available = prior_eps is not None and current_eps is not None and prior_eps != 0
+        primary_semantics_compatible = (
+            same_period
+            and eps_available
+            and period_compatible
+            and eps_currency_compatible
+            and source_compatible
+        )
+        diagnostic_period_compatible = same_period and period_compatible
 
         eps_revision = (
-            _pct_revision(after.get("consensus_eps"), before.get("consensus_eps"))
-            if same_period
-            else None
+            _pct_revision(current_eps, prior_eps) if primary_semantics_compatible else None
         )
         revenue_change = (
             _pp_change(
                 after.get("revenue_growth_forecast_pct"),
                 before.get("revenue_growth_forecast_pct"),
             )
-            if same_period
+            if diagnostic_period_compatible
             else None
         )
         profit_change = (
@@ -289,18 +360,24 @@ def compare_snapshots(prior: dict, current: dict) -> list[RevisionObservation]:
                 after.get("profit_growth_estimate_pct"),
                 before.get("profit_growth_estimate_pct"),
             )
-            if same_period
+            if diagnostic_period_compatible
             else None
         )
         target_revision = (
             _pct_revision(after.get("target_price_inr"), before.get("target_price_inr"))
-            if same_period
+            if diagnostic_period_compatible
             else None
         )
         reason = _primary_signal_reason(
             same_period=same_period,
+            eps_available=eps_available,
+            period_ending_prior=period_ending_prior,
+            period_ending_current=period_ending_current,
+            eps_currency_prior=eps_currency_prior,
+            eps_currency_current=eps_currency_current,
+            period_compatible=period_compatible,
+            eps_currency_compatible=eps_currency_compatible,
             source_compatible=source_compatible,
-            eps_revision_pct=eps_revision,
             primary_coverage=primary_coverage,
         )
         results.append(
@@ -310,12 +387,26 @@ def compare_snapshots(prior: dict, current: dict) -> list[RevisionObservation]:
                 prior_capture_date=prior_date,
                 current_capture_date=current_date,
                 capture_interval_days=interval_days,
+                period_ending_prior=(
+                    period_ending_prior if isinstance(period_ending_prior, str) else None
+                ),
+                period_ending_current=(
+                    period_ending_current if isinstance(period_ending_current, str) else None
+                ),
+                eps_currency_prior=(
+                    eps_currency_prior if isinstance(eps_currency_prior, str) else None
+                ),
+                eps_currency_current=(
+                    eps_currency_current if isinstance(eps_currency_current, str) else None
+                ),
                 analyst_count_prior=before.get("analyst_count"),
                 analyst_count_current=after.get("analyst_count"),
                 eps_revision_pct=eps_revision,
                 revenue_growth_forecast_change_pp=revenue_change,
                 profit_growth_estimate_change_pp=profit_change,
                 target_price_revision_pct=target_revision,
+                period_compatible=period_compatible,
+                eps_currency_compatible=eps_currency_compatible,
                 source_compatible=source_compatible,
                 primary_coverage=primary_coverage,
                 primary_signal_available=reason == "ELIGIBLE",
