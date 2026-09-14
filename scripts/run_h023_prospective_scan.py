@@ -25,18 +25,20 @@ from marketlab.h023_prospective import (
     append_event,
     append_scan,
     append_sources,
-    build_event_record,
     build_scan_record,
     event_exists,
     new_event_ledger,
     new_scan_ledger,
     new_source_ledger,
-    primary_current_source,
-    prior_source_at_event,
     validate_event_ledger,
     validate_scan_ledger,
     validate_source_ledger,
     validate_universe_snapshot,
+)
+from marketlab.h023_selection import (
+    build_strict_event_record,
+    strict_primary_current_source,
+    strict_prior_source_at_event,
 )
 
 
@@ -101,18 +103,19 @@ def _utc_timestamp(value: str) -> datetime:
 
 def _eligible_event_keys(source_ledger: dict[str, Any]) -> list[tuple[str, str]]:
     keys: set[tuple[str, str]] = set()
-    for row in source_ledger["records"]:
-        source = row["source"]
-        current = primary_current_source(
-            source_ledger,
-            symbol=str(source["symbol"]),
-            report_date=str(source["report_date"]),
+    source_pairs = {
+        (str(row["source"]["symbol"]), str(row["source"]["report_date"]))
+        for row in source_ledger["records"]
+    }
+    for symbol, report_date in source_pairs:
+        current = strict_primary_current_source(
+            source_ledger, symbol=symbol, report_date=report_date
         )
         if current is None:
             continue
         if _utc_timestamp(str(current["broadcast_at_utc"])) < PROSPECTIVE_START_UTC:
             continue
-        keys.add((str(source["symbol"]), str(source["report_date"])))
+        keys.add((symbol, report_date))
     return sorted(keys, key=lambda item: (item[1], item[0]))
 
 
@@ -196,10 +199,8 @@ def main() -> int:
     for symbol, report_date in _eligible_event_keys(source_ledger):
         if event_exists(event_ledger, symbol=symbol, report_date=report_date):
             continue
-        current = primary_current_source(
-            source_ledger,
-            symbol=symbol,
-            report_date=report_date,
+        current = strict_primary_current_source(
+            source_ledger, symbol=symbol, report_date=report_date
         )
         if current is None:
             continue
@@ -214,7 +215,7 @@ def main() -> int:
                 attempts=args.attempts,
             )
             evidence_cache[current_id] = current_evidence
-        prior = prior_source_at_event(
+        prior = strict_prior_source_at_event(
             source_ledger,
             symbol=symbol,
             current_report_date=report_date,
@@ -233,7 +234,7 @@ def main() -> int:
                     attempts=args.attempts,
                 )
                 evidence_cache[prior_id] = prior_evidence
-        record = build_event_record(
+        record = build_strict_event_record(
             source_ledger=source_ledger,
             symbol=symbol,
             report_date=report_date,
