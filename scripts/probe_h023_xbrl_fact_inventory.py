@@ -7,11 +7,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
+from zoneinfo import ZoneInfo
 
-from probe_h023_nse_shareholding import _request_with_retries, _session as _api_session
+from probe_h023_nse_shareholding import _request_with_retries
+from probe_h023_nse_shareholding import _session as _api_session
 from probe_h023_nse_shareholding_xbrl import _fetch, _resolve_xbrl_url
 from probe_h023_nse_shareholding_xbrl import _session as _xbrl_session
 
+IST = ZoneInfo("Asia/Kolkata")
 BROADCAST_FORMAT = "%d-%b-%Y %H:%M:%S"
 INTERESTING_RE = re.compile(
     r"mutual|fund|sharehold|percent|category|shareholder|institution",
@@ -43,7 +46,7 @@ def _latest_rows(payload: object, *, limit: int) -> list[dict[str, Any]]:
         if url is None or not broadcast:
             continue
         try:
-            timestamp = datetime.strptime(broadcast.upper(), BROADCAST_FORMAT)
+            timestamp = datetime.strptime(broadcast.upper(), BROADCAST_FORMAT).replace(tzinfo=IST)
         except ValueError:
             continue
         candidates.append((timestamp, {**row, "resolved_xbrl_url": url}))
