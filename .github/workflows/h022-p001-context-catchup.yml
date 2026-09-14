@@ -2,11 +2,6 @@ name: H022 P001 context catch-up
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - research/h022-p001-acquisition-v1-20260914
-    paths:
-      - '.github/workflows/h022-p001-context-catchup.yml'
   schedule:
     # 00:50 Asia/Kolkata. The gate is forbidden before the frozen
     # 2026-09-15 00:00 IST prospective boundary and becomes idempotent once sealed.
