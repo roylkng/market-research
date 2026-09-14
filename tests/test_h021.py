@@ -27,7 +27,9 @@ def _snapshot(day: str) -> dict:
             {
                 "symbol": "AAA",
                 "fiscal_period": "FY27",
+                "period_ending": "2027-03-31",
                 "consensus_eps": 10.0,
+                "eps_currency": "INR",
                 "revenue_growth_forecast_pct": 12.0,
                 "profit_growth_estimate_pct": 15.0,
                 "analyst_count": 5,
@@ -42,6 +44,25 @@ def _snapshot(day: str) -> dict:
 
 def test_validate_snapshot_accepts_valid_capture() -> None:
     assert validate_snapshot(_snapshot("2026-09-11")) == []
+
+
+def test_validate_snapshot_rejects_invalid_period_ending_when_present() -> None:
+    snapshot = _snapshot("2026-09-11")
+    snapshot["observations"][0]["period_ending"] = "31-03-2027"
+    assert any("period_ending" in error for error in validate_snapshot(snapshot))
+
+
+def test_validate_snapshot_rejects_invalid_eps_currency_when_present() -> None:
+    snapshot = _snapshot("2026-09-11")
+    snapshot["observations"][0]["eps_currency"] = "inr"
+    assert any("eps_currency" in error for error in validate_snapshot(snapshot))
+
+
+def test_validate_snapshot_allows_missing_optional_semantics_for_legacy_rows() -> None:
+    snapshot = _snapshot("2026-09-11")
+    del snapshot["observations"][0]["period_ending"]
+    del snapshot["observations"][0]["eps_currency"]
+    assert validate_snapshot(snapshot) == []
 
 
 def test_validate_snapshot_rejects_future_source_date() -> None:
@@ -83,10 +104,16 @@ def test_compare_snapshots_computes_revision_without_price_inputs() -> None:
     result = compare_snapshots(prior, current)[0]
 
     assert result.capture_interval_days == 30
+    assert result.period_ending_prior == "2027-03-31"
+    assert result.period_ending_current == "2027-03-31"
+    assert result.eps_currency_prior == "INR"
+    assert result.eps_currency_current == "INR"
     assert result.eps_revision_pct == pytest.approx(10.0)
     assert result.revenue_growth_forecast_change_pp == pytest.approx(2.5)
     assert result.profit_growth_estimate_change_pp == pytest.approx(4.0)
     assert result.target_price_revision_pct == pytest.approx(6.0)
+    assert result.period_compatible
+    assert result.eps_currency_compatible
     assert result.source_compatible
     assert result.primary_coverage
     assert result.primary_signal_available
@@ -98,6 +125,10 @@ def test_compare_snapshots_keeps_primary_signal_unavailable_when_eps_missing() -
     current = _snapshot("2026-10-11")
     prior["observations"][0]["consensus_eps"] = None
     current["observations"][0]["consensus_eps"] = None
+    prior["observations"][0]["period_ending"] = None
+    current["observations"][0]["period_ending"] = None
+    prior["observations"][0]["eps_currency"] = None
+    current["observations"][0]["eps_currency"] = None
 
     result = compare_snapshots(prior, current)[0]
 
@@ -162,6 +193,59 @@ def test_compare_snapshots_retains_fiscal_period_mismatch_as_no_signal() -> None
     assert result.primary_signal_reason == "FISCAL_PERIOD_MISMATCH"
 
 
+def test_compare_snapshots_rejects_period_end_mismatch() -> None:
+    prior = _snapshot("2026-09-11")
+    current = _snapshot("2026-10-11")
+    current["observations"][0]["consensus_eps"] = 11.0
+    current["observations"][0]["period_ending"] = "2027-06-30"
+
+    result = compare_snapshots(prior, current)[0]
+
+    assert not result.period_compatible
+    assert result.eps_revision_pct is None
+    assert result.revenue_growth_forecast_change_pp is None
+    assert not result.primary_signal_available
+    assert result.primary_signal_reason == "PERIOD_END_MISMATCH"
+
+
+def test_compare_snapshots_rejects_missing_period_end_for_numeric_eps() -> None:
+    prior = _snapshot("2026-09-11")
+    current = _snapshot("2026-10-11")
+    current["observations"][0]["consensus_eps"] = 11.0
+    current["observations"][0]["period_ending"] = None
+
+    result = compare_snapshots(prior, current)[0]
+
+    assert result.eps_revision_pct is None
+    assert result.primary_signal_reason == "PERIOD_END_UNAVAILABLE"
+
+
+def test_compare_snapshots_rejects_eps_currency_mismatch() -> None:
+    prior = _snapshot("2026-09-11")
+    current = _snapshot("2026-10-11")
+    current["observations"][0]["consensus_eps"] = 11.0
+    current["observations"][0]["eps_currency"] = "USD"
+
+    result = compare_snapshots(prior, current)[0]
+
+    assert not result.eps_currency_compatible
+    assert result.eps_revision_pct is None
+    assert not result.primary_signal_available
+    assert result.primary_signal_reason == "EPS_CURRENCY_MISMATCH"
+
+
+def test_compare_snapshots_rejects_missing_eps_currency_for_numeric_eps() -> None:
+    prior = _snapshot("2026-09-11")
+    current = _snapshot("2026-10-11")
+    current["observations"][0]["consensus_eps"] = 11.0
+    current["observations"][0]["eps_currency"] = None
+
+    result = compare_snapshots(prior, current)[0]
+
+    assert result.eps_revision_pct is None
+    assert result.primary_signal_reason == "EPS_CURRENCY_UNAVAILABLE"
+
+
 def test_compare_snapshots_rejects_cross_provider_eps_change() -> None:
     prior = _snapshot("2026-09-11")
     current = _snapshot("2026-10-11")
@@ -170,7 +254,7 @@ def test_compare_snapshots_rejects_cross_provider_eps_change() -> None:
 
     result = compare_snapshots(prior, current)[0]
 
-    assert result.eps_revision_pct == pytest.approx(10.0)
+    assert result.eps_revision_pct is None
     assert not result.source_compatible
     assert not result.primary_signal_available
     assert result.primary_signal_reason == "EPS_SOURCE_CHANGED"
