@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 import requests
 
-from marketlab.h021_capture import validate_full_capture
+from marketlab.h021_capture import CANONICAL_SOURCE_VERSION, validate_full_capture
 from marketlab.h021_capture_draft import build_capture_draft
 from marketlab.h021_stockanalysis_acquisition import (
     StructuralSourceDrift,
@@ -36,6 +36,10 @@ ACQUISITION_CONTRACT_PATH = "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
 BLOCKED_HTTP_STATUSES = {401, 403, 405, 429}
 
 
+def _utc_now() -> str:
+    return datetime.now(UTC).isoformat()
+
+
 def _load_object(path: Path) -> dict:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -56,9 +60,10 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def _http_summary(response: requests.Response) -> dict:
+def _http_summary(response: requests.Response, fetched_at_utc: str) -> dict:
     return {
         "state": "HTTP",
+        "fetched_at_utc": fetched_at_utc,
         "status_code": response.status_code,
         "final_url": response.url,
         "content_type": response.headers.get("Content-Type"),
@@ -76,17 +81,26 @@ def _fetch_page(
     user_agent: str,
 ) -> tuple[requests.Response | None, dict]:
     if not robots_allows(robots_text, user_agent, url):
-        return None, {"state": "ROBOTS_BLOCKED", "requested_url": url}
+        return None, {
+            "state": "ROBOTS_BLOCKED",
+            "requested_url": url,
+            "fetched_at_utc": _utc_now(),
+        }
     try:
         response = session.get(url, timeout=timeout)
     except requests.RequestException as exc:
         return None, {
             "state": "REQUEST_ERROR",
             "requested_url": url,
+            "fetched_at_utc": _utc_now(),
             "error_type": type(exc).__name__,
             "error": str(exc),
         }
-    return response, {"requested_url": url, **_http_summary(response)}
+    fetched_at_utc = _utc_now()
+    return response, {
+        "requested_url": url,
+        **_http_summary(response, fetched_at_utc),
+    }
 
 
 def _is_expected_html(response: requests.Response) -> bool:
@@ -152,9 +166,24 @@ def _handle_primary_fetch_failure(
     return None
 
 
-def _validate_config(config: dict) -> None:
+def _validate_config(config: dict, anchor_path: Path) -> None:
+    if config.get("schema_version") != 1:
+        raise ValueError("weekly acquisition config schema_version must equal 1")
+    if config.get("hypothesis_id") != "H021":
+        raise ValueError("weekly acquisition config hypothesis_id must equal H021")
+    if config.get("source_version") != CANONICAL_SOURCE_VERSION:
+        raise ValueError("weekly acquisition config source_version is not canonical")
+    if config.get("acquisition_contract_path") != ACQUISITION_CONTRACT_PATH:
+        raise ValueError("weekly acquisition config contract path is not canonical")
+    if config.get("anchor_path") != str(anchor_path):
+        raise ValueError("weekly acquisition config anchor path differs from CLI anchor")
     if config.get("robots_url") != ROBOTS_URL:
         raise ValueError("weekly acquisition must use frozen StockAnalysis robots URL")
+    if config.get("outcomes_opened") is not False:
+        raise ValueError("weekly acquisition config outcomes_opened must be false")
+    if config.get("live_capital_allowed") is not False:
+        raise ValueError("weekly acquisition config live_capital_allowed must be false")
+
     timeout = config.get("timeout_seconds")
     sleep_seconds = config.get("sleep_seconds")
     user_agent = config.get("user_agent")
@@ -181,7 +210,7 @@ def main() -> None:
     batches = _load_object(args.batches)
     anchor = _load_gzip_object(args.anchor)
     config = _load_object(args.config)
-    _validate_config(config)
+    _validate_config(config, args.anchor)
 
     draft = build_capture_draft(args.capture_date, universe, batches)
     targets = anchor_targets(anchor)
@@ -205,7 +234,9 @@ def main() -> None:
         }
     )
 
+    started_at_utc = _utc_now()
     robots_response = session.get(ROBOTS_URL, timeout=timeout)
+    robots_fetched_at_utc = _utc_now()
     if robots_response.status_code != 200:
         raise SystemExit(f"robots.txt returned HTTP {robots_response.status_code}")
     robots_text = robots_response.text
@@ -213,11 +244,13 @@ def main() -> None:
         "schema_version": 1,
         "hypothesis_id": "H021",
         "capture_date_ist": args.capture_date,
+        "started_at_utc": started_at_utc,
         "acquisition_contract_path": ACQUISITION_CONTRACT_PATH,
         "anchor_path": str(args.anchor),
         "universe_path": str(args.universe),
         "batch_spec_path": str(args.batches),
         "robots": {
+            "fetched_at_utc": robots_fetched_at_utc,
             "status_code": robots_response.status_code,
             "content_length": len(robots_response.content),
             "sha256": hashlib.sha256(robots_response.content).hexdigest(),
@@ -295,7 +328,9 @@ def main() -> None:
                         draft_row,
                         target=target,
                         source_url=forecast_response.url,
-                        reason=_blocked_reason("required currency fallback", financials_evidence),
+                        reason=_blocked_reason(
+                            "required currency fallback", financials_evidence
+                        ),
                     )
                     completed_rows.append(blocked)
                     row_evidence["capture_state"] = blocked["data_state"]
@@ -318,7 +353,7 @@ def main() -> None:
                         financials_response.url if financials_response is not None else None
                     ),
                 )
-            except ValueError as exc:
+            except (KeyError, TypeError, ValueError) as exc:
                 mapped = row_from_parser_error(
                     draft_row,
                     target=target,
@@ -356,7 +391,7 @@ def main() -> None:
         fatal_error = f"{type(exc).__name__}: {exc}"
         evidence["fatal_error"] = fatal_error
 
-    completion = datetime.now(UTC).isoformat()
+    completion = _utc_now()
     evidence["completed_at_utc"] = completion
     evidence["completed_rows"] = len(completed_rows)
     _write_json(args.out_evidence, evidence)
