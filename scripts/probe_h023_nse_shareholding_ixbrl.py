@@ -9,7 +9,6 @@ from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
-
 from probe_h023_nse_shareholding_xbrl import (
     _fetch,
     _inventory_xbrl_records,
