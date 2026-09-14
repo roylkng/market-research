@@ -10,8 +10,12 @@ from pathlib import Path
 
 import requests
 
-from marketlab.h021_stockanalysis_parser import parse_annual_forecast
-from marketlab.h021_stockanalysis_probe import ROBOTS_URL, forecast_url, robots_allows
+from marketlab.h021_stockanalysis_parser import (
+    financials_url,
+    forecast_url,
+    parse_annual_forecast,
+)
+from marketlab.h021_stockanalysis_probe import ROBOTS_URL, robots_allows
 
 
 def _load_object(path: Path) -> dict:
@@ -48,6 +52,37 @@ def _validate_config(config: dict) -> None:
 def _write(path: Path, report: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _http_summary(response: requests.Response) -> dict:
+    return {
+        "status_code": response.status_code,
+        "final_url": response.url,
+        "content_length": len(response.content),
+        "sha256": hashlib.sha256(response.content).hexdigest(),
+    }
+
+
+def _fetch_page(
+    session: requests.Session,
+    *,
+    url: str,
+    timeout: float,
+    robots_text: str,
+    user_agent: str,
+) -> tuple[requests.Response | None, dict]:
+    if not robots_allows(robots_text, user_agent, url):
+        return None, {"state": "ROBOTS_BLOCKED", "requested_url": url}
+    try:
+        response = session.get(url, timeout=timeout)
+    except requests.RequestException as exc:
+        return None, {
+            "state": "REQUEST_ERROR",
+            "requested_url": url,
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        }
+    return response, {"state": "HTTP", "requested_url": url, **_http_summary(response)}
 
 
 def main() -> None:
@@ -105,86 +140,102 @@ def main() -> None:
 
     for index, symbol in enumerate(config["symbols"]):
         anchor_row = by_symbol[symbol]
-        source_url = forecast_url(symbol)
+        forecast_source = forecast_url(symbol)
+        financials_source = financials_url(symbol)
         result = {
             "symbol": symbol,
-            "source_url": source_url,
+            "forecast_source_url": forecast_source,
+            "financials_source_url": financials_source,
             "anchor_fiscal_period": anchor_row.get("fiscal_period"),
             "anchor_period_ending": anchor_row.get("period_ending"),
             "anchor_eps_currency": anchor_row.get("eps_currency"),
             "anchor_consensus_eps": anchor_row.get("consensus_eps"),
         }
-        if not robots_allows(robots_text, user_agent, source_url):
-            result.update({"state": "ROBOTS_BLOCKED", "parser_pass": False})
+
+        forecast_response, forecast_evidence = _fetch_page(
+            session,
+            url=forecast_source,
+            timeout=timeout,
+            robots_text=robots_text,
+            user_agent=user_agent,
+        )
+        result["forecast_http"] = forecast_evidence
+        if sleep_seconds > 0:
+            time.sleep(sleep_seconds)
+
+        financials_response, financials_evidence = _fetch_page(
+            session,
+            url=financials_source,
+            timeout=timeout,
+            robots_text=robots_text,
+            user_agent=user_agent,
+        )
+        result["financials_http"] = financials_evidence
+
+        if (
+            forecast_response is None
+            or financials_response is None
+            or forecast_response.status_code != 200
+            or financials_response.status_code != 200
+        ):
+            result["parser_pass"] = False
+            result["semantic_match_pass"] = False
         else:
             try:
-                response = session.get(source_url, timeout=timeout)
-            except requests.RequestException as exc:
+                parsed = parse_annual_forecast(
+                    symbol=symbol,
+                    source_url=forecast_source,
+                    html=forecast_response.content,
+                    expected_fiscal_period=anchor_row["fiscal_period"],
+                    expected_period_ending=anchor_row["period_ending"],
+                    financials_html=financials_response.content,
+                    financials_source_url=financials_source,
+                )
+            except (KeyError, TypeError, ValueError) as exc:
                 result.update(
                     {
-                        "state": "REQUEST_ERROR",
-                        "error_type": type(exc).__name__,
-                        "error": str(exc),
                         "parser_pass": False,
+                        "semantic_match_pass": False,
+                        "parse_error_type": type(exc).__name__,
+                        "parse_error": str(exc),
                     }
                 )
             else:
+                currency_matches = parsed.eps_currency == anchor_row.get("eps_currency")
                 result.update(
                     {
-                        "state": "HTTP",
-                        "status_code": response.status_code,
-                        "content_length": len(response.content),
-                        "sha256": hashlib.sha256(response.content).hexdigest(),
+                        "parser_pass": True,
+                        "semantic_match_pass": currency_matches,
+                        "parsed": parsed.to_dict(),
+                        "eps_currency_matches_anchor": currency_matches,
                     }
                 )
-                if response.status_code != 200:
-                    result["parser_pass"] = False
-                else:
-                    try:
-                        parsed = parse_annual_forecast(
-                            symbol=symbol,
-                            source_url=source_url,
-                            html=response.content,
-                            expected_fiscal_period=anchor_row["fiscal_period"],
-                            expected_period_ending=anchor_row["period_ending"],
-                        )
-                    except (KeyError, TypeError, ValueError) as exc:
-                        result.update(
-                            {
-                                "parser_pass": False,
-                                "parse_error_type": type(exc).__name__,
-                                "parse_error": str(exc),
-                            }
-                        )
-                    else:
-                        result.update(
-                            {
-                                "parser_pass": True,
-                                "parsed": parsed.to_dict(),
-                                "eps_currency_matches_anchor": (
-                                    parsed.eps_currency == anchor_row.get("eps_currency")
-                                ),
-                            }
-                        )
+
         report["rows"].append(result)
         if index + 1 < len(config["symbols"]) and sleep_seconds > 0:
             time.sleep(sleep_seconds)
 
-    passed = sum(bool(row.get("parser_pass")) for row in report["rows"])
+    parsed_count = sum(bool(row.get("parser_pass")) for row in report["rows"])
+    semantic_count = sum(bool(row.get("semantic_match_pass")) for row in report["rows"])
     total = len(report["rows"])
+    passed = parsed_count == total and semantic_count == total
     report["decision"] = {
-        "parser_live_validation_pass": passed == total,
-        "passed_rows": passed,
+        "parser_live_validation_pass": passed,
+        "parsed_rows": parsed_count,
+        "semantic_match_rows": semantic_count,
         "total_rows": total,
         "reason": (
-            "All frozen parser-probe symbols yielded the exact Sep 11 target period."
-            if passed == total
-            else "At least one frozen parser-probe symbol did not yield the exact Sep 11 target period."
+            "All frozen parser-probe symbols yielded the exact Sep 11 target period and EPS currency semantics."
+            if passed
+            else "At least one frozen parser-probe symbol failed target-period parsing or EPS-currency semantic matching."
         ),
     }
     _write(args.out, report)
-    print(f"parser_pass={passed}/{total} report={args.out}")
-    if passed != total:
+    print(
+        f"parser_pass={parsed_count}/{total} semantic_match={semantic_count}/{total} "
+        f"report={args.out}"
+    )
+    if not passed:
         raise SystemExit(1)
 
 
