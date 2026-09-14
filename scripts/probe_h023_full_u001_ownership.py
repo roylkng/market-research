@@ -7,9 +7,16 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from probe_h023_nse_shareholding import _request_with_retries, _session
+from probe_h023_nse_shareholding import (
+    _request_with_retries,
+    _session as _api_session,
+)
 from probe_h023_nse_shareholding_ixbrl import _rows
-from probe_h023_nse_shareholding_xbrl import _fetch, _inventory_xbrl_records
+from probe_h023_nse_shareholding_xbrl import (
+    _fetch,
+    _inventory_xbrl_records,
+    _session as _xbrl_session,
+)
 
 from marketlab.universe import load_universe_snapshot
 
@@ -84,8 +91,8 @@ def main() -> int:
     if args.filings_per_symbol < 1 or args.pause_seconds < 0:
         raise ValueError("invalid H023 full-U001 probe configuration")
 
-    api_session = _session(args.timeout_seconds)
-    xbrl_session = _session()
+    api_session = _api_session(args.timeout_seconds)
+    xbrl_session = _xbrl_session()
     symbol_reports: list[dict[str, Any]] = []
     category_coverage: dict[str, Counter[str]] = defaultdict(Counter)
     percentage_concept_counts: dict[str, Counter[str]] = defaultdict(Counter)
