@@ -6,8 +6,9 @@ import math
 import random
 import statistics
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from datetime import date, datetime
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 from scipy import stats
@@ -61,7 +62,7 @@ def _parse_timestamp(value: object) -> datetime:
     if not isinstance(value, str) or not value.strip():
         raise H022DependenceDiagnosticError("publication timestamp is missing")
     try:
-        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.strip())
     except ValueError as exc:
         raise H022DependenceDiagnosticError(
             f"invalid publication timestamp: {value}"
