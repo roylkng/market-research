@@ -7,13 +7,15 @@ from typing import Any
 
 from marketlab.h023_prospective import (
     H023ProspectiveError,
-    primary_current_source,
-    prior_source_at_event,
     source_first_seen,
     validate_event_ledger,
     validate_scan_ledger,
     validate_source_ledger,
     validate_universe_snapshot,
+)
+from marketlab.h023_selection import (
+    strict_primary_current_source,
+    strict_prior_source_at_event,
 )
 
 
@@ -25,7 +27,11 @@ def _load(path: Path) -> dict[str, Any]:
 
 
 def verify(
-    *, universe: dict[str, Any], source_ledger: dict[str, Any], event_ledger: dict[str, Any], scan_ledger: dict[str, Any]
+    *,
+    universe: dict[str, Any],
+    source_ledger: dict[str, Any],
+    event_ledger: dict[str, Any],
+    scan_ledger: dict[str, Any],
 ) -> dict[str, Any]:
     members = validate_universe_snapshot(universe)
     validate_source_ledger(source_ledger)
@@ -33,7 +39,8 @@ def verify(
     validate_scan_ledger(scan_ledger)
 
     source_by_id = {
-        str(row["source"]["source_id"]): row["source"] for row in source_ledger["records"]
+        str(row["source"]["source_id"]): row["source"]
+        for row in source_ledger["records"]
     }
     for source in source_by_id.values():
         if str(source["symbol"]) not in members:
@@ -53,19 +60,19 @@ def verify(
             raise H023ProspectiveError(
                 f"{event['event_id']}: current source is not exactly present in source ledger"
             )
-        expected_current = primary_current_source(
+        expected_current = strict_primary_current_source(
             source_ledger, symbol=symbol, report_date=report_date
         )
         if expected_current != current:
             raise H023ProspectiveError(
-                f"{event['event_id']}: event is not bound to first official current filing"
+                f"{event['event_id']}: event is not bound to unique first official current filing"
             )
         if source_first_seen(source_ledger, current_id) != event["source_first_seen_at_utc"]:
             raise H023ProspectiveError(
                 f"{event['event_id']}: source first-seen timestamp does not match ledger"
             )
 
-        expected_prior = prior_source_at_event(
+        expected_prior = strict_prior_source_at_event(
             source_ledger,
             symbol=symbol,
             current_report_date=report_date,
@@ -80,7 +87,7 @@ def verify(
             prior = event["prior_source"]
             if expected_prior != prior:
                 raise H023ProspectiveError(
-                    f"{event['event_id']}: event prior is not latest source public at current broadcast"
+                    f"{event['event_id']}: event prior is not unique latest source public at current broadcast"
                 )
             if prior is None or source_by_id.get(str(prior["source_id"])) != prior:
                 raise H023ProspectiveError(
