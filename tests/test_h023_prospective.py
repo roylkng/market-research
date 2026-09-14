@@ -55,18 +55,23 @@ def _source(
             "row_marker": row_marker or record_id,
         }
     )
-    payload = {
+    xbrl_url = f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml"
+    identity = {
         "source_contract_id": "H023-NSE-SHAREHOLDING-XBRL-V1",
         "symbol": symbol,
         "record_id": record_id,
         "report_date": report_date,
         "broadcast_at_utc": broadcast_at_utc,
-        "xbrl_url": f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml",
-        "master_row_sha256": master_row_sha256,
+        "xbrl_url": xbrl_url,
     }
     return {
-        "source_id": canonical_hash(payload),
-        **{k: v for k, v in payload.items() if k != "source_contract_id"},
+        "source_id": canonical_hash(identity),
+        "symbol": symbol,
+        "record_id": record_id,
+        "report_date": report_date,
+        "broadcast_at_utc": broadcast_at_utc,
+        "xbrl_url": xbrl_url,
+        "master_row_sha256": master_row_sha256,
     }
 
 
@@ -275,7 +280,7 @@ def test_later_discovered_prior_revision_before_event_raises_gap() -> None:
         )
 
 
-def test_source_identity_drift_is_rejected() -> None:
+def test_master_row_hash_drift_does_not_change_stable_source_identity() -> None:
     original = _source(
         record_id="q2",
         report_date="2026-06-30",
@@ -288,6 +293,29 @@ def test_source_identity_drift_is_rejected() -> None:
         broadcast_at_utc="2026-07-16T08:00:00Z",
         row_marker="mutated-row",
     )
+    assert drifted["source_id"] == original["source_id"]
+    assert drifted["master_row_sha256"] != original["master_row_sha256"]
+    assert _append(source_ledger, new_event_ledger(), [drifted]) == source_ledger
+
+
+def test_immutable_source_identity_drift_is_rejected() -> None:
+    original = _source(
+        record_id="q2",
+        report_date="2026-06-30",
+        broadcast_at_utc="2026-07-16T08:00:00Z",
+    )
+    source_ledger = _append(new_source_ledger(), new_event_ledger(), [original])
+    drifted = dict(original)
+    drifted["xbrl_url"] = "https://nsearchives.nseindia.com/corporate/xbrl/q2-replaced.xml"
+    identity = {
+        "source_contract_id": "H023-NSE-SHAREHOLDING-XBRL-V1",
+        "symbol": drifted["symbol"],
+        "record_id": drifted["record_id"],
+        "report_date": drifted["report_date"],
+        "broadcast_at_utc": drifted["broadcast_at_utc"],
+        "xbrl_url": drifted["xbrl_url"],
+    }
+    drifted["source_id"] = canonical_hash(identity)
     with pytest.raises(Exception, match="identity drift"):
         _append(source_ledger, new_event_ledger(), [drifted])
 
