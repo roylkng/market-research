@@ -92,7 +92,7 @@ def _historical_u001_records(
             raise ValueError(f"duplicate historical E002 source id: {source_id}")
         seen.add(source_id)
         published = datetime.fromisoformat(
-            str(cleaned["exchange_published_at_utc"]).replace("Z", "+00:00")
+            str(cleaned["exchange_published_at_utc"])
         ).astimezone(UTC)
         if published > HISTORICAL_CUTOFF:
             raise ValueError(f"historical baseline source exceeds cutoff: {source_id}")
@@ -134,7 +134,7 @@ def _frozen_source(source: dict[str, Any]) -> FrozenTranscriptSource:
 
 def _strict_catchup_source(source: Any) -> bool:
     published = datetime.fromisoformat(
-        str(source.exchange_published_at_utc).replace("Z", "+00:00")
+        str(source.exchange_published_at_utc)
     ).astimezone(UTC)
     return HISTORICAL_CUTOFF < published < PROSPECTIVE_START
 
