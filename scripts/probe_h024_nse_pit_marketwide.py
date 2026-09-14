@@ -7,7 +7,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from probe_h024_nse_pit_source import _clean, _request, _rows, _session, _sha256, _write_json
+from probe_h024_nse_pit_source import (
+    _clean,
+    _request,
+    _rows,
+    _session,
+    _sha256,
+    _write_json,
+)
 
 DIRECT_ACTOR_CATEGORIES = frozenset(
     {"Promoters", "Promoter Group", "Director", "Key Managerial Personnel"}
@@ -33,7 +40,9 @@ def _is_market_purchase(row: dict[str, Any]) -> bool:
     )
 
 
-def _event_inventory(rows: list[dict[str, Any]], categories: frozenset[str]) -> list[dict[str, Any]]:
+def _event_inventory(
+    rows: list[dict[str, Any]], categories: frozenset[str]
+) -> list[dict[str, Any]]:
     groups: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
         if not _is_market_purchase(row):
@@ -65,16 +74,26 @@ def _event_inventory(rows: list[dict[str, Any]], categories: frozenset[str]) -> 
                 "person_categories": sorted(
                     {_clean(row.get("personCategory")) for row in event_rows}
                 ),
-                "acquirer_names": sorted({_clean(row.get("acqName")) for row in event_rows}),
-                "purchase_value_inr": sum(value for value in values if value is not None),
-                "purchase_quantity": sum(value for value in quantities if value is not None),
+                "acquirer_names": sorted(
+                    {_clean(row.get("acqName")) for row in event_rows}
+                ),
+                "purchase_value_inr": sum(
+                    value for value in values if value is not None
+                ),
+                "purchase_quantity": sum(
+                    value for value in quantities if value is not None
+                ),
                 "reported_ownership_delta_pp": sum(
                     after - before
                     for before, after in zip(before_pct, after_pct, strict=True)
                     if before is not None and after is not None
                 ),
-                "intimation_dates": sorted({_clean(row.get("intimDt")) for row in event_rows}),
-                "exchanges": sorted({_clean(row.get("exchange")) for row in event_rows}),
+                "intimation_dates": sorted(
+                    {_clean(row.get("intimDt")) for row in event_rows}
+                ),
+                "exchanges": sorted(
+                    {_clean(row.get("exchange")) for row in event_rows}
+                ),
                 "pids": sorted({_clean(row.get("pid")) for row in event_rows}),
                 "dids": sorted({_clean(row.get("did")) for row in event_rows}),
             }
@@ -120,8 +139,21 @@ def main() -> int:
 
     category_counts = Counter(_clean(row.get("personCategory")) for row in rows)
     mode_counts = Counter(_clean(row.get("acqMode")) for row in rows)
-    transaction_counts = Counter(_clean(row.get("tdpTransactionType")) for row in rows)
+    transaction_counts = Counter(
+        _clean(row.get("tdpTransactionType")) for row in rows
+    )
     market_purchase_rows = [row for row in rows if _is_market_purchase(row)]
+    symbols = {
+        _clean(row.get("symbol")).upper()
+        for row in rows
+        if _clean(row.get("symbol"))
+    }
+    unique_xbrls = {
+        _clean(row.get("xbrl")) for row in rows if _clean(row.get("xbrl"))
+    }
+    market_purchase_symbols = {
+        _clean(row.get("symbol")).upper() for row in market_purchase_rows
+    }
     report = {
         "schema_version": 1,
         "hypothesis_candidate": "H024_INSIDER_CAPITAL_COMMITMENT",
@@ -130,7 +162,9 @@ def main() -> int:
             "Market-wide source-only feasibility count for explicit open-market equity purchases "
             "in official NSE Regulation 7(2) PIT disclosures. No price/return outcome consumed."
         ),
-        "generated_at_utc": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "generated_at_utc": datetime.now(UTC)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z"),
         "source": {
             "endpoint": "https://www.nseindia.com/api/corporates-pit",
             "type": "individual",
@@ -141,12 +175,10 @@ def main() -> int:
         },
         "summary": {
             "row_count": len(rows),
-            "symbol_count": len({_clean(row.get("symbol")).upper() for row in rows if _clean(row.get("symbol"))}),
-            "unique_xbrl_count": len({_clean(row.get("xbrl")) for row in rows if _clean(row.get("xbrl"))}),
+            "symbol_count": len(symbols),
+            "unique_xbrl_count": len(unique_xbrls),
             "market_purchase_row_count": len(market_purchase_rows),
-            "market_purchase_symbol_count": len(
-                {_clean(row.get("symbol")).upper() for row in market_purchase_rows}
-            ),
+            "market_purchase_symbol_count": len(market_purchase_symbols),
             "direct_actor_event_count": len(direct),
             "direct_actor_symbol_count": len({event["symbol"] for event in direct}),
             "broad_actor_event_count": len(broad),
