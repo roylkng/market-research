@@ -103,17 +103,22 @@ def _utc_timestamp(value: str) -> datetime:
 
 def _eligible_event_keys(source_ledger: dict[str, Any]) -> list[tuple[str, str]]:
     keys: set[tuple[str, str]] = set()
-    source_pairs = {
-        (str(row["source"]["symbol"]), str(row["source"]["report_date"]))
-        for row in source_ledger["records"]
-    }
-    for symbol, report_date in source_pairs:
+    earliest_broadcast_by_pair: dict[tuple[str, str], datetime] = {}
+    for row in source_ledger["records"]:
+        source = row["source"]
+        pair = (str(source["symbol"]), str(source["report_date"]))
+        broadcast = _utc_timestamp(str(source["broadcast_at_utc"]))
+        previous = earliest_broadcast_by_pair.get(pair)
+        if previous is None or broadcast < previous:
+            earliest_broadcast_by_pair[pair] = broadcast
+
+    for (symbol, report_date), earliest_broadcast in earliest_broadcast_by_pair.items():
+        if earliest_broadcast < PROSPECTIVE_START_UTC:
+            continue
         current = strict_primary_current_source(
             source_ledger, symbol=symbol, report_date=report_date
         )
         if current is None:
-            continue
-        if _utc_timestamp(str(current["broadcast_at_utc"])) < PROSPECTIVE_START_UTC:
             continue
         keys.add((symbol, report_date))
     return sorted(keys, key=lambda item: (item[1], item[0]))
