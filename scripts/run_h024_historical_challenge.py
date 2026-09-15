@@ -157,13 +157,13 @@ def _capture_revision_sources(
                 )
             by_id[source_id] = source
 
+    # The API windows are expressed in NSE-local calendar dates. Do not re-filter
+    # their normalized UTC timestamps by UTC calendar date, which would drop
+    # legitimate early-IST boundary records.
     revisions = [
         source
         for source in by_id.values()
         if source.get("submission_type") == "Revision"
-        and SOURCE_START.isoformat()
-        <= str(source["exchange_disseminated_at_utc"])[:10]
-        <= SOURCE_END.isoformat()
     ]
     revisions.sort(
         key=lambda row: (
