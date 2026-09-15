@@ -1,0 +1,80 @@
+name: H024 temporary derivative-context patcher
+
+on:
+  push:
+    branches:
+      - research/h024-insider-prospective-v1-20260915
+    paths:
+      - '.github/workflows/h024-temp-derivative-context-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h024-insider-prospective-v1-20260915
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Support valid derivative disclosure contexts without weakening Equity parsing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/marketlab/h024_insider.py')
+          text = path.read_text(encoding='utf-8')
+
+          old = '''    for context_ref in _context_ids(root):\n        facts = facts_by_context.get(context_ref, {})\n        missing = sorted(set(TRANSACTION_CONCEPTS) - set(facts))\n'''
+          new = '''    for context_ref in _context_ids(root):\n        facts = facts_by_context.get(context_ref, {})\n        instrument = _one_text(facts, "TypeOfInstrument", context=context_ref)\n        if instrument == "Derivative":\n            continue\n        missing = sorted(set(TRANSACTION_CONCEPTS) - set(facts))\n'''
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 transaction-loop shape')
+          text = text.replace(old, new)
+
+          old = '''                instrument=_one_text(facts, "TypeOfInstrument", context=context_ref),\n'''
+          new = '''                instrument=instrument,\n'''
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 instrument construction shape')
+          text = text.replace(old, new)
+
+          old = '''        "required_transaction_concepts": list(TRANSACTION_CONCEPTS),\n        "quantity_unit": "shares",\n'''
+          new = '''        "required_transaction_concepts": list(TRANSACTION_CONCEPTS),\n        "required_concepts_apply_to": "non_derivative_disclosure_contexts",\n        "derivative_context_policy": "recognized_by_TypeOfInstrument_and_excluded_from_H024_v1",\n        "quantity_unit": "shares",\n'''
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 parser-contract shape')
+          text = text.replace(old, new)
+          path.write_text(text, encoding='utf-8')
+
+          test_path = Path('tests/test_h024_insider.py')
+          tests = test_path.read_text(encoding='utf-8')
+          old_import = '''import pytest\n\nfrom marketlab.h024_insider'''
+          new_import = '''import pytest\nfrom xml.etree import ElementTree as ET\n\nfrom marketlab.h024_insider'''
+          if tests.count(old_import) != 1:
+              raise SystemExit('unexpected H024 parser-test import shape')
+          tests = tests.replace(old_import, new_import)
+
+          marker = '''def test_parser_rejects_unit_and_fraction_semantic_drift() -> None:\n'''
+          added = '''def test_valid_derivative_context_can_omit_equity_transaction_fields() -> None:\n    root = ET.fromstring(_xml(instrument="Derivative"))\n    equity_only = {\n        "SecuritiesHeldPriorToAcquisitionOrDisposalNumberOfSecurity",\n        "SecuritiesHeldPriorToAcquisitionOrDisposalPercentageOfShareholding",\n        "SecuritiesAcquiredOrDisposedNumberOfSecurity",\n        "SecuritiesAcquiredOrDisposedValueOfSecurity",\n        "SecuritiesAcquiredOrDisposedTransactionType",\n        "SecuritiesHeldPostAcquistionOrDisposalNumberOfSecurity",\n        "SecuritiesHeldPostAcquistionOrDisposalPercentageOfShareholding",\n        "ModeOfAcquisitionOrDisposal",\n    }\n    for element in list(root):\n        local = element.tag.rsplit("}", 1)[-1]\n        if local in equity_only:\n            root.remove(element)\n    parsed = parse_pit_xml(ET.tostring(root), expected_symbol="AAA")\n    assert parsed.transactions == ()\n    assert parsed.direct_market_purchases == ()\n\n\n'''
+          if tests.count(marker) != 1:
+              raise SystemExit('unexpected H024 parser-test marker')
+          if added not in tests:
+              tests = tests.replace(marker, added + marker)
+          test_path.write_text(tests, encoding='utf-8')
+          PY
+          python -m pip install -e '.[dev]'
+          ruff check --fix src/marketlab/h024_insider.py tests/test_h024_insider.py
+          pytest -q tests/test_h024_insider.py
+      - name: Commit derivative-context contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add src/marketlab/h024_insider.py tests/test_h024_insider.py
+          git commit -m "H024: support valid derivative disclosure contexts"
+          git push origin HEAD:research/h024-insider-prospective-v1-20260915
