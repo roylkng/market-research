@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,7 @@ from marketlab.h024_acquisition import (
     utc_now_text,
 )
 from marketlab.h024_prospective import (
+    PROSPECTIVE_START_UTC,
     append_evidence,
     append_scan,
     append_signal,
@@ -102,8 +104,6 @@ def main() -> int:
     start_signal_count = int(signal_ledger["record_count"])
     started_at = utc_now_text()
 
-    from datetime import UTC, datetime
-
     now = datetime.now(UTC)
     window_start, window_end = trailing_discovery_window(
         now_utc=now,
@@ -138,9 +138,16 @@ def main() -> int:
     archive = archive_session()
     acquisition_statuses: Counter[str] = Counter()
     new_evidence_source_ids: list[str] = []
+    boundary_text = PROSPECTIVE_START_UTC.isoformat().replace("+00:00", "Z")
     for source in sources:
         source_id = str(source["source_id"])
         if evidence_by_source(evidence_ledger, source_id) is not None:
+            continue
+        if source["submission_type"] != "Original":
+            acquisition_statuses["METADATA_ONLY_REVISION"] += 1
+            continue
+        if str(source["exchange_disseminated_at_utc"]) < boundary_text:
+            acquisition_statuses["METADATA_ONLY_PREBOUNDARY"] += 1
             continue
         try:
             xbrl_response = fetch_xbrl(
