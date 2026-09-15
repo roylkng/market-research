@@ -24,8 +24,8 @@ def _row(**overrides) -> dict:
         "prevAppId": "",
         "typeOfSubmission": "Original",
         "revisionRemark": "",
-        "broadcastDateTime": "2026-09-15T18:00:00",
-        "exchdisstime": "2026-09-15T18:00:02",
+        "broadcastDateTime": "15-Sep-2026 18:00:00",
+        "exchdisstime": "15-Sep-2026 18:00:02",
         "xmlFileName": "https://nsearchives.nseindia.com/corporate/xbrl/a.xml",
         "ixbrl": "https://nsearchives.nseindia.com/corporate/xbrl/a_WEB.html",
     }
@@ -62,6 +62,7 @@ def _xml(*, revised: str = "false", mode: str = "Market Purchase") -> bytes:
 
 
 def test_exchange_timestamp_is_interpreted_as_ist_and_normalized_to_utc() -> None:
+    assert normalize_exchange_timestamp("15-Sep-2026 18:00:02") == "2026-09-15T12:30:02Z"
     assert normalize_exchange_timestamp("2026-09-15T18:00:02") == "2026-09-15T12:30:02Z"
     assert normalize_exchange_timestamp("2026-09-15T12:30:02+00:00") == "2026-09-15T12:30:02Z"
 
@@ -83,7 +84,7 @@ def test_discovery_filters_other_regulations_and_rejects_bad_archive_hosts() -> 
 def test_discover_sources_deduplicates_identical_rows_and_rejects_app_id_drift() -> None:
     row = _row()
     assert len(discover_sources([row, dict(row)])) == 1
-    drifted = _row(exchdisstime="2026-09-15T18:01:00")
+    drifted = _row(exchdisstime="15-Sep-2026 18:01:00")
     with pytest.raises(H024AcquisitionError, match="conflicting source identity"):
         discover_sources([row, drifted])
 
