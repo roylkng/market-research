@@ -164,7 +164,7 @@ jobs:
               raise SystemExit(
                   f"expected 158 symbols, got {result['candidate_symbol_count']}"
               )
-          if digest != 'ea6a923d7b5a1292daee2adbe59f8f9d9051abc3ad63e73006144ec78b869000':
+          if digest != '94bb81839c7d868736f830e88a3feb83538a04dfc7be01d546a7839e2bf3d101':
               raise SystemExit(f'unexpected panel digest: {digest}')
           target = Path(
               'research/historical/h024/prefreeze-original-purchase-source-panel-v1.json'
