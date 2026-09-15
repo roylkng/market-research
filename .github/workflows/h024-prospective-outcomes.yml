@@ -41,9 +41,11 @@ jobs:
             src/marketlab/h024_events.py \
             src/marketlab/h024_outcomes.py \
             src/marketlab/h024_sessions.py \
+            src/marketlab/h024_prospective_summary.py \
             scripts/run_h024_prospective_scan.py \
             scripts/seal_h024_prospective_events.py \
             scripts/advance_h024_prospective_outcomes.py \
+            scripts/build_h024_prospective_summary.py \
             scripts/verify_h024_prospective_state.py \
             tests/test_h024_insider.py \
             tests/test_h024_acquisition.py \
@@ -52,6 +54,7 @@ jobs:
             tests/test_h024_event_sealer.py \
             tests/test_h024_outcomes.py \
             tests/test_h024_sessions.py \
+            tests/test_h024_prospective_summary.py \
             tests/test_h024_scan_retry.py
           pytest -q \
             tests/test_h024_insider.py \
@@ -61,6 +64,7 @@ jobs:
             tests/test_h024_event_sealer.py \
             tests/test_h024_outcomes.py \
             tests/test_h024_sessions.py \
+            tests/test_h024_prospective_summary.py \
             tests/test_h024_scan_retry.py
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
@@ -114,6 +118,16 @@ jobs:
             --timeout-seconds 30 \
             --session-recheck-days 14
 
+      - name: Build frozen H024 prospective summary
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_h024_prospective_summary.py \
+            --state-dir "$work_dir/state" \
+            --output "$work_dir/state/summary.json"
+          cp "$work_dir/state/summary.json" "$work_dir/summary.json"
+
       - name: Verify proposed H024 state offline
         if: steps.gate.outputs.state == 'READY'
         shell: bash
@@ -136,7 +150,7 @@ jobs:
             exit 1
           fi
 
-      - name: Seal canonical H024 outcome state
+      - name: Seal canonical H024 outcome state and derived summary
         if: steps.gate.outputs.state == 'READY'
         shell: bash
         run: |
@@ -144,17 +158,23 @@ jobs:
           cp "$work_dir/state/session-ledger.json" research/prospective/h024/session-ledger.json
           cp "$work_dir/state/entry-ledger.json" research/prospective/h024/entry-ledger.json
           cp "$work_dir/state/outcome-ledger.json" research/prospective/h024/outcome-ledger.json
+          cp "$work_dir/state/summary.json" research/prospective/h024/summary.json
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --state-dir research/prospective/h024
+          python scripts/build_h024_prospective_summary.py \
+            --state-dir research/prospective/h024 \
+            --output /tmp/h024-summary-rebuilt.json
+          cmp research/prospective/h024/summary.json /tmp/h024-summary-rebuilt.json
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add \
             research/prospective/h024/session-ledger.json \
             research/prospective/h024/entry-ledger.json \
-            research/prospective/h024/outcome-ledger.json
+            research/prospective/h024/outcome-ledger.json \
+            research/prospective/h024/summary.json
           if git diff --cached --quiet; then
-            echo "No H024 outcome-state change"
+            echo "No H024 outcome/summary-state change"
             exit 0
           fi
           git commit -m "H024: seal prospective insider outcome state [skip ci]"
