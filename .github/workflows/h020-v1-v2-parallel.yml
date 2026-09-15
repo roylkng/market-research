@@ -1,0 +1,182 @@
+name: H020 v1-v2 prospective parallel
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 11 * * 1-5'
+  push:
+    branches:
+      - research/h020-v2-downside-guard-20260915
+    paths:
+      - '.github/workflows/h020-v1-v2-parallel.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h020-v1-v2-prospective-parallel
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen v1-v2 implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check \
+            src/marketlab/h020_timing_v1.py \
+            src/marketlab/h020_timing_v2.py \
+            scripts/run_h020_parallel.py \
+            tests/test_h020_timing_v1.py \
+            tests/test_h020_timing_v2.py
+          pytest -q tests/test_h020_timing_v1.py tests/test_h020_timing_v2.py
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from run_h020_parallel import load_ledger
+          ledger = load_ledger(Path('research/prospective/h020/v1-v2-parallel-ledger.json'))
+          assert ledger['record_count'] == len(ledger['records'])
+          assert ledger['outcome_data_attached'] is False
+          assert ledger['live_capital_allowed'] is False
+          print('ledger_ok', ledger['record_count'], ledger['ledger_sha256'])
+          PY
+
+      - name: Resolve execution mode
+        id: mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "mode=PRODUCTION" >> "$GITHUB_OUTPUT"
+            echo "as_of=$(TZ=Asia/Kolkata date +%F)" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=REHEARSAL" >> "$GITHUB_OUTPUT"
+            echo "as_of=2026-09-15" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare isolated state
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_SHA=$(git rev-parse HEAD)
+          echo "start_sha=$START_SHA" >> "$GITHUB_ENV"
+          WORK="reports/h020-v1-v2/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          cp research/prospective/h020/v1-v2-parallel-ledger.json "$WORK/ledger.json"
+          echo "work_dir=$WORK" >> "$GITHUB_ENV"
+
+      - name: Run frozen parallel screen
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_h020_parallel.py \
+            --candidates research/prospective/h020/current-candidates-2026-09-10.yaml \
+            --as-of "${{ steps.mode.outputs.as_of }}" \
+            --ledger "$work_dir/ledger.json" \
+            --out-dir "$work_dir/report"
+
+      - name: Verify branch rehearsal is pre-prospective
+        if: steps.mode.outputs.mode == 'REHEARSAL'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          work = Path(os.environ['work_dir'])
+          report = json.loads((work / 'report' / 'report.json').read_text())
+          assert report['status'] == 'NO_PROSPECTIVE_V2_SESSION', report
+          original = Path('research/prospective/h020/v1-v2-parallel-ledger.json').read_bytes()
+          proposed = (work / 'ledger.json').read_bytes()
+          assert original == proposed
+          print('rehearsal_passed_without_decision')
+          PY
+
+      - name: Verify proposed production ledger
+        if: steps.mode.outputs.mode == 'PRODUCTION'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from run_h020_parallel import load_ledger
+          work = Path(os.environ['work_dir'])
+          ledger = load_ledger(work / 'ledger.json')
+          print('proposed_records', ledger['record_count'], ledger['ledger_sha256'])
+          PY
+
+      - name: Fail closed if main changed during observation
+        if: steps.mode.outputs.mode == 'PRODUCTION'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$start_sha"
+          git fetch origin main
+          test "$(git rev-parse origin/main)" = "$start_sha" || {
+            echo "ERROR: main changed while H020 decision observation was in flight"
+            exit 1
+          }
+
+      - name: Seal newly appended production decision
+        if: steps.mode.outputs.mode == 'PRODUCTION'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, shutil
+          from pathlib import Path
+          work = Path(os.environ['work_dir'])
+          report = json.loads((work / 'report' / 'report.json').read_text())
+          if report.get('ledger_appended') is not True:
+              print('no_new_completed_session_decision')
+              raise SystemExit(0)
+          session = report['as_of_session']
+          dst = Path('research/prospective/h020/scans')
+          dst.mkdir(parents=True, exist_ok=True)
+          shutil.copy2(work / 'ledger.json', Path('research/prospective/h020/v1-v2-parallel-ledger.json'))
+          shutil.copy2(work / 'report' / 'report.json', dst / f'{session}.json')
+          shutil.copy2(work / 'report' / 'report.md', dst / f'{session}.md')
+          print('sealed_session', session)
+          PY
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/prospective/h020/v1-v2-parallel-ledger.json \
+            research/prospective/h020/scans
+          if ! git diff --cached --quiet; then
+            SESSION=$(python - <<'PY'
+          import json, os
+          from pathlib import Path
+          work = Path(os.environ['work_dir'])
+          print(json.loads((work / 'report' / 'report.json').read_text())['as_of_session'])
+          PY
+            )
+            git commit -m "H020: seal v1-v2 prospective decision ${SESSION} [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Upload point-in-time source bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h020-v1-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/h020-v1-v2
+          if-no-files-found: error
+          retention-days: 90
