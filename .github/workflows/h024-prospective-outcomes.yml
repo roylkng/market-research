@@ -1,0 +1,181 @@
+name: H024 prospective insider outcomes
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 18:00 IST every day. Weekend/holiday runs audit unexpected special sessions.
+    - cron: '30 12 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h024-prospective-insider-stream
+  cancel-in-progress: false
+
+jobs:
+  advance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify H024 implementation before market-data access
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check \
+            src/marketlab/h024_insider.py \
+            src/marketlab/h024_acquisition.py \
+            src/marketlab/h024_prospective.py \
+            src/marketlab/h024_events.py \
+            src/marketlab/h024_outcomes.py \
+            scripts/run_h024_prospective_scan.py \
+            scripts/seal_h024_prospective_events.py \
+            scripts/advance_h024_prospective_outcomes.py \
+            scripts/verify_h024_prospective_state.py \
+            tests/test_h024_insider.py \
+            tests/test_h024_acquisition.py \
+            tests/test_h024_prospective.py \
+            tests/test_h024_events.py \
+            tests/test_h024_event_sealer.py \
+            tests/test_h024_outcomes.py \
+            tests/test_h024_scan_retry.py
+          pytest -q \
+            tests/test_h024_insider.py \
+            tests/test_h024_acquisition.py \
+            tests/test_h024_prospective.py \
+            tests/test_h024_events.py \
+            tests/test_h024_event_sealer.py \
+            tests/test_h024_outcomes.py \
+            tests/test_h024_scan_retry.py
+          python scripts/verify_h024_prospective_state.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --state-dir research/prospective/h024
+
+      - name: Resolve prospective boundary
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=$(python - <<'PY'
+          from datetime import UTC, datetime
+          import os
+
+          boundary = datetime(2026, 9, 15, 18, 30, tzinfo=UTC)
+          now = datetime.now(UTC)
+          if now < boundary:
+              print('BEFORE_BOUNDARY')
+          elif os.environ.get('GITHUB_REF') != 'refs/heads/main':
+              print('NON_MAIN_REHEARSAL')
+          else:
+              print('READY')
+          PY
+          )
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "H024 outcome workflow state: $STATE"
+
+      - name: Prepare isolated state
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          START_SHA=$(git rev-parse HEAD)
+          echo "start_sha=$START_SHA" >> "$GITHUB_ENV"
+          WORK="reports/h024-outcomes/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK/state" "$WORK/raw"
+          cp research/prospective/h024/*.json "$WORK/state/"
+          echo "work_dir=$WORK" >> "$GITHUB_ENV"
+
+      - name: Advance official H024 entry and outcome evidence
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/advance_h024_prospective_outcomes.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --state-dir "$work_dir/state" \
+            --raw-dir "$work_dir/raw" \
+            --report "$work_dir/report.json" \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --special-session-lookback-days 10
+
+      - name: Verify proposed H024 state offline
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_h024_prospective_state.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --state-dir "$work_dir/state"
+
+      - name: Fail closed on concurrent H024 state change
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$start_sha"
+          git fetch origin main
+          if ! git diff --quiet "$start_sha" origin/main -- research/prospective/h024; then
+            echo "ERROR: canonical H024 state changed while outcome observation was in flight"
+            git diff --stat "$start_sha" origin/main -- research/prospective/h024
+            exit 1
+          fi
+
+      - name: Seal canonical H024 outcome state
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "$work_dir/state/entry-ledger.json" research/prospective/h024/entry-ledger.json
+          cp "$work_dir/state/outcome-ledger.json" research/prospective/h024/outcome-ledger.json
+          python scripts/verify_h024_prospective_state.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --state-dir research/prospective/h024
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/prospective/h024/entry-ledger.json \
+            research/prospective/h024/outcome-ledger.json
+          if git diff --cached --quiet; then
+            echo "No H024 outcome-state change"
+            exit 0
+          fi
+          git commit -m "H024: seal prospective insider outcome state [skip ci]"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git diff --quiet "$start_sha" origin/main -- research/prospective/h024; then
+              echo "ERROR: canonical H024 state changed upstream before outcome push"
+              exit 1
+            fi
+            if test "$(git rev-parse origin/main)" != "$(git rev-parse HEAD^)"; then
+              git rebase origin/main
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          echo "ERROR: unable to push H024 outcome state after safe retries"
+          exit 1
+
+      - name: Upload exact market/outcome evidence
+        if: steps.gate.outputs.state == 'READY' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h024-outcomes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/h024-outcomes
+          if-no-files-found: error
+          retention-days: 90
