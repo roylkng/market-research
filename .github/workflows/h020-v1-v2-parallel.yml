@@ -9,6 +9,12 @@ on:
       - research/h020-v2-downside-guard-20260915
     paths:
       - '.github/workflows/h020-v1-v2-parallel.yml'
+      - 'scripts/run_h020_parallel.py'
+      - 'src/marketlab/h020_timing_v1.py'
+      - 'src/marketlab/h020_timing_v2.py'
+      - 'tests/test_h020_timing_v1.py'
+      - 'tests/test_h020_timing_v2.py'
+      - 'research/prospective/h020/v1-v2-parallel-ledger.json'
 
 permissions:
   contents: write
@@ -178,5 +184,5 @@ jobs:
         with:
           name: h020-v1-v2-${{ github.run_id }}-${{ github.run_attempt }}
           path: reports/h020-v1-v2
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
