@@ -1,0 +1,1 @@
+Per-session H020 v1-v2 prospective decision reports are written here only when a new completed-session decision is appended to the canonical ledger. The first eligible session is 2026-09-16. Live capital is disabled.
