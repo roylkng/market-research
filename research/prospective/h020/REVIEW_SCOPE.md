@@ -1,0 +1,1 @@
+Review scope: unchanged H020-v1 plus the frozen v2 downside-guard challenger, zero-record append-only v1-v2 ledger, and weekday post-close collector beginning with the completed 2026-09-16 session. September 15 is design evidence only. Live capital disabled.
