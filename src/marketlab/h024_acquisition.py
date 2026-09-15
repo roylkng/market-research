@@ -20,6 +20,7 @@ APPROVED_ARCHIVE_HOSTS = frozenset(
     {"nsearchives.nseindia.com", "archives.nseindia.com"}
 )
 IST = ZoneInfo("Asia/Kolkata")
+PIT_GG_TIMESTAMP_FORMAT = "%d-%b-%Y %H:%M:%S"
 
 
 class H024AcquisitionError(RuntimeError):
@@ -56,12 +57,18 @@ def normalize_exchange_timestamp(value: object) -> str:
     raw = clean(value)
     if not raw:
         raise H024AcquisitionError("NSE PIT source lacks exchange dissemination timestamp")
+    parsed: datetime | None = None
     try:
-        parsed = datetime.fromisoformat(raw)
-    except ValueError as exc:
-        raise H024AcquisitionError(f"invalid NSE PIT exchange timestamp: {raw}") from exc
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=IST)
+        parsed = datetime.strptime(raw, PIT_GG_TIMESTAMP_FORMAT).replace(tzinfo=IST)
+    except ValueError:
+        try:
+            parsed = datetime.fromisoformat(raw)
+        except ValueError as exc:
+            raise H024AcquisitionError(
+                f"invalid NSE PIT exchange timestamp: {raw}"
+            ) from exc
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=IST)
     return parsed.astimezone(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
@@ -71,7 +78,10 @@ def _approved_archive_url(value: object, *, field: str) -> str:
         parsed = urlparse(raw)
     except ValueError as exc:
         raise H024AcquisitionError(f"invalid {field}: {raw}") from exc
-    if parsed.scheme != "https" or (parsed.hostname or "").casefold() not in APPROVED_ARCHIVE_HOSTS:
+    if (
+        parsed.scheme != "https"
+        or (parsed.hostname or "").casefold() not in APPROVED_ARCHIVE_HOSTS
+    ):
         raise H024AcquisitionError(f"{field} is not on an approved NSE archive host")
     return raw
 
@@ -263,7 +273,11 @@ def fetch_xbrl(
         except requests.RequestException as exc:
             last_error = exc
         if attempt < attempts:
-            cooldown = min(5.0 * attempt, 30.0) if isinstance(last_error, RuntimeError) else min(2**attempt, 10)
+            cooldown = (
+                min(5.0 * attempt, 30.0)
+                if isinstance(last_error, RuntimeError)
+                else min(2**attempt, 10)
+            )
             time.sleep(cooldown)
     raise H024AcquisitionError(f"raw-XBRL fetch failed: {url}: {last_error}")
 
