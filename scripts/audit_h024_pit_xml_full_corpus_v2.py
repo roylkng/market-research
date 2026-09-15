@@ -20,6 +20,7 @@ from audit_h024_pit_xml_full_corpus import (
     _sha256,
     _write_json,
 )
+
 from marketlab.h024_insider import H024InsiderError, parse_pit_xml, parser_contract
 
 PIT_PAGE = "https://www.nseindia.com/companies-listing/corporate-filings-insider-trading"
