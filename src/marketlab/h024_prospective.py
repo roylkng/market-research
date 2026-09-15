@@ -34,7 +34,7 @@ def _timestamp(value: object, *, field: str) -> datetime:
     if not isinstance(value, str):
         raise H024ProspectiveError(f"{field} must be an ISO timestamp")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise H024ProspectiveError(f"invalid {field}: {value}") from exc
     if parsed.tzinfo is None:

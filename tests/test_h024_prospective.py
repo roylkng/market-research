@@ -6,8 +6,8 @@ import pytest
 
 from marketlab.h024_acquisition import canonical_hash, source_from_discovery_row
 from marketlab.h024_prospective import (
-    H024ProspectiveError,
     PROSPECTIVE_START_UTC,
+    H024ProspectiveError,
     append_evidence,
     append_scan,
     append_signal,

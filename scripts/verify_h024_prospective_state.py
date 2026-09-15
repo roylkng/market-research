@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.h024_prospective import (
-    H024ProspectiveError,
     PROSPECTIVE_START_UTC,
+    H024ProspectiveError,
     build_signal_record,
     evidence_by_source,
     source_by_id,
