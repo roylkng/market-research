@@ -1,1 +1,0 @@
-See `research/H020_V2_DOWNSIDE_GUARD_PROTOCOL_2026-09-15.md` for the frozen H020-v2 scientific contract. The append-only v1-v2 ledger starts with the completed 2026-09-16 session. September 15 is excluded from validation. Live capital is disabled.
