@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '15 2 * * *'
-    - cron: '45 12 * * *'
+    - cron: '55 12 * * *'
     - cron: '30 17 * * *'
 
 permissions:
@@ -38,16 +38,22 @@ jobs:
             src/marketlab/h024_insider.py \
             src/marketlab/h024_acquisition.py \
             src/marketlab/h024_prospective.py \
+            src/marketlab/h024_events.py \
             scripts/run_h024_prospective_scan.py \
+            scripts/seal_h024_prospective_events.py \
             scripts/verify_h024_prospective_state.py \
             tests/test_h024_insider.py \
             tests/test_h024_acquisition.py \
             tests/test_h024_prospective.py \
+            tests/test_h024_events.py \
+            tests/test_h024_event_sealer.py \
             tests/test_h024_scan_retry.py
           pytest -q \
             tests/test_h024_insider.py \
             tests/test_h024_acquisition.py \
             tests/test_h024_prospective.py \
+            tests/test_h024_events.py \
+            tests/test_h024_event_sealer.py \
             tests/test_h024_scan_retry.py
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
@@ -110,17 +116,18 @@ jobs:
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --state-dir "$work_dir/state"
 
-      - name: Fail closed if main changed during observation
+      - name: Fail closed on concurrent H024 state change
         if: steps.gate.outputs.state == 'READY'
         shell: bash
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$start_sha"
           git fetch origin main
-          test "$(git rev-parse origin/main)" = "$start_sha" || {
-            echo "ERROR: main changed while H024 source observation was in flight"
+          if ! git diff --quiet "$start_sha" origin/main -- research/prospective/h024; then
+            echo "ERROR: canonical H024 state changed while source observation was in flight"
+            git diff --stat "$start_sha" origin/main -- research/prospective/h024
             exit 1
-          }
+          fi
 
       - name: Seal canonical H024 source state
         if: steps.gate.outputs.state == 'READY'
@@ -139,10 +146,26 @@ jobs:
           git add research/prospective/h024/*.json
           if git diff --cached --quiet; then
             echo "No H024 canonical state change"
-          else
-            git commit -m "H024: seal prospective insider source scan [skip ci]"
-            git push origin HEAD:main
+            exit 0
           fi
+          git commit -m "H024: seal prospective insider source scan [skip ci]"
+
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git diff --quiet "$start_sha" origin/main -- research/prospective/h024; then
+              echo "ERROR: canonical H024 state changed upstream before push"
+              exit 1
+            fi
+            if test "$(git rev-parse origin/main)" != "$(git rev-parse HEAD^)"; then
+              git rebase origin/main
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          echo "ERROR: unable to push H024 source state after safe retries"
+          exit 1
 
       - name: Upload raw source-only evidence
         if: steps.gate.outputs.state == 'READY' && always()
