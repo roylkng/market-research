@@ -9,6 +9,7 @@ on:
       - 'research/H024_HISTORICAL_CHALLENGE_IMPLEMENTATION_V1.md'
       - 'src/marketlab/h024_historical.py'
       - 'scripts/run_h024_historical_challenge.py'
+      - 'scripts/run_h024_historical_challenge_adapter.py'
       - 'tests/test_h024_historical.py'
   workflow_dispatch:
 
@@ -43,6 +44,7 @@ jobs:
           ruff check \
             src/marketlab/h024_historical.py \
             scripts/run_h024_historical_challenge.py \
+            scripts/run_h024_historical_challenge_adapter.py \
             tests/test_h024_historical.py \
             src/marketlab/h024_insider.py \
             src/marketlab/h024_acquisition.py \
@@ -76,7 +78,7 @@ jobs:
           OUT='research/historical/h024/challenge-2026-09-15'
           rm -rf "$OUT" .marketlab/h024-historical
           mkdir -p "$OUT"
-          python scripts/run_h024_historical_challenge.py \
+          python scripts/run_h024_historical_challenge_adapter.py \
             --source-panel research/historical/h024/prefreeze-original-purchase-source-panel-v1.json \
             --store .marketlab/h024-historical \
             --event-panel-out "$OUT/event-panel.json" \
