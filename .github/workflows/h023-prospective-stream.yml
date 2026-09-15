@@ -2,13 +2,6 @@ name: H023 prospective ownership stream
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/h023-prospective-stream.yml'
-      - 'scripts/run_h023_prospective_scan.py'
-      - 'tests/test_h023_selection.py'
   schedule:
     - cron: '50 2 * * *'
     - cron: '30 3 * * *'
