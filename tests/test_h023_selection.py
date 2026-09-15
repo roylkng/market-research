@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 
-from scripts.run_h023_prospective_scan import _eligible_event_keys
 from marketlab.h023_prospective import (
     H023ProspectiveError,
     append_sources,
@@ -14,6 +13,7 @@ from marketlab.h023_selection import (
     strict_primary_current_source,
     strict_prior_source_at_event,
 )
+from scripts.run_h023_prospective_scan import _eligible_event_keys
 
 
 def _source(*, record_id: str, report_date: str, broadcast: str) -> dict:
