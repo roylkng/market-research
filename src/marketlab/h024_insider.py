@@ -286,6 +286,9 @@ def parse_pit_xml(raw: bytes, *, expected_symbol: str | None = None) -> PITDiscl
     transactions: list[PITTransaction] = []
     for context_ref in _context_ids(root):
         facts = facts_by_context.get(context_ref, {})
+        instrument = _one_text(facts, "TypeOfInstrument", context=context_ref)
+        if instrument == "Derivative":
+            continue
         missing = sorted(set(TRANSACTION_CONCEPTS) - set(facts))
         if missing:
             raise H024InsiderError(
@@ -354,7 +357,7 @@ def parse_pit_xml(raw: bytes, *, expected_symbol: str | None = None) -> PITDiscl
                 context_ref=context_ref,
                 category=_one_text(facts, "CategoryOfPerson", context=context_ref),
                 person_name=_one_text(facts, "NameOfThePerson", context=context_ref),
-                instrument=_one_text(facts, "TypeOfInstrument", context=context_ref),
+                instrument=instrument,
                 prior_quantity=prior_quantity,
                 prior_ownership_fraction=prior_fraction,
                 transaction_quantity=transaction_quantity,
@@ -411,6 +414,8 @@ def parser_contract() -> dict[str, Any]:
         "regulation": "Regulation 7 (2)",
         "transaction_axis": DISCLOSURE_AXIS,
         "required_transaction_concepts": list(TRANSACTION_CONCEPTS),
+        "required_concepts_apply_to": "non_derivative_disclosure_contexts",
+        "derivative_context_policy": "recognized_by_TypeOfInstrument_and_excluded_from_H024_v1",
         "quantity_unit": "shares",
         "transaction_value_unit": "INR",
         "ownership_unit": "pure",

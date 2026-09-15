@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from xml.etree import ElementTree as ET
+
 import pytest
 
 from marketlab.h024_insider import H024InsiderError, parse_pit_xml, parser_contract
@@ -87,6 +89,27 @@ def test_zero_quantity_value_and_non_exchange_rows_do_not_qualify() -> None:
     assert not parse_pit_xml(_xml(value="0")).transactions[0].is_direct_market_purchase
     assert not parse_pit_xml(_xml(exchange="NA")).transactions[0].is_direct_market_purchase
     assert parse_pit_xml(_xml(exchange="BSE")).transactions[0].is_direct_market_purchase
+
+
+def test_valid_derivative_context_can_omit_equity_transaction_fields() -> None:
+    root = ET.fromstring(_xml(instrument="Derivative"))
+    equity_only = {
+        "SecuritiesHeldPriorToAcquisitionOrDisposalNumberOfSecurity",
+        "SecuritiesHeldPriorToAcquisitionOrDisposalPercentageOfShareholding",
+        "SecuritiesAcquiredOrDisposedNumberOfSecurity",
+        "SecuritiesAcquiredOrDisposedValueOfSecurity",
+        "SecuritiesAcquiredOrDisposedTransactionType",
+        "SecuritiesHeldPostAcquistionOrDisposalNumberOfSecurity",
+        "SecuritiesHeldPostAcquistionOrDisposalPercentageOfShareholding",
+        "ModeOfAcquisitionOrDisposal",
+    }
+    for element in list(root):
+        local = element.tag.rsplit("}", 1)[-1]
+        if local in equity_only:
+            root.remove(element)
+    parsed = parse_pit_xml(ET.tostring(root), expected_symbol="AAA")
+    assert parsed.transactions == ()
+    assert parsed.direct_market_purchases == ()
 
 
 def test_parser_rejects_unit_and_fraction_semantic_drift() -> None:
