@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from run_h020_current import _canonical_hash, fetch_yahoo_history
 
 from marketlab.timing_v2 import compute_snapshot_v2
-from run_h020_current import _canonical_hash, fetch_yahoo_history
 
 
 def _markdown(report: dict[str, Any]) -> str:
