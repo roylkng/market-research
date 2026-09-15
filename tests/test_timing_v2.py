@@ -44,12 +44,14 @@ def test_adverse_relative_shock_defers_an_otherwise_valid_entry() -> None:
     assert v2["policies"]["D_multivariate_v2"] is False
 
 
-def test_small_relative_dip_does_not_override_v1_entry() -> None:
-    stock, benchmark = _strong_trend(final_stock=114.5, final_benchmark=102.96)
-    v1 = compute_snapshot(stock, benchmark, symbol="NORMAL")
+def test_broad_market_drop_does_not_trigger_idiosyncratic_shock_guard() -> None:
+    stock, benchmark = _strong_trend(final_stock=112.0, final_benchmark=100.0)
+    v1 = compute_snapshot(stock, benchmark, symbol="MARKETDROP")
     assert v1["action"].startswith("PAPER_ENTRY_ELIGIBLE")
 
-    v2 = compute_snapshot_v2(stock, benchmark, symbol="NORMAL")
+    v2 = compute_snapshot_v2(stock, benchmark, symbol="MARKETDROP")
+    assert v2["return_1d_pct"] < 0.0
+    assert v2["relative_1d_pp"] > 0.0
     assert v2["flags"]["adverse_relative_shock_v2"] is False
     assert v2["action"] == v1["action"]
     assert v2["policies"]["D_multivariate_v2"] is True
