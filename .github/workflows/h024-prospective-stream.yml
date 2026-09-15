@@ -48,11 +48,13 @@ jobs:
             scripts/verify_h024_prospective_state.py \
             tests/test_h024_insider.py \
             tests/test_h024_acquisition.py \
-            tests/test_h024_prospective.py
+            tests/test_h024_prospective.py \
+            tests/test_h024_scan_retry.py
           pytest -q \
             tests/test_h024_insider.py \
             tests/test_h024_acquisition.py \
-            tests/test_h024_prospective.py
+            tests/test_h024_prospective.py \
+            tests/test_h024_scan_retry.py
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --state-dir research/prospective/h024
@@ -101,7 +103,7 @@ jobs:
             --state-dir "$work_dir/state" \
             --raw-dir "$work_dir/raw" \
             --report "$work_dir/report.json" \
-            --lookback-days 7 \
+            --lookback-days 35 \
             --discovery-attempts 4 \
             --xbrl-attempts 5
 
