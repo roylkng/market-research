@@ -1,0 +1,58 @@
+name: H024 temporary lint fixer
+
+on:
+  push:
+    branches:
+      - research/h024-insider-prospective-v1-20260915
+    paths:
+      - '.github/workflows/h024-temp-lint-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h024-insider-prospective-v1-20260915
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Apply exact mechanical fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/marketlab/h024_prospective.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'datetime.fromisoformat(value.replace("Z", "+00:00"))'
+          new = 'datetime.fromisoformat(value)'
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 timestamp parser shape')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          python -m pip install -e '.[dev]'
+          ruff check --fix \
+            scripts/verify_h024_prospective_state.py \
+            tests/test_h024_prospective.py
+          ruff check \
+            src/marketlab/h024_prospective.py \
+            scripts/verify_h024_prospective_state.py \
+            tests/test_h024_prospective.py
+      - name: Commit mechanical lint fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            src/marketlab/h024_prospective.py \
+            scripts/verify_h024_prospective_state.py \
+            tests/test_h024_prospective.py
+          git commit -m "H024: fix prospective pre-source lint gate"
+          git push origin HEAD:research/h024-insider-prospective-v1-20260915
