@@ -16,8 +16,8 @@ import requests
 
 from marketlab.h024_acquisition import (
     PIT_GG_ENDPOINT,
-    discovery_session,
     discover_sources,
+    discovery_session,
     fetch_discovery,
     sha256_bytes,
     trailing_discovery_window,
@@ -309,11 +309,18 @@ def _parse_listing_date(value: object) -> date | None:
     raw = str(value or "").strip()
     if not raw or raw in {"0", "00000000"}:
         return None
-    for fmt in ("%Y%m%d", "%d%m%Y", "%d-%m-%Y", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(raw, fmt).date()
-        except ValueError:
-            continue
+    try:
+        if len(raw) == 8 and raw.isdigit():
+            first = int(raw[:4])
+            if 1900 <= first <= 2200:
+                return date(first, int(raw[4:6]), int(raw[6:8]))
+            return date(int(raw[4:8]), int(raw[2:4]), int(raw[:2]))
+        if len(raw) == 10 and raw[4] == "-" and raw[7] == "-":
+            return date.fromisoformat(raw)
+        if len(raw) == 10 and raw[2] == "-" and raw[5] == "-":
+            return date(int(raw[6:10]), int(raw[3:5]), int(raw[:2]))
+    except ValueError:
+        return None
     return None
 
 
@@ -432,7 +439,7 @@ def _entry_open_for_session(
         raise H024EventSealerError(
             f"H024 signals disagree on entry open for {planned_entry_session}"
         )
-    parsed = datetime.fromisoformat(next(iter(values)).replace("Z", "+00:00"))
+    parsed = datetime.fromisoformat(next(iter(values)))
     if parsed.tzinfo is None:
         raise H024EventSealerError("H024 entry open lacks timezone")
     return parsed.astimezone(UTC)
