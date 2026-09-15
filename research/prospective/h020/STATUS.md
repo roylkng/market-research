@@ -1,1 +1,0 @@
-H020-v2 is frozen as a monotonic downside-guard challenger to unchanged H020-v1. September 15, 2026 is design evidence only. The first prospective comparison is the completed September 16, 2026 NSE session. Yahoo Finance is retained only for source-consistent exploratory v1-v2 comparison; official NSE replication is required before promotion. Live capital is disabled.
