@@ -19,12 +19,12 @@ from marketlab.h024_acquisition import (
 )
 from marketlab.h024_historical import (
     HOLIDAYS,
-    MARKET_DATA_CUTOFF,
     SOURCE_PANEL_RAW_SHA256,
     SPECIAL_SESSION_TIMES,
     build_event_panel,
     build_frozen_sessions,
     build_outcome_report,
+    canonical_hash,
     parse_share_action_audit,
     parse_udiff_candidate_bars,
     summarize_outcomes,
@@ -41,6 +41,7 @@ USER_AGENT = (
 SOURCE_START = date(2026, 5, 1)
 SOURCE_END = date(2026, 9, 15)
 CALENDAR_START = date(2026, 1, 1)
+MARKET_DATA_CUTOFF = date(2026, 9, 11)
 
 
 class HistoricalRunError(ValueError):
@@ -187,7 +188,7 @@ def _capture_market_history(
     list[dict[str, Any]],
     list[dict[str, Any]],
 ]:
-    sessions = build_frozen_sessions()
+    sessions = build_frozen_sessions(end_date=MARKET_DATA_CUTOFF)
     session_dates = {date.fromisoformat(row.session_date) for row in sessions}
     bars: dict[tuple[str, str], dict[str, Any]] = {}
     benchmark_bars: dict[str, dict[str, Any]] = {}
@@ -331,6 +332,14 @@ def _capture_corporate_actions(
     return audits, artifacts
 
 
+def _bind_report_cutoff(report: dict[str, Any]) -> dict[str, Any]:
+    bound = dict(report)
+    bound["market_data_cutoff_session"] = MARKET_DATA_CUTOFF.isoformat()
+    bound.pop("report_sha256", None)
+    bound["report_sha256"] = canonical_hash(bound)
+    return bound
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Run the frozen H024 historical direct-insider-purchase challenge."
@@ -372,7 +381,7 @@ def main() -> int:
             symbols=symbols,
         )
     )
-    sessions = build_frozen_sessions()
+    sessions = build_frozen_sessions(end_date=MARKET_DATA_CUTOFF)
     event_panel = build_event_panel(
         source_panel,
         revisions=revisions,
@@ -387,12 +396,14 @@ def main() -> int:
         captured_at=captured_at,
         symbols=event_symbols,
     )
-    report = build_outcome_report(
-        event_panel,
-        sessions=sessions,
-        bars=bars,
-        benchmark_bars=benchmark_bars,
-        corporate_actions=corporate_actions,
+    report = _bind_report_cutoff(
+        build_outcome_report(
+            event_panel,
+            sessions=sessions,
+            bars=bars,
+            benchmark_bars=benchmark_bars,
+            corporate_actions=corporate_actions,
+        )
     )
     summary = summarize_outcomes(report)
 
@@ -454,6 +465,7 @@ def main() -> int:
                         "exclusion_reason_counts"
                     ],
                 },
+                "market_data_cutoff_session": MARKET_DATA_CUTOFF.isoformat(),
                 "primary_classification": summary["primary_classification"],
                 "primary": summary["horizons"]["60"],
                 "report_sha256": report["report_sha256"],
