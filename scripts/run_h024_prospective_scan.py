@@ -66,11 +66,37 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--state-dir", type=Path, required=True)
     parser.add_argument("--raw-dir", type=Path, required=True)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--lookback-days", type=int, default=7)
+    parser.add_argument("--lookback-days", type=int, default=35)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
     parser.add_argument("--discovery-attempts", type=int, default=4)
     parser.add_argument("--xbrl-attempts", type=int, default=5)
     return parser.parse_args()
+
+
+def _pending_original_sources(
+    source_ledger: dict[str, Any],
+    evidence_ledger: dict[str, Any],
+) -> list[dict[str, Any]]:
+    boundary_text = PROSPECTIVE_START_UTC.isoformat().replace("+00:00", "Z")
+    pending = []
+    for row in source_ledger["records"]:
+        source = row["source"]
+        source_id = str(source["source_id"])
+        if source["submission_type"] != "Original":
+            continue
+        if str(source["exchange_disseminated_at_utc"]) < boundary_text:
+            continue
+        if evidence_by_source(evidence_ledger, source_id) is not None:
+            continue
+        pending.append(source)
+    pending.sort(
+        key=lambda source: (
+            str(source["exchange_disseminated_at_utc"]),
+            str(source["symbol"]),
+            str(source["source_id"]),
+        )
+    )
+    return pending
 
 
 def main() -> int:
@@ -138,17 +164,9 @@ def main() -> int:
     archive = archive_session()
     acquisition_statuses: Counter[str] = Counter()
     new_evidence_source_ids: list[str] = []
-    boundary_text = PROSPECTIVE_START_UTC.isoformat().replace("+00:00", "Z")
-    for source in sources:
+    pending_sources = _pending_original_sources(source_ledger, evidence_ledger)
+    for source in pending_sources:
         source_id = str(source["source_id"])
-        if evidence_by_source(evidence_ledger, source_id) is not None:
-            continue
-        if source["submission_type"] != "Original":
-            acquisition_statuses["METADATA_ONLY_REVISION"] += 1
-            continue
-        if str(source["exchange_disseminated_at_utc"]) < boundary_text:
-            acquisition_statuses["METADATA_ONLY_PREBOUNDARY"] += 1
-            continue
         try:
             xbrl_response = fetch_xbrl(
                 archive,
@@ -173,9 +191,20 @@ def main() -> int:
         new_evidence_source_ids.append(source_id)
         acquisition_statuses[str(evidence["status"])] += 1
 
+    boundary_text = PROSPECTIVE_START_UTC.isoformat().replace("+00:00", "Z")
+    acquisition_statuses["METADATA_ONLY_REVISION"] = sum(
+        row["source"]["submission_type"] == "Revision" for row in source_ledger["records"]
+    )
+    acquisition_statuses["METADATA_ONLY_PREBOUNDARY"] = sum(
+        row["source"]["submission_type"] == "Original"
+        and str(row["source"]["exchange_disseminated_at_utc"]) < boundary_text
+        for row in source_ledger["records"]
+    )
+
     new_signal_ids: list[str] = []
     new_signal_statuses: Counter[str] = Counter()
-    for source in sources:
+    for row in source_ledger["records"]:
+        source = row["source"]
         source_id = str(source["source_id"])
         if signal_exists(signal_ledger, source_id):
             continue
@@ -219,6 +248,7 @@ def main() -> int:
         "window_start": window_start.isoformat(),
         "window_end": window_end.isoformat(),
         "discovered_regulation_7_2_source_count": len(sources),
+        "pending_original_source_count_at_start": len(pending_sources),
         "new_source_count": int(source_ledger["record_count"]) - start_source_count,
         "new_evidence_count": int(evidence_ledger["record_count"]) - start_evidence_count,
         "new_signal_count": int(signal_ledger["record_count"]) - start_signal_count,
