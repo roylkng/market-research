@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from scripts.run_h023_prospective_scan import _eligible_event_keys
 from marketlab.h023_prospective import (
     H023ProspectiveError,
     append_sources,
@@ -77,6 +78,35 @@ def test_strict_current_rejects_equal_timestamp_tie() -> None:
         strict_primary_current_source(
             _ledger([a, b]), symbol="AAA", report_date="2026-09-30"
         )
+
+
+def test_eligibility_ignores_preboundary_equal_timestamp_tie() -> None:
+    a = _source(
+        record_id="historic-a",
+        report_date="2022-09-30",
+        broadcast="2022-10-20T08:00:00Z",
+    )
+    b = _source(
+        record_id="historic-b",
+        report_date="2022-09-30",
+        broadcast="2022-10-20T08:00:00Z",
+    )
+    assert _eligible_event_keys(_ledger([a, b])) == []
+
+
+def test_eligibility_still_rejects_prospective_equal_timestamp_tie() -> None:
+    a = _source(
+        record_id="prospective-a",
+        report_date="2026-09-30",
+        broadcast="2026-10-20T08:00:00Z",
+    )
+    b = _source(
+        record_id="prospective-b",
+        report_date="2026-09-30",
+        broadcast="2026-10-20T08:00:00Z",
+    )
+    with pytest.raises(H023ProspectiveError, match="ambiguous first official broadcast"):
+        _eligible_event_keys(_ledger([a, b]))
 
 
 def test_strict_prior_uses_latest_unique_source_public_at_event() -> None:
