@@ -39,6 +39,8 @@ def test_parallel_ledger_rejects_duplicate_session() -> None:
     record["record_sha256"] = module.canonical_hash(record)
     ledger = module.new_ledger()
     ledger["records"] = [record, dict(record)]
-    ledger = module.seal_ledger(ledger)
+    ledger["record_count"] = 2
+    unsigned = {key: value for key, value in ledger.items() if key != "ledger_sha256"}
+    ledger["ledger_sha256"] = module.canonical_hash(unsigned)
     with pytest.raises(ValueError, match="duplicate H020 parallel session"):
         module.validate_ledger(ledger)
