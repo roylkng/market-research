@@ -1,0 +1,114 @@
+{
+  "cases": [
+    {
+      "app_id": "1005",
+      "direct_market_purchase_count": 0,
+      "revised_filing": false,
+      "status": "COMPLETE",
+      "symbol": "PETRONET",
+      "transaction_count": 4,
+      "url": "https://nsearchives.nseindia.com/corporate/xbrl/PIT_532522_1262026201427_IT_WebXMLFile_20260612_201432608.xml",
+      "xml_sha256": "451eea7b7ff44ef5787526c84cfd953e726579c3b6ddb164dcfa6fccbcb565d0"
+    },
+    {
+      "app_id": "1006",
+      "direct_market_purchase_count": 0,
+      "revised_filing": false,
+      "status": "COMPLETE",
+      "symbol": "PETRONET",
+      "transaction_count": 4,
+      "url": "https://nsearchives.nseindia.com/corporate/xbrl/PIT_Diclosure72xml_IT_WebXMLFile_20260612_201854562.xml",
+      "xml_sha256": "451eea7b7ff44ef5787526c84cfd953e726579c3b6ddb164dcfa6fccbcb565d0"
+    },
+    {
+      "app_id": "1081",
+      "direct_market_purchase_count": 0,
+      "revised_filing": false,
+      "status": "COMPLETE",
+      "symbol": "PETRONET",
+      "transaction_count": 6,
+      "url": "https://nsearchives.nseindia.com/corporate/xbrl/PIT_532522_1662026185911_IT_WebXMLFile_20260616_185920544.xml",
+      "xml_sha256": "0b3486d0eed885463cc00b7aa551fad09106f1cdd9b2f234e388e59cdb328883"
+    },
+    {
+      "app_id": "1077",
+      "direct_market_purchase_count": 0,
+      "revised_filing": false,
+      "status": "COMPLETE",
+      "symbol": "PETRONET",
+      "transaction_count": 6,
+      "url": "https://nsearchives.nseindia.com/corporate/xbrl/16062026PIT_Diclosure72xml_IT_WebXMLFile_20260616_190420194.xml",
+      "xml_sha256": "0b3486d0eed885463cc00b7aa551fad09106f1cdd9b2f234e388e59cdb328883"
+    },
+    {
+      "app_id": "834",
+      "error": "raw-XBRL fetch failed: https://nsearchives.nseindia.com/corporate/xbrl/PIT_543264_962026175950_IT_WebXMLFile_20260609_180001758.xml: HTTP 404",
+      "status": "SOURCE_BLOCKED",
+      "symbol": "NURECA",
+      "url": "https://nsearchives.nseindia.com/corporate/xbrl/PIT_543264_962026175950_IT_WebXMLFile_20260609_180001758.xml"
+    }
+  ],
+  "full_audit_reference": {
+    "eligible_document_count": 2506,
+    "exploratory_branch": "research/h024-insider-source-probe-v1-20260915",
+    "report_blob_sha": "78287cdc6bd323e61a340d5a1956d8b48272f0ec",
+    "v2_complete_document_count_before_derivative_fix": 2501,
+    "v2_derivative_schema_failure_count": 4,
+    "v2_failed_document_count_before_derivative_fix": 5,
+    "v2_transport_failure_count": 1
+  },
+  "hypothesis_id": "H024",
+  "live_capital_allowed": false,
+  "outcome_data_attached": false,
+  "parser_contract": {
+    "derivative_context_policy": "recognized_by_TypeOfInstrument_and_excluded_from_H024_v1",
+    "ownership_semantics": "fraction_of_shareholding; multiply by 100 for percentage",
+    "ownership_unit": "pure",
+    "primary_candidate_acquisition_mode": "Market Purchase",
+    "primary_candidate_actor_categories": [
+      "Director",
+      "KMP",
+      "Promoter",
+      "Promoter Group",
+      "Promoter and Director"
+    ],
+    "primary_candidate_exchanges": [
+      "BSE",
+      "NSE"
+    ],
+    "primary_candidate_instrument": "Equity",
+    "primary_candidate_quantity_rule": "strictly_positive",
+    "primary_candidate_transaction_type": "Buy",
+    "primary_candidate_value_rule": "strictly_positive_INR",
+    "quantity_unit": "shares",
+    "regulation": "Regulation 7 (2)",
+    "required_concepts_apply_to": "non_derivative_disclosure_contexts",
+    "required_transaction_concepts": [
+      "CategoryOfPerson",
+      "NameOfThePerson",
+      "TypeOfInstrument",
+      "SecuritiesHeldPriorToAcquisitionOrDisposalNumberOfSecurity",
+      "SecuritiesHeldPriorToAcquisitionOrDisposalPercentageOfShareholding",
+      "SecuritiesAcquiredOrDisposedNumberOfSecurity",
+      "SecuritiesAcquiredOrDisposedValueOfSecurity",
+      "SecuritiesAcquiredOrDisposedTransactionType",
+      "SecuritiesHeldPostAcquistionOrDisposalNumberOfSecurity",
+      "SecuritiesHeldPostAcquistionOrDisposalPercentageOfShareholding",
+      "DateOfAllotmentAdviceOrAcquisitionOfSharesOrSaleOfSharesSpecifyFromDate",
+      "DateOfAllotmentAdviceOrAcquisitionOfSharesOrSaleOfSharesSpecifyToDate",
+      "ModeOfAcquisitionOrDisposal",
+      "ExchangeOnWhichTheTradeWasExecuted",
+      "DateOfIntimationToCompany"
+    ],
+    "transaction_axis": "ChangeInHoldingOfSecuritiesOfPromotersAxis",
+    "transaction_value_unit": "INR"
+  },
+  "probe_id": "H024-SOURCE-CLOSURE-V1",
+  "purpose": "Close the five residual source/parser cases from the 2026-05-01..2026-09-15 full Regulation 7(2) raw-XBRL audit without using market outcomes.",
+  "schema_version": 1,
+  "summary": {
+    "derivative_mixed_cases": 4,
+    "derivative_mixed_cases_complete": 4,
+    "unresolved_source_blocked_cases": 1
+  }
+}

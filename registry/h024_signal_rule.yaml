@@ -1,0 +1,165 @@
+version: 1
+rule_id: H024-R001
+hypothesis_id: H024
+live_capital_allowed: false
+
+mechanism: direct_insider_discretionary_open_market_capital_commitment
+
+universe:
+  market: India
+  venue: NSE
+  security_type: main_board_common_equity_EQ
+  reuse_investability_contract_from: H004-R001
+  excluded:
+    - SME
+    - ETF
+    - REIT
+    - InvIT
+    - preference_share
+    - suspended
+  median_prior_20d_traded_value_inr_min: 20000000
+  minimum_price_history_sessions: 60
+  nominal_share_price_filter: none
+  as_of: before_entry_timestamp
+  imports_h004_catalyst_or_momentum_logic: false
+
+source:
+  discovery_provider: NSE
+  discovery_endpoint: https://www.nseindia.com/api/corporates-pit-gg
+  regulation: Regulation 7 (2)
+  filing_content: approved_NSE_archive_raw_XBRL
+  information_timestamp_field: exchdisstime
+  information_timestamp_timezone: Asia/Kolkata
+  normalize_timestamp_to: UTC
+  prohibited_information_timestamps:
+    - transaction_date
+    - company_intimation_date
+  parser_contract: src/marketlab/h024_insider.py
+
+primary_transaction:
+  submission_type: Original
+  actor_categories:
+    - Director
+    - KMP
+    - Promoter
+    - Promoter Group
+    - Promoter and Director
+  instrument: Equity
+  transaction_type: Buy
+  acquisition_mode: Market Purchase
+  quantity_rule: strictly_positive
+  value_rule: strictly_positive_INR
+  executed_exchange:
+    - NSE
+    - BSE
+
+primary_signal:
+  type: binary_symbol_entry_event
+  value_when_eligible: 1
+  filing_qualifies_when: at_least_one_primary_transaction
+  same_symbol_same_entry_session_policy: collapse_to_one_event
+  prohibited_primary_weights:
+    - purchase_value
+    - purchase_quantity
+    - ownership_delta
+    - actor_count
+    - filing_count
+    - market_cap
+    - momentum
+    - valuation
+    - management_text
+    - analyst_revision
+    - mutual_fund_ownership
+  descriptive_only:
+    - purchase_value_inr
+    - purchase_quantity
+    - ownership_delta_pp
+    - qualifying_actor_count
+    - qualifying_filing_count
+
+revision_policy:
+  revision_can_create_signal: false
+  reliable_prev_app_id_required: false
+  before_entry:
+    scope: same_symbol_regulation_7_2_revision
+    action: REVISION_BLOCKED
+  after_sealed_entry:
+    action: append_revision_evidence_without_rewrite
+
+entry:
+  same_calendar_session_execution_allowed: false
+  nominal_entry: first_completed_NSE_session_open_with_calendar_date_after_exchange_dissemination_date
+  signal_must_be_frozen_before_entry_open: true
+  late_signal_status: LATE_SIGNAL_FREEZE
+  late_signal_primary_eligible: false
+
+outcomes:
+  horizons_completed_sessions:
+    - 20
+    - 60
+    - 120
+  primary_horizon_sessions: 60
+  exit_price: horizon_session_close
+  benchmark: nifty_500
+  primary_return: stock_return_minus_nifty500_return
+  round_trip_cost_pp: 0.50
+  unresolved_share_changing_corporate_action: BLOCK
+  unresolved_calendar_or_missing_required_bar: PENDING_OR_BLOCK
+  future_return_may_be_opened_before_exit_session_complete: false
+
+statistics:
+  primary_metrics:
+    - mean_excess_return_pp
+    - median_excess_return_pp
+    - nifty500_beat_rate
+    - mean_cost_adjusted_excess_return_pp
+  bootstrap:
+    iterations: 10000
+    seed: 24024
+    cluster: symbol
+  robustness:
+    - first_event_per_symbol
+    - nonoverlapping_60_session_events_per_symbol
+    - industry_composition
+    - publication_month_composition
+    - purchase_value_bucket_composition
+
+coverage_gate:
+  complete_primary_events_min: 100
+  distinct_symbols_min: 50
+  mature_primary_completeness_min: 0.80
+
+classification:
+  insufficient_coverage: coverage_gate_not_met
+  rejected:
+    any:
+      - mean_excess_return_pp_lte: 0
+      - median_excess_return_pp_lte: 0
+  strong:
+    all:
+      - mean_excess_return_pp_gte: 4.0
+      - symbol_cluster_bootstrap_95_lower_bound_mean_excess_pp_gt: 0
+      - nifty500_beat_rate_gte: 0.55
+      - first_event_mean_excess_sign: positive
+      - nonoverlapping_event_mean_excess_sign: positive
+  promising:
+    all:
+      - mean_excess_return_pp_gte: 2.0
+      - median_excess_return_pp_gt: 0
+      - nifty500_beat_rate_gte: 0.55
+      - first_event_mean_excess_sign: positive
+      - nonoverlapping_event_mean_excess_sign: positive
+  otherwise: INCONCLUSIVE
+
+scientific_guardrails:
+  - no_H024_return_or_benchmark_outcome_before_protocol_freeze
+  - source_feasibility_may_not_tune_return_thresholds
+  - exploratory_magnitude_features_cannot_enter_primary_H024_v1
+  - acquisition_failures_cannot_be_solved_by_weakening_parser_semantics
+  - revisions_never_rewrite_sealed_primary_decisions
+  - live_capital_disabled
+
+prospective_boundary:
+  intended: 2026-09-16T00:00:00+05:30
+  condition: complete_H024_protocol_merged_to_main_before_boundary
+  fallback: next_Asia_Kolkata_midnight_after_integration
