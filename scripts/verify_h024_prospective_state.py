@@ -16,7 +16,6 @@ from marketlab.h024_outcomes import (
     PRIMARY_POPULATION_RETROACTIVE_GAP,
     current_primary_population_audit,
     entry_by_event,
-    horizon_exit_session,
     validate_entry_ledger,
     validate_outcome_ledger,
 )
@@ -32,6 +31,10 @@ from marketlab.h024_prospective import (
     validate_scan_ledger,
     validate_signal_ledger,
     validate_source_ledger,
+)
+from marketlab.h024_sessions import (
+    observed_horizon_exit_session,
+    validate_session_ledger,
 )
 
 
@@ -62,6 +65,7 @@ def verify(
     signal_ledger: dict[str, Any],
     scan_ledger: dict[str, Any],
     event_ledger: dict[str, Any],
+    session_ledger: dict[str, Any],
     entry_ledger: dict[str, Any],
     outcome_ledger: dict[str, Any],
 ) -> dict[str, Any]:
@@ -72,9 +76,13 @@ def verify(
     validate_signal_ledger(signal_ledger)
     validate_scan_ledger(scan_ledger)
     validate_event_ledger(event_ledger)
+    validate_session_ledger(session_ledger)
     validate_entry_ledger(entry_ledger)
     validate_outcome_ledger(outcome_ledger)
 
+    observed_by_date = {
+        str(row["session_date"]): row for row in session_ledger["records"]
+    }
     source_ids = {
         str(row["source"]["source_id"]) for row in source_ledger["records"]
     }
@@ -213,16 +221,32 @@ def verify(
             raise H024ProspectiveError(
                 f"{entry['entry_observation_id']}: entry identity disagrees with event"
             )
-        session = session_by_date.get(str(entry["entry_session"]))
-        if session is None:
+        calendar_session = session_by_date.get(str(entry["entry_session"]))
+        if calendar_session is None:
             raise H024ProspectiveError(
                 f"{entry['entry_observation_id']}: entry session not in reviewed calendar"
             )
-        if _timestamp(entry["observed_at_utc"], "entry.observed_at_utc") < _timestamp(
-            session["close_timestamp_utc"], "calendar.close_timestamp_utc"
+        observed_session = observed_by_date.get(str(entry["entry_session"]))
+        if observed_session is None:
+            raise H024ProspectiveError(
+                f"{entry['entry_observation_id']}: entry session lacks official observed-session evidence"
+            )
+        entry_observed = _timestamp(entry["observed_at_utc"], "entry.observed_at_utc")
+        if entry_observed < _timestamp(
+            calendar_session["close_timestamp_utc"], "calendar.close_timestamp_utc"
         ):
             raise H024ProspectiveError(
                 f"{entry['entry_observation_id']}: entry evidence frozen before session close"
+            )
+        if entry_observed < _timestamp(
+            observed_session["observed_at_utc"], "session.observed_at_utc"
+        ):
+            raise H024ProspectiveError(
+                f"{entry['entry_observation_id']}: entry evidence predates observed-session evidence"
+            )
+        if entry["benchmark_bar"] != observed_session["benchmark_bar"]:
+            raise H024ProspectiveError(
+                f"{entry['entry_observation_id']}: entry benchmark differs from session ledger"
             )
         entry_status_counts[
             str(entry["status"])
@@ -252,8 +276,8 @@ def verify(
                 f"{outcome['outcome_id']}: outcome entry reference drifted"
             )
         horizon = int(outcome["horizon_sessions"])
-        expected_exit = horizon_exit_session(
-            calendar,
+        expected_exit = observed_horizon_exit_session(
+            session_ledger,
             entry_session=str(event["planned_entry_session"]),
             horizon=horizon,
         )
@@ -261,13 +285,17 @@ def verify(
             outcome["exit_session"]
         ):
             raise H024ProspectiveError(
-                f"{outcome['outcome_id']}: outcome exit session disagrees with reviewed calendar"
+                f"{outcome['outcome_id']}: outcome exit disagrees with observed-session sequence"
+            )
+        if outcome["exit_benchmark_bar"] != expected_exit["benchmark_bar"]:
+            raise H024ProspectiveError(
+                f"{outcome['outcome_id']}: outcome benchmark differs from session ledger"
             )
         if _timestamp(outcome["observed_at_utc"], "outcome.observed_at_utc") < _timestamp(
-            expected_exit["close_timestamp_utc"], "calendar.close_timestamp_utc"
+            expected_exit["observed_at_utc"], "session.observed_at_utc"
         ):
             raise H024ProspectiveError(
-                f"{outcome['outcome_id']}: outcome frozen before exit session close"
+                f"{outcome['outcome_id']}: outcome predates exit-session observation"
             )
         outcome_status_counts[
             str(outcome["status"])
@@ -302,6 +330,7 @@ def verify(
         "signal_record_count": signal_ledger["record_count"],
         "scan_record_count": scan_ledger["record_count"],
         "event_record_count": event_ledger["record_count"],
+        "observed_session_record_count": session_ledger["record_count"],
         "entry_record_count": entry_ledger["record_count"],
         "outcome_record_count": outcome_ledger["record_count"],
         "signal_status_counts": dict(sorted(signal_status_counts.items())),
@@ -334,6 +363,7 @@ def verify(
         "signal_ledger_sha256": signal_ledger["ledger_sha256"],
         "scan_ledger_sha256": scan_ledger["ledger_sha256"],
         "event_ledger_sha256": event_ledger["ledger_sha256"],
+        "session_ledger_sha256": session_ledger["ledger_sha256"],
         "entry_ledger_sha256": entry_ledger["ledger_sha256"],
         "outcome_ledger_sha256": outcome_ledger["ledger_sha256"],
         "outcome_data_attached_to_event_ledger": False,
@@ -353,6 +383,7 @@ def main() -> int:
         signal_ledger=_load(args.state_dir / "signal-ledger.json"),
         scan_ledger=_load(args.state_dir / "scan-ledger.json"),
         event_ledger=_load(args.state_dir / "event-ledger.json"),
+        session_ledger=_load(args.state_dir / "session-ledger.json"),
         entry_ledger=_load(args.state_dir / "entry-ledger.json"),
         outcome_ledger=_load(args.state_dir / "outcome-ledger.json"),
     )

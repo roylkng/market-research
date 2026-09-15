@@ -3,7 +3,7 @@ name: H024 prospective insider outcomes
 on:
   workflow_dispatch:
   schedule:
-    # 18:00 IST every day. Weekend/holiday runs audit unexpected special sessions.
+    # 18:00 IST every day. Successful Nifty 500 EOD snapshots define observed sessions.
     - cron: '30 12 * * *'
 
 permissions:
@@ -40,6 +40,7 @@ jobs:
             src/marketlab/h024_prospective.py \
             src/marketlab/h024_events.py \
             src/marketlab/h024_outcomes.py \
+            src/marketlab/h024_sessions.py \
             scripts/run_h024_prospective_scan.py \
             scripts/seal_h024_prospective_events.py \
             scripts/advance_h024_prospective_outcomes.py \
@@ -50,6 +51,7 @@ jobs:
             tests/test_h024_events.py \
             tests/test_h024_event_sealer.py \
             tests/test_h024_outcomes.py \
+            tests/test_h024_sessions.py \
             tests/test_h024_scan_retry.py
           pytest -q \
             tests/test_h024_insider.py \
@@ -58,6 +60,7 @@ jobs:
             tests/test_h024_events.py \
             tests/test_h024_event_sealer.py \
             tests/test_h024_outcomes.py \
+            tests/test_h024_sessions.py \
             tests/test_h024_scan_retry.py
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
@@ -97,7 +100,7 @@ jobs:
           cp research/prospective/h024/*.json "$WORK/state/"
           echo "work_dir=$WORK" >> "$GITHUB_ENV"
 
-      - name: Advance official H024 entry and outcome evidence
+      - name: Advance official H024 session, entry and outcome evidence
         if: steps.gate.outputs.state == 'READY'
         shell: bash
         run: |
@@ -109,7 +112,7 @@ jobs:
             --report "$work_dir/report.json" \
             --attempts 4 \
             --timeout-seconds 30 \
-            --special-session-lookback-days 10
+            --session-recheck-days 14
 
       - name: Verify proposed H024 state offline
         if: steps.gate.outputs.state == 'READY'
@@ -138,6 +141,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cp "$work_dir/state/session-ledger.json" research/prospective/h024/session-ledger.json
           cp "$work_dir/state/entry-ledger.json" research/prospective/h024/entry-ledger.json
           cp "$work_dir/state/outcome-ledger.json" research/prospective/h024/outcome-ledger.json
           python scripts/verify_h024_prospective_state.py \
@@ -146,6 +150,7 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add \
+            research/prospective/h024/session-ledger.json \
             research/prospective/h024/entry-ledger.json \
             research/prospective/h024/outcome-ledger.json
           if git diff --cached --quiet; then

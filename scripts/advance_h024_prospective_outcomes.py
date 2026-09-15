@@ -21,7 +21,6 @@ from marketlab.h024_outcomes import (
     build_entry_record,
     build_outcome_record,
     entry_by_event,
-    horizon_exit_session,
     new_entry_ledger,
     new_outcome_ledger,
     outcome_exists,
@@ -29,10 +28,16 @@ from marketlab.h024_outcomes import (
     validate_outcome_ledger,
 )
 from marketlab.h024_prospective import validate_calendar
+from marketlab.h024_sessions import (
+    append_session,
+    build_session_record,
+    new_session_ledger,
+    observed_horizon_exit_session,
+    validate_session_ledger,
+)
 from marketlab.marketdata import index_snapshot_url, udiff_url
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.pf001_marketdata import (
-    PF001MarketDataError,
     PF001MarketDataMissingRow,
     parse_pf001_nifty500_index,
     parse_pf001_udiff_equity,
@@ -114,24 +119,6 @@ def _retain_raw(path: Path, raw: bytes) -> None:
     path.write_bytes(raw)
 
 
-def _calendar_session_by_date(calendar: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    return {row["session_date"]: row for row in validate_calendar(calendar)}
-
-
-def _session_completed(
-    session: dict[str, Any], *, as_of: date, now_utc: datetime
-) -> bool:
-    session_day = date.fromisoformat(str(session["session_date"]))
-    if session_day < as_of:
-        return True
-    if session_day > as_of:
-        return False
-    close = datetime.fromisoformat(str(session["close_timestamp_utc"]))
-    if close.tzinfo is None:
-        raise H024OutcomeAdvanceError("H024 calendar close lacks timezone")
-    return now_utc >= close.astimezone(UTC)
-
-
 def _index_bar(
     http: requests.Session,
     *,
@@ -146,7 +133,10 @@ def _index_bar(
         return None
     digest = sha256_bytes(raw)
     _retain_raw(raw_dir / "index" / f"{session_date.isoformat()}-{digest[:12]}.csv", raw)
-    parsed = parse_pf001_nifty500_index(raw, session_date=session_date)
+    try:
+        parsed = parse_pf001_nifty500_index(raw, session_date=session_date)
+    except PF001MarketDataMissingRow:
+        return None
     return {**parsed.to_dict(), "source_url": url, "raw_sha256": digest}
 
 
@@ -176,47 +166,70 @@ def _stock_bar(
     return True, {**parsed.to_dict(), "source_url": url, "raw_sha256": digest}
 
 
-def _audit_recent_unregistered_sessions(
+def _advance_observed_sessions(
     http: requests.Session,
     *,
-    calendar: dict[str, Any],
+    session_ledger: dict[str, Any],
     as_of: date,
     raw_dir: Path,
     attempts: int,
     timeout: float,
-    lookback_days: int,
-) -> list[str]:
-    expected = set(_calendar_session_by_date(calendar))
-    start = max(PROSPECTIVE_START_DATE, as_of - timedelta(days=lookback_days - 1))
-    cursor = start
-    audited: list[str] = []
-    while cursor <= as_of:
-        day = cursor.isoformat()
-        if day in expected:
-            cursor += timedelta(days=1)
-            continue
-        url = index_snapshot_url(cursor)
-        raw = _fetch_archive(http, url, attempts=attempts, timeout=timeout)
-        if raw is None:
-            audited.append(day)
-            cursor += timedelta(days=1)
-            continue
-        digest = sha256_bytes(raw)
-        _retain_raw(raw_dir / "calendar-probes" / f"{day}-{digest[:12]}.csv", raw)
-        try:
-            parse_pf001_nifty500_index(raw, session_date=cursor)
-        except PF001MarketDataMissingRow:
-            audited.append(day)
-            cursor += timedelta(days=1)
-            continue
-        except PF001MarketDataError as exc:
-            raise H024OutcomeAdvanceError(
-                f"unregistered-session probe parser failed for {day}: {exc}"
-            ) from exc
-        raise H024OutcomeAdvanceError(
-            f"official Nifty 500 snapshot exposes unregistered H024 special session: {day}"
+    recheck_days: int,
+) -> tuple[dict[str, Any], list[str]]:
+    validate_session_ledger(session_ledger)
+    if session_ledger["records"]:
+        latest = date.fromisoformat(str(session_ledger["records"][-1]["session_date"]))
+        start = max(
+            PROSPECTIVE_START_DATE,
+            latest - timedelta(days=recheck_days - 1),
         )
-    return audited
+    else:
+        start = PROSPECTIVE_START_DATE
+    observed_now: list[str] = []
+    cursor = start
+    while cursor <= as_of:
+        bar = _index_bar(
+            http,
+            session_date=cursor,
+            raw_dir=raw_dir,
+            attempts=attempts,
+            timeout=timeout,
+        )
+        if bar is not None:
+            before = int(session_ledger["record_count"])
+            session_ledger = append_session(
+                session_ledger,
+                build_session_record(
+                    benchmark_bar=bar,
+                    observed_at_utc=utc_now_text(),
+                ),
+            )
+            if int(session_ledger["record_count"]) > before:
+                observed_now.append(cursor.isoformat())
+        cursor += timedelta(days=1)
+    return session_ledger, observed_now
+
+
+def _verify_reviewed_calendar_against_observed(
+    *, calendar: dict[str, Any], session_ledger: dict[str, Any]
+) -> None:
+    reviewed = validate_calendar(calendar)
+    reviewed_dates = {str(row["session_date"]) for row in reviewed}
+    if not reviewed_dates:
+        raise H024OutcomeAdvanceError("reviewed H024 calendar contains no sessions")
+    minimum = min(reviewed_dates)
+    maximum = max(reviewed_dates)
+    special_observed = sorted(
+        str(row["session_date"])
+        for row in session_ledger["records"]
+        if minimum <= str(row["session_date"]) <= maximum
+        and str(row["session_date"]) not in reviewed_dates
+    )
+    if special_observed:
+        raise H024OutcomeAdvanceError(
+            "official Nifty 500 evidence exposes session(s) absent from reviewed H024 calendar: "
+            + ",".join(special_observed)
+        )
 
 
 def _corporate_action_audit(
@@ -267,17 +280,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--as-of-date", default=None)
     parser.add_argument("--attempts", type=int, default=4)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
-    parser.add_argument("--special-session-lookback-days", type=int, default=10)
+    parser.add_argument("--session-recheck-days", type=int, default=14)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    if (
-        args.attempts < 1
-        or args.timeout_seconds <= 0
-        or args.special_session_lookback_days < 1
-    ):
+    if args.attempts < 1 or args.timeout_seconds <= 0 or args.session_recheck_days < 1:
         raise H024OutcomeAdvanceError("invalid H024 outcome-advance configuration")
 
     now_utc = datetime.now(UTC)
@@ -290,47 +299,47 @@ def main() -> int:
         raise H024OutcomeAdvanceError("H024 outcomes cannot advance before prospective start")
 
     calendar = _load_json(args.calendar)
-    sessions_by_date = _calendar_session_by_date(calendar)
+    reviewed_sessions = validate_calendar(calendar)
+    reviewed_by_date = {str(row["session_date"]): row for row in reviewed_sessions}
     event_ledger = _load_json(args.state_dir / "event-ledger.json")
     validate_event_ledger(event_ledger)
+    session_path = args.state_dir / "session-ledger.json"
     entry_path = args.state_dir / "entry-ledger.json"
     outcome_path = args.state_dir / "outcome-ledger.json"
+    session_ledger = _load_or_initialize(session_path, new_session_ledger)
     entry_ledger = _load_or_initialize(entry_path, new_entry_ledger)
     outcome_ledger = _load_or_initialize(outcome_path, new_outcome_ledger)
+    validate_session_ledger(session_ledger)
     validate_entry_ledger(entry_ledger)
     validate_outcome_ledger(outcome_ledger)
 
-    http = requests.Session()
-    http.headers.update({"User-Agent": USER_AGENT, "Accept": "*/*"})
-    audited_non_sessions = _audit_recent_unregistered_sessions(
-        http,
-        calendar=calendar,
-        as_of=as_of,
-        raw_dir=args.raw_dir,
-        attempts=args.attempts,
-        timeout=args.timeout_seconds,
-        lookback_days=args.special_session_lookback_days,
-    )
-
     started_at = utc_now_text()
+    start_session_count = int(session_ledger["record_count"])
     start_entry_count = int(entry_ledger["record_count"])
     start_outcome_count = int(outcome_ledger["record_count"])
     pending: Counter[str] = Counter()
     new_entry_statuses: Counter[str] = Counter()
     new_outcome_statuses: Counter[str] = Counter()
-    index_cache: dict[str, dict[str, Any] | None] = {}
-    stock_cache: dict[tuple[str, str], tuple[bool, dict[str, Any] | None]] = {}
 
-    def index_bar(day: str) -> dict[str, Any] | None:
-        if day not in index_cache:
-            index_cache[day] = _index_bar(
-                http,
-                session_date=date.fromisoformat(day),
-                raw_dir=args.raw_dir,
-                attempts=args.attempts,
-                timeout=args.timeout_seconds,
-            )
-        return index_cache[day]
+    http = requests.Session()
+    http.headers.update({"User-Agent": USER_AGENT, "Accept": "*/*"})
+    session_ledger, new_session_dates = _advance_observed_sessions(
+        http,
+        session_ledger=session_ledger,
+        as_of=as_of,
+        raw_dir=args.raw_dir,
+        attempts=args.attempts,
+        timeout=args.timeout_seconds,
+        recheck_days=args.session_recheck_days,
+    )
+    _verify_reviewed_calendar_against_observed(
+        calendar=calendar,
+        session_ledger=session_ledger,
+    )
+    observed_by_date = {
+        str(row["session_date"]): row for row in session_ledger["records"]
+    }
+    stock_cache: dict[tuple[str, str], tuple[bool, dict[str, Any] | None]] = {}
 
     def stock_bar(symbol: str, day: str) -> tuple[bool, dict[str, Any] | None]:
         key = (symbol, day)
@@ -357,17 +366,13 @@ def main() -> int:
         if entry_by_event(entry_ledger, event_id) is not None:
             continue
         entry_session = str(event["planned_entry_session"])
-        calendar_entry = sessions_by_date.get(entry_session)
-        if calendar_entry is None:
+        if entry_session not in reviewed_by_date:
             raise H024OutcomeAdvanceError(
                 f"{event_id}: planned entry session disappeared from reviewed calendar"
             )
-        if not _session_completed(calendar_entry, as_of=as_of, now_utc=now_utc):
-            pending["ENTRY_SESSION_NOT_COMPLETE"] += 1
-            continue
-        benchmark = index_bar(entry_session)
-        if benchmark is None:
-            pending["ENTRY_BENCHMARK_ARCHIVE_PENDING"] += 1
+        observed = observed_by_date.get(entry_session)
+        if observed is None:
+            pending["ENTRY_SESSION_NOT_YET_OBSERVED_COMPLETE"] += 1
             continue
         archive_ready, stock = stock_bar(str(event["symbol"]), entry_session)
         if not archive_ready:
@@ -376,7 +381,7 @@ def main() -> int:
         record = build_entry_record(
             event=event,
             stock_bar=stock,
-            benchmark_bar=benchmark,
+            benchmark_bar=dict(observed["benchmark_bar"]),
             observed_at_utc=utc_now_text(),
         )
         entry_ledger = append_entry(entry_ledger, record)
@@ -395,22 +400,15 @@ def main() -> int:
         for horizon in HORIZONS:
             if outcome_exists(outcome_ledger, event_id, horizon):
                 continue
-            exit_session = horizon_exit_session(
-                calendar,
+            exit_observation = observed_horizon_exit_session(
+                session_ledger,
                 entry_session=str(event["planned_entry_session"]),
                 horizon=horizon,
             )
-            if exit_session is None:
-                pending["CALENDAR_EXTENSION_REQUIRED"] += 1
-                continue
-            if not _session_completed(exit_session, as_of=as_of, now_utc=now_utc):
+            if exit_observation is None:
                 pending[f"H{horizon}_NOT_MATURE"] += 1
                 continue
-            exit_day = str(exit_session["session_date"])
-            benchmark = index_bar(exit_day)
-            if benchmark is None:
-                pending[f"H{horizon}_BENCHMARK_ARCHIVE_PENDING"] += 1
-                continue
+            exit_day = str(exit_observation["session_date"])
             archive_ready, stock = stock_bar(str(event["symbol"]), exit_day)
             if not archive_ready:
                 pending[f"H{horizon}_UDIFF_ARCHIVE_PENDING"] += 1
@@ -434,7 +432,7 @@ def main() -> int:
                 horizon=horizon,
                 exit_session=exit_day,
                 exit_stock_bar=stock,
-                exit_benchmark_bar=benchmark,
+                exit_benchmark_bar=dict(exit_observation["benchmark_bar"]),
                 corporate_action_audit=action_audit,
                 corporate_action_source_url=action_url,
                 corporate_action_raw_sha256=action_hash,
@@ -447,8 +445,10 @@ def main() -> int:
                 else f"BLOCKED:{record['block_reason']}"
             ] += 1
 
+    validate_session_ledger(session_ledger)
     validate_entry_ledger(entry_ledger)
     validate_outcome_ledger(outcome_ledger)
+    _write_json(session_path, session_ledger)
     _write_json(entry_path, entry_ledger)
     _write_json(outcome_path, outcome_ledger)
 
@@ -459,12 +459,16 @@ def main() -> int:
         "completed_at_utc": utc_now_text(),
         "as_of_date": as_of.isoformat(),
         "primary_event_count": len(primary_events),
+        "new_observed_session_count": (
+            int(session_ledger["record_count"]) - start_session_count
+        ),
+        "new_observed_session_dates": new_session_dates,
         "new_entry_count": int(entry_ledger["record_count"]) - start_entry_count,
         "new_outcome_count": int(outcome_ledger["record_count"]) - start_outcome_count,
         "new_entry_status_counts": dict(sorted(new_entry_statuses.items())),
         "new_outcome_status_counts": dict(sorted(new_outcome_statuses.items())),
         "pending_counts": dict(sorted(pending.items())),
-        "audited_recent_non_session_dates": audited_non_sessions,
+        "session_ledger_sha256": session_ledger["ledger_sha256"],
         "entry_ledger_sha256": entry_ledger["ledger_sha256"],
         "outcome_ledger_sha256": outcome_ledger["ledger_sha256"],
         "outcome_data_attached_to_event_ledger": False,
