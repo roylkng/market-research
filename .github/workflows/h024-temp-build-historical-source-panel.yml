@@ -1,0 +1,194 @@
+name: H024 temporary historical source-panel builder
+
+on:
+  push:
+    branches:
+      - research/h024-historical-challenge-v1-20260915
+    paths:
+      - '.github/workflows/h024-temp-build-historical-source-panel.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-panel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h024-historical-challenge-v1-20260915
+          fetch-depth: 0
+      - name: Download exact pre-freeze V2 source artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api \
+            repos/${GITHUB_REPOSITORY}/actions/artifacts/10387108654/zip \
+            > /tmp/h024-v2.zip
+          mkdir -p /tmp/h024-v2
+          unzip -q /tmp/h024-v2.zip -d /tmp/h024-v2
+          find /tmp/h024-v2 -name report.json -type f -print
+      - name: Build frozen Original-only purchase panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import collections
+          import datetime as dt
+          import hashlib
+          import json
+          from pathlib import Path
+
+          reports = list(Path('/tmp/h024-v2').rglob('report.json'))
+          if len(reports) != 1:
+              raise SystemExit(f'expected one V2 report, found {reports}')
+          source = reports[0]
+          payload = json.loads(source.read_text(encoding='utf-8'))
+          summary = payload.get('summary', {})
+          if summary.get('eligible_regulation_7_2_document_count') != 2506:
+              raise SystemExit('unexpected V2 source corpus size')
+          if summary.get('complete_document_count') != 2501:
+              raise SystemExit('unexpected V2 parsed document count')
+
+          allowed = {
+              'Promoter',
+              'Promoter Group',
+              'Director',
+              'KMP',
+              'Promoter and Director',
+          }
+
+          def qualifies(tx):
+              return (
+                  tx.get('category') in allowed
+                  and tx.get('instrument') == 'Equity'
+                  and tx.get('transaction_type') == 'Buy'
+                  and tx.get('acquisition_mode') == 'Market Purchase'
+                  and float(tx.get('transaction_quantity') or 0) > 0
+                  and float(tx.get('transaction_value_inr') or 0) > 0
+                  and tx.get('exchange') in {'NSE', 'BSE'}
+              )
+
+          records = []
+          for document in payload['direct_market_purchase_documents']:
+              if document.get('typeOfSubmission') != 'Original':
+                  continue
+              transactions = [tx for tx in document['transactions'] if qualifies(tx)]
+              if not transactions:
+                  continue
+              records.append(
+                  {
+                      'symbol': document['symbol'],
+                      'company_name': document['companyName'],
+                      'app_id': document['appId'],
+                      'exchange_disseminated_at_ist': document['exchdisstime'],
+                      'broadcast_at_ist': document['broadcastDateTime'],
+                      'raw_xbrl_url': document['xmlFileName'],
+                      'raw_xbrl_sha256': document['xml_sha256'],
+                      'qualifying_transaction_count': len(transactions),
+                      'purchase_value_inr': sum(
+                          float(tx['transaction_value_inr']) for tx in transactions
+                      ),
+                      'purchase_quantity': sum(
+                          int(tx['transaction_quantity']) for tx in transactions
+                      ),
+                      'ownership_delta_pp': sum(
+                          float(tx['ownership_delta_pp']) for tx in transactions
+                      ),
+                      'actor_count': len(
+                          {tx['person_name'] for tx in transactions}
+                      ),
+                      'actor_categories': sorted(
+                          {tx['category'] for tx in transactions}
+                      ),
+                      'actor_names': sorted(
+                          {tx['person_name'] for tx in transactions}
+                      ),
+                      'executed_exchanges': sorted(
+                          {tx['exchange'] for tx in transactions}
+                      ),
+                      'transaction_from_date': min(
+                          tx['transaction_from_date'] for tx in transactions
+                      ),
+                      'transaction_to_date': max(
+                          tx['transaction_to_date'] for tx in transactions
+                      ),
+                  }
+              )
+
+          records.sort(
+              key=lambda row: (
+                  dt.datetime.strptime(
+                      row['exchange_disseminated_at_ist'], '%d-%b-%Y %H:%M:%S'
+                  ),
+                  row['symbol'],
+                  row['app_id'],
+              )
+          )
+          months = collections.Counter(
+              dt.datetime.strptime(
+                  row['exchange_disseminated_at_ist'], '%d-%b-%Y %H:%M:%S'
+              ).strftime('%Y-%m')
+              for row in records
+          )
+          result = {
+              'schema_version': 1,
+              'hypothesis_id': 'H024',
+              'panel_id': 'H024-PREFREEZE-ORIGINAL-PURCHASE-SOURCE-PANEL-V1',
+              'source_evidence': {
+                  'full_audit_window': ['2026-05-01', '2026-09-15'],
+                  'exploratory_branch': 'research/h024-insider-source-probe-v1-20260915',
+                  'full_audit_report_blob_sha': '78287cdc6bd323e61a340d5a1956d8b48272f0ec',
+                  'full_audit_artifact_id': 10387108654,
+                  'full_audit_artifact_digest': 'sha256:87cf351e76ac5c4cde00a6db0c1f111f9142e21d00b86af5aaa64a1111bf92ee',
+                  'h024_freeze_commit': '4a5f3d25d59bf9e291291b70ff1154d231812d23',
+              },
+              'rule': 'H024-R001',
+              'candidate_original_filing_count': len(records),
+              'candidate_symbol_count': len({row['symbol'] for row in records}),
+              'monthly_filing_counts': dict(sorted(months.items())),
+              'records': records,
+              'outcome_data_attached': False,
+              'live_capital_allowed': False,
+          }
+          raw = json.dumps(
+              result, indent=2, sort_keys=True, ensure_ascii=False
+          ) + '\n'
+          digest = hashlib.sha256(raw.encode('utf-8')).hexdigest()
+          if len(records) != 785:
+              raise SystemExit(f'expected 785 Original candidates, got {len(records)}')
+          if result['candidate_symbol_count'] != 158:
+              raise SystemExit(
+                  f"expected 158 symbols, got {result['candidate_symbol_count']}"
+              )
+          if digest != 'ea6a923d7b5a1292daee2adbe59f8f9d9051abc3ad63e73006144ec78b869000':
+              raise SystemExit(f'unexpected panel digest: {digest}')
+          target = Path(
+              'research/historical/h024/prefreeze-original-purchase-source-panel-v1.json'
+          )
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(raw, encoding='utf-8')
+          print(
+              json.dumps(
+                  {
+                      'candidate_original_filing_count': len(records),
+                      'candidate_symbol_count': result['candidate_symbol_count'],
+                      'monthly_filing_counts': result['monthly_filing_counts'],
+                      'sha256': digest,
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
+      - name: Commit generated source panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/historical/h024/prefreeze-original-purchase-source-panel-v1.json
+          git commit -m "H024: anchor pre-freeze Original purchase source panel"
+          git push origin HEAD:research/h024-historical-challenge-v1-20260915
