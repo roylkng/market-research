@@ -20,8 +20,8 @@ from marketlab.h024_acquisition import (
 from marketlab.h024_historical import (
     HOLIDAYS,
     MARKET_DATA_CUTOFF,
-    SPECIAL_SESSION_TIMES,
     SOURCE_PANEL_RAW_SHA256,
+    SPECIAL_SESSION_TIMES,
     build_event_panel,
     build_frozen_sessions,
     build_outcome_report,
