@@ -1,0 +1,67 @@
+name: H024 temporary protocol status finalizer
+
+on:
+  push:
+    branches:
+      - research/h024-insider-prospective-v1-20260915
+    paths:
+      - '.github/workflows/h024-temp-doc-finalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/h024-insider-prospective-v1-20260915
+          fetch-depth: 0
+      - name: Align frozen docs with closed source gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          hypothesis = Path('hypotheses/H024_direct_insider_market_purchase.md')
+          text = hypothesis.read_text(encoding='utf-8')
+          old = '`FROZEN_PENDING_SOURCE_GATE`'
+          new = '`FROZEN_PENDING_MAIN_INTEGRATION`'
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 hypothesis status')
+          hypothesis.write_text(text.replace(old, new), encoding='utf-8')
+
+          protocol = Path('research/H024_PROSPECTIVE_PROTOCOL_V1.md')
+          text = protocol.read_text(encoding='utf-8')
+          old = 'Status: **FROZEN PENDING SOURCE-CORPUS GATE AND MAIN INTEGRATION**'
+          new = 'Status: **FROZEN PENDING MAIN INTEGRATION**'
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 protocol status')
+          text = text.replace(old, new)
+
+          old = '''- transaction typed axis `ChangeInHoldingOfSecuritiesOfPromotersAxis`;\n- exact required transaction concepts;\n- quantity unit `shares`;'''
+          new = '''- transaction typed axis `ChangeInHoldingOfSecuritiesOfPromotersAxis`;\n- `TypeOfInstrument` is required in every disclosure context;\n- exact required cash-security transaction concepts apply to every non-derivative disclosure context;\n- an exact `Derivative` context is recognized and excluded from H024-v1 rather than coerced into the cash-security schema;\n- quantity unit `shares`;'''
+          if text.count(old) != 1:
+              raise SystemExit('unexpected H024 parser-contract prose')
+          text = text.replace(old, new)
+
+          marker = '''## Source-feasibility gate\n\nThe current post-May NSE Regulation 7(2) raw-XBRL corpus audit must close before this protocol can be marked production-ready.\n'''
+          replacement = '''## Source-feasibility gate\n\nThe pre-outcome source gate is closed. The retained result is `research/H024_SOURCE_FEASIBILITY_RESULT_V1.md`.\n\nThe 2026-05-01 through 2026-09-15 official corpus contained 2,506 eligible Regulation 7(2) Original/Revision raw-XBRL documents. Rate-limited audit plus targeted schema closure resolved 2,505 documents and leaves one explicit raw-source HTTP 404 blocked rather than inferred. Four initial semantic failures were valid derivative disclosure contexts, now recognized and excluded without weakening any Equity purchase rule.\n\nThe final strict H024-v1 purchase filter remains frequent enough for the frozen coverage gate to be plausible: 788 qualifying source filings across 159 symbols in pre-outcome source-frequency evidence. This is feasibility evidence only, not evidence of predictive return.\n\nThe source gate permanently requires:\n'''
+          if text.count(marker) != 1:
+              raise SystemExit('unexpected H024 source-gate section')
+          text = text.replace(marker, replacement)
+          protocol.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit final frozen documentation state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            hypotheses/H024_direct_insider_market_purchase.md \
+            research/H024_PROSPECTIVE_PROTOCOL_V1.md
+          git commit -m "H024: mark source gate closed before integration"
+          git push origin HEAD:research/h024-insider-prospective-v1-20260915
