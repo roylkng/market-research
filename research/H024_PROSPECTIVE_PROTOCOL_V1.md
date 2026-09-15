@@ -1,6 +1,6 @@
 # H024 Direct Insider Market Purchase prospective protocol v1
 
-Status: **FROZEN PENDING SOURCE-CORPUS GATE AND MAIN INTEGRATION**
+Status: **FROZEN PENDING MAIN INTEGRATION**
 
 Frozen design date: 2026-09-15
 Intended prospective boundary: **2026-09-16 00:00:00 Asia/Kolkata**, valid only if the complete H024 protocol is merged to `main` before that timestamp
@@ -101,7 +101,9 @@ The parser fails closed on unknown semantic changes. The frozen contract include
 
 - regulation exactly `Regulation 7 (2)`;
 - transaction typed axis `ChangeInHoldingOfSecuritiesOfPromotersAxis`;
-- exact required transaction concepts;
+- `TypeOfInstrument` is required in every disclosure context;
+- exact required cash-security transaction concepts apply to every non-derivative disclosure context;
+- an exact `Derivative` context is recognized and excluded from H024-v1 rather than coerced into the cash-security schema;
 - quantity unit `shares`;
 - transaction-value unit `INR`;
 - ownership unit `pure`;
@@ -328,7 +330,13 @@ These classifications are research evidence only. Live capital remains disabled.
 
 ## Source-feasibility gate
 
-The current post-May NSE Regulation 7(2) raw-XBRL corpus audit must close before this protocol can be marked production-ready.
+The pre-outcome source gate is closed. The retained result is `research/H024_SOURCE_FEASIBILITY_RESULT_V1.md`.
+
+The 2026-05-01 through 2026-09-15 official corpus contained 2,506 eligible Regulation 7(2) Original/Revision raw-XBRL documents. Rate-limited audit plus targeted schema closure resolved 2,505 documents and leaves one explicit raw-source HTTP 404 blocked rather than inferred. Four initial semantic failures were valid derivative disclosure contexts, now recognized and excluded without weakening any Equity purchase rule.
+
+The final strict H024-v1 purchase filter remains frequent enough for the frozen coverage gate to be plausible: 788 qualifying source filings across 159 symbols in pre-outcome source-frequency evidence. This is feasibility evidence only, not evidence of predictive return.
+
+The source gate permanently requires:
 
 Transport failures such as NSE archive HTTP 403/429 must be distinguished from parser failures.
 

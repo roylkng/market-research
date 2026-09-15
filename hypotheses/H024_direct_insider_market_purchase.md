@@ -2,7 +2,7 @@
 
 ## Status
 
-`FROZEN_PENDING_SOURCE_GATE`
+`FROZEN_PENDING_MAIN_INTEGRATION`
 
 ## Economic mechanism
 
