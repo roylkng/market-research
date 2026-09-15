@@ -1,7 +1,7 @@
 {
   "book": "DEVELOPMENT",
-  "cash_gross": 1000000.0,
-  "cash_net": 1000000.0,
+  "cash_gross": 950223.2,
+  "cash_net": 950098.758,
   "closed_positions": [],
   "events": [
     {
@@ -11,15 +11,64 @@
       "initial_nav": 1000000.0,
       "policy_frozen_at": "2026-09-11T18:46:13Z",
       "seq": 1
+    },
+    {
+      "cost_basis": 49776.799999999996,
+      "decision_id": "ADO1-ARVIND-20260912T164124Z-130f72b4827b",
+      "entry_friction": 124.442,
+      "event_id": "70f93a50f9f2b702",
+      "event_type": "ENTRY_FILLED",
+      "price": 578.8,
+      "seq": 2,
+      "session_date": "2026-09-15",
+      "shares": 86,
+      "symbol": "ARVIND",
+      "target_notional": 50000.0
+    },
+    {
+      "event_id": "315f0ca3e01a2cf6",
+      "event_type": "SESSION_MARKED",
+      "gross_nav": 997574.7999999999,
+      "net_nav": 997450.358,
+      "open_positions": 1,
+      "seq": 3,
+      "session_date": "2026-09-15"
     }
   ],
   "fund_id": "PF001-v1-DEVELOPMENT",
   "initial_nav": 1000000.0,
-  "last_session_date": null,
+  "last_session_date": "2026-09-15",
   "live_capital_allowed": false,
-  "open_positions": {},
+  "open_positions": {
+    "ARVIND": {
+      "analyst_decision_id": "ADO1-ARVIND-20260912T164124Z-130f72b4827b",
+      "checkpoint_20": null,
+      "cost_basis": 49776.799999999996,
+      "current_price": 550.6,
+      "entry_decision_timestamp": "2026-09-12T22:11:24+05:30",
+      "entry_friction": 124.442,
+      "entry_price": 578.8,
+      "entry_session": "2026-09-15",
+      "excursion_missing_sessions": 0,
+      "excursion_observed_sessions": 1,
+      "exit_friction": null,
+      "holding_sessions": 1,
+      "isin": "INE034A01011",
+      "last_mark_session": "2026-09-15",
+      "maturity_pending": false,
+      "max_adverse_excursion_pct": -6.314789219073935,
+      "max_favourable_excursion_pct": 3.2999308914996694,
+      "missing_mark_count": 0,
+      "sector": "Textiles",
+      "shares": 86,
+      "status": "OPEN",
+      "symbol": "ARVIND",
+      "target_notional": 50000.0
+    }
+  },
   "policy_frozen_at": "2026-09-11T18:46:13Z",
   "policy_id": "PF001-v1",
   "rejected_entries": [],
-  "schema_version": 1
+  "schema_version": 1,
+  "state_sha256": "c5a636dc95756fb3677f550b61272b52cb12ee8d92dc3b17d5045d03a1e606fb"
 }
