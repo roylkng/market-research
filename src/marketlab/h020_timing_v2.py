@@ -5,7 +5,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from marketlab.h020_timing_v1 import MIN_SESSIONS, compute_snapshot as compute_snapshot_v1
+from marketlab.h020_timing_v1 import MIN_SESSIONS
+from marketlab.h020_timing_v1 import compute_snapshot as compute_snapshot_v1
 
 DOWNSIDE_SHOCK_Z_THRESHOLD = -2.0
 BREAKDOWN_LOOKBACK_SESSIONS = 10
