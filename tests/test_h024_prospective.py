@@ -196,6 +196,29 @@ def test_revision_and_nonqualifying_original_do_not_create_positive_signal() -> 
     )
 
 
+def test_evidence_frozen_after_entry_is_late_even_when_source_was_seen_before_entry() -> None:
+    source = _source()
+    sources = append_sources(
+        new_source_ledger(), [source], first_seen_at_utc="2026-09-15T19:00:10Z"
+    )
+    evidence = append_evidence(
+        new_evidence_ledger(),
+        sources,
+        _ready(source),
+        frozen_at_utc="2026-09-17T04:00:00Z",
+    )
+    record = build_signal_record(
+        source_ledger=sources,
+        evidence_ledger=evidence,
+        calendar=_calendar(),
+        source_id=source["source_id"],
+        frozen_at_utc="2026-09-17T04:01:00Z",
+    )
+    assert record is not None
+    assert record["status"] == "LATE_SIGNAL_FREEZE"
+    assert record["evidence_frozen_at_utc"] == "2026-09-17T04:00:00Z"
+
+
 def test_late_signal_freeze_is_retained_but_not_primary_qualifying() -> None:
     source = _source()
     sources = append_sources(

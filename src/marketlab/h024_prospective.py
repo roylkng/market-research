@@ -287,14 +287,19 @@ def validate_evidence_ledger(ledger: dict[str, Any]) -> None:
             raise H024ProspectiveError("H024 evidence record digest mismatch")
 
 
-def evidence_by_source(ledger: dict[str, Any], source_id: str) -> dict[str, Any] | None:
+def evidence_record_by_source(ledger: dict[str, Any], source_id: str) -> dict[str, Any] | None:
     validate_evidence_ledger(ledger)
-    matches = [row["evidence"] for row in ledger["records"] if row["evidence"]["source_id"] == source_id]
+    matches = [row for row in ledger["records"] if row["evidence"]["source_id"] == source_id]
     if not matches:
         return None
     if len(matches) != 1:
         raise H024ProspectiveError("H024 source has duplicate evidence")
     return dict(matches[0])
+
+
+def evidence_by_source(ledger: dict[str, Any], source_id: str) -> dict[str, Any] | None:
+    record = evidence_record_by_source(ledger, source_id)
+    return None if record is None else dict(record["evidence"])
 
 
 def append_evidence(
@@ -373,9 +378,10 @@ def build_signal_record(
     frozen_at_utc: str,
 ) -> dict[str, Any] | None:
     source = source_by_id(source_ledger, source_id)
-    evidence = evidence_by_source(evidence_ledger, source_id)
-    if evidence is None or evidence["status"] != "READY":
+    evidence_record = evidence_record_by_source(evidence_ledger, source_id)
+    if evidence_record is None or evidence_record["evidence"]["status"] != "READY":
         return None
+    evidence = evidence_record["evidence"]
     if source["submission_type"] != "Original":
         return None
     if int(evidence["direct_market_purchase_count"]) < 1:
@@ -385,13 +391,24 @@ def build_signal_record(
     )
     if disseminated < PROSPECTIVE_START_UTC:
         return None
-    first_seen = _timestamp(source_first_seen(source_ledger, source_id), field="source_first_seen_at_utc")
+    first_seen = _timestamp(
+        source_first_seen(source_ledger, source_id), field="source_first_seen_at_utc"
+    )
+    evidence_frozen = _timestamp(
+        evidence_record["evidence_frozen_at_utc"], field="evidence_frozen_at_utc"
+    )
     frozen = _timestamp(frozen_at_utc, field="signal_frozen_at_utc")
-    if frozen < first_seen:
-        raise H024ProspectiveError("H024 signal freeze precedes source first-seen")
+    if evidence_frozen < first_seen:
+        raise H024ProspectiveError("H024 evidence freeze precedes source first-seen")
+    if frozen < evidence_frozen:
+        raise H024ProspectiveError("H024 signal freeze precedes raw-XBRL evidence freeze")
     entry = planned_entry_session(calendar, str(source["exchange_disseminated_at_utc"]))
     entry_open = _timestamp(entry["open_timestamp_utc"], field="entry.open_timestamp_utc")
-    status = "QUALIFYING" if first_seen <= entry_open and frozen <= entry_open else "LATE_SIGNAL_FREEZE"
+    status = (
+        "QUALIFYING"
+        if first_seen <= entry_open and evidence_frozen <= entry_open and frozen <= entry_open
+        else "LATE_SIGNAL_FREEZE"
+    )
     signal_id = canonical_hash({"protocol_id": PROTOCOL_ID, "source_id": source_id})
     record: dict[str, Any] = {
         "signal_id": signal_id,
@@ -400,6 +417,7 @@ def build_signal_record(
         "status": status,
         "exchange_disseminated_at_utc": _utc_text(disseminated),
         "source_first_seen_at_utc": _utc_text(first_seen),
+        "evidence_frozen_at_utc": _utc_text(evidence_frozen),
         "signal_frozen_at_utc": _utc_text(frozen),
         "planned_entry_session": entry["session_date"],
         "planned_entry_open_utc": entry["open_timestamp_utc"],
@@ -425,6 +443,7 @@ def validate_signal_record(record: dict[str, Any]) -> None:
         "status",
         "exchange_disseminated_at_utc",
         "source_first_seen_at_utc",
+        "evidence_frozen_at_utc",
         "signal_frozen_at_utc",
         "planned_entry_session",
         "planned_entry_open_utc",
@@ -444,11 +463,22 @@ def validate_signal_record(record: dict[str, Any]) -> None:
         raise H024ProspectiveError("H024 signal identity/hash is invalid")
     disseminated = _timestamp(record["exchange_disseminated_at_utc"], field="signal.exchange")
     first_seen = _timestamp(record["source_first_seen_at_utc"], field="signal.first_seen")
+    evidence_frozen = _timestamp(
+        record["evidence_frozen_at_utc"], field="signal.evidence_frozen"
+    )
     frozen = _timestamp(record["signal_frozen_at_utc"], field="signal.frozen")
     entry = _timestamp(record["planned_entry_open_utc"], field="signal.entry_open")
-    if first_seen < disseminated or frozen < first_seen:
+    if (
+        first_seen < disseminated
+        or evidence_frozen < first_seen
+        or frozen < evidence_frozen
+    ):
         raise H024ProspectiveError("H024 signal timestamps are inconsistent")
-    expected_status = "QUALIFYING" if first_seen <= entry and frozen <= entry else "LATE_SIGNAL_FREEZE"
+    expected_status = (
+        "QUALIFYING"
+        if first_seen <= entry and evidence_frozen <= entry and frozen <= entry
+        else "LATE_SIGNAL_FREEZE"
+    )
     if record["status"] != expected_status:
         raise H024ProspectiveError("H024 signal late-freeze status is inconsistent")
     if record["signal_record_sha256"] != _record_hash(record, "signal_record_sha256"):
