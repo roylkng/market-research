@@ -10,7 +10,6 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
-
 from audit_h024_pit_xml_full_corpus import (
     APPROVED_ARCHIVE_HOSTS,
     ARCHIVE_HEADERS,
@@ -85,8 +84,6 @@ class _PoliteArchiveClient:
                 if isinstance(last_error, RuntimeError) and any(
                     marker in str(last_error) for marker in ("HTTP 403", "HTTP 429")
                 ):
-                    # NSE archive throttling is IP/window based. A new HTTP session alone is
-                    # insufficient, so cool down materially before the next attempt.
                     cooldown = min(15.0 * attempt, 60.0)
                     self._renew()
                 else:
