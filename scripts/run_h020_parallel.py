@@ -137,7 +137,7 @@ def validate_ledger(payload: dict[str, Any]) -> None:
         raise ValueError("H020 parallel ledger stream mismatch")
     records = payload.get("records")
     if not isinstance(records, list):
-        raise ValueError("H020 parallel ledger records must be a list")
+        raise TypeError("H020 parallel ledger records must be a list")
     if payload.get("record_count") != len(records):
         raise ValueError("H020 parallel ledger record_count mismatch")
     expected = canonical_hash({k: v for k, v in payload.items() if k != "ledger_sha256"})
@@ -165,7 +165,7 @@ def load_ledger(path: Path) -> dict[str, Any]:
         return new_ledger()
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
-        raise ValueError("H020 parallel ledger must be a JSON object")
+        raise TypeError("H020 parallel ledger must be a JSON object")
     validate_ledger(payload)
     return payload
 
