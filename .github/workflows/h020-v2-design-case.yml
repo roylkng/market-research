@@ -1,0 +1,48 @@
+name: H020-v2 adverse shock design case
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/h020-adverse-shock-challenger-v2-20260915
+    paths:
+      - '.github/workflows/h020-v2-design-case.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  design-case:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen challenger
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/timing_v2.py tests/test_timing_v2.py scripts/run_h020_current_v2.py
+          pytest -q tests/test_timing.py tests/test_timing_v2.py
+      - name: Run September 15 design case
+        run: |
+          set -euo pipefail
+          python scripts/run_h020_current_v2.py \
+            --candidates research/prospective/h020/current-candidates-2026-09-10.yaml \
+            --as-of 2026-09-15 \
+            --out-dir reports/current/h020-v2-2026-09-15-design
+      - name: Anchor design-case behavior
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add reports/current/h020-v2-2026-09-15-design
+          if ! git diff --cached --quiet; then
+            git commit -m "H020-v2: anchor September 15 design-case behavior"
+            git push origin HEAD:research/h020-adverse-shock-challenger-v2-20260915
+          fi
