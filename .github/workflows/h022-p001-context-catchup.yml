@@ -5,7 +5,9 @@ on:
   schedule:
     # 00:50 Asia/Kolkata. The gate is forbidden before the frozen
     # 2026-09-15 00:00 IST prospective boundary and becomes idempotent once sealed.
-    - cron: '20 19 * * *'
+    # Keep the timezone explicit so the collection trigger matches the frozen intent.
+    - cron: '50 0 * * *'
+      timezone: 'Asia/Kolkata'
 
 permissions:
   contents: write
