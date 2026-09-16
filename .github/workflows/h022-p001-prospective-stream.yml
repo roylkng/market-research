@@ -3,11 +3,15 @@ name: H022 P001 prospective stream
 on:
   workflow_dispatch:
   schedule:
-    # Two pre-open passes plus an after-close pass. Actual signal freeze time,
-    # not the cron target, determines H022-X001 executability.
-    - cron: '0 3 * * 1-5'   # 08:30 Asia/Kolkata
-    - cron: '35 3 * * 1-5'  # 09:05 Asia/Kolkata
-    - cron: '45 12 * * 1-5' # 18:15 Asia/Kolkata
+    # Two pre-open passes plus an after-close pass. Use an explicit India timezone
+    # so the collector intent is not coupled to implicit UTC cron interpretation.
+    # Actual signal freeze time, not the cron target, determines H022-X001 executability.
+    - cron: '30 8 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '5 9 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '15 18 * * 1-5'
+      timezone: 'Asia/Kolkata'
 
 permissions:
   contents: write
