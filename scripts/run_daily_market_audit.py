@@ -10,6 +10,11 @@ from pathlib import Path
 import requests
 
 from marketlab.intelligence_market_audit import build_market_audit
+from marketlab.intelligence_market_audit_context import (
+    apply_prospective_capture_context,
+    inject_news_ledger,
+)
+from marketlab.intelligence_prospective_news import load_news_ledger
 from marketlab.intelligence_store import ResearchStore
 from marketlab.marketdata import udiff_url
 
@@ -99,6 +104,7 @@ def main() -> int:
     parser.add_argument("--session", required=True)
     parser.add_argument("--store", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--news-ledger", type=Path)
     parser.add_argument("--liquidity-floor-inr", type=float, default=20_000_000.0)
     parser.add_argument("--move-threshold-pct", type=float, default=5.0)
     parser.add_argument("--top-abs-movers", type=int, default=25)
@@ -117,10 +123,12 @@ def main() -> int:
         timeout_seconds=args.archive_timeout_seconds,
     )
     captured_at = datetime.now(UTC).isoformat()
+    ledger = load_news_ledger(args.news_ledger) if args.news_ledger else None
     args.output.mkdir(parents=True, exist_ok=True)
     with ResearchStore(args.store) as store:
         raw_sha = store.save_object(raw)
         prior_raw_sha = store.save_object(prior_raw)
+        injected = inject_news_ledger(store, ledger, as_of=captured_at) if ledger else 0
         report = build_market_audit(
             raw,
             session_date=session_date,
@@ -132,6 +140,16 @@ def main() -> int:
             move_threshold_pct=args.move_threshold_pct,
             top_abs_movers=args.top_abs_movers,
         )
+        if ledger:
+            report = apply_prospective_capture_context(report, ledger)
+        else:
+            report["prospective_capture_context"] = {
+                "state": "NO_CANONICAL_NEWS_LEDGER_SUPPLIED",
+                "diagnostic_replay_only": True,
+            }
+            report.pop("report_sha256", None)
+            from marketlab.intelligence_store import digest
+            report["report_sha256"] = digest(report)
         store.append("market_audit", report["report_sha256"], report)
     path = args.output / f"market-audit-{session_date.isoformat()}.json"
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -140,6 +158,8 @@ def main() -> int:
         "prior_session_date": report["prior_session_date"],
         "market_raw_sha256": raw_sha,
         "prior_market_raw_sha256": prior_raw_sha,
+        "prospective_news_observations_injected": injected,
+        "prospective_capture_context": report["prospective_capture_context"],
         "report_sha256": report["report_sha256"],
         "universe": report["universe"],
         "coverage_class_counts": report["coverage_class_counts"],
