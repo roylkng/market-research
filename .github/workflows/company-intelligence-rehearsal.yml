@@ -1,0 +1,57 @@
+name: Company intelligence v2 bounded acquisition rehearsal
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/company-intelligence-v2-20260917]
+    paths:
+      - 'src/marketlab/intelligence_*.py'
+      - 'scripts/run_company_intelligence.py'
+      - 'registry/company_intelligence_v2.json'
+      - 'tests/test_intelligence_*.py'
+      - '.github/workflows/company-intelligence-rehearsal.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: company-intelligence-v2-rehearsal
+  cancel-in-progress: false
+
+jobs:
+  rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install repository
+        run: python -m pip install -e '.[dev]'
+      - name: Verify implementation
+        run: |
+          ruff check src/marketlab/intelligence_*.py scripts/run_company_intelligence.py tests/test_intelligence_*.py
+          pytest -q tests/test_intelligence_core.py tests/test_intelligence_runtime.py
+      - name: Register all 100 company identities without source reads
+        run: |
+          python scripts/run_company_intelligence.py \
+            --store reports/company-intelligence/store \
+            --output reports/company-intelligence/initial
+      - name: Run bounded official-source acquisition
+        run: |
+          python scripts/run_company_intelligence.py \
+            --store reports/company-intelligence/store \
+            --output reports/company-intelligence/acquired \
+            --collect
+      - name: Verify tracked repository bytes unchanged
+        if: always()
+        run: git diff --exit-code
+      - name: Retain research state and acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: company-intelligence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/company-intelligence
+          if-no-files-found: warn
+          retention-days: 30
