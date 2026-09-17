@@ -3,6 +3,14 @@ on:
   workflow_dispatch:
   push:
     branches: [feat/company-news-discovery-v2-20260917]
+    paths:
+      - '.github/workflows/company-news-discovery-verification.yml'
+      - 'src/marketlab/intelligence_news.py'
+      - 'src/marketlab/intelligence_discovery.py'
+      - 'src/marketlab/intelligence_http.py'
+      - 'tests/test_intelligence_news.py'
+      - 'scripts/run_company_news_discovery.py'
+      - 'registry/company_news_discovery_v2.json'
 permissions:
   contents: read
 concurrency:
@@ -11,7 +19,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,37 +28,18 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Capture discovery endpoints without manual article selection
+      - name: Verify implementation and preserve exact code
         run: |
+          ruff check src/marketlab/intelligence_*.py scripts/run_company_news_discovery.py tests/test_intelligence*.py
+          pytest -q tests/test_intelligence*.py
           mkdir -p reports/news-discovery
           git archive --format=zip HEAD > reports/news-discovery/source.zip
-          cp "$(command -v ruff)" reports/news-discovery/ruff
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          import marketlab.intelligence_http as http
-          http.ALLOWED_HOSTS = http.ALLOWED_HOSTS | {'www.sebi.gov.in', 'pib.gov.in', 'www.pib.gov.in'}
-          endpoints = {
-              'prn-india-list': 'https://www.prnewswire.com/in/news-releases/news-releases-list/',
-              'prn-rss': 'https://www.prnewswire.com/rss/news-releases-list.rss',
-              'nse-announcements': 'https://nsearchives.nseindia.com/content/RSS/Online_announcements.xml',
-              'sebi-rss': 'https://www.sebi.gov.in/sebirss.xml',
-              'pib-rss': 'https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3',
-          }
-          root = Path('reports/news-discovery')
-          fetcher = http.PublicFetcher(read_timeout=12)
-          outcomes = []
-          for name, url in endpoints.items():
-              try:
-                  raw, meta = fetcher.fetch(url)
-                  (root / (name + '.body')).write_bytes(raw)
-                  result = {'source_id': name, 'url': url, 'status': 'ACQUIRED', 'bytes': len(raw), **meta}
-              except http.SourceBlocked as exc:
-                  result = {'source_id': name, 'url': url, 'status': 'BLOCKED', 'details': exc.details}
-              outcomes.append(result)
-              print(json.dumps(result), flush=True)
-          (root / 'probe.json').write_text(json.dumps({'outcomes': outcomes, 'trace': fetcher.trace}, indent=2))
-          PY
+      - name: Discover sources and retrieve dynamically selected articles
+        run: |
+          python scripts/run_company_news_discovery.py \
+            --store reports/news-discovery/store \
+            --output reports/news-discovery/report \
+            --collect
       - name: Tracked repository unchanged
         if: always()
         run: git diff --exit-code
