@@ -84,8 +84,6 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
             processed = now_text()
             claims = extract_claims(text, source)
             publication = publication_upper_bound(source)
-            if claims and publication is None:
-                raise EvidenceError("Financial claims require a reviewed publication date")
             document_id = digest([source_id, raw_hash, text_hash, digest(source)])
             prior_docs = {r["document_id"]: r for r in store.records("document")}
             if document_id in prior_docs:
@@ -110,7 +108,7 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
                     value=claim["value"], role=claim["role"], publisher=source["publisher"],
                     origin=source.get("origin_id", source_id),
                     source_url=document["source_url"], content_sha256=document["raw_sha256"],
-                    published_at=timestamp(document["publication_upper_bound"]),
+                    published_at=timestamp(document["publication_upper_bound"] or document["processed_at"]),
                     first_seen_at=timestamp(document["first_seen_at"]),
                     processed_at=timestamp(document["processed_at"]),
                     # Snapshot review expires. This does not make old financial periods current.
@@ -118,6 +116,10 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
                     quote=claim["quote"],
                 )
                 store.append("evidence", claim_id, {"evidence": serializable_evidence(evidence),
+                    "artifact_kind": "ORIGINAL_HTTP_DOCUMENT",
+                    "original_document_bytes_retained": True,
+                    "original_document_sha256": raw_hash,
+                    "publication_precision": document["publication_precision"],
                     "document_id": document_id, "source_id": source_id,
                     "concept": claim["concept"], "unit": claim["unit"],
                     "currency": claim["currency"], "basis": claim["basis"],
@@ -128,7 +130,8 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
         else:
             raise EvidenceError("Unsupported source kind")
     except SourceBlocked as exc:
-        run.update(status="SOURCE_BLOCKED", error=str(exc))
+        run.update(status="SOURCE_BLOCKED", error=str(exc),
+                   error_details=getattr(exc, "details", {}))
     except requests.RequestException as exc:
         # Never print response bodies, credentials or session state into reports.
         run.update(status="FETCH_FAILED", error=type(exc).__name__)

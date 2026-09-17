@@ -33,6 +33,9 @@ def main() -> int:
                 if result["status"] in {"SOURCE_BLOCKED", "FETCH_FAILED", "PARSE_FAILED", "INTERNAL_ERROR"}:
                     failures.append(source["source_id"])
         report = build_report(store, panel, config, as_of=now_text())
+        if args.collect:
+            trace = {"source_config_sha256": digest(config), "http_trace": fetcher.trace}
+            store.append("transport_trace", digest(trace), trace)
         store.append("report", report["report_sha256"], report)
         export_report(report, args.output)
         print(json.dumps({"company_count": report["company_count"],
