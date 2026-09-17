@@ -92,9 +92,9 @@ def discover_source(store: ResearchStore, source: dict, panel: dict, fetcher, ma
             for page in pages:
                 p, original = urlparse(page), urlparse(source["url"])
                 numbers = parse_qs(p.query).get("page", [])
-                if p.netloc == original.netloc and p.path == original.path and len(numbers) == 1 and numbers[0].isdigit():
-                    if page not in visited and page not in queue:
-                        queue.append(page)
+                if (p.netloc == original.netloc and p.path == original.path and len(numbers) == 1
+                        and numbers[0].isdigit() and page not in visited and page not in queue):
+                    queue.append(page)
             attempt["pagination_limited"] = bool(queue and len(visited) >= max_pages)
         except Exception as exc:  # noqa: BLE001 - record failure, then return nonzero overall
             attempt.update(_failure(exc))
