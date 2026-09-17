@@ -14,70 +14,43 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install probe dependency
-        run: python -m pip install requests
-      - name: Probe official NSE current-report surfaces
+      - run: python -m pip install requests
+      - name: Probe official NSE daily-report API
         shell: bash
         run: |
           python - <<'PY'
-          import json, re
-          from urllib.parse import urljoin
+          import json
           import requests
 
-          BASE = 'https://www.nseindia.com/'
-          REPORT = {
-              'name': 'CM - MII - Security File (.gz) (NSE Listed securities)',
-              'type': 'daily-reports',
-              'category': 'capital-market',
-              'section': 'equities',
-          }
-          s = requests.Session()
+          BASE='https://www.nseindia.com/'
+          TARGET='CM - MII - Security File (.gz) (NSE Listed securities)'
+          s=requests.Session()
           s.headers.update({
-              'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/json,*/*',
-              'Referer': BASE + 'all-reports',
+            'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+            'Accept':'application/json,text/plain,*/*',
+            'Referer':BASE+'all-reports',
           })
-          home = s.get(BASE, timeout=30)
-          print('home', home.status_code, len(home.content))
-          page = s.get(BASE + 'all-reports', timeout=30)
-          print('all_reports', page.status_code, len(page.content))
-          page.raise_for_status()
-          scripts = re.findall(r'<script[^>]+src=[\"\']([^\"\']+)', page.text, flags=re.I)
-          print('script_count', len(scripts))
-          needles = ('api/reports', 'current-reports', 'daily-reports', 'CM - MII - Security File', 'archives=')
-          for src in scripts:
-              url = urljoin(BASE, src)
-              try:
-                  r = s.get(url, timeout=30)
-              except Exception as exc:
-                  print('script_error', url, type(exc).__name__)
-                  continue
-              text = r.text
-              hits = [n for n in needles if n.lower() in text.lower()]
-              if hits:
-                  print('SCRIPT_HIT', url, r.status_code, len(r.content), hits)
-                  for needle in hits:
-                      idx = text.lower().find(needle.lower())
-                      print('CONTEXT', needle, text[max(0, idx-500):idx+1200].replace('\n',' ')[:1800])
-          params_base = {
-              'archives': json.dumps([REPORT], separators=(',', ':')),
-              'type': 'equities',
-              'mode': 'single',
-          }
-          variants = [
-              ('dated_today', {**params_base, 'date': '17-Sep-2026'}),
-              ('undated', params_base),
-              ('dated_yesterday', {**params_base, 'date': '16-Sep-2026'}),
-          ]
-          for name, params in variants:
-              try:
-                  r = s.get(BASE + 'api/reports', params=params, timeout=30)
-                  print('API', name, r.status_code, r.url, len(r.content), r.headers.get('content-type'))
-                  print('BODY', name, r.text[:2000].replace('\n',' '))
-              except Exception as exc:
-                  print('API_ERROR', name, repr(exc))
+          page=s.get(BASE+'all-reports',timeout=30)
+          print('all_reports',page.status_code,len(page.content))
+          r=s.get(BASE+'api/daily-reports',params={'key':'CM'},timeout=30)
+          print('daily_reports',r.status_code,r.url,len(r.content),r.headers.get('content-type'))
+          r.raise_for_status()
+          payload=r.json()
+          print('top_keys',sorted(payload.keys()))
+          print('currentDate',payload.get('currentDate'))
+          print('previousDate',payload.get('previousDate'))
+          for bucket in ('CurrentDay','PreviousDay','FutureDay'):
+            rows=payload.get(bucket) or []
+            print('bucket',bucket,'count',len(rows))
+            for row in rows:
+              name=str(row.get('name') or row.get('reportName') or '')
+              if 'MII' in name or 'Security File' in name or name==TARGET:
+                print('MATCH',bucket,json.dumps(row,sort_keys=True))
+                link=row.get('link') or row.get('filePath') or row.get('url')
+                if link:
+                  rr=s.get(link,timeout=30)
+                  print('LINK_FETCH',rr.status_code,rr.url,len(rr.content),rr.headers.get('content-type'),rr.content[:4].hex())
           PY
