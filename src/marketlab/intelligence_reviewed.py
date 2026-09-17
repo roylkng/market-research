@@ -13,7 +13,14 @@ from decimal import Decimal, InvalidOperation
 from marketlab.intelligence_core import Evidence, EvidenceError
 from marketlab.intelligence_runtime import build_report, serializable_evidence
 from marketlab.intelligence_sources import approved_url, publication_upper_bound
-from marketlab.intelligence_store import FACETS, ResearchStore, canonical, digest, now_text, timestamp
+from marketlab.intelligence_store import (
+    FACETS,
+    ResearchStore,
+    canonical,
+    digest,
+    now_text,
+    timestamp,
+)
 
 METHOD = "WEB_ASSISTED_EXCERPT"
 
