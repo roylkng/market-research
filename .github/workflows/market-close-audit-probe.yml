@@ -1,5 +1,6 @@
 name: Temporary market-close audit probe
 
+# Probe revision 2: excludes funds and listing-day moves from the miss denominator.
 on:
   push:
     branches: [feat/daily-market-miss-audit-v2c-20260918]
