@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -12,21 +13,57 @@ from marketlab.intelligence_market_audit import build_market_audit
 from marketlab.intelligence_store import ResearchStore
 from marketlab.marketdata import udiff_url
 
-USER_AGENT = "marketlab-research/0.2 (+https://github.com/roylkng/market-research)"
+USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "Chrome/152.0 Safari/537.36"
+)
 
 
-def download_udiff(session_date: date) -> bytes:
+def download_udiff(
+    session_date: date,
+    *,
+    attempts: int = 4,
+    timeout_seconds: float = 45.0,
+    session: requests.Session | None = None,
+) -> bytes:
+    """Fetch the official NSE UDiFF archive with bounded transient retries.
+
+    The NSE archive host can intermittently time out from hosted runners. Retries
+    address transport/server failures only. A missing file is never converted
+    into a successful empty market session.
+    """
+    if attempts < 1 or timeout_seconds <= 0:
+        raise ValueError("invalid UDiFF fetch bounds")
     url = udiff_url(session_date)
-    response = requests.get(
-        url,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/zip,*/*"},
-        timeout=(10, 45),
-    )
-    response.raise_for_status()
-    raw = response.content
-    if not raw:
-        raise RuntimeError("official NSE UDiFF response is empty")
-    return raw
+    http = session if session is not None else requests.Session()
+    http.headers.update({"User-Agent": USER_AGENT, "Accept": "application/zip,*/*"})
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            response = http.get(url, timeout=(10, timeout_seconds))
+            if response.status_code == 404:
+                raise RuntimeError(f"official NSE UDiFF archive is missing: {url}")
+            if (
+                response.status_code in {403, 429} or response.status_code >= 500
+            ) and attempt < attempts:
+                time.sleep(0.75 * (2 ** (attempt - 1)))
+                continue
+            response.raise_for_status()
+            raw = response.content
+            if not raw:
+                raise RuntimeError("official NSE UDiFF response is empty")
+            return raw
+        except RuntimeError:
+            raise
+        except requests.RequestException as exc:
+            last_error = exc
+            if attempt < attempts:
+                time.sleep(0.75 * (2 ** (attempt - 1)))
+                continue
+            break
+    raise RuntimeError(
+        f"official NSE UDiFF fetch failed after {attempts} attempts: {last_error}"
+    ) from last_error
 
 
 def main() -> int:
@@ -37,9 +74,15 @@ def main() -> int:
     parser.add_argument("--liquidity-floor-inr", type=float, default=20_000_000.0)
     parser.add_argument("--move-threshold-pct", type=float, default=5.0)
     parser.add_argument("--top-abs-movers", type=int, default=25)
+    parser.add_argument("--archive-attempts", type=int, default=4)
+    parser.add_argument("--archive-timeout-seconds", type=float, default=45.0)
     args = parser.parse_args()
     session_date = date.fromisoformat(args.session)
-    raw = download_udiff(session_date)
+    raw = download_udiff(
+        session_date,
+        attempts=args.archive_attempts,
+        timeout_seconds=args.archive_timeout_seconds,
+    )
     captured_at = datetime.now(UTC).isoformat()
     args.output.mkdir(parents=True, exist_ok=True)
     with ResearchStore(args.store) as store:

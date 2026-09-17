@@ -60,7 +60,9 @@ jobs:
           mkdir -p reports/market-close/logs
           mv reports-discovery.log reports/market-close/logs/discovery.log
       - name: Build official NSE mover/miss audit
+        shell: bash
         run: |
+          set -o pipefail
           python scripts/run_daily_market_audit.py \
             --session '${{ steps.session.outputs.session }}' \
             --store reports/market-close/store \
