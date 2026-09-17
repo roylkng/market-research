@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "panel_seed": {
+    "path": "research/prospective/universes/FY27-Q2-2026-09-06.json",
+    "git_blob": "8026e81faee3e913d2fba1dba72d60603b69fa07",
+    "panel_id": "DEEP-RESEARCH-BOOTSTRAP-2026-09-17-V1"
+  },
+  "purpose": "Acquisition integration, not stock selection. Pilot source availability does not determine panel membership.",
+  "sources": [
+    {
+      "source_id": "tcs-q1-fy2027",
+      "subject": "TCS",
+      "kind": "html",
+      "facets": ["financials", "prospects"],
+      "publisher": "TCS investor relations",
+      "url": "https://www.tcs.com/who-we-are/newsroom/press-release/tcs-financial-results-q1-fy-2027",
+      "publication_date": "2026-07-09",
+      "period_end": "2026-06-30",
+      "required_markers": ["July 9, 2026", "June 30, 2026"],
+      "fields": [
+        {"concept": "revenue_usd_million", "facet": "financials", "unit": "million", "currency": "USD", "basis": "IFRS_CONSOLIDATED", "pattern": "Revenue at (?:US)?\\$\\s*(?P<value>[\\d,]+)\\s*million"},
+        {"concept": "operating_margin_pct", "facet": "financials", "unit": "percent", "currency": "NA", "basis": "IFRS_EXCLUDING_EXCEPTIONAL_ITEMS", "pattern": "Operating Margin at\\s*(?P<value>[\\d.]+)%"},
+        {"concept": "ai_annualized_revenue_usd_billion", "facet": "prospects", "unit": "billion_annualized_run_rate", "currency": "USD", "basis": "MANAGEMENT_DEFINED_NOT_INCREMENTAL_REVENUE", "pattern": "Annualized AI Revenue at US\\$\\s*(?P<value>[\\d.]+)\\s*billion"}
+      ]
+    },
+    {
+      "source_id": "tcs-q1-fy2026",
+      "subject": "TCS",
+      "kind": "html",
+      "facets": ["financials", "prospects"],
+      "publisher": "TCS investor relations",
+      "url": "https://www.tcs.com/who-we-are/newsroom/press-release/tcs-financial-results-q1-fy-2026",
+      "publication_date": "2025-07-10",
+      "period_end": "2025-06-30",
+      "required_markers": ["July 10, 2025", "June 30, 2025"],
+      "fields": [
+        {"concept": "revenue_usd_million", "facet": "financials", "unit": "million", "currency": "USD", "basis": "IFRS_CONSOLIDATED", "pattern": "Revenue at (?:US)?\\$\\s*(?P<value>[\\d,]+)\\s*million"},
+        {"concept": "operating_margin_pct", "facet": "financials", "unit": "percent", "currency": "NA", "basis": "IFRS_REPORTED", "pattern": "Operating Margin at\\s*(?P<value>[\\d.]+)%"}
+      ]
+    },
+    {
+      "source_id": "lt-fy2026-board-report",
+      "subject": "LT",
+      "kind": "html",
+      "facets": ["financials", "prospects", "execution"],
+      "publisher": "Larsen & Toubro investor relations",
+      "url": "https://investors.larsentoubro.com/board-report.aspx",
+      "publication_date": "2026-05-05",
+      "period_end": "2026-03-31",
+      "required_markers": ["May 5, 2026", "March 31, 2026"],
+      "fields": [
+        {"concept": "standalone_total_income_inr_crore", "facet": "financials", "unit": "crore", "currency": "INR", "basis": "STANDALONE_TOTAL_INCOME", "pattern": "total income, on standalone basis, for the financial year under review is\\s*₹\\s*(?P<value>[\\d,.]+)\\s*crore"}
+      ]
+    },
+    {
+      "source_id": "infy-q1-fy2027-index",
+      "subject": "INFY",
+      "kind": "html",
+      "facets": ["financials", "prospects"],
+      "publisher": "Infosys investor relations",
+      "url": "https://www.infosys.com/investors/reports-filings/quarterly-results/2026-2027/q1.html",
+      "publication_date": null,
+      "period_end": "2026-06-30",
+      "required_markers": ["June 30, 2026", "July 23, 2026"],
+      "fields": []
+    },
+    {
+      "source_id": "nse-announcement-radar",
+      "subject": "RADAR:NSE",
+      "kind": "rss",
+      "facets": ["news"],
+      "publisher": "NSE",
+      "url": "https://nsearchives.nseindia.com/content/RSS/Online_announcements.xml"
+    }
+  ],
+  "mechanisms": [
+    {
+      "subject": "TCS",
+      "event": "AI monetisation versus aggregate growth",
+      "economic_channel": "The reported AI run rate can motivate segment research. It is not automatically new revenue on top of consolidated revenue. Compare deal conversion, pricing and delivery cost before forecasting per-share cash flow.",
+      "countercase": "AI-linked offerings can replace existing work. Margin figures use different exceptional-item bases, so automated margin comparisons are blocked.",
+      "invalidation": "Subsequent comparable disclosures fail to show incremental growth or sustainable margins.",
+      "expectations": "Independent consensus and current valuation are NOT_COLLECTED. No quantified surprise or buy call.",
+      "requires": [
+        {"source_id": "tcs-q1-fy2027", "concept": "ai_annualized_revenue_usd_billion"},
+        {"source_id": "tcs-q1-fy2027", "concept": "revenue_usd_million"},
+        {"source_id": "tcs-q1-fy2026", "concept": "revenue_usd_million"}
+      ]
+    }
+  ],
+  "comparisons": [
+    {"subject": "TCS", "concept": "revenue_usd_million", "current": "tcs-q1-fy2027", "prior": "tcs-q1-fy2026", "operation": "growth_pct"},
+    {"subject": "TCS", "concept": "operating_margin_pct", "current": "tcs-q1-fy2027", "prior": "tcs-q1-fy2026", "operation": "difference_pp"}
+  ],
+  "live_capital_allowed": false
+}
