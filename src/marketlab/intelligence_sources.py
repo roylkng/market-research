@@ -2,110 +2,20 @@
 from __future__ import annotations
 
 import re
-import time
 import xml.etree.ElementTree as ET
 from datetime import UTC, date, datetime
 from datetime import time as day_time
 from email.utils import parsedate_to_datetime
-from urllib.parse import urljoin, urlparse
-from urllib.robotparser import RobotFileParser
 from zoneinfo import ZoneInfo
 
-import requests
 from bs4 import BeautifulSoup
 
 from marketlab.intelligence_core import EvidenceError
-from marketlab.intelligence_store import digest, now_text, timestamp
+from marketlab.intelligence_http import MAX_BYTES, PublicFetcher, SourceBlocked, approved_url
+from marketlab.intelligence_store import digest, timestamp
 
-USER_AGENT = "MarketLabResearch/2.0 (+https://github.com/roylkng/market-research)"
-ALLOWED_HOSTS = frozenset({"www.nseindia.com", "nsearchives.nseindia.com",
-                           "archives.nseindia.com", "www.tcs.com", "www.infosys.com",
-                           "investors.larsentoubro.com", "www.larsentoubro.com"})
-MAX_BYTES = 4 * 1024 * 1024
-
-
-class SourceBlocked(EvidenceError):
-    pass
-
-
-def approved_url(value: str) -> str:
-    p = urlparse(value)
-    if (p.scheme != "https" or p.hostname not in ALLOWED_HOSTS or
-            p.username or p.password or p.port not in (None, 443)):
-        raise SourceBlocked("Unapproved source URL or redirect")
-    return value
-
-
-class PublicFetcher:
-    """No cookies/login, browser impersonation, proxy rotation or access bypass.
-
-    A robots failure blocks acquisition. No automatic retries on 401/403/429.
-    Redirect destinations are checked before requesting them.
-    """
-
-    def __init__(self, *, session=None, delay: float = 1.0):
-        self.session = session if session is not None else requests.Session()
-        self.session.headers.update({"User-Agent": USER_AGENT})
-        self.robots: dict[str, tuple[RobotFileParser, dict]] = {}
-        self.delay = delay
-
-    def _read(self, url: str) -> tuple[bytes, dict]:
-        initial_host = urlparse(url).netloc
-        for _ in range(4):
-            approved_url(url)
-            if urlparse(url).netloc != initial_host:
-                raise SourceBlocked("Cross-origin redirect requires a separately reviewed URL")
-            if self.delay:
-                time.sleep(self.delay)
-            with self.session.get(url, timeout=(10, 30), allow_redirects=False,
-                                  stream=True) as response:
-                if response.status_code in {301, 302, 303, 307, 308}:
-                    location = response.headers.get("Location")
-                    if not location:
-                        raise SourceBlocked("Redirect has no destination")
-                    url = approved_url(urljoin(url, location))
-                    continue
-                if response.status_code in {401, 403, 429}:
-                    raise SourceBlocked(f"Access/rate limit HTTP {response.status_code}")
-                response.raise_for_status()
-                chunks, size = [], 0
-                for chunk in response.iter_content(chunk_size=32768):
-                    size += len(chunk)
-                    if size > MAX_BYTES:
-                        raise SourceBlocked("Source exceeds bounded body size")
-                    chunks.append(chunk)
-                return b"".join(chunks), {"resolved_url": url,
-                    "status_code": response.status_code,
-                    "content_type": response.headers.get("Content-Type", ""),
-                    "observed_at": now_text()}
-        raise SourceBlocked("Too many redirects")
-
-    def fetch(self, url: str) -> tuple[bytes, dict]:
-        approved_url(url)
-        p = urlparse(url)
-        origin = f"{p.scheme}://{p.netloc}"
-        if origin not in self.robots:
-            raw, metadata = self._read(origin + "/robots.txt")
-            text = raw.decode("utf-8-sig", errors="strict")
-            if "<html" in text.lower() or "<body" in text.lower():
-                raise SourceBlocked("Robots response is HTML, not a policy")
-            parser = RobotFileParser(origin + "/robots.txt")
-            parser.parse(text.splitlines())
-            self.robots[origin] = (parser, {**metadata, "policy_sha256": digest(text)})
-        parser, policy = self.robots[origin]
-        if not parser.can_fetch(USER_AGENT, url):
-            raise SourceBlocked("Robots disallows source")
-        delay = parser.crawl_delay(USER_AGENT)
-        rate = parser.request_rate(USER_AGENT)
-        if delay and delay > self.delay:
-            time.sleep(delay - self.delay)
-        if rate:
-            time.sleep(rate.seconds / rate.requests)
-        raw, metadata = self._read(url)
-        # Cross-origin redirects require a separate robots check, not implicit trust.
-        if urlparse(metadata["resolved_url"]).netloc != p.netloc:
-            raise SourceBlocked("Cross-origin content redirect requires reviewed source URL")
-        return raw, {**metadata, "robots_policy": policy}
+__all__ = ["PublicFetcher", "SourceBlocked", "approved_url", "extract_claims",
+           "normalized_html", "parse_rss", "publication_upper_bound"]
 
 
 def normalized_html(raw: bytes) -> str:
@@ -132,7 +42,7 @@ def extract_claims(text: str, spec: dict) -> list[dict]:
         if len(values) != 1:
             raise EvidenceError(f"Ambiguous reported field: {field['concept']}")
         result.append({**{k: field[k] for k in ("concept", "facet", "unit", "currency", "basis")},
-                       "value": next(iter(values)), "period_end": spec["period_end"],
+                       "value": next(iter(values)), "period_end": field.get("period_end", spec["period_end"]),
                        "quote": matches[0].group(), "span_start": matches[0].start(),
                        "span_end": matches[0].end(), "role": field.get("role", "REPORTED_FACT")})
     return result

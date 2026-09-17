@@ -1,0 +1,52 @@
+name: Company intelligence source verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/company-intelligence-acquisition-v2-20260917]
+    paths:
+      - '.github/workflows/company-intelligence-source-verification.yml'
+      - 'src/marketlab/intelligence_*.py'
+      - 'tests/test_intelligence_*.py'
+      - 'scripts/run_company_intelligence.py'
+      - 'registry/company_intelligence_v2.json'
+permissions:
+  contents: read
+concurrency:
+  group: company-intelligence-source-verification
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Preserve exact implementation
+        run: |
+          mkdir -p reports/acquisition-verification
+          git archive --format=zip HEAD > reports/acquisition-verification/source.zip
+      - name: Test transport and research invariants
+        run: |
+          ruff check src/marketlab/intelligence_*.py scripts/run_company_intelligence.py tests/test_intelligence_*.py
+          pytest -q tests/test_intelligence*.py
+      - name: Acquire original company documents without reviewed imports
+        run: |
+          python scripts/run_company_intelligence.py \
+            --store reports/acquisition-verification/store \
+            --output reports/acquisition-verification/report \
+            --collect
+      - name: Check tracked tree unchanged
+        if: always()
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-verification-${{ github.run_id }}
+          path: reports/acquisition-verification
+          retention-days: 30
+          if-no-files-found: error
