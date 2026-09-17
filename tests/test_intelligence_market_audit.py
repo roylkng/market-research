@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import zipfile
-from datetime import UTC, date, datetime
+from datetime import date
 
 import pytest
 
