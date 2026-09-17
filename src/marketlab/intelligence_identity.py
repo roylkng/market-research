@@ -13,6 +13,7 @@ from marketlab.intelligence_market_audit import _read_udiff_rows
 
 ABBREVIATIONS = {
     "ASSU": "ASSURANCE",
+    "CO": "COMPANY",
     "CORP": "CORPORATION",
     "ENGG": "ENGINEERING",
     "INS": "INSURANCE",
