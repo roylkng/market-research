@@ -1,0 +1,21 @@
+name: H024 one-time pre-entry recovery 2026-09-17
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/h024-preentry-recovery-20260917.yml
+
+permissions:
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch frozen H024 pre-entry sealer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run h024-preentry-event-sealer.yml --repo roylkng/market-research --ref main
