@@ -1,0 +1,72 @@
+name: Company intelligence source verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/company-intelligence-acquisition-v2-20260917]
+    paths:
+      - '.github/workflows/company-intelligence-source-verification.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Trace policy versus document failures
+        shell: bash
+        run: |
+          mkdir -p reports/acquisition-verification
+          git archive --format=zip HEAD > reports/acquisition-verification/source.zip
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+          from marketlab.intelligence_sources import PublicFetcher
+          from marketlab.intelligence_runtime import collect_source, build_report, export_report
+          from marketlab.intelligence_store import ResearchStore, now_text
+
+          events = []
+          class TracingFetcher(PublicFetcher):
+              def _read(self, url):
+                  event = {'url': url, 'stage': 'ROBOTS' if urlparse(url).path == '/robots.txt' else 'DOCUMENT', 'started_at': now_text()}
+                  try:
+                      raw, metadata = super()._read(url)
+                      event.update(status='SUCCESS', status_code=metadata['status_code'], byte_count=len(raw))
+                      return raw, metadata
+                  except Exception as exc:
+                      response = getattr(exc, 'response', None)
+                      event.update(status='FAILED', error_type=type(exc).__name__, error=str(exc), status_code=None if response is None else response.status_code)
+                      raise
+                  finally:
+                      event['completed_at'] = now_text()
+                      events.append(event)
+                      print(json.dumps(event), flush=True)
+
+          config = json.loads(Path('registry/company_intelligence_v2.json').read_text())
+          seed = config['panel_seed']
+          with ResearchStore(Path('reports/acquisition-verification/store')) as store:
+              panel = store.bootstrap_panel(Path(seed['path']).read_bytes(), expected_blob=seed['git_blob'], source_path=seed['path'], panel_id=seed['panel_id'])
+              fetcher = TracingFetcher()
+              for source in config['sources']:
+                  collect_source(store, source, panel, fetcher)
+              report = build_report(store, panel, config, as_of=now_text())
+              export_report(report, Path('reports/acquisition-verification/report'))
+          Path('reports/acquisition-verification/trace.json').write_text(json.dumps(events, indent=2))
+          PY
+      - name: Check tracked tree unchanged
+        if: always()
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: source-verification-${{ github.run_id }}
+          path: reports/acquisition-verification
+          retention-days: 30
+          if-no-files-found: error
