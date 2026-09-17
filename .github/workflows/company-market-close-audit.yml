@@ -8,7 +8,8 @@ on:
         required: false
         type: string
   schedule:
-    - cron: '15 13 * * 1-5'
+    - cron: '45 18 * * 1-5'
+      timezone: 'Asia/Kolkata'
 
 permissions:
   contents: read
@@ -29,10 +30,19 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev]'
-      - name: Verify audit implementation
+      - name: Verify audit implementation and canonical news state
         run: |
-          ruff check src/marketlab/intelligence_market_audit.py scripts/run_daily_market_audit.py tests/test_intelligence_market_audit.py
-          pytest -q tests/test_intelligence_market_audit.py tests/test_intelligence_news.py
+          ruff check \
+            src/marketlab/intelligence_market_audit.py \
+            src/marketlab/intelligence_market_audit_context.py \
+            scripts/run_daily_market_audit.py \
+            tests/test_intelligence_market_audit.py \
+            tests/test_intelligence_market_audit_context.py
+          pytest -q \
+            tests/test_intelligence_market_audit.py \
+            tests/test_intelligence_market_audit_context.py
+          python scripts/verify_company_news_ledger.py \
+            --ledger research/prospective/company-intelligence-v2/news-ledger.json
       - name: Resolve session
         id: session
         env:
@@ -45,28 +55,16 @@ jobs:
             SESSION="$(date +%F)"
           fi
           echo "session=$SESSION" >> "$GITHUB_OUTPUT"
-      - name: Capture bounded discovery state
-        id: discovery
+      - name: Build official prospective mover/miss audit
         shell: bash
         run: |
-          set +e
-          python scripts/run_company_news_discovery.py \
-            --store reports/market-close/store \
-            --output reports/market-close/discovery \
-            --collect | tee reports-discovery.log
-          RC=${PIPESTATUS[0]}
-          set -e
-          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
           mkdir -p reports/market-close/logs
-          mv reports-discovery.log reports/market-close/logs/discovery.log
-      - name: Build official NSE mover/miss audit
-        shell: bash
-        run: |
-          set -o pipefail
           python scripts/run_daily_market_audit.py \
             --session '${{ steps.session.outputs.session }}' \
             --store reports/market-close/store \
             --output reports/market-close/audit \
+            --news-ledger research/prospective/company-intelligence-v2/news-ledger.json \
             --liquidity-floor-inr 20000000 \
             --move-threshold-pct 5 \
             --top-abs-movers 25 | tee reports/market-close/logs/market-audit.log
