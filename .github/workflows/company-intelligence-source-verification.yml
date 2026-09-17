@@ -30,7 +30,6 @@ jobs:
         run: |
           mkdir -p reports/acquisition-verification
           git archive --format=zip HEAD > reports/acquisition-verification/source.zip
-          cp "$(command -v ruff)" reports/acquisition-verification/ruff
       - name: Test transport and research invariants
         run: |
           ruff check src/marketlab/intelligence_*.py scripts/run_company_intelligence.py tests/test_intelligence_*.py
