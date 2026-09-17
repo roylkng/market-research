@@ -11,7 +11,11 @@ import pytest
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_runtime import build_report, collect_source, compare_reported_values
 from marketlab.intelligence_sources import (
-    SourceBlocked, approved_url, extract_claims, normalized_html, parse_rss,
+    SourceBlocked,
+    approved_url,
+    extract_claims,
+    normalized_html,
+    parse_rss,
 )
 from marketlab.intelligence_store import ResearchStore, digest
 

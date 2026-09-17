@@ -1,23 +1,26 @@
-from dataclasses import replace
-from datetime import date, datetime, timedelta, timezone
 import unittest
+from dataclasses import replace
+from datetime import UTC, date, datetime, timedelta
 
 from marketlab.intelligence_core import (
-    Bar, Coverage, Evidence, EvidenceError, Mechanism, Requirement, Session,
-    active_evidence, common_window_returns, company_packet, per_share_scenario,
+    Bar,
+    Coverage,
+    Evidence,
+    EvidenceError,
+    Mechanism,
+    Requirement,
+    Session,
+    active_evidence,
+    common_window_returns,
+    company_packet,
+    per_share_scenario,
 )
 
-T = datetime(2026, 9, 17, 4, 30, tzinfo=timezone.utc)
+T = datetime(2026, 9, 17, 4, 30, tzinfo=UTC)
 
 
 def fact(identifier="f1", **overrides):
-    values = dict(identifier=identifier, subject="DEMO", facet="prospects",
-                  claim_key="FY27|capacity|units", value="200", role="REPORTED_FACT",
-                  publisher="issuer", origin="issuer-announcement-1",
-                  source_url="https://example.org/announcement", content_sha256="a" * 64,
-                  published_at=T - timedelta(hours=3), first_seen_at=T - timedelta(hours=2),
-                  processed_at=T - timedelta(hours=1), expires_at=T + timedelta(days=30),
-                  quote="Illustrative installed capacity: 200 units.")
+    values = {'identifier': identifier, 'subject': "DEMO", 'facet': "prospects", 'claim_key': "FY27|capacity|units", 'value': "200", 'role': "REPORTED_FACT", 'publisher': "issuer", 'origin': "issuer-announcement-1", 'source_url': "https://example.org/announcement", 'content_sha256': "a" * 64, 'published_at': T - timedelta(hours=3), 'first_seen_at': T - timedelta(hours=2), 'processed_at': T - timedelta(hours=1), 'expires_at': T + timedelta(days=30), 'quote': "Illustrative installed capacity: 200 units."}
     values.update(overrides)
     return Evidence(**values)
 
@@ -27,27 +30,19 @@ def req(subject="DEMO", facet="prospects", channel="filings", needs_claim=True):
 
 
 def scan(subject="DEMO", facet="prospects", channel="filings", **overrides):
-    values = dict(subject=subject, facet=facet, channel=channel, window_start=T - timedelta(days=2),
-                  through=T - timedelta(minutes=15), completed_at=T - timedelta(minutes=10),
-                  status="COMPLETE")
+    values = {'subject': subject, 'facet': facet, 'channel': channel, 'window_start': T - timedelta(days=2), 'through': T - timedelta(minutes=15), 'completed_at': T - timedelta(minutes=10), 'status': "COMPLETE"}
     values.update(overrides)
     return Coverage(**values)
 
 
 def mechanism(**overrides):
-    values = dict(subject="DEMO", event="capacity-commissioned", economic_driver="saleable volume",
-                  channel="capacity -> utilisation -> revenue -> cash flow", horizon="60_SESSIONS",
-                  prior_expectation="Synthetic prior: 150 capacity units",
-                  change_from_expectation="Synthetic +50 units, demand conversion unproven",
-                  price_response_already_observed="UNKNOWN, market data not supplied",
-                  invalidation="Customer qualification fails", supporting_ids=("f1",))
+    values = {'subject': "DEMO", 'event': "capacity-commissioned", 'economic_driver': "saleable volume", 'channel': "capacity -> utilisation -> revenue -> cash flow", 'horizon': "60_SESSIONS", 'prior_expectation': "Synthetic prior: 150 capacity units", 'change_from_expectation': "Synthetic +50 units, demand conversion unproven", 'price_response_already_observed': "UNKNOWN, market data not supplied", 'invalidation': "Customer qualification fails", 'supporting_ids': ("f1",)}
     values.update(overrides)
     return Mechanism(**values)
 
 
 def packet(**overrides):
-    values = dict(subject="DEMO", horizon="60_SESSIONS", as_of=T, evidence=[fact()],
-                  coverage=[scan()], requirements=[req()], mechanisms=[mechanism()])
+    values = {'subject': "DEMO", 'horizon': "60_SESSIONS", 'as_of': T, 'evidence': [fact()], 'coverage': [scan()], 'requirements': [req()], 'mechanisms': [mechanism()]}
     values.update(overrides)
     return company_packet(**values)
 
@@ -158,7 +153,7 @@ class EvidenceTests(unittest.TestCase):
 
 class MarketClockTests(unittest.TestCase):
     def setUp(self):
-        self.calendar = [Session(date(2026, 9, day), datetime(2026, 9, day, 10, tzinfo=timezone.utc))
+        self.calendar = [Session(date(2026, 9, day), datetime(2026, 9, day, 10, tzinfo=UTC))
                          for day in (10, 11, 15, 16)]
         self.bench = {s.day: Bar(100 + i, s.closes_at + timedelta(hours=1), "price_return_v1")
                       for i, s in enumerate(self.calendar)}
@@ -166,8 +161,7 @@ class MarketClockTests(unittest.TestCase):
                       for i, s in enumerate(self.calendar)}
 
     def run_window(self, **overrides):
-        values = dict(calendar=self.calendar, cutoff=date(2026, 9, 16), horizon=3,
-                      as_of=T, benchmark=self.bench, stocks={"A": self.stock})
+        values = {'calendar': self.calendar, 'cutoff': date(2026, 9, 16), 'horizon': 3, 'as_of': T, 'benchmark': self.bench, 'stocks': {"A": self.stock}}
         values.update(overrides)
         return common_window_returns(**values)
 
@@ -187,7 +181,7 @@ class MarketClockTests(unittest.TestCase):
 
     def test_intraday_session_cannot_be_a_completed_close(self):
         with self.assertRaises(EvidenceError):
-            self.run_window(as_of=datetime(2026, 9, 16, 9, tzinfo=timezone.utc))
+            self.run_window(as_of=datetime(2026, 9, 16, 9, tzinfo=UTC))
 
     def test_bar_must_have_been_available_at_decision(self):
         bars = dict(self.stock)
@@ -196,7 +190,7 @@ class MarketClockTests(unittest.TestCase):
 
     def test_partial_bar_capture_cannot_become_final_by_waiting(self):
         bars = dict(self.stock)
-        bars[date(2026, 9, 16)] = replace(bars[date(2026, 9, 16)], available_at=datetime(2026, 9, 16, 8, tzinfo=timezone.utc))
+        bars[date(2026, 9, 16)] = replace(bars[date(2026, 9, 16)], available_at=datetime(2026, 9, 16, 8, tzinfo=UTC))
         self.assertEqual(self.run_window(stocks={"A": bars})["stocks"]["A"]["status"], "BAR_CAPTURED_BEFORE_SESSION_CLOSE")
 
     def test_mixed_adjustments_are_blocked(self):

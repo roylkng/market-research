@@ -6,20 +6,29 @@ Only acquired source bytes can produce extracted company facts.
 from __future__ import annotations
 
 from collections import Counter
-from decimal import Decimal, InvalidOperation
 from dataclasses import asdict
 from datetime import timedelta
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import requests
 
 from marketlab.intelligence_core import Evidence, EvidenceError, active_evidence
 from marketlab.intelligence_sources import (
-    PublicFetcher, SourceBlocked, extract_claims, normalized_html, parse_rss,
+    PublicFetcher,
+    SourceBlocked,
+    extract_claims,
+    normalized_html,
+    parse_rss,
     publication_upper_bound,
 )
 from marketlab.intelligence_store import (
-    FACETS, ResearchStore, canonical, digest, now_text, timestamp,
+    FACETS,
+    ResearchStore,
+    canonical,
+    digest,
+    now_text,
+    timestamp,
 )
 
 
@@ -125,7 +134,7 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
         run.update(status="FETCH_FAILED", error=type(exc).__name__)
     except (EvidenceError, ValueError, UnicodeError) as exc:
         run.update(status="PARSE_FAILED", error=str(exc))
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - persist failure, never mark acquisition successful
         # Preserve the attempted source and fail the overall run explicitly.
         run.update(status="INTERNAL_ERROR", error=type(exc).__name__)
     run["completed_at"] = now_text()
@@ -271,8 +280,8 @@ def build_report(store: ResearchStore, panel: dict, config: dict, *, as_of: str)
 
 def render_report(report: dict) -> str:
     lines = ["# MarketLab v2 company research", "", f"Evidence cutoff: {report['as_of']}", "",
-             f"Companies registered: {report['company_count']}. Companies with extracted evidence: "
-             f"{report['companies_with_extracted_evidence']}.",
+             (f"Companies registered: {report['company_count']}. Companies with extracted evidence: "
+              f"{report['companies_with_extracted_evidence']}."),
              "No investment ranking, return forecast or live-capital permission.", "",
              "## Acquisition", "", "| Source | Result | Claims/items |", "|---|---|---:|"]
     for row in report["source_attempts"]:
@@ -299,10 +308,10 @@ def render_report(report: dict) -> str:
         lines += ["", "Coverage: " + ", ".join(
             f"{c['facet']}={c['state']}" for c in packet["coverage"]), ""]
     lines += ["## Remaining research", "",
-              "All 100 companies have nine explicit coverage slots. Identity registration is not "
+              ("All 100 companies have nine explicit coverage slots. Identity registration is not "
               "completed fundamental analysis. Individual document snapshots do not prove complete "
               "news coverage. Social, market-price, independent expectations and valuation adapters "
-              "are not connected in this slice.", "",
+               "are not connected in this slice."), "",
               f"Report SHA-256: `{report['report_sha256']}`", ""]
     return "\n".join(lines)
 

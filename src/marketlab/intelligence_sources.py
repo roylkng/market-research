@@ -4,7 +4,8 @@ from __future__ import annotations
 import re
 import time
 import xml.etree.ElementTree as ET
-from datetime import UTC, datetime, time as day_time
+from datetime import UTC, date, datetime
+from datetime import time as day_time
 from email.utils import parsedate_to_datetime
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
@@ -141,7 +142,7 @@ def publication_upper_bound(spec: dict) -> str | None:
     value = spec.get("publication_date")
     if value is None:
         return None
-    day = datetime.strptime(value, "%Y-%m-%d").date()
+    day = date.fromisoformat(value)
     return datetime.combine(day, day_time.max, ZoneInfo("Asia/Kolkata")).astimezone(UTC).isoformat()
 
 
@@ -172,7 +173,7 @@ def parse_rss(raw: bytes, *, members: list[dict], source_id: str,
     """
     timestamp(observed_at)
     if len(raw) > MAX_BYTES or b"\x00" in raw or re.search(
-            rb"<!\s*(DOCTYPE|ENTITY)", raw, re.I):
+            rb"<!\s*(DOCTYPE|ENTITY)", raw, re.IGNORECASE):
         raise EvidenceError("Unsafe or unsupported XML")
     root = ET.fromstring(raw)
     if root.tag != "rss" or root.find("channel") is None:

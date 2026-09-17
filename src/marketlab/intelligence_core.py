@@ -5,10 +5,10 @@ is not proof that a quoted assertion is true or that a supplied clock is honest.
 """
 from __future__ import annotations
 
+import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-import math
-from typing import Mapping, Sequence
 from urllib.parse import urlparse
 
 
