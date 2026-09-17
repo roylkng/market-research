@@ -18,16 +18,12 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install requests
-      - name: Inspect official NSE MII archive identity
+      - name: Test exact official MII archive URLs
         shell: bash
         run: |
           python - <<'PY'
-          import json
           import requests
-          from urllib.parse import urlparse
-
           BASE='https://www.nseindia.com/'
-          TARGET='CM - MII - Security File (.gz) (NSE Listed securities)'
           s=requests.Session()
           s.headers.update({
             'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
@@ -35,26 +31,21 @@ jobs:
             'Referer':BASE+'all-reports',
           })
           s.get(BASE+'all-reports',timeout=30)
-          r=s.get(BASE+'api/daily-reports',params={'key':'CM'},timeout=30)
-          r.raise_for_status()
-          p=r.json()
+          p=s.get(BASE+'api/daily-reports',params={'key':'CM'},timeout=30).json()
           print('currentDate',p.get('currentDate'),'previousDate',p.get('previousDate'))
-          for bucket in ('CurrentDay','PreviousDay'):
-            rows=p.get(bucket) or []
-            print('---',bucket,len(rows))
-            for row in rows:
-              print('ROW',bucket,json.dumps(row,sort_keys=True))
-              name=str(row.get('name') or row.get('reportName') or row.get('title') or '')
-              if 'MII' in name or 'Security File' in name or name==TARGET:
-                link=row.get('link') or row.get('filePath') or row.get('url')
-                print('MII_MATCH',bucket,repr(link))
-                if link:
-                  rr=s.get(link,timeout=30)
-                  print('MII_FETCH',rr.status_code,rr.url,len(rr.content),rr.headers.get('content-type'),rr.content[:4].hex())
-                  # Probe only mechanically date-substituted candidates on same approved archive host.
-                  for old,new in [('16092026','17092026'),('16SEP2026','17SEP2026'),('16Sep2026','17Sep2026'),('160926','170926')]:
-                    if old in link:
-                      candidate=link.replace(old,new)
-                      cr=s.get(candidate,timeout=30)
-                      print('DIRECT_CANDIDATE',old,new,cr.status_code,candidate,len(cr.content),cr.headers.get('content-type'),cr.content[:4].hex())
+          prev=[r for r in (p.get('PreviousDay') or []) if r.get('fileKey')=='NSE-CM-SECURITY-CSV']
+          print('previous_exact_count',len(prev))
+          for row in prev:
+            prev_url=str(row['filePath']).rstrip('/')+'/'+str(row['fileActlName'])
+            print('previous_url',prev_url)
+            rr=s.get(prev_url,timeout=30)
+            print('previous_fetch',rr.status_code,len(rr.content),rr.headers.get('content-type'),rr.content[:4].hex())
+            candidate=prev_url.replace('16092026','17092026')
+            cr=s.get(candidate,timeout=30)
+            print('current_candidate',candidate)
+            print('current_fetch',cr.status_code,len(cr.content),cr.headers.get('content-type'),cr.content[:4].hex())
+          current=[r for r in (p.get('CurrentDay') or []) if r.get('fileKey')=='NSE-CM-SECURITY-CSV']
+          print('current_exact_count',len(current))
+          for row in current:
+            print('current_row',row)
           PY
