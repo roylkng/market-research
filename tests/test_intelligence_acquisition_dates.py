@@ -55,3 +55,34 @@ def test_issuer_extraction_uses_labels_not_the_previous_reported_numbers():
     assert values['fy2027_revenue_guidance_low_pct']['value'] == '2.0'
     assert values['fy2027_revenue_guidance_high_pct']['value'] == '4.0'
     assert values['fy2027_revenue_guidance_high_pct']['period_end'] == '2027-03-31'
+
+
+def test_page_wrapper_changes_do_not_duplicate_unchanged_company_facts(tmp_path):
+    class Transport:
+        def __init__(self, marker):
+            self.marker = marker
+
+        def fetch(self, url):
+            raw = f'<html><script>{self.marker}</script>Issuer revenue 10 million</html>'.encode()
+            return raw, {'resolved_url': url, 'observed_at': datetime.now(UTC).isoformat(),
+                         'content_type': 'text/html', 'status_code': 200}
+
+    spec = {'source_id': 'issuer', 'subject': 'TCS', 'publisher': 'Synthetic issuer',
+            'url': 'https://www.tcs.com/test', 'kind': 'html', 'publication_date': None,
+            'period_end': '2026-06-30', 'required_markers': ['Issuer'], 'fields': [
+                {'concept': 'revenue', 'facet': 'financials', 'unit': 'million',
+                 'currency': 'USD', 'basis': 'SYNTHETIC',
+                 'pattern': r'revenue (?P<value>\d+) million'}]}
+    panel = {'panel_id': 'TEST', 'members': [{'symbol': 'TCS'}]}
+    with ResearchStore(tmp_path) as store:
+        first = collect_source(store, spec, panel, Transport('request one'))
+        original = store.records('evidence')
+        cutoff = datetime.now(UTC).isoformat()
+        before = build_report(store, panel, {'sources': [spec]}, as_of=cutoff)
+        second = collect_source(store, spec, panel, Transport('request two'))
+        assert first['raw_sha256'] != second['raw_sha256']
+        assert len(store.records('document')) == 2
+        assert len(store.records('attempt')) == 2
+        assert len(original) == 1
+        assert store.records('evidence') == original
+        assert build_report(store, panel, {'sources': [spec]}, as_of=cutoff) == before

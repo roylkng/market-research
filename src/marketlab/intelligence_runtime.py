@@ -97,9 +97,22 @@ def collect_source(store: ResearchStore, source: dict, panel: dict,
                             "first_seen_at": response["observed_at"], "processed_at": processed,
                             "source_spec_sha256": digest(source), "claims": claims}
                 store.append("document", document_id, document)
+            retained_claims = {
+                (row["source_id"], row["evidence"]["claim_key"],
+                 row["evidence"]["value"], row["evidence"]["role"])
+                for row in store.records("evidence")
+            }
             for claim in document["claims"]:
                 if text[claim["span_start"]:claim["span_end"]] != claim["quote"]:
                     raise EvidenceError("Claim quote does not match retained text span")
+                key = canonical({k: claim[k] for k in
+                    ("concept", "period_end", "unit", "currency", "basis")})
+                identity = (source_id, key, claim["value"], claim["role"])
+                # Changing page metadata is a document observation, not a new fact.
+                # Preserve the earliest retained source, quote and availability.
+                if identity in retained_claims:
+                    continue
+                retained_claims.add(identity)
                 claim_id = digest([document_id, claim])
                 evidence = Evidence(
                     identifier=claim_id, subject=source["subject"], facet=claim["facet"],
