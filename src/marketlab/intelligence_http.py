@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import time
 from urllib.parse import urljoin, urlparse
-from urllib.robotparser import RobotFileParser
 
 import requests
 
 from marketlab.intelligence_core import EvidenceError
+from marketlab.intelligence_robots import ConservativeRobotPolicy
 from marketlab.intelligence_store import now_text, sha256
 
 USER_AGENT = "MarketLabResearch/2.0 (+https://github.com/roylkng/market-research)"
@@ -124,7 +124,7 @@ class PublicFetcher:
                 url = target
                 continue
             status = response["status_code"]
-            parser = RobotFileParser(origin + "/robots.txt")
+            parser = ConservativeRobotPolicy(origin + "/robots.txt")
             if status in {404, 410}:
                 parser.parse(["User-agent: *", "Disallow:"])
                 metadata = {"url": url, "status_code": status, "policy_state": "UNAVAILABLE_404_410",

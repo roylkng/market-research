@@ -11,11 +11,11 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 
 from marketlab.intelligence_core import EvidenceError
-from marketlab.intelligence_http import MAX_BYTES as MAX_BYTES
-from marketlab.intelligence_http import PublicFetcher as PublicFetcher
-from marketlab.intelligence_http import SourceBlocked as SourceBlocked
-from marketlab.intelligence_http import approved_url as approved_url
+from marketlab.intelligence_http import MAX_BYTES, PublicFetcher, SourceBlocked, approved_url
 from marketlab.intelligence_store import digest, timestamp
+
+__all__ = ["PublicFetcher", "SourceBlocked", "approved_url", "extract_claims",
+           "normalized_html", "parse_rss", "publication_upper_bound"]
 
 
 def normalized_html(raw: bytes) -> str:
