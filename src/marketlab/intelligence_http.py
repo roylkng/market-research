@@ -20,6 +20,7 @@ ALLOWED_HOSTS = frozenset({
     "www.nseindia.com", "nsearchives.nseindia.com", "archives.nseindia.com",
     "www.tcs.com", "www.infosys.com", "investors.larsentoubro.com",
     "www.larsentoubro.com", "www.hcltech.com", "www.prnewswire.com",
+    "www.sebi.gov.in", "www.pib.gov.in", "www.livemint.com",
 })
 MAX_BYTES = 4 * 1024 * 1024
 REDIRECTS = {301, 302, 303, 307, 308}
@@ -140,7 +141,7 @@ class PublicFetcher:
             return parser, metadata
         raise SourceBlocked("Too many policy redirects", stage="ROBOTS", url=url)
 
-    def fetch(self, url):
+    def fetch(self, url, *, url_guard=None):
         approved_url(url)
         origin = f"https://{urlparse(url).netloc}"
         cached = self.blocks.get(origin)
@@ -158,6 +159,8 @@ class PublicFetcher:
                 approved_url(url)
                 if f"https://{urlparse(url).netloc}" != origin:
                     raise SourceBlocked("Cross-origin content redirect requires review", stage="DOCUMENT", url=url)
+                if url_guard is not None and not url_guard(url):
+                    raise SourceBlocked("Discovery scope rejects redirect or path", stage="DOCUMENT", url=url)
                 if not parser.can_fetch(USER_AGENT, url):
                     raise SourceBlocked("Robots disallows source", stage="POLICY", url=url)
                 delay = parser.crawl_delay(USER_AGENT) or 0
