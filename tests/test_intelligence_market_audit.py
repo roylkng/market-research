@@ -11,31 +11,47 @@ from marketlab.intelligence_market_audit import MarketAuditError, build_market_a
 from marketlab.intelligence_store import ResearchStore
 
 SESSION = date(2026, 9, 17)
+PRIOR = date(2026, 9, 16)
 CAPTURED = "2026-09-17T13:30:00+00:00"
 
 
-def archive(rows):
+def archive(rows, session=SESSION):
     fields = [
         "TradDt", "Sgmt", "Src", "FinInstrmTp", "ISIN", "TckrSymb", "SctySrs",
-        "OpnPric", "ClsPric", "PrvsClsgPric", "TtlTradgVol", "TtlTrfVal",
+        "FinInstrmNm", "OpnPric", "ClsPric", "PrvsClsgPric", "TtlTradgVol", "TtlTrfVal",
     ]
     out = io.StringIO()
     writer = csv.DictWriter(out, fieldnames=fields)
     writer.writeheader()
-    writer.writerows(rows)
+    for value in rows:
+        writer.writerow({**value, "TradDt": session.isoformat()})
     payload = io.BytesIO()
     with zipfile.ZipFile(payload, "w") as zipped:
         zipped.writestr("bhav.csv", out.getvalue())
     return payload.getvalue()
 
 
-def row(symbol, previous, close, *, open_price=None, turnover=50_000_000, series="EQ"):
+def row(
+    symbol,
+    previous,
+    close,
+    *,
+    open_price=None,
+    turnover=50_000_000,
+    series="EQ",
+    isin=None,
+):
     return {
         "TradDt": SESSION.isoformat(), "Sgmt": "CM", "Src": "NSE", "FinInstrmTp": "STK",
-        "ISIN": "INE" + symbol.ljust(9, "X")[:9] + "1", "TckrSymb": symbol,
-        "SctySrs": series, "OpnPric": open_price or previous, "ClsPric": close,
-        "PrvsClsgPric": previous, "TtlTradgVol": "100000", "TtlTrfVal": str(turnover),
+        "ISIN": isin or ("INE" + symbol.ljust(9, "X")[:9] + "1"), "TckrSymb": symbol,
+        "SctySrs": series, "FinInstrmNm": f"{symbol} LIMITED", "OpnPric": open_price or previous,
+        "ClsPric": close, "PrvsClsgPric": previous, "TtlTradgVol": "100000",
+        "TtlTrfVal": str(turnover),
     }
+
+
+def prior_for(*rows):
+    return archive(list(rows), session=PRIOR)
 
 
 def panel():
@@ -56,6 +72,18 @@ def news(item_id, symbol, publication, first_seen, *, external=False):
     }
 
 
+def build(raw, previous, store, **kwargs):
+    return build_market_audit(
+        raw,
+        session_date=SESSION,
+        prior_udiff=previous,
+        prior_session_date=PRIOR,
+        store=store,
+        captured_at=CAPTURED,
+        **kwargs,
+    )
+
+
 def test_official_market_is_denominator_and_liquidity_filter_is_explicit(tmp_path):
     raw = archive([
         row("AAA", 100, 110),
@@ -63,22 +91,41 @@ def test_official_market_is_denominator_and_liquidity_filter_is_explicit(tmp_pat
         row("ILLIQ", 100, 140, turnover=1_000_000),
         row("SME", 100, 150, series="SM"),
     ])
+    previous = prior_for(row("AAA", 99, 100), row("BBB", 101, 100), row("ILLIQ", 90, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     assert report["universe"]["eq_count"] == 3
-    assert report["universe"]["liquid_eq_count"] == 2
+    assert report["universe"]["comparable_liquid_company_count"] == 2
     assert {r["symbol"] for r in report["movers"]} == {"AAA", "BBB"}
     assert next(r for r in report["movers"] if r["symbol"] == "AAA")["close_return_pct"] == pytest.approx(10)
 
 
+def test_fund_isin_and_new_listing_are_not_scored_as_secondary_market_misses(tmp_path):
+    raw = archive([
+        row("ETF", 100, 120, isin="INF000000001"),
+        row("NEWIPO", 100, 130),
+        row("AAA", 100, 106),
+    ])
+    previous = prior_for(row("AAA", 99, 100))
+    with ResearchStore(tmp_path) as store:
+        store.append("panel", "P", panel())
+        report = build(raw, previous, store)
+    assert report["universe"]["non_company_proxy_eq_count"] == 1
+    assert report["universe"]["excluded_new_or_identity_changed_count"] == 1
+    assert report["noncomparable_liquid"][0]["symbol"] == "NEWIPO"
+    assert report["noncomparable_liquid"][0]["scored_as_miss"] is False
+    assert [mover["symbol"] for mover in report["movers"]] == ["AAA"]
+
+
 def test_public_preopen_but_postclose_system_observation_is_not_a_prospective_hit(tmp_path):
     raw = archive([row("AAA", 100, 110)])
+    previous = prior_for(row("AAA", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
         store.append("news_item", "n1", news(
             "n1", "AAA", "2026-09-17T03:00:00+00:00", "2026-09-17T11:00:00+00:00"))
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     audit = report["movers"][0]["news_audit"]
     assert audit["public_timing"] == "PRE_OPEN"
     assert audit["system_timing"] == "POST_CLOSE"
@@ -87,32 +134,35 @@ def test_public_preopen_but_postclose_system_observation_is_not_a_prospective_hi
 
 def test_actual_preopen_observation_counts_as_system_hit(tmp_path):
     raw = archive([row("AAA", 100, 110)])
+    previous = prior_for(row("AAA", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
         store.append("news_item", "n1", news(
             "n1", "AAA", "2026-09-17T02:45:00+00:00", "2026-09-17T03:15:00+00:00"))
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     assert report["movers"][0]["news_audit"]["coverage_class"] == "SYSTEM_PREOPEN_HIT"
 
 
 def test_intraday_observation_is_distinct_from_preopen(tmp_path):
     raw = archive([row("AAA", 100, 110)])
+    previous = prior_for(row("AAA", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
         store.append("news_item", "n1", news(
             "n1", "AAA", "2026-09-17T05:00:00+00:00", "2026-09-17T05:10:00+00:00"))
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     assert report["movers"][0]["news_audit"]["coverage_class"] == "SYSTEM_INTRADAY_HIT"
 
 
 def test_external_symbol_can_be_audited_without_being_in_deep_panel(tmp_path):
     raw = archive([row("BBB", 100, 110)])
+    previous = prior_for(row("BBB", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
         store.append("news_item", "n1", news(
             "n1", "BBB", "2026-09-17T03:00:00+00:00", "2026-09-17T11:00:00+00:00",
             external=True))
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     mover = report["movers"][0]
     assert mover["in_deep_panel"] is False
     assert mover["news_audit"]["matched_item_ids"] == ["n1"]
@@ -120,9 +170,10 @@ def test_external_symbol_can_be_audited_without_being_in_deep_panel(tmp_path):
 
 def test_no_link_is_an_explicit_miss_not_neutral_sentiment(tmp_path):
     raw = archive([row("AAA", 100, 110)])
+    previous = prior_for(row("AAA", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
-        report = build_market_audit(raw, session_date=SESSION, store=store, captured_at=CAPTURED)
+        report = build(raw, previous, store)
     assert report["coverage_class_counts"] == {"NOT_DISCOVERED": 1}
     assert report["forecast"] is None
     assert report["live_capital_allowed"] is False
@@ -130,23 +181,28 @@ def test_no_link_is_an_explicit_miss_not_neutral_sentiment(tmp_path):
 
 def test_top_abs_movers_are_retained_even_below_threshold(tmp_path):
     raw = archive([row("AAA", 100, 101), row("BBB", 100, 99.5), row("CCC", 100, 100.1)])
+    previous = prior_for(row("AAA", 99, 100), row("BBB", 99, 100), row("CCC", 99, 100))
     with ResearchStore(tmp_path) as store:
         store.append("panel", "P", panel())
-        report = build_market_audit(
-            raw, session_date=SESSION, store=store, captured_at=CAPTURED,
-            move_threshold_pct=5, top_abs_movers=2,
-        )
+        report = build(raw, previous, store, move_threshold_pct=5, top_abs_movers=2)
     assert [r["symbol"] for r in report["movers"]] == ["AAA", "BBB"]
     assert report["universe"]["threshold_mover_count"] == 0
 
 
 def test_wrong_session_or_duplicate_symbol_is_rejected(tmp_path):
     wrong = row("AAA", 100, 110)
-    wrong["TradDt"] = "2026-09-16"
     with ResearchStore(tmp_path / "a") as store, pytest.raises(MarketAuditError, match="no NSE EQ"):
-        build_market_audit(archive([wrong]), session_date=SESSION, store=store, captured_at=CAPTURED)
-    with ResearchStore(tmp_path / "b") as store, pytest.raises(MarketAuditError, match="duplicate"):
         build_market_audit(
+            archive([wrong], session=date(2026, 9, 15)),
+            session_date=SESSION,
+            prior_udiff=prior_for(row("AAA", 99, 100)),
+            prior_session_date=PRIOR,
+            store=store,
+            captured_at=CAPTURED,
+        )
+    with ResearchStore(tmp_path / "b") as store, pytest.raises(MarketAuditError, match="duplicate"):
+        build(
             archive([row("AAA", 100, 110), row("AAA", 100, 111)]),
-            session_date=SESSION, store=store, captured_at=CAPTURED,
+            prior_for(row("AAA", 99, 100)),
+            store,
         )

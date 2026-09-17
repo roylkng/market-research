@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import requests
@@ -19,6 +19,10 @@ USER_AGENT = (
 )
 
 
+class UDiffArchiveMissing(RuntimeError):
+    """The official archive does not exist for this calendar date."""
+
+
 def download_udiff(
     session_date: date,
     *,
@@ -26,12 +30,7 @@ def download_udiff(
     timeout_seconds: float = 45.0,
     session: requests.Session | None = None,
 ) -> bytes:
-    """Fetch the official NSE UDiFF archive with bounded transient retries.
-
-    The NSE archive host can intermittently time out from hosted runners. Retries
-    address transport/server failures only. A missing file is never converted
-    into a successful empty market session.
-    """
+    """Fetch the official NSE UDiFF archive with bounded transient retries."""
     if attempts < 1 or timeout_seconds <= 0:
         raise ValueError("invalid UDiFF fetch bounds")
     url = udiff_url(session_date)
@@ -42,7 +41,7 @@ def download_udiff(
         try:
             response = http.get(url, timeout=(10, timeout_seconds))
             if response.status_code == 404:
-                raise RuntimeError(f"official NSE UDiFF archive is missing: {url}")
+                raise UDiffArchiveMissing(f"official NSE UDiFF archive is missing: {url}")
             if (
                 response.status_code in {403, 429} or response.status_code >= 500
             ) and attempt < attempts:
@@ -53,6 +52,8 @@ def download_udiff(
             if not raw:
                 raise RuntimeError("official NSE UDiFF response is empty")
             return raw
+        except UDiffArchiveMissing:
+            raise
         except RuntimeError:
             raise
         except requests.RequestException as exc:
@@ -64,6 +65,33 @@ def download_udiff(
     raise RuntimeError(
         f"official NSE UDiFF fetch failed after {attempts} attempts: {last_error}"
     ) from last_error
+
+
+def find_previous_udiff(
+    session_date: date,
+    *,
+    attempts: int,
+    timeout_seconds: float,
+    max_calendar_lookback: int = 7,
+) -> tuple[date, bytes]:
+    """Find the immediately previous published UDiFF session without predicting holidays."""
+    if max_calendar_lookback < 1:
+        raise ValueError("invalid previous-session lookback")
+    http = requests.Session()
+    for days_back in range(1, max_calendar_lookback + 1):
+        candidate = session_date - timedelta(days=days_back)
+        try:
+            return candidate, download_udiff(
+                candidate,
+                attempts=attempts,
+                timeout_seconds=timeout_seconds,
+                session=http,
+            )
+        except UDiffArchiveMissing:
+            continue
+    raise RuntimeError(
+        f"no prior official NSE UDiFF archive within {max_calendar_lookback} calendar days"
+    )
 
 
 def main() -> int:
@@ -83,13 +111,21 @@ def main() -> int:
         attempts=args.archive_attempts,
         timeout_seconds=args.archive_timeout_seconds,
     )
+    prior_session_date, prior_raw = find_previous_udiff(
+        session_date,
+        attempts=args.archive_attempts,
+        timeout_seconds=args.archive_timeout_seconds,
+    )
     captured_at = datetime.now(UTC).isoformat()
     args.output.mkdir(parents=True, exist_ok=True)
     with ResearchStore(args.store) as store:
         raw_sha = store.save_object(raw)
+        prior_raw_sha = store.save_object(prior_raw)
         report = build_market_audit(
             raw,
             session_date=session_date,
+            prior_udiff=prior_raw,
+            prior_session_date=prior_session_date,
             store=store,
             captured_at=captured_at,
             liquidity_floor_inr=args.liquidity_floor_inr,
@@ -101,7 +137,9 @@ def main() -> int:
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     summary = {
         "session_date": report["session_date"],
+        "prior_session_date": report["prior_session_date"],
         "market_raw_sha256": raw_sha,
+        "prior_market_raw_sha256": prior_raw_sha,
         "report_sha256": report["report_sha256"],
         "universe": report["universe"],
         "coverage_class_counts": report["coverage_class_counts"],
@@ -114,6 +152,16 @@ def main() -> int:
                 "in_deep_panel": row["in_deep_panel"],
             }
             for row in report["movers"][:15]
+        ],
+        "noncomparable_liquid_top": [
+            {
+                "symbol": row["symbol"],
+                "return_pct_vs_udiff_reference": round(
+                    row["close_return_pct_vs_udiff_reference"], 4
+                ),
+                "reason": row["reason"],
+            }
+            for row in report["noncomparable_liquid"][:10]
         ],
         "live_capital_allowed": False,
     }

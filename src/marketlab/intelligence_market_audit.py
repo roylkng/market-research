@@ -1,9 +1,9 @@
 """Post-close broad-market audit for the company-intelligence v2 research engine.
 
-This module deliberately evaluates *coverage*, not trading skill. The official NSE
-EQ bhavcopy is the denominator. News that was public before a move is kept separate
-from news that MarketLab had actually observed before the move, so a post-close
-backfill cannot be counted as a prospective hit.
+This module evaluates coverage, not trading skill. The official NSE EQ bhavcopy is
+the denominator. News that was public before a move is kept separate from news
+MarketLab actually observed before the move, so post-close backfill cannot count
+as a prospective hit.
 """
 from __future__ import annotations
 
@@ -62,6 +62,7 @@ def _read_udiff_rows(raw_zip: bytes, session_date: date) -> list[dict]:
         "ISIN",
         "TckrSymb",
         "SctySrs",
+        "FinInstrmNm",
         "OpnPric",
         "ClsPric",
         "PrvsClsgPric",
@@ -84,8 +85,9 @@ def _read_udiff_rows(raw_zip: bytes, session_date: date) -> list[dict]:
             continue
         symbol = str(row.get("TckrSymb") or "").strip().upper()
         isin = str(row.get("ISIN") or "").strip()
-        if not symbol or not isin:
-            raise MarketAuditError("EQ row lacks symbol or ISIN")
+        name = " ".join(str(row.get("FinInstrmNm") or "").split())
+        if not symbol or not isin or not name:
+            raise MarketAuditError("EQ row lacks symbol, ISIN or security name")
         if symbol in symbols:
             raise MarketAuditError(f"duplicate EQ symbol in UDiFF: {symbol}")
         symbols.add(symbol)
@@ -100,6 +102,7 @@ def _read_udiff_rows(raw_zip: bytes, session_date: date) -> list[dict]:
             {
                 "symbol": symbol,
                 "isin": isin,
+                "security_name": name,
                 "open": open_price,
                 "close": close_price,
                 "previous_close": previous_close,
@@ -206,26 +209,56 @@ def build_market_audit(
     raw_udiff: bytes,
     *,
     session_date: date,
+    prior_udiff: bytes,
+    prior_session_date: date,
     store: ResearchStore,
     captured_at: str,
     liquidity_floor_inr: float = DEFAULT_LIQUIDITY_FLOOR_INR,
     move_threshold_pct: float = DEFAULT_MOVE_THRESHOLD_PCT,
     top_abs_movers: int = DEFAULT_TOP_ABS_MOVERS,
 ) -> dict:
-    """Build a diagnostic mover audit from official NSE data and prospective news state."""
+    """Build a diagnostic mover audit from official NSE data and prospective news state.
+
+    `INE` ISIN plus NSE EQ is a conservative company-equity proxy used only for
+    this diagnostic. It excludes obvious fund products such as `INF` ISIN ETFs.
+    Requiring the same symbol+ISIN in the immediately prior completed session
+    prevents IPO listing-day gains from being scored as ordinary secondary-market
+    misses. This is not a full investability or 20-day liquidity screen.
+    """
     timestamp(captured_at)
+    if prior_session_date >= session_date:
+        raise MarketAuditError("prior session must precede audited session")
     if liquidity_floor_inr < 0 or move_threshold_pct <= 0:
         raise MarketAuditError("invalid audit thresholds")
     if type(top_abs_movers) is not int or not 1 <= top_abs_movers <= 100:
         raise MarketAuditError("top_abs_movers must be an integer in [1, 100]")
+
     rows = _read_udiff_rows(raw_udiff, session_date)
-    liquid = [row for row in rows if row["turnover_inr"] >= liquidity_floor_inr]
-    ranked = sorted(liquid, key=lambda row: (-abs(row["close_return_pct"]), row["symbol"]))
+    prior_rows = _read_udiff_rows(prior_udiff, prior_session_date)
+    prior_by_symbol = {row["symbol"]: row for row in prior_rows}
+    company_proxy = [row for row in rows if row["isin"].startswith("INE")]
+    liquid_company_proxy = [
+        row for row in company_proxy if row["turnover_inr"] >= liquidity_floor_inr
+    ]
+    comparable = [
+        row
+        for row in liquid_company_proxy
+        if (previous := prior_by_symbol.get(row["symbol"])) is not None
+        and previous["isin"] == row["isin"]
+    ]
+    noncomparable = [
+        row
+        for row in liquid_company_proxy
+        if (previous := prior_by_symbol.get(row["symbol"])) is None
+        or previous["isin"] != row["isin"]
+    ]
+    ranked = sorted(comparable, key=lambda row: (-abs(row["close_return_pct"]), row["symbol"]))
     threshold_symbols = {
-        row["symbol"] for row in liquid if abs(row["close_return_pct"]) >= move_threshold_pct
+        row["symbol"] for row in comparable if abs(row["close_return_pct"]) >= move_threshold_pct
     }
     top_symbols = {row["symbol"] for row in ranked[:top_abs_movers]}
     audit_symbols = threshold_symbols | top_symbols
+
     items = [
         row
         for row in store.records("news_item")
@@ -241,9 +274,7 @@ def build_market_audit(
     for row in ranked:
         if row["symbol"] not in audit_symbols:
             continue
-        news = _news_audit_for_symbol(
-            row["symbol"], items, open_at=open_at, close_at=close_at
-        )
+        news = _news_audit_for_symbol(row["symbol"], items, open_at=open_at, close_at=close_at)
         movers.append(
             {
                 **row,
@@ -260,35 +291,61 @@ def build_market_audit(
                 "diagnostic_only": True,
             }
         )
+
     classes = Counter(row["news_audit"]["coverage_class"] for row in movers)
-    advancing = sum(row["close_return_pct"] > 0 for row in liquid)
-    declining = sum(row["close_return_pct"] < 0 for row in liquid)
-    unchanged = len(liquid) - advancing - declining
-    threshold_count = len(threshold_symbols)
+    advancing = sum(row["close_return_pct"] > 0 for row in comparable)
+    declining = sum(row["close_return_pct"] < 0 for row in comparable)
+    unchanged = len(comparable) - advancing - declining
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "engine": "MARKETLAB_V2_DAILY_MOVER_MISS_AUDIT",
         "session_date": session_date.isoformat(),
+        "prior_session_date": prior_session_date.isoformat(),
         "captured_at": captured_at,
         "market_source": {
             "url": udiff_url(session_date),
             "raw_sha256": sha256(raw_udiff),
+            "prior_url": udiff_url(prior_session_date),
+            "prior_raw_sha256": sha256(prior_udiff),
             "source_kind": "OFFICIAL_NSE_UDIFF_EQ_BHAVCOPY",
         },
         "parameters": {
             "liquidity_floor_inr": liquidity_floor_inr,
+            "liquidity_measure": "AUDIT_SESSION_TRADED_VALUE_ONLY_NOT_INVESTABILITY_SCREEN",
+            "company_equity_proxy": "NSE_EQ_AND_ISIN_PREFIX_INE",
+            "requires_prior_same_symbol_isin": True,
             "move_threshold_pct": move_threshold_pct,
             "top_abs_movers": top_abs_movers,
         },
         "universe": {
             "eq_count": len(rows),
-            "liquid_eq_count": len(liquid),
+            "non_company_proxy_eq_count": len(rows) - len(company_proxy),
+            "company_proxy_eq_count": len(company_proxy),
+            "liquid_company_proxy_count": len(liquid_company_proxy),
+            "excluded_new_or_identity_changed_count": len(noncomparable),
+            "comparable_liquid_company_count": len(comparable),
             "advancing": advancing,
             "declining": declining,
             "unchanged": unchanged,
-            "threshold_mover_count": threshold_count,
+            "threshold_mover_count": len(threshold_symbols),
             "audited_mover_count": len(movers),
         },
+        "noncomparable_liquid": [
+            {
+                "symbol": row["symbol"],
+                "isin": row["isin"],
+                "security_name": row["security_name"],
+                "close_return_pct_vs_udiff_reference": row["close_return_pct"],
+                "open_gap_pct_vs_udiff_reference": row["open_gap_pct"],
+                "turnover_inr": row["turnover_inr"],
+                "reason": "NO_SAME_SYMBOL_ISIN_IN_IMMEDIATELY_PRIOR_NSE_EQ_SESSION",
+                "scored_as_miss": False,
+            }
+            for row in sorted(
+                noncomparable,
+                key=lambda candidate: (-abs(candidate["close_return_pct"]), candidate["symbol"]),
+            )
+        ],
         "coverage_class_counts": dict(sorted(classes.items())),
         "movers": movers,
         "interpretation_contract": {
