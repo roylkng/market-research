@@ -15,7 +15,7 @@ from marketlab.intelligence_market_audit_context import (
     inject_news_ledger,
 )
 from marketlab.intelligence_prospective_news import load_news_ledger
-from marketlab.intelligence_store import ResearchStore
+from marketlab.intelligence_store import ResearchStore, digest
 from marketlab.marketdata import udiff_url
 
 USER_AGENT = (
@@ -148,7 +148,6 @@ def main() -> int:
                 "diagnostic_replay_only": True,
             }
             report.pop("report_sha256", None)
-            from marketlab.intelligence_store import digest
             report["report_sha256"] = digest(report)
         store.append("market_audit", report["report_sha256"], report)
     path = args.output / f"market-audit-{session_date.isoformat()}.json"
