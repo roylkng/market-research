@@ -33,6 +33,9 @@ def validate_config(config: dict) -> None:
             raise EvidenceError(f"Invalid discovery bound: {field}")
     for source in sources:
         approved_url(source["url"])
+        exploratory = source.get("unlinked_document_budget", 0)
+        if type(exploratory) is not int or not 0 <= exploratory <= 2:
+            raise EvidenceError("Unlinked exploration must be bounded separately")
         if source["kind"] not in {"feed", "prn_listing"}:
             raise EvidenceError("Unreviewed discovery adapter")
         if source["access"] not in {"HEADLINES_ONLY", "PUBLIC_DOCUMENTS"}:
@@ -140,9 +143,20 @@ def select_documents(discovered: list[dict], *, as_of: str, budget: int, lookbac
         # as either ancient or as proven fresh publications before the article is read.
         return relevance, has_topic, source["source_id"], entry.get("provider_rank", 0), item["resource_key"]
     ordered = sorted(unique.values(), key=priority)
-    selected = ordered[:budget]
-    deferred.extend({"item_id": e["item"]["item_id"], "reason": "ARTICLE_BUDGET_DEFERRED"}
-                    for e in ordered[budget:])
+    selected, unlinked_counts = [], Counter()
+    for entry in ordered:
+        item, source = entry["item"], entry["source"]
+        mentions = item["mentions"]
+        linked = any(mentions[k] for k in ("panel_symbols", "unverified_nse_symbols", "bse_codes_for_review"))
+        source_id = source["source_id"]
+        if not linked and unlinked_counts[source_id] >= source.get("unlinked_document_budget", 0):
+            deferred.append({"item_id": item["item_id"], "reason": "NO_COMPANY_LINK_EXPLORATION_LIMIT"})
+        elif len(selected) >= budget:
+            deferred.append({"item_id": item["item_id"], "reason": "ARTICLE_BUDGET_DEFERRED"})
+        else:
+            selected.append(entry)
+            if not linked:
+                unlinked_counts[source_id] += 1
     return selected, deferred
 
 
