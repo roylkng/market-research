@@ -91,12 +91,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
           WORK="${{ steps.gate.outputs.work_dir }}"
           python scripts/seal_h021_capture.py \
             --draft "$WORK/capture-draft.json" \
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --batches research/prospective/h021/capture-batches-v1.json \
             --out-dir research/prospective/h021/captures
+          # Preserve exact machine-sealed bytes in the workflow artifact before
+          # any later Git race can prevent the repository anchor.
+          cp "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
+            "$WORK/sealed-capture.json.gz"
+          cp "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.manifest.json" \
+            "$WORK/sealed-capture.manifest.json"
+          cp "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.md" \
+            "$WORK/sealed-capture.md"
 
       - name: Build primary revision cohort when the frozen window exists
         if: steps.gate.outputs.state == 'CAPTURE'
@@ -114,7 +123,7 @@ jobs:
             --current "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
             --out "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json"
 
-      - name: Refuse to anchor observations on changed rules
+      - name: Refuse to anchor observations if frozen H021 inputs changed
         if: steps.gate.outputs.state == 'CAPTURE'
         shell: bash
         run: |
@@ -122,10 +131,35 @@ jobs:
           git fetch origin main
           START_SHA="${GITHUB_SHA}"
           CURRENT_MAIN="$(git rev-parse origin/main)"
+          CRITICAL_PATHS=(
+            ".github/workflows/h021-weekly-consensus-capture.yml"
+            "pyproject.toml"
+            "research/H021_PROSPECTIVE_PROTOCOL_V1.md"
+            "research/H021_COMPARISON_CONTRACT_V1.md"
+            "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
+            "research/prospective/h021"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "scripts/check_h021_weekly_session.py"
+            "scripts/acquire_h021_weekly_capture.py"
+            "scripts/seal_h021_capture.py"
+            "scripts/compare_h021_captures.py"
+            "src/marketlab/h021.py"
+            "src/marketlab/h021_capture.py"
+            "src/marketlab/h021_stockanalysis_acquisition.py"
+            "src/marketlab/h021_stockanalysis_parser.py"
+          )
           if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
-            echo "main moved during H021 acquisition; refusing to attach observations to changed rules"
+            CHANGED="$(git diff --name-only "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}")"
+            if [ -n "$CHANGED" ]; then
+              echo "frozen H021 inputs changed during acquisition; refusing to anchor observations"
+              echo "start=$START_SHA current_main=$CURRENT_MAIN"
+              printf '%s\n' "$CHANGED"
+              exit 1
+            fi
+            echo "main moved only outside frozen H021 inputs; fast-forwarding before anchor"
             echo "start=$START_SHA current_main=$CURRENT_MAIN"
-            exit 1
+            git merge --ff-only origin/main
           fi
 
       - name: Anchor immutable capture and source evidence
