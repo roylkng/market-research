@@ -1,0 +1,147 @@
+version: 1
+hypothesis_id: H020
+decision_date: 2026-09-10
+decision_cutoff: after_completed_2026-09-10_session
+live_capital_allowed: false
+entry_policy:
+  earliest_executable_session: 2026-09-11
+  primary_proxy: next_session_open
+  note: September 10 prices are evidence inputs, not retrospectively claimable entry prices.
+evaluation:
+  horizons_sessions: [20, 60]
+  metrics:
+    - close_return
+    - nifty_excess_return
+    - maximum_adverse_excursion
+    - maximum_favourable_excursion
+    - time_under_water
+    - skipped_or_non_executable
+market_regime_at_decision: BEARISH
+market_context:
+  note: Nifty closed modestly higher on September 10 after a volatile closing auction, while Brent remained above USD 100 and macro/geopolitical conditions remained cautious.
+
+timing_passed_names:
+  - MEDANTA
+  - ARVIND
+  - NYKAA
+  - PAYTM
+  - WABAG
+
+decisions:
+  - symbol: WABAG
+    timing_state: PAPER_ENTRY_ELIGIBLE_TREND
+    timing_score_not_probability: 83
+    return_20d_pct: 17.3
+    relative_20d_pp: 21.1
+    rsi14: 65.8
+    combined_research_state: PROSPECTIVE_PAPER_CANDIDATE
+    rationale:
+      - Q1 FY27 consolidated revenue approximately INR 886.8 crore, up 21 percent YoY.
+      - Q1 FY27 PAT approximately INR 90.1 crore, up 37 percent YoY.
+      - Company reported record order book around INR 19,400 crore and positive net cash.
+      - Secondary valuation sources place trailing P/E in roughly low-to-high 30s, materially below PAYTM/NYKAA/MEDANTA challenge names.
+      - Price trend and relative strength passed H020 despite bearish benchmark regime.
+    cautions:
+      - 20-session return is already 17.3 percent, close to H020 v1 extended threshold of 18 percent.
+      - September 9 included a large volume-backed advance. Do not retrospectively assume the pre-breakout price was available after this decision.
+      - Internet broker call is challenger evidence only, not our target/stop policy.
+    external_call_reference:
+      source: Times of India / Nuvama, 2026-09-10
+      quoted_lcp_inr: 2130
+      quoted_stop_inr: 2010
+      quoted_target_inr: 2450
+      commentary: Analyst cited rebound from 20-DMA, highest daily volume in three months and three-month consolidation; expected stronger move above 2200.
+    source_urls:
+      - https://www.wabag.com/investor-communications/
+      - https://markets.ft.com/data/equities/tearsheet/historical?s=WABAG:NSI
+      - https://timesofindia.indiatimes.com/business/india-business/top-stock-recommendations-for-september-10-2026-paytm-nykaa-va-tech-wabag-best-stocks-to-buy-today/amp_articleshow/133991935.cms
+
+  - symbol: ARVIND
+    timing_state: PAPER_ENTRY_ELIGIBLE_TREND
+    timing_score_not_probability: 83
+    return_20d_pct: 3.4
+    relative_20d_pp: 7.1
+    rsi14: 58.5
+    combined_research_state: PROSPECTIVE_PAPER_CANDIDATE
+    rationale:
+      - Q1 FY27 consolidated revenue INR 2,501 crore, up 25 percent YoY.
+      - EBITDA INR 258 crore with 10.3 percent margin.
+      - PAT INR 80 crore, up 47 percent YoY.
+      - Advanced Materials revenue INR 650 crore, up 85 percent YoY.
+      - Secondary source valuation around 36.8x trailing and 25.8x forward earnings.
+      - H020 trend state passed despite bearish benchmark regime without being extended under v1 rules.
+    cautions:
+      - Stock has already appreciated substantially year to date and recently tested a 52-week high.
+      - Broker technical targets are short-horizon challenger forecasts, not intrinsic-value targets.
+    external_call_reference:
+      source: LiveMint / Choice Broking, 2026-09-09
+      quoted_buy_inr: 581
+      quoted_stop_inr: 555
+      quoted_target_inr: 625
+      commentary: Analyst cited range breakout, healthy retracement toward 20-day EMA and renewed buying support.
+    source_urls:
+      - https://www.arvind.com/investors/overview
+      - https://stockanalysis.com/quote/nse/ARVIND/
+      - https://www.livemint.com/market/stock-market-news/breakout-stocks-to-buy-or-sell-sumeet-bagadia-recommends-five-shares-to-buy-today-9-september-2026/amp-11788915118182.html
+
+  - symbol: MEDANTA
+    timing_state: PAPER_ENTRY_ELIGIBLE_TREND
+    timing_score_not_probability: 90
+    combined_research_state: WATCH_VALUATION_AND_MARGIN
+    rationale:
+      - Revenue growth around 26 percent and strong patient-volume growth.
+      - Noida losses narrowed and expansion pipeline remains meaningful.
+    cautions:
+      - Q1 PAT was roughly flat YoY and reported margins were pressured by expansion costs.
+      - Secondary valuation approximately 69-70x trailing earnings with modest aggregate target upside at reviewed snapshot.
+    source_urls:
+      - https://www.medanta.org/investor_relations/financial-information
+      - https://stockanalysis.com/quote/nse/MEDANTA/
+
+  - symbol: PAYTM
+    timing_state: PAPER_ENTRY_ELIGIBLE_TREND
+    timing_score_not_probability: 83
+    combined_research_state: WATCH_VALUATION
+    rationale:
+      - Q1 FY27 revenue grew 28 percent YoY to INR 2,448 crore.
+      - Company reported highest-ever quarterly EBITDA around INR 203 crore and sustained profitability.
+    cautions:
+      - Secondary source trailing P/E approximately 174x and forward P/E approximately 83x.
+      - Reviewed aggregate analyst target was below the current price, indicating valuation already discounts substantial improvement.
+    source_urls:
+      - https://ir.paytm.com/
+      - https://stockanalysis.com/quote/nse/PAYTM/
+
+  - symbol: NYKAA
+    timing_state: PAPER_ENTRY_ELIGIBLE_TREND
+    timing_score_not_probability: 83
+    combined_research_state: WATCH_VALUATION
+    rationale:
+      - Q1 FY27 revenue grew 29 percent to INR 2,782 crore.
+      - EBITDA grew 68 percent to INR 236 crore and PAT rose 226 percent to roughly INR 80 crore.
+    cautions:
+      - Secondary source trailing P/E approximately 377x, leaving very low tolerance for execution disappointment.
+    source_urls:
+      - https://www.nykaa.com/investor-relations/lp
+      - https://www.business-standard.com/companies/quarterly-results/nykaa-q1-fy27-results-net-profit-rises-3-3-times-to-79-76-crore-126080401292_1.html
+
+explicit_non_entries:
+  - symbol: TRANSRAILL
+    state: WAIT_FALLING
+    reason: 20-session return -11.4 percent, relative return -7.6pp, RSI 27.9; downtrend unresolved.
+  - symbol: DEEPAKFERT
+    state: WAIT_FALLING
+    reason: 20-session return -7.6 percent, relative return -3.7pp, RSI 31.3; commissioning thesis does not override falling price state.
+  - symbol: CCL
+    state: WAIT_FALLING
+    reason: Internet breakout call is not accepted after Sep 10 close-based H020 reassessment.
+  - symbol: SHAREINDIA
+    state: WAIT_PULLBACK
+    reason: H020 classifies current move as extended.
+
+scientific_boundary:
+  - This is a prospective paper ledger, not a live-capital instruction.
+  - H020 timing thresholds are exploratory and not historically validated.
+  - Timing scores are not calibrated probabilities.
+  - Internet recommendations are independent challenge observations, not training labels.
+  - Fundamental review is analyst judgment and has not yet been converted into a validated quantitative gate.
