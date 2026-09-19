@@ -181,3 +181,48 @@ hypotheses:
         - sector_relative_momentum
     next_action: point_in_time_historical_replay_then_prospective_daily_watchlist
     live_capital: false
+
+  - id: H005
+    name: result_event_repricing_ranker
+    created: 2026-09-08
+    status: FROZEN
+    mechanism: >-
+      Large post-result repricings are not restricted to spectacular accounting
+      growth. A point-in-time probability ranker using continuous result changes,
+      earnings quality, pre-event state and at most one post-publication session of
+      early recognition may concentrate future +25%/20-session movers better than
+      either strict earnings thresholds or tape alone.
+    universe:
+      market: India
+      type: frozen_rule
+      primary: nse_main_board_eq_with_median_20d_traded_value_gte_2cr
+      secondary: discovery_tier_median_20d_traded_value_gte_25lakh
+      nominal_share_price_filter: none
+    signal:
+      formula: regularized_logistic_probability_of_explosive_20d_v1
+      model: l2_logistic_regression_balanced
+      variants:
+        H005-A: information_only
+        H005-B: first_post_publication_session_allowed
+      primary_operating_bucket: top_10_percent_predicted_probability
+      c_grid: [0.01, 0.1, 1.0, 10.0]
+      training_window: 2025-10-01_to_2026-07-31_design_only
+      validation_window: 2024-10-01_to_2025-06-30_untouched
+    decision:
+      entry_delay_sessions: 1
+      holding_period_sessions: 20
+      paper_only: true
+    benchmarks:
+      - matched_count_first_session_tape
+      - h004_strict_earnings
+      - raw_accounting_growth
+      - pre_event_momentum
+      - nifty_500
+    guardrails:
+      - h004_hr002_is_training_design_only_not_validation
+      - validation_labels_must_remain_unopened_until_model_freeze
+      - no_day2_or_later_tape_features_in_h005_b
+      - no_post_holdout_model_or_feature_tuning_under_h005_v1
+      - non_executable_circuit_entries_are_not_hits
+    next_action: reconstruct_training_and_untouched_validation_then_score_frozen_gates
+    live_capital: false

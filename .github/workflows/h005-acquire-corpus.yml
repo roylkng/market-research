@@ -1,0 +1,40 @@
+name: H005 acquire original-source corpus
+
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-acquire-corpus.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Retain original sources and source coverage
+        run: python scripts/acquire_h005_corpus.py --out /tmp/h005-corpus
+      - name: Record execution identity
+        if: always()
+        run: |
+          mkdir -p /tmp/h005-corpus
+          printf '%s\n' "$GITHUB_SHA" > /tmp/h005-corpus/source-head.txt
+          printf '%s\n' "$GITHUB_RUN_ID" > /tmp/h005-corpus/source-run.txt
+          cp scripts/acquire_h005_corpus.py /tmp/h005-corpus/acquire-source.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h005-original-source-corpus
+          path: /tmp/h005-corpus
+          retention-days: 30
+          compression-level: 6
