@@ -52,6 +52,7 @@ def test_capture_seals_compact_metadata_without_headline_text(tmp_path):
             store, identity_session="2026-09-17", identity_raw_sha256="b" * 64
         )
     assert capture["identity_session"] == "2026-09-17"
+    assert capture["discovery_status"] == "DISCOVERY_CAPTURE_COMPLETE"
     assert observations[0]["mentions"]["panel_symbols"] == ["AAA"]
     assert "title" not in observations[0]
     assert len(observations[0]["title_sha256"]) == 64
@@ -61,8 +62,12 @@ def test_repeated_semantic_observation_does_not_reset_first_seen():
     ledger = empty_news_ledger()
     capture = {"capture_id": "c1", "started_at": "2026-09-18T02:29:00+00:00",
                "captured_at": "2026-09-18T02:32:00+00:00", "run_id": "r1",
-               "run_status": "BOUNDED_CAPTURE_COMPLETE", "identity_session": "2026-09-17",
-               "identity_raw_sha256": "b" * 64, "source_status_counts": {}, "source_states": {},
+               "run_status": "BOUNDED_CAPTURE_COMPLETE",
+               "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+               "identity_session": "2026-09-17",
+               "identity_raw_sha256": "b" * 64, "source_status_counts": {},
+               "discovery_source_status_counts": {}, "document_status_counts": {},
+               "source_states": {}, "discovery_source_states": {},
                "full_market_coverage": False, "live_capital_allowed": False}
     semantic = {"source_id": "s", "source_class": "X", "item_id": "i", "resource_key": "r",
                 "publication": {"value": None, "precision": "UNKNOWN", "raw": ""},
@@ -85,8 +90,12 @@ def test_changed_resolution_is_new_observation_not_rewrite():
     ledger = empty_news_ledger()
     capture = {"capture_id": "c1", "started_at": "2026-09-18T02:29:00+00:00",
                "captured_at": "2026-09-18T02:32:00+00:00", "run_id": "r1",
-               "run_status": "BOUNDED_CAPTURE_COMPLETE", "identity_session": "2026-09-17",
-               "identity_raw_sha256": "b" * 64, "source_status_counts": {}, "source_states": {},
+               "run_status": "BOUNDED_CAPTURE_COMPLETE",
+               "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+               "identity_session": "2026-09-17",
+               "identity_raw_sha256": "b" * 64, "source_status_counts": {},
+               "discovery_source_status_counts": {}, "document_status_counts": {},
+               "source_states": {}, "discovery_source_states": {},
                "full_market_coverage": False, "live_capital_allowed": False}
     semantic = {"source_id": "s", "source_class": "X", "item_id": "i", "resource_key": "r",
                 "publication": {"value": None, "precision": "UNKNOWN", "raw": ""},
@@ -114,3 +123,19 @@ def test_hash_tampering_and_cutoff_are_detected():
     now = datetime.now(UTC).isoformat()
     assert observations_for_audit(clean, as_of=now) == []
     assert captures_for_audit(clean, as_of=now) == []
+
+
+def test_discovery_failure_is_sealed_separately_from_document_health(tmp_path):
+    with ResearchStore(tmp_path) as store:
+        seed_run(store)
+        failure = {
+            "attempt_id": "attempt-2", "source_id": "nse-announcements", "stage": "DISCOVERY",
+            "status": "BLOCKED", "started_at": "2026-09-18T02:29:30+00:00",
+            "completed_at": "2026-09-18T02:31:30+00:00",
+        }
+        store.append("news_attempt", failure["attempt_id"], failure)
+        capture, _ = capture_from_store(
+            store, identity_session="2026-09-17", identity_raw_sha256="b" * 64
+        )
+    assert capture["discovery_status"] == "DISCOVERY_DEGRADED"
+    assert capture["discovery_source_status_counts"]["BLOCKED"] == 1
