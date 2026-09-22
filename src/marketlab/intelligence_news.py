@@ -172,7 +172,59 @@ def parse_listing(raw: bytes, source: dict) -> tuple[list[dict], list[str]]:
     return list(results.values()), pages
 
 
-def entity_mentions(text: str, members: list[dict]) -> dict:\n    """Resolve exact company aliases while keeping deep-panel scope distinct."""\n    def normalize(value):\n        return clean(re.sub(r"[^a-z0-9]+", " ", value.casefold().replace("&", " and ")))\n\n    haystack = " " + normalize(text) + " "\n    aliases: dict[str, set[str]] = {}\n    deep_symbols: set[str] = set()\n    official_symbols: set[str] = set()\n    for row in members:\n        symbol = row["symbol"]\n        identity_source = row.get("identity_source")\n        if bool(row.get("is_deep_panel", identity_source != "NSE_UDIFF_PRIOR_SESSION")):\n            deep_symbols.add(symbol)\n        if identity_source == "NSE_UDIFF_PRIOR_SESSION":\n            official_symbols.add(symbol)\n        name = re.sub(r"\\b(?:limited|ltd)\\.?$", "", row["company_name"],\n                      flags=re.IGNORECASE).strip()\n        alias = normalize(name)\n        if len(alias) >= 5:\n            aliases.setdefault(alias, set()).add(symbol)\n\n    matched: set[str] = set()\n    ambiguous = []\n    for alias, symbols in aliases.items():\n        if " " + alias + " " in haystack:\n            if len(symbols) == 1:\n                matched.update(symbols)\n            else:\n                ambiguous.append({"alias": alias, "symbols": sorted(symbols)})\n\n    explicit = sorted(set(re.findall(r"\\bNSE\\s*:\\s*([A-Z0-9][A-Z0-9&_\\-]{1,24})\\b", text)))\n    known = {row["symbol"] for row in members}\n    matched.update(set(explicit) & known)\n    return {\n        "panel_symbols": sorted(matched & deep_symbols),\n        "official_nse_symbols": sorted(matched & official_symbols),\n        "ambiguous_mentions": ambiguous,\n        "unverified_nse_symbols": sorted(set(explicit) - known),\n        "bse_codes_for_review": sorted(set(re.findall(r"\\bBSE\\s*:\\s*(\\d{5,6})\\b", text))),\n        "relationship_state": "MENTION_ONLY_NOT_BENEFICIARY_VERIFICATION",\n    }\n\ndef topic_candidates(text: str) -> list[dict]:
+def entity_mentions(text: str, members: list[dict]) -> dict:
+    """Resolve exact company aliases while keeping deep-panel scope distinct."""
+    def normalize(value):
+        return clean(re.sub(r"[^a-z0-9]+", " ", value.casefold().replace("&", " and ")))
+
+    haystack = " " + normalize(text) + " "
+    aliases: dict[str, set[str]] = {}
+    deep_symbols: set[str] = set()
+    official_symbols: set[str] = set()
+    for row in members:
+        symbol = row["symbol"]
+        identity_source = row.get("identity_source")
+        if bool(row.get("is_deep_panel", identity_source != "NSE_UDIFF_PRIOR_SESSION")):
+            deep_symbols.add(symbol)
+        if identity_source == "NSE_UDIFF_PRIOR_SESSION":
+            official_symbols.add(symbol)
+        name = re.sub(
+            r"\b(?:limited|ltd)\.?$",
+            "",
+            row["company_name"],
+            flags=re.IGNORECASE,
+        ).strip()
+        alias = normalize(name)
+        if len(alias) >= 5:
+            aliases.setdefault(alias, set()).add(symbol)
+
+    matched: set[str] = set()
+    ambiguous = []
+    for alias, symbols in aliases.items():
+        if " " + alias + " " in haystack:
+            if len(symbols) == 1:
+                matched.update(symbols)
+            else:
+                ambiguous.append({"alias": alias, "symbols": sorted(symbols)})
+
+    explicit = sorted(
+        set(re.findall(r"\bNSE\s*:\s*([A-Z0-9][A-Z0-9&_\-]{1,24})\b", text))
+    )
+    known = {row["symbol"] for row in members}
+    matched.update(set(explicit) & known)
+    return {
+        "panel_symbols": sorted(matched & deep_symbols),
+        "official_nse_symbols": sorted(matched & official_symbols),
+        "ambiguous_mentions": ambiguous,
+        "unverified_nse_symbols": sorted(set(explicit) - known),
+        "bse_codes_for_review": sorted(
+            set(re.findall(r"\bBSE\s*:\s*(\d{5,6})\b", text))
+        ),
+        "relationship_state": "MENTION_ONLY_NOT_BENEFICIARY_VERIFICATION",
+    }
+
+
+def topic_candidates(text: str) -> list[dict]:
     result = []
     for name, pattern in TOPICS.items():
         hit = re.search(pattern, text, flags=re.IGNORECASE)
