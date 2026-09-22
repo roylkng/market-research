@@ -23,10 +23,14 @@ def capture(capture_id, started, completed):
         "captured_at": completed,
         "run_id": capture_id,
         "run_status": "BOUNDED_CAPTURE_COMPLETE",
+        "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
         "identity_session": "2026-09-17",
         "identity_raw_sha256": "a" * 64,
         "source_status_counts": {},
+        "discovery_source_status_counts": {},
+        "document_status_counts": {},
         "source_states": {},
+        "discovery_source_states": {},
         "full_market_coverage": False,
         "live_capital_allowed": False,
     }
@@ -73,3 +77,18 @@ def test_matched_item_class_is_not_overwritten_by_capture_context():
     )
     result = apply_prospective_capture_context(value, ledger)
     assert result["coverage_class_counts"] == {"SYSTEM_PREOPEN_HIT": 1}
+
+
+def test_degraded_preopen_capture_is_not_scored_as_clean_miss():
+    degraded = {
+        **capture("c1", "2026-09-18T02:30:00+00:00", "2026-09-18T02:35:00+00:00"),
+        "discovery_status": "DISCOVERY_DEGRADED",
+        "discovery_source_status_counts": {"BLOCKED": 1, "SNAPSHOT_CAPTURED": 6},
+        "discovery_source_states": {"nse-announcements": ["BLOCKED"]},
+    }
+    ledger = merge_news_ledger(empty_news_ledger(), degraded, [])
+    result = apply_prospective_capture_context(report(), ledger)
+    assert result["coverage_class_counts"] == {
+        "PREOPEN_CAPTURE_DEGRADED_NOT_DISCOVERED": 1
+    }
+    assert result["prospective_capture_context"]["healthy_preopen_capture_count"] == 0
