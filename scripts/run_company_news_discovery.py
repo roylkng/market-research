@@ -56,6 +56,7 @@ def main() -> int:
         print(json.dumps({"report_sha256": report["report_sha256"], "as_of": report["as_of"],
             "items": news["item_count"], "documents": news["document_count"],
             "panel_mentions": news["panel_companies_with_mentions"],
+            "official_nse_symbols": news.get("official_nse_symbols_with_headlines", []),
             "external_unverified_symbols": news["unverified_external_symbols"],
             "identity_scope": discovery_panel.get("identity_scope", "DEEP_PANEL_ONLY"),
             "identity_count": len(discovery_panel["members"]),
