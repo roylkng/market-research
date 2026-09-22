@@ -29,7 +29,9 @@ def news_item(item_id="item-1", first_seen="2026-09-18T02:30:00+00:00", symbols=
     }
 
 
-def seed_run(store, *, item=None, critical=None, auxiliary=None):
+def seed_run(
+    store, *, item=None, critical=None, auxiliary=None, status="BOUNDED_CAPTURE_COMPLETE"
+):
     item = item or news_item()
     store.append("news_item", item["item_id"], item)
     attempt = {"attempt_id": "attempt-1", "source_id": item["source_id"], "stage": "DISCOVERY",
@@ -41,7 +43,7 @@ def seed_run(store, *, item=None, critical=None, auxiliary=None):
             "coverage_critical_source_ids": critical or [item["source_id"]],
             "auxiliary_source_ids": auxiliary or [],
             "attempt_ids": [attempt["attempt_id"]],
-            "deferred": [], "selected_item_ids": [], "status": "BOUNDED_CAPTURE_COMPLETE",
+            "deferred": [], "selected_item_ids": [], "status": status,
             "full_market_coverage": False, "live_capital_allowed": False,
             "version": "NEWS-DISCOVERY-V1"}
     core["run_id"] = digest(core)
@@ -146,15 +148,11 @@ def test_discovery_failure_is_sealed_separately_from_document_health(tmp_path):
 
 def test_auxiliary_source_failure_does_not_poison_core_capture_health(tmp_path):
     with ResearchStore(tmp_path) as store:
-        seed_run(store, critical=["source-1"], auxiliary=["pib-rss"])
-        run = store.records("news_run")[0]
-        store.execute(
-            "UPDATE records SET payload=? WHERE kind=? AND record_id=?",
-            (
-                __import__("json").dumps({**run, "status": "PARTIAL_FAILURE"}),
-                "news_run",
-                run["run_id"],
-            ),
+        seed_run(
+            store,
+            critical=["source-1"],
+            auxiliary=["pib-rss"],
+            status="PARTIAL_FAILURE",
         )
         failure = {
             "attempt_id": "attempt-pib",
