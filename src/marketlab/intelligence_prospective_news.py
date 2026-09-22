@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 from collections import Counter
 from pathlib import Path
-from typing import Any
 
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_store import ResearchStore, digest, timestamp
