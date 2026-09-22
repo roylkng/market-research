@@ -55,6 +55,7 @@ def identity_members_from_udiff(
     """Return alias rows suitable for the existing exact entity matcher."""
     rows = _read_udiff_rows(raw_udiff, session_date)
     aliases = []
+    deep_symbols = {member["symbol"] for member in deep_members}
     seen: set[tuple[str, str]] = set()
     for row in rows:
         if not row["isin"].startswith("INE"):
@@ -69,6 +70,7 @@ def identity_members_from_udiff(
                 "company_name": name,
                 "isin": row["isin"],
                 "identity_source": "NSE_UDIFF_PRIOR_SESSION",
+                "is_deep_panel": row["symbol"] in deep_symbols,
             })
     for member in deep_members:
         key = (member["symbol"], member["company_name"].casefold())
@@ -80,5 +82,6 @@ def identity_members_from_udiff(
             "company_name": member["company_name"],
             "isin": member.get("isin"),
             "identity_source": "DEEP_PANEL_FULL_NAME",
+            "is_deep_panel": True,
         })
     return sorted(aliases, key=lambda row: (row["symbol"], row["company_name"]))
