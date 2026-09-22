@@ -109,28 +109,43 @@ jobs:
             --identity-session "${{ steps.identity.outputs.session }}" \
             --identity-raw-sha256 "${{ steps.identity.outputs.sha }}" | tee "$WORK/seal.log"
           python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
-      - name: Refuse to anchor observations if main moved during capture
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          START_SHA="${GITHUB_SHA}"
-          CURRENT_MAIN="$(git rev-parse origin/main)"
-          if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
-            echo "main moved during prospective news capture; refusing to anchor timestamps"
-            echo "start=$START_SHA current_main=$CURRENT_MAIN"
-            exit 1
-          fi
       - name: Anchor append-only prospective metadata
         shell: bash
         run: |
           set -euo pipefail
           LEDGER="research/prospective/company-intelligence-v2/news-ledger.json"
+          python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add "$LEDGER"
+          if git diff --cached --quiet; then
+            echo "No new prospective metadata to anchor"
+            exit 0
+          fi
           git commit -m "v2: seal prospective company-news capture [skip ci]"
-          git push origin HEAD:main
+          START_SHA="${GITHUB_SHA}"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              CHANGED="$(git diff --name-only "$START_SHA" "$CURRENT_MAIN")"
+              echo "main moved during capture; changed paths:"
+              printf '%s\n' "$CHANGED"
+              if printf '%s\n' "$CHANGED" | grep -Eq '^(registry/company_(news_discovery|intelligence)_v2\.json|research/prospective/company-intelligence-v2/news-ledger\.json|src/marketlab/intelligence_(news|discovery|http|identity|prospective_news)\.py|scripts/(run_company_news_discovery|seal_company_news_capture|verify_company_news_ledger)\.py|\.github/workflows/company-news-prospective-capture\.yml)$'; then
+                echo "Relevant company-news rules or canonical state changed; refusing to re-anchor stale observations"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push raced with another unrelated writer; retrying ($ATTEMPT/3)"
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor capture after bounded retries"
+          exit 1
       - name: Upload raw discovery evidence
         if: always()
         uses: actions/upload-artifact@v4
