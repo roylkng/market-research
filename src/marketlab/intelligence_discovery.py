@@ -8,10 +8,6 @@ from urllib.parse import parse_qs, urlparse
 
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_http import SourceBlocked, approved_url
-from marketlab.intelligence_nse_feed import (
-    NSEAnnouncementFetcher,
-    validate_nse_announcement_source,
-)
 from marketlab.intelligence_news import (
     VERSION,
     document_body,
