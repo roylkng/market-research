@@ -29,7 +29,7 @@ def news_item(item_id="item-1", first_seen="2026-09-18T02:30:00+00:00", symbols=
     }
 
 
-def seed_run(store, *, item=None):
+def seed_run(store, *, item=None, critical=None, auxiliary=None):
     item = item or news_item()
     store.append("news_item", item["item_id"], item)
     attempt = {"attempt_id": "attempt-1", "source_id": item["source_id"], "stage": "DISCOVERY",
@@ -37,7 +37,10 @@ def seed_run(store, *, item=None):
                "completed_at": "2026-09-18T02:31:00+00:00"}
     store.append("news_attempt", attempt["attempt_id"], attempt)
     core = {"started_at": "2026-09-18T02:29:00+00:00", "completed_at": "2026-09-18T02:32:00+00:00",
-            "configuration_sha256": "a" * 64, "attempt_ids": [attempt["attempt_id"]],
+            "configuration_sha256": "a" * 64,
+            "coverage_critical_source_ids": critical or [item["source_id"]],
+            "auxiliary_source_ids": auxiliary or [],
+            "attempt_ids": [attempt["attempt_id"]],
             "deferred": [], "selected_item_ids": [], "status": "BOUNDED_CAPTURE_COMPLETE",
             "full_market_coverage": False, "live_capital_allowed": False,
             "version": "NEWS-DISCOVERY-V1"}
@@ -127,7 +130,7 @@ def test_hash_tampering_and_cutoff_are_detected():
 
 def test_discovery_failure_is_sealed_separately_from_document_health(tmp_path):
     with ResearchStore(tmp_path) as store:
-        seed_run(store)
+        seed_run(store, critical=["source-1", "nse-announcements"])
         failure = {
             "attempt_id": "attempt-2", "source_id": "nse-announcements", "stage": "DISCOVERY",
             "status": "BLOCKED", "started_at": "2026-09-18T02:29:30+00:00",
@@ -139,3 +142,24 @@ def test_discovery_failure_is_sealed_separately_from_document_health(tmp_path):
         )
     assert capture["discovery_status"] == "DISCOVERY_DEGRADED"
     assert capture["discovery_source_status_counts"]["BLOCKED"] == 1
+
+
+def test_auxiliary_source_failure_does_not_poison_core_capture_health(tmp_path):
+    with ResearchStore(tmp_path) as store:
+        seed_run(store, critical=["source-1"], auxiliary=["pib-rss"])
+        failure = {
+            "attempt_id": "attempt-pib",
+            "source_id": "pib-rss",
+            "stage": "DISCOVERY",
+            "status": "BLOCKED",
+            "started_at": "2026-09-18T02:29:30+00:00",
+            "completed_at": "2026-09-18T02:31:30+00:00",
+        }
+        store.append("news_attempt", failure["attempt_id"], failure)
+        capture, _ = capture_from_store(
+            store, identity_session="2026-09-17", identity_raw_sha256="b" * 64
+        )
+    assert capture["run_status"] == "BOUNDED_CAPTURE_COMPLETE"
+    assert capture["discovery_status"] == "DISCOVERY_CAPTURE_COMPLETE"
+    assert capture["discovery_source_status_counts"]["BLOCKED"] == 1
+    assert capture["critical_source_status_counts"] == {"SNAPSHOT_CAPTURED": 1}
