@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+import requests
 
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_discovery import (
@@ -121,9 +122,22 @@ def test_tracking_dedup_preserves_resource_identifiers():
 def test_unknown_symbols_not_discarded_and_common_tickers_not_matched():
     m = entity_mentions('ITC is an abbreviation. Infosys plans new work. NSE: NEWCO BSE: 123456', panel()["members"])
     assert m["panel_symbols"] == ["INFY"]
+    assert m["official_nse_symbols"] == []
     assert m["unverified_nse_symbols"] == ["NEWCO"]
     assert m["bse_codes_for_review"] == ["123456"]
     assert entity_mentions('NSE: ITC', panel()["members"])["panel_symbols"] == ["ITC"]
+
+
+def test_official_nse_identity_is_not_mislabelled_as_deep_panel():
+    members = panel()["members"] + [{
+        "symbol": "TEGA",
+        "company_name": "Tega Industries",
+        "identity_source": "NSE_UDIFF_PRIOR_SESSION",
+        "is_deep_panel": False,
+    }]
+    m = entity_mentions("Tega Industries wins a new order", members)
+    assert m["panel_symbols"] == []
+    assert m["official_nse_symbols"] == ["TEGA"]
 
 
 def test_duplicate_name_is_ambiguous_not_arbitrary_choice():
@@ -299,3 +313,35 @@ def test_failed_latest_document_fetch_remains_visible_with_old_document(tmp_path
         report = build_discovery_report(store, panel(), {"sources": []}, config(), as_of=now_text())
         assert report['news_discovery']['stories'][0]['latest_fetch_status'] == 'BLOCKED'
         assert report['news_discovery']['stories'][0]['version_state'] == 'LATEST_OBSERVED_VERSION'
+
+
+def test_transient_robots_timeout_is_retried_before_source_is_blocked():
+    class Response:
+        def __init__(self, status, body=b"", content_type="text/plain"):
+            self.status_code = status
+            self.headers = {"Content-Type": content_type}
+            self.body = body
+        def __enter__(self):
+            return self
+        def __exit__(self, *_):
+            return None
+        def iter_content(self, chunk_size):
+            if self.body:
+                yield self.body
+
+    class Session:
+        def __init__(self):
+            self.headers = {}
+            self.robots_calls = 0
+        def get(self, url, **kwargs):
+            if url.endswith("/robots.txt"):
+                self.robots_calls += 1
+                if self.robots_calls == 1:
+                    raise requests.ReadTimeout("transient")
+                return Response(404)
+            return Response(200, feed(), "application/xml")
+
+    session = Session()
+    raw, _ = PublicFetcher(session=session, delay=0, read_timeout=0.1).fetch(FEED)
+    assert raw == feed()
+    assert session.robots_calls == 2
