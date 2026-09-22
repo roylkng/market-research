@@ -113,9 +113,25 @@ def capture_from_store(
         source_states.setdefault(attempt["source_id"], []).append(attempt["status"])
         if attempt["stage"] == "DISCOVERY":
             discovery_source_states.setdefault(attempt["source_id"], []).append(attempt["status"])
-    discovery_degraded = any(
-        row["status"] in {"BLOCKED", "PARSE_FAILED"} for row in discovery_attempts
+    default_core = sorted(discovery_source_states)
+    critical_source_ids = sorted(
+        set(run.get("coverage_critical_source_ids") or default_core)
     )
+    auxiliary_source_ids = sorted(set(run.get("auxiliary_source_ids") or []))
+    missing_critical = sorted(
+        source_id for source_id in critical_source_ids
+        if source_id not in discovery_source_states
+    )
+    critical_attempts = [
+        row for row in discovery_attempts if row["source_id"] in critical_source_ids
+    ]
+    discovery_degraded = bool(missing_critical) or any(
+        row["status"] in {"BLOCKED", "PARSE_FAILED"} for row in critical_attempts
+    )
+    critical_source_states = {
+        source_id: sorted(discovery_source_states.get(source_id, []))
+        for source_id in critical_source_ids
+    }
     capture_core = {
         "started_at": run["started_at"],
         "captured_at": run["completed_at"],
@@ -126,6 +142,13 @@ def capture_from_store(
         ),
         "identity_session": identity_session,
         "identity_raw_sha256": identity_raw_sha256,
+        "coverage_critical_source_ids": critical_source_ids,
+        "auxiliary_source_ids": auxiliary_source_ids,
+        "missing_critical_source_ids": missing_critical,
+        "critical_source_status_counts": dict(
+            sorted(Counter(row["status"] for row in critical_attempts).items())
+        ),
+        "critical_source_states": critical_source_states,
         "source_status_counts": dict(sorted(Counter(row["status"] for row in attempts).items())),
         "discovery_source_status_counts": dict(
             sorted(Counter(row["status"] for row in discovery_attempts).items())
