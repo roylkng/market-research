@@ -13,7 +13,6 @@ from marketlab.intelligence_discovery import (
     verify_discovery,
 )
 from marketlab.intelligence_http import PublicFetcher, SourceBlocked
-from marketlab.intelligence_nse_feed import NSE_ANNOUNCEMENTS_URL
 from marketlab.intelligence_news import (
     canonical_url,
     document_body,
@@ -24,6 +23,7 @@ from marketlab.intelligence_news import (
     resource_key,
     topic_candidates,
 )
+from marketlab.intelligence_nse_feed import NSE_ANNOUNCEMENTS_URL
 from marketlab.intelligence_store import ResearchStore, now_text
 
 URL = "https://www.prnewswire.com/in/news-releases/test-company-302800001.html"
