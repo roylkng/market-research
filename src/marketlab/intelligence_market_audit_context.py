@@ -58,6 +58,9 @@ def apply_prospective_capture_context(report: dict, ledger: dict) -> dict:
         if prior_close < timestamp(row["captured_at"]) <= session_close
     ]
     preopen = [row for row in window if timestamp(row["captured_at"]) <= session_open]
+    healthy_preopen = [
+        row for row in preopen if row.get("discovery_status") == "DISCOVERY_CAPTURE_COMPLETE"
+    ]
     intraday = [
         row
         for row in window
@@ -71,6 +74,8 @@ def apply_prospective_capture_context(report: dict, ledger: dict) -> dict:
             audit["coverage_class"] = "NO_SESSION_WINDOW_CAPTURE"
         elif not preopen:
             audit["coverage_class"] = "NO_PREOPEN_CAPTURE_NOT_DISCOVERED"
+        elif not healthy_preopen:
+            audit["coverage_class"] = "PREOPEN_CAPTURE_DEGRADED_NOT_DISCOVERED"
     report["coverage_class_counts"] = dict(
         sorted(Counter(row["news_audit"]["coverage_class"] for row in report["movers"]).items())
     )
@@ -80,6 +85,11 @@ def apply_prospective_capture_context(report: dict, ledger: dict) -> dict:
         "session_close_utc": session_close.isoformat(),
         "session_window_capture_count": len(window),
         "preopen_capture_count": len(preopen),
+        "healthy_preopen_capture_count": len(healthy_preopen),
+        "degraded_preopen_capture_count": len(preopen) - len(healthy_preopen),
+        "preopen_discovery_status_counts": dict(
+            sorted(Counter(row["discovery_status"] for row in preopen).items())
+        ),
         "intraday_capture_count": len(intraday),
         "capture_ids": [row["capture_id"] for row in window],
         "ledger_sha256": ledger["ledger_sha256"],
@@ -92,6 +102,10 @@ def apply_prospective_capture_context(report: dict, ledger: dict) -> dict:
         "NO_PREOPEN_CAPTURE_NOT_DISCOVERED": (
             "At least one session-window capture exists but none before the open. "
             "The mover was not linked, but pre-open discovery coverage is not established."
+        ),
+        "PREOPEN_CAPTURE_DEGRADED_NOT_DISCOVERED": (
+            "Pre-open capture exists, but every pre-open discovery pass had at least one "
+            "discovery-stage source failure. The mover is not scored as a clean discovery miss."
         ),
     })
     report.pop("report_sha256", None)
