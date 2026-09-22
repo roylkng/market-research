@@ -144,7 +144,7 @@ def _publication_value(item: dict) -> str | None:
 
 def _symbol_matches(item: dict, symbol: str) -> bool:
     mentions = item.get("mentions") or {}
-    for key in ("panel_symbols", "unverified_nse_symbols"):
+    for key in ("panel_symbols", "official_nse_symbols", "unverified_nse_symbols"):
         if symbol in (mentions.get(key) or []):
             return True
     return False
