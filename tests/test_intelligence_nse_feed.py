@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import requests
 import pytest
+import requests
 
 from marketlab.intelligence_http import SourceBlocked
 from marketlab.intelligence_nse_feed import (
     NSE_ANNOUNCEMENTS_URL,
-    NSEAnnouncementFetcher,
     SOURCE_CONTRACT_ID,
+    NSEAnnouncementFetcher,
     validate_nse_announcement_source,
 )
 
