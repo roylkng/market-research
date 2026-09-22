@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-import requests
 
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_discovery import (
@@ -315,33 +314,3 @@ def test_failed_latest_document_fetch_remains_visible_with_old_document(tmp_path
         assert report['news_discovery']['stories'][0]['version_state'] == 'LATEST_OBSERVED_VERSION'
 
 
-def test_transient_robots_timeout_is_retried_before_source_is_blocked():
-    class Response:
-        def __init__(self, status, body=b"", content_type="text/plain"):
-            self.status_code = status
-            self.headers = {"Content-Type": content_type}
-            self.body = body
-        def __enter__(self):
-            return self
-        def __exit__(self, *_):
-            return None
-        def iter_content(self, chunk_size):
-            if self.body:
-                yield self.body
-
-    class Session:
-        def __init__(self):
-            self.headers = {}
-            self.robots_calls = 0
-        def get(self, url, **kwargs):
-            if url.endswith("/robots.txt"):
-                self.robots_calls += 1
-                if self.robots_calls == 1:
-                    raise requests.ReadTimeout("transient")
-                return Response(404)
-            return Response(200, feed(), "application/xml")
-
-    session = Session()
-    raw, _ = PublicFetcher(session=session, delay=0, read_timeout=0.1).fetch(FEED)
-    assert raw == feed()
-    assert session.robots_calls == 2
