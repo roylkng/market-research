@@ -116,62 +116,27 @@ class PublicFetcher:
         if cached and time.monotonic() - cached[2] < 24 * 3600:
             return cached[:2]
         url = origin + "/robots.txt"
-        for attempt in range(1, 6):
-            try:
-                raw, response = self._request(url, "ROBOTS", max_bytes=512000)
-            except SourceBlocked as exc:
-                details = exc.details
-                transient = (
-                    details.get("stage") == "ROBOTS"
-                    and (
-                        details.get("error_type") in {
-                            "ReadTimeout", "ConnectTimeout", "ConnectionError", "Timeout"
-                        }
-                        or details.get("status_code") in {429, 500, 502, 503, 504}
-                    )
-                )
-                if transient and attempt < 5:
-                    time.sleep(min(2 ** (attempt - 1), 8))
-                    continue
-                raise
+        for _ in range(5):
+            raw, response = self._request(url, "ROBOTS", max_bytes=512000)
             if response["status_code"] in REDIRECTS:
                 target = approved_url(response["location"])
                 if f"https://{urlparse(target).netloc}" != origin:
-                    raise SourceBlocked(
-                        "Cross-origin policy redirect requires review",
-                        stage="ROBOTS",
-                        url=target,
-                    )
+                    raise SourceBlocked("Cross-origin policy redirect requires review", stage="ROBOTS", url=target)
                 url = target
                 continue
             status = response["status_code"]
             parser = ConservativeRobotPolicy(origin + "/robots.txt")
             if status in {404, 410}:
                 parser.parse(["User-agent: *", "Disallow:"])
-                metadata = {
-                    "url": url,
-                    "status_code": status,
-                    "policy_state": "UNAVAILABLE_404_410",
-                    "raw_sha256": None,
-                    "observed_at": now_text(),
-                }
+                metadata = {"url": url, "status_code": status, "policy_state": "UNAVAILABLE_404_410",
+                            "raw_sha256": None, "observed_at": now_text()}
             else:
                 text = raw.decode("utf-8-sig", errors="strict")
                 if "<html" in text.casefold() or "<body" in text.casefold():
-                    raise SourceBlocked(
-                        "Robots response is HTML",
-                        stage="ROBOTS",
-                        url=url,
-                        status_code=status,
-                    )
+                    raise SourceBlocked("Robots response is HTML", stage="ROBOTS", url=url, status_code=status)
                 parser.parse(text.splitlines())
-                metadata = {
-                    "url": url,
-                    "status_code": status,
-                    "policy_state": "PARSED",
-                    "raw_sha256": sha256(raw),
-                    "observed_at": now_text(),
-                }
+                metadata = {"url": url, "status_code": status, "policy_state": "PARSED",
+                            "raw_sha256": sha256(raw), "observed_at": now_text()}
             self.policies[origin] = (parser, metadata, time.monotonic())
             return parser, metadata
         raise SourceBlocked("Too many policy redirects", stage="ROBOTS", url=url)
