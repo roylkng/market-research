@@ -53,6 +53,11 @@ def validate_news_ledger(ledger: dict) -> None:
         timestamp(capture["captured_at"])
         if timestamp(capture["captured_at"]) < timestamp(capture["started_at"]):
             raise EvidenceError("Capture completion precedes start")
+        if capture.get("discovery_status") not in {
+            "DISCOVERY_CAPTURE_COMPLETE",
+            "DISCOVERY_DEGRADED",
+        }:
+            raise EvidenceError("Capture discovery health is missing or invalid")
     for observation in observations:
         timestamp(observation["first_seen_at"])
         capture = capture_by_id.get(observation["capture_id"])
@@ -102,17 +107,37 @@ def capture_from_store(
         if started <= timestamp(row["started_at"]) <= completed
     ]
     source_states: dict[str, list[str]] = {}
+    discovery_source_states: dict[str, list[str]] = {}
+    discovery_attempts = [row for row in attempts if row["stage"] == "DISCOVERY"]
+    document_attempts = [row for row in attempts if row["stage"] == "DOCUMENT"]
     for attempt in attempts:
         source_states.setdefault(attempt["source_id"], []).append(attempt["status"])
+        if attempt["stage"] == "DISCOVERY":
+            discovery_source_states.setdefault(attempt["source_id"], []).append(attempt["status"])
+    discovery_degraded = any(
+        row["status"] in {"BLOCKED", "PARSE_FAILED"} for row in discovery_attempts
+    )
     capture_core = {
         "started_at": run["started_at"],
         "captured_at": run["completed_at"],
         "run_id": run["run_id"],
         "run_status": run["status"],
+        "discovery_status": (
+            "DISCOVERY_DEGRADED" if discovery_degraded else "DISCOVERY_CAPTURE_COMPLETE"
+        ),
         "identity_session": identity_session,
         "identity_raw_sha256": identity_raw_sha256,
         "source_status_counts": dict(sorted(Counter(row["status"] for row in attempts).items())),
+        "discovery_source_status_counts": dict(
+            sorted(Counter(row["status"] for row in discovery_attempts).items())
+        ),
+        "document_status_counts": dict(
+            sorted(Counter(row["status"] for row in document_attempts).items())
+        ),
         "source_states": {key: sorted(values) for key, values in sorted(source_states.items())},
+        "discovery_source_states": {
+            key: sorted(values) for key, values in sorted(discovery_source_states.items())
+        },
         "full_market_coverage": False,
         "live_capital_allowed": False,
     }
