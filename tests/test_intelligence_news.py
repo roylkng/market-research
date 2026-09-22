@@ -13,6 +13,7 @@ from marketlab.intelligence_discovery import (
     verify_discovery,
 )
 from marketlab.intelligence_http import PublicFetcher, SourceBlocked
+from marketlab.intelligence_nse_feed import NSE_ANNOUNCEMENTS_URL
 from marketlab.intelligence_news import (
     canonical_url,
     document_body,
@@ -204,6 +205,53 @@ def test_headline_only_source_is_never_fetched_as_article(tmp_path):
         assert run["deferred"][0]["reason"] == "HEADLINES_ONLY_SOURCE"
         assert store.records("news_document") == []
 
+
+
+def test_reviewed_nse_feed_uses_dedicated_fetcher(tmp_path):
+    nse_source = {
+        "source_id": "nse-announcements",
+        "kind": "nse_feed",
+        "url": NSE_ANNOUNCEMENTS_URL,
+        "publisher": "NSE",
+        "region": "IN",
+        "timezone": "Asia/Kolkata",
+        "source_class": "EXCHANGE_DISCLOSURE",
+        "access": "HEADLINES_ONLY",
+        "document_parser": None,
+        "article_hosts": [],
+        "article_path_pattern": "(?!)",
+    }
+
+    class NeverGeneric:
+        def fetch(self, *_args, **_kwargs):
+            raise AssertionError("generic public fetcher must not handle reviewed NSE RSS")
+
+    class NSEFetcher:
+        def __init__(self):
+            self.calls = []
+        def fetch(self, url, *, url_guard=None):
+            self.calls.append(url)
+            assert url_guard is None or url_guard(url)
+            return feed(), {
+                "resolved_url": url,
+                "content_type": "application/xml",
+                "status_code": 200,
+                "observed_at": now_text(),
+                "source_contract_id": "NSE-ONLINE-ANNOUNCEMENTS-RSS-V1",
+            }
+
+    nse_fetcher = NSEFetcher()
+    with ResearchStore(tmp_path) as store:
+        run = run_discovery(
+            store,
+            panel(),
+            config(sources=[nse_source]),
+            NeverGeneric(),
+            nse_fetcher=nse_fetcher,
+        )
+        assert run["status"] == "BOUNDED_CAPTURE_COMPLETE"
+        assert len(store.records("news_item")) == 1
+    assert nse_fetcher.calls == [NSE_ANNOUNCEMENTS_URL]
 
 def test_budget_and_stale_deferred_items_are_explicit(tmp_path):
     with ResearchStore(tmp_path) as store:
