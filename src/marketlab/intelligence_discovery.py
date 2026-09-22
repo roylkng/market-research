@@ -18,6 +18,10 @@ from marketlab.intelligence_news import (
     resource_key,
     topic_candidates,
 )
+from marketlab.intelligence_nse_feed import (
+    NSEAnnouncementFetcher,
+    validate_nse_announcement_source,
+)
 from marketlab.intelligence_runtime import build_report
 from marketlab.intelligence_store import ResearchStore, canonical, digest, now_text, timestamp
 
