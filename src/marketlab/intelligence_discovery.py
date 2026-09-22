@@ -40,6 +40,8 @@ def validate_config(config: dict) -> None:
         exploratory = source.get("unlinked_document_budget", 0)
         if type(exploratory) is not int or not 0 <= exploratory <= 2:
             raise EvidenceError("Unlinked exploration must be bounded separately")
+        if source.get("coverage_role", "CORE") not in {"CORE", "AUXILIARY"}:
+            raise EvidenceError("Invalid discovery coverage role")
         if source["kind"] not in {"feed", "nse_feed", "prn_listing"}:
             raise EvidenceError("Unreviewed discovery adapter")
         if source["kind"] == "nse_feed":
@@ -278,6 +280,14 @@ def run_discovery(
         acquire_document(store, entry, panel, fetcher)
     attempts = [r for r in store.records("news_attempt") if timestamp(r["started_at"]) >= timestamp(started)]
     run = {"started_at": started, "completed_at": now_text(), "configuration_sha256": digest(config),
+           "coverage_critical_source_ids": sorted(
+               source["source_id"] for source in config["sources"]
+               if source.get("coverage_role", "CORE") == "CORE"
+           ),
+           "auxiliary_source_ids": sorted(
+               source["source_id"] for source in config["sources"]
+               if source.get("coverage_role", "CORE") == "AUXILIARY"
+           ),
            "attempt_ids": sorted(r["attempt_id"] for r in attempts),
            "deferred": sorted(deferred, key=lambda r: (r["item_id"], r["reason"])),
            "selected_item_ids": [e["item"]["item_id"] for e in selected],
