@@ -8,6 +8,10 @@ from urllib.parse import parse_qs, urlparse
 
 from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_http import SourceBlocked, approved_url
+from marketlab.intelligence_nse_feed import (
+    NSEAnnouncementFetcher,
+    validate_nse_announcement_source,
+)
 from marketlab.intelligence_news import (
     VERSION,
     document_body,
@@ -36,8 +40,10 @@ def validate_config(config: dict) -> None:
         exploratory = source.get("unlinked_document_budget", 0)
         if type(exploratory) is not int or not 0 <= exploratory <= 2:
             raise EvidenceError("Unlinked exploration must be bounded separately")
-        if source["kind"] not in {"feed", "prn_listing"}:
+        if source["kind"] not in {"feed", "nse_feed", "prn_listing"}:
             raise EvidenceError("Unreviewed discovery adapter")
+        if source["kind"] == "nse_feed":
+            validate_nse_announcement_source(source)
         if source["access"] not in {"HEADLINES_ONLY", "PUBLIC_DOCUMENTS"}:
             raise EvidenceError("Explicit source access scope required")
         if source["access"] == "PUBLIC_DOCUMENTS" and source["document_parser"] not in {"prnewswire", "pib", "sebi"}:
@@ -50,7 +56,15 @@ def _failure(error: Exception) -> dict:
             "details": getattr(error, "details", {}), "completed_at": now_text()}
 
 
-def discover_source(store: ResearchStore, source: dict, panel: dict, fetcher, max_pages: int) -> list[dict]:
+def discover_source(
+    store: ResearchStore,
+    source: dict,
+    panel: dict,
+    fetcher,
+    max_pages: int,
+    *,
+    nse_fetcher=None,
+) -> list[dict]:
     """Pagination follows links present in the listing. Never invent a historical URL."""
     queue, visited, discovered = [source["url"]], set(), []
     existing = {r["item_id"]: r for r in store.records("news_item")}
@@ -63,13 +77,24 @@ def discover_source(store: ResearchStore, source: dict, panel: dict, fetcher, ma
                    "started_at": now_text(), "source_spec_sha256": digest(source),
                    "window_complete": False, "version": VERSION}
         try:
-            raw, meta = fetcher.fetch(url, url_guard=lambda target: (
-                urlparse(target).netloc == urlparse(source["url"]).netloc
-                and urlparse(target).path == urlparse(source["url"]).path))
+            source_fetcher = (
+                nse_fetcher
+                if source["kind"] == "nse_feed"
+                else fetcher
+            )
+            if source_fetcher is None:
+                raise EvidenceError("Reviewed NSE RSS fetcher is required")
+            raw, meta = source_fetcher.fetch(
+                url,
+                url_guard=lambda target: (
+                    urlparse(target).netloc == urlparse(source["url"]).netloc
+                    and urlparse(target).path == urlparse(source["url"]).path
+                ),
+            )
             raw_hash = store.save_object(raw)
             attempt.update(response=meta, raw_sha256=raw_hash)
             active_source = {**source, "url": url}
-            if source["kind"] == "feed":
+            if source["kind"] in {"feed", "nse_feed"}:
                 rows, pages = parse_feed(raw, active_source), []
             else:
                 rows, pages = parse_listing(raw, active_source)
@@ -137,7 +162,16 @@ def select_documents(discovered: list[dict], *, as_of: str, budget: int, lookbac
             unique[key] = entry
     def priority(entry):
         item, source = entry["item"], entry["source"]
-        relevance = 0 if item["mentions"]["panel_symbols"] else 1 if source.get("region") == "IN" else 2
+        mentions = item["mentions"]
+        relevance = (
+            0
+            if mentions["panel_symbols"]
+            else 1
+            if mentions.get("official_nse_symbols")
+            else 2
+            if source.get("region") == "IN"
+            else 3
+        )
         has_topic = 0 if item["topics"] else 1
         # Provider ordering is triage only. Time-only cards must not be treated
         # as either ancient or as proven fresh publications before the article is read.
@@ -147,7 +181,15 @@ def select_documents(discovered: list[dict], *, as_of: str, budget: int, lookbac
     for entry in ordered:
         item, source = entry["item"], entry["source"]
         mentions = item["mentions"]
-        linked = any(mentions[k] for k in ("panel_symbols", "unverified_nse_symbols", "bse_codes_for_review"))
+        linked = any(
+            mentions.get(k)
+            for k in (
+                "panel_symbols",
+                "official_nse_symbols",
+                "unverified_nse_symbols",
+                "bse_codes_for_review",
+            )
+        )
         source_id = source["source_id"]
         if not linked and unlinked_counts[source_id] >= source.get("unlinked_document_budget", 0):
             deferred.append({"item_id": item["item_id"], "reason": "NO_COMPANY_LINK_EXPLORATION_LIMIT"})
@@ -204,12 +246,32 @@ def acquire_document(store: ResearchStore, entry: dict, panel: dict, fetcher) ->
     return attempt
 
 
-def run_discovery(store: ResearchStore, panel: dict, config: dict, fetcher) -> dict:
+def run_discovery(
+    store: ResearchStore,
+    panel: dict,
+    config: dict,
+    fetcher,
+    *,
+    nse_fetcher=None,
+) -> dict:
     validate_config(config)
     store.append("news_configuration", digest(config), config)
+    if nse_fetcher is None and any(
+        source["kind"] == "nse_feed" for source in config["sources"]
+    ):
+        nse_fetcher = NSEAnnouncementFetcher()
     started, items = now_text(), []
     for source in config["sources"]:
-        items.extend(discover_source(store, source, panel, fetcher, config["max_pages_per_source"]))
+        items.extend(
+            discover_source(
+                store,
+                source,
+                panel,
+                fetcher,
+                config["max_pages_per_source"],
+                nse_fetcher=nse_fetcher,
+            )
+        )
     selected, deferred = select_documents(items, as_of=now_text(), budget=config["article_budget"],
                                          lookback_days=config["lookback_days"])
     for entry in selected:
@@ -264,7 +326,12 @@ def build_discovery_report(store: ResearchStore, panel: dict, company_config: di
         "distinct_document_resources": len({r["resource_key"] for r in docs}),
         "panel_companies_with_mentions": sorted({s for r in docs for s in r["mentions"]["panel_symbols"]}),
         "panel_companies_with_headlines": sorted({s for r in items for s in r["mentions"]["panel_symbols"]}),
-        "unverified_external_symbols": sorted({s for r in docs for s in r["mentions"]["unverified_nse_symbols"]}),
+        "official_nse_symbols_with_headlines": sorted(
+            {s for r in items for s in r["mentions"].get("official_nse_symbols", [])}
+        ),
+        "unverified_external_symbols": sorted(
+            {s for r in docs for s in r["mentions"]["unverified_nse_symbols"]}
+        ),
         "items": items, "stories": stories, "attempts": attempts,
         "runs": [r for r in store.records("news_run") if timestamp(r["completed_at"]) <= cutoff],
         "source_status_counts": dict(Counter(r["status"] for r in attempts)),
@@ -307,6 +374,7 @@ def export_discovery_report(report: dict, destination: Path) -> None:
                   (f"Publication: {r['publication']['value']} ({r['publication']['precision']}). "
                   f"First collected: {r['first_seen_at']}. Time state: {r['time_state']}."),
                   (f"Panel mentions: {', '.join(r['mentions']['panel_symbols']) or 'None resolved'}. "
+                  f"Other official NSE identities: {', '.join(r['mentions'].get('official_nse_symbols', [])) or 'None'}. "
                   f"Other NSE identifiers requiring verification: {', '.join(r['mentions']['unverified_nse_symbols']) or 'None'}.")]
         lines.extend(t["review_question"] for t in r["topics"])
         lines += [""]
