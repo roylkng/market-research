@@ -147,6 +147,15 @@ def test_discovery_failure_is_sealed_separately_from_document_health(tmp_path):
 def test_auxiliary_source_failure_does_not_poison_core_capture_health(tmp_path):
     with ResearchStore(tmp_path) as store:
         seed_run(store, critical=["source-1"], auxiliary=["pib-rss"])
+        run = store.records("news_run")[0]
+        store.execute(
+            "UPDATE records SET payload=? WHERE kind=? AND record_id=?",
+            (
+                __import__("json").dumps({**run, "status": "PARTIAL_FAILURE"}),
+                "news_run",
+                run["run_id"],
+            ),
+        )
         failure = {
             "attempt_id": "attempt-pib",
             "source_id": "pib-rss",
