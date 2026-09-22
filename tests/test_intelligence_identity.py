@@ -51,15 +51,24 @@ def test_prior_nse_identity_expands_beyond_deep_panel():
 
 def test_deterministic_aliases_recover_common_exchange_abbreviations():
     resolved = members()
-    assert entity_mentions("New India Assurance shares rise", resolved)["panel_symbols"] == ["NIACL"]
-    assert entity_mentions("HDFC Life gains on insurance changes", resolved)["panel_symbols"] == ["HDFCLIFE"]
-    assert entity_mentions("Tata Investment Corporation is in focus", resolved)["panel_symbols"] == ["TATAINVEST"]
-    assert entity_mentions("Tata Chemicals gains", resolved)["panel_symbols"] == ["TATACHEM"]
-    assert entity_mentions("Syrma SGS Technology shares jump", resolved)["panel_symbols"] == ["SYRMA"]
+    assert entity_mentions("New India Assurance shares rise", resolved)["official_nse_symbols"] == ["NIACL"]
+    assert entity_mentions("HDFC Life gains on insurance changes", resolved)["official_nse_symbols"] == ["HDFCLIFE"]
+    assert entity_mentions("Tata Investment Corporation is in focus", resolved)["official_nse_symbols"] == ["TATAINVEST"]
+    assert entity_mentions("Tata Chemicals gains", resolved)["official_nse_symbols"] == ["TATACHEM"]
+    assert entity_mentions("Syrma SGS Technology shares jump", resolved)["official_nse_symbols"] == ["SYRMA"]
+    assert entity_mentions("Tata Chemicals gains", resolved)["panel_symbols"] == []
 
 
 def test_unrelated_tata_story_does_not_link_group_companies_by_name_alone():
     resolved = members()
-    found = entity_mentions("Tata Sons board meeting concludes", resolved)["panel_symbols"]
+    found = entity_mentions("Tata Sons board meeting concludes", resolved)["official_nse_symbols"]
     assert "TATACHEM" not in found
     assert "TATAINVEST" not in found
+
+
+def test_deep_panel_symbol_stays_panel_while_also_having_official_identity():
+    deep = [{"symbol": "TATACHEM", "company_name": "Tata Chemicals Ltd", "isin": "INE092A01019"}]
+    resolved = identity_members_from_udiff(archive(), session_date=SESSION, deep_members=deep)
+    found = entity_mentions("Tata Chemicals gains", resolved)
+    assert found["panel_symbols"] == ["TATACHEM"]
+    assert found["official_nse_symbols"] == ["TATACHEM"]
