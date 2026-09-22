@@ -206,3 +206,24 @@ def test_wrong_session_or_duplicate_symbol_is_rejected(tmp_path):
             prior_for(row("AAA", 99, 100)),
             store,
         )
+
+
+def test_official_nse_identity_link_is_audited_outside_deep_panel(tmp_path):
+    raw = archive([row("BBB", 100, 110)])
+    previous = prior_for(row("BBB", 99, 100))
+    linked = news(
+        "n1", "BBB", "2026-09-17T03:00:00+00:00", "2026-09-17T03:10:00+00:00",
+        external=True,
+    )
+    linked["mentions"] = {
+        "panel_symbols": [],
+        "official_nse_symbols": ["BBB"],
+        "unverified_nse_symbols": [],
+    }
+    with ResearchStore(tmp_path) as store:
+        store.append("panel", "P", panel())
+        store.append("news_item", "n1", linked)
+        report = build(raw, previous, store)
+    mover = report["movers"][0]
+    assert mover["in_deep_panel"] is False
+    assert mover["news_audit"]["coverage_class"] == "SYSTEM_PREOPEN_HIT"
