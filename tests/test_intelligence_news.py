@@ -96,6 +96,41 @@ def test_timezone_normalization(raw):
     assert publication(raw)["value"] == "2026-09-17T07:00:00+00:00"
 
 
+def test_nse_exchange_timestamp_uses_source_timezone():
+    assert publication("23-Sep-2026 15:19:20", "Asia/Kolkata") == {
+        "value": "2026-09-23T09:49:20+00:00",
+        "precision": "SECOND",
+        "raw": "23-Sep-2026 15:19:20",
+    }
+
+
+def test_nse_feed_context_exposes_event_semantics_without_promoting_it_to_fact():
+    nse = {
+        **source(),
+        "source_id": "nse-announcements",
+        "kind": "nse_feed",
+        "url": NSE_ANNOUNCEMENTS_URL,
+        "publisher": "NSE",
+        "access": "HEADLINES_ONLY",
+    }
+    raw = (
+        b"<rss><channel><item>"
+        b"<title>Whirlpool of India Limited</title>"
+        b"<link>https://nsearchives.nseindia.com/corporate/test.pdf</link>"
+        b"<description>The Exchange has sought clarification regarding promoter stake sale. "
+        b"|SUBJECT: News Verification</description>"
+        b"<pubDate>23-Sep-2026 15:19:20</pubDate>"
+        b"</item></channel></rss>"
+    )
+    row = parse_feed(raw, nse)[0]
+    assert row["publication"]["value"] == "2026-09-23T09:49:20+00:00"
+    assert "promoter stake sale" in row["event_context"]
+    assert len(row["event_context_sha256"]) == 64
+    topics = topic_candidates(row["event_context"])
+    assert [topic["topic"] for topic in topics] == ["OWNERSHIP_CONTROL"]
+    assert all(topic["status"] == "TEXT_TOPIC_NOT_CONFIRMED_EVENT" for topic in topics)
+
+
 def test_atom_updated_is_not_fabricated_original_publication():
     raw = b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>x</id><title>Test</title><link href="https://www.prnewswire.com/test"/><updated>2026-09-17T07:00:00Z</updated></entry></feed>'
     row = parse_feed(raw, source())[0]

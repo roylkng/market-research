@@ -107,11 +107,15 @@ def discover_source(
                 item_id = digest([VERSION, identity])
                 # Same release can be observed in several feeds. Keep all occurrences.
                 if item_id not in existing:
+                    event_context = row.get("event_context") or ""
+                    analysis_text = " ".join(
+                        value for value in (row["title"], event_context) if value
+                    )
                     record = {**row, "item_id": item_id, "resource_key": identity["resource_key"],
                               "first_seen_at": meta["observed_at"], "processed_at": now_text(),
                               "first_raw_sha256": raw_hash, "source_id": source["source_id"],
-                              "mentions": entity_mentions(row["title"], panel["members"]),
-                              "topics": topic_candidates(row["title"]),
+                              "mentions": entity_mentions(analysis_text, panel["members"]),
+                              "topics": topic_candidates(event_context or row["title"]),
                               "source_class": source["source_class"], "version": VERSION}
                     store.append("news_item", item_id, record)
                     existing[item_id] = record
