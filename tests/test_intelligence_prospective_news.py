@@ -23,6 +23,8 @@ def news_item(item_id="item-1", first_seen="2026-09-18T02:30:00+00:00", symbols=
         "processed_at": first_seen,
         "publication": {"value": "2026-09-18T01:30:00+00:00", "precision": "SECOND", "raw": ""},
         "title": "Synthetic company update",
+        "event_context": "Synthetic company wins a contract",
+        "event_context_sha256": "c" * 64,
         "mentions": {"panel_symbols": symbols or ["AAA"], "unverified_nse_symbols": [],
                      "bse_codes_for_review": []},
         "topics": [{"topic": "ORDER_CUSTOMER"}],
@@ -61,6 +63,8 @@ def test_capture_seals_compact_metadata_without_headline_text(tmp_path):
     assert observations[0]["mentions"]["panel_symbols"] == ["AAA"]
     assert "title" not in observations[0]
     assert len(observations[0]["title_sha256"]) == 64
+    assert observations[0]["event_context"] == "Synthetic company wins a contract"
+    assert observations[0]["event_context_sha256"] == "c" * 64
 
 
 def test_repeated_semantic_observation_does_not_reset_first_seen():
