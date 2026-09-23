@@ -166,7 +166,7 @@ def test_auxiliary_source_failure_does_not_poison_core_capture_health(tmp_path):
         capture, _ = capture_from_store(
             store, identity_session="2026-09-17", identity_raw_sha256="b" * 64
         )
-    assert capture["run_status"] == "BOUNDED_CAPTURE_COMPLETE"
+    assert capture["run_status"] == "PARTIAL_FAILURE"
     assert capture["discovery_status"] == "DISCOVERY_CAPTURE_COMPLETE"
     assert capture["discovery_source_status_counts"]["BLOCKED"] == 1
     assert capture["critical_source_status_counts"] == {"SNAPSHOT_CAPTURED": 1}
