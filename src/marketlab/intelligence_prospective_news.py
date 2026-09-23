@@ -176,6 +176,8 @@ def capture_from_store(
             "resource_key": item["resource_key"],
             "publication": item["publication"],
             "title_sha256": digest(item.get("title", "")),
+            "event_context": item.get("event_context") or "",
+            "event_context_sha256": item.get("event_context_sha256"),
             "mentions": _compact_mentions(item.get("mentions") or {}),
             "topics": sorted(
                 {
