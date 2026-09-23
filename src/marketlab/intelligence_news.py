@@ -19,7 +19,7 @@ from marketlab.intelligence_core import EvidenceError
 from marketlab.intelligence_http import MAX_BYTES, SourceBlocked, approved_url
 from marketlab.intelligence_store import digest, timestamp
 
-VERSION = "NEWS-DISCOVERY-V1"
+VERSION = "NEWS-DISCOVERY-V2"
 ATOM = "{http://www.w3.org/2005/Atom}"
 PRN_ARTICLE = re.compile(r"/(?:in/)?news-releases/[^/?]+-(\d{8,12})\.html$")
 MONTHS = {name: i for i, name in enumerate(
@@ -29,7 +29,8 @@ TOPICS = {
     "ORDER_CUSTOMER": r"\b(?:order|orders|contract|contracts|bookings|customer win|letter of (?:award|acceptance))\b",
     "RESULTS_GUIDANCE": r"\b(?:earnings|quarter\w*|financial results|guidance|outlook|revenue|profit)\b",
     "PRODUCT_APPROVAL": r"\b(?:launch\w*|approval|approved|patent\w*|new product|commercialisation)\b",
-    "CAPITAL_TRANSACTION": r"\b(?:merger|acqui\w*|divest\w*|disposal|buyback|share swap|fundrais\w*)\b",
+    "CAPITAL_TRANSACTION": r"\b(?:merger|acqui\w*|divest\w*|disposal|buyback|share swap|rights issue|allotment|fund\s*rais\w*)\b",
+    "OWNERSHIP_CONTROL": r"\b(?:stake sale|sell(?:ing)? (?:its |the )?(?:entire |remaining )?stake|promoter stake|change of control|open offer)\b",
     "GOVERNANCE_RISK": r"\b(?:fraud|default|resign\w*|auditor|investigation|insolvency|litigation)\b",
     "POLICY_REGULATION": r"\b(?:regulat\w*|circular|tariff\w*|government|tax|subsid\w*|policy)\b",
 }
@@ -39,6 +40,7 @@ QUESTIONS = {
     "RESULTS_GUIDANCE": "Reconcile reporting basis, forecast period, recurring earnings, cash conversion and prior independent expectations.",
     "PRODUCT_APPROVAL": "Verify approval scope, paying customers, commercial timing, unit economics and which listed entity benefits.",
     "CAPITAL_TRANSACTION": "Verify approvals, attributable proceeds, dilution, debt changes and per-share value rather than headline transaction size.",
+    "OWNERSHIP_CONTROL": "Verify whether ownership or control will actually change, transaction certainty, price/terms, open-offer implications and operating consequences.",
     "GOVERNANCE_RISK": "Check the original disclosure, denials, scope and financing or governance consequences before interpreting direction.",
     "POLICY_REGULATION": "Verify legal scope and effective date, then establish company-specific exposure instead of assuming sector-wide benefit.",
 }
@@ -72,6 +74,17 @@ def publication(value: str, zone: str = "Asia/Kolkata") -> dict:
         dt = datetime.fromisoformat(value)
         if dt.tzinfo is not None:
             return {"value": dt.astimezone(UTC).isoformat(), "precision": "SECOND", "raw": value}
+    except ValueError:
+        pass
+    try:
+        exchange_dt = datetime.strptime(value, "%d-%b-%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo(zone)
+        )
+        return {
+            "value": exchange_dt.astimezone(UTC).isoformat(),
+            "precision": "SECOND",
+            "raw": value,
+        }
     except ValueError:
         pass
     try:
@@ -131,10 +144,14 @@ def parse_feed(raw: bytes, source: dict) -> list[dict]:
         published = _xml_text(node, prefix + "published" if atom else "pubDate")
         if not published and not atom:
             published = _xml_text(node, "{http://purl.org/dc/elements/1.1/}date")
+        description = _xml_text(node, prefix + "summary" if atom else "description")
+        event_context = description if source.get("kind") == "nse_feed" else ""
         result.append({"title": title, "url": canonical_url(urljoin(source["url"], link)) if link else "",
             "publication": publication(published, source.get("timezone", "Asia/Kolkata")),
             "provider_id": _xml_text(node, ATOM + "id" if atom else "guid"),
             "updated_raw": _xml_text(node, ATOM + "updated") if atom else "",
+            "event_context": event_context,
+            "event_context_sha256": digest(event_context) if event_context else None,
             "item_status": "DISCOVERED" if title and link else "MALFORMED_ITEM",
             "item_sha256": digest(ET.tostring(node, encoding="unicode"))})
     return result
