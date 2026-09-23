@@ -1,0 +1,156 @@
+name: Company intelligence v2 prospective news capture
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 8 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '5 9 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '0 12 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '0 15 * * 1-5'
+      timezone: 'Asia/Kolkata'
+    - cron: '15 18 * * 1-5'
+      timezone: 'Asia/Kolkata'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: company-intelligence-v2-prospective-news
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify prospective-news invariants
+        run: |
+          ruff check \
+            src/marketlab/intelligence_identity.py \
+            src/marketlab/intelligence_prospective_news.py \
+            scripts/run_company_news_discovery.py \
+            scripts/seal_company_news_capture.py \
+            scripts/verify_company_news_ledger.py
+          pytest -q \
+            tests/test_intelligence_identity.py \
+            tests/test_intelligence_prospective_news.py \
+            tests/test_intelligence_news.py
+          python scripts/verify_company_news_ledger.py \
+            --ledger research/prospective/company-intelligence-v2/news-ledger.json
+      - name: Prepare prior-session identity snapshot
+        id: identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/company-news-prospective/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          python - "$TODAY" "$WORK" <<'PY'
+          import hashlib
+          import json
+          import sys
+          from datetime import date
+          from pathlib import Path
+          sys.path.insert(0, "scripts")
+          from run_daily_market_audit import find_previous_udiff
+          today = date.fromisoformat(sys.argv[1])
+          work = Path(sys.argv[2])
+          session, raw = find_previous_udiff(today, attempts=4, timeout_seconds=45)
+          (work / "identity-udiff.zip").write_bytes(raw)
+          meta = {"session": session.isoformat(), "sha256": hashlib.sha256(raw).hexdigest()}
+          (work / "identity.json").write_text(json.dumps(meta, sort_keys=True) + "\n")
+          print(json.dumps(meta, sort_keys=True))
+          PY
+          IDENTITY_SESSION="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["session"])' "$WORK/identity.json")"
+          IDENTITY_SHA="$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["sha256"])' "$WORK/identity.json")"
+          echo "work=$WORK" >> "$GITHUB_OUTPUT"
+          echo "session=$IDENTITY_SESSION" >> "$GITHUB_OUTPUT"
+          echo "sha=$IDENTITY_SHA" >> "$GITHUB_OUTPUT"
+      - name: Run bounded discovery with broad NSE identities
+        id: discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.identity.outputs.work }}"
+          set +e
+          python scripts/run_company_news_discovery.py \
+            --store "$WORK/store" \
+            --output "$WORK/discovery" \
+            --identity-udiff "$WORK/identity-udiff.zip" \
+            --identity-session "${{ steps.identity.outputs.session }}" \
+            --collect | tee "$WORK/discovery.log"
+          RC=${PIPESTATUS[0]}
+          set -e
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          if [ "$RC" -ne 0 ] && [ "$RC" -ne 2 ]; then
+            echo "discovery failed before producing a bounded partial run: $RC"
+            exit "$RC"
+          fi
+      - name: Seal compact prospective metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="${{ steps.identity.outputs.work }}"
+          LEDGER="research/prospective/company-intelligence-v2/news-ledger.json"
+          python scripts/seal_company_news_capture.py \
+            --store "$WORK/store" \
+            --ledger "$LEDGER" \
+            --identity-session "${{ steps.identity.outputs.session }}" \
+            --identity-raw-sha256 "${{ steps.identity.outputs.sha }}" | tee "$WORK/seal.log"
+          python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
+      - name: Anchor append-only prospective metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/company-intelligence-v2/news-ledger.json"
+          python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$LEDGER"
+          if git diff --cached --quiet; then
+            echo "No new prospective metadata to anchor"
+            exit 0
+          fi
+          git commit -m "v2: seal prospective company-news capture [skip ci]"
+          START_SHA="${GITHUB_SHA}"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              CHANGED="$(git diff --name-only "$START_SHA" "$CURRENT_MAIN")"
+              echo "main moved during capture; changed paths:"
+              printf '%s\n' "$CHANGED"
+              if printf '%s\n' "$CHANGED" | grep -Eq '^(registry/company_(news_discovery|intelligence)_v2\.json|research/prospective/company-intelligence-v2/news-ledger\.json|src/marketlab/intelligence_(news|discovery|http|identity|prospective_news)\.py|scripts/(run_company_news_discovery|seal_company_news_capture|verify_company_news_ledger)\.py|\.github/workflows/company-news-prospective-capture\.yml)$'; then
+                echo "Relevant company-news rules or canonical state changed; refusing to re-anchor stale observations"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_company_news_ledger.py --ledger "$LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push raced with another unrelated writer; retrying ($ATTEMPT/3)"
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor capture after bounded retries"
+          exit 1
+      - name: Upload raw discovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: company-news-prospective-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.identity.outputs.work }}
+          if-no-files-found: error
+          retention-days: 30

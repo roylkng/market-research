@@ -173,30 +173,55 @@ def parse_listing(raw: bytes, source: dict) -> tuple[list[dict], list[str]]:
 
 
 def entity_mentions(text: str, members: list[dict]) -> dict:
-    """A named mention is not attribution of revenue, ownership or benefit."""
+    """Resolve exact company aliases while keeping deep-panel scope distinct."""
     def normalize(value):
         return clean(re.sub(r"[^a-z0-9]+", " ", value.casefold().replace("&", " and ")))
+
     haystack = " " + normalize(text) + " "
-    aliases = {}
+    aliases: dict[str, set[str]] = {}
+    deep_symbols: set[str] = set()
+    official_symbols: set[str] = set()
     for row in members:
-        name = re.sub(r"\b(?:limited|ltd)\.?$", "", row["company_name"], flags=re.IGNORECASE).strip()
+        symbol = row["symbol"]
+        identity_source = row.get("identity_source")
+        if bool(row.get("is_deep_panel", identity_source != "NSE_UDIFF_PRIOR_SESSION")):
+            deep_symbols.add(symbol)
+        if identity_source == "NSE_UDIFF_PRIOR_SESSION":
+            official_symbols.add(symbol)
+        name = re.sub(
+            r"\b(?:limited|ltd)\.?$",
+            "",
+            row["company_name"],
+            flags=re.IGNORECASE,
+        ).strip()
         alias = normalize(name)
         if len(alias) >= 5:
-            aliases.setdefault(alias, set()).add(row["symbol"])
-    matched, ambiguous = set(), []
+            aliases.setdefault(alias, set()).add(symbol)
+
+    matched: set[str] = set()
+    ambiguous = []
     for alias, symbols in aliases.items():
         if " " + alias + " " in haystack:
             if len(symbols) == 1:
                 matched.update(symbols)
             else:
                 ambiguous.append({"alias": alias, "symbols": sorted(symbols)})
-    explicit = sorted(set(re.findall(r"\bNSE\s*:\s*([A-Z0-9][A-Z0-9&_\-]{1,24})\b", text)))
-    known = {r["symbol"] for r in members}
+
+    explicit = sorted(
+        set(re.findall(r"\bNSE\s*:\s*([A-Z0-9][A-Z0-9&_\-]{1,24})\b", text))
+    )
+    known = {row["symbol"] for row in members}
     matched.update(set(explicit) & known)
-    return {"panel_symbols": sorted(matched), "ambiguous_mentions": ambiguous,
-            "unverified_nse_symbols": sorted(set(explicit) - known),
-            "bse_codes_for_review": sorted(set(re.findall(r"\bBSE\s*:\s*(\d{5,6})\b", text))),
-            "relationship_state": "MENTION_ONLY_NOT_BENEFICIARY_VERIFICATION"}
+    return {
+        "panel_symbols": sorted(matched & deep_symbols),
+        "official_nse_symbols": sorted(matched & official_symbols),
+        "ambiguous_mentions": ambiguous,
+        "unverified_nse_symbols": sorted(set(explicit) - known),
+        "bse_codes_for_review": sorted(
+            set(re.findall(r"\bBSE\s*:\s*(\d{5,6})\b", text))
+        ),
+        "relationship_state": "MENTION_ONLY_NOT_BENEFICIARY_VERIFICATION",
+    }
 
 
 def topic_candidates(text: str) -> list[dict]:
