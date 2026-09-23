@@ -23,6 +23,7 @@ from marketlab.intelligence_news import (
     resource_key,
     topic_candidates,
 )
+from marketlab.intelligence_nse_feed import NSE_ANNOUNCEMENTS_URL
 from marketlab.intelligence_store import ResearchStore, now_text
 
 URL = "https://www.prnewswire.com/in/news-releases/test-company-302800001.html"
@@ -121,9 +122,22 @@ def test_tracking_dedup_preserves_resource_identifiers():
 def test_unknown_symbols_not_discarded_and_common_tickers_not_matched():
     m = entity_mentions('ITC is an abbreviation. Infosys plans new work. NSE: NEWCO BSE: 123456', panel()["members"])
     assert m["panel_symbols"] == ["INFY"]
+    assert m["official_nse_symbols"] == []
     assert m["unverified_nse_symbols"] == ["NEWCO"]
     assert m["bse_codes_for_review"] == ["123456"]
     assert entity_mentions('NSE: ITC', panel()["members"])["panel_symbols"] == ["ITC"]
+
+
+def test_official_nse_identity_is_not_mislabelled_as_deep_panel():
+    members = panel()["members"] + [{
+        "symbol": "TEGA",
+        "company_name": "Tega Industries",
+        "identity_source": "NSE_UDIFF_PRIOR_SESSION",
+        "is_deep_panel": False,
+    }]
+    m = entity_mentions("Tega Industries wins a new order", members)
+    assert m["panel_symbols"] == []
+    assert m["official_nse_symbols"] == ["TEGA"]
 
 
 def test_duplicate_name_is_ambiguous_not_arbitrary_choice():
@@ -191,6 +205,53 @@ def test_headline_only_source_is_never_fetched_as_article(tmp_path):
         assert run["deferred"][0]["reason"] == "HEADLINES_ONLY_SOURCE"
         assert store.records("news_document") == []
 
+
+
+def test_reviewed_nse_feed_uses_dedicated_fetcher(tmp_path):
+    nse_source = {
+        "source_id": "nse-announcements",
+        "kind": "nse_feed",
+        "url": NSE_ANNOUNCEMENTS_URL,
+        "publisher": "NSE",
+        "region": "IN",
+        "timezone": "Asia/Kolkata",
+        "source_class": "EXCHANGE_DISCLOSURE",
+        "access": "HEADLINES_ONLY",
+        "document_parser": None,
+        "article_hosts": [],
+        "article_path_pattern": "(?!)",
+    }
+
+    class NeverGeneric:
+        def fetch(self, *_args, **_kwargs):
+            raise AssertionError("generic public fetcher must not handle reviewed NSE RSS")
+
+    class NSEFetcher:
+        def __init__(self):
+            self.calls = []
+        def fetch(self, url, *, url_guard=None):
+            self.calls.append(url)
+            assert url_guard is None or url_guard(url)
+            return feed(), {
+                "resolved_url": url,
+                "content_type": "application/xml",
+                "status_code": 200,
+                "observed_at": now_text(),
+                "source_contract_id": "NSE-ONLINE-ANNOUNCEMENTS-RSS-V1",
+            }
+
+    nse_fetcher = NSEFetcher()
+    with ResearchStore(tmp_path) as store:
+        run = run_discovery(
+            store,
+            panel(),
+            config(sources=[nse_source]),
+            NeverGeneric(),
+            nse_fetcher=nse_fetcher,
+        )
+        assert run["status"] == "BOUNDED_CAPTURE_COMPLETE"
+        assert len(store.records("news_item")) == 1
+    assert nse_fetcher.calls == [NSE_ANNOUNCEMENTS_URL]
 
 def test_budget_and_stale_deferred_items_are_explicit(tmp_path):
     with ResearchStore(tmp_path) as store:
@@ -299,3 +360,5 @@ def test_failed_latest_document_fetch_remains_visible_with_old_document(tmp_path
         report = build_discovery_report(store, panel(), {"sources": []}, config(), as_of=now_text())
         assert report['news_discovery']['stories'][0]['latest_fetch_status'] == 'BLOCKED'
         assert report['news_discovery']['stories'][0]['version_state'] == 'LATEST_OBSERVED_VERSION'
+
+
