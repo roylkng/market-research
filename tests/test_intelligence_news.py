@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 import pytest
 
 from marketlab.intelligence_core import EvidenceError
@@ -28,7 +30,10 @@ from marketlab.intelligence_store import ResearchStore, now_text
 
 URL = "https://www.prnewswire.com/in/news-releases/test-company-302800001.html"
 FEED = "https://www.prnewswire.com/rss/news-releases-list.rss"
-DATE = "2026-09-17T07:00:00Z"
+FIXED_DATE = "2026-09-17T07:00:00Z"
+DATE = (
+    datetime.now(UTC) - timedelta(days=1)
+).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def source(**kwargs):
@@ -91,7 +96,7 @@ def test_day_precision_is_explicit_and_conservative():
     assert publication("2026-09-16")["value"] == publication("16 Sep 2026")["value"]
 
 
-@pytest.mark.parametrize("raw", ["2026-09-17T12:30:00+05:30", "Thu, 17 Sep 2026 07:00:00 GMT", DATE])
+@pytest.mark.parametrize("raw", ["2026-09-17T12:30:00+05:30", "Thu, 17 Sep 2026 07:00:00 GMT", FIXED_DATE])
 def test_timezone_normalization(raw):
     assert publication(raw)["value"] == "2026-09-17T07:00:00+00:00"
 
