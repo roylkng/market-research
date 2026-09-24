@@ -140,7 +140,7 @@ def test_atom_updated_is_not_fabricated_original_publication():
     raw = b'<feed xmlns="http://www.w3.org/2005/Atom"><entry><id>x</id><title>Test</title><link href="https://www.prnewswire.com/test"/><updated>2026-09-17T07:00:00Z</updated></entry></feed>'
     row = parse_feed(raw, source())[0]
     assert row["publication"]["value"] is None
-    assert row["updated_raw"] == DATE
+    assert row["updated_raw"] == FIXED_DATE
 
 
 @pytest.mark.parametrize("raw", [b'<!DOCTYPE rss [<!ENTITY a "x">]><rss/>', b'<html>Access denied</html>', b'\x00<rss/>'])
@@ -295,7 +295,11 @@ def test_reviewed_nse_feed_uses_dedicated_fetcher(tmp_path):
 
 def test_budget_and_stale_deferred_items_are_explicit(tmp_path):
     with ResearchStore(tmp_path) as store:
-        entries = discover_source(store, source(), panel(), Fetcher(), 1)
+        fixed = Fetcher({
+            FEED: feed(pub=FIXED_DATE),
+            URL: article(date=FIXED_DATE),
+        })
+        entries = discover_source(store, source(), panel(), fixed, 1)
         chosen, deferred = select_documents(entries, as_of='2026-09-17T09:00:00Z', budget=0, lookback_days=7)
         assert not chosen and deferred[0]["reason"] == "ARTICLE_BUDGET_DEFERRED"
         chosen, deferred = select_documents(entries, as_of='2026-10-17T09:00:00Z', budget=2, lookback_days=7)
