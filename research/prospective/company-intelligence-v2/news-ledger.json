@@ -435,9 +435,118 @@
         "SNAPSHOT_CAPTURED": 7
       },
       "started_at": "2026-09-25T14:42:52.830983+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "captured_at": "2026-09-25T14:47:56.943883+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 5
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 3,
+        "SNAPSHOT_CAPTURED": 5
+      },
+      "discovery_status": "DISCOVERY_DEGRADED",
+      "document_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 1
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "f6e4d459c5f13bdc123784318522abbae1fbf9a3b5358d333f09984cca94c444",
+      "identity_session": "2026-09-24",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "77b58b0cbb203f539b4044ba34ac4d8dbf02f052f26a4ac6ec3a74bec0bf5480",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "BLOCKED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 4,
+        "DOCUMENT_CAPTURED": 1,
+        "SNAPSHOT_CAPTURED": 5
+      },
+      "started_at": "2026-09-25T14:46:30.307601+00:00"
     }
   ],
-  "ledger_sha256": "8e486b5b3d2fb6643820f3d15d0724a3d11f71e7bd8cac714fe80633e92d54e1",
+  "ledger_sha256": "996e6a28155398e77912fb0b9df2ee7479f495cd885b1a546142475db81644de",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -74736,6 +74845,163 @@
       "source_id": "mint-markets",
       "title_sha256": "4ed426554292f3156089e59f69707fb04a6ab37a3711bf139ef43186b59bac76",
       "topics": []
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "Lamosaic India Limited has informed the Exchange regarding Outcome of Board Meeting held on September 25, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "f0cbe9b94048824788783a796a331e6e2e65903c372287372ab2b17ef2fa077e",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "fa2de80aa2802cf996c8a6c0adcf52e5e4c3cceba732f7fe1a68e114f3f8f645",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0c527fc95816feeebe71ef0dc78d5d934c089123a53ae9ce5256ffa6d69479cc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:14:10",
+        "value": "2026-09-25T14:44:10+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LAMOSAIC_25092026201340_Outcome_of_BM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "35178c7293e8e5e76c4dc8c835dffb3b1a373567e171cdcd7c04794b866e5d81",
+      "topics": []
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "PLATINUM INDUSTRIES LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "42eab6e1f70c678135b07ac751150c1473db8c534b46c6cddfa4ff064fbb1a16",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "af35898c9868f6d14974d373910fae4147b9b8be1fa6d1517f27f369793ea35e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PLATIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5dc1742c6b8b8c1db4fa0911fd243be5ee44438ffec5e9cefdb5000183946ffd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:14:54",
+        "value": "2026-09-25T14:44:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_22242_WebXMLFile_20260925_201453151.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8b5300111e0c4738638de7d2868250dbf1fae0decde2eb92a7028c158ca538e6",
+      "topics": []
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "Intimation of Scheme of Amalgamation of Kotak Mahindra Investments Limited with Kotak Alternate Asset Managers Limited, both, wholly-owned subsidiaries of the Bank |SUBJECT: General Updates",
+      "event_context_sha256": "ff676bc9aa58460cea19545f174be29df67887108f73d49458bd8fe67d15ac13",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "bf2491d8bf31161d29e326bcea4aee46b84bcfb330d9992d7eebbe779b30b10c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KOTAKBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "90cc6b0a3b691cc3c6c9048522dc74dcfd2a35600d58cadd974fadc27b83fbcd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:15:11",
+        "value": "2026-09-25T14:45:11+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KMBLTAB_25092026201322_KMBLLODRV2250926.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7efc8b73c8889ba7d63b42085243b712610dc9f9cfb9035f02ce9cee8bcc9a6f",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "Shri Kanha Stainless Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 25, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "81b4ff5e0d0764d9e38bc4dbeac9e0d460b607cace2614ce35aaab64967ffe00",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "0f2a17e56b5eccea84bdf1a3271ec25e8712b6306c011cf6ac4dd6781328ecf9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a525aaa194f6bbda284acf68159ca2c85d9213cb160fea234f81e31ae9cafaa0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:15:35",
+        "value": "2026-09-25T14:45:35+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SHRIKANHA_25092026201527_NSE_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "57bc9cd98cb17fe945a3024f572902a43cea0d06bfe34d7bd11ec9f8c1930461",
+      "topics": []
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "HCL Infosystems Limited has informed the Exchange about status update on Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company |SUBJECT: Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company",
+      "event_context_sha256": "a5b130cd6a294243fb530937ef074c94c3415afe3ce08f42dad502bd2d577bab",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "c4fd12cfd0e1c7e6ca2d0443886884e60ebb5e9870412d7d068287572e8d7cd7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HCL-INSYS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c86d01fab0dae81fe9fc4f464510afa397acc3672d3895e26487747d3f2d5bb8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:13:59",
+        "value": "2026-09-25T14:43:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HCL-INSYS1_25092026201330_Intimation-HCLI.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5510f05c3048149cc5b81b190936fef312c6607c64e6ace5b648f335dbbf500d",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "b62f816695b120e1e6301789128efed5c43dc6c8093051dc3590962c4c168771",
+      "event_context": "Rashtriya Chemicals and Fertilizers Limited has informed the Exchange about Awarding of order(s)/contract(s) |SUBJECT: Awarding of order(s)/contract(s)",
+      "event_context_sha256": "64e927e6c6daafd57f9b82c539c7d6c0520991b45e76c4e04c0c8fcb832c3936",
+      "first_seen_at": "2026-09-25T14:47:05.225908+00:00",
+      "item_id": "6866a3181b4f37820f2d68df3582184eb47f5c99f55503f59140562b30ba5e7f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e27903aa3b0c37b43ff98c9ce66843e4264670ed8a2e1030ecea85a2e9050156",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Sep-2026 20:15:28",
+        "value": "2026-09-25T14:45:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RCF_25092026201517_BMoutcome_larsen.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b64e7e6b697497389ee1d2eb4dae60a5adc8a8726758eb3d3a3dce73656d96a1",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
     }
   ],
   "schema_version": 1
