@@ -1,0 +1,103 @@
+schema_version: 1
+id: AE001-v1-DEVELOPMENT
+name: cross_sectional_indian_equity_alpha_engine
+status: DEVELOPMENT
+created: 2026-09-26
+live_capital_allowed: false
+
+research_class:
+  type: EXPLORATORY_MODEL_RESEARCH
+  may_modify_h_series_state: false
+  h_series_inputs: sealed_point_in_time_only
+  in_sample_predictions_may_enter_alpha_library: false
+
+decision:
+  sleeve: EOD_DAILY
+  timezone: Asia/Kolkata
+  decision_time: "18:30:00"
+  feature_session: completed_nse_session
+  earliest_execution: next_completed_nse_session_open
+  same_session_execution: false
+
+universe:
+  id: AE001-U001-DYNAMIC
+  venue: NSE
+  security_type: main_board_common_equity_EQ
+  identity: symbol_plus_isin
+  point_in_time: true
+  minimum_price_history_sessions: 60
+  median_prior_20d_traded_value_inr_min: 20000000
+  exclusions:
+    - SME
+    - ETF
+    - REIT
+    - InvIT
+    - preference_share
+    - suspended
+
+feature_contract:
+  point_in_time_required: true
+  per_feature_known_at_required: true
+  source_refs_required: true
+  outcomes_attached: false
+  missing_values: preserve_missing
+  cross_sectional_transforms_fit_per_session: true
+
+feature_families:
+  - price_trend
+  - volatility_liquidity
+  - fundamental
+  - expectations
+  - corporate_event
+  - ownership_informed_capital
+  - derivatives_flows
+  - regime
+
+labels:
+  horizons_completed_sessions: [1, 5, 20, 60]
+  entry_price: next_completed_session_open
+  entry_session_counts_as_holding_session_1: true
+  exit_price: horizon_session_close
+  primary_benchmark: nifty_500_price_index
+  primary_target: stock_return_minus_nifty500_return
+  sector_relative_target: secondary_if_point_in_time_mapping_exists
+  future_label_may_enter_feature_snapshot: false
+
+validation:
+  split: purged_chronological_walk_forward
+  random_row_split: prohibited
+  purge_overlapping_labels: true
+  max_horizon_sessions: 60
+  final_test_used_for_model_selection: false
+  every_trial_logged: true
+
+initial_models:
+  - ridge
+  - tree
+  - shallow_mlp
+  - pairwise_ranker
+
+primary_metrics:
+  - daily_spearman_rank_ic
+  - mean_rank_ic
+  - top_decile_mean_excess
+  - bottom_decile_mean_excess
+  - top_minus_bottom_spread
+  - long_only_top_decile_excess
+  - turnover
+  - net_return_after_cost
+  - concentration
+  - regime_stability
+
+cost_scenarios_round_trip_bps: [0, 25, 50]
+
+promotion:
+  direct_live_capital: prohibited
+  next_stage: AB001_alpha_blender
+  requires:
+    - reproducible_point_in_time_feature_snapshots
+    - purged_walk_forward_oos_predictions
+    - positive_incremental_information_vs_simple_baselines
+    - cost_survival
+    - cross_period_stability
+    - trial_ledger_review
