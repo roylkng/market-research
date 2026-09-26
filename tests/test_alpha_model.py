@@ -70,7 +70,7 @@ def test_ridge_imputes_missing_using_training_only_statistics():
         for index in range(1, 10)
     ]
     model = fit_ridge(train, feature_names=["signal"])
-    predictions = predict_ridge(model, train)
+    predictions = predict_ridge(model, train, prediction_role="DEVELOPMENT")
     assert all(math.isfinite(row["prediction"]) for row in predictions)
 
 
