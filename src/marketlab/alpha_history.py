@@ -91,11 +91,14 @@ def build_historical_feature_panel(
     histories: dict[
         tuple[str, str], deque[DailyEquityObservation]
     ] = defaultdict(lambda: deque(maxlen=61))
+    history_session_indices: dict[
+        tuple[str, str], deque[int]
+    ] = defaultdict(lambda: deque(maxlen=61))
     source_sha_by_session: dict[str, str] = {}
     rows: list[dict[str, Any]] = []
     session_records: list[dict[str, Any]] = []
 
-    for session in ordered:
+    for session_index, session in enumerate(ordered):
         session_date = str(session["session_date"])
         udiff_sha = str(session.get("udiff_sha256") or "").strip().lower()
         benchmark_sha = str(session.get("benchmark_sha256") or "").strip().lower()
@@ -139,12 +142,20 @@ def build_historical_feature_panel(
             current_rows.append(observation)
 
         for observation in current_rows:
-            histories[(observation.symbol, observation.isin)].append(observation)
+            identity = (observation.symbol, observation.isin)
+            histories[identity].append(observation)
+            history_session_indices[identity].append(session_index)
 
         eligible: list[tuple[str, str]] = []
         for identity in sorted(current_identities):
             history = list(histories[identity])
-            if eligible_history_for_ae001(history):
+            observed_indices = list(history_session_indices[identity])
+            expected_indices = list(range(session_index - 60, session_index + 1))
+            has_contiguous_market_history = (
+                len(observed_indices) == 61
+                and observed_indices == expected_indices
+            )
+            if has_contiguous_market_history and eligible_history_for_ae001(history):
                 eligible.append(identity)
 
         universe_sha256 = digest(
