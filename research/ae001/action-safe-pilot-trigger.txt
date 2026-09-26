@@ -1,0 +1,13 @@
+AE001 action-safe development pilot.
+
+Frozen inputs for this run:
+- NSE market archive window: 2025-09-01 through 2026-09-25
+- corporate-action source: official NSE corporate-actions endpoint, exchange-wide equity ranges
+- action chunk size: 31 calendar days
+- action-safe feature policy: block 60-session lookbacks crossing share-changing ex-dates
+- 1D diagnostic folds: 2026-04-01..2026-06-30, 2026-07-01..2026-09-24
+- 5D folds: 2026-04-01..2026-06-30, 2026-07-01..2026-09-18
+- 20D folds: 2026-04-01..2026-06-30, 2026-07-01..2026-08-27
+- 60D folds: 2026-04-01..2026-05-29, 2026-06-01..2026-06-30
+- ridge l2: 1.0
+- live capital disabled
