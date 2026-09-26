@@ -228,7 +228,7 @@ def evaluate_cross_sectional_predictions(predictions: list[dict[str, Any]]) -> d
 
     session_metrics = []
     prior_top: set[str] | None = None
-    turnover_values = []
+    selection_churn_values = []
     for session in sorted(by_session):
         rows = by_session[session]
         if len(rows) < 5:
@@ -265,7 +265,7 @@ def evaluate_cross_sectional_predictions(predictions: list[dict[str, Any]]) -> d
         top_ids = {f"{row['symbol']}|{row['isin']}" for row in top}
         if prior_top is not None:
             denominator = max(len(prior_top), len(top_ids), 1)
-            turnover_values.append(1.0 - len(prior_top & top_ids) / denominator)
+            selection_churn_values.append(1.0 - len(prior_top & top_ids) / denominator)
         prior_top = top_ids
 
         session_metrics.append(
@@ -294,8 +294,10 @@ def evaluate_cross_sectional_predictions(predictions: list[dict[str, Any]]) -> d
         "median_rank_ic": statistics.median(rank_ics) if rank_ics else None,
         "mean_top_decile_excess": statistics.mean(top_returns) if top_returns else None,
         "mean_top_minus_bottom_spread": statistics.mean(spreads) if spreads else None,
-        "average_top_decile_turnover": (
-            statistics.mean(turnover_values) if turnover_values else None
+        "average_top_decile_selection_churn": (
+            statistics.mean(selection_churn_values)
+            if selection_churn_values
+            else None
         ),
         "session_metrics": session_metrics,
         "live_capital_allowed": False,
