@@ -6,6 +6,7 @@ from pathlib import Path
 
 from marketlab.alpha_history import canonical_gzip_json, load_canonical_gzip_json
 from marketlab.alpha_walkforward import run_ridge_walkforward
+from marketlab.events import sha256_bytes
 
 
 def _fold(value: str) -> dict[str, str]:
@@ -48,9 +49,21 @@ def main() -> int:
     )
 
     args.output.mkdir(parents=True, exist_ok=True)
-    (args.output / "walkforward-report.json.gz").write_bytes(
-        canonical_gzip_json(report)
-    )
+    report_bytes = canonical_gzip_json(report)
+    report_path = args.output / "walkforward-report.json.gz"
+    report_path.write_bytes(report_bytes)
+    manifest = {
+        "schema_version": 1,
+        "walkforward_id": report["walkforward_id"],
+        "report_sha256": report["report_sha256"],
+        "report_artifact_sha256": sha256_bytes(report_bytes),
+        "input_market_panel_sha256": report["input_market_panel_sha256"],
+        "input_feature_panel_sha256": report["input_feature_panel_sha256"],
+        "ranked_feature_panel_sha256": report["ranked_feature_panel_sha256"],
+        "evidence_class": report["evidence_class"],
+        "live_capital_allowed": False,
+    }
+    _write_json(args.output / "manifest.json", manifest)
     summary = {
         key: value
         for key, value in report.items()
@@ -68,6 +81,7 @@ def main() -> int:
         for key, value in report["momentum_20_baseline"].items()
         if key != "session_metrics"
     }
+    summary["artifact_manifest"] = manifest
     _write_json(args.output / "summary.json", summary)
     print(json.dumps(summary, sort_keys=True))
     return 0
