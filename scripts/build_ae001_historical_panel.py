@@ -5,7 +5,6 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from marketlab.events import sha256_bytes
 from marketlab.alpha_acquisition import (
     acquire_historical_market_panel,
     http_fetcher,
@@ -14,6 +13,7 @@ from marketlab.alpha_history import (
     build_historical_feature_panel,
     canonical_gzip_json,
 )
+from marketlab.events import sha256_bytes
 
 
 def _write_json(path: Path, payload: object) -> None:
