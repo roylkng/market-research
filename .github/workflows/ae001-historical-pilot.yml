@@ -70,6 +70,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ae001-historical-1d-pilot-${{ github.run_id }}
-          path: reports/ae001-pilot
+          path: |
+            reports/ae001-pilot
+            .marketlab/ae001-pilot/market-data
           if-no-files-found: error
           retention-days: 90
