@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import time
 from collections import defaultdict
-from datetime import date, datetime, timedelta
+from collections.abc import Callable
+from datetime import date, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.events import sha256_bytes
@@ -46,7 +48,8 @@ def _parse_action_date(value: object) -> date:
     raw = value.strip()
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(raw, fmt).date()
+            parsed = time.strptime(raw, fmt)
+            return date(parsed.tm_year, parsed.tm_mon, parsed.tm_mday)
         except ValueError:
             continue
     raise AlphaContractError(f"unsupported corporate-action ex-date: {value}")
