@@ -152,6 +152,22 @@ def _identity_history(
     return rows
 
 
+def eligible_history_for_ae001(
+    history: list[DailyEquityObservation],
+    *,
+    median_prior_20d_traded_value_inr_min: float = (
+        DEFAULT_MEDIAN_PRIOR_20D_TRADED_VALUE_INR
+    ),
+) -> bool:
+    """Check AE001 eligibility from one identity's history ending at the current row."""
+
+    if len(history) < 61:
+        return False
+    prior = history[:-1]
+    median_turnover = statistics.median(row.turnover_inr for row in prior[-20:])
+    return median_turnover >= median_prior_20d_traded_value_inr_min
+
+
 def eligible_for_ae001(
     observations: Iterable[DailyEquityObservation],
     *,
@@ -169,11 +185,12 @@ def eligible_for_ae001(
     )
     if current_index is None:
         return False
-    prior = history[:current_index]
-    if len(prior) < 60:
-        return False
-    median_turnover = statistics.median(row.turnover_inr for row in prior[-20:])
-    return median_turnover >= median_prior_20d_traded_value_inr_min
+    return eligible_history_for_ae001(
+        history[: current_index + 1],
+        median_prior_20d_traded_value_inr_min=(
+            median_prior_20d_traded_value_inr_min
+        ),
+    )
 
 
 def build_dynamic_universe(
@@ -215,25 +232,18 @@ def _safe_ratio(numerator: float, denominator: float) -> float | None:
     return numerator / denominator
 
 
-def build_price_volume_features(
-    observations: Iterable[DailyEquityObservation],
-    *,
-    symbol: str,
-    isin: str,
-    current_session: str,
+def build_price_volume_features_from_history(
+    history: list[DailyEquityObservation],
 ) -> dict[str, float | None]:
-    """Build the first AE001 EOD feature family for one point-in-time identity."""
+    """Build AE001 EOD features from one identity history ending at current session."""
 
-    history = _identity_history(observations, symbol=symbol, isin=isin)
-    current_index = next(
-        (index for index, row in enumerate(history) if row.session_date == current_session),
-        None,
-    )
-    if current_index is None:
-        raise AlphaContractError(f"missing current session for {symbol}/{isin}")
-    history = history[: current_index + 1]
     if len(history) < 61:
-        raise AlphaContractError(f"{symbol}/{isin}: fewer than 60 prior sessions")
+        identity = (
+            f"{history[-1].symbol}/{history[-1].isin}"
+            if history
+            else "unknown identity"
+        )
+        raise AlphaContractError(f"{identity}: fewer than 60 prior sessions")
 
     current = history[-1]
     prior = history[:-1]
@@ -282,3 +292,22 @@ def build_price_volume_features(
         "trade_count_surprise_20": _safe_ratio(current.trade_count, trades_median_20),
         "amihud_20_scaled": amihud_20_scaled,
     }
+
+
+def build_price_volume_features(
+    observations: Iterable[DailyEquityObservation],
+    *,
+    symbol: str,
+    isin: str,
+    current_session: str,
+) -> dict[str, float | None]:
+    """Build the first AE001 EOD feature family for one point-in-time identity."""
+
+    history = _identity_history(observations, symbol=symbol, isin=isin)
+    current_index = next(
+        (index for index, row in enumerate(history) if row.session_date == current_session),
+        None,
+    )
+    if current_index is None:
+        raise AlphaContractError(f"missing current session for {symbol}/{isin}")
+    return build_price_volume_features_from_history(history[: current_index + 1])
