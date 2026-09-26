@@ -179,20 +179,26 @@ class NSEClient:
 
     def corporate_actions_with_raw(
         self,
-        symbol: str,
+        symbol: str | None = None,
         *,
         from_date: str,
         to_date: str,
     ) -> tuple[JSONPayload, bytes]:
-        """Fetch exact NSE corporate-action discovery bytes for an EPS-basis audit."""
+        """Fetch exact NSE corporate-action discovery bytes.
+
+        Omitting symbol requests the exchange-wide equity action range used by
+        AE001. Existing symbol-scoped H-series callers retain identical params.
+        """
+        params: dict[str, Any] = {
+            "index": "equities",
+            "from_date": from_date,
+            "to_date": to_date,
+        }
+        if symbol:
+            params["symbol"] = symbol
         return self._json_get_with_raw(
             self.CORPORATE_ACTION_ENDPOINT,
-            params={
-                "index": "equities",
-                "symbol": symbol,
-                "from_date": from_date,
-                "to_date": to_date,
-            },
+            params=params,
         )
 
     def trading_holidays_with_raw(self) -> tuple[JSONPayload, bytes]:
