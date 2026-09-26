@@ -195,6 +195,30 @@ def signed_single_feature_walkforward(
     }
 
 
+def _project_examples(
+    examples: list[ModelExample],
+    feature_names: list[str],
+) -> list[ModelExample]:
+    wanted = set(feature_names)
+    return [
+        ModelExample(
+            symbol=row.symbol,
+            isin=row.isin,
+            feature_session=row.feature_session,
+            entry_session=row.entry_session,
+            exit_session=row.exit_session,
+            horizon_sessions=row.horizon_sessions,
+            features={
+                name: value
+                for name, value in row.features.items()
+                if name in wanted
+            },
+            target_excess_return=row.target_excess_return,
+        )
+        for row in examples
+    ]
+
+
 def leave_one_feature_out_ridge_walkforward(
     examples: list[ModelExample],
     *,
@@ -224,15 +248,17 @@ def leave_one_feature_out_ridge_walkforward(
         fold_rows = []
         for excluded in feature_names:
             selected = [feature for feature in feature_names if feature != excluded]
+            projected_train = _project_examples(train, selected)
+            projected_validation = _project_examples(validation, selected)
             model = fit_ridge(
-                train,
+                projected_train,
                 feature_names=selected,
                 l2=l2,
                 model_id=f"AE001-RIDGE-LOO-{excluded}-F{fold_index:02d}",
             )
             oos = predict_ridge(
                 model,
-                validation,
+                projected_validation,
                 prediction_role="OOS",
             )
             predictions[excluded].extend(oos)
