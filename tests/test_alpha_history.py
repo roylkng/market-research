@@ -83,3 +83,21 @@ def test_cross_sectional_panel_ranks_each_session_independently():
     values = sorted(row["values"]["momentum_20"] for row in latest_rows)
     assert values == [0.0, 1.0]
     assert ranked["outcomes_attached"] is False
+
+
+def test_historical_panel_rejects_gapped_identity_history():
+    sessions = _sessions(count=63)
+    # Remove A from one market session. A later accumulates 61 observed rows,
+    # but they are not 61 consecutive NSE sessions and must remain ineligible.
+    sessions[30]["equities"] = [
+        row for row in sessions[30]["equities"] if row.symbol != "A"
+    ]
+    panel = build_historical_feature_panel(sessions=sessions)
+    final_day = sessions[-1]["session_date"]
+    final_symbols = {
+        row["symbol"]
+        for row in panel["rows"]
+        if row["feature_session"] == final_day
+    }
+    assert "A" not in final_symbols
+    assert "B" in final_symbols
