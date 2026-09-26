@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from datetime import date, timedelta
 
 import pytest
@@ -62,11 +63,31 @@ def _market(sessions=180, symbols=12):
 
 
 def _sealed_market_panel(sessions):
+    normalized = []
+    for session in sessions:
+        normalized.append(
+            {
+                **{
+                    key: value
+                    for key, value in session.items()
+                    if key not in {"equities", "benchmark"}
+                },
+                "equities": [
+                    asdict(row) if isinstance(row, DailyEquityObservation) else row
+                    for row in session["equities"]
+                ],
+                "benchmark": (
+                    asdict(session["benchmark"])
+                    if isinstance(session["benchmark"], IndexDailyPrice)
+                    else session["benchmark"]
+                ),
+            }
+        )
     panel = {
         "schema_version": 1,
         "panel_id": "TEST-MARKET-PANEL",
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
-        "sessions": sessions,
+        "sessions": normalized,
         "live_capital_allowed": False,
     }
     panel["panel_sha256"] = digest(panel)
