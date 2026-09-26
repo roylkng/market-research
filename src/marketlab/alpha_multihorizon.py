@@ -121,7 +121,7 @@ def build_action_safe_horizon_examples(
                 exclusions[f"H{horizon}:ACTION_AUDIT_UNRESOLVED"] += 1
             continue
 
-        for horizon in examples:
+        for horizon, horizon_examples in examples.items():
             exit_index = entry_index + horizon - 1
             if exit_index >= len(session_dates):
                 exclusions[f"H{horizon}:NOT_MATURE"] += 1
@@ -151,7 +151,7 @@ def build_action_safe_horizon_examples(
             if not math.isfinite(target):
                 exclusions[f"H{horizon}:NONFINITE_TARGET"] += 1
                 continue
-            examples[horizon].append(
+            horizon_examples.append(
                 ModelExample(
                     symbol=identity[0],
                     isin=identity[1],
@@ -167,8 +167,8 @@ def build_action_safe_horizon_examples(
                 )
             )
 
-    for horizon in examples:
-        examples[horizon].sort(
+    for horizon_examples in examples.values():
+        horizon_examples.sort(
             key=lambda item: (item.feature_session, item.symbol, item.isin)
         )
     return examples, dict(sorted(exclusions.items()))
