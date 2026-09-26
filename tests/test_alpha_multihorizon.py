@@ -2,11 +2,11 @@ from datetime import date, timedelta
 
 from marketlab.alpha import digest
 from marketlab.alpha_corporate_actions import ACTION_LEDGER_ID
+from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_multihorizon import (
     build_action_safe_horizon_examples,
     run_action_safe_horizon_walkforward,
 )
-from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
 from marketlab.marketdata import IndexDailyPrice
 
