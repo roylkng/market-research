@@ -7,7 +7,7 @@ import statistics
 import zipfile
 from dataclasses import dataclass
 from datetime import date
-from typing import Iterable
+from collections.abc import Iterable
 
 from marketlab.alpha import AlphaContractError
 
