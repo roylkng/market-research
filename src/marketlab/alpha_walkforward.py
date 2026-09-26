@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import asdict
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -16,6 +17,18 @@ from marketlab.alpha_model import (
 from marketlab.marketdata import IndexDailyPrice
 
 AE001_WALKFORWARD_ID = "AE001-WF-RIDGE-1D-v1"
+
+
+def _verified_panel_hash(panel: dict[str, Any], *, name: str) -> str:
+    stored = str(panel.get("panel_sha256") or "").strip().lower()
+    if len(stored) != 64:
+        raise AlphaContractError(f"{name} panel_sha256 is required")
+    unsigned = dict(panel)
+    unsigned.pop("panel_sha256", None)
+    observed = digest(unsigned)
+    if observed != stored:
+        raise AlphaContractError(f"{name} panel hash mismatch")
+    return stored
 
 
 def build_one_session_examples(
@@ -157,7 +170,15 @@ def _prediction_baseline(
     return rows
 
 
-def _cost_views(report: dict[str, Any]) -> dict[str, float | None]:
+def _full_round_trip_stress_views(
+    report: dict[str, Any],
+) -> dict[str, float | None]:
+    """Apply a full round-trip stress to each session's mean top-decile excess.
+
+    This is deliberately not a turnover model. It is a conservative sensitivity
+    view retained until TC001 models actual portfolio turnover, spreads and impact.
+    """
+
     gross = report.get("mean_top_decile_excess")
     if gross is None:
         return {"0bps": None, "25bps": None, "50bps": None}
@@ -179,10 +200,22 @@ def run_ridge_walkforward(
 ) -> dict[str, Any]:
     if not folds:
         raise AlphaContractError("at least one walk-forward fold is required")
+    market_panel_sha256 = _verified_panel_hash(
+        market_panel,
+        name="market",
+    )
+    feature_panel_sha256 = _verified_panel_hash(
+        feature_panel,
+        name="feature",
+    )
     ranked_panel = (
         feature_panel
         if feature_panel.get("transform") == "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1"
         else cross_sectionalize_panel(feature_panel)
+    )
+    ranked_feature_panel_sha256 = _verified_panel_hash(
+        ranked_panel,
+        name="ranked feature",
     )
     examples, exclusions = build_one_session_examples(
         feature_panel=ranked_panel,
@@ -254,6 +287,7 @@ def run_ridge_walkforward(
                 "validation_example_count": len(validation),
                 "training_last_exit_session": model.training_last_exit_session,
                 "model_sha256": model.model_sha256,
+                "ridge_model": asdict(model),
                 "ridge": evaluate_cross_sectional_predictions(predictions),
                 "momentum_20_baseline": evaluate_cross_sectional_predictions(baseline),
             }
@@ -267,6 +301,9 @@ def run_ridge_walkforward(
         "engine_id": "AE001-v1-DEVELOPMENT",
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "horizon_sessions": 1,
+        "input_market_panel_sha256": market_panel_sha256,
+        "input_feature_panel_sha256": feature_panel_sha256,
+        "ranked_feature_panel_sha256": ranked_feature_panel_sha256,
         "label_convention": "NEXT_COMPLETED_NSE_SESSION_OPEN_TO_SAME_SESSION_CLOSE_EXCESS_VS_NIFTY500",
         "corporate_action_cross_session_blocker_required": False,
         "feature_transform": "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1",
@@ -277,8 +314,16 @@ def run_ridge_walkforward(
         "oos_prediction_count": len(all_predictions),
         "ridge": ridge_report,
         "momentum_20_baseline": baseline_report,
-        "ridge_top_decile_cost_views": _cost_views(ridge_report),
-        "baseline_top_decile_cost_views": _cost_views(baseline_report),
+        "cost_stress_interpretation": (
+            "FULL_ROUND_TRIP_COST_APPLIED_TO_EACH_SESSION_TOP_DECILE_MEAN; "
+            "NOT_A_TURNOVER_OR_IMPLEMENTABLE_PNL_MODEL"
+        ),
+        "ridge_top_decile_full_round_trip_stress_views": (
+            _full_round_trip_stress_views(ridge_report)
+        ),
+        "baseline_top_decile_full_round_trip_stress_views": (
+            _full_round_trip_stress_views(baseline_report)
+        ),
         "oos_predictions": all_predictions,
         "live_capital_allowed": False,
     }
