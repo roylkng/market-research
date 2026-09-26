@@ -208,6 +208,10 @@ def build_historical_feature_panel(
         "historical_archives_captured_prospectively": False,
         "feature_set_sha256": feature_set_sha256,
         "feature_definitions": feature_definitions,
+        "market_information_timestamp_contract": (
+            "SESSION_OHLCV_ASSUMED_OBSERVABLE_BY_18:00_IST; "
+            "ARCHIVE_BYTES_RETRIEVED_RETROSPECTIVELY_FOR_DEVELOPMENT_ONLY"
+        ),
         "session_count": len(session_records),
         "feature_row_count": len(rows),
         "sessions": session_records,
