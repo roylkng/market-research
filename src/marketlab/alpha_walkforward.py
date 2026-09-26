@@ -49,7 +49,9 @@ def build_one_session_examples(
         session_date = str(session["session_date"])
         equities = session.get("equities")
         benchmark_raw = session.get("benchmark")
-        if not isinstance(equities, list) or not isinstance(benchmark_raw, dict):
+        if not isinstance(equities, list) or not isinstance(
+            benchmark_raw, (dict, IndexDailyPrice)
+        ):
             raise AlphaContractError(f"{session_date}: malformed market session")
         identities: dict[tuple[str, str], DailyEquityObservation] = {}
         for raw in equities:
