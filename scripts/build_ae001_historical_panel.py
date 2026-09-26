@@ -5,7 +5,7 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from marketlab.alpha import digest
+from marketlab.events import sha256_bytes
 from marketlab.alpha_acquisition import (
     acquire_historical_market_panel,
     http_fetcher,
@@ -72,9 +72,9 @@ def main() -> int:
         "start_date": args.start_date.isoformat(),
         "end_date": args.end_date.isoformat(),
         "market_panel_sha256": market["panel_sha256"],
-        "market_artifact_sha256": digest(market_bytes.hex()),
+        "market_artifact_sha256": sha256_bytes(market_bytes),
         "feature_panel_sha256": features["panel_sha256"],
-        "feature_artifact_sha256": digest(feature_bytes.hex()),
+        "feature_artifact_sha256": sha256_bytes(feature_bytes),
         "session_count": market["session_count"],
         "feature_row_count": features["feature_row_count"],
         "historical_archives_captured_prospectively": False,
