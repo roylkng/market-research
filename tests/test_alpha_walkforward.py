@@ -1,5 +1,8 @@
 from datetime import date, timedelta
 
+import pytest
+
+from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_history import build_historical_feature_panel
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_walkforward import (
@@ -58,12 +61,24 @@ def _market(sessions=180, symbols=12):
     return result
 
 
+def _sealed_market_panel(sessions):
+    panel = {
+        "schema_version": 1,
+        "panel_id": "TEST-MARKET-PANEL",
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "sessions": sessions,
+        "live_capital_allowed": False,
+    }
+    panel["panel_sha256"] = digest(panel)
+    return panel
+
+
 def test_one_session_examples_use_next_session_open_to_close():
     market = _market()
     features = build_historical_feature_panel(sessions=market)
     examples, exclusions = build_one_session_examples(
         feature_panel=features,
-        market_panel={"sessions": market},
+        market_panel=_sealed_market_panel(market),
     )
     assert examples
     first = examples[0]
@@ -77,7 +92,7 @@ def test_walkforward_is_purged_and_oos():
     features = build_historical_feature_panel(sessions=market)
     report = run_ridge_walkforward(
         feature_panel=features,
-        market_panel={"sessions": market},
+        market_panel=_sealed_market_panel(market),
         folds=[
             {"start": market[100]["session_date"], "end": market[129]["session_date"]},
             {"start": market[130]["session_date"], "end": market[159]["session_date"]},
@@ -95,3 +110,23 @@ def test_walkforward_is_purged_and_oos():
         for prediction in report["oos_predictions"]
     )
     assert report["live_capital_allowed"] is False
+    assert len(report["input_market_panel_sha256"]) == 64
+    assert len(report["input_feature_panel_sha256"]) == 64
+    assert len(report["ranked_feature_panel_sha256"]) == 64
+    assert report["folds"][0]["ridge_model"]["model_sha256"] == report["folds"][0]["model_sha256"]
+    assert "NOT_A_TURNOVER_OR_IMPLEMENTABLE_PNL_MODEL" in report["cost_stress_interpretation"]
+
+
+def test_walkforward_rejects_tampered_input_panel():
+    market = _market()
+    features = build_historical_feature_panel(sessions=market)
+    sealed = _sealed_market_panel(market)
+    sealed["sessions"][0]["session_date"] = "1999-01-01"
+    with pytest.raises(AlphaContractError, match="market panel hash mismatch"):
+        run_ridge_walkforward(
+            feature_panel=features,
+            market_panel=sealed,
+            folds=[
+                {"start": market[100]["session_date"], "end": market[129]["session_date"]}
+            ],
+        )
