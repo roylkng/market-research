@@ -114,7 +114,6 @@ def fit_ridge(
         raise AlphaContractError("feature_names must be non-empty and unique")
 
     matrix, targets, medians, scales = _matrix(examples, names)
-    means = np.where(scales == 1.0, 0.0, 0.0)
     # _matrix already centered using the training means. Recompute them from filled inputs
     # so the transform can be serialized and reused exactly for OOS inference.
     raw = np.empty((len(examples), len(names)), dtype=float)
@@ -163,7 +162,14 @@ def fit_ridge(
     )
 
 
-def predict_ridge(model: RidgeModel, examples: list[ModelExample]) -> list[dict[str, Any]]:
+def predict_ridge(
+    model: RidgeModel,
+    examples: list[ModelExample],
+    *,
+    prediction_role: str,
+) -> list[dict[str, Any]]:
+    if prediction_role not in {"DEVELOPMENT", "OOS"}:
+        raise AlphaContractError("prediction_role must be DEVELOPMENT or OOS")
     if not examples:
         return []
     medians = np.asarray(model.feature_medians, dtype=float)
@@ -192,7 +198,8 @@ def predict_ridge(model: RidgeModel, examples: list[ModelExample]) -> list[dict[
             "horizon_sessions": row.horizon_sessions,
             "prediction": float(predictions[index]),
             "target_excess_return": row.target_excess_return,
-            "oos_only": True,
+            "prediction_role": prediction_role,
+            "oos_only": prediction_role == "OOS",
             "live_capital_allowed": False,
         }
         for index, row in enumerate(examples)
