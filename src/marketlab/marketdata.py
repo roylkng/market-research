@@ -26,6 +26,7 @@ INDEX_SNAPSHOT_URL_TEMPLATE = (
 UNADJUSTED_PRICE_BASIS_VERSION = "NSE-RAW-UNADJUSTED-v1"
 INDEX_NAMES = {
     "nifty_50": "Nifty 50",
+    "nifty_500": "Nifty 500",
     "nifty_200_momentum_30": "Nifty200 Momentum 30",
 }
 
