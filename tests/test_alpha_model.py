@@ -92,4 +92,4 @@ def test_cross_sectional_evaluator_reports_positive_rank_ic_and_spread():
     assert report["session_count"] == 3
     assert report["mean_rank_ic"] == pytest.approx(1.0)
     assert report["mean_top_minus_bottom_spread"] > 0
-    assert report["average_top_decile_turnover"] == pytest.approx(0.0)
+    assert report["average_top_decile_selection_churn"] == pytest.approx(0.0)
