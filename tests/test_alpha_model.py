@@ -49,7 +49,7 @@ def test_ridge_learns_simple_monotonic_cross_section():
         feature_names=["signal", "noise"],
         l2=0.1,
     )
-    predictions = predict_ridge(model, train)
+    predictions = predict_ridge(model, train, prediction_role="DEVELOPMENT")
     assert predictions[-1]["prediction"] > predictions[0]["prediction"]
     assert model.training_example_count == 49
     assert len(model.model_sha256) == 64
