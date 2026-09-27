@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+from marketlab.alpha_actions import build_share_action_panel
 from marketlab.alpha_history import (
     build_historical_feature_panel,
     canonical_gzip_json,
@@ -101,3 +102,74 @@ def test_historical_panel_rejects_gapped_identity_history():
     }
     assert "A" not in final_symbols
     assert "B" in final_symbols
+
+
+
+def test_action_safe_panel_excludes_window_until_sixty_clean_sessions_reaccumulate():
+    sessions = _sessions(count=130)
+    action_day = sessions[80]["session_date"]
+    panel = build_share_action_panel(
+        [
+            {
+                "symbol": "A",
+                "series": "EQ",
+                "subject": "Bonus 1:1",
+                "exDate": action_day,
+            }
+        ],
+        start_date=date.fromisoformat(sessions[0]["session_date"]),
+        end_date=date.fromisoformat(sessions[-1]["session_date"]),
+        source_url="https://www.nseindia.com/api/corporates-corporateActions?x=1",
+        raw_sha256="c" * 64,
+    )
+    features = build_historical_feature_panel(
+        sessions=sessions,
+        share_action_panel=panel,
+        require_action_safe_features=True,
+    )
+    action_index = 80
+    blocked_through = action_index + 59
+    for index in range(action_index, min(blocked_through + 1, len(sessions))):
+        day = sessions[index]["session_date"]
+        symbols = {
+            row["symbol"]
+            for row in features["rows"]
+            if row["feature_session"] == day
+        }
+        assert "A" not in symbols
+        assert "B" in symbols
+
+    recovered_day = sessions[action_index + 60]["session_date"]
+    recovered_symbols = {
+        row["symbol"]
+        for row in features["rows"]
+        if row["feature_session"] == recovered_day
+    }
+    assert "A" in recovered_symbols
+    assert features["share_action_safety"]["required"] is True
+    assert features["share_action_safety"]["blocked_row_count"] > 0
+
+
+def test_action_safe_panel_excludes_unresolved_symbol():
+    sessions = _sessions(count=64)
+    panel = build_share_action_panel(
+        [
+            {
+                "symbol": "A",
+                "series": "EQ",
+                "subject": "Rights Issue",
+                "exDate": "unknown",
+            }
+        ],
+        start_date=date.fromisoformat(sessions[0]["session_date"]),
+        end_date=date.fromisoformat(sessions[-1]["session_date"]),
+        source_url="https://www.nseindia.com/api/corporates-corporateActions?x=1",
+        raw_sha256="d" * 64,
+    )
+    features = build_historical_feature_panel(
+        sessions=sessions,
+        share_action_panel=panel,
+        require_action_safe_features=True,
+    )
+    assert all(row["symbol"] != "A" for row in features["rows"])
+    assert features["share_action_safety"]["unresolved_row_count"] > 0
