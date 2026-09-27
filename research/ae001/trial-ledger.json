@@ -1,5 +1,5 @@
 {
-  "event_count": 5,
+  "event_count": 6,
   "events": [
     {
       "event_sha256": "8561ba05db09f3b1ccc14c3bc656b2ecfc067f9c7694a4ba553a71ece37d3d6e",
@@ -7,13 +7,13 @@
       "payload": {
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "features": "AE001_PRICE_VOLUME_18",
-        "folds": [["2026-04-01","2026-06-30"],["2026-07-01","2026-09-24"]],
+        "folds": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-24"]],
         "horizons": [1],
         "live_capital_allowed": false,
         "model": {"l2": 1.0, "type": "ridge"},
         "name": "initial_18_feature_1d_ridge",
         "pre_registered_in_trial_ledger": false,
-        "source_window": ["2025-09-01","2026-09-25"],
+        "source_window": ["2025-09-01", "2026-09-25"],
         "status": "RETROSPECTIVE_LEDGER_SEED"
       },
       "recorded_at_utc": "2026-09-26T11:37:29+00:00",
@@ -39,7 +39,7 @@
       "payload": {
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "features": "AE001_PRICE_VOLUME_18_ACTION_SAFE",
-        "horizons": [1,5,20,60],
+        "horizons": [1, 5, 20, 60],
         "live_capital_allowed": false,
         "model": {"l2": 1.0, "type": "ridge"},
         "name": "action_safe_diagnostics_and_multihorizon",
@@ -76,12 +76,7 @@
         "diagnostic_horizon": 20,
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "excluded_horizon": 60,
-        "inference": {
-          "lag_1d": 5,
-          "lag_20d": 19,
-          "lag_5d": 4,
-          "method": "paired_newey_west"
-        },
+        "inference": {"lag_1d": 5, "lag_20d": 19, "lag_5d": 4, "method": "paired_newey_west"},
         "live_capital_allowed": false,
         "model": {"l2": 1.0, "type": "ridge"},
         "name": "nse_delivery_vwap_incremental_feature_family",
@@ -98,10 +93,7 @@
         ],
         "outcomes_for_new_feature_family_opened_before_registration": false,
         "primary_horizon": 1,
-        "primary_metrics": [
-          "paired_daily_rank_ic_difference",
-          "paired_daily_top_minus_bottom_spread_difference"
-        ],
+        "primary_metrics": ["paired_daily_rank_ic_difference", "paired_daily_top_minus_bottom_spread_difference"],
         "secondary_horizon": 5,
         "source": {
           "filename_pattern": "sec_bhavdata_full_DDMMYYYY.csv",
@@ -114,10 +106,38 @@
       "recorded_at_utc": "2026-09-27T08:10:00+00:00",
       "seq": 5,
       "trial_id": "AE001-T003"
+    },
+    {
+      "event_sha256": "97dcd6dafaa253e1df85cb53b5900aad0289e8097b21f6f7ed1fd39badc8a1f8",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "base_and_augmented_sample": "IDENTICAL_DELIVERY_COMPLETE_ROWS",
+        "cost_model_status": "NOT_IMPLEMENTED_TC001_REQUIRED",
+        "delivery_history_sessions_including_current": 21,
+        "delivery_join": "same_session_EQ_symbol_rebound_to_UDIFF_symbol_plus_ISIN",
+        "feature_count_augmented": 27,
+        "feature_count_base": 18,
+        "feature_count_delivery": 9,
+        "folds": {
+          "1": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-24"]],
+          "20": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-08-27"]],
+          "5": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-18"]]
+        },
+        "live_capital_allowed": false,
+        "missing_delivery_policy": "EXCLUDE_ROW_NO_IMPUTATION",
+        "no_parameter_change_after_delivery_outcomes_open": true,
+        "protocol_id": "AE001-T003-P1",
+        "reason": "Freeze exact windows/folds and source-completeness rules before first delivery-feature outcome run.",
+        "ridge_l2": 1.0,
+        "source_window": ["2025-09-01", "2026-09-25"]
+      },
+      "recorded_at_utc": "2026-09-27T08:20:00+00:00",
+      "seq": 6,
+      "trial_id": "AE001-T003"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "8392d89c605441cb6444c28299c73add0be808ad060068f68af533b3d2e18432",
+  "ledger_sha256": "1738e32b7fbe987ced5ff67f179c61be23c858d86104e68bf0075019fc5fe331",
   "live_capital_allowed": false,
   "schema_version": 1
 }
