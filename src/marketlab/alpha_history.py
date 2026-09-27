@@ -9,6 +9,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, cross_sectional_percentile, digest
+from marketlab.alpha_actions import action_window_status, validate_share_action_panel
 from marketlab.alpha_market import (
     DailyEquityObservation,
     build_price_volume_features_from_history,
@@ -65,6 +66,8 @@ def load_canonical_gzip_json(raw: bytes) -> Any:
 def build_historical_feature_panel(
     *,
     sessions: list[dict[str, Any]],
+    share_action_panel: dict[str, Any] | None = None,
+    require_action_safe_features: bool = False,
 ) -> dict[str, Any]:
     """Materialize scalable AE001 price/volume features from ordered daily sessions.
 
@@ -76,6 +79,12 @@ def build_historical_feature_panel(
 
     if not sessions:
         raise AlphaContractError("historical sessions cannot be empty")
+    if require_action_safe_features and share_action_panel is None:
+        raise AlphaContractError(
+            "action-safe historical features require a share-action panel"
+        )
+    if share_action_panel is not None:
+        validate_share_action_panel(share_action_panel)
     ordered = sorted(sessions, key=lambda row: str(row["session_date"]))
     if [row["session_date"] for row in sessions] != [
         row["session_date"] for row in ordered
@@ -97,6 +106,8 @@ def build_historical_feature_panel(
     source_sha_by_session: dict[str, str] = {}
     rows: list[dict[str, Any]] = []
     session_records: list[dict[str, Any]] = []
+    action_blocked_row_count = 0
+    action_unresolved_row_count = 0
 
     for session_index, session in enumerate(ordered):
         session_date = str(session["session_date"])
@@ -146,7 +157,10 @@ def build_historical_feature_panel(
             histories[identity].append(observation)
             history_session_indices[identity].append(session_index)
 
+        investable_before_actions: list[tuple[str, str]] = []
         eligible: list[tuple[str, str]] = []
+        session_action_blocked = 0
+        session_action_unresolved = 0
         for identity in sorted(current_identities):
             history = list(histories[identity])
             observed_indices = list(history_session_indices[identity])
@@ -155,8 +169,32 @@ def build_historical_feature_panel(
                 len(observed_indices) == 61
                 and observed_indices == expected_indices
             )
-            if has_contiguous_market_history and eligible_history_for_ae001(history):
-                eligible.append(identity)
+            if not (
+                has_contiguous_market_history
+                and eligible_history_for_ae001(history)
+            ):
+                continue
+            investable_before_actions.append(identity)
+            if share_action_panel is not None:
+                action_status, _ = action_window_status(
+                    share_action_panel,
+                    symbol=identity[0],
+                    start_session=history[0].session_date,
+                    end_session=history[-1].session_date,
+                )
+                if action_status == "BLOCKED":
+                    session_action_blocked += 1
+                    action_blocked_row_count += 1
+                    continue
+                if action_status == "UNRESOLVED":
+                    session_action_unresolved += 1
+                    action_unresolved_row_count += 1
+                    continue
+            elif require_action_safe_features:
+                raise AlphaContractError(
+                    "share-action panel disappeared during feature build"
+                )
+            eligible.append(identity)
 
         universe_sha256 = digest(
             [{"symbol": symbol, "isin": isin} for symbol, isin in eligible]
@@ -193,7 +231,12 @@ def build_historical_feature_panel(
         session_records.append(
             {
                 "session_date": session_date,
+                "investable_before_action_filter_count": len(
+                    investable_before_actions
+                ),
                 "eligible_count": len(eligible),
+                "share_action_blocked_count": session_action_blocked,
+                "share_action_unresolved_count": session_action_unresolved,
                 "universe_sha256": universe_sha256,
                 "udiff_sha256": udiff_sha,
                 "benchmark_sha256": benchmark_sha,
@@ -212,6 +255,22 @@ def build_historical_feature_panel(
             "SESSION_OHLCV_ASSUMED_OBSERVABLE_BY_18:00_IST; "
             "ARCHIVE_BYTES_RETRIEVED_RETROSPECTIVELY_FOR_DEVELOPMENT_ONLY"
         ),
+        "share_action_safety": {
+            "required": require_action_safe_features,
+            "panel_sha256": (
+                None
+                if share_action_panel is None
+                else share_action_panel["panel_sha256"]
+            ),
+            "policy": (
+                "EXCLUDE_RAW_PRICE_FEATURE_ROW_IF_61_SESSION_WINDOW_CROSSES_"
+                "SHARE_CHANGING_EX_DATE"
+                if share_action_panel is not None
+                else "NOT_APPLIED"
+            ),
+            "blocked_row_count": action_blocked_row_count,
+            "unresolved_row_count": action_unresolved_row_count,
+        },
         "session_count": len(session_records),
         "feature_row_count": len(rows),
         "sessions": session_records,
