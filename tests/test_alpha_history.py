@@ -106,7 +106,7 @@ def test_historical_panel_rejects_gapped_identity_history():
 
 
 def test_action_safe_panel_excludes_window_until_sixty_clean_sessions_reaccumulate():
-    sessions = _sessions(count=130)
+    sessions = _sessions(count=150)
     action_day = sessions[80]["session_date"]
     panel = build_share_action_panel(
         [
