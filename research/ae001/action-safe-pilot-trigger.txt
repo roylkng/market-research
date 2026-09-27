@@ -11,3 +11,10 @@ Frozen inputs for this run:
 - 60D folds: 2026-04-01..2026-05-29, 2026-06-01..2026-06-30
 - ridge l2: 1.0
 - live capital disabled
+
+Post-review inference rerun on 2026-09-27. Research inputs are unchanged.
+The only changes are:
+- paired ridge-minus-training-selected-single-feature HAC inference;
+- overlap-aware Newey-West lag = horizon - 1 for multi-session labels,
+  capped by available validation sessions.
+
