@@ -148,6 +148,7 @@ def _prediction_baseline(
     *,
     feature_name: str,
     model_id: str,
+    direction: float = 1.0,
 ) -> list[dict[str, Any]]:
     rows = []
     for example in examples:
@@ -160,7 +161,7 @@ def _prediction_baseline(
                 "symbol": example.symbol,
                 "isin": example.isin,
                 "feature_session": example.feature_session,
-                "prediction": float(value),
+                "prediction": direction * float(value),
                 "target_excess_return": example.target_excess_return,
                 "prediction_role": "OOS",
                 "oos_only": True,
@@ -168,6 +169,25 @@ def _prediction_baseline(
             }
         )
     return rows
+
+
+def _fit_feature_direction(
+    examples: list[ModelExample],
+    *,
+    feature_name: str,
+) -> tuple[float, float | None]:
+    training_predictions = _prediction_baseline(
+        examples,
+        feature_name=feature_name,
+        model_id=f"AE001-TRAIN-DIRECTION-{feature_name}",
+        direction=1.0,
+    )
+    report = evaluate_cross_sectional_predictions(training_predictions)
+    mean_ic = report.get("mean_rank_ic")
+    if mean_ic is None:
+        return 1.0, None
+    value = float(mean_ic)
+    return (1.0 if value >= 0 else -1.0), value
 
 
 def _full_round_trip_stress_views(
@@ -234,6 +254,11 @@ def run_ridge_walkforward(
 
     all_predictions: list[dict[str, Any]] = []
     baseline_predictions: list[dict[str, Any]] = []
+    individual_feature_predictions: dict[str, list[dict[str, Any]]] = {
+        feature: [] for feature in selected
+    }
+    best_single_feature_predictions: list[dict[str, Any]] = []
+    best_single_feature_choices: list[dict[str, Any]] = []
     fold_reports = []
 
     prior_end: str | None = None
@@ -276,6 +301,72 @@ def run_ridge_walkforward(
             feature_name="momentum_20",
             model_id=f"AE001-BASE-MOM20-F{fold_index:02d}",
         )
+        fold_feature_baselines: dict[str, Any] = {}
+        direction_candidates: list[tuple[float, str, float, float | None]] = []
+        for feature in selected:
+            direction, training_mean_ic = _fit_feature_direction(
+                train,
+                feature_name=feature,
+            )
+            validation_feature_predictions = _prediction_baseline(
+                validation,
+                feature_name=feature,
+                model_id=(
+                    f"AE001-BASE-{feature}-F{fold_index:02d}"
+                ),
+                direction=direction,
+            )
+            individual_feature_predictions[feature].extend(
+                validation_feature_predictions
+            )
+            validation_feature_report = evaluate_cross_sectional_predictions(
+                validation_feature_predictions
+            )
+            fold_feature_baselines[feature] = {
+                "direction": direction,
+                "training_mean_rank_ic_unoriented": training_mean_ic,
+                "validation": validation_feature_report,
+            }
+            training_strength = (
+                -1.0 if training_mean_ic is None else abs(float(training_mean_ic))
+            )
+            direction_candidates.append(
+                (
+                    training_strength,
+                    feature,
+                    direction,
+                    training_mean_ic,
+                )
+            )
+
+        direction_candidates.sort(key=lambda item: (-item[0], item[1]))
+        (
+            best_training_strength,
+            best_feature,
+            best_direction,
+            best_training_mean_ic,
+        ) = direction_candidates[0]
+        best_predictions = _prediction_baseline(
+            validation,
+            feature_name=best_feature,
+            model_id=f"AE001-BEST-SINGLE-F{fold_index:02d}",
+            direction=best_direction,
+        )
+        best_single_feature_predictions.extend(best_predictions)
+        best_single_feature_choices.append(
+            {
+                "fold": fold_index,
+                "feature": best_feature,
+                "direction": best_direction,
+                "training_abs_mean_rank_ic": (
+                    None
+                    if best_training_strength < 0
+                    else best_training_strength
+                ),
+                "training_mean_rank_ic_unoriented": best_training_mean_ic,
+            }
+        )
+
         all_predictions.extend(predictions)
         baseline_predictions.extend(baseline)
         fold_reports.append(
@@ -290,11 +381,23 @@ def run_ridge_walkforward(
                 "ridge_model": asdict(model),
                 "ridge": evaluate_cross_sectional_predictions(predictions),
                 "momentum_20_baseline": evaluate_cross_sectional_predictions(baseline),
+                "directional_single_feature_baselines": fold_feature_baselines,
+                "best_single_feature_choice": best_single_feature_choices[-1],
+                "best_single_feature_validation": (
+                    evaluate_cross_sectional_predictions(best_predictions)
+                ),
             }
         )
 
     ridge_report = evaluate_cross_sectional_predictions(all_predictions)
     baseline_report = evaluate_cross_sectional_predictions(baseline_predictions)
+    individual_feature_reports = {
+        feature: evaluate_cross_sectional_predictions(predictions)
+        for feature, predictions in sorted(individual_feature_predictions.items())
+    }
+    best_single_feature_report = evaluate_cross_sectional_predictions(
+        best_single_feature_predictions
+    )
     report: dict[str, Any] = {
         "schema_version": 1,
         "walkforward_id": AE001_WALKFORWARD_ID,
@@ -314,6 +417,9 @@ def run_ridge_walkforward(
         "oos_prediction_count": len(all_predictions),
         "ridge": ridge_report,
         "momentum_20_baseline": baseline_report,
+        "directional_single_feature_baselines": individual_feature_reports,
+        "best_single_feature_choices": best_single_feature_choices,
+        "best_single_feature_baseline": best_single_feature_report,
         "cost_stress_interpretation": (
             "FULL_ROUND_TRIP_COST_APPLIED_TO_EACH_SESSION_TOP_DECILE_MEAN; "
             "NOT_A_TURNOVER_OR_IMPLEMENTABLE_PNL_MODEL"
@@ -323,6 +429,9 @@ def run_ridge_walkforward(
         ),
         "baseline_top_decile_full_round_trip_stress_views": (
             _full_round_trip_stress_views(baseline_report)
+        ),
+        "best_single_feature_top_decile_full_round_trip_stress_views": (
+            _full_round_trip_stress_views(best_single_feature_report)
         ),
         "oos_predictions": all_predictions,
         "live_capital_allowed": False,
