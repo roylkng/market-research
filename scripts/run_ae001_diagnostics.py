@@ -7,6 +7,7 @@ from pathlib import Path
 from marketlab.alpha import digest
 from marketlab.alpha_diagnostics import (
     leave_one_feature_out_ridge_walkforward,
+    paired_report_difference_inference,
     report_time_series_inference,
     signed_single_feature_walkforward,
     summarize_ablation_delta,
@@ -95,6 +96,13 @@ def main() -> int:
         "best_single_feature_train_selected": report_time_series_inference(
             singles["best_single_feature_train_selected_oos"],
             max_lag=args.newey_west_lag,
+        ),
+        "ridge_minus_train_selected_single": (
+            paired_report_difference_inference(
+                ridge["ridge"],
+                singles["best_single_feature_train_selected_oos"],
+                max_lag=args.newey_west_lag,
+            )
         ),
     }
 
