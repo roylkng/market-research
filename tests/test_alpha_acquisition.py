@@ -8,6 +8,7 @@ import pytest
 from marketlab.alpha_acquisition import (
     AlphaAcquisitionError,
     acquire_historical_market_panel,
+    acquire_historical_share_action_panel,
 )
 from marketlab.marketdata import index_snapshot_url, udiff_url
 
@@ -101,3 +102,37 @@ def test_acquisition_fails_if_session_lacks_benchmark_snapshot():
             end_date=day,
             fetcher=fetch,
         )
+
+
+
+class _FakeCorporateActionEndpoint:
+    url = "https://www.nseindia.com/api/corporates-corporateActions"
+
+
+class _FakeNSEClient:
+    CORPORATE_ACTION_ENDPOINT = _FakeCorporateActionEndpoint()
+
+    def corporate_actions_window_with_raw(self, *, from_date, to_date):
+        assert from_date == "01-01-2026"
+        assert to_date == "31-01-2026"
+        payload = [
+            {
+                "symbol": "TEST",
+                "series": "EQ",
+                "subject": "Bonus 1:1",
+                "exDate": "15-Jan-2026",
+            }
+        ]
+        return payload, b'[{"symbol":"TEST"}]'
+
+
+def test_acquire_share_actions_uses_one_whole_market_window():
+    panel = acquire_historical_share_action_panel(
+        start_date=date(2026, 1, 1),
+        end_date=date(2026, 1, 31),
+        client=_FakeNSEClient(),
+        captured_at_utc=datetime(2026, 9, 27, tzinfo=UTC),
+    )
+    assert panel["panel_id"] == "AE001-SHARE-ACTIONS-v1"
+    assert panel["share_changing_record_count"] == 1
+    assert panel["actions_by_symbol"]["TEST"][0]["ex_date"] == "2026-01-15"
