@@ -6,10 +6,12 @@ from dataclasses import asdict
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 import requests
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha_actions import build_share_action_panel
 from marketlab.alpha_history import HISTORICAL_EVIDENCE_CLASS
 from marketlab.alpha_market import parse_udiff_eq_panel
 from marketlab.events import sha256_bytes
@@ -21,6 +23,7 @@ from marketlab.marketdata import (
     parse_index_snapshot,
     udiff_url,
 )
+from marketlab.nse import NSEClient
 
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -176,3 +179,61 @@ def acquire_historical_market_panel(
     }
     panel["panel_sha256"] = digest(panel)
     return panel
+
+
+
+def acquire_historical_share_action_panel(
+    *,
+    start_date: date,
+    end_date: date,
+    client: NSEClient,
+    store_root: str | Path | None = None,
+    captured_at_utc: datetime | None = None,
+) -> dict[str, Any]:
+    """Acquire one exact whole-market NSE corporate-action window for AE001.
+
+    The source is used only to identify raw-price feature windows that cross a
+    share-basis-changing event. It is historical reconstruction evidence, not a
+    prospective alpha input.
+    """
+
+    if start_date > end_date:
+        raise AlphaAcquisitionError("corporate-action start date exceeds end date")
+    captured = captured_at_utc or datetime.now(UTC)
+    if captured.tzinfo is None:
+        raise AlphaAcquisitionError("captured_at_utc must be timezone-aware")
+
+    from_text = start_date.strftime("%d-%m-%Y")
+    to_text = end_date.strftime("%d-%m-%Y")
+    try:
+        payload, raw = client.corporate_actions_window_with_raw(
+            from_date=from_text,
+            to_date=to_text,
+        )
+    except Exception as exc:
+        raise AlphaAcquisitionError(
+            f"NSE whole-market corporate-action acquisition failed: {exc}"
+        ) from exc
+    raw_sha256 = sha256_bytes(raw)
+    query = urlencode(
+        {
+            "index": "equities",
+            "from_date": from_text,
+            "to_date": to_text,
+        }
+    )
+    source_url = f"{client.CORPORATE_ACTION_ENDPOINT.url}?{query}"
+    if store_root is not None:
+        MarketArtifactStore(store_root).retain(
+            raw,
+            source_url=source_url,
+            captured_at=captured,
+            suffix=".json",
+        )
+    return build_share_action_panel(
+        payload,
+        start_date=start_date,
+        end_date=end_date,
+        source_url=source_url,
+        raw_sha256=raw_sha256,
+    )
