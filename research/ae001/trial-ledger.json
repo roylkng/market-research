@@ -1,5 +1,5 @@
 {
-  "event_count": 6,
+  "event_count": 7,
   "events": [
     {
       "event_sha256": "8561ba05db09f3b1ccc14c3bc656b2ecfc067f9c7694a4ba553a71ece37d3d6e",
@@ -7,13 +7,30 @@
       "payload": {
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "features": "AE001_PRICE_VOLUME_18",
-        "folds": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-24"]],
-        "horizons": [1],
+        "folds": [
+          [
+            "2026-04-01",
+            "2026-06-30"
+          ],
+          [
+            "2026-07-01",
+            "2026-09-24"
+          ]
+        ],
+        "horizons": [
+          1
+        ],
         "live_capital_allowed": false,
-        "model": {"l2": 1.0, "type": "ridge"},
+        "model": {
+          "l2": 1,
+          "type": "ridge"
+        },
         "name": "initial_18_feature_1d_ridge",
         "pre_registered_in_trial_ledger": false,
-        "source_window": ["2025-09-01", "2026-09-25"],
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ],
         "status": "RETROSPECTIVE_LEDGER_SEED"
       },
       "recorded_at_utc": "2026-09-26T11:37:29+00:00",
@@ -39,9 +56,17 @@
       "payload": {
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "features": "AE001_PRICE_VOLUME_18_ACTION_SAFE",
-        "horizons": [1, 5, 20, 60],
+        "horizons": [
+          1,
+          5,
+          20,
+          60
+        ],
         "live_capital_allowed": false,
-        "model": {"l2": 1.0, "type": "ridge"},
+        "model": {
+          "l2": 1,
+          "type": "ridge"
+        },
         "name": "action_safe_diagnostics_and_multihorizon",
         "pre_registered_in_trial_ledger": false,
         "status": "RETROSPECTIVE_LEDGER_SEED"
@@ -76,9 +101,17 @@
         "diagnostic_horizon": 20,
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "excluded_horizon": 60,
-        "inference": {"lag_1d": 5, "lag_20d": 19, "lag_5d": 4, "method": "paired_newey_west"},
+        "inference": {
+          "lag_1d": 5,
+          "lag_20d": 19,
+          "lag_5d": 4,
+          "method": "paired_newey_west"
+        },
         "live_capital_allowed": false,
-        "model": {"l2": 1.0, "type": "ridge"},
+        "model": {
+          "l2": 1,
+          "type": "ridge"
+        },
         "name": "nse_delivery_vwap_incremental_feature_family",
         "new_features": [
           "delivery_pct",
@@ -93,7 +126,10 @@
         ],
         "outcomes_for_new_feature_family_opened_before_registration": false,
         "primary_horizon": 1,
-        "primary_metrics": ["paired_daily_rank_ic_difference", "paired_daily_top_minus_bottom_spread_difference"],
+        "primary_metrics": [
+          "paired_daily_rank_ic_difference",
+          "paired_daily_top_minus_bottom_spread_difference"
+        ],
         "secondary_horizon": 5,
         "source": {
           "filename_pattern": "sec_bhavdata_full_DDMMYYYY.csv",
@@ -119,25 +155,73 @@
         "feature_count_base": 18,
         "feature_count_delivery": 9,
         "folds": {
-          "1": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-24"]],
-          "20": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-08-27"]],
-          "5": [["2026-04-01", "2026-06-30"], ["2026-07-01", "2026-09-18"]]
+          "1": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "5": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "20": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-08-27"
+            ]
+          ]
         },
         "live_capital_allowed": false,
         "missing_delivery_policy": "EXCLUDE_ROW_NO_IMPUTATION",
         "no_parameter_change_after_delivery_outcomes_open": true,
         "protocol_id": "AE001-T003-P1",
         "reason": "Freeze exact windows/folds and source-completeness rules before first delivery-feature outcome run.",
-        "ridge_l2": 1.0,
-        "source_window": ["2025-09-01", "2026-09-25"]
+        "ridge_l2": 1,
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ]
       },
       "recorded_at_utc": "2026-09-27T07:49:00+00:00",
       "seq": 6,
       "trial_id": "AE001-T003"
+    },
+    {
+      "event_sha256": "7f5e52c9409e892a7d0f7973698234b929bc9dfcc972b4aed9599e7dd3adcbaa",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "execution_proxy_for_development": "NEXT_COMPLETED_NSE_SESSION_OPEN",
+        "historical_delivery_publication_timestamp_available": false,
+        "historical_result_may_count_as_prospective_validation": false,
+        "historical_result_may_establish_information_content": true,
+        "historical_timing_class": "UNVERIFIED_EOD_SOURCE_PUBLICATION_TIME",
+        "live_capital_allowed": false,
+        "prospective_promotion_requires": "LIVE_DELIVERY_CAPTURE_PROVES_SOURCE_AVAILABLE_BY_FROZEN_DECISION_CUTOFF",
+        "protocol_id": "AE001-T003-P2",
+        "reason": "Record historical delivery-source timing limitation before first outcome run."
+      },
+      "recorded_at_utc": "2026-09-27T07:50:00+00:00",
+      "seq": 7,
+      "trial_id": "AE001-T003"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "65eb6cdadb3d40d5149aacfd1401af8f54076a0f0f27ed578e8f748753a51753",
+  "ledger_sha256": "822b126b6a5cb527e8b2bf6b6e4c54f164a4e0a0ab3e417f89eb0ae61f32097d",
   "live_capital_allowed": false,
   "schema_version": 1
 }
