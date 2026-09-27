@@ -84,6 +84,7 @@ def main() -> int:
                 for metric, metric_value in value["ridge"].items()
                 if metric != "session_metrics"
             },
+            "overlap_hac_lag": value["overlap_hac_lag"],
             "ridge_time_series_inference": value[
                 "ridge_time_series_inference"
             ],
@@ -96,6 +97,9 @@ def main() -> int:
             },
             "best_single_feature_time_series_inference": value[
                 "best_single_feature_time_series_inference"
+            ],
+            "ridge_minus_train_selected_single_inference": value[
+                "ridge_minus_train_selected_single_inference"
             ],
             "selected_single_features_by_fold": [
                 {
