@@ -99,3 +99,45 @@ def append_trial_event(
     updated["ledger_sha256"] = _ledger_hash(updated)
     validate_trial_ledger(updated)
     return updated
+
+
+
+def trial_state(ledger: dict[str, Any], trial_id: str) -> dict[str, Any]:
+    """Return registration/result state for one immutable trial identity."""
+
+    validate_trial_ledger(ledger)
+    registration = None
+    results = []
+    for event in ledger["events"]:
+        if event["trial_id"] != trial_id:
+            continue
+        if event["event_type"] == "TRIAL_REGISTERED":
+            registration = event
+        elif event["event_type"] == "TRIAL_RESULT_RECORDED":
+            results.append(event)
+    if registration is None:
+        raise AlphaContractError(f"trial is not registered: {trial_id}")
+    return {
+        "registration": registration,
+        "results": results,
+        "result_count": len(results),
+    }
+
+
+def require_unopened_registered_trial(
+    ledger: dict[str, Any],
+    *,
+    trial_id: str,
+    required_status: str,
+) -> dict[str, Any]:
+    state = trial_state(ledger, trial_id)
+    status = str(state["registration"]["payload"].get("status") or "")
+    if status != required_status:
+        raise AlphaContractError(
+            f"{trial_id}: expected registration status {required_status}, got {status}"
+        )
+    if state["result_count"] != 0:
+        raise AlphaContractError(
+            f"{trial_id}: outcome result already exists in trial ledger"
+        )
+    return state["registration"]
