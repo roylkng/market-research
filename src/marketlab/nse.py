@@ -195,6 +195,22 @@ class NSEClient:
             },
         )
 
+    def corporate_actions_window_with_raw(
+        self,
+        *,
+        from_date: str,
+        to_date: str,
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact whole-market NSE equity corporate-action bytes for a date window."""
+        return self._json_get_with_raw(
+            self.CORPORATE_ACTION_ENDPOINT,
+            params={
+                "index": "equities",
+                "from_date": from_date,
+                "to_date": to_date,
+            },
+        )
+
     def trading_holidays_with_raw(self) -> tuple[JSONPayload, bytes]:
         """Fetch exact NSE trading-holiday master bytes for calendar snapshotting."""
         return self._json_get_with_raw(self.HOLIDAY_ENDPOINT, params={"type": "trading"})
