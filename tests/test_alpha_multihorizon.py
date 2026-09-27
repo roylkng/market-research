@@ -181,4 +181,20 @@ def test_multihorizon_walkforward_purges_by_horizon_exit():
         report["horizons"]["20"]["folds"][0]["training_last_exit_session"]
         < report["horizons"]["20"]["folds"][0]["start"]
     )
+    assert report["horizons"]["5"]["overlap_hac_lag"] == 4
+    assert report["horizons"]["20"]["overlap_hac_lag"] == 19
+    assert (
+        report["horizons"]["20"]["ridge_time_series_inference"]["metrics"][
+            "rank_ic"
+        ]["newey_west_lag"]
+        == 9
+    )
+    # The synthetic fold has 10 validation sessions, so the implementation
+    # correctly caps requested horizon-1 lag at n-1.
+    assert (
+        report["horizons"]["20"]["ridge_minus_train_selected_single_inference"][
+            "common_session_count"
+        ]
+        == 10
+    )
     assert report["live_capital_allowed"] is False
