@@ -81,6 +81,52 @@ def main() -> int:
         for key, value in report["momentum_20_baseline"].items()
         if key != "session_metrics"
     }
+    summary["best_single_feature_baseline"] = {
+        key: value
+        for key, value in report["best_single_feature_baseline"].items()
+        if key != "session_metrics"
+    }
+    summary["directional_single_feature_baselines"] = {
+        feature: {
+            key: value
+            for key, value in feature_report.items()
+            if key != "session_metrics"
+        }
+        for feature, feature_report in report[
+            "directional_single_feature_baselines"
+        ].items()
+    }
+    summary["folds"] = [
+        {
+            **{
+                key: value
+                for key, value in fold.items()
+                if key
+                not in {
+                    "ridge",
+                    "momentum_20_baseline",
+                    "directional_single_feature_baselines",
+                    "best_single_feature_validation",
+                }
+            },
+            "ridge": {
+                key: value
+                for key, value in fold["ridge"].items()
+                if key != "session_metrics"
+            },
+            "momentum_20_baseline": {
+                key: value
+                for key, value in fold["momentum_20_baseline"].items()
+                if key != "session_metrics"
+            },
+            "best_single_feature_validation": {
+                key: value
+                for key, value in fold["best_single_feature_validation"].items()
+                if key != "session_metrics"
+            },
+        }
+        for fold in report["folds"]
+    ]
     summary["artifact_manifest"] = manifest
     _write_json(args.output / "summary.json", summary)
     print(json.dumps(summary, sort_keys=True))
