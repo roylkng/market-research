@@ -11,6 +11,7 @@ from marketlab.alpha_corporate_actions import (
     validate_action_ledger,
 )
 from marketlab.alpha_diagnostics import (
+    paired_report_difference_inference,
     report_time_series_inference,
     signed_single_feature_walkforward,
 )
@@ -270,14 +271,16 @@ def run_action_safe_horizon_walkforward(
             folds=folds,
             feature_names=feature_names,
         )
+        hac_lag = max(0, horizon - 1)
         horizon_reports[str(horizon)] = {
             "horizon_sessions": horizon,
             "example_count": len(examples),
             "folds": fold_reports,
             "ridge": ridge_report,
+            "overlap_hac_lag": hac_lag,
             "ridge_time_series_inference": report_time_series_inference(
                 ridge_report,
-                max_lag=5,
+                max_lag=hac_lag,
             ),
             "best_single_feature_train_selected": singles[
                 "best_single_feature_train_selected_oos"
@@ -285,7 +288,14 @@ def run_action_safe_horizon_walkforward(
             "best_single_feature_time_series_inference": (
                 report_time_series_inference(
                     singles["best_single_feature_train_selected_oos"],
-                    max_lag=5,
+                    max_lag=hac_lag,
+                )
+            ),
+            "ridge_minus_train_selected_single_inference": (
+                paired_report_difference_inference(
+                    ridge_report,
+                    singles["best_single_feature_train_selected_oos"],
+                    max_lag=hac_lag,
                 )
             ),
             "signed_single_feature_folds": singles["folds"],
