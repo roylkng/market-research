@@ -7,11 +7,15 @@ from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_diagnostics import paired_report_difference_inference
 from marketlab.alpha_multihorizon import run_action_safe_horizon_walkforward
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
-from marketlab.alpha_trials import require_unopened_registered_trial
+from marketlab.alpha_trials import (
+    require_protocol_amendment,
+    require_unopened_registered_trial,
+)
 from marketlab.alpha_walkforward import run_ridge_walkforward
 
 TRIAL_ID = "AE001-T003"
 TRIAL_STATUS = "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"
+PROTOCOL_ID = "AE001-T003-P1"
 
 
 def _feature_names(definitions) -> list[str]:
@@ -34,10 +38,35 @@ def run_delivery_incremental_trial(
         trial_id=TRIAL_ID,
         required_status=TRIAL_STATUS,
     )
+    protocol = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=PROTOCOL_ID,
+    )
+    frozen = protocol["payload"]
+    if float(frozen["ridge_l2"]) != float(l2):
+        raise AlphaContractError("delivery trial l2 differs from frozen protocol")
+
+    def fold_pairs(folds: list[dict[str, str]]) -> list[list[str]]:
+        return [[str(row["start"]), str(row["end"])] for row in folds]
+
+    supplied_folds = {
+        "1": fold_pairs(folds_1d),
+        "5": fold_pairs(folds_5d),
+        "20": fold_pairs(folds_20d),
+    }
+    if supplied_folds != frozen["folds"]:
+        raise AlphaContractError("delivery trial folds differ from frozen protocol")
 
     base_names = _feature_names(PRICE_VOLUME_DEFINITIONS)
     delivery_names = _feature_names(DELIVERY_DEFINITIONS)
     all_names = base_names + delivery_names
+    if (
+        len(base_names) != int(frozen["feature_count_base"])
+        or len(delivery_names) != int(frozen["feature_count_delivery"])
+        or len(all_names) != int(frozen["feature_count_augmented"])
+    ):
+        raise AlphaContractError("delivery trial feature count differs from frozen protocol")
     definitions = feature_panel.get("feature_definitions")
     if not isinstance(definitions, list):
         raise AlphaContractError("delivery trial feature definitions are missing")
@@ -115,6 +144,8 @@ def run_delivery_incremental_trial(
         "engine_id": "AE001-v1-DEVELOPMENT",
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "trial_registration_event_sha256": registration["event_sha256"],
+        "trial_protocol_event_sha256": protocol["event_sha256"],
+        "trial_protocol_id": PROTOCOL_ID,
         "trial_ledger_sha256": trial_ledger["ledger_sha256"],
         "market_panel_sha256": market_panel["panel_sha256"],
         "feature_panel_sha256": feature_panel["panel_sha256"],
