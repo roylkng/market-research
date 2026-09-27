@@ -378,6 +378,53 @@ def report_time_series_inference(
     }
 
 
+def paired_report_difference_inference(
+    left_report: dict[str, Any],
+    right_report: dict[str, Any],
+    *,
+    max_lag: int,
+) -> dict[str, Any]:
+    """HAC inference for paired daily metric differences: left minus right."""
+
+    left_rows = {
+        str(row["feature_session"]): row
+        for row in left_report.get("session_metrics", [])
+    }
+    right_rows = {
+        str(row["feature_session"]): row
+        for row in right_report.get("session_metrics", [])
+    }
+    common = sorted(set(left_rows) & set(right_rows))
+    if len(common) < 3:
+        raise AlphaContractError(
+            "paired report inference requires at least three common sessions"
+        )
+    fields = {
+        "rank_ic": "rank_ic",
+        "top_decile_excess": "top_decile_mean_excess",
+        "top_minus_bottom_spread": "top_minus_bottom_spread",
+    }
+    metrics = {}
+    for name, field in fields.items():
+        values = []
+        for session in common:
+            left = left_rows[session].get(field)
+            right = right_rows[session].get(field)
+            if left is None or right is None:
+                continue
+            values.append(float(left) - float(right))
+        metrics[name] = newey_west_mean_inference(
+            values,
+            max_lag=max_lag,
+        )
+    return {
+        "schema_version": 1,
+        "method": "PAIRED_LEFT_MINUS_RIGHT_NEWEY_WEST_V1",
+        "common_session_count": len(common),
+        "metrics": metrics,
+    }
+
+
 def summarize_ablation_delta(
     full_ridge_report: dict[str, Any],
     ablation_report: dict[str, Any],
