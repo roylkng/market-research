@@ -7,6 +7,7 @@ from pathlib import Path
 
 from marketlab.alpha_acquisition import (
     acquire_historical_market_panel,
+    acquire_historical_share_action_panel,
     http_fetcher,
 )
 from marketlab.alpha_history import (
@@ -14,6 +15,7 @@ from marketlab.alpha_history import (
     canonical_gzip_json,
 )
 from marketlab.events import sha256_bytes
+from marketlab.nse import NSEClient
 
 
 def _write_json(path: Path, payload: object) -> None:
@@ -54,14 +56,31 @@ def main() -> int:
         captured_at_utc=captured,
         pause_seconds=args.pause_seconds,
     )
-    features = build_historical_feature_panel(sessions=market["sessions"])
+    actions = acquire_historical_share_action_panel(
+        start_date=args.start_date,
+        end_date=args.end_date,
+        client=NSEClient(
+            timeout=args.timeout_seconds,
+            attempts=args.attempts,
+        ),
+        store_root=args.store,
+        captured_at_utc=captured,
+    )
+    features = build_historical_feature_panel(
+        sessions=market["sessions"],
+        share_action_panel=actions,
+        require_action_safe_features=True,
+    )
 
     args.output.mkdir(parents=True, exist_ok=True)
     market_bytes = canonical_gzip_json(market)
+    action_bytes = canonical_gzip_json(actions)
     feature_bytes = canonical_gzip_json(features)
     market_path = args.output / "market-panel.json.gz"
+    action_path = args.output / "share-action-panel.json.gz"
     feature_path = args.output / "feature-panel.json.gz"
     market_path.write_bytes(market_bytes)
+    action_path.write_bytes(action_bytes)
     feature_path.write_bytes(feature_bytes)
 
     manifest = {
@@ -73,10 +92,18 @@ def main() -> int:
         "end_date": args.end_date.isoformat(),
         "market_panel_sha256": market["panel_sha256"],
         "market_artifact_sha256": sha256_bytes(market_bytes),
+        "share_action_panel_sha256": actions["panel_sha256"],
+        "share_action_artifact_sha256": sha256_bytes(action_bytes),
         "feature_panel_sha256": features["panel_sha256"],
         "feature_artifact_sha256": sha256_bytes(feature_bytes),
         "session_count": market["session_count"],
         "feature_row_count": features["feature_row_count"],
+        "share_action_blocked_row_count": features["share_action_safety"][
+            "blocked_row_count"
+        ],
+        "share_action_unresolved_row_count": features["share_action_safety"][
+            "unresolved_row_count"
+        ],
         "historical_archives_captured_prospectively": False,
         "live_capital_allowed": False,
     }
