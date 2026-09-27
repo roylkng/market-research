@@ -128,6 +128,18 @@ def build_share_action_panel(
     return panel
 
 
+def validate_share_action_panel(panel: dict[str, Any]) -> None:
+    stored = str(panel.get("panel_sha256") or "")
+    unsigned = dict(panel)
+    unsigned.pop("panel_sha256", None)
+    if len(stored) != 64 or digest(unsigned) != stored:
+        raise AlphaContractError("share-action panel hash mismatch")
+    if panel.get("panel_id") != "AE001-SHARE-ACTIONS-v1":
+        raise AlphaContractError("unexpected share-action panel identity")
+    if panel.get("live_capital_allowed") is not False:
+        raise AlphaContractError("share-action panel cannot allow live capital")
+
+
 def action_window_status(
     panel: dict[str, Any],
     *,
@@ -136,12 +148,6 @@ def action_window_status(
     end_session: str,
 ) -> tuple[str, tuple[dict[str, str], ...]]:
     """Classify whether a raw-price feature window is safe from share-basis changes."""
-
-    stored = str(panel.get("panel_sha256") or "")
-    unsigned = dict(panel)
-    unsigned.pop("panel_sha256", None)
-    if len(stored) != 64 or digest(unsigned) != stored:
-        raise AlphaContractError("share-action panel hash mismatch")
 
     wanted = symbol.strip().upper()
     if wanted in (panel.get("unresolved_by_symbol") or {}):
