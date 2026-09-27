@@ -3,6 +3,7 @@ import pytest
 from marketlab.alpha_diagnostics import (
     leave_one_feature_out_ridge_walkforward,
     newey_west_mean_inference,
+    paired_report_difference_inference,
     report_time_series_inference,
     signed_single_feature_walkforward,
 )
@@ -124,3 +125,37 @@ def test_report_time_series_inference_reads_session_metrics():
         "top_decile_excess",
         "top_minus_bottom_spread",
     }
+
+
+
+def test_paired_report_difference_inference_uses_common_sessions():
+    left = {
+        "session_metrics": [
+            {
+                "feature_session": f"2026-01-{day:02d}",
+                "rank_ic": 0.10 + day * 0.001,
+                "top_decile_mean_excess": 0.004,
+                "top_minus_bottom_spread": 0.006,
+            }
+            for day in range(1, 8)
+        ]
+    }
+    right = {
+        "session_metrics": [
+            {
+                "feature_session": f"2026-01-{day:02d}",
+                "rank_ic": 0.02,
+                "top_decile_mean_excess": 0.001,
+                "top_minus_bottom_spread": 0.002,
+            }
+            for day in range(1, 8)
+        ]
+    }
+    inference = paired_report_difference_inference(
+        left,
+        right,
+        max_lag=2,
+    )
+    assert inference["common_session_count"] == 7
+    assert inference["metrics"]["rank_ic"]["mean"] > 0
+    assert inference["metrics"]["top_minus_bottom_spread"]["mean"] > 0
