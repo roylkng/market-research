@@ -6,7 +6,7 @@ from typing import Any
 from marketlab.alpha import AlphaContractError, digest
 
 AE001_TRIAL_LEDGER_ID = "AE001-TRIAL-LEDGER-v1"
-EVENT_TYPES = {"TRIAL_REGISTERED", "TRIAL_RESULT_RECORDED"}
+EVENT_TYPES = {"TRIAL_REGISTERED", "TRIAL_PROTOCOL_AMENDED", "TRIAL_RESULT_RECORDED"}
 
 
 def new_trial_ledger() -> dict[str, Any]:
@@ -63,7 +63,7 @@ def validate_trial_ledger(ledger: dict[str, Any]) -> None:
             registered.add(trial_id)
         elif trial_id not in registered:
             raise AlphaContractError(
-                f"trial result precedes registration: {trial_id}"
+                f"trial event precedes registration: {trial_id}"
             )
     if str(ledger.get("ledger_sha256") or "") != _ledger_hash(ledger):
         raise AlphaContractError("AE001 trial ledger hash mismatch")
@@ -107,18 +107,23 @@ def trial_state(ledger: dict[str, Any], trial_id: str) -> dict[str, Any]:
 
     validate_trial_ledger(ledger)
     registration = None
+    amendments = []
     results = []
     for event in ledger["events"]:
         if event["trial_id"] != trial_id:
             continue
         if event["event_type"] == "TRIAL_REGISTERED":
             registration = event
+        elif event["event_type"] == "TRIAL_PROTOCOL_AMENDED":
+            amendments.append(event)
         elif event["event_type"] == "TRIAL_RESULT_RECORDED":
             results.append(event)
     if registration is None:
         raise AlphaContractError(f"trial is not registered: {trial_id}")
     return {
         "registration": registration,
+        "amendments": amendments,
+        "amendment_count": len(amendments),
         "results": results,
         "result_count": len(results),
     }
@@ -141,3 +146,27 @@ def require_unopened_registered_trial(
             f"{trial_id}: outcome result already exists in trial ledger"
         )
     return state["registration"]
+
+
+
+def require_protocol_amendment(
+    ledger: dict[str, Any],
+    *,
+    trial_id: str,
+    protocol_id: str,
+) -> dict[str, Any]:
+    state = trial_state(ledger, trial_id)
+    matches = [
+        event
+        for event in state["amendments"]
+        if event["payload"].get("protocol_id") == protocol_id
+    ]
+    if len(matches) != 1:
+        raise AlphaContractError(
+            f"{trial_id}: expected exactly one protocol amendment {protocol_id}"
+        )
+    if state["result_count"] != 0:
+        raise AlphaContractError(
+            f"{trial_id}: protocol cannot be opened after result recording"
+        )
+    return matches[0]
