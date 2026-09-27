@@ -7,9 +7,11 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_history import build_historical_feature_panel
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_walkforward import (
+    _fit_feature_direction,
     build_one_session_examples,
     run_ridge_walkforward,
 )
+from marketlab.alpha_model import ModelExample
 from marketlab.marketdata import IndexDailyPrice
 
 
@@ -136,6 +138,9 @@ def test_walkforward_is_purged_and_oos():
     assert len(report["ranked_feature_panel_sha256"]) == 64
     assert report["folds"][0]["ridge_model"]["model_sha256"] == report["folds"][0]["model_sha256"]
     assert "NOT_A_TURNOVER_OR_IMPLEMENTABLE_PNL_MODEL" in report["cost_stress_interpretation"]
+    assert len(report["directional_single_feature_baselines"]) == 18
+    assert report["best_single_feature_baseline"]["session_count"] > 0
+    assert len(report["best_single_feature_choices"]) == 2
 
 
 def test_walkforward_rejects_tampered_input_panel():
@@ -151,3 +156,26 @@ def test_walkforward_rejects_tampered_input_panel():
                 {"start": market[100]["session_date"], "end": market[129]["session_date"]}
             ],
         )
+
+
+
+def test_feature_direction_is_learned_only_from_training_examples():
+    examples = [
+        ModelExample(
+            symbol=f"S{index:02d}",
+            isin=f"INE{index:09d}",
+            feature_session="2026-01-01",
+            entry_session="2026-01-02",
+            exit_session="2026-01-02",
+            horizon_sessions=1,
+            features={"reverse_signal": float(index)},
+            target_excess_return=-float(index),
+        )
+        for index in range(10)
+    ]
+    direction, mean_ic = _fit_feature_direction(
+        examples,
+        feature_name="reverse_signal",
+    )
+    assert direction == -1.0
+    assert mean_ic is not None and mean_ic < 0
