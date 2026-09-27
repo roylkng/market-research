@@ -1,0 +1,123 @@
+{
+  "event_count": 5,
+  "events": [
+    {
+      "event_sha256": "8561ba05db09f3b1ccc14c3bc656b2ecfc067f9c7694a4ba553a71ece37d3d6e",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "features": "AE001_PRICE_VOLUME_18",
+        "folds": [["2026-04-01","2026-06-30"],["2026-07-01","2026-09-24"]],
+        "horizons": [1],
+        "live_capital_allowed": false,
+        "model": {"l2": 1.0, "type": "ridge"},
+        "name": "initial_18_feature_1d_ridge",
+        "pre_registered_in_trial_ledger": false,
+        "source_window": ["2025-09-01","2026-09-25"],
+        "status": "RETROSPECTIVE_LEDGER_SEED"
+      },
+      "recorded_at_utc": "2026-09-26T11:37:29+00:00",
+      "seq": 1,
+      "trial_id": "AE001-T001"
+    },
+    {
+      "event_sha256": "54cc812577371bce5365e34bacc27b297da1c4eba2bb764aae70c20319a476fe",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "mean_rank_ic": 0.05135830225487043,
+        "mean_top_minus_bottom_spread": 0.0020664313491377136,
+        "note": "Pre-action-safety pilot retained as development evidence only.",
+        "status": "COMPLETE_DEVELOPMENT"
+      },
+      "recorded_at_utc": "2026-09-26T12:06:30+00:00",
+      "seq": 2,
+      "trial_id": "AE001-T001"
+    },
+    {
+      "event_sha256": "9b09bd9ef6a7e0f5eb2162b94f44ded08aa74c6d3373e9269d5fb00bd00c69e6",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "features": "AE001_PRICE_VOLUME_18_ACTION_SAFE",
+        "horizons": [1,5,20,60],
+        "live_capital_allowed": false,
+        "model": {"l2": 1.0, "type": "ridge"},
+        "name": "action_safe_diagnostics_and_multihorizon",
+        "pre_registered_in_trial_ledger": false,
+        "status": "RETROSPECTIVE_LEDGER_SEED"
+      },
+      "recorded_at_utc": "2026-09-26T16:20:54+00:00",
+      "seq": 3,
+      "trial_id": "AE001-T002"
+    },
+    {
+      "event_sha256": "2328877b0ff2d6b5c629426883eca4d143c7081cad25100b47959cfe8815cf2d",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "cost_model_status": "NOT_IMPLEMENTED_TC001_REQUIRED",
+        "interpretation": "Fast-sleeve ranking evidence only. 5d weak; 20d no rank edge; 60d wrong-signed rank edge.",
+        "primary_1d": {
+          "mean_rank_ic": 0.05049837863946271,
+          "mean_top_minus_bottom_spread": 0.0018531081494089884
+        },
+        "status": "COMPLETE_DEVELOPMENT"
+      },
+      "recorded_at_utc": "2026-09-27T07:47:06+00:00",
+      "seq": 4,
+      "trial_id": "AE001-T002"
+    },
+    {
+      "event_sha256": "530ba0e7fcd9b4a88ab03d09d9089184ae88f29531672c73135ec46afa9a9702",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "base_features": "AE001_PRICE_VOLUME_18_ACTION_SAFE",
+        "comparison": "augmented_27_features_vs_base_18_features_on_exact_same_delivery_complete_rows",
+        "decision_sleeve": "EOD_18_30_IST",
+        "diagnostic_horizon": 20,
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "excluded_horizon": 60,
+        "inference": {
+          "lag_1d": 5,
+          "lag_20d": 19,
+          "lag_5d": 4,
+          "method": "paired_newey_west"
+        },
+        "live_capital_allowed": false,
+        "model": {"l2": 1.0, "type": "ridge"},
+        "name": "nse_delivery_vwap_incremental_feature_family",
+        "new_features": [
+          "delivery_pct",
+          "delivery_pct_change_1",
+          "delivery_pct_delta_median_20",
+          "delivery_pct_zscore_20",
+          "delivery_pct_vol_20",
+          "delivery_qty_surprise_20",
+          "delivery_value_surprise_20",
+          "close_vs_vwap",
+          "vwap_vs_open"
+        ],
+        "outcomes_for_new_feature_family_opened_before_registration": false,
+        "primary_horizon": 1,
+        "primary_metrics": [
+          "paired_daily_rank_ic_difference",
+          "paired_daily_top_minus_bottom_spread_difference"
+        ],
+        "secondary_horizon": 5,
+        "source": {
+          "filename_pattern": "sec_bhavdata_full_DDMMYYYY.csv",
+          "historical_bytes_retrieved_after_outcomes_exist": true,
+          "provider": "NSE",
+          "report": "Full Bhavcopy and Security Deliverable data"
+        },
+        "status": "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"
+      },
+      "recorded_at_utc": "2026-09-27T08:10:00+00:00",
+      "seq": 5,
+      "trial_id": "AE001-T003"
+    }
+  ],
+  "ledger_id": "AE001-TRIAL-LEDGER-v1",
+  "ledger_sha256": "8392d89c605441cb6444c28299c73add0be808ad060068f68af533b3d2e18432",
+  "live_capital_allowed": false,
+  "schema_version": 1
+}
