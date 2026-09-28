@@ -1096,9 +1096,119 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-09-28T17:47:16.033451+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "059a0e48ff3fb8440fd02872973941ae6b209b9bb164bd12ae56e6822c6496ea",
+      "captured_at": "2026-09-28T17:51:31.460526+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 2
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "a1c9395c531f6fe6246cfb1dcf0d83c0474741f581b3f6d71757af5f0b87a3d0",
+      "identity_session": "2026-09-25",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "5d1ac055f57e7755bfa0d9d660b733cc40ce44ba51e9461bc9261d585d7a6549",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 2,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-09-28T17:50:19.278883+00:00"
     }
   ],
-  "ledger_sha256": "f7bb3d0701cd293b7d372e2e7e6cd5955c09c05f8b08678f48fa2d6e5f5a7f14",
+  "ledger_sha256": "c16c4bc9ea07cf77e7a151604fb9bcf18a1c5b50dbf566f92450084135900d7a",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -160001,6 +160111,60 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "713c0c47853160fc9f9781d030934348ad6e8af76d08443966e99a4cfa22bacd",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "059a0e48ff3fb8440fd02872973941ae6b209b9bb164bd12ae56e6822c6496ea",
+      "event_context": "PAKKA LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "1e3c5e4a01ebc336659637cf21d8e88d60479005eccd67b6e99414061b876360",
+      "first_seen_at": "2026-09-28T17:50:36.900066+00:00",
+      "item_id": "1280da434f8dbab41065cb8f6dac84cd998f580507331b6a9f448d692f87bed4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PAKKA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1e611b8b8f0dbd6dbabd816cdbfe0a610d514a9a42e7c099417996e45265baca",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "28-Sep-2026 23:17:19",
+        "value": "2026-09-28T17:47:19+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_19049_WebXMLFile_20260928_231718476.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "88cd7074d4894ad4f23d7b0063fdb7fb4e3737ca7d5d73882aed1cd21b4d2b25",
+      "topics": []
+    },
+    {
+      "capture_id": "059a0e48ff3fb8440fd02872973941ae6b209b9bb164bd12ae56e6822c6496ea",
+      "event_context": "Prasol Chemicals Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "506fe80438ec5b022932e366922c8cff1d46878cf926a57dda242e35cae5a3df",
+      "first_seen_at": "2026-09-28T17:50:36.900066+00:00",
+      "item_id": "b186429d57f59931740d3729863598baea583bc98013a5c5441a0e475379ed96",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PRASOLCHEM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6f8fa2bac2f2955a4b02dba820a8de0e87010a146600543f8fe39bf24f82523b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "28-Sep-2026 23:19:01",
+        "value": "2026-09-28T17:49:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/8591996826_28092026231829_EarningsCallPresentation28092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d0eba432ad65b318e903765becfa6b883dc1269f23d013c5c0561de15ca57732",
       "topics": [
         "CAPACITY_INVESTMENT"
       ]
