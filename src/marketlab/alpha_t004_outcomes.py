@@ -10,12 +10,12 @@ from marketlab.alpha_corporate_actions import blocked_actions, parse_share_chang
 from marketlab.alpha_diagnostics import paired_report_difference_inference
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_model import evaluate_cross_sectional_predictions
+from marketlab.alpha_t004_prospective import validate_t004_decision_ledger
 from marketlab.alpha_trials import (
     append_trial_event,
     require_protocol_amendment,
     trial_state,
 )
-from marketlab.alpha_t004_prospective import validate_t004_decision_ledger
 from marketlab.events import sha256_bytes
 from marketlab.marketdata import IndexDailyPrice
 
