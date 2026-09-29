@@ -3,6 +3,7 @@ from datetime import date, timedelta
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha_model import RidgeModel
 from marketlab.po001_i003 import (
     _execution_inputs,
     _validate_alpha_diagnostic,
@@ -211,24 +212,22 @@ def test_i003_rejects_rm001_drift_above_frozen_p5(monkeypatch):
         _validate_i003_risk_inputs(legacy, canonical)
 
 
-class _DiagnosticModel:
-    def __init__(self, payload):
-        self.model_id = payload["model_id"]
-        self.feature_names = tuple(payload["feature_names"])
-        self.feature_medians = tuple(payload["feature_medians"])
-        self.feature_means = tuple(payload["feature_means"])
-        self.feature_scales = tuple(payload["feature_scales"])
-        self.coefficients = tuple(payload["coefficients"])
-        self.intercept = payload["intercept"]
-        self.l2 = payload["l2"]
-        self.training_example_count = payload["training_example_count"]
-        self.training_last_exit_session = payload["training_last_exit_session"]
-        self.model_sha256 = payload["model_sha256"]
-
 
 def test_i003_alpha_diagnostic_accepts_exact_pinned_predictions(monkeypatch):
     pinned = _alpha_model()
-    diagnostic = _DiagnosticModel(pinned)
+    diagnostic = RidgeModel(
+        model_id=pinned["model_id"],
+        feature_names=tuple(pinned["feature_names"]),
+        feature_medians=tuple(pinned["feature_medians"]),
+        feature_means=tuple(pinned["feature_means"]),
+        feature_scales=tuple(pinned["feature_scales"]),
+        coefficients=tuple(pinned["coefficients"]),
+        intercept=pinned["intercept"],
+        l2=pinned["l2"],
+        training_example_count=pinned["training_example_count"],
+        training_last_exit_session=pinned["training_last_exit_session"],
+        model_sha256=pinned["model_sha256"],
+    )
     rows = [
         {
             "symbol": f"S{index:03d}",
@@ -254,7 +253,19 @@ def test_i003_alpha_diagnostic_rejects_prediction_drift(monkeypatch):
     unsigned = dict(drifted)
     unsigned.pop("model_sha256", None)
     drifted["model_sha256"] = digest(unsigned)
-    diagnostic = _DiagnosticModel(drifted)
+    diagnostic = RidgeModel(
+        model_id=drifted["model_id"],
+        feature_names=tuple(drifted["feature_names"]),
+        feature_medians=tuple(drifted["feature_medians"]),
+        feature_means=tuple(drifted["feature_means"]),
+        feature_scales=tuple(drifted["feature_scales"]),
+        coefficients=tuple(drifted["coefficients"]),
+        intercept=drifted["intercept"],
+        l2=drifted["l2"],
+        training_example_count=drifted["training_example_count"],
+        training_last_exit_session=drifted["training_last_exit_session"],
+        model_sha256=drifted["model_sha256"],
+    )
     rows = [
         {
             "symbol": f"S{index:03d}",
