@@ -8,6 +8,8 @@ from marketlab.alpha_model import (
     fit_ridge,
     predict_ridge,
     purge_training_examples,
+    ridge_model_from_record,
+    score_ridge_values,
 )
 
 
@@ -93,3 +95,61 @@ def test_cross_sectional_evaluator_reports_positive_rank_ic_and_spread():
     assert report["mean_rank_ic"] == pytest.approx(1.0)
     assert report["mean_top_minus_bottom_spread"] > 0
     assert report["average_top_decile_selection_churn"] == pytest.approx(0.0)
+
+
+
+def test_label_free_ridge_scoring_matches_development_prediction():
+    train = [
+        _example(index, "2026-01-01", "2026-01-20", index / 1000.0)
+        for index in range(1, 20)
+    ]
+    model = fit_ridge(train, feature_names=["signal", "noise"], l2=0.5)
+    record = {
+        "model_id": model.model_id,
+        "feature_names": list(model.feature_names),
+        "feature_medians": list(model.feature_medians),
+        "feature_means": list(model.feature_means),
+        "feature_scales": list(model.feature_scales),
+        "coefficients": list(model.coefficients),
+        "intercept": model.intercept,
+        "l2": model.l2,
+        "training_example_count": model.training_example_count,
+        "training_last_exit_session": model.training_last_exit_session,
+        "model_sha256": model.model_sha256,
+    }
+    loaded = ridge_model_from_record(record)
+    scored = score_ridge_values(
+        loaded,
+        [row.features for row in train],
+    )
+    development = predict_ridge(
+        model,
+        train,
+        prediction_role="DEVELOPMENT",
+    )
+    assert scored == pytest.approx(
+        [row["prediction"] for row in development]
+    )
+
+
+def test_serialized_ridge_hash_fails_closed():
+    train = [
+        _example(index, "2026-01-01", "2026-01-20", index / 1000.0)
+        for index in range(1, 10)
+    ]
+    model = fit_ridge(train, feature_names=["signal", "noise"])
+    record = {
+        "model_id": model.model_id,
+        "feature_names": list(model.feature_names),
+        "feature_medians": list(model.feature_medians),
+        "feature_means": list(model.feature_means),
+        "feature_scales": list(model.feature_scales),
+        "coefficients": list(model.coefficients),
+        "intercept": model.intercept + 1.0,
+        "l2": model.l2,
+        "training_example_count": model.training_example_count,
+        "training_last_exit_session": model.training_last_exit_session,
+        "model_sha256": model.model_sha256,
+    }
+    with pytest.raises(ValueError, match="hash mismatch"):
+        ridge_model_from_record(record)
