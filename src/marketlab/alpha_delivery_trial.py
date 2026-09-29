@@ -16,6 +16,7 @@ from marketlab.alpha_walkforward import run_ridge_walkforward
 TRIAL_ID = "AE001-T003"
 TRIAL_STATUS = "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"
 PROTOCOL_ID = "AE001-T003-P1"
+SOURCE_QUALITY_PROTOCOL_ID = "AE001-T003-P3"
 
 
 def _feature_names(definitions) -> list[str]:
@@ -43,7 +44,19 @@ def run_delivery_incremental_trial(
         trial_id=TRIAL_ID,
         protocol_id=PROTOCOL_ID,
     )
+    source_quality_protocol = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=SOURCE_QUALITY_PROTOCOL_ID,
+    )
     frozen = protocol["payload"]
+    source_quality = source_quality_protocol["payload"]
+    if not str(source_quality.get("source_quality_rule") or "").startswith(
+        "EXCLUDE_WHOLE_DELIVERY_SESSION"
+    ):
+        raise AlphaContractError(
+            "delivery trial source-quality policy differs from frozen protocol"
+        )
     if float(frozen["ridge_l2"]) != float(l2):
         raise AlphaContractError("delivery trial l2 differs from frozen protocol")
 
@@ -146,6 +159,10 @@ def run_delivery_incremental_trial(
         "trial_registration_event_sha256": registration["event_sha256"],
         "trial_protocol_event_sha256": protocol["event_sha256"],
         "trial_protocol_id": PROTOCOL_ID,
+        "source_quality_protocol_event_sha256": (
+            source_quality_protocol["event_sha256"]
+        ),
+        "source_quality_protocol_id": SOURCE_QUALITY_PROTOCOL_ID,
         "trial_ledger_sha256": trial_ledger["ledger_sha256"],
         "market_panel_sha256": market_panel["panel_sha256"],
         "feature_panel_sha256": feature_panel["panel_sha256"],
