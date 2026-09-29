@@ -40,6 +40,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--feature-panel", type=Path, required=True)
     parser.add_argument("--action-ledger", type=Path, required=True)
     parser.add_argument("--risk-state", type=Path, required=True)
+    parser.add_argument("--risk-state-manifest", type=Path, required=True)
+    parser.add_argument("--canonical-risk-state", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -49,13 +51,29 @@ def main() -> int:
     market = load_canonical_gzip_json(args.market_panel.read_bytes())
     features = load_canonical_gzip_json(args.feature_panel.read_bytes())
     actions = load_canonical_gzip_json(args.action_ledger.read_bytes())
-    risk = load_canonical_gzip_json(args.risk_state.read_bytes())
+    risk_bytes = args.risk_state.read_bytes()
+    risk = load_canonical_gzip_json(risk_bytes)
+    risk_manifest = json.loads(
+        args.risk_state_manifest.read_text(encoding="utf-8")
+    )
+    if not isinstance(risk_manifest, dict):
+        raise TypeError("I003 pinned risk manifest must be a JSON object")
+    if sha256_bytes(risk_bytes) != risk_manifest["gzip_file_sha256"]:
+        raise ValueError("I003 pinned risk gzip hash mismatch")
+    if risk["state_sha256"] != risk_manifest[
+        "internal_rm001_state_sha256"
+    ]:
+        raise ValueError("I003 pinned risk internal SHA mismatch")
+    canonical_risk = load_canonical_gzip_json(
+        args.canonical_risk_state.read_bytes()
+    )
 
     report = run_po001_i003(
         delivery_feature_panel=features,
         market_panel=market,
         action_ledger=actions,
         risk_state=risk,
+        canonical_risk_state=canonical_risk,
     )
     args.output.mkdir(parents=True, exist_ok=True)
     report_bytes = canonical_gzip_json(report)
@@ -70,6 +88,7 @@ def main() -> int:
         "horizon_sessions": report["horizon_sessions"],
         "realized_outcome_opened": report["realized_outcome_opened"],
         "reproduction_gates": report["reproduction_gates"],
+        "pinned_risk_manifest": risk_manifest,
         "common_identity_count": report["common_identity_count"],
         "training_example_count": report["training_example_count"],
         "training_last_exit_session": report["training_last_exit_session"],
