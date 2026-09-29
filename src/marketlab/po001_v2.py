@@ -54,9 +54,6 @@ def impact_cost_fraction(
         raise AlphaContractError(
             "PO001-v2 impact coefficient must be finite and non-negative"
         )
-    participation = (
-        order_fraction_of_nav * portfolio_nav_inr / adv20_inr
-    )
     return (
         impact_coefficient
         * daily_volatility_decimal
