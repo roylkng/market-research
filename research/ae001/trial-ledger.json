@@ -1,5 +1,5 @@
 {
-  "event_count": 9,
+  "event_count": 10,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -319,10 +319,51 @@
       "recorded_at_utc": "2026-09-29T09:53:00+00:00",
       "seq": 9,
       "trial_id": "AE001-T003"
+    },
+    {
+      "event_sha256": "7453022562d30a457d5b04a96e40babeb95921fb7c647dffb3376d9020b33a7a",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "decision_cutoff": "18:30:00 Asia/Kolkata",
+        "earliest_calendar_date": "2026-09-30",
+        "evidence_class": "PROSPECTIVE_CONFIRMATORY",
+        "live_capital_allowed": false,
+        "minimum_common_stocks_per_session": 500,
+        "models": {
+          "augmented_feature_count": 27,
+          "base_feature_count": 18,
+          "ridge_l2": 1.0
+        },
+        "name": "prospective_delivery_vwap_5d_confirmation",
+        "predecessor_trial": "AE001-T003",
+        "primary": {
+          "horizon_sessions": 5,
+          "minimum_eligible_decision_sessions": 60,
+          "minimum_valid_paired_ic_sessions": 50,
+          "newey_west_lag": 4,
+          "success_requires": [
+            "paired_mean_rank_ic_difference_gt_0_and_two_sided_p_lt_0_05",
+            "paired_top_minus_bottom_spread_difference_gt_0_and_two_sided_p_lt_0_05"
+          ]
+        },
+        "protocol_file": "research/AE001_T004_PROSPECTIVE_DELIVERY_CONFIRMATION_V1.md",
+        "registry_file": "registry/ae001_t004_delivery_confirmatory.yaml",
+        "retrospective_backfill_allowed": false,
+        "sc001_source_timing_required": true,
+        "secondary": {
+          "horizon_sessions": 20,
+          "newey_west_lag": 19,
+          "rescues_failed_primary": false
+        },
+        "status": "FROZEN_BEFORE_FIRST_ELIGIBLE_DECISION_SESSION"
+      },
+      "recorded_at_utc": "2026-09-29T10:08:48+00:00",
+      "seq": 10,
+      "trial_id": "AE001-T004"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "e8f3f3de565a81e7ce7b51c4a323ff7524668adaca6380c7b7c72e381d53fbf6",
+  "ledger_sha256": "acee8314cea10c3ada33dede71fd6468af735d78cabed7475377eb810743886b",
   "live_capital_allowed": false,
   "schema_version": 1
 }
