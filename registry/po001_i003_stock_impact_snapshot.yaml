@@ -1,0 +1,41 @@
+schema_version: 1
+id: PO001-I003-v1
+name: stock_specific_impact_integration_snapshot
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-29
+live_capital_allowed: false
+
+decision_session: 2026-08-31
+horizon_sessions: 5
+realized_outcome_opened: false
+
+alpha:
+  source: PO001-I002-v1
+  reconstruction: same_purged_t003_fold2_model
+
+risk:
+  source: RM001-v1-DEVELOPMENT
+  as_of_session: 2026-08-31
+
+impact:
+  optimizer: PO001-v2-DEVELOPMENT
+  coefficient: 0.50
+  maximum_participation: 0.10
+  spread_included: false
+
+nav_surfaces_inr:
+  - 1000000
+  - 10000000
+  - 100000000
+primary_nav_inr: 10000000
+
+portfolio_parameters:
+  risk_aversion: 5.0
+  max_name_weight: 0.05
+  max_invested_weight: 1.0
+  max_traded_fraction_of_nav: 1.0
+  terminal_liquidation: true
+  factor_bounds: {}
+
+promotion:
+  live_capital_directly_allowed: false
