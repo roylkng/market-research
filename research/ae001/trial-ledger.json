@@ -1,5 +1,5 @@
 {
-  "event_count": 8,
+  "event_count": 9,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -165,16 +165,6 @@
               "2026-09-24"
             ]
           ],
-          "5": [
-            [
-              "2026-04-01",
-              "2026-06-30"
-            ],
-            [
-              "2026-07-01",
-              "2026-09-18"
-            ]
-          ],
           "20": [
             [
               "2026-04-01",
@@ -183,6 +173,16 @@
             [
               "2026-07-01",
               "2026-08-27"
+            ]
+          ],
+          "5": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
             ]
           ]
         },
@@ -220,48 +220,109 @@
       "trial_id": "AE001-T003"
     },
     {
-      "seq": 8,
+      "event_sha256": "7c7e56e8825168d677d7e67c5b1561b0841ab9b508dcf5aca8ac08c3c7475265",
       "event_type": "TRIAL_PROTOCOL_AMENDED",
-      "trial_id": "AE001-T003",
-      "recorded_at_utc": "2026-09-29T05:42:00+00:00",
       "payload": {
-        "protocol_id": "AE001-T003-P3",
-        "reason": "Freeze NSE delivery source-quality rule after fail-closed acquisition anomaly and before any T003 model comparison.",
-        "source_quality_rule": "EXCLUDE_WHOLE_DELIVERY_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_ABS_DELIV_PER_VS_100_DELIV_QTY_OVER_TTL_TRD_QNTY_DIFF_GT_0_05_PERCENTAGE_POINTS",
-        "preserve_conflicting_official_fields_without_override": true,
-        "missing_session_effect": "DELIVERY_HISTORY_GAP_NO_IMPUTATION",
-        "discovered_source_session": "2025-10-21",
-        "discovered_session_type": "NSE_DIWALI_MUHURAT_SPECIAL_SESSION",
-        "discovered_complete_eq_rows": 2291,
-        "discovered_violating_rows_gt_0_05pp": 182,
-        "discovered_max_abs_diff_pp": 16.239610545532294,
         "comparison_samples": {
           "2025-10-17": {
-            "violating_rows_gt_0_05pp": 0,
-            "max_abs_diff_pp": 0.004997096236351695
+            "max_abs_diff_pp": 0.004997096236351695,
+            "violating_rows_gt_0_05pp": 0
           },
           "2026-02-01": {
-            "violating_rows_gt_0_05pp": 0,
-            "max_abs_diff_pp": 0.00499644677294242
+            "max_abs_diff_pp": 0.00499644677294242,
+            "violating_rows_gt_0_05pp": 0
           },
           "2026-04-01": {
-            "violating_rows_gt_0_05pp": 0,
-            "max_abs_diff_pp": 0.005000000000002558
+            "max_abs_diff_pp": 0.005000000000002558,
+            "violating_rows_gt_0_05pp": 0
           },
           "2026-09-25": {
-            "violating_rows_gt_0_05pp": 0,
-            "max_abs_diff_pp": 0.004999571293829774
+            "max_abs_diff_pp": 0.004999571293829774,
+            "violating_rows_gt_0_05pp": 0
           }
         },
+        "discovered_complete_eq_rows": 2291,
+        "discovered_max_abs_diff_pp": 16.239610545532294,
+        "discovered_session_type": "NSE_DIWALI_MUHURAT_SPECIAL_SESSION",
+        "discovered_source_session": "2025-10-21",
+        "discovered_violating_rows_gt_0_05pp": 182,
+        "live_capital_allowed": false,
+        "missing_session_effect": "DELIVERY_HISTORY_GAP_NO_IMPUTATION",
+        "preserve_conflicting_official_fields_without_override": true,
         "prior_t003_run_36525540133_model_comparison_started": false,
         "prior_t003_run_36526365091_model_comparison_started": false,
-        "live_capital_allowed": false
+        "protocol_id": "AE001-T003-P3",
+        "reason": "Freeze NSE delivery source-quality rule after fail-closed acquisition anomaly and before any T003 model comparison.",
+        "source_quality_rule": "EXCLUDE_WHOLE_DELIVERY_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_ABS_DELIV_PER_VS_100_DELIV_QTY_OVER_TTL_TRD_QNTY_DIFF_GT_0_05_PERCENTAGE_POINTS"
       },
-      "event_sha256": "7c7e56e8825168d677d7e67c5b1561b0841ab9b508dcf5aca8ac08c3c7475265"
+      "recorded_at_utc": "2026-09-29T05:42:00+00:00",
+      "seq": 8,
+      "trial_id": "AE001-T003"
+    },
+    {
+      "event_sha256": "7af6c9d9b7ed348fa7dac52751298d544e0e206733fb0aeaae3858015cedd38b",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "cost_model_status": "NOT_IMPLEMENTED_TC001_REQUIRED",
+        "diagnostic_20d": {
+          "augmented_mean_rank_ic": 0.02724977079151133,
+          "augmented_top_minus_bottom_spread": 0.01919523692041499,
+          "base_mean_rank_ic": 0.006748928113405132,
+          "base_top_minus_bottom_spread": 0.011114714341165502,
+          "confirmatory_claim_allowed": false,
+          "delta_mean_rank_ic": 0.020500842678106198,
+          "delta_rank_ic_p_value": 0.00020109829722175017,
+          "delta_spread_p_value": 0.0008892187145541447,
+          "delta_top_minus_bottom_spread": 0.008080522579249492,
+          "positive_diagnostic": true
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "historical_result_may_count_as_prospective_validation": false,
+        "interpretation": "PRIMARY_1D_ENDPOINT_NOT_SUPPORTED; SECONDARY_5D_INCREMENTAL_INFORMATION_SUPPORTED; 20D_DIAGNOSTIC_POSITIVE_REQUIRES_CONFIRMATORY_TRIAL; HISTORICAL_SOURCE_TIMING_UNVERIFIED; NO_LIVE_CAPITAL_IMPLICATION",
+        "live_capital_allowed": false,
+        "primary_1d": {
+          "augmented_mean_rank_ic": 0.05057227796742435,
+          "augmented_top_minus_bottom_spread": 0.002146872816307611,
+          "base_mean_rank_ic": 0.049822688998938484,
+          "base_top_minus_bottom_spread": 0.0018727778160089576,
+          "delta_mean_rank_ic": 0.0007495889684858622,
+          "delta_rank_ic_p_value": 0.6678712977490537,
+          "delta_spread_p_value": 0.15549510301722438,
+          "delta_top_minus_bottom_spread": 0.0002740950002986533,
+          "endpoint_supported": false
+        },
+        "report_artifact_sha256": "51b254f23af1db53fcf2e67d60186d8f0ca9a7dddb07679735beb8f4a0b87edc",
+        "report_sha256": "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270",
+        "run_id": 36533659236,
+        "secondary_5d": {
+          "augmented_mean_rank_ic": 0.025015754407677233,
+          "augmented_top_minus_bottom_spread": 0.004119889007319015,
+          "base_mean_rank_ic": 0.005610514228492526,
+          "base_top_minus_bottom_spread": 0.000980506682673035,
+          "delta_mean_rank_ic": 0.01940524017918471,
+          "delta_rank_ic_p_value": 4.820927634886007e-06,
+          "delta_spread_p_value": 2.658654307394919e-05,
+          "delta_top_minus_bottom_spread": 0.00313938232464598,
+          "endpoint_supported": true
+        },
+        "source_quality": {
+          "delivery_feature_row_count": 244855,
+          "excluded_session_count": 2,
+          "excluded_sessions": [
+            "2025-10-21",
+            "2026-09-11"
+          ],
+          "noncontiguous_excluded_row_count": 13151
+        },
+        "status": "COMPLETE_DEVELOPMENT"
+      },
+      "recorded_at_utc": "2026-09-29T09:53:00+00:00",
+      "seq": 9,
+      "trial_id": "AE001-T003"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "0a8e804ef1d3aaf3adafa140bc5b8e9cb3921f8e2a965d2037a805a4b324d922",
+  "ledger_sha256": "e8f3f3de565a81e7ce7b51c4a323ff7524668adaca6380c7b7c72e381d53fbf6",
   "live_capital_allowed": false,
   "schema_version": 1
 }
