@@ -35,6 +35,10 @@ factor_return_estimation:
   full_rank_required: true
   share_changing_action_policy: fail_closed
 
+canonical_serialization:
+  persisted_float_decimal_places: 15
+  purpose: deterministic_artifact_hashing
+
 covariance:
   trailing_factor_return_sessions: 60
   estimator: sample_covariance
