@@ -411,7 +411,7 @@ def build_t004_decision_artifact(
     corporate_action_payload: object,
     corporate_action_raw: bytes,
     frozen_models: dict[str, Any],
-    sealed_at_utc: str,
+    sealed_at_utc: str | None = None,
 ) -> dict[str, Any]:
     validate_frozen_t004_models(frozen_models)
     if frozen_models.get("artifact_id") != T004_MODEL_ARTIFACT_ID:
@@ -420,13 +420,6 @@ def build_t004_decision_artifact(
         raise AlphaContractError("T004 decision requires SC001 cutoff eligibility")
     if sc001_attempt.get("session_date") != session_date:
         raise AlphaContractError("T004 decision/SC001 session mismatch")
-
-    sealed = datetime.fromisoformat(sealed_at_utc)
-    if sealed.tzinfo is None:
-        raise AlphaContractError("T004 sealed_at_utc must be timezone-aware")
-    sealed = sealed.astimezone(UTC)
-    if sealed > t004_cutoff_utc(session_date):
-        raise AlphaContractError("T004 prediction sealing missed decision cutoff")
 
     rows, diagnostics = build_t004_current_feature_rows(
         prior_market_sessions=prior_market_sessions,
@@ -453,6 +446,17 @@ def build_t004_decision_artifact(
     if base_identity != augmented_identity:
         raise AlphaContractError("T004 base/augmented prediction rows differ")
 
+    sealed = (
+        datetime.now(UTC)
+        if sealed_at_utc is None
+        else datetime.fromisoformat(sealed_at_utc)
+    )
+    if sealed.tzinfo is None:
+        raise AlphaContractError("T004 sealed_at_utc must be timezone-aware")
+    sealed = sealed.astimezone(UTC)
+    if sealed > t004_cutoff_utc(session_date):
+        raise AlphaContractError("T004 prediction sealing missed decision cutoff")
+
     artifact: dict[str, Any] = {
         "schema_version": 1,
         "artifact_id": "AE001-T004-DECISION-v1",
@@ -465,6 +469,18 @@ def build_t004_decision_artifact(
         "current_market_sha256": sha256_bytes(current_market_raw),
         "current_delivery_sha256": sha256_bytes(current_delivery_raw),
         "corporate_action_raw_sha256": sha256_bytes(corporate_action_raw),
+        "prior_market_support_sha256": digest(prior_market_sessions),
+        "prior_delivery_support_sha256": digest(prior_delivery_sessions),
+        "prior_market_first_session": str(
+            sorted(prior_market_sessions, key=lambda row: str(row["session_date"]))[-60][
+                "session_date"
+            ]
+        ),
+        "prior_market_last_session": str(
+            sorted(prior_market_sessions, key=lambda row: str(row["session_date"]))[-1][
+                "session_date"
+            ]
+        ),
         "frozen_model_artifact_sha256": frozen_models["artifact_sha256"],
         "base_model_sha256": frozen_models["base_model"]["model_sha256"],
         "augmented_model_sha256": frozen_models["augmented_model"]["model_sha256"],
