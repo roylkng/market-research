@@ -10,7 +10,12 @@ from marketlab.alpha_corporate_actions import blocked_actions, parse_share_chang
 from marketlab.alpha_diagnostics import paired_report_difference_inference
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_model import evaluate_cross_sectional_predictions
-from marketlab.alpha_trials import append_trial_event, trial_state
+from marketlab.alpha_trials import (
+    append_trial_event,
+    require_protocol_amendment,
+    trial_state,
+)
+from marketlab.alpha_t004_prospective import validate_t004_decision_ledger
 from marketlab.events import sha256_bytes
 from marketlab.marketdata import IndexDailyPrice
 
@@ -407,7 +412,13 @@ def finalize_t004_results(
     outcome_artifacts: list[dict[str, Any]],
     recorded_at_utc: str | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    validate_t004_decision_ledger(decision_ledger)
     validate_t004_outcome_ledger(outcome_ledger)
+    require_protocol_amendment(
+        trial_ledger,
+        trial_id="AE001-T004",
+        protocol_id="AE001-T004-P2",
+    )
     now = recorded_at_utc or datetime.now(UTC).isoformat()
     updated = copy.deepcopy(trial_ledger)
     emitted: list[dict[str, Any]] = []
