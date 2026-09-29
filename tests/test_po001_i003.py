@@ -118,10 +118,6 @@ def test_i003_accepts_frozen_legacy_and_canonical_risk_pair(monkeypatch):
         "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
         legacy["state_sha256"],
     )
-    monkeypatch.setattr(
-        "marketlab.po001_i003.EXPECTED_CANONICAL_RISK_STATE_SHA256",
-        canonical["state_sha256"],
-    )
     diagnostics = _validate_i003_risk_inputs(legacy, canonical)
     assert diagnostics["economic_equivalence_passed"] is True
     assert diagnostics["max_exposure_abs_diff"] == pytest.approx(0.0)
@@ -133,10 +129,6 @@ def test_i003_rejects_legacy_canonical_identity_drift(monkeypatch):
     monkeypatch.setattr(
         "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
         legacy["state_sha256"],
-    )
-    monkeypatch.setattr(
-        "marketlab.po001_i003.EXPECTED_CANONICAL_RISK_STATE_SHA256",
-        canonical["state_sha256"],
     )
     with pytest.raises(AlphaContractError, match="identity sets differ"):
         _validate_i003_risk_inputs(legacy, canonical)
