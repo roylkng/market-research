@@ -11,9 +11,8 @@ from marketlab.alpha_delivery import (
     augment_feature_panel_with_delivery,
 )
 from marketlab.alpha_history import canonical_gzip_json, load_canonical_gzip_json
-from marketlab.events import sha256_bytes
 from marketlab.alpha_trials import require_unopened_registered_trial
-
+from marketlab.events import sha256_bytes
 
 TRIAL_ID = "AE001-T003"
 TRIAL_STATUS = "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"
