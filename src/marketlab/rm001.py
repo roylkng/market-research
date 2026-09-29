@@ -32,6 +32,17 @@ IDIO_WINDOW = 60
 MIN_IDIO_OBSERVATIONS = 20
 MIN_FACTOR_CROSS_SECTION = 100
 ANNUALIZATION_SESSIONS = 252
+RM001_FLOAT_DECIMALS = 15
+
+
+def _q(value: float) -> float:
+    """Canonicalize RM001 persisted floats to remove machine-level noise."""
+
+    parsed = float(value)
+    if not math.isfinite(parsed):
+        raise AlphaContractError("RM001 persisted float must be finite")
+    rounded = round(parsed, RM001_FLOAT_DECIMALS)
+    return 0.0 if rounded == 0.0 else float(rounded)
 
 
 @dataclass(frozen=True)
@@ -218,19 +229,19 @@ def build_rm001_exposure_panel(
                 symbol=identity[0],
                 isin=identity[1],
                 market_common=1.0,
-                beta60_relative=beta - 1.0,
-                momentum20=_centered_percentile(
+                beta60_relative=_q(beta - 1.0),
+                momentum20=_q(_centered_percentile(
                     values.get("momentum_20"),
                     "momentum20",
-                ),
-                volatility60=_centered_percentile(
+                )),
+                volatility60=_q(_centered_percentile(
                     values.get("realized_vol_60"),
                     "volatility60",
-                ),
-                liquidity=_centered_percentile(
+                )),
+                liquidity=_q(_centered_percentile(
                     values.get("turnover_inr"),
                     "liquidity",
-                ),
+                )),
             )
         except AlphaContractError:
             exclusions["STYLE_EXPOSURE_INVALID"] += 1
@@ -310,14 +321,14 @@ def _fit_factor_return(
     residuals = response - fitted
 
     factor_returns = {
-        name: float(coefficients[index])
+        name: _q(coefficients[index])
         for index, name in enumerate(FACTOR_NAMES)
     }
     residual_rows = [
         {
             "symbol": row["symbol"],
             "isin": row["isin"],
-            "residual_return": float(residuals[index]),
+            "residual_return": _q(residuals[index]),
         }
         for index, row in enumerate(rows)
     ]
@@ -507,12 +518,12 @@ def build_rm001_risk_state(
         if len(trailing) >= min_idio_observations:
             variance = float(np.var(np.asarray(trailing), ddof=1))
             if math.isfinite(variance) and variance >= 0:
-                observed_variances[identity] = variance
+                observed_variances[identity] = _q(variance)
     if not observed_variances:
         raise AlphaContractError(
             "RM001 current universe has no usable idiosyncratic variances"
         )
-    fallback = float(
+    fallback = _q(
         np.percentile(
             np.asarray(list(observed_variances.values()), dtype=float),
             75,
@@ -536,7 +547,7 @@ def build_rm001_risk_state(
                 "symbol": identity[0],
                 "isin": identity[1],
                 "exposures": row["exposures"],
-                "idiosyncratic_variance_daily": idio,
+                "idiosyncratic_variance_daily": _q(idio),
                 "idiosyncratic_status": status,
             }
         )
@@ -553,7 +564,10 @@ def build_rm001_risk_state(
         "factor_covariance_last_realized_session": factor_rows[-1][
             "realized_session"
         ],
-        "factor_covariance_daily": covariance.tolist(),
+        "factor_covariance_daily": [
+            [_q(value) for value in row]
+            for row in covariance.tolist()
+        ],
         "idiosyncratic_window": idio_window,
         "minimum_idiosyncratic_observations": min_idio_observations,
         "idiosyncratic_fallback_p75": fallback,
@@ -642,14 +656,14 @@ def portfolio_risk(
         "invested_weight": float(weight_array.sum()),
         "cash_weight": 1.0 - float(weight_array.sum()),
         "portfolio_factor_exposures": {
-            factor: float(portfolio_factor_exposure[index])
+            factor: _q(portfolio_factor_exposure[index])
             for index, factor in enumerate(FACTOR_NAMES)
         },
-        "factor_variance_daily": factor_variance,
-        "idiosyncratic_variance_daily": idio_variance,
-        "total_variance_daily": total_variance,
-        "annualized_volatility": math.sqrt(
-            total_variance * ANNUALIZATION_SESSIONS
+        "factor_variance_daily": _q(factor_variance),
+        "idiosyncratic_variance_daily": _q(idio_variance),
+        "total_variance_daily": _q(total_variance),
+        "annualized_volatility": _q(
+            math.sqrt(total_variance * ANNUALIZATION_SESSIONS)
         ),
         "factor_variance_contributions_daily": factor_contributions,
         "live_capital_allowed": False,

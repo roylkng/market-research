@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "study_id": "PO001-I002-v1",
+  "status": "COMPLETED_HISTORICAL_WALKFORWARD_OOS_INTEGRATION",
+  "run_id": 36570866823,
+  "decision_session": "2026-08-31",
+  "source_end_date": "2026-08-31",
+  "horizon_sessions": 5,
+  "realized_outcome_opened": false,
+  "artifact_sha256": "d3cb62d0f1c041fa0af76a4275138ede5a12c0b5709106c441cafd8a8ca82ac1",
+  "artifact_file_sha256": "009b23624c6af67cc1bd2494d8d65d922e9b01c28862b22df945d6530fed1ab9",
+  "alpha": {
+    "source_trial": "AE001-T003",
+    "fold": 2,
+    "validation_start_session": "2026-07-01",
+    "training_example_count": 169825,
+    "training_last_exit_session": "2026-06-30",
+    "model_id": "AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
+    "model_sha256": "179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260",
+    "common_identity_count": 1307,
+    "positive_alpha_count": 972,
+    "min_expected_5d_excess": -0.011014089323312933,
+    "max_expected_5d_excess": 0.014323041600425796
+  },
+  "risk": {
+    "model_id": "RM001-v1-DEVELOPMENT",
+    "risk_state_sha256": "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1",
+    "deterministic_double_build_required": true,
+    "deterministic_double_build_passed": true,
+    "deferred_factors": {
+      "SECTOR": "POINT_IN_TIME_COMPANY_CLASSIFICATION_SOURCE_NOT_FROZEN",
+      "SIZE": "POINT_IN_TIME_MARKET_CAP_SOURCE_NOT_FROZEN"
+    }
+  },
+  "cost": {
+    "model_id": "TC001-v1-DEVELOPMENT",
+    "surface": "OBSERVABLE_DELIVERY_EQUITY_COST_FLOOR",
+    "buy_cost_bps": 11.87406,
+    "sell_cost_bps": 10.37406,
+    "round_trip_cost_bps": 22.24812,
+    "spread_included": false,
+    "market_impact_included": false
+  },
+  "portfolios": {
+    "equal_weight_top_decile": {
+      "holding_count": 131,
+      "expected_5d_excess_return": 0.008922633235291359,
+      "annualized_volatility": 0.158034987151119,
+      "total_round_trip_cost_fraction": 0.002224812000000003,
+      "risk_penalty": 0.00247768424245,
+      "utility": 0.004220136992841355,
+      "effective_number_of_names": 131.00000000000028,
+      "exposures": {
+        "BETA60_RELATIVE": 0.254327196517601,
+        "LIQUIDITY": 0.032089124767661,
+        "MARKET_COMMON": 1.000000000000001,
+        "MOMENTUM20": -0.280782764223841,
+        "VOLATILITY60": 0.393743497422349
+      }
+    },
+    "positive_alpha_proportional_top_decile": {
+      "holding_count": 131,
+      "expected_5d_excess_return": 0.009137726697298133,
+      "annualized_volatility": 0.15978319357487,
+      "total_round_trip_cost_fraction": 0.002224812000000001,
+      "risk_penalty": 0.0025328044592249997,
+      "utility": 0.004380110238073133,
+      "effective_number_of_names": 127.91638364154407
+    },
+    "risk_aware_zero_cost": {
+      "holding_count": 41,
+      "expected_5d_excess_return": 0.010563988410768622,
+      "annualized_volatility": 0.13718271300128781,
+      "total_round_trip_cost_fraction": 0,
+      "risk_penalty": 0.0018669738835708043,
+      "utility": 0.008697014527197818,
+      "effective_number_of_names": 26.355323892817633,
+      "solver_iterations": 85,
+      "exposures": {
+        "BETA60_RELATIVE": -0.21621074704491988,
+        "LIQUIDITY": 0.4149506898419196,
+        "MARKET_COMMON": 1.000000000000012,
+        "MOMENTUM20": -0.2612110224706082,
+        "VOLATILITY60": 0.10814647509659685
+      }
+    },
+    "full_po001_observable_cost_floor": {
+      "holding_count": 39,
+      "expected_5d_excess_return": 0.01056267666652251,
+      "annualized_volatility": 0.13713480625195076,
+      "total_round_trip_cost_fraction": 0.0022248120000000057,
+      "risk_penalty": 0.0018656701473968324,
+      "utility": 0.006472194519125673,
+      "effective_number_of_names": 26.397450509810554,
+      "solver_iterations": 167,
+      "exposures": {
+        "BETA60_RELATIVE": -0.21608002229359413,
+        "LIQUIDITY": 0.41465837131111133,
+        "MARKET_COMMON": 1.0000000000000013,
+        "MOMENTUM20": -0.2608990875645056,
+        "VOLATILITY60": 0.10807872237720594
+      }
+    }
+  },
+  "derived_comparison": {
+    "po001_vs_equal_weight_expected_alpha_delta": 0.0016400434312311522,
+    "po001_vs_equal_weight_annualized_volatility_delta": -0.02090018089916823,
+    "po001_vs_equal_weight_utility_delta": 0.0022520575262843174,
+    "observable_cost_changed_portfolio_materially": false,
+    "reason_observable_cost_did_not_materially_change_weights": "TC001 observable statutory/regulatory cost floor is approximately uniform across names and the frozen snapshot starts from cash, so it mainly shifts portfolio utility rather than cross-sectional relative preference."
+  },
+  "interpretation_limits": {
+    "no_realized_5d_outcome": true,
+    "post_decision_market_sources_acquired": false,
+    "prospective_alpha_claim": false,
+    "sector_factor_available": false,
+    "size_factor_available": false,
+    "tc001_market_impact_included": false,
+    "tc001_spread_included": false,
+    "live_capital_allowed": false
+  }
+}

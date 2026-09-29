@@ -8,6 +8,7 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.rm001 import (
     FACTOR_NAMES,
     _fit_factor_return,
+    _q,
     build_rm001_exposure_panel,
     build_rm001_factor_history,
     build_rm001_risk_state,
@@ -219,6 +220,13 @@ def test_factor_history_uses_next_session_returns_and_action_coverage():
     for index, factor in enumerate(FACTOR_NAMES):
         assert observed[factor] == pytest.approx(true[index], abs=1e-12)
     assert history["residual_count"] == 120
+
+
+def test_rm001_canonical_float_rounding_removes_subprecision_noise():
+    left = _q(0.12345678901234511)
+    right = _q(0.12345678901234512)
+    assert left == right
+    assert _q(-0.0) == 0.0
 
 
 def test_trailing_beta60_recovers_known_linear_beta():

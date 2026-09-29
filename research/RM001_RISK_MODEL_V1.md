@@ -114,6 +114,22 @@ Factor contribution is reported as:
 
 Contributions may be negative when factor covariance provides diversification.
 
+
+## Canonical numerical serialization
+
+Persisted RM001 floating-point values are rounded to 15 decimal places before
+they enter canonical artifacts and hashes.
+
+Purpose:
+
+- remove machine-level BLAS/NumPy floating-point noise from evidence hashes;
+- make identical source/model rebuilds content-stable;
+- preserve economically meaningful precision.
+
+This is an artifact-serialization rule, not a factor, estimator or tuning
+parameter. Factor definitions, OLS estimation, covariance windows and
+idiosyncratic-risk rules are unchanged.
+
 ## Point-in-time invariants
 
 - exact symbol + ISIN identity;

@@ -1,0 +1,131 @@
+name: PO001 I002 walk-forward OOS snapshot
+
+on:
+  push:
+    branches:
+      - feat/po001-integrated-state-20260929
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[po001-i002]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify I002 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001.py \
+            src/marketlab/po001.py \
+            src/marketlab/po001_i001.py \
+            src/marketlab/po001_i002.py \
+            scripts/build_ae001_delivery_features.py \
+            scripts/run_po001_i002.py \
+            tests/test_rm001.py \
+            tests/test_po001.py \
+            tests/test_po001_i001.py \
+            tests/test_po001_i002.py
+          pytest -q \
+            tests/test_rm001.py \
+            tests/test_rm001_historical_state.py \
+            tests/test_po001.py \
+            tests/test_po001_i001.py \
+            tests/test_po001_i002.py
+
+      - name: Rebuild official NSE market panel only through decision date
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-08-31 \
+            --store .marketlab/po001-i002 \
+            --output reports/po001-i002/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild corporate-action-safe base features
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/po001-i002/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i002/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-08-31 \
+            --raw-dir reports/po001-i002/corporate-actions/raw \
+            --output reports/po001-i002/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build reusable delivery features only through decision date
+        run: |
+          python scripts/build_ae001_delivery_features.py \
+            --market-panel reports/po001-i002/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i002/action-safe/action-safe-feature-panel.json.gz \
+            --store .marketlab/po001-i002 \
+            --output reports/po001-i002/delivery \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build RM001 risk state twice
+        run: |
+          python scripts/build_rm001_historical_state.py \
+            --market-panel reports/po001-i002/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i002/action-safe/action-safe-feature-panel.json.gz \
+            --action-ledger reports/po001-i002/action-safe/corporate-action-ledger.json.gz \
+            --as-of-session 2026-08-31 \
+            --output reports/po001-i002/risk-a
+
+          python scripts/build_rm001_historical_state.py \
+            --market-panel reports/po001-i002/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i002/action-safe/action-safe-feature-panel.json.gz \
+            --action-ledger reports/po001-i002/action-safe/corporate-action-ledger.json.gz \
+            --as-of-session 2026-08-31 \
+            --output reports/po001-i002/risk-b
+
+      - name: Require byte-identical RM001 rebuilds
+        run: |
+          cmp \
+            reports/po001-i002/risk-a/exposure-panel.json.gz \
+            reports/po001-i002/risk-b/exposure-panel.json.gz
+          cmp \
+            reports/po001-i002/risk-a/factor-history.json.gz \
+            reports/po001-i002/risk-b/factor-history.json.gz
+          cmp \
+            reports/po001-i002/risk-a/risk-state.json.gz \
+            reports/po001-i002/risk-b/risk-state.json.gz
+
+      - name: Run frozen I002 integrated portfolio study
+        run: |
+          python scripts/run_po001_i002.py \
+            --market-panel reports/po001-i002/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i002/delivery/delivery-feature-panel.json.gz \
+            --action-ledger reports/po001-i002/action-safe/corporate-action-ledger.json.gz \
+            --risk-state reports/po001-i002/risk-a/risk-state.json.gz \
+            --output reports/po001-i002/study
+
+      - name: Print compact result
+        run: |
+          cat reports/po001-i002/risk-a/summary.json
+          cat reports/po001-i002/study/summary.json
+
+      - name: Upload exact I002 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: po001-i002-${{ github.run_id }}
+          path: |
+            reports/po001-i002
+            .marketlab/po001-i002/market-data
+          if-no-files-found: warn
+          retention-days: 90
