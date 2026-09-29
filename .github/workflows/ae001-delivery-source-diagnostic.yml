@@ -1,0 +1,57 @@
+name: AE001 delivery source diagnostic
+
+on:
+  push:
+    branches:
+      - feat/ae001-delivery-flow-features-20260927
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Inspect exact NSE delivery row
+        run: |
+          python -m pip install requests
+          python - <<'PY'
+          import csv
+          import io
+          import requests
+
+          url = "https://nsearchives.nseindia.com/products/content/sec_bhavdata_full_21102025.csv"
+          response = requests.get(
+              url,
+              headers={
+                  "User-Agent": (
+                      "Mozilla/5.0 (X11; Linux x86_64) "
+                      "AppleWebKit/537.36 Chrome/152.0 Safari/537.36"
+                  )
+              },
+              timeout=30,
+          )
+          print("status", response.status_code, "bytes", len(response.content))
+          response.raise_for_status()
+          reader = csv.DictReader(io.StringIO(response.content.decode("utf-8-sig")))
+          for raw in reader:
+              row = {
+                  str(k).strip(): str(v or "").strip()
+                  for k, v in raw.items()
+                  if k is not None
+              }
+              if row.get("SYMBOL", "").upper() == "20MICRONS" and row.get("SERIES", "").upper() == "EQ":
+                  qty = float(row["TTL_TRD_QNTY"])
+                  delivery = float(row["DELIV_QTY"])
+                  reported = float(row["DELIV_PER"])
+                  implied = 100.0 * delivery / qty if qty else None
+                  print("ROW", row)
+                  print("IMPLIED_DELIV_PER", implied)
+                  print("ABS_DIFF_PP", abs(implied - reported))
+                  break
+          else:
+              raise SystemExit("20MICRONS EQ row not found")
+          PY
