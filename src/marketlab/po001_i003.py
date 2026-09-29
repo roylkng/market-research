@@ -72,6 +72,56 @@ def _verify_hash(
         raise AlphaContractError(f"{name} hash mismatch")
 
 
+def _validate_i003_risk_inputs(
+    legacy_risk_state: dict[str, Any],
+    canonical_risk_state: dict[str, Any],
+) -> None:
+    _verify_hash(
+        legacy_risk_state,
+        hash_field="state_sha256",
+        name="I003 pinned I002 RM001 risk state",
+    )
+    _verify_hash(
+        canonical_risk_state,
+        hash_field="state_sha256",
+        name="I003 canonical RM001 rebuild",
+    )
+    if (
+        legacy_risk_state["state_sha256"]
+        != EXPECTED_LEGACY_RISK_STATE_SHA256
+    ):
+        raise AlphaContractError(
+            "I003 pinned risk state does not reproduce sealed I002"
+        )
+    if (
+        canonical_risk_state["state_sha256"]
+        != EXPECTED_CANONICAL_RISK_STATE_SHA256
+    ):
+        raise AlphaContractError(
+            "I003 canonical RM001 rebuild does not match frozen P3 diagnostic"
+        )
+    for label, state in (
+        ("pinned", legacy_risk_state),
+        ("canonical", canonical_risk_state),
+    ):
+        if str(state.get("as_of_session") or "") != DECISION_SESSION:
+            raise AlphaContractError(
+                f"I003 {label} RM001 decision clock mismatch"
+            )
+    legacy_identities = {
+        (str(row["symbol"]), str(row["isin"]))
+        for row in legacy_risk_state["rows"]
+    }
+    canonical_identities = {
+        (str(row["symbol"]), str(row["isin"]))
+        for row in canonical_risk_state["rows"]
+    }
+    if legacy_identities != canonical_identities:
+        raise AlphaContractError(
+            "I003 legacy/canonical RM001 identity sets differ"
+        )
+
+
 def _execution_inputs(
     *,
     market_panel: dict[str, Any],
@@ -293,49 +343,10 @@ def run_po001_i003(
         hash_field="ledger_sha256",
         name="I003 action ledger",
     )
-    _verify_hash(
-        risk_state,
-        hash_field="state_sha256",
-        name="I003 pinned I002 RM001 risk state",
-    )
-    _verify_hash(
-        canonical_risk_state,
-        hash_field="state_sha256",
-        name="I003 canonical RM001 rebuild",
-    )
+    _validate_i003_risk_inputs(risk_state, canonical_risk_state)
     if delivery_feature_panel["panel_sha256"] != EXPECTED_DELIVERY_PANEL_SHA256:
         raise AlphaContractError(
             "I003 delivery feature panel does not reproduce sealed I002"
-        )
-    if risk_state["state_sha256"] != EXPECTED_LEGACY_RISK_STATE_SHA256:
-        raise AlphaContractError(
-            "I003 pinned risk state does not reproduce sealed I002"
-        )
-    if (
-        canonical_risk_state["state_sha256"]
-        != EXPECTED_CANONICAL_RISK_STATE_SHA256
-    ):
-        raise AlphaContractError(
-            "I003 canonical RM001 rebuild does not match frozen P3 diagnostic"
-        )
-    if str(risk_state.get("as_of_session") or "") != DECISION_SESSION:
-        raise AlphaContractError("I003 pinned RM001 decision clock mismatch")
-    if (
-        str(canonical_risk_state.get("as_of_session") or "")
-        != DECISION_SESSION
-    ):
-        raise AlphaContractError("I003 canonical RM001 decision clock mismatch")
-    legacy_identities = {
-        (str(row["symbol"]), str(row["isin"]))
-        for row in risk_state["rows"]
-    }
-    canonical_identities = {
-        (str(row["symbol"]), str(row["isin"]))
-        for row in canonical_risk_state["rows"]
-    }
-    if legacy_identities != canonical_identities:
-        raise AlphaContractError(
-            "I003 legacy/canonical RM001 identity sets differ"
         )
 
     ranked = (
