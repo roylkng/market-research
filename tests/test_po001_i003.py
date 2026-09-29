@@ -6,6 +6,7 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.po001_i003 import (
     _execution_inputs,
     _validate_i003_risk_inputs,
+    _validate_pinned_alpha_model,
 )
 
 
@@ -124,3 +125,42 @@ def test_i003_rejects_legacy_canonical_identity_drift(monkeypatch):
     )
     with pytest.raises(AlphaContractError, match="identity sets differ"):
         _validate_i003_risk_inputs(legacy, canonical)
+
+
+
+def _alpha_model():
+    model = {
+        "model_id": "AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
+        "feature_names": ["x"],
+        "feature_medians": [0.5],
+        "feature_means": [0.5],
+        "feature_scales": [0.25],
+        "coefficients": [0.01],
+        "intercept": 0.002,
+        "l2": 1.0,
+        "training_example_count": 169825,
+        "training_last_exit_session": "2026-06-30",
+    }
+    model["model_sha256"] = digest(model)
+    return model
+
+
+def test_i003_accepts_exact_pinned_alpha_model(monkeypatch):
+    model = _alpha_model()
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_MODEL_SHA256",
+        model["model_sha256"],
+    )
+    _validate_pinned_alpha_model(model)
+
+
+def test_i003_rejects_pinned_alpha_model_tamper(monkeypatch):
+    model = _alpha_model()
+    expected = model["model_sha256"]
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_MODEL_SHA256",
+        expected,
+    )
+    model["coefficients"][0] = 0.02
+    with pytest.raises(AlphaContractError, match="hash mismatch"):
+        _validate_pinned_alpha_model(model)
