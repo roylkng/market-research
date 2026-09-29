@@ -1,0 +1,43 @@
+schema_version: 1
+id: PO001-v1-DEVELOPMENT
+name: long_only_risk_cost_aware_optimizer
+status: DEVELOPMENT
+created: 2026-09-29
+live_capital_allowed: false
+
+inputs:
+  alpha:
+    externally_supplied: true
+    horizon_sessions_required: true
+    expected_return_unit: decimal_excess_return
+  risk:
+    source: RM001-v1-DEVELOPMENT
+    unit: daily_variance
+    horizon_scaling: multiply_by_horizon_sessions
+  cost:
+    source: TC001-v1-DEVELOPMENT
+    buy_and_sell_bps_per_security_required: true
+
+objective:
+  maximize:
+    - expected_excess_return
+    - negative_risk_penalty
+    - negative_immediate_transaction_cost
+    - negative_optional_terminal_liquidation_cost
+
+constraints:
+  long_only: true
+  leverage_allowed: false
+  default_max_invested_weight: 1.0
+  default_max_name_weight: 0.05
+  default_max_traded_fraction_of_nav: 1.0
+  factor_bounds_supported: true
+  sector_bounds: DEFERRED_RM001_PIT_SECTOR_REQUIRED
+  size_bounds: DEFERRED_RM001_PIT_MARKET_CAP_REQUIRED
+
+solver:
+  implementation: scipy_slsqp
+  fail_closed_on_unsuccessful_or_infeasible: true
+
+promotion:
+  live_capital_directly_allowed: false
