@@ -88,7 +88,9 @@ jobs:
             --market-panel reports/po001-i003/panel/market-panel.json.gz \
             --feature-panel reports/po001-i003/delivery/delivery-feature-panel.json.gz \
             --action-ledger reports/po001-i003/action-safe/corporate-action-ledger.json.gz \
-            --risk-state reports/po001-i003/risk/risk-state.json.gz \
+            --risk-state research/po001-i003/inputs/i002-risk-state-legacy.json.gz \
+            --risk-state-manifest research/po001-i003/inputs/i002-risk-state-legacy-manifest.json \
+            --canonical-risk-state reports/po001-i003/risk/risk-state.json.gz \
             --output reports/po001-i003/study
 
       - name: Print compact result
