@@ -1,0 +1,60 @@
+{
+  "analysis_id": "AE001-T003-TC001-v1",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "source_run_id": 36533659236,
+  "source_report_sha256": "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270",
+  "horizon_sessions": 5,
+  "base": {
+    "mean_rank_ic": 0.005610514228492526,
+    "mean_top_decile_excess": 0.004546806162771425,
+    "mean_top_minus_bottom_spread": 0.000980506682673035,
+    "average_top_decile_selection_churn": 0.340520921749316
+  },
+  "augmented": {
+    "mean_rank_ic": 0.025015754407677233,
+    "mean_top_decile_excess": 0.005598934179157281,
+    "mean_top_minus_bottom_spread": 0.004119889007319015,
+    "average_top_decile_selection_churn": 0.37131026000634687
+  },
+  "paired_augmented_minus_base": {
+    "rank_ic_delta": 0.01940524017918471,
+    "rank_ic_p_value": 0.000004820927634886007,
+    "top_decile_excess_delta": 0.0010521280163858554,
+    "top_decile_excess_p_value": 0.03707657732329626,
+    "top_minus_bottom_spread_delta": 0.00313938232464598,
+    "top_minus_bottom_spread_p_value": 0.00002658654307394919
+  },
+  "cost_interpretation": {
+    "portfolio_surface": "LONG_ONLY_EQUAL_WEIGHT_TOP_DECILE_DIAGNOSTIC",
+    "forward_return_clock": "FIVE_SESSION_FORWARD_COHORT",
+    "selection_churn_clock": "CONSECUTIVE_DAILY_DECISIONS",
+    "mixed_clock_netting_prohibited": true,
+    "cohort_round_trip_costing_allowed": true,
+    "daily_selection_churn_reported_as_turnover_pressure_only": true,
+    "rolling_portfolio_path_constructed": false,
+    "long_short_spread_costed_by_tc001_v1": false,
+    "reason_long_short_not_costed": "TC001-v1 does not model short borrow, short-side turnover or financing.",
+    "live_capital_allowed": false
+  },
+  "illustrative_execution_scenarios": {
+    "LOW": {
+      "half_spread_bps_each_side": 1,
+      "daily_volatility_decimal": 0.015,
+      "participation_rate": 0.001,
+      "impact_coefficient": 0.25
+    },
+    "BASE": {
+      "half_spread_bps_each_side": 3,
+      "daily_volatility_decimal": 0.02,
+      "participation_rate": 0.005,
+      "impact_coefficient": 0.5
+    },
+    "HIGH": {
+      "half_spread_bps_each_side": 5,
+      "daily_volatility_decimal": 0.04,
+      "participation_rate": 0.01,
+      "impact_coefficient": 1
+    }
+  },
+  "live_capital_allowed": false
+}
