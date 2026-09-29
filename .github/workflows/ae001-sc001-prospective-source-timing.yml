@@ -20,7 +20,7 @@ concurrency:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,10 +37,17 @@ jobs:
         run: |
           ruff check \
             src/marketlab/alpha_prospective_sources.py \
+            src/marketlab/alpha_t004_prospective.py \
             scripts/probe_ae001_sc001.py \
             scripts/verify_ae001_sc001.py \
-            tests/test_alpha_prospective_sources.py
-          pytest -q tests/test_alpha_prospective_sources.py
+            scripts/score_ae001_t004_decision.py \
+            scripts/verify_ae001_t004_decisions.py \
+            tests/test_alpha_prospective_sources.py \
+            tests/test_alpha_t004_prospective.py
+          pytest -q \
+            tests/test_alpha_prospective_sources.py \
+            tests/test_alpha_t004_prospective.py \
+            tests/test_alpha_t004.py
           python scripts/verify_ae001_sc001.py \
             --ledger research/prospective/ae001-sc001/source-ledger.json
 
@@ -72,6 +79,25 @@ jobs:
           python scripts/verify_ae001_sc001.py \
             --ledger research/prospective/ae001-sc001/source-ledger.json
 
+      - name: Seal fixed-model T004 decision when source timing qualifies
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          T004_WORK="reports/ae001-t004-prospective/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$T004_WORK"
+          python scripts/score_ae001_t004_decision.py \
+            --session-date "${{ steps.gate.outputs.date }}" \
+            --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
+            --decision-ledger research/prospective/ae001-t004/decision-ledger.json \
+            --models research/prospective/ae001-t004/frozen-models-v1.json \
+            --decision-dir research/prospective/ae001-t004/decisions \
+            --support-dir "$T004_WORK" \
+            --attempts 4 \
+            --timeout-seconds 30 | tee "$T004_WORK/score.json"
+          python scripts/verify_ae001_t004_decisions.py \
+            --ledger research/prospective/ae001-t004/decision-ledger.json
+
       - name: Anchor append-only SC001 evidence
         if: steps.gate.outputs.state == 'READY'
         shell: bash
@@ -82,7 +108,12 @@ jobs:
 
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add research/prospective/ae001-sc001
+          git add \
+            research/prospective/ae001-sc001 \
+            research/prospective/ae001-t004/decision-ledger.json
+          if [ -d research/prospective/ae001-t004/decisions ]; then
+            git add research/prospective/ae001-t004/decisions
+          fi
           if git diff --cached --quiet; then
             echo "No new SC001 evidence to anchor"
             exit 0
@@ -96,7 +127,27 @@ jobs:
             CURRENT_MAIN="$(git rev-parse origin/main)"
             if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
               CHANGED="$(git diff --name-only "$START_SHA" "$CURRENT_MAIN")"
-              if printf '%s\n' "$CHANGED" | grep -Eq '^(research/AE001_SC001_PROSPECTIVE_SOURCE_TIMING_PROTOCOL_V1\.md|research/prospective/ae001-sc001/|src/marketlab/alpha_prospective_sources\.py|scripts/(probe_ae001_sc001|verify_ae001_sc001)\.py|\.github/workflows/ae001-sc001-prospective-source-timing\.yml)$'; then
+              if printf '%s\n' "$CHANGED" | grep -Eq '^(research/AE001_SC001_PROSPECTIVE_SOURCE_TIMING_PROTOCOL_V1\.md|research/AE001_T004_(PROSPECTIVE_DELIVERY_CONFIRMATION_V1|MODEL_FREEZE_P1)\.md|registry/ae001_t004_delivery_confirmatory\.yaml|research/prospective/ae001-sc001/|research/prospective/ae001-t004/(decision-ledger\.json|decisions/|frozen-models-v1\.json)|src/marketlab/alpha_(prospective_sources|t004|t004_prospective)\.py|scripts/(probe_ae001_sc001|verify_ae001_sc001|score_ae001_t004_decision|verify_ae001_t004_decisions)\.py|\.github/workflows/ae001-sc001-prospective-source-timing\.yml)                echo "SC001 rules or canonical state changed while observation was in flight"
+                printf '%s\n' "$CHANGED"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_sc001.py --ledger "$LEDGER"
+              python scripts/verify_ae001_t004_decisions.py \
+                --ledger research/prospective/ae001-t004/decision-ledger.json
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor SC001 evidence after bounded retries"
+          exit 1
+
+      - name: Report pre-start probe
+        if: steps.gate.outputs.state != 'READY'
+        run: echo "SC001 has not reached its frozen start boundary"
+; then
                 echo "SC001 rules or canonical state changed while observation was in flight"
                 printf '%s\n' "$CHANGED"
                 exit 1
@@ -115,3 +166,12 @@ jobs:
       - name: Report pre-start probe
         if: steps.gate.outputs.state != 'READY'
         run: echo "SC001 has not reached its frozen start boundary"
+
+      - name: Upload T004 prospective support evidence
+        if: always() && steps.gate.outputs.state == 'READY'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t004-prospective-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/ae001-t004-prospective
+          if-no-files-found: warn
+          retention-days: 90
