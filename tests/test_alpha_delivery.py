@@ -95,12 +95,12 @@ def test_delivery_acquisition_requires_every_market_session():
     assert panel["historical_archives_captured_prospectively"] is False
 
 
-def _panels():
+def _panels(count=21):
     start = date(2026, 1, 1)
     market_sessions = []
     delivery_sessions = []
     close = 100.0
-    for index in range(21):
+    for index in range(count):
         day = start + timedelta(days=index)
         prior = close
         open_price = prior * 1.001
@@ -220,8 +220,24 @@ def test_delivery_augmentation_binds_symbol_to_same_session_isin():
     assert augmented["delivery_join_contract"].endswith("SYMBOL_PLUS_ISIN")
 
 
-def test_delivery_augmentation_excludes_identity_without_contiguous_delivery():
+def test_delivery_augmentation_excludes_missing_delivery_history():
     market, delivery, features = _panels()
+    delivery["sessions"][10]["rows"] = []
+    unsigned = dict(delivery)
+    unsigned.pop("panel_sha256", None)
+    delivery["panel_sha256"] = digest(unsigned)
+    augmented = augment_feature_panel_with_delivery(
+        feature_panel=features,
+        market_panel=market,
+        delivery_panel=delivery,
+    )
+    assert augmented["feature_row_count"] == 0
+    assert augmented["delivery_missing_excluded_row_count"] == 1
+    assert augmented["delivery_noncontiguous_excluded_row_count"] == 0
+
+
+def test_delivery_augmentation_excludes_noncontiguous_21_observation_window():
+    market, delivery, features = _panels(count=22)
     delivery["sessions"][10]["rows"] = []
     unsigned = dict(delivery)
     unsigned.pop("panel_sha256", None)
