@@ -72,7 +72,7 @@ def test_fixed_dp_charge_has_notional_dependent_effective_bps():
     )
     assert small["line_items"]["dp_charge"]["bps"] == pytest.approx(2.0)
     assert large["line_items"]["dp_charge"]["bps"] == pytest.approx(0.2)
-    assert small["line_items"]["gst"]["inr"] > large["line_items"]["gst"]["inr"] - 1e-12
+    assert small["line_items"]["gst"]["bps"] > large["line_items"]["gst"]["bps"]
 
 
 def test_square_root_impact_matches_frozen_sensitivity_formula():
@@ -110,7 +110,7 @@ def test_equal_weight_replacement_churn_maps_to_round_trip_cost_only_under_contr
         replacement_fraction=0.3713,
         round_trip_cost_bps=22.24812,
     )
-    assert cost == pytest.approx(8.260326956)
+    assert cost == pytest.approx(8.260726956)
 
 
 def test_buy_sell_turnover_are_modeled_separately():
