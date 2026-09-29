@@ -1,0 +1,16 @@
+{
+  "augmented_feature_count": 27,
+  "base_feature_count": 18,
+  "fixed_model_artifact": "research/prospective/ae001-t004/frozen-models-v1.json",
+  "live_capital_allowed": false,
+  "model_type": "ridge",
+  "no_retraining_during_primary_trial": true,
+  "primary_training_horizon_sessions": 5,
+  "protocol_id": "AE001-T004-P1",
+  "reason": "Freeze a single pretrial model state before the first eligible prospective T004 decision session.",
+  "ridge_l2": 1.0,
+  "sample_contract": "IDENTICAL_ACTION_SAFE_DELIVERY_COMPLETE_ROWS",
+  "source_end_date": "2026-09-25",
+  "training_examples_require_exit_on_or_before_source_end_date": true,
+  "transform": "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1"
+}

@@ -71,8 +71,14 @@ labels:
   entry_session_counts_as_holding_session_1: true
 
 training:
+  mode: FIXED_PRETRIAL_MODEL
+  source_end_date: 2026-09-25
+  primary_training_horizon_sessions: 5
+  only_examples_with_exit_on_or_before_source_end_date: true
   random_split: prohibited
-  only_fully_mature_labels_before_decision: true
+  retraining_during_primary_trial: prohibited
+  model_freeze_amendment: research/AE001_T004_MODEL_FREEZE_P1.md
+  frozen_model_artifact: research/prospective/ae001-t004/frozen-models-v1.json
   parameter_change_after_first_eligible_session: prohibited
 
 promotion:
