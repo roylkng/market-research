@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import math
 from dataclasses import asdict
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from typing import Any
 
 import numpy as np
@@ -476,10 +476,8 @@ def build_t004_decision_artifact(
                 "session_date"
             ]
         ),
-        "prior_market_last_session": str(
-            sorted(prior_market_sessions, key=lambda row: str(row["session_date"]))[-1][
-                "session_date"
-            ]
+        "prior_market_last_session": max(
+            str(row["session_date"]) for row in prior_market_sessions
         ),
         "frozen_model_artifact_sha256": frozen_models["artifact_sha256"],
         "base_model_sha256": frozen_models["base_model"]["model_sha256"],
