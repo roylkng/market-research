@@ -22,6 +22,7 @@ from marketlab.alpha_model import (
     evaluate_cross_sectional_predictions,
     fit_ridge,
     predict_ridge,
+    project_examples,
     purge_training_examples,
 )
 from marketlab.marketdata import IndexDailyPrice
@@ -227,7 +228,10 @@ def run_action_safe_horizon_walkforward(
     for horizon in horizons:
         folds = folds_by_horizon[horizon]
         _validate_folds(folds)
-        examples = examples_by_horizon[horizon]
+        examples = project_examples(
+            examples_by_horizon[horizon],
+            feature_names=selected_features,
+        )
         all_predictions = []
         fold_reports = []
         for fold_index, fold in enumerate(folds, start=1):
