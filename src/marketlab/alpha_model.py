@@ -37,6 +37,40 @@ class RidgeModel:
     model_sha256: str
 
 
+def project_examples(
+    examples: list[ModelExample],
+    *,
+    feature_names: list[str],
+) -> list[ModelExample]:
+    """Project examples onto an explicit model feature subset without changing rows."""
+
+    if not feature_names or len(feature_names) != len(set(feature_names)):
+        raise AlphaContractError(
+            "projected feature_names must be non-empty and unique"
+        )
+    wanted = tuple(feature_names)
+    projected = []
+    for row in examples:
+        missing = [name for name in wanted if name not in row.features]
+        if missing:
+            raise AlphaContractError(
+                f"model example is missing projected features: {missing}"
+            )
+        projected.append(
+            ModelExample(
+                symbol=row.symbol,
+                isin=row.isin,
+                feature_session=row.feature_session,
+                entry_session=row.entry_session,
+                exit_session=row.exit_session,
+                horizon_sessions=row.horizon_sessions,
+                features={name: row.features[name] for name in wanted},
+                target_excess_return=row.target_excess_return,
+            )
+        )
+    return projected
+
+
 def purge_training_examples(
     examples: list[ModelExample],
     *,
