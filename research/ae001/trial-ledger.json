@@ -1,5 +1,5 @@
 {
-  "event_count": 11,
+  "event_count": 12,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -383,10 +383,35 @@
       "recorded_at_utc": "2026-09-29T10:12:41+00:00",
       "seq": 11,
       "trial_id": "AE001-T004"
+    },
+    {
+      "event_sha256": "70322f180ef966992271e11f006875445e06542c8bcaabf345b6597dfc11a732",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "allowed_post_cutoff_operations": [
+          "parse_frozen_sc001_current_sources",
+          "retrieve_prior_session_archives",
+          "reconstruct_prior_feature_history",
+          "corporate_action_integrity_audit",
+          "apply_frozen_models",
+          "seal_predictions"
+        ],
+        "current_session_archive_refetch_substitution": "PROHIBITED",
+        "information_cutoff": "18:30:00 Asia/Kolkata",
+        "live_capital_allowed": false,
+        "model_retraining": "PROHIBITED",
+        "prediction_deadline": "BEFORE_NEXT_COMPLETED_NSE_SESSION_OPEN",
+        "protocol_id": "AE001-T004-P2",
+        "reason": "Freeze causal information-time boundary separately from compute completion before first eligible T004 session.",
+        "same_session_source_contract": "EXACT_SC001_ELIGIBLE_ATTEMPT_BYTES_ONLY"
+      },
+      "recorded_at_utc": "2026-09-29T10:32:27+00:00",
+      "seq": 12,
+      "trial_id": "AE001-T004"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "14ff32fd74f2ba866090fc5ad60d69b6df8e44a06cf0abf4cfeb27f744cbf8ef",
+  "ledger_sha256": "fbe6b1efec5aaa6b1564dca8f15a1e6b92596efbbdf4326f811519c3a1276831",
   "live_capital_allowed": false,
   "schema_version": 1
 }
