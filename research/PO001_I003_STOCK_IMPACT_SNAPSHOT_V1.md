@@ -31,7 +31,9 @@ Before any I003 optimizer run, the reconstructed state must equal:
 - delivery feature panel SHA-256:
   `47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44`;
 - RM001 risk state SHA-256:
-  `b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1`.
+  `b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1`;
+- PO001-v1 observable-cost optimizer artifact SHA-256:
+  `ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e`.
 
 A mismatch fails I003 before portfolio construction.
 
