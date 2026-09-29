@@ -1,0 +1,98 @@
+name: I003 P5 current risk equivalence diagnostic
+
+on:
+  push:
+    branches:
+      - feat/po001-v2-stock-impact-20260929
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    if: contains(github.event.head_commit.message, '[i003-p5-risk-check]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download failed pinned-input I003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i003-36585020743
+          path: evidence/i003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36585020743
+
+      - name: Apply frozen P5 RM001 equivalence gate
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from pathlib import Path
+
+          TOL = 5e-15
+
+          def load_gz(path):
+              return json.loads(gzip.decompress(Path(path).read_bytes()).decode("utf-8"))
+
+          pinned = load_gz("research/po001-i003/inputs/i002-risk-state-legacy.json.gz")
+          matches = list(Path("evidence/i003").rglob("risk-state.json.gz"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one current risk state, got {matches}")
+          current = load_gz(matches[0])
+
+          invariants = [
+              "model_id",
+              "as_of_session",
+              "factor_names",
+              "factor_covariance_window",
+              "factor_covariance_first_realized_session",
+              "factor_covariance_last_realized_session",
+              "idiosyncratic_window",
+              "minimum_idiosyncratic_observations",
+              "security_count",
+              "deferred_factors",
+          ]
+          for field in invariants:
+              if pinned[field] != current[field]:
+                  raise SystemExit(f"invariant differs: {field}")
+
+          p_rows={(r["symbol"],r["isin"]):r for r in pinned["rows"]}
+          c_rows={(r["symbol"],r["isin"]):r for r in current["rows"]}
+          if p_rows.keys()!=c_rows.keys():
+              raise SystemExit("identity set differs")
+
+          max_exp=max(
+              abs(float(p_rows[k]["exposures"][f])-float(c_rows[k]["exposures"][f]))
+              for k in p_rows for f in pinned["factor_names"]
+          )
+          max_idio=max(
+              abs(float(p_rows[k]["idiosyncratic_variance_daily"])-float(c_rows[k]["idiosyncratic_variance_daily"]))
+              for k in p_rows
+          )
+          status_diff=sum(
+              p_rows[k]["idiosyncratic_status"] != c_rows[k]["idiosyncratic_status"]
+              for k in p_rows
+          )
+          max_cov=max(
+              abs(float(a)-float(b))
+              for ra,rb in zip(pinned["factor_covariance_daily"],current["factor_covariance_daily"],strict=True)
+              for a,b in zip(ra,rb,strict=True)
+          )
+          fallback=abs(
+              float(pinned["idiosyncratic_fallback_p75"])
+              -float(current["idiosyncratic_fallback_p75"])
+          )
+          print("PINNED_SHA",pinned["state_sha256"])
+          print("CURRENT_SHA",current["state_sha256"])
+          print("MAX_EXPOSURE_ABS_DIFF",repr(max_exp))
+          print("MAX_COVARIANCE_ABS_DIFF",repr(max_cov))
+          print("MAX_IDIO_ABS_DIFF",repr(max_idio))
+          print("FALLBACK_ABS_DIFF",repr(fallback))
+          print("STATUS_DIFF_COUNT",status_diff)
+          if max_exp>TOL or max_cov>TOL or max_idio>TOL or fallback>TOL or status_diff:
+              raise SystemExit("P5 RM001 equivalence gate failed")
+          print("P5_RM001_EQUIVALENCE",True)
+          PY
