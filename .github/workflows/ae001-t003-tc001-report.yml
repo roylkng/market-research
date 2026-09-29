@@ -1,0 +1,40 @@
+name: AE001 T003 TC001 sensitivity report
+
+on:
+  push:
+    branches:
+      - feat/tc001-t003-cost-sensitivity-20260929
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    if: contains(github.event.head_commit.message, '[t003-tc001-report]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Generate report
+        run: |
+          ruff check \
+            src/marketlab/tc001.py \
+            scripts/report_ae001_t003_tc001.py \
+            tests/test_tc001.py
+          pytest -q tests/test_tc001.py
+          python scripts/report_ae001_t003_tc001.py \
+            --input research/ae001/t003-tc001-input-v1.json \
+            --output research/ae001/t003-tc001-sensitivity-v1.json
+      - name: Anchor generated report
+        run: |
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/t003-tc001-sensitivity-v1.json
+          git commit -m "research: seal T003 TC001 cost sensitivity [skip ci]"
+          git push origin HEAD:feat/tc001-t003-cost-sensitivity-20260929
