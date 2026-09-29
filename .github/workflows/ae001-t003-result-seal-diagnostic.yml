@@ -18,6 +18,8 @@ jobs:
         with:
           python-version: '3.11'
       - name: Render canonical T003 result ledger
+        env:
+          PYTHONPATH: src
         run: |
           python - <<'PY'
           import json
