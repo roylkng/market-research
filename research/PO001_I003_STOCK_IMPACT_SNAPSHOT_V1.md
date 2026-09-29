@@ -22,6 +22,19 @@ Alpha model and purged training are identical to PO001-I002-v1:
 - ridge l2 = 1.0;
 - training labels exit strictly before 2026-07-01.
 
+## Frozen I002 reproduction hashes
+
+Before any I003 optimizer run, the reconstructed state must equal:
+
+- T003 fold-2 model SHA-256:
+  `179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260`;
+- delivery feature panel SHA-256:
+  `47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44`;
+- RM001 risk state SHA-256:
+  `b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1`.
+
+A mismatch fails I003 before portfolio construction.
+
 ## Risk
 
 RM001-v1 as of 2026-08-31.
