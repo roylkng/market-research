@@ -1,0 +1,103 @@
+name: AE001 T003 result seal diagnostic
+
+on:
+  push:
+    branches:
+      - feat/ae001-delivery-flow-features-20260927
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    if: contains(github.event.head_commit.message, '[ae001-t003-seal]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Render canonical T003 result ledger
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.alpha_trials import append_trial_event, trial_state
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          state = trial_state(ledger, "AE001-T003")
+          if state["result_count"] != 0:
+              raise SystemExit("T003 already has a result event")
+
+          payload = {
+              "status": "COMPLETE_DEVELOPMENT",
+              "run_id": 36533659236,
+              "report_sha256": "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270",
+              "report_artifact_sha256": "51b254f23af1db53fcf2e67d60186d8f0ca9a7dddb07679735beb8f4a0b87edc",
+              "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+              "historical_result_may_count_as_prospective_validation": False,
+              "cost_model_status": "NOT_IMPLEMENTED_TC001_REQUIRED",
+              "source_quality": {
+                  "excluded_session_count": 2,
+                  "excluded_sessions": ["2025-10-21", "2026-09-11"],
+                  "delivery_feature_row_count": 244855,
+                  "noncontiguous_excluded_row_count": 13151,
+              },
+              "primary_1d": {
+                  "endpoint_supported": False,
+                  "base_mean_rank_ic": 0.049822688998938484,
+                  "augmented_mean_rank_ic": 0.05057227796742435,
+                  "delta_mean_rank_ic": 0.0007495889684858622,
+                  "delta_rank_ic_p_value": 0.6678712977490537,
+                  "base_top_minus_bottom_spread": 0.0018727778160089576,
+                  "augmented_top_minus_bottom_spread": 0.002146872816307611,
+                  "delta_top_minus_bottom_spread": 0.0002740950002986533,
+                  "delta_spread_p_value": 0.15549510301722438,
+              },
+              "secondary_5d": {
+                  "endpoint_supported": True,
+                  "base_mean_rank_ic": 0.005610514228492526,
+                  "augmented_mean_rank_ic": 0.025015754407677233,
+                  "delta_mean_rank_ic": 0.01940524017918471,
+                  "delta_rank_ic_p_value": 4.820927634886007e-06,
+                  "base_top_minus_bottom_spread": 0.000980506682673035,
+                  "augmented_top_minus_bottom_spread": 0.004119889007319015,
+                  "delta_top_minus_bottom_spread": 0.00313938232464598,
+                  "delta_spread_p_value": 2.658654307394919e-05,
+              },
+              "diagnostic_20d": {
+                  "positive_diagnostic": True,
+                  "confirmatory_claim_allowed": False,
+                  "base_mean_rank_ic": 0.006748928113405132,
+                  "augmented_mean_rank_ic": 0.02724977079151133,
+                  "delta_mean_rank_ic": 0.020500842678106198,
+                  "delta_rank_ic_p_value": 0.00020109829722175017,
+                  "base_top_minus_bottom_spread": 0.011114714341165502,
+                  "augmented_top_minus_bottom_spread": 0.01919523692041499,
+                  "delta_top_minus_bottom_spread": 0.008080522579249492,
+                  "delta_spread_p_value": 0.0008892187145541447,
+              },
+              "interpretation": (
+                  "PRIMARY_1D_ENDPOINT_NOT_SUPPORTED; "
+                  "SECONDARY_5D_INCREMENTAL_INFORMATION_SUPPORTED; "
+                  "20D_DIAGNOSTIC_POSITIVE_REQUIRES_CONFIRMATORY_TRIAL; "
+                  "HISTORICAL_SOURCE_TIMING_UNVERIFIED; "
+                  "NO_LIVE_CAPITAL_IMPLICATION"
+              ),
+              "live_capital_allowed": False,
+          }
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_RESULT_RECORDED",
+              trial_id="AE001-T003",
+              recorded_at_utc="2026-09-29T09:53:00+00:00",
+              payload=payload,
+          )
+          print("BEGIN_LEDGER")
+          print(json.dumps(updated, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False))
+          print("END_LEDGER")
+          print("LEDGER_SHA256", updated["ledger_sha256"])
+          print("EVENT_SHA256", updated["events"][-1]["event_sha256"])
+          PY
