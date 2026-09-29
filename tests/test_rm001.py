@@ -1,4 +1,5 @@
 import math
+from datetime import date, timedelta
 
 import numpy as np
 import pytest
@@ -7,10 +8,219 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.rm001 import (
     FACTOR_NAMES,
     _fit_factor_return,
+    build_rm001_exposure_panel,
+    build_rm001_factor_history,
     build_rm001_risk_state,
     portfolio_risk,
     trailing_beta60,
 )
+from marketlab.marketdata import IndexDailyPrice
+
+
+
+def _action_ledger(start: str, end: str):
+    ledger = {
+        "schema_version": 1,
+        "ledger_id": "AE001-CORPORATE-ACTIONS-v1",
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "coverage_start_date": start,
+        "coverage_end_date": end,
+        "source_chunks": [],
+        "record_count": 0,
+        "records": [],
+        "no_record_means_no_share_changing_action_in_covered_source": True,
+        "historical_source_retrieved_prospectively": False,
+        "live_capital_allowed": False,
+    }
+    ledger["ledger_sha256"] = digest(ledger)
+    return ledger
+
+
+def test_exposure_panel_builds_beta_and_centered_styles_point_in_time():
+    start = date(2026, 7, 27)
+    sessions = []
+    stock_close = 100.0
+    benchmark_close = 20_000.0
+    for index in range(61):
+        day = (start + timedelta(days=index)).isoformat()
+        benchmark_return = 0.001 * ((index % 7) - 3)
+        stock_return = 1.2 * benchmark_return + 0.0001
+        benchmark_prior = benchmark_close
+        stock_prior = stock_close
+        benchmark_close *= 1.0 + benchmark_return
+        stock_close *= 1.0 + stock_return
+        sessions.append(
+            {
+                "session_date": day,
+                "equities": [
+                    {
+                        "session_date": day,
+                        "symbol": "TEST",
+                        "isin": "INE000000001",
+                        "open_price": stock_prior,
+                        "high_price": max(stock_prior, stock_close) * 1.01,
+                        "low_price": min(stock_prior, stock_close) * 0.99,
+                        "close_price": stock_close,
+                        "previous_close": stock_prior,
+                        "volume": 100_000.0,
+                        "turnover_inr": 30_000_000.0,
+                        "trade_count": 1_000.0,
+                    }
+                ],
+                "benchmark": {
+                    "benchmark_id": "nifty_500",
+                    "index_name": "Nifty 500",
+                    "session_date": day,
+                    "open_price": benchmark_prior,
+                    "close_price": benchmark_close,
+                },
+            }
+        )
+    market = {
+        "schema_version": 1,
+        "panel_id": "TEST-MARKET",
+        "sessions": sessions,
+        "live_capital_allowed": False,
+    }
+    market["panel_sha256"] = digest(market)
+    actions = _action_ledger(
+        sessions[0]["session_date"],
+        sessions[-1]["session_date"],
+    )
+    final_day = sessions[-1]["session_date"]
+    features = {
+        "schema_version": 1,
+        "panel_id": "ACTION-SAFE-RANKED",
+        "corporate_action_ledger_sha256": actions["ledger_sha256"],
+        "transform": "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1",
+        "rows": [
+            {
+                "feature_session": final_day,
+                "symbol": "TEST",
+                "isin": "INE000000001",
+                "values": {
+                    "momentum_20": 0.5,
+                    "realized_vol_60": 0.5,
+                    "turnover_inr": 0.5,
+                },
+            }
+        ],
+        "outcomes_attached": False,
+        "live_capital_allowed": False,
+    }
+    features["panel_sha256"] = digest(features)
+
+    panel = build_rm001_exposure_panel(
+        feature_panel=features,
+        market_panel=market,
+        action_ledger=actions,
+    )
+    assert panel["exposure_count"] == 1
+    exposure = panel["rows"][0]["exposures"]
+    assert exposure["BETA60_RELATIVE"] == pytest.approx(0.2)
+    assert exposure["MOMENTUM20"] == pytest.approx(0.0)
+    assert exposure["VOLATILITY60"] == pytest.approx(0.0)
+    assert exposure["LIQUIDITY"] == pytest.approx(0.0)
+    assert panel["deferred_factors"]["SIZE"].startswith("POINT_IN_TIME")
+
+
+def test_factor_history_uses_next_session_returns_and_action_coverage():
+    first = "2026-09-24"
+    second = "2026-09-25"
+    actions = _action_ledger(first, second)
+    true = np.asarray([0.001, 0.002, -0.0015, 0.0008, 0.0012])
+    exposure_rows = []
+    first_equities = []
+    second_equities = []
+    for index in range(120):
+        vector = np.asarray(
+            [
+                1.0,
+                (index - 60) / 60.0,
+                ((index * 7) % 101) / 50.0 - 1.0,
+                ((index * 11) % 103) / 51.0 - 1.0,
+                ((index * 13) % 107) / 53.0 - 1.0,
+            ]
+        )
+        symbol = f"S{index:03d}"
+        isin = f"INE{index:09d}"
+        realized = float(vector @ true)
+        exposure_rows.append(
+            {
+                "session_date": first,
+                "symbol": symbol,
+                "isin": isin,
+                "exposures": dict(zip(FACTOR_NAMES, vector.tolist(), strict=True)),
+            }
+        )
+        for target, close in (
+            (first_equities, 100.0),
+            (second_equities, 100.0 * (1.0 + realized)),
+        ):
+            target.append(
+                {
+                    "session_date": first if target is first_equities else second,
+                    "symbol": symbol,
+                    "isin": isin,
+                    "open_price": close,
+                    "high_price": close * 1.01,
+                    "low_price": close * 0.99,
+                    "close_price": close,
+                    "previous_close": close,
+                    "volume": 100_000.0,
+                    "turnover_inr": 30_000_000.0,
+                    "trade_count": 1_000.0,
+                }
+            )
+    market = {
+        "schema_version": 1,
+        "panel_id": "TEST-MARKET",
+        "sessions": [
+            {
+                "session_date": first,
+                "equities": first_equities,
+                "benchmark": {
+                    "benchmark_id": "nifty_500",
+                    "index_name": "Nifty 500",
+                    "session_date": first,
+                    "open_price": 20_000.0,
+                    "close_price": 20_000.0,
+                },
+            },
+            {
+                "session_date": second,
+                "equities": second_equities,
+                "benchmark": {
+                    "benchmark_id": "nifty_500",
+                    "index_name": "Nifty 500",
+                    "session_date": second,
+                    "open_price": 20_000.0,
+                    "close_price": 20_010.0,
+                },
+            },
+        ],
+        "live_capital_allowed": False,
+    }
+    market["panel_sha256"] = digest(market)
+    exposure = {
+        "schema_version": 1,
+        "model_id": "RM001-v1-DEVELOPMENT",
+        "factor_names": list(FACTOR_NAMES),
+        "corporate_action_ledger_sha256": actions["ledger_sha256"],
+        "rows": exposure_rows,
+        "live_capital_allowed": False,
+    }
+    exposure["panel_sha256"] = digest(exposure)
+    history = build_rm001_factor_history(
+        exposure_panel=exposure,
+        market_panel=market,
+        action_ledger=actions,
+    )
+    assert history["factor_return_count"] == 1
+    observed = history["factor_returns"][0]["factor_returns"]
+    for index, factor in enumerate(FACTOR_NAMES):
+        assert observed[factor] == pytest.approx(true[index], abs=1e-12)
+    assert history["residual_count"] == 120
 
 
 def test_trailing_beta60_recovers_known_linear_beta():
