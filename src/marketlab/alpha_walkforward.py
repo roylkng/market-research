@@ -12,6 +12,7 @@ from marketlab.alpha_model import (
     evaluate_cross_sectional_predictions,
     fit_ridge,
     predict_ridge,
+    project_examples,
     purge_training_examples,
 )
 from marketlab.marketdata import IndexDailyPrice
@@ -231,6 +232,10 @@ def run_ridge_walkforward(
     selected = feature_names or all_features
     if not selected or not set(selected).issubset(set(all_features)):
         raise AlphaContractError("walk-forward feature selection is invalid")
+    examples = project_examples(
+        examples,
+        feature_names=selected,
+    )
 
     all_predictions: list[dict[str, Any]] = []
     baseline_predictions: list[dict[str, Any]] = []
