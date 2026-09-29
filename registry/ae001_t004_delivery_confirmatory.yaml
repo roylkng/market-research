@@ -1,0 +1,80 @@
+schema_version: 1
+id: AE001-T004-v1
+name: prospective_delivery_vwap_5d_confirmation
+status: FROZEN_BEFORE_FIRST_ELIGIBLE_DECISION_SESSION
+frozen_date: 2026-09-29
+live_capital_allowed: false
+
+research_class:
+  type: PROSPECTIVE_CONFIRMATORY
+  predecessor_trial: AE001-T003
+  retrospective_backfill_allowed: false
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+  earliest_calendar_date: 2026-09-30
+  source_timing_gate:
+    ledger: research/prospective/ae001-sc001/source-ledger.json
+    required_field: eligible_before_cutoff
+    required_value: true
+
+models:
+  base:
+    type: ridge
+    l2: 1.0
+    feature_count: 18
+  augmented:
+    type: ridge
+    l2: 1.0
+    feature_count: 27
+    delivery_feature_count: 9
+
+primary:
+  horizon_sessions: 5
+  minimum_eligible_decision_sessions: 60
+  minimum_valid_paired_ic_sessions: 50
+  inference:
+    method: paired_newey_west
+    lag: 4
+  success_requires_all:
+    - metric: paired_mean_rank_ic_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+    - metric: paired_top_minus_bottom_spread_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+
+secondary:
+  horizon_sessions: 20
+  inference:
+    method: paired_newey_west
+    lag: 19
+  rescues_failed_primary: false
+
+sample:
+  identical_rows_for_base_and_augmented: true
+  minimum_common_stocks_per_session: 500
+  identity: symbol_plus_isin
+  required_market_history_sessions: 60
+  required_delivery_history_sessions_including_current: 21
+  median_prior_20d_traded_value_inr_min: 20000000
+  missing_delivery_policy: EXCLUDE_NO_IMPUTATION
+  corporate_action_policy: FAIL_CLOSED
+  delivery_source_quality_policy: T003_P3
+
+labels:
+  entry: next_completed_nse_session_open
+  target: stock_return_minus_nifty500_return
+  entry_session_counts_as_holding_session_1: true
+
+training:
+  random_split: prohibited
+  only_fully_mature_labels_before_decision: true
+  parameter_change_after_first_eligible_session: prohibited
+
+promotion:
+  portfolio_promotion_requires_tc001: true
+  live_capital_directly_allowed: false
