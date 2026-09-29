@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import statistics
+from dataclasses import asdict
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -40,6 +41,8 @@ RIDGE_L2 = 1.0
 MIN_COMMON_IDENTITIES = 500
 NAV_SURFACES_INR = (1_000_000.0, 10_000_000.0, 100_000_000.0)
 PRIMARY_NAV_INR = 10_000_000.0
+RISK_EQUIVALENCE_TOLERANCE = 5e-15
+ALPHA_PREDICTION_EQUIVALENCE_TOLERANCE = 1e-12
 
 EXPECTED_MODEL_SHA256 = (
     "179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260"
@@ -49,9 +52,6 @@ EXPECTED_DELIVERY_PANEL_SHA256 = (
 )
 EXPECTED_LEGACY_RISK_STATE_SHA256 = (
     "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1"
-)
-EXPECTED_CANONICAL_RISK_STATE_SHA256 = (
-    "7a0a440515a2f75e0114281dd37a1bf4c6801e1b2e17a0b78183e89fe663abce"
 )
 EXPECTED_V1_OPTIMIZER_SHA256 = (
     "ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e"
@@ -74,7 +74,7 @@ def _verify_hash(
 def _validate_i003_risk_inputs(
     legacy_risk_state: dict[str, Any],
     canonical_risk_state: dict[str, Any],
-) -> None:
+) -> dict[str, Any]:
     _verify_hash(
         legacy_risk_state,
         hash_field="state_sha256",
@@ -92,33 +92,118 @@ def _validate_i003_risk_inputs(
         raise AlphaContractError(
             "I003 pinned risk state does not reproduce sealed I002"
         )
-    if (
-        canonical_risk_state["state_sha256"]
-        != EXPECTED_CANONICAL_RISK_STATE_SHA256
-    ):
-        raise AlphaContractError(
-            "I003 canonical RM001 rebuild does not match frozen P3 diagnostic"
-        )
-    for label, state in (
-        ("pinned", legacy_risk_state),
-        ("canonical", canonical_risk_state),
-    ):
-        if str(state.get("as_of_session") or "") != DECISION_SESSION:
+
+    invariant_fields = (
+        "model_id",
+        "as_of_session",
+        "factor_names",
+        "factor_covariance_window",
+        "factor_covariance_first_realized_session",
+        "factor_covariance_last_realized_session",
+        "idiosyncratic_window",
+        "minimum_idiosyncratic_observations",
+        "security_count",
+        "deferred_factors",
+    )
+    for field in invariant_fields:
+        if legacy_risk_state.get(field) != canonical_risk_state.get(field):
             raise AlphaContractError(
-                f"I003 {label} RM001 decision clock mismatch"
+                f"I003 RM001 economic invariant differs: {field}"
             )
-    legacy_identities = {
-        (str(row["symbol"]), str(row["isin"]))
+    if str(legacy_risk_state.get("as_of_session") or "") != DECISION_SESSION:
+        raise AlphaContractError("I003 pinned RM001 decision clock mismatch")
+
+    legacy_rows = {
+        (str(row["symbol"]), str(row["isin"])): row
         for row in legacy_risk_state["rows"]
     }
-    canonical_identities = {
-        (str(row["symbol"]), str(row["isin"]))
+    canonical_rows = {
+        (str(row["symbol"]), str(row["isin"])): row
         for row in canonical_risk_state["rows"]
     }
-    if legacy_identities != canonical_identities:
+    if legacy_rows.keys() != canonical_rows.keys():
         raise AlphaContractError(
             "I003 legacy/canonical RM001 identity sets differ"
         )
+
+    factor_names = [str(value) for value in legacy_risk_state["factor_names"]]
+    max_exposure_diff = 0.0
+    max_idio_diff = 0.0
+    status_diff_count = 0
+    for identity in sorted(legacy_rows):
+        left = legacy_rows[identity]
+        right = canonical_rows[identity]
+        for factor in factor_names:
+            max_exposure_diff = max(
+                max_exposure_diff,
+                abs(
+                    float(left["exposures"][factor])
+                    - float(right["exposures"][factor])
+                ),
+            )
+        max_idio_diff = max(
+            max_idio_diff,
+            abs(
+                float(left["idiosyncratic_variance_daily"])
+                - float(right["idiosyncratic_variance_daily"])
+            ),
+        )
+        status_diff_count += (
+            left["idiosyncratic_status"]
+            != right["idiosyncratic_status"]
+        )
+
+    max_covariance_diff = 0.0
+    for left_row, right_row in zip(
+        legacy_risk_state["factor_covariance_daily"],
+        canonical_risk_state["factor_covariance_daily"],
+        strict=True,
+    ):
+        for left, right in zip(left_row, right_row, strict=True):
+            max_covariance_diff = max(
+                max_covariance_diff,
+                abs(float(left) - float(right)),
+            )
+
+    fallback_diff = abs(
+        float(legacy_risk_state["idiosyncratic_fallback_p75"])
+        - float(canonical_risk_state["idiosyncratic_fallback_p75"])
+    )
+    tol = RISK_EQUIVALENCE_TOLERANCE
+    if max_exposure_diff > tol:
+        raise AlphaContractError(
+            "I003 canonical RM001 exposure drift exceeds frozen P5 tolerance"
+        )
+    if max_covariance_diff > tol:
+        raise AlphaContractError(
+            "I003 canonical RM001 covariance drift exceeds frozen P5 tolerance"
+        )
+    if max_idio_diff > tol:
+        raise AlphaContractError(
+            "I003 canonical RM001 idiosyncratic drift exceeds frozen P5 tolerance"
+        )
+    if fallback_diff > tol:
+        raise AlphaContractError(
+            "I003 canonical RM001 fallback drift exceeds frozen P5 tolerance"
+        )
+    if status_diff_count:
+        raise AlphaContractError(
+            "I003 canonical RM001 idiosyncratic statuses differ"
+        )
+
+    return {
+        "pinned_risk_state_sha256": legacy_risk_state["state_sha256"],
+        "fresh_canonical_risk_state_sha256": canonical_risk_state[
+            "state_sha256"
+        ],
+        "tolerance": tol,
+        "max_exposure_abs_diff": max_exposure_diff,
+        "max_covariance_abs_diff": max_covariance_diff,
+        "max_idiosyncratic_variance_abs_diff": max_idio_diff,
+        "idiosyncratic_fallback_abs_diff": fallback_diff,
+        "idiosyncratic_status_diff_count": status_diff_count,
+        "economic_equivalence_passed": True,
+    }
 
 
 def _validate_pinned_alpha_model(model: dict[str, Any]) -> None:
@@ -139,6 +224,84 @@ def _validate_pinned_alpha_model(model: dict[str, Any]) -> None:
         raise AlphaContractError("I003 pinned alpha training count mismatch")
     if str(model.get("training_last_exit_session") or "") != "2026-06-30":
         raise AlphaContractError("I003 pinned alpha training boundary mismatch")
+
+
+def _validate_alpha_diagnostic(
+    pinned_model: dict[str, Any],
+    diagnostic_model: Any,
+    decision_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    diagnostic = asdict(diagnostic_model)
+    structural_fields = (
+        "model_id",
+        "feature_names",
+        "l2",
+        "training_example_count",
+        "training_last_exit_session",
+    )
+    for field in structural_fields:
+        if pinned_model.get(field) != diagnostic.get(field):
+            raise AlphaContractError(
+                f"I003 diagnostic alpha structural invariant differs: {field}"
+            )
+
+    pinned_predictions = _score_model(pinned_model, decision_rows)
+    diagnostic_predictions = _score_model(diagnostic, decision_rows)
+    pinned_map = {
+        (str(row["symbol"]), str(row["isin"])): float(row["prediction"])
+        for row in pinned_predictions
+    }
+    diagnostic_map = {
+        (str(row["symbol"]), str(row["isin"])): float(row["prediction"])
+        for row in diagnostic_predictions
+    }
+    if pinned_map.keys() != diagnostic_map.keys():
+        raise AlphaContractError(
+            "I003 pinned/diagnostic alpha identity sets differ"
+        )
+    max_prediction_diff = max(
+        abs(pinned_map[key] - diagnostic_map[key])
+        for key in pinned_map
+    )
+    if max_prediction_diff > ALPHA_PREDICTION_EQUIVALENCE_TOLERANCE:
+        raise AlphaContractError(
+            "I003 diagnostic alpha drift exceeds frozen P5 tolerance"
+        )
+
+    bucket_size = max(1, math.ceil(len(pinned_map) * 0.10))
+    pinned_order = sorted(
+        pinned_map,
+        key=lambda identity: (
+            -pinned_map[identity],
+            identity[0],
+            identity[1],
+        ),
+    )
+    diagnostic_order = sorted(
+        diagnostic_map,
+        key=lambda identity: (
+            -diagnostic_map[identity],
+            identity[0],
+            identity[1],
+        ),
+    )
+    pinned_top = set(pinned_order[:bucket_size])
+    diagnostic_top = set(diagnostic_order[:bucket_size])
+    symmetric_diff_count = len(pinned_top ^ diagnostic_top)
+    if symmetric_diff_count:
+        raise AlphaContractError(
+            "I003 diagnostic alpha top-decile identity set differs"
+        )
+
+    return {
+        "pinned_model_sha256": pinned_model["model_sha256"],
+        "fresh_diagnostic_model_sha256": diagnostic_model.model_sha256,
+        "prediction_tolerance": ALPHA_PREDICTION_EQUIVALENCE_TOLERANCE,
+        "max_prediction_abs_diff": max_prediction_diff,
+        "top_decile_count": bucket_size,
+        "top_decile_symmetric_diff_count": symmetric_diff_count,
+        "economic_equivalence_passed": True,
+    }
 
 
 def _execution_inputs(
@@ -363,7 +526,10 @@ def run_po001_i003(
         hash_field="ledger_sha256",
         name="I003 action ledger",
     )
-    _validate_i003_risk_inputs(risk_state, canonical_risk_state)
+    risk_equivalence = _validate_i003_risk_inputs(
+        risk_state,
+        canonical_risk_state,
+    )
     _validate_pinned_alpha_model(pinned_alpha_model)
     if delivery_feature_panel["panel_sha256"] != EXPECTED_DELIVERY_PANEL_SHA256:
         raise AlphaContractError(
@@ -410,11 +576,6 @@ def run_po001_i003(
         l2=RIDGE_L2,
         model_id="AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
     )
-    if diagnostic_model.model_sha256 != EXPECTED_MODEL_SHA256:
-        raise AlphaContractError(
-            "I003 diagnostic alpha rebuild does not reproduce sealed I002"
-        )
-
     decision_rows = [
         row
         for row in ranked.get("rows", [])
@@ -424,6 +585,11 @@ def run_po001_i003(
         raise AlphaContractError(
             "I003 delivery panel lacks decision session"
         )
+    alpha_equivalence = _validate_alpha_diagnostic(
+        pinned_alpha_model,
+        diagnostic_model,
+        decision_rows,
+    )
     predictions = _score_model(pinned_alpha_model, decision_rows)
     alpha_all = {
         (str(row["symbol"]), str(row["isin"])): float(row["prediction"])
@@ -538,15 +704,17 @@ def run_po001_i003(
         "realized_outcome_opened": False,
         "reproduction_gates": {
             "pinned_alpha_model_sha256": pinned_alpha_model["model_sha256"],
-            "diagnostic_alpha_model_sha256": diagnostic_model.model_sha256,
+            "fresh_diagnostic_alpha_model_sha256": diagnostic_model.model_sha256,
             "alpha_model_resolution": "PIN_EXACT_SEALED_I002_MODEL_PER_P4",
+            "alpha_numerical_equivalence": alpha_equivalence,
             "delivery_feature_panel_sha256": delivery_feature_panel[
                 "panel_sha256"
             ],
             "legacy_i002_risk_state_sha256": risk_state["state_sha256"],
-            "canonical_rm001_risk_state_sha256": canonical_risk_state[
+            "fresh_canonical_rm001_risk_state_sha256": canonical_risk_state[
                 "state_sha256"
             ],
+            "rm001_numerical_equivalence": risk_equivalence,
             "rm001_economic_equivalence_audit_run_id": 36579160593,
             "po001_equivalence_audit_run_id": 36579611661,
             "po001_equivalence_gate_passed": False,
