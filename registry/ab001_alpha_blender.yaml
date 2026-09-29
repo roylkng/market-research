@@ -1,0 +1,47 @@
+schema_version: 1
+id: AB001-v1-DEVELOPMENT
+name: oos_alpha_library_and_blender
+status: DEVELOPMENT
+created: 2026-09-29
+live_capital_allowed: false
+
+prediction_library:
+  oos_only: true
+  identity:
+    - alpha_id
+    - horizon_sessions
+    - feature_session
+    - symbol
+    - isin
+  outcome_embedded_in_prediction: prohibited
+
+blend:
+  common_identity_intersection: true
+  minimum_current_common_stocks: 100
+  normalization: centered_within_session_tie_aware_percentile
+  efficacy:
+    trailing_matured_ic_sessions: 60
+    minimum_ic_sessions: 20
+    raw_score: max_mean_rank_ic_zero
+  orthogonality:
+    historical_prediction_correlation: pearson_on_standardized_oos_predictions
+    penalty: efficacy_divided_by_one_plus_mean_abs_correlation
+  no_positive_efficacy_policy: NO_ACTIVE_BLEND
+  equal_weight_blend: diagnostic_only
+
+calibration:
+  target: excess_return
+  method: ordinary_least_squares
+  minimum_matured_sessions: 20
+  minimum_matched_stock_dates: 2000
+  positive_slope_required: true
+
+boundaries:
+  in_sample_predictions: prohibited
+  future_unmatured_outcomes: prohibited
+  transaction_costs: TC001
+  risk: RM001
+  portfolio_construction: PO001
+
+promotion:
+  live_capital_directly_allowed: false
