@@ -337,6 +337,13 @@ def build_rm001_factor_history(
         raise AlphaContractError("RM001 exposure/action ledger binding mismatch")
 
     dates, stock_by_session, _ = _market_maps(market_panel)
+    if (
+        str(action_ledger.get("coverage_start_date") or "") > dates[0]
+        or str(action_ledger.get("coverage_end_date") or "") < dates[-1]
+    ):
+        raise AlphaContractError(
+            "RM001 corporate-action coverage does not span market panel"
+        )
     date_index = {value: index for index, value in enumerate(dates)}
     actions = action_index(action_ledger)
     by_session: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -476,26 +483,39 @@ def build_rm001_risk_state(
     if not current_rows:
         raise AlphaContractError("RM001 has no current exposures for as-of session")
 
+    current_identities = {
+        (str(row["symbol"]), str(row["isin"]))
+        for row in current_rows
+    }
     residual_by_identity: dict[tuple[str, str], list[float]] = defaultdict(list)
     for row in factor_history["residuals"]:
-        if str(row["realized_session"]) <= as_of_session:
-            residual_by_identity[
-                (str(row["symbol"]), str(row["isin"]))
-            ].append(float(row["residual_return"]))
+        identity = (str(row["symbol"]), str(row["isin"]))
+        if (
+            identity in current_identities
+            and str(row["realized_session"]) <= as_of_session
+        ):
+            residual_by_identity[identity].append(
+                float(row["residual_return"])
+            )
 
     observed_variances: dict[tuple[str, str], float] = {}
-    for identity, values in residual_by_identity.items():
+    for identity in sorted(current_identities):
+        values = residual_by_identity.get(identity, [])
         trailing = values[-idio_window:]
         if len(trailing) >= min_idio_observations:
             variance = float(np.var(np.asarray(trailing), ddof=1))
             if math.isfinite(variance) and variance >= 0:
                 observed_variances[identity] = variance
     if not observed_variances:
-        raise AlphaContractError("RM001 has no usable idiosyncratic variances")
-    fallback = float(np.percentile(
-        np.asarray(list(observed_variances.values()), dtype=float),
-        75,
-    ))
+        raise AlphaContractError(
+            "RM001 current universe has no usable idiosyncratic variances"
+        )
+    fallback = float(
+        np.percentile(
+            np.asarray(list(observed_variances.values()), dtype=float),
+            75,
+        )
+    )
 
     risk_rows = []
     for row in sorted(
