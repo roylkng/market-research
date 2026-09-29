@@ -1,0 +1,108 @@
+name: AE001 T004 fixed model freeze
+
+on:
+  push:
+    branches:
+      - feat/ae001-t004-freeze-models-20260929
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    if: contains(github.event.head_commit.message, '[ae001-t004-model-freeze]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T004 model-freeze implementation
+        run: |
+          ruff check \
+            src/marketlab/alpha_t004.py \
+            scripts/build_ae001_t004_training_panel.py \
+            scripts/freeze_ae001_t004_models.py \
+            tests/test_alpha_t004.py
+          pytest -q \
+            tests/test_alpha_t004.py \
+            tests/test_alpha_delivery.py \
+            tests/test_alpha_multihorizon.py \
+            tests/test_alpha_trials.py
+
+      - name: Rebuild historical market panel through frozen cutoff
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/ae001-t004-freeze \
+            --output reports/ae001-t004-freeze/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild corporate-action-safe base features
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/ae001-t004-freeze/panel/market-panel.json.gz \
+            --feature-panel reports/ae001-t004-freeze/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --raw-dir reports/ae001-t004-freeze/corporate-actions/raw \
+            --output reports/ae001-t004-freeze/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build frozen T004 delivery training panel
+        run: |
+          python scripts/build_ae001_t004_training_panel.py \
+            --market-panel reports/ae001-t004-freeze/panel/market-panel.json.gz \
+            --feature-panel reports/ae001-t004-freeze/action-safe/action-safe-feature-panel.json.gz \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --store .marketlab/ae001-t004-freeze \
+            --output reports/ae001-t004-freeze/training \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Freeze base and augmented ridge state
+        run: |
+          mkdir -p research/prospective/ae001-t004
+          python scripts/freeze_ae001_t004_models.py \
+            --market-panel reports/ae001-t004-freeze/panel/market-panel.json.gz \
+            --feature-panel reports/ae001-t004-freeze/training/training-feature-panel.json.gz \
+            --action-ledger reports/ae001-t004-freeze/action-safe/corporate-action-ledger.json.gz \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --output research/prospective/ae001-t004/frozen-models-v1.json
+          cp reports/ae001-t004-freeze/training/manifest.json \
+            research/prospective/ae001-t004/training-manifest-v1.json
+
+      - name: Seal frozen model state on branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-t004/frozen-models-v1.json \
+                  research/prospective/ae001-t004/training-manifest-v1.json
+          git commit -m "research: seal AE001 T004 fixed model state [skip ci]"
+          git push origin HEAD:feat/ae001-t004-freeze-models-20260929
+
+      - name: Upload exact T004 freeze evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t004-model-freeze-${{ github.run_id }}
+          path: |
+            reports/ae001-t004-freeze
+            .marketlab/ae001-t004-freeze/market-data
+          if-no-files-found: warn
+          retention-days: 90
