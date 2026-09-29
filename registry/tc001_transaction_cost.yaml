@@ -1,0 +1,53 @@
+schema_version: 1
+id: TC001-v1-DEVELOPMENT
+name: nse_cash_equity_delivery_transaction_cost
+status: DEVELOPMENT_BASELINE
+frozen_date: 2026-09-29
+live_capital_allowed: false
+
+instrument:
+  venue: NSE
+  segment: CASH_EQUITY
+  settlement: DELIVERY
+
+observable_rates:
+  stt_buy_bps: 10.0
+  stt_sell_bps: 10.0
+  stamp_buy_bps: 1.5
+  stamp_sell_bps: 0.0
+  nse_transaction_charge_inr_per_crore_each_side: 306.99
+  nse_ipft_inr_per_crore_each_side: 0.01
+  sebi_turnover_fee_inr_per_crore_each_side: 10.0
+  gst_rate: 0.18
+  gst_variable_base:
+    - brokerage
+    - nse_transaction_charge
+    - nse_ipft
+    - sebi_turnover_fee
+
+configurable:
+  brokerage_buy_bps: 0.0
+  brokerage_sell_bps: 0.0
+  dp_sell_charge_inr: 0.0
+  gst_on_dp_sell_charge: false
+  half_spread_buy_bps: 0.0
+  half_spread_sell_bps: 0.0
+
+market_impact:
+  model: SQUARE_ROOT_PARTICIPATION_SCENARIO_V1
+  formula: coefficient_x_daily_volatility_x_10000_x_sqrt_order_notional_over_adv20
+  scenario_coefficients:
+    LOW: 0.25
+    BASE: 0.50
+    HIGH: 1.00
+  calibrated_to_nse_execution: false
+  maximum_supported_participation: 1.0
+
+portfolio:
+  cost_formula: buy_fraction_x_buy_cost_plus_sell_fraction_x_sell_cost
+  equal_weight_replacement_formula: replacement_fraction_x_round_trip_cost
+  selection_churn_is_general_turnover: false
+
+promotion:
+  required_before_po001: true
+  direct_live_capital_allowed: false
