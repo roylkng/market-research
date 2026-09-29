@@ -8,6 +8,7 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_delivery import (
     acquire_historical_delivery_panel,
     augment_feature_panel_with_delivery,
+    delivery_session_quality,
     parse_sec_bhavdata_full,
 )
 from marketlab.alpha_market import DailyEquityObservation
@@ -69,13 +70,16 @@ def test_delivery_parser_strips_nse_whitespace_and_reads_eq_fields():
     assert row.avg_price == 101.5
 
 
-def test_delivery_parser_rejects_inconsistent_qty_and_pct():
+def test_delivery_source_quality_excludes_internally_inconsistent_session():
     raw = _csv("25-Sep-2026").replace(b" 40.00", b" 60.00")
-    with pytest.raises(AlphaContractError, match="quantity/percentage mismatch"):
-        parse_sec_bhavdata_full(
-            raw,
-            session_date=date(2026, 9, 25),
-        )
+    rows = parse_sec_bhavdata_full(
+        raw,
+        session_date=date(2026, 9, 25),
+    )
+    quality = delivery_session_quality(rows)
+    assert quality["status"] == "EXCLUDE_SESSION_INTERNAL_FIELD_INCONSISTENCY"
+    assert quality["violating_row_count"] == 1
+    assert quality["max_abs_diff_pp"] > 0.05
 
 
 def test_delivery_acquisition_requires_every_market_session():
@@ -91,6 +95,7 @@ def test_delivery_acquisition_requires_every_market_session():
         captured_at_utc=datetime(2026, 9, 27, tzinfo=UTC),
     )
     assert panel["session_count"] == 2
+    assert panel["excluded_source_quality_session_count"] == 0
     assert len(panel["panel_sha256"]) == 64
     assert panel["historical_archives_captured_prospectively"] is False
 
@@ -129,6 +134,13 @@ def _panels(count=21):
                 "session_date": day.isoformat(),
                 "source_url": "https://nsearchives.nseindia.com/x",
                 "raw_sha256": f"{index + 1:064x}",
+                "source_quality": {
+                    "status": "READY",
+                    "complete_row_count": 1,
+                    "violating_row_count": 0,
+                    "max_abs_diff_pp": 0.0,
+                    "tolerance_pp": 0.05,
+                },
                 "rows": [
                     {
                         "session_date": day.isoformat(),
@@ -157,6 +169,12 @@ def _panels(count=21):
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "historical_archives_captured_prospectively": False,
         "session_count": len(delivery_sessions),
+        "source_quality_policy": (
+            "EXCLUDE_WHOLE_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_"
+            "ABS_DELIV_PER_VS_QTY_RATIO_DIFF_GT_0_05_PERCENTAGE_POINTS"
+        ),
+        "excluded_source_quality_session_count": 0,
+        "excluded_source_quality_sessions": [],
         "sessions": delivery_sessions,
         "live_capital_allowed": False,
     }
