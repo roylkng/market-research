@@ -37,6 +37,106 @@ class RidgeModel:
     model_sha256: str
 
 
+def ridge_model_from_record(record: dict[str, Any]) -> RidgeModel:
+    """Load and hash-verify one serialized ridge model."""
+
+    fields = (
+        "model_id",
+        "feature_names",
+        "feature_medians",
+        "feature_means",
+        "feature_scales",
+        "coefficients",
+        "intercept",
+        "l2",
+        "training_example_count",
+        "training_last_exit_session",
+    )
+    missing = [field for field in fields if field not in record]
+    if missing:
+        raise AlphaContractError(f"serialized ridge model is missing fields: {missing}")
+    stored = str(record.get("model_sha256") or "")
+    payload = {field: record[field] for field in fields}
+    if stored != digest(payload):
+        raise AlphaContractError("serialized ridge model hash mismatch")
+
+    feature_names = tuple(str(value) for value in record["feature_names"])
+    medians = tuple(float(value) for value in record["feature_medians"])
+    means = tuple(float(value) for value in record["feature_means"])
+    scales = tuple(float(value) for value in record["feature_scales"])
+    coefficients = tuple(float(value) for value in record["coefficients"])
+    width = len(feature_names)
+    if not feature_names or len(set(feature_names)) != width:
+        raise AlphaContractError("serialized ridge feature names are invalid")
+    if not (
+        len(medians)
+        == len(means)
+        == len(scales)
+        == len(coefficients)
+        == width
+    ):
+        raise AlphaContractError("serialized ridge vector lengths do not match")
+    if any(not math.isfinite(value) for value in (*medians, *means, *scales, *coefficients)):
+        raise AlphaContractError("serialized ridge vectors must be finite")
+    if any(value <= 0 for value in scales):
+        raise AlphaContractError("serialized ridge feature scales must be positive")
+
+    return RidgeModel(
+        model_id=str(record["model_id"]),
+        feature_names=feature_names,
+        feature_medians=medians,
+        feature_means=means,
+        feature_scales=scales,
+        coefficients=coefficients,
+        intercept=float(record["intercept"]),
+        l2=float(record["l2"]),
+        training_example_count=int(record["training_example_count"]),
+        training_last_exit_session=str(record["training_last_exit_session"]),
+        model_sha256=stored,
+    )
+
+
+def score_ridge_values(
+    model: RidgeModel,
+    rows: list[dict[str, float | None]],
+) -> list[float]:
+    """Score label-free feature dictionaries with a frozen ridge model."""
+
+    if not rows:
+        return []
+    medians = np.asarray(model.feature_medians, dtype=float)
+    means = np.asarray(model.feature_means, dtype=float)
+    scales = np.asarray(model.feature_scales, dtype=float)
+    coefficients = np.asarray(model.coefficients, dtype=float)
+    raw = np.empty((len(rows), len(model.feature_names)), dtype=float)
+
+    for row_index, values in enumerate(rows):
+        if not isinstance(values, dict):
+            raise AlphaContractError("ridge inference rows must be feature dictionaries")
+        for col_index, name in enumerate(model.feature_names):
+            if name not in values:
+                raise AlphaContractError(
+                    f"ridge inference row is missing frozen feature: {name}"
+                )
+            value = values[name]
+            if value is None:
+                raw[row_index, col_index] = np.nan
+                continue
+            number = float(value)
+            if not math.isfinite(number):
+                raise AlphaContractError(
+                    f"ridge inference feature must be finite or null: {name}"
+                )
+            raw[row_index, col_index] = number
+
+    filled = np.where(np.isnan(raw), medians, raw)
+    normalized = (filled - means) / scales
+    predictions = model.intercept + normalized @ coefficients
+    if not np.isfinite(predictions).all():
+        raise AlphaContractError("ridge inference produced non-finite predictions")
+    return [float(value) for value in predictions]
+
+
 def project_examples(
     examples: list[ModelExample],
     *,
