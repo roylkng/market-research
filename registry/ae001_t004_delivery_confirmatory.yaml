@@ -81,6 +81,15 @@ training:
   frozen_model_artifact: research/prospective/ae001-t004/frozen-models-v1.json
   parameter_change_after_first_eligible_session: prohibited
 
+prospective_prediction:
+  information_cutoff: "18:30:00 Asia/Kolkata"
+  same_session_sources_must_match_sc001: true
+  compute_after_cutoff_allowed_with_frozen_inputs: true
+  prediction_must_be_sealed_before_next_session_open: true
+  current_session_archive_refetch_substitution: prohibited
+  model_retraining: prohibited
+  protocol_amendment: research/AE001_T004_PREDICTION_SEALING_P2.md
+
 promotion:
   portfolio_promotion_requires_tc001: true
   live_capital_directly_allowed: false
