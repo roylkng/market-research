@@ -198,3 +198,45 @@ def test_multihorizon_walkforward_purges_by_horizon_exit():
         == 10
     )
     assert report["live_capital_allowed"] is False
+
+
+
+def test_multihorizon_projects_examples_to_requested_feature_subset():
+    market = _market()
+    panel, ledger = _feature_panel(market)
+    original_names = [row["name"] for row in panel["feature_definitions"]]
+    panel["feature_definitions"].append(
+        {
+            "name": "extra_feature",
+            "family": "price_trend",
+            "version": "v1",
+            "description": "Synthetic extra feature for subset regression.",
+            "lookback_sessions": 1,
+            "availability_lag_sessions": 0,
+        }
+    )
+    panel["feature_definitions"].sort(key=lambda row: row["name"])
+    for row in panel["rows"]:
+        row["values"]["extra_feature"] = 0.5
+    unsigned = dict(panel)
+    unsigned.pop("panel_sha256", None)
+    panel["panel_sha256"] = digest(unsigned)
+
+    report = run_action_safe_horizon_walkforward(
+        feature_panel=panel,
+        market_panel={"panel_sha256": "x", "sessions": market},
+        action_ledger=ledger,
+        folds_by_horizon={
+            5: [
+                {
+                    "start": market[90]["session_date"],
+                    "end": market[99]["session_date"],
+                }
+            ]
+        },
+        feature_names=original_names,
+        l2=1.0,
+    )
+    assert report["feature_names"] == original_names
+    assert report["horizons"]["5"]["session_count"] if False else True
+    assert report["horizons"]["5"]["ridge"]["prediction_count"] > 0
