@@ -1,0 +1,129 @@
+name: I003 pin sealed I002 control portfolio
+
+on:
+  push:
+    branches:
+      - feat/po001-v2-stock-impact-20260929
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pin:
+    if: contains(github.event.head_commit.message, '[i003-pin-i002-control]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download sealed I002 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i002-36570866823
+          path: evidence/i002
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36570866823
+
+      - name: Pin exact integrated control artifact
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          import shutil
+          from pathlib import Path
+
+          matches = list(
+              Path("evidence/i002").rglob("po001-i002-artifact.json.gz")
+          )
+          if len(matches) != 1:
+              raise SystemExit(f"expected one I002 artifact, got {matches}")
+
+          source = matches[0]
+          raw = source.read_bytes()
+          payload = json.loads(gzip.decompress(raw).decode("utf-8"))
+          expected_internal = (
+              "d3cb62d0f1c041fa0af76a4275138ede5a12c0b5709106c441cafd8a8ca82ac1"
+          )
+          if payload.get("artifact_sha256") != expected_internal:
+              raise SystemExit(
+                  f"I002 internal artifact mismatch: {payload.get('artifact_sha256')}"
+              )
+          if payload.get("study_id") != "PO001-I002-v1":
+              raise SystemExit("unexpected I002 study id")
+          if payload.get("decision_session") != "2026-08-31":
+              raise SystemExit("unexpected I002 decision session")
+          if payload.get("realized_outcome_opened") is not False:
+              raise SystemExit("I002 pinned control unexpectedly contains outcome")
+
+          destination = Path(
+              "research/po001-i003/inputs/i002-integrated-control-v1.json.gz"
+          )
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_bytes(raw)
+          gzip_sha = hashlib.sha256(raw).hexdigest()
+
+          control = payload["portfolios"]["full_po001_observable_cost_floor"]
+          manifest = {
+              "schema_version": 1,
+              "artifact_id": "PO001-I003-PINNED-I002-CONTROL-v1",
+              "source_workflow_run_id": 36570866823,
+              "source_workflow_artifact_id": 11036101959,
+              "source_workflow_artifact_name": "po001-i002-36570866823",
+              "source_path": (
+                  "reports/po001-i002/study/po001-i002-artifact.json.gz"
+              ),
+              "pinned_path": str(destination),
+              "gzip_file_sha256": gzip_sha,
+              "internal_i002_artifact_sha256": expected_internal,
+              "study_id": payload["study_id"],
+              "decision_session": payload["decision_session"],
+              "control_portfolio_key": "full_po001_observable_cost_floor",
+              "control_optimizer_artifact_sha256": control[
+                  "optimizer_artifact_sha256"
+              ],
+              "control_holding_count": control["holding_count"],
+              "control_expected_5d_excess_return": control[
+                  "expected_5d_excess_return"
+              ],
+              "control_annualized_volatility": control[
+                  "annualized_volatility"
+              ],
+              "control_total_round_trip_cost_fraction": control[
+                  "total_round_trip_cost_fraction"
+              ],
+              "control_objective_utility": control[
+                  "utility_at_i001_lambda"
+              ],
+              "live_capital_allowed": False,
+          }
+          manifest_path = Path(
+              "research/po001-i003/inputs/"
+              "i002-integrated-control-v1-manifest.json"
+          )
+          manifest_path.write_text(
+              json.dumps(
+                  manifest,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(manifest, sort_keys=True))
+          PY
+
+      - name: Commit pinned control to branch
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add             research/po001-i003/inputs/i002-integrated-control-v1.json.gz             research/po001-i003/inputs/i002-integrated-control-v1-manifest.json
+          git commit -m "research: pin exact sealed I002 integrated control [skip ci]"
+          git push origin HEAD:feat/po001-v2-stock-impact-20260929
