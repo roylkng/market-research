@@ -31,7 +31,6 @@ from marketlab.po001_v2 import (
     DEFAULT_MAX_PARTICIPATION,
     optimize_portfolio_v2,
 )
-from marketlab.rm001 import FACTOR_NAMES
 from marketlab.tc001 import TC001Config, observable_side_cost
 
 STUDY_ID = "PO001-I003-v1"
