@@ -11,11 +11,15 @@ from marketlab.alpha_delivery import (
     augment_feature_panel_with_delivery,
 )
 from marketlab.alpha_history import canonical_gzip_json, load_canonical_gzip_json
-from marketlab.alpha_trials import require_unopened_registered_trial
+from marketlab.alpha_trials import (
+    require_protocol_amendment,
+    require_unopened_registered_trial,
+)
 from marketlab.events import sha256_bytes
 
 TRIAL_ID = "AE001-T003"
 TRIAL_STATUS = "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"
+SOURCE_QUALITY_PROTOCOL_ID = "AE001-T003-P3"
 
 
 def _load_json(path: Path) -> dict:
@@ -62,6 +66,11 @@ def main() -> int:
         trial_id=TRIAL_ID,
         required_status=TRIAL_STATUS,
     )
+    source_quality_protocol = require_protocol_amendment(
+        trials,
+        trial_id=TRIAL_ID,
+        protocol_id=SOURCE_QUALITY_PROTOCOL_ID,
+    )
 
     market = load_canonical_gzip_json(args.market_panel.read_bytes())
     features = load_canonical_gzip_json(args.feature_panel.read_bytes())
@@ -96,6 +105,10 @@ def main() -> int:
         "schema_version": 1,
         "trial_id": TRIAL_ID,
         "trial_registration_event_sha256": registration["event_sha256"],
+        "source_quality_protocol_event_sha256": (
+            source_quality_protocol["event_sha256"]
+        ),
+        "source_quality_protocol_id": SOURCE_QUALITY_PROTOCOL_ID,
         "trial_ledger_sha256": trials["ledger_sha256"],
         "captured_at_utc": captured.isoformat().replace("+00:00", "Z"),
         "market_panel_sha256": market["panel_sha256"],
