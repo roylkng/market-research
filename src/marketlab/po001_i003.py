@@ -122,6 +122,26 @@ def _validate_i003_risk_inputs(
         )
 
 
+def _validate_pinned_alpha_model(model: dict[str, Any]) -> None:
+    stored = str(model.get("model_sha256") or "")
+    unsigned = dict(model)
+    unsigned.pop("model_sha256", None)
+    if len(stored) != 64 or digest(unsigned) != stored:
+        raise AlphaContractError("I003 pinned alpha model hash mismatch")
+    if stored != EXPECTED_MODEL_SHA256:
+        raise AlphaContractError(
+            "I003 pinned alpha model does not reproduce sealed I002"
+        )
+    if model.get("model_id") != "AE001-T003-H5-F2-AUGMENTED-RIDGE-I002":
+        raise AlphaContractError("I003 pinned alpha model ID mismatch")
+    if float(model.get("l2")) != RIDGE_L2:
+        raise AlphaContractError("I003 pinned alpha ridge penalty mismatch")
+    if int(model.get("training_example_count")) != 169825:
+        raise AlphaContractError("I003 pinned alpha training count mismatch")
+    if str(model.get("training_last_exit_session") or "") != "2026-06-30":
+        raise AlphaContractError("I003 pinned alpha training boundary mismatch")
+
+
 def _execution_inputs(
     *,
     market_panel: dict[str, Any],
@@ -327,6 +347,7 @@ def run_po001_i003(
     action_ledger: dict[str, Any],
     risk_state: dict[str, Any],
     canonical_risk_state: dict[str, Any],
+    pinned_alpha_model: dict[str, Any],
 ) -> dict[str, Any]:
     _verify_hash(
         delivery_feature_panel,
@@ -344,6 +365,7 @@ def run_po001_i003(
         name="I003 action ledger",
     )
     _validate_i003_risk_inputs(risk_state, canonical_risk_state)
+    _validate_pinned_alpha_model(pinned_alpha_model)
     if delivery_feature_panel["panel_sha256"] != EXPECTED_DELIVERY_PANEL_SHA256:
         raise AlphaContractError(
             "I003 delivery feature panel does not reproduce sealed I002"
@@ -383,15 +405,15 @@ def run_po001_i003(
     )
     if len(training) < 100:
         raise AlphaContractError("I003 training set is too small")
-    model = fit_ridge(
+    diagnostic_model = fit_ridge(
         training,
         feature_names=feature_names,
         l2=RIDGE_L2,
         model_id="AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
     )
-    if model.model_sha256 != EXPECTED_MODEL_SHA256:
+    if diagnostic_model.model_sha256 != EXPECTED_MODEL_SHA256:
         raise AlphaContractError(
-            "I003 alpha model does not reproduce sealed I002"
+            "I003 diagnostic alpha rebuild does not reproduce sealed I002"
         )
 
     decision_rows = [
@@ -403,7 +425,7 @@ def run_po001_i003(
         raise AlphaContractError(
             "I003 delivery panel lacks decision session"
         )
-    predictions = _score_model(asdict(model), decision_rows)
+    predictions = _score_model(pinned_alpha_model, decision_rows)
     alpha_all = {
         (str(row["symbol"]), str(row["isin"])): float(row["prediction"])
         for row in predictions
@@ -516,7 +538,9 @@ def run_po001_i003(
         "horizon_sessions": HORIZON_SESSIONS,
         "realized_outcome_opened": False,
         "reproduction_gates": {
-            "model_sha256": model.model_sha256,
+            "pinned_alpha_model_sha256": pinned_alpha_model["model_sha256"],
+            "diagnostic_alpha_model_sha256": diagnostic_model.model_sha256,
+            "alpha_model_resolution": "PIN_EXACT_SEALED_I002_MODEL_PER_P4",
             "delivery_feature_panel_sha256": delivery_feature_panel[
                 "panel_sha256"
             ],
