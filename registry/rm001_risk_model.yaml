@@ -1,0 +1,60 @@
+schema_version: 1
+id: RM001-v1-DEVELOPMENT
+name: transparent_equity_factor_risk_model
+status: DEVELOPMENT
+created: 2026-09-29
+live_capital_allowed: false
+
+factor_names:
+  - MARKET_COMMON
+  - BETA60_RELATIVE
+  - MOMENTUM20
+  - VOLATILITY60
+  - LIQUIDITY
+
+exposures:
+  market_common: 1.0
+  beta:
+    lookback_sessions: 60
+    benchmark: nifty_500
+    transform: beta_minus_1
+  momentum:
+    source_feature: momentum_20
+    transform: centered_within_session_percentile
+  volatility:
+    source_feature: realized_vol_60
+    transform: centered_within_session_percentile
+  liquidity:
+    source_feature: turnover_inr
+    transform: centered_within_session_percentile
+
+factor_return_estimation:
+  response: next_completed_session_close_to_close_return
+  method: equal_weight_ols
+  minimum_cross_section: 100
+  full_rank_required: true
+  share_changing_action_policy: fail_closed
+
+covariance:
+  trailing_factor_return_sessions: 60
+  estimator: sample_covariance
+  ddof: 1
+  shrinkage: none
+
+idiosyncratic:
+  trailing_residual_sessions: 60
+  minimum_observations: 20
+  missing_current_identity_policy: conservative_cross_sectional_p75_variance
+
+deferred_factors:
+  size: POINT_IN_TIME_MARKET_CAP_SOURCE_NOT_FROZEN
+  sector: POINT_IN_TIME_COMPANY_CLASSIFICATION_SOURCE_NOT_FROZEN
+
+portfolio:
+  long_only_v1: true
+  leverage_allowed: false
+  annualization_sessions: 252
+
+promotion:
+  live_capital_directly_allowed: false
+  next_stage: PO001
