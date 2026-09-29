@@ -2,8 +2,11 @@ from datetime import date, timedelta
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
-from marketlab.po001_i003 import _execution_inputs
+from marketlab.alpha import AlphaContractError, digest
+from marketlab.po001_i003 import (
+    _execution_inputs,
+    _validate_i003_risk_inputs,
+)
 
 
 def _market_sessions():
@@ -69,3 +72,55 @@ def test_i003_execution_inputs_fail_on_identity_gap():
             delivery_feature_panel=_feature_panel(),
             identities=[("TEST", "INE000000001")],
         )
+
+
+
+def _risk_state(symbol="TEST", isin="INE000000001"):
+    state = {
+        "schema_version": 1,
+        "model_id": "RM001-v1-DEVELOPMENT",
+        "as_of_session": "2026-08-31",
+        "factor_names": [],
+        "factor_covariance_daily": [],
+        "rows": [
+            {
+                "symbol": symbol,
+                "isin": isin,
+                "exposures": {},
+                "idiosyncratic_variance_daily": 0.001,
+                "idiosyncratic_status": "OBSERVED",
+            }
+        ],
+        "live_capital_allowed": False,
+    }
+    state["state_sha256"] = digest(state)
+    return state
+
+
+def test_i003_accepts_frozen_legacy_and_canonical_risk_pair(monkeypatch):
+    legacy = _risk_state()
+    canonical = _risk_state()
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
+        legacy["state_sha256"],
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_CANONICAL_RISK_STATE_SHA256",
+        canonical["state_sha256"],
+    )
+    _validate_i003_risk_inputs(legacy, canonical)
+
+
+def test_i003_rejects_legacy_canonical_identity_drift(monkeypatch):
+    legacy = _risk_state()
+    canonical = _risk_state(symbol="OTHER", isin="INE999999999")
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
+        legacy["state_sha256"],
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_CANONICAL_RISK_STATE_SHA256",
+        canonical["state_sha256"],
+    )
+    with pytest.raises(AlphaContractError, match="identity sets differ"):
+        _validate_i003_risk_inputs(legacy, canonical)
