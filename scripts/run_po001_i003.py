@@ -42,6 +42,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--risk-state", type=Path, required=True)
     parser.add_argument("--risk-state-manifest", type=Path, required=True)
     parser.add_argument("--canonical-risk-state", type=Path, required=True)
+    parser.add_argument("--alpha-model", type=Path, required=True)
+    parser.add_argument("--alpha-model-manifest", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -67,6 +69,19 @@ def main() -> int:
     canonical_risk = load_canonical_gzip_json(
         args.canonical_risk_state.read_bytes()
     )
+    alpha_model_bytes = args.alpha_model.read_bytes()
+    alpha_model = json.loads(alpha_model_bytes.decode("utf-8"))
+    alpha_manifest = json.loads(
+        args.alpha_model_manifest.read_text(encoding="utf-8")
+    )
+    if not isinstance(alpha_model, dict) or not isinstance(alpha_manifest, dict):
+        raise TypeError("I003 pinned alpha inputs must be JSON objects")
+    if sha256_bytes(alpha_model_bytes) != alpha_manifest["file_sha256"]:
+        raise ValueError("I003 pinned alpha file hash mismatch")
+    if alpha_model["model_sha256"] != alpha_manifest[
+        "internal_model_sha256"
+    ]:
+        raise ValueError("I003 pinned alpha internal SHA mismatch")
 
     report = run_po001_i003(
         delivery_feature_panel=features,
@@ -74,6 +89,7 @@ def main() -> int:
         action_ledger=actions,
         risk_state=risk,
         canonical_risk_state=canonical_risk,
+        pinned_alpha_model=alpha_model,
     )
     args.output.mkdir(parents=True, exist_ok=True)
     report_bytes = canonical_gzip_json(report)
@@ -89,6 +105,7 @@ def main() -> int:
         "realized_outcome_opened": report["realized_outcome_opened"],
         "reproduction_gates": report["reproduction_gates"],
         "pinned_risk_manifest": risk_manifest,
+        "pinned_alpha_manifest": alpha_manifest,
         "common_identity_count": report["common_identity_count"],
         "training_example_count": report["training_example_count"],
         "training_last_exit_session": report["training_last_exit_session"],
