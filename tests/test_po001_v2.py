@@ -124,7 +124,7 @@ def test_v2_participation_cap_can_force_cash():
         terminal_liquidation=True,
     )
     # Each name can carry at most 0.1 * 1m / 100m = 0.1%.
-    assert result["invested_weight"] <= pytest.approx(0.003, abs=1e-6)
+    assert result["invested_weight"] <= 0.003001
     assert result["cash_weight"] >= 0.9969
 
 
