@@ -91,6 +91,8 @@ jobs:
             --risk-state research/po001-i003/inputs/i002-risk-state-legacy.json.gz \
             --risk-state-manifest research/po001-i003/inputs/i002-risk-state-legacy-manifest.json \
             --canonical-risk-state reports/po001-i003/risk/risk-state.json.gz \
+            --alpha-model research/po001-i003/inputs/i002-alpha-model-v1.json \
+            --alpha-model-manifest research/po001-i003/inputs/i002-alpha-model-v1-manifest.json \
             --output reports/po001-i003/study
 
       - name: Print compact result
