@@ -17,6 +17,7 @@ SC001_LEDGER_ID = "AE001-SC001-SOURCE-LEDGER-v1"
 SC001_START_DATE = date(2026, 9, 30)
 IST = ZoneInfo("Asia/Kolkata")
 DECISION_CUTOFF = time(18, 30)
+RAW_ROOT_REPO = "research/prospective/ae001-sc001/raw"
 
 
 def _ledger_hash(ledger: dict[str, Any]) -> str:
@@ -87,6 +88,9 @@ def _market_observation(
             "eq_row_count": None,
         }
     raw_sha = sha256_bytes(raw)
+    raw_repo_path = (
+        f"{RAW_ROOT_REPO}/{session_date.isoformat()}/market-{raw_sha}.zip"
+    )
     try:
         rows = parse_udiff_eq_panel(raw, session_date=session_date)
     except AlphaContractError as exc:
@@ -94,6 +98,7 @@ def _market_observation(
             "source_url": source_url,
             "status": "PARSER_REJECTED",
             "raw_sha256": raw_sha,
+            "raw_repo_path": raw_repo_path,
             "eq_row_count": None,
             "error": str(exc),
         }
@@ -101,6 +106,7 @@ def _market_observation(
         "source_url": source_url,
         "status": "READY",
         "raw_sha256": raw_sha,
+        "raw_repo_path": raw_repo_path,
         "eq_row_count": len(rows),
     }
 
@@ -120,6 +126,9 @@ def _delivery_observation(
             "source_quality": None,
         }
     raw_sha = sha256_bytes(raw)
+    raw_repo_path = (
+        f"{RAW_ROOT_REPO}/{session_date.isoformat()}/delivery-{raw_sha}.csv.gz"
+    )
     try:
         rows = parse_sec_bhavdata_full(raw, session_date=session_date)
     except AlphaContractError as exc:
@@ -127,6 +136,7 @@ def _delivery_observation(
             "source_url": source_url,
             "status": "PARSER_REJECTED",
             "raw_sha256": raw_sha,
+            "raw_repo_path": raw_repo_path,
             "eq_row_count": None,
             "source_quality": None,
             "error": str(exc),
@@ -140,6 +150,7 @@ def _delivery_observation(
             else "SOURCE_QUALITY_EXCLUDED"
         ),
         "raw_sha256": raw_sha,
+        "raw_repo_path": raw_repo_path,
         "eq_row_count": len(rows),
         "source_quality": quality,
     }
