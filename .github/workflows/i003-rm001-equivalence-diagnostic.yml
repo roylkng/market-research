@@ -42,17 +42,27 @@ jobs:
           import math
           from pathlib import Path
 
-          def locate(root):
+          def locate_i002(root):
+              matches = sorted(Path(root).rglob("risk-state.json.gz"))
+              if len(matches) != 2:
+                  raise SystemExit(f"expected two I002 risk states under {root}, got {matches}")
+              left_bytes = matches[0].read_bytes()
+              right_bytes = matches[1].read_bytes()
+              if left_bytes != right_bytes:
+                  raise SystemExit("sealed I002 risk-a and risk-b are not byte-identical")
+              return matches[0]
+
+          def locate_i003(root):
               matches = list(Path(root).rglob("risk-state.json.gz"))
               if len(matches) != 1:
-                  raise SystemExit(f"expected one risk state under {root}, got {matches}")
+                  raise SystemExit(f"expected one I003 risk state under {root}, got {matches}")
               return matches[0]
 
           def load(path):
               return json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
 
-          old_path = locate("evidence/i002")
-          new_path = locate("evidence/i003")
+          old_path = locate_i002("evidence/i002")
+          new_path = locate_i003("evidence/i003")
           old = load(old_path)
           new = load(new_path)
 
