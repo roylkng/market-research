@@ -1427,9 +1427,123 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-09-29T09:04:32.174172+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "captured_at": "2026-09-29T10:07:09.964550+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "PARSE_FAILED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "PARSE_FAILED": 1,
+        "SNAPSHOT_CAPTURED": 6
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "PARSE_FAILED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "PARSE_FAILED": 1,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_status": "DISCOVERY_DEGRADED",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 3
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "ada72273e278b6ad9ad690573f8a1cd48ce58e07aff19175a53c9f519d8a2529",
+      "identity_session": "2026-09-28",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "40f3ac0e7b86e7e37837e02ba01f4bbc906bf5028b6bdd04d288f8f8f119fd31",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "PARSE_FAILED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 3,
+        "PARSE_FAILED": 1,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "started_at": "2026-09-29T10:06:41.761297+00:00"
     }
   ],
-  "ledger_sha256": "55bf9e2f7e2bed4c3d2dd3bf8073df3cc7b3999e3b584a1437aa2ec308b625c5",
+  "ledger_sha256": "0f07be46be20afcdf2e6d79b1726495860495dae772fd200747ac31e0fd850f9",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -185181,6 +185295,1121 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "9761fc60603aa4a16d8e8820a4f316957c58fc9f15ff436a57bc891183f42bcf",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:45.454628+00:00",
+      "item_id": "2d73d9d9c96796b3270d7ebd9cd551f2680cba803a63aac178a54a5156868f9a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7119d31e3fb02871041afd52903ee7bc0151043bd7d6f09dca162f7b33eea410",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "15:30 IST",
+        "value": null
+      },
+      "resource_key": "prn:302892681",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "3d7f531297f0f14f3626b17b7bbe84bdd43a2ccd9a33e72269541b402c3aeda2",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:45.454628+00:00",
+      "item_id": "1e3a0faff4f123f1660fcf0345613c39caeb1a157a12a618b639ba459fd95491",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fead9eefa5139102efb4abe25137400039b6f6e760d4df4422c0bbf5a096e024",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "14:57 IST",
+        "value": null
+      },
+      "resource_key": "prn:302892708",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "d396c651a4cbedec717cb96ecb005e3dff7e740476694131e576aa9419078367",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "96193aafb0ac314bf5487ae79e34123f5af3e07307c5d7c9622ea32643cc066a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0ed45f92b1db8410303cf88a5bdc7da34e92510c5c177c611d0e12ff6062584b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891790",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "9b6cef17e7754dfb7fa6c0800bf128060ec0ed33321515b2feb347e6421b6e53",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "d2fd6cd0b6bd8cd5f624930fe5a5d3c712427e77b00f1c5e6380435c848aa077",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "185023ba7c57636aa41c897521d80b43bbcee1aeb9e583a6927833b3dc74c115",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891996",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a606fae627afed052bb1c460b0bf1f98292ff71ada3f7ad0f74cd224087e7f67",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "1ab0aff1c4d68870b83fc321eeebc7b28335ab019b598f9c151cc906e1920c6c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "34d0904f6fe4e839f6c78c88667f7fcf239c896431ccc704b27c49a7519841f7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892016",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "c867820810034b11af539a5ab34554e7373e30610102ef0e1835d971a2502764",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "47dcb91d407cf49edb97b46f3ca5962e12f050621530f020f855f41e990f8081",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3a57b13a4ddb01f2cfb066407d16d23ff54cef8e3fd410a3c52ed8b7c5659a3f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892069",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "e565d7a644af6f208ad062fd4b68d4912904b00cf5b8bb295a505299b659151a",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "6bc2f3adc073bce0d8490fce67502534e88e924beb9e1840b5c91b47da40c4f0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "41d0b28eb1e8a146b9d4ae5aff8f2ec4920b6d4aa3692fdc4ff9689fced65fdb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892109",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "1650ddf54c234133c47f39122bec175859f1f9b8eee11ef8b24bb42df6e8d68b",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "e3a5ed1481c088dccefb0660a889cd32f2f0a1cf3dc8ab30f69ba44ebf1f6b35",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "459b29a4bcc6fffcc491572a8353d2ab05e86c3fc9dea4b44f5cb9a1c03b66aa",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302890565",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "0f26e42617de476e53b6c09ce2f6421973e61a517f33b66a551a4e001c7803db",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "65cc8dc2f548c23a4e9dc33a2d17b3f5badd55b0a8533feac4bb5844ad71e4e7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "459ee0719e95188c843c2a93f09a19308f1968759fbbb2f13025f7549e89ac66",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892181",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "51b07501a18658a4cfa72240fc0d7465a269e96299deb5b5db323fe010079ccb",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "56b1ac185f817073a8ad147a2f05d37937f78f51e83be54a8208d3bdcff9662d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4a2d02ebc64278f85bd8443fecc15832cc97998cc6e04b4c1e79d6d18724e799",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:01:00 +0000",
+        "value": "2026-09-29T10:01:00+00:00"
+      },
+      "resource_key": "prn:302891885",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "871d81ceb224a76b9b09185d4962e10dbe94ad34788a9d0fed4d29f202ce041a",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "9d37beae0ee021482b4c4608509d4c7a26aac5c78191b057a86ca7138e34ac57",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "58bddda6ff7d61f912242c191d58d53280ed6356a6f219b74b197722d9cff849",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892049",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "d8824b99cf96c6549a63739dd6a5b0386f8385f2c05bf9d1da7c28e077d59617",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "8af311557f6aac4a5a61a11e2ca7f0daac61e87ea1150c5843ff0c3ed66abd81",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5c7d26f9fd3542566423581e20dd7aebcb10b955a571ee8f534a10a8c8005ee9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891776",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8b9a46a0408fdd273cc5bb3a547564947bcd62264fc07cebe45369eabdef7d5b",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "1afad38b4c41e7452464732afa1dd712e90aab83047191084ace0700d1a09bdd",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5f99d372e071408a27f8a972ec460e183dd80a205faf5b28691d06772b69d8a4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892424",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "1a74cac50fe622fc86031178ab285bc736cb46950866ec0c28c131ddfe14420e",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "b022ddd7a17ef2cb0bd870578d87ae05d01dd10e32b4549c73d573a28f3b07f8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "754dd2e2bc564abdc48e98d2df8418f8e27ba7ebc1965a389832a6d139b83a4d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891830",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "830aa2e6cc19b8c2d3cf1414ab5ed54f5940d195860d3946fcb70223a6dd834c",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "17731ba02c23c6230dbb53747caed44aff7ce9fa3e70819251ef8a5418d4c98c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "907cb9471e434e455e9ef25666be677b2bff2872826f2797da56d7e026c6f5c2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891989",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "c31eeefb15889e290ece5e350f4005659b318ade0b0ffb08dda71f831155f8aa",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "ad6b56baadfa36167a476860054496b519d354e01534c1d7cf8caba2727ab972",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "91bf3b52019c2d3f3b160ca1290cf592127f37ccf439097a28c2e10d27c0d9cf",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892062",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "d8824b99cf96c6549a63739dd6a5b0386f8385f2c05bf9d1da7c28e077d59617",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "3264278f7a1f4d2bfbb6d326dd7871b8ac8bb8fd21eda2a0dee9cee18bdda8d3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9c63c3d33cb30016a0b0ed9d54813e268bd0e952312d76423bd26b0e0c0469e7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892256",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "5f6786ff73ba21859197806f498773c51e7986c29875c47f8d590d0c4180c1f8",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "219f5efbff4d0891372aa682c1319d33ea85ab05d19fa81334d72afa000ab50d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a3e3be2f68442a014eff6571e81d3f8a8ca1b7fa2ca934c6ff75e6419f4a3b6d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891795",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "f813cf9ff7c7d872460477ebe7e9be099c8f9662acc8b4413e4eebc5d798b8e2",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "b8b8dc3cb3213fb32bde4b82f4662cbeaeeeeb43744e04a6a3f1355b2fd68cc8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a46b3d075f95cea65708dd1e8a648e5e25dda281bed65866804474eeb76d2379",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892093",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "20e836c32cf9ce83a323eea30123b6088f88e268bc64751ee70eb75dd0d07066",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "bc6a8d0188df1986f2fd47c93dbf78800d9f524573ddc2e366b981d243b6d4ff",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b115e212605ee701b5a08fbfaf79e3e15f3bff4af4cb2319a2dcf8e98ee05eb7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891078",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "4e1eba0e9ecbc80baa4832a6ef99702342d93824fb9cf1818146061aaf3d2cad",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "388ac35a536d07ae8cc5ea0e4ca2cba3be27a75757de318dd29fc16acd6b0aa8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ce23e98f43a012fb5039dd9089d4c584b7a8787c2ce10b0f85fb16d5d148aa0a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302892540",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "30509ecbf37c71f4969ab3b1348d3e757400bc79f8d48e6753821273624cbbdc",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:06:56.344945+00:00",
+      "item_id": "a31fc6dc341d71b6b8dfd75869b881e18f39699f252a17675a8bc191e5e4596e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d2618f35ce945ca7815482e483eb9e1a1a4de24cac5d0f2b9d08d0637f5d30c4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:00:00 +0000",
+        "value": "2026-09-29T10:00:00+00:00"
+      },
+      "resource_key": "prn:302891921",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a606fae627afed052bb1c460b0bf1f98292ff71ada3f7ad0f74cd224087e7f67",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "1cd2473a8bbe40307407e3ffc45b7ee9d1ebed3f00e0b2b9459279fe564b52c2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1f098e503331606c1bc09b24c29a4b021e87bf50e8e97a77e93cc6a4da3fc7d3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 09:20:53 +0530",
+        "value": "2026-09-29T03:50:53+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/indias-essar-group-to-build-largest-steel-plant-in-us-trump-says-largest-plant-in-america-by-far-11790652850128.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "f9a1ce4dd7b1d7f3ee99358f30c461df47f299dbfbd10b59296e15ef0fd44342",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "a404b236a96ffbb0aac1c2598d4f377c2f49410cc447b308f5ba36a09f872efe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2ede1b1394c42505262e9281a799b870858c0db42fce288f51eebc091bd42a00",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 09:25:44 +0530",
+        "value": "2026-09-29T03:55:44+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/hinge-match-group-dating-apps-india-dating-market-gen-z-online-dating-app-fatigue-ai-matchmaking-tinder-11790585127736.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "1bad526b0b1398e521634b2a4a47ccf478c9c69f04c39d3f8f3715245487f016",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "334b914e0737c860e87b0e0a928c846e2f1a0e4282541e3f5ec97d7f8f14e7c3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "424b3eca34a5eeed50d138b4a119ce83361fc67a39f9dfc045e9df8acf57275c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 12:07:45 +0530",
+        "value": "2026-09-29T06:37:45+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/red-bull-vs-fssai-why-india-s-energy-drink-label-fight-is-now-an-investment-story-11790663196639.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "53651825df221e08e06434eb542bee864133187f08e25c24f211d4169d677765",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "36fcd681d609d03b088d74cb196dd065cbbc4e1e79dc2156606f33643a1421fe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "51c620abe3c823e8db23477a9aa2488ab1de4941b37ee19a49bce66617ef50aa",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 12:31:38 +0530",
+        "value": "2026-09-29T07:01:38+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/gcc-layoffs-up-to-30-000-jobs-may-go-but-ai-is-creating-a-new-hiring-playbook-explained-11790660197593.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "788a90071282fb95379f7bfadcae27e06c436c86a912e3cb834d6397787f91f2",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "97e4cc353f4fae6da661dd09f51698e2352e598b567ad8ac6f1320cec047c49c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "630985d5cc77df590741a7d34b470239772a96b799fb563dd355e52e86f23f25",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 13:57:13 +0530",
+        "value": "2026-09-29T08:27:13+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/booking-com-india-travel-demand-domestic-outbound-2026-11790620622885.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "f4cc9ea83773844b40cff8c4523d7bdd13b9890e410cd0e587fd189f51cb8063",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "ea3f201047304037a7807d7bb87e1cbcf4ea76688b57f19376a2e41a11e3c038",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "68bab06405e6761543dea544f7658a520fcaf510b7d4e5dfbd59d1e47739dc3f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 08:13:30 +0530",
+        "value": "2026-09-29T02:43:30+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/why-is-essar-investing-18-billion-in-a-us-steel-plant-trump-tariffs-hold-the-answer-11790649263613.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "9718a28b236c34d97efa73dd32be315fc94ef34087b5f15a95a61a6c5eed68cb",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "1f73012cab78c686076b90ae62793ec7964636aeeec95789f786e78ac8d98f66",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6f3a6e5ccc2a7fa0bbc01f9007ce12cc199eb61214301751869e462f89613b8a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 08:22:45 +0530",
+        "value": "2026-09-29T02:52:45+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/tata-sons-merger-what-tce-and-tess-bring-to-the-table-in-tata-trusts-new-plan-11790647082581.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "9b97a4a358e47205a5fc729925fb110cbb9c2acf1cbb5eb65c389c18dd2858be",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "0f4f0c0c50d7a1250eb0f6e9b725fbdbdaae2e39358491536dbb451b878effe3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7a037afd6c5d690523d2f32a185764d3b90d88a98eed91dc9c6d3e0517ca72ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 01:47:42 +0530",
+        "value": "2026-09-28T20:17:42+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/jefferies-quarterly-profit-jumps-on-deal-surge-equities-trading-strength-11790626663068.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "5b24c8cda17b54373fe76d46f183dd5483ea904a29fe46c1b5703d1c2970aaf3",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "abfacf45fb344b393399a2ee2d854b56c3b499b0ce45689942f372d4d80196e4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "883bef2924aa2c4997fc82d1dccd2e5fd79bcf1d8d1b57445e37d39af9f27f1f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 12:01:56 +0530",
+        "value": "2026-09-29T06:31:56+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/cloudnine-hospitals-permira-tpg-capital-450-million-deal-11790657292836.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "2c155f2cf2346ef3a45571f38f5328ff0e35ce992cd540a72e18ec7922f0ce22",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "afdd6ad6f38a6ccb976cf696df50a7a8adc01b73bf680787170dab7b734b11db",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a1c2a2d83455ad2da4cee4eafc22c6aee4a9b47a6721fa4288ca0c3b693d16ba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 06:00:35 +0530",
+        "value": "2026-09-29T00:30:35+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/indian-family-offices-mfos-cxo-hiring-institutional-capabilities-11790563405712.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "c7ca431d0bd05e2dba22f2af9edf56db082d99b39ff096b3665c3dae2b64822a",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "4f4af656b65e222926c5f85af8d026ea07e084badda4f876cb426dcfb01e655b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a915028f06243225a4192f528898bbdd6b8452986ad59d55b2d7150b771e4e6d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:44:45 +0530",
+        "value": "2026-09-29T09:14:45+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/subhash-chandra-s-22-006-crore-insolvency-case-nclat-issues-notice-over-asset-restraint-11790670253129.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "47cafcaca031aa15ef9567ddf5bd7979811cfd8d11ea783d47d3985919dd8839",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "2f375ed400548ef0547cf9b3dabf14fbf0f826632916a6ae3f223bc0576f857a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d4005b340feb84d366376b2445ca8372cc52c45bcabebed15ea0ce5adbddffc8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 05:30:35 +0530",
+        "value": "2026-09-29T00:00:35+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/tablespace-technologies-ipo-legal-dispute-11790488407207.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "a090dd0415d11fefdffb8266fc17b2408a41ebd1ce46d5a1178b4bb70666d68d",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "98cd368e112c9d3bf4aa1ef78e832bb9660db344ee491e9b06ab60aecbb3a56e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e18b322989f2b903af101e9df469cc604bdbd960c66bd48537045ae6551b03b6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:40:28 +0530",
+        "value": "2026-09-29T09:10:28+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/highway-roop-chamundi-die-cast-acquisition-carlyle-group-11790666681405.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "67c1a3300102c7d6cba167e09ae77681698ad823da857d6dcfe244bb3b9443a0",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "1540ea177ad037e60a626af9675cf04f7aec7a6bf6d185c810f39e27d3e44632",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f58c41a6c2a2c93686125dbafc8b1eaed88badde875c50407756c69e788e4f6a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 10:51:58 +0530",
+        "value": "2026-09-29T05:21:58+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/start-ups/india-ai-startups-funding-term-sheets-investment-11790650392000.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "85134107941208e362a437b6a26c485b3e99935deac04690ef9b0ae532284beb",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "fda532376963829df4de83df5f5531592aee2c39a9eb26ebde1ccbf76b483f14",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fca482f979aec6e1d3fa91eec4aac4ee0a9f58d9cffe651fe7ac3fa1f52b5688",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:06:54 +0530",
+        "value": "2026-09-29T08:36:54+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/red-bull-energy-drink-fssai-order-delhi-high-court-11790667454077.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "3958d72e276c4be42e133596413f8aadb52fb57cc469f6ca15f0e4ec9b858b40",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:04.956497+00:00",
+      "item_id": "31615d8d8f77e99919278f7dcf38a25724ef75fa71a8552300a27f2a0d018066",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fd974a2605a8eb50cd5b65ab1b9ab0a472923fd52b881e39a044654b85318168",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 28 Sep 2026 20:55:13 +0530",
+        "value": "2026-09-28T15:25:13+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/sebi-settles-case-against-adani-group-companies-public-shareholding-11790607829702.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "96aad294d8d6d9752a44bf27bd302bebc500173f55c2d0ccb73a9975d10bf708",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "421e327dcf662e804e53171b94493c6580a59e871cf62d771117a68dc1b0fb0d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "12bd8aa287a8e0461a3df535c15ff5eb97896a9f8641cf5f3976da8c5955f7ad",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:36:44 +0530",
+        "value": "2026-09-29T09:06:44+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/us-bond-market-why-is-ai-blowout-holds-key-for-the-indian-stock-market-11790669210878.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "bd5cd8fea0c26d08c8b5ed1bc1d3de82df11c556ce957dbd46c23b78b9b32a7f",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "6e480913fb3aa4ffc55184d095a26980e23a2d261c51f263a6e10da332ca74e5",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "18f4d96c14605b1512970b3868ae2da7763dbf0adc15f773622365ed8ac81420",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:56:55 +0530",
+        "value": "2026-09-29T09:26:55+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/us-bond-yields-hit-19-year-high-whats-driving-the-surge-and-why-nifty-sensex-are-feeling-the-heat-experts-decode-11790673444471.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "d88a307495b267559dda15841d414c3d8f814c4b5e77d028b3872aaca50a643f",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "d31d2a7eb44dcb3693ba39b4613d205119342ee125e1b0b34942d50bb25e29bc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "29e39b05ac9f62c7195a39c49ea620b02a1668ce2fe0bd8e1528576dc08aff1a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 15:19:13 +0530",
+        "value": "2026-09-29T09:49:13+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/nifty-50-is-breaking-long-held-supports-as-selloff-deepens-11790674933256.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "796840e9c4dadaf56adcab8faa5fcb8cea14ac1a5c07a5ff2ad4854c2ebae8af",
+      "topics": []
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "f69b4560198a700be8f53ada7b0ce2634c8a0e665a2ec9dfb9de9c21f405525a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "405d0f18dde3d75e4d2e445801af0fad53a299c48012b96741362c8564791e97",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 15:18:38 +0530",
+        "value": "2026-09-29T09:48:38+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/nvidia-150-billion-share-buyback-should-you-participate-post-record-date-announcement-11790668995026.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "32720c6995b7b81b8127d8cb19cc398e9ba22b93c4ec6630268aa896496bf51a",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "e7484b7555965329894351624d18572d0bb4ed25687be30b22ccf573b3357f21",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5f745963546905a546b9927f36bca502ae267e10946fe63714240c544244d092",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 14:51:09 +0530",
+        "value": "2026-09-29T09:21:09+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/nse-slips-to-12th-spot-in-list-of-most-valuable-indian-stocks-experts-see-more-dip-check-support-resistance-outlook-11790668896801.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "715fb4a9af5e924f1d675d3ea60eaa827359fd605e111ad6e6366acdc7139179",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "a14fb40ca0b3ece703a2cd1f528be98b23e15a5b1049ee4726f5a163bcd3d6ed",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PETRONET"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "75621080a9a26d9df96b7b0f3de623bfce50e7081b6a0af4460816adc6ccdcd5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 15:32:38 +0530",
+        "value": "2026-09-29T10:02:38+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/mark-to-market/petronet-lng-s-next-growth-leg-depends-on-improving-capacity-utilization-11790670191042.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "4295a4dbddf8c55959140a1be61e313280359c3f513ed09ceae14b95b6f87301",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "d0fca767bc6cb33031abcfb3a532fb0f4f2336c773f50adf3edd34c14779e33d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T10:07:06.309553+00:00",
+      "item_id": "2e0d4fe4fb1622ba4c4c75aae89794415a1e1be6d6209dfb459d05e605ee4f4c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ee3f765ed26c1248d966c645782b2502f7b34c0af9ccf9fb97e53c0b22c87eb0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 15:14:08 +0530",
+        "value": "2026-09-29T09:44:08+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/expert-view-arihant-capital-s-chief-strategy-officer-on-algo-trading-strategies-and-more-11790674414424.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "51a9d24c317ae2781ccf451577fb00f514a4b9cb9a664c2d608d8f40acfff48a",
       "topics": []
     }
   ],
