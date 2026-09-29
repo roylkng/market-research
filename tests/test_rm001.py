@@ -14,8 +14,6 @@ from marketlab.rm001 import (
     portfolio_risk,
     trailing_beta60,
 )
-from marketlab.marketdata import IndexDailyPrice
-
 
 
 def _action_ledger(start: str, end: str):
