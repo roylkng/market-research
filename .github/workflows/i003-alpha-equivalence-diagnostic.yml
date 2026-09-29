@@ -1,0 +1,161 @@
+name: I003 alpha-model equivalence diagnostic
+
+on:
+  push:
+    branches:
+      - feat/po001-v2-stock-impact-20260929
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    if: contains(github.event.head_commit.message, '[i003-alpha-equivalence]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download sealed I002 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i002-36570866823
+          path: evidence/i002
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36570866823
+
+      - name: Download failed P3 I003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i003-36581903836
+          path: evidence/i003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36581903836
+
+      - name: Rebuild and compare alpha model
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from dataclasses import asdict
+          from pathlib import Path
+
+          from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
+          from marketlab.alpha_history import cross_sectionalize_panel
+          from marketlab.alpha_model import fit_ridge, project_examples, purge_training_examples
+          from marketlab.alpha_multihorizon import build_action_safe_horizon_examples
+          from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
+          from marketlab.alpha_t004_prospective import _score_model
+
+          SEALED_MODEL_SHA = "179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260"
+
+          def locate(root, suffix, contains=None):
+              matches = list(Path(root).rglob(suffix))
+              if contains:
+                  matches = [p for p in matches if contains in str(p)]
+              if len(matches) != 1:
+                  raise SystemExit(f"expected one {suffix} under {root}, got {matches}")
+              return matches[0]
+
+          def load_gzip(path):
+              return json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
+
+          market = load_gzip(locate("evidence/i003", "market-panel.json.gz"))
+          features = load_gzip(locate("evidence/i003", "delivery-feature-panel.json.gz"))
+          actions = load_gzip(locate("evidence/i003", "corporate-action-ledger.json.gz"))
+          i002_artifact = load_gzip(locate("evidence/i002", "po001-i002-artifact.json.gz"))
+
+          ranked = (
+              features
+              if features.get("transform") == "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1"
+              else cross_sectionalize_panel(features)
+          )
+          feature_names = [
+              d.name for d in [*PRICE_VOLUME_DEFINITIONS, *DELIVERY_DEFINITIONS]
+          ]
+          examples_by_horizon, _ = build_action_safe_horizon_examples(
+              feature_panel=ranked,
+              market_panel=market,
+              action_ledger=actions,
+              horizons=(5,),
+          )
+          examples = project_examples(
+              examples_by_horizon[5],
+              feature_names=feature_names,
+          )
+          training = purge_training_examples(
+              examples,
+              validation_start_session="2026-07-01",
+          )
+          model = fit_ridge(
+              training,
+              feature_names=feature_names,
+              l2=1.0,
+              model_id="AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
+          )
+          print("SEALED_MODEL_SHA", SEALED_MODEL_SHA)
+          print("CURRENT_MODEL_SHA", model.model_sha256)
+          print("INTERCEPT", repr(model.intercept))
+          print("COEFFICIENTS", json.dumps(model.coefficients))
+          print("MEDIANS", json.dumps(model.feature_medians))
+          print("MEANS", json.dumps(model.feature_means))
+          print("SCALES", json.dumps(model.feature_scales))
+
+          decision_rows = [
+              row for row in ranked["rows"]
+              if str(row.get("feature_session")) == "2026-08-31"
+          ]
+          predictions = _score_model(asdict(model), decision_rows)
+          current = {
+              (row["symbol"], row["isin"]): float(row["prediction"])
+              for row in predictions
+          }
+
+          sealed_positions = i002_artifact["portfolios"]["equal_weight_top_decile"]["positions"]
+          sealed = {
+              (row["symbol"], row["isin"]): float(row["expected_excess_return"])
+              for row in sealed_positions
+          }
+          current_order = sorted(
+              current,
+              key=lambda identity: (-current[identity], identity[0], identity[1]),
+          )
+          current_top = set(current_order[:len(sealed)])
+          sealed_ids = set(sealed)
+          print("SEALED_TOP_COUNT", len(sealed_ids))
+          print("CURRENT_TOP_COUNT", len(current_top))
+          print("TOP_IDENTITY_SYMMETRIC_DIFF_COUNT", len(current_top ^ sealed_ids))
+
+          common = sorted(sealed_ids & set(current))
+          max_abs_diff = max(abs(current[key] - sealed[key]) for key in common)
+          mean_abs_diff = sum(abs(current[key] - sealed[key]) for key in common) / len(common)
+          print("TOP_ALPHA_MAX_ABS_DIFF", repr(max_abs_diff))
+          print("TOP_ALPHA_MEAN_ABS_DIFF", repr(mean_abs_diff))
+
+          rank_current = {identity: index for index, identity in enumerate(current_order)}
+          sealed_order = sorted(
+              sealed,
+              key=lambda identity: (-sealed[identity], identity[0], identity[1]),
+          )
+          max_rank_diff = max(
+              abs(rank_current[identity] - index)
+              for index, identity in enumerate(sealed_order)
+          )
+          print("SEALED_TOP_MAX_GLOBAL_RANK_DIFF", max_rank_diff)
+
+          if len(current_top ^ sealed_ids) != 0:
+              raise SystemExit("top-decile identity set differs")
+          if max_abs_diff > 1e-12:
+              raise SystemExit("sealed top-decile alpha differs above 1e-12")
+          print("ALPHA_ECONOMIC_EQUIVALENCE", True)
+          PY
