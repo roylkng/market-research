@@ -1,0 +1,82 @@
+name: RM001 historical risk-state pilot
+
+on:
+  push:
+    branches:
+      - feat/rm001-historical-state-20260929
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[rm001-pilot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify RM001 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001.py \
+            scripts/build_rm001_historical_state.py \
+            tests/test_rm001.py \
+            tests/test_rm001_historical_state.py
+          pytest -q \
+            tests/test_rm001.py \
+            tests/test_rm001_historical_state.py
+
+      - name: Rebuild fixed official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/rm001-pilot \
+            --output reports/rm001-pilot/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild corporate-action-safe AE001 features
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/rm001-pilot/panel/market-panel.json.gz \
+            --feature-panel reports/rm001-pilot/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --raw-dir reports/rm001-pilot/corporate-actions/raw \
+            --output reports/rm001-pilot/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build RM001 exposure/factor/risk state
+        run: |
+          python scripts/build_rm001_historical_state.py \
+            --market-panel reports/rm001-pilot/panel/market-panel.json.gz \
+            --feature-panel reports/rm001-pilot/action-safe/action-safe-feature-panel.json.gz \
+            --action-ledger reports/rm001-pilot/action-safe/corporate-action-ledger.json.gz \
+            --as-of-session 2026-09-25 \
+            --output reports/rm001-pilot/risk
+
+      - name: Print compact result
+        run: cat reports/rm001-pilot/risk/summary.json
+
+      - name: Upload exact RM001 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-historical-pilot-${{ github.run_id }}
+          path: |
+            reports/rm001-pilot
+            .marketlab/rm001-pilot/market-data
+          if-no-files-found: warn
+          retention-days: 90
