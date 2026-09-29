@@ -1,0 +1,274 @@
+name: I003 PO001 baseline equivalence diagnostic
+
+on:
+  push:
+    branches:
+      - feat/po001-v2-stock-impact-20260929
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    if: contains(github.event.head_commit.message, '[i003-po001-equivalence]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download sealed I002 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i002-36570866823
+          path: evidence/i002
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36570866823
+
+      - name: Download failed I003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i003-36575345889
+          path: evidence/i003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36575345889
+
+      - name: Reconstruct and compare PO001-v1 baseline
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          import math
+          from dataclasses import asdict
+          from pathlib import Path
+
+          from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
+          from marketlab.alpha_history import cross_sectionalize_panel
+          from marketlab.alpha_model import (
+              fit_ridge,
+              project_examples,
+              purge_training_examples,
+          )
+          from marketlab.alpha_multihorizon import build_action_safe_horizon_examples
+          from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
+          from marketlab.alpha_t004_prospective import _score_model
+          from marketlab.po001 import (
+              DEFAULT_MAX_INVESTED_WEIGHT,
+              DEFAULT_MAX_NAME_WEIGHT,
+              DEFAULT_MAX_TRADED_FRACTION,
+              optimize_portfolio,
+          )
+          from marketlab.po001_i001 import COST_REFERENCE_NOTIONAL_INR, RISK_AVERSION
+          from marketlab.tc001 import TC001Config, observable_side_cost
+
+          LEGACY_OPTIMIZER_SHA = (
+              "ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e"
+          )
+          LEGACY_RISK_SHA = (
+              "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1"
+          )
+          CANONICAL_RISK_SHA = (
+              "7a0a440515a2f75e0114281dd37a1bf4c6801e1b2e17a0b78183e89fe663abce"
+          )
+
+          def locate(root, suffix, *, contains=None):
+              matches = list(Path(root).rglob(suffix))
+              if contains is not None:
+                  matches = [path for path in matches if contains in str(path)]
+              if len(matches) != 1:
+                  raise SystemExit(
+                      f"expected one {suffix} under {root} contains={contains}, got {matches}"
+                  )
+              return matches[0]
+
+          def load_gzip(path):
+              return json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
+
+          market = load_gzip(
+              locate("evidence/i002", "market-panel.json.gz")
+          )
+          features = load_gzip(
+              locate("evidence/i002", "delivery-feature-panel.json.gz")
+          )
+          actions = load_gzip(
+              locate("evidence/i002", "corporate-action-ledger.json.gz")
+          )
+          legacy_risk = load_gzip(
+              locate("evidence/i002", "risk-state.json.gz", contains="risk-a")
+          )
+          canonical_risk = load_gzip(
+              locate("evidence/i003", "risk-state.json.gz")
+          )
+
+          if legacy_risk["state_sha256"] != LEGACY_RISK_SHA:
+              raise SystemExit("legacy I002 risk SHA mismatch")
+          if canonical_risk["state_sha256"] != CANONICAL_RISK_SHA:
+              raise SystemExit("canonical RM001 risk SHA mismatch")
+
+          ranked = (
+              features
+              if features.get("transform")
+              == "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1"
+              else cross_sectionalize_panel(features)
+          )
+          feature_names = [
+              definition.name
+              for definition in [*PRICE_VOLUME_DEFINITIONS, *DELIVERY_DEFINITIONS]
+          ]
+          examples_by_horizon, _ = build_action_safe_horizon_examples(
+              feature_panel=ranked,
+              market_panel=market,
+              action_ledger=actions,
+              horizons=(5,),
+          )
+          examples = project_examples(
+              examples_by_horizon[5],
+              feature_names=feature_names,
+          )
+          training = purge_training_examples(
+              examples,
+              validation_start_session="2026-07-01",
+          )
+          model = fit_ridge(
+              training,
+              feature_names=feature_names,
+              l2=1.0,
+              model_id="AE001-T003-H5-F2-AUGMENTED-RIDGE-I002",
+          )
+          if model.model_sha256 != (
+              "179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260"
+          ):
+              raise SystemExit("I002 alpha model did not reproduce")
+
+          decision_rows = [
+              row
+              for row in ranked["rows"]
+              if str(row.get("feature_session")) == "2026-08-31"
+          ]
+          predictions = _score_model(asdict(model), decision_rows)
+          alpha_all = {
+              (str(row["symbol"]), str(row["isin"])): float(row["prediction"])
+              for row in predictions
+          }
+          legacy_ids = {
+              (str(row["symbol"]), str(row["isin"]))
+              for row in legacy_risk["rows"]
+          }
+          canonical_ids = {
+              (str(row["symbol"]), str(row["isin"]))
+              for row in canonical_risk["rows"]
+          }
+          if legacy_ids != canonical_ids:
+              raise SystemExit("legacy/canonical RM001 identity sets differ")
+          common = sorted(set(alpha_all) & legacy_ids)
+          if len(common) != 1307:
+              raise SystemExit(f"unexpected common identity count: {len(common)}")
+
+          buy = observable_side_cost(
+              side="BUY",
+              notional_inr=COST_REFERENCE_NOTIONAL_INR,
+              config=TC001Config(),
+          )
+          sell = observable_side_cost(
+              side="SELL",
+              notional_inr=COST_REFERENCE_NOTIONAL_INR,
+              config=TC001Config(),
+          )
+          buy_bps = float(buy["total_bps"])
+          sell_bps = float(sell["total_bps"])
+
+          rows = [
+              {
+                  "symbol": identity[0],
+                  "isin": identity[1],
+                  "expected_excess_return": alpha_all[identity],
+                  "current_weight": 0.0,
+                  "buy_cost_bps": buy_bps,
+                  "sell_cost_bps": sell_bps,
+              }
+              for identity in common
+          ]
+
+          def optimize(risk):
+              return optimize_portfolio(
+                  decision_session="2026-08-31",
+                  horizon_sessions=5,
+                  alpha_rows=rows,
+                  risk_state=risk,
+                  risk_aversion=RISK_AVERSION,
+                  max_name_weight=DEFAULT_MAX_NAME_WEIGHT,
+                  max_invested_weight=DEFAULT_MAX_INVESTED_WEIGHT,
+                  max_traded_fraction_of_nav=DEFAULT_MAX_TRADED_FRACTION,
+                  factor_bounds={},
+                  terminal_liquidation=True,
+              )
+
+          legacy = optimize(legacy_risk)
+          canonical = optimize(canonical_risk)
+
+          print("LEGACY_ARTIFACT_SHA", legacy["artifact_sha256"])
+          print("CANONICAL_ARTIFACT_SHA", canonical["artifact_sha256"])
+          if legacy["artifact_sha256"] != LEGACY_OPTIMIZER_SHA:
+              raise SystemExit(
+                  "legacy RM001 reconstruction does not reproduce sealed I002 optimizer"
+              )
+
+          legacy_rows = {
+              (row["symbol"], row["isin"]): float(row["target_weight"])
+              for row in legacy["rows"]
+          }
+          canonical_rows = {
+              (row["symbol"], row["isin"]): float(row["target_weight"])
+              for row in canonical["rows"]
+          }
+          if legacy_rows.keys() != canonical_rows.keys():
+              raise SystemExit("PO001 identity sets differ")
+
+          max_weight_diff = max(
+              abs(legacy_rows[key] - canonical_rows[key])
+              for key in legacy_rows
+          )
+          print("MAX_TARGET_WEIGHT_ABS_DIFF", repr(max_weight_diff))
+
+          scalar_fields = {
+              "invested_weight": 1e-10,
+              "expected_excess_return": 1e-12,
+              "total_variance_daily": 1e-12,
+              "risk_penalty": 1e-12,
+              "immediate_transaction_cost_fraction": 1e-12,
+              "terminal_liquidation_cost_fraction": 1e-12,
+              "objective_utility": 1e-12,
+          }
+          for field, tolerance in scalar_fields.items():
+              difference = abs(float(legacy[field]) - float(canonical[field]))
+              print(f"{field.upper()}_ABS_DIFF", repr(difference))
+              if difference > tolerance:
+                  raise SystemExit(
+                      f"{field} difference {difference} exceeds tolerance {tolerance}"
+                  )
+
+          max_factor_diff = max(
+              abs(
+                  float(legacy["portfolio_factor_exposures"][factor])
+                  - float(canonical["portfolio_factor_exposures"][factor])
+              )
+              for factor in legacy["portfolio_factor_exposures"]
+          )
+          print("MAX_FACTOR_EXPOSURE_ABS_DIFF", repr(max_factor_diff))
+
+          if max_weight_diff > 1e-9:
+              raise SystemExit("target-weight difference exceeds frozen tolerance")
+          if max_factor_diff > 1e-12:
+              raise SystemExit("factor-exposure difference exceeds frozen tolerance")
+
+          print("PORTFOLIO_ECONOMIC_EQUIVALENCE", True)
+          PY
