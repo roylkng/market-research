@@ -9,6 +9,7 @@ from marketlab.po001_i003 import (
     _validate_alpha_diagnostic,
     _validate_i003_risk_inputs,
     _validate_pinned_alpha_model,
+    _validate_pinned_i002_control,
 )
 
 
@@ -272,3 +273,88 @@ def test_i003_alpha_diagnostic_rejects_prediction_drift(monkeypatch):
             diagnostic,
             rows,
         )
+
+
+
+def _i002_control_artifact():
+    control = {
+        "name": "FULL_PO001_OBSERVABLE_COST_FLOOR",
+        "holding_count": 39,
+        "invested_weight": 1.0,
+        "cash_weight": 0.0,
+        "expected_5d_excess_return": 0.01056267666652251,
+        "annualized_volatility": 0.13713480625195076,
+        "factor_variance_daily": 0.00001,
+        "idiosyncratic_variance_daily": 0.00002,
+        "total_variance_daily": 0.00003,
+        "portfolio_factor_exposures": {},
+        "buy_cost_fraction": 0.001,
+        "terminal_sell_cost_fraction": 0.001224812,
+        "total_round_trip_cost_fraction": 0.002224812,
+        "risk_penalty_at_i001_lambda": 0.0018656701473968324,
+        "utility_at_i001_lambda": 0.006472194519125673,
+        "max_name_weight": 0.05,
+        "weight_hhi": 0.03,
+        "effective_number_of_names": 33.0,
+        "top_holdings": [],
+        "positions": [],
+        "optimizer_artifact_sha256": "o" * 64,
+        "solver": {"success": True},
+    }
+    artifact = {
+        "schema_version": 1,
+        "study_id": "PO001-I002-v1",
+        "decision_session": "2026-08-31",
+        "realized_outcome_opened": False,
+        "common_identity_count": 1307,
+        "alpha_source": {"model_sha256": "m" * 64},
+        "risk_source": {"risk_state_sha256": "r" * 64},
+        "portfolios": {
+            "full_po001_observable_cost_floor": control,
+        },
+        "live_capital_allowed": False,
+    }
+    artifact["artifact_sha256"] = digest(artifact)
+    return artifact
+
+
+def test_i003_accepts_exact_pinned_i002_control(monkeypatch):
+    artifact = _i002_control_artifact()
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_MODEL_SHA256",
+        "m" * 64,
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
+        "r" * 64,
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_V1_OPTIMIZER_SHA256",
+        "o" * 64,
+    )
+    control = _validate_pinned_i002_control(artifact)
+    assert control["holding_count"] == 39
+    assert control["expected_5d_excess_return"] == pytest.approx(
+        0.01056267666652251
+    )
+
+
+def test_i003_rejects_pinned_i002_control_tamper(monkeypatch):
+    artifact = _i002_control_artifact()
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_MODEL_SHA256",
+        "m" * 64,
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_LEGACY_RISK_STATE_SHA256",
+        "r" * 64,
+    )
+    monkeypatch.setattr(
+        "marketlab.po001_i003.EXPECTED_V1_OPTIMIZER_SHA256",
+        "o" * 64,
+    )
+    artifact["portfolios"]["full_po001_observable_cost_floor"][
+        "holding_count"
+    ] = 40
+    with pytest.raises(AlphaContractError, match="hash mismatch"):
+        _validate_pinned_i002_control(artifact)
