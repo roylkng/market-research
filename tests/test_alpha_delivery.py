@@ -4,7 +4,7 @@ from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha import digest
 from marketlab.alpha_delivery import (
     acquire_historical_delivery_panel,
     augment_feature_panel_with_delivery,
