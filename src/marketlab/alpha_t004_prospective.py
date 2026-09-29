@@ -610,7 +610,9 @@ def append_t004_prediction_record(
     prediction_artifact_path: str | None,
     prediction_artifact_sha256: str | None,
     prediction_gzip_sha256: str | None,
+    feature_artifact_path: str | None,
     feature_snapshot_sha256: str | None,
+    feature_gzip_sha256: str | None,
     reason: str | None = None,
 ) -> dict[str, Any]:
     validate_t004_prediction_ledger(ledger)
@@ -635,7 +637,9 @@ def append_t004_prediction_record(
         "prediction_artifact_path": prediction_artifact_path,
         "prediction_artifact_sha256": prediction_artifact_sha256,
         "prediction_gzip_sha256": prediction_gzip_sha256,
+        "feature_artifact_path": feature_artifact_path,
         "feature_snapshot_sha256": feature_snapshot_sha256,
+        "feature_gzip_sha256": feature_gzip_sha256,
         "reason": reason,
         "live_capital_allowed": False,
     }
