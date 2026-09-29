@@ -1,5 +1,5 @@
 {
-  "event_count": 7,
+  "event_count": 8,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -218,10 +218,50 @@
       "recorded_at_utc": "2026-09-27T07:50:00+00:00",
       "seq": 7,
       "trial_id": "AE001-T003"
+    },
+    {
+      "seq": 8,
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "trial_id": "AE001-T003",
+      "recorded_at_utc": "2026-09-29T05:42:00+00:00",
+      "payload": {
+        "protocol_id": "AE001-T003-P3",
+        "reason": "Freeze NSE delivery source-quality rule after fail-closed acquisition anomaly and before any T003 model comparison.",
+        "source_quality_rule": "EXCLUDE_WHOLE_DELIVERY_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_ABS_DELIV_PER_VS_100_DELIV_QTY_OVER_TTL_TRD_QNTY_DIFF_GT_0_05_PERCENTAGE_POINTS",
+        "preserve_conflicting_official_fields_without_override": true,
+        "missing_session_effect": "DELIVERY_HISTORY_GAP_NO_IMPUTATION",
+        "discovered_source_session": "2025-10-21",
+        "discovered_session_type": "NSE_DIWALI_MUHURAT_SPECIAL_SESSION",
+        "discovered_complete_eq_rows": 2291,
+        "discovered_violating_rows_gt_0_05pp": 182,
+        "discovered_max_abs_diff_pp": 16.239610545532294,
+        "comparison_samples": {
+          "2025-10-17": {
+            "violating_rows_gt_0_05pp": 0,
+            "max_abs_diff_pp": 0.004997096236351695
+          },
+          "2026-02-01": {
+            "violating_rows_gt_0_05pp": 0,
+            "max_abs_diff_pp": 0.00499644677294242
+          },
+          "2026-04-01": {
+            "violating_rows_gt_0_05pp": 0,
+            "max_abs_diff_pp": 0.005000000000002558
+          },
+          "2026-09-25": {
+            "violating_rows_gt_0_05pp": 0,
+            "max_abs_diff_pp": 0.004999571293829774
+          }
+        },
+        "prior_t003_run_36525540133_model_comparison_started": false,
+        "prior_t003_run_36526365091_model_comparison_started": false,
+        "live_capital_allowed": false
+      },
+      "event_sha256": "RECOMPUTE"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "4608b6ef3d3315ee70ae1f4beb563cb338e25b6d184236b06d4b2a414d8a4ceb",
+  "ledger_sha256": "RECOMPUTE",
   "live_capital_allowed": false,
   "schema_version": 1
 }
