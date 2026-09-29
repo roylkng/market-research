@@ -48,8 +48,11 @@ EXPECTED_MODEL_SHA256 = (
 EXPECTED_DELIVERY_PANEL_SHA256 = (
     "47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44"
 )
-EXPECTED_RISK_STATE_SHA256 = (
+EXPECTED_LEGACY_RISK_STATE_SHA256 = (
     "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1"
+)
+EXPECTED_CANONICAL_RISK_STATE_SHA256 = (
+    "7a0a440515a2f75e0114281dd37a1bf4c6801e1b2e17a0b78183e89fe663abce"
 )
 EXPECTED_V1_OPTIMIZER_SHA256 = (
     "ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e"
@@ -273,6 +276,7 @@ def run_po001_i003(
     market_panel: dict[str, Any],
     action_ledger: dict[str, Any],
     risk_state: dict[str, Any],
+    canonical_risk_state: dict[str, Any],
 ) -> dict[str, Any]:
     _verify_hash(
         delivery_feature_panel,
@@ -292,18 +296,47 @@ def run_po001_i003(
     _verify_hash(
         risk_state,
         hash_field="state_sha256",
-        name="I003 RM001 risk state",
+        name="I003 pinned I002 RM001 risk state",
+    )
+    _verify_hash(
+        canonical_risk_state,
+        hash_field="state_sha256",
+        name="I003 canonical RM001 rebuild",
     )
     if delivery_feature_panel["panel_sha256"] != EXPECTED_DELIVERY_PANEL_SHA256:
         raise AlphaContractError(
             "I003 delivery feature panel does not reproduce sealed I002"
         )
-    if risk_state["state_sha256"] != EXPECTED_RISK_STATE_SHA256:
+    if risk_state["state_sha256"] != EXPECTED_LEGACY_RISK_STATE_SHA256:
         raise AlphaContractError(
-            "I003 risk state does not reproduce sealed I002"
+            "I003 pinned risk state does not reproduce sealed I002"
+        )
+    if (
+        canonical_risk_state["state_sha256"]
+        != EXPECTED_CANONICAL_RISK_STATE_SHA256
+    ):
+        raise AlphaContractError(
+            "I003 canonical RM001 rebuild does not match frozen P3 diagnostic"
         )
     if str(risk_state.get("as_of_session") or "") != DECISION_SESSION:
-        raise AlphaContractError("I003 RM001 decision clock mismatch")
+        raise AlphaContractError("I003 pinned RM001 decision clock mismatch")
+    if (
+        str(canonical_risk_state.get("as_of_session") or "")
+        != DECISION_SESSION
+    ):
+        raise AlphaContractError("I003 canonical RM001 decision clock mismatch")
+    legacy_identities = {
+        (str(row["symbol"]), str(row["isin"]))
+        for row in risk_state["rows"]
+    }
+    canonical_identities = {
+        (str(row["symbol"]), str(row["isin"]))
+        for row in canonical_risk_state["rows"]
+    }
+    if legacy_identities != canonical_identities:
+        raise AlphaContractError(
+            "I003 legacy/canonical RM001 identity sets differ"
+        )
 
     ranked = (
         delivery_feature_panel
@@ -476,9 +509,16 @@ def run_po001_i003(
             "delivery_feature_panel_sha256": delivery_feature_panel[
                 "panel_sha256"
             ],
-            "risk_state_sha256": risk_state["state_sha256"],
+            "legacy_i002_risk_state_sha256": risk_state["state_sha256"],
+            "canonical_rm001_risk_state_sha256": canonical_risk_state[
+                "state_sha256"
+            ],
+            "rm001_economic_equivalence_audit_run_id": 36579160593,
+            "po001_equivalence_audit_run_id": 36579611661,
+            "po001_equivalence_gate_passed": False,
+            "resolution": "PIN_EXACT_SEALED_I002_RISK_STATE_PER_P3",
             "v1_optimizer_artifact_sha256": baseline["artifact_sha256"],
-            "all_required_hashes_matched": True,
+            "all_executable_reproduction_gates_matched": True,
         },
         "common_identity_count": len(common),
         "training_example_count": len(training),
