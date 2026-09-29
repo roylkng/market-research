@@ -105,6 +105,12 @@ def main() -> int:
         "augmented_feature_panel_sha256": augmented["panel_sha256"],
         "augmented_feature_artifact_sha256": sha256_bytes(feature_bytes),
         "delivery_feature_row_count": augmented["feature_row_count"],
+        "delivery_excluded_source_quality_session_count": len(
+            augmented["delivery_excluded_source_quality_sessions"]
+        ),
+        "delivery_excluded_source_quality_sessions": augmented[
+            "delivery_excluded_source_quality_sessions"
+        ],
         "delivery_missing_excluded_row_count": augmented[
             "delivery_missing_excluded_row_count"
         ],
