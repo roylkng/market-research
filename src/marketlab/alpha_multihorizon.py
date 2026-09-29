@@ -22,6 +22,7 @@ from marketlab.alpha_model import (
     evaluate_cross_sectional_predictions,
     fit_ridge,
     predict_ridge,
+    project_examples,
     purge_training_examples,
 )
 from marketlab.marketdata import IndexDailyPrice
@@ -195,6 +196,7 @@ def run_action_safe_horizon_walkforward(
     market_panel: dict[str, Any],
     action_ledger: dict[str, Any],
     folds_by_horizon: dict[int, list[dict[str, str]]],
+    feature_names: list[str] | None = None,
     l2: float = 1.0,
 ) -> dict[str, Any]:
     ranked = (
@@ -205,7 +207,14 @@ def run_action_safe_horizon_walkforward(
     definitions = ranked.get("feature_definitions")
     if not isinstance(definitions, list) or not definitions:
         raise AlphaContractError("feature definitions are required")
-    feature_names = [str(row["name"]) for row in definitions]
+    all_feature_names = [str(row["name"]) for row in definitions]
+    selected_features = feature_names or all_feature_names
+    if (
+        not selected_features
+        or len(selected_features) != len(set(selected_features))
+        or not set(selected_features).issubset(set(all_feature_names))
+    ):
+        raise AlphaContractError("multi-horizon feature selection is invalid")
 
     horizons = tuple(sorted(folds_by_horizon))
     examples_by_horizon, exclusions = build_action_safe_horizon_examples(
@@ -219,7 +228,10 @@ def run_action_safe_horizon_walkforward(
     for horizon in horizons:
         folds = folds_by_horizon[horizon]
         _validate_folds(folds)
-        examples = examples_by_horizon[horizon]
+        examples = project_examples(
+            examples_by_horizon[horizon],
+            feature_names=selected_features,
+        )
         all_predictions = []
         fold_reports = []
         for fold_index, fold in enumerate(folds, start=1):
@@ -242,7 +254,7 @@ def run_action_safe_horizon_walkforward(
                 )
             model = fit_ridge(
                 train,
-                feature_names=feature_names,
+                feature_names=selected_features,
                 l2=l2,
                 model_id=f"AE001-RIDGE-H{horizon}-F{fold_index:02d}",
             )
@@ -269,7 +281,7 @@ def run_action_safe_horizon_walkforward(
         singles = signed_single_feature_walkforward(
             examples,
             folds=folds,
-            feature_names=feature_names,
+            feature_names=selected_features,
         )
         hac_lag = max(0, horizon - 1)
         horizon_reports[str(horizon)] = {
@@ -311,6 +323,7 @@ def run_action_safe_horizon_walkforward(
         "market_panel_sha256": market_panel["panel_sha256"],
         "corporate_action_ledger_sha256": action_ledger["ledger_sha256"],
         "l2": l2,
+        "feature_names": selected_features,
         "horizons": horizon_reports,
         "exclusions": exclusions,
         "cost_model_status": "NOT_IMPLEMENTED_TC001_REQUIRED",

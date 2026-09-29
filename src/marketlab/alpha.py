@@ -17,6 +17,7 @@ ALLOWED_FEATURE_FAMILIES = {
     "corporate_event",
     "ownership_informed_capital",
     "derivatives_flows",
+    "cash_flows",
     "regime",
 }
 _FEATURE_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
