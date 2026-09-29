@@ -1,0 +1,145 @@
+name: AE001 T004 prospective outcomes
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 20:00 and 23:00 Asia/Kolkata, every calendar day.
+    - cron: '30 14 * * *'
+    - cron: '30 17 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-t004-prospective-outcomes
+  cancel-in-progress: false
+
+jobs:
+  advance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T004 outcome implementation
+        run: |
+          ruff check \
+            src/marketlab/alpha_t004_outcomes.py \
+            scripts/advance_ae001_t004_outcomes.py \
+            scripts/verify_ae001_t004_outcomes.py \
+            tests/test_alpha_t004_outcomes.py
+          pytest -q \
+            tests/test_alpha_t004_outcomes.py \
+            tests/test_alpha_t004_prospective.py \
+            tests/test_alpha_t004.py
+          python scripts/verify_ae001_t004_decisions.py \
+            --ledger research/prospective/ae001-t004/decision-ledger.json
+          python scripts/verify_ae001_t004_outcomes.py \
+            --ledger research/prospective/ae001-t004/outcome-ledger.json
+
+      - name: Resolve India as-of date
+        id: clock
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+
+      - name: Advance matured T004 outcomes and frozen result gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/ae001-t004-outcomes/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          python scripts/advance_ae001_t004_outcomes.py \
+            --as-of-date "${{ steps.clock.outputs.date }}" \
+            --decision-ledger research/prospective/ae001-t004/decision-ledger.json \
+            --outcome-ledger research/prospective/ae001-t004/outcome-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --outcome-dir research/prospective/ae001-t004/outcomes \
+            --work-dir "$WORK" \
+            --attempts 4 \
+            --timeout-seconds 30 | tee "$WORK/run.log"
+          python scripts/verify_ae001_t004_outcomes.py \
+            --ledger research/prospective/ae001-t004/outcome-ledger.json
+
+      - name: Anchor append-only T004 outcome state
+        shell: bash
+        run: |
+          set -euo pipefail
+          DECISION_LEDGER="research/prospective/ae001-t004/decision-ledger.json"
+          OUTCOME_LEDGER="research/prospective/ae001-t004/outcome-ledger.json"
+          TRIAL_LEDGER="research/ae001/trial-ledger.json"
+
+          python scripts/verify_ae001_t004_decisions.py --ledger "$DECISION_LEDGER"
+          python scripts/verify_ae001_t004_outcomes.py --ledger "$OUTCOME_LEDGER"
+
+          START_SHA="${GITHUB_SHA}"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUTCOME_LEDGER" "$TRIAL_LEDGER"
+          if [ -d research/prospective/ae001-t004/outcomes ]; then
+            git add research/prospective/ae001-t004/outcomes
+          fi
+          if git diff --cached --quiet; then
+            echo "No new T004 outcome state"
+            exit 0
+          fi
+
+          git commit -m "AE001 T004: seal prospective matured outcomes ${{ steps.clock.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-t004-prospective-outcomes.yml"
+            ".github/workflows/ae001-sc001-prospective-source-timing.yml"
+            "registry/ae001_t004_delivery_confirmatory.yaml"
+            "research/AE001_T004_PROSPECTIVE_DELIVERY_CONFIRMATION_V1.md"
+            "research/AE001_T004_MODEL_FREEZE_P1.md"
+            "research/AE001_T004_OUTCOME_COHORT_P2.md"
+            "research/ae001/trial-ledger.json"
+            "research/prospective/ae001-t004"
+            "src/marketlab/alpha_t004_outcomes.py"
+            "src/marketlab/alpha_t004_prospective.py"
+            "scripts/advance_ae001_t004_outcomes.py"
+            "scripts/verify_ae001_t004_outcomes.py"
+            "scripts/verify_ae001_t004_decisions.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "T004 rules or canonical state changed while outcomes were in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_t004_decisions.py --ledger "$DECISION_LEDGER"
+              python scripts/verify_ae001_t004_outcomes.py --ledger "$OUTCOME_LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor T004 outcomes after bounded retries"
+          exit 1
+
+      - name: Upload T004 outcome acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t004-outcomes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/ae001-t004-outcomes
+          if-no-files-found: warn
+          retention-days: 90

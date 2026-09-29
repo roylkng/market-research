@@ -1,5 +1,5 @@
 {
-  "event_count": 11,
+  "event_count": 12,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -383,10 +383,29 @@
       "recorded_at_utc": "2026-09-29T10:12:41+00:00",
       "seq": 11,
       "trial_id": "AE001-T004"
+    },
+    {
+      "event_sha256": "8a0d97c15b1af5070d085712789630361081477fc12ac6bb3c1bacd6057a8def",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "cohort_freezes_at_first_qualifying_prefix": true,
+        "live_capital_allowed": false,
+        "no_optional_stopping": true,
+        "primary_cohort_rule": "SMALLEST_CANONICAL_DECISION_PREFIX_WITH_N_GE_60_ALL_H5_MATURE_AND_VALID_PAIRED_IC_GE_50",
+        "primary_horizon_sessions": 5,
+        "protocol_file": "research/AE001_T004_OUTCOME_COHORT_P2.md",
+        "protocol_id": "AE001-T004-P2",
+        "reason": "Freeze deterministic prospective result cohort and stopping rule before the first eligible T004 decision session.",
+        "secondary_horizon_sessions": 20,
+        "secondary_uses_exact_primary_cohort": true
+      },
+      "recorded_at_utc": "2026-09-29T10:52:31.156952+00:00",
+      "seq": 12,
+      "trial_id": "AE001-T004"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "14ff32fd74f2ba866090fc5ad60d69b6df8e44a06cf0abf4cfeb27f744cbf8ef",
+  "ledger_sha256": "352512c3cb0fdf0fb0cff086c1d5de3fb8bf5e338b0f4f231445066b73b78342",
   "live_capital_allowed": false,
   "schema_version": 1
 }
