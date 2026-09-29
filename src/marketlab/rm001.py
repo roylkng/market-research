@@ -156,6 +156,7 @@ def build_rm001_exposure_panel(
     action_ledger: dict[str, Any],
 ) -> dict[str, Any]:
     validate_action_ledger(action_ledger)
+    _verify_hash(market_panel, field="panel_sha256", name="RM001 market panel")
     if feature_panel.get("corporate_action_ledger_sha256") != action_ledger.get(
         "ledger_sha256"
     ):
@@ -330,6 +331,7 @@ def build_rm001_factor_history(
     action_ledger: dict[str, Any],
 ) -> dict[str, Any]:
     _verify_hash(exposure_panel, field="panel_sha256", name="RM001 exposure panel")
+    _verify_hash(market_panel, field="panel_sha256", name="RM001 market panel")
     validate_action_ledger(action_ledger)
     if exposure_panel.get("corporate_action_ledger_sha256") != action_ledger.get(
         "ledger_sha256"
