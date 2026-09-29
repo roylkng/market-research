@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "study_id": "PO001-I001-v1",
+  "status": "COMPLETED_INFEASIBLE_SOURCE_GAP",
+  "run_id": 36568280635,
+  "decision_session": "2026-09-25",
+  "horizon_sessions": 5,
+  "realized_outcome_opened": false,
+  "failure_stage": "ALPHA_FEATURE_CROSS_SECTION",
+  "reason": "The frozen T003-P3 source-quality exclusion on 2026-09-11 creates a 21-session delivery-history gap. The reusable delivery feature panel therefore contains no eligible 2026-09-25 rows. I001 failed closed before alpha scoring or portfolio optimization.",
+  "source_evidence": {
+    "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+    "action_safe_feature_panel_sha256": "bfed03d65ee030e8ef107bd136b78720a9d5a787096f7fb14908659c8c8d30c1",
+    "delivery_feature_panel_sha256": "51c721d88f2b47b1f94ddf35eb4673ed19ecc28be70cd5a60a0f1b4f9a8a18ba",
+    "delivery_excluded_source_quality_sessions": [
+      "2025-10-21",
+      "2026-09-11"
+    ],
+    "delivery_feature_row_count": 244855,
+    "delivery_noncontiguous_excluded_row_count": 13151,
+    "rm001_security_count": 1317
+  },
+  "study_parameters_changed_after_failure": false,
+  "backfill_allowed": false,
+  "live_capital_allowed": false
+}
