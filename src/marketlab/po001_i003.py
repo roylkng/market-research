@@ -20,7 +20,6 @@ from marketlab.po001 import (
     DEFAULT_MAX_INVESTED_WEIGHT,
     DEFAULT_MAX_NAME_WEIGHT,
     DEFAULT_MAX_TRADED_FRACTION,
-    optimize_portfolio,
 )
 from marketlab.po001_i001 import (
     COST_REFERENCE_NOTIONAL_INR,
@@ -309,6 +308,45 @@ def _validate_alpha_diagnostic(
     }
 
 
+def _validate_pinned_i002_control(
+    control_artifact: dict[str, Any],
+) -> dict[str, Any]:
+    _verify_hash(
+        control_artifact,
+        hash_field="artifact_sha256",
+        name="I003 pinned I002 integrated control",
+    )
+    if control_artifact.get("study_id") != "PO001-I002-v1":
+        raise AlphaContractError("I003 pinned control study ID mismatch")
+    if control_artifact.get("decision_session") != DECISION_SESSION:
+        raise AlphaContractError("I003 pinned control decision session mismatch")
+    if control_artifact.get("realized_outcome_opened") is not False:
+        raise AlphaContractError("I003 pinned control unexpectedly contains outcome")
+    if int(control_artifact.get("common_identity_count") or 0) != 1307:
+        raise AlphaContractError("I003 pinned control common universe mismatch")
+
+    alpha_source = control_artifact.get("alpha_source")
+    risk_source = control_artifact.get("risk_source")
+    if not isinstance(alpha_source, dict) or not isinstance(risk_source, dict):
+        raise AlphaContractError("I003 pinned control provenance is missing")
+    if alpha_source.get("model_sha256") != EXPECTED_MODEL_SHA256:
+        raise AlphaContractError("I003 pinned control alpha model mismatch")
+    if risk_source.get("risk_state_sha256") != EXPECTED_LEGACY_RISK_STATE_SHA256:
+        raise AlphaContractError("I003 pinned control RM001 state mismatch")
+
+    portfolios = control_artifact.get("portfolios")
+    if not isinstance(portfolios, dict):
+        raise AlphaContractError("I003 pinned control portfolios are missing")
+    control = portfolios.get("full_po001_observable_cost_floor")
+    if not isinstance(control, dict):
+        raise AlphaContractError("I003 pinned observable-cost control is missing")
+    if control.get("optimizer_artifact_sha256") != EXPECTED_V1_OPTIMIZER_SHA256:
+        raise AlphaContractError("I003 pinned control optimizer SHA mismatch")
+    if int(control.get("holding_count") or 0) != 39:
+        raise AlphaContractError("I003 pinned control holding count mismatch")
+    return control
+
+
 def _execution_inputs(
     *,
     market_panel: dict[str, Any],
@@ -465,48 +503,6 @@ def _v2_summary(artifact: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _v1_summary(artifact: dict[str, Any]) -> dict[str, Any]:
-    rows = [
-        row
-        for row in artifact["rows"]
-        if float(row["target_weight"]) > 1e-12
-    ]
-    hhi = sum(float(row["target_weight"]) ** 2 for row in rows)
-    return {
-        "optimizer_id": artifact["optimizer_id"],
-        "artifact_sha256": artifact["artifact_sha256"],
-        "holding_count": len(rows),
-        "invested_weight": artifact["invested_weight"],
-        "cash_weight": artifact["cash_weight"],
-        "expected_5d_excess_return": artifact["expected_excess_return"],
-        "annualized_volatility": math.sqrt(
-            float(artifact["total_variance_daily"]) * 252.0
-        ),
-        "total_variance_daily": artifact["total_variance_daily"],
-        "risk_penalty": artifact["risk_penalty"],
-        "immediate_transaction_cost_fraction": artifact[
-            "immediate_transaction_cost_fraction"
-        ],
-        "terminal_liquidation_cost_fraction": artifact[
-            "terminal_liquidation_cost_fraction"
-        ],
-        "objective_utility": artifact["objective_utility"],
-        "max_name_weight": (
-            max(float(row["target_weight"]) for row in rows)
-            if rows
-            else 0.0
-        ),
-        "weight_hhi": hhi,
-        "effective_number_of_names": (
-            None if hhi <= 0 else 1.0 / hhi
-        ),
-        "portfolio_factor_exposures": artifact[
-            "portfolio_factor_exposures"
-        ],
-        "solver": artifact["solver"],
-    }
-
-
 def run_po001_i003(
     *,
     delivery_feature_panel: dict[str, Any],
@@ -515,6 +511,7 @@ def run_po001_i003(
     risk_state: dict[str, Any],
     canonical_risk_state: dict[str, Any],
     pinned_alpha_model: dict[str, Any],
+    pinned_i002_control: dict[str, Any],
 ) -> dict[str, Any]:
     _verify_hash(
         delivery_feature_panel,
@@ -536,6 +533,7 @@ def run_po001_i003(
         canonical_risk_state,
     )
     _validate_pinned_alpha_model(pinned_alpha_model)
+    sealed_control = _validate_pinned_i002_control(pinned_i002_control)
     if delivery_feature_panel["panel_sha256"] != EXPECTED_DELIVERY_PANEL_SHA256:
         raise AlphaContractError(
             "I003 delivery feature panel does not reproduce sealed I002"
@@ -628,36 +626,6 @@ def run_po001_i003(
     buy_cost_bps = float(buy["total_bps"])
     sell_cost_bps = float(sell["total_bps"])
 
-    def v1_rows() -> list[dict[str, Any]]:
-        return [
-            {
-                "symbol": identity[0],
-                "isin": identity[1],
-                "expected_excess_return": alpha_all[identity],
-                "current_weight": 0.0,
-                "buy_cost_bps": buy_cost_bps,
-                "sell_cost_bps": sell_cost_bps,
-            }
-            for identity in common
-        ]
-
-    baseline = optimize_portfolio(
-        decision_session=DECISION_SESSION,
-        horizon_sessions=HORIZON_SESSIONS,
-        alpha_rows=v1_rows(),
-        risk_state=risk_state,
-        risk_aversion=RISK_AVERSION,
-        max_name_weight=DEFAULT_MAX_NAME_WEIGHT,
-        max_invested_weight=DEFAULT_MAX_INVESTED_WEIGHT,
-        max_traded_fraction_of_nav=DEFAULT_MAX_TRADED_FRACTION,
-        factor_bounds={},
-        terminal_liquidation=True,
-    )
-    if baseline["artifact_sha256"] != EXPECTED_V1_OPTIMIZER_SHA256:
-        raise AlphaContractError(
-            "I003 PO001-v1 baseline does not reproduce sealed I002"
-        )
-
     def v2_rows() -> list[dict[str, Any]]:
         return [
             {
@@ -724,7 +692,15 @@ def run_po001_i003(
             "po001_equivalence_audit_run_id": 36579611661,
             "po001_equivalence_gate_passed": False,
             "resolution": "PIN_EXACT_SEALED_I002_RISK_STATE_PER_P3",
-            "v1_optimizer_artifact_sha256": baseline["artifact_sha256"],
+            "pinned_i002_control_artifact_sha256": pinned_i002_control[
+                "artifact_sha256"
+            ],
+            "pinned_i002_control_optimizer_artifact_sha256": sealed_control[
+                "optimizer_artifact_sha256"
+            ],
+            "v1_control_resolution": (
+                "PIN_EXACT_SEALED_I002_INTEGRATED_ARTIFACT_PER_P6"
+            ),
             "all_executable_reproduction_gates_matched": True,
         },
         "common_identity_count": len(common),
@@ -745,31 +721,29 @@ def run_po001_i003(
             "buy": buy_cost_bps,
             "sell": sell_cost_bps,
         },
-        "v1_observable_cost_baseline": _v1_summary(baseline),
+        "v1_observable_cost_baseline": sealed_control,
         "v2_nav_surfaces": nav_results,
         "primary_nav_inr": PRIMARY_NAV_INR,
         "primary_v2": primary,
         "primary_delta_vs_v1": {
             "expected_5d_excess_return": (
                 primary["expected_5d_excess_return"]
-                - baseline["expected_excess_return"]
+                - sealed_control["expected_5d_excess_return"]
             ),
             "annualized_volatility": (
                 primary["annualized_volatility"]
-                - math.sqrt(
-                    float(baseline["total_variance_daily"]) * 252.0
-                )
+                - sealed_control["annualized_volatility"]
             ),
             "invested_weight": (
-                primary["invested_weight"] - baseline["invested_weight"]
+                primary["invested_weight"] - sealed_control["invested_weight"]
             ),
             "holding_count": (
                 primary["holding_count"]
-                - _v1_summary(baseline)["holding_count"]
+                - sealed_control["holding_count"]
             ),
             "objective_utility": (
                 primary["objective_utility"]
-                - baseline["objective_utility"]
+                - sealed_control["utility_at_i001_lambda"]
             ),
         },
         "impact_contract": {
