@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 import statistics
-from dataclasses import asdict
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
