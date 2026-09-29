@@ -18,7 +18,7 @@ def _trial_ledger():
         recorded_at_utc="2026-09-27T08:10:00+00:00",
         payload={"status": "FROZEN_BEFORE_DELIVERY_OUTCOME_RUN"},
     )
-    return append_trial_event(
+    ledger = append_trial_event(
         ledger,
         event_type="TRIAL_PROTOCOL_AMENDED",
         trial_id="AE001-T003",
@@ -34,6 +34,20 @@ def _trial_ledger():
                 "5": [["2026-04-01", "2026-06-30"]],
                 "20": [["2026-04-01", "2026-06-30"]],
             },
+        },
+    )
+    return append_trial_event(
+        ledger,
+        event_type="TRIAL_PROTOCOL_AMENDED",
+        trial_id="AE001-T003",
+        recorded_at_utc="2026-09-29T05:42:00+00:00",
+        payload={
+            "protocol_id": "AE001-T003-P3",
+            "source_quality_rule": (
+                "EXCLUDE_WHOLE_DELIVERY_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_"
+                "ABS_DELIV_PER_VS_100_DELIV_QTY_OVER_TTL_TRD_QNTY_DIFF_"
+                "GT_0_05_PERCENTAGE_POINTS"
+            ),
         },
     )
 
