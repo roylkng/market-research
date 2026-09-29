@@ -151,3 +151,44 @@ def test_walkforward_rejects_tampered_input_panel():
                 {"start": market[100]["session_date"], "end": market[129]["session_date"]}
             ],
         )
+
+
+
+def test_walkforward_projects_examples_to_requested_feature_subset():
+    market = _market()
+    features = build_historical_feature_panel(sessions=market)
+    original_names = [row["name"] for row in features["feature_definitions"]]
+    features["feature_definitions"].append(
+        {
+            "name": "extra_feature",
+            "family": "price_trend",
+            "version": "v1",
+            "description": "Synthetic extra feature for subset regression.",
+            "lookback_sessions": 1,
+            "availability_lag_sessions": 0,
+        }
+    )
+    features["feature_definitions"].sort(key=lambda row: row["name"])
+    features["feature_set_sha256"] = digest(features["feature_definitions"])
+    for row in features["rows"]:
+        row["values"]["extra_feature"] = 0.5
+        row["feature_set_sha256"] = features["feature_set_sha256"]
+    unsigned = dict(features)
+    unsigned.pop("panel_sha256", None)
+    features["panel_sha256"] = digest(unsigned)
+
+    report = run_ridge_walkforward(
+        feature_panel=features,
+        market_panel=_sealed_market_panel(market),
+        folds=[
+            {
+                "start": market[100]["session_date"],
+                "end": market[129]["session_date"],
+            }
+        ],
+        feature_names=original_names,
+        l2=1.0,
+    )
+    assert report["feature_names"] == original_names
+    assert "extra_feature" not in report["folds"][0]["ridge_model"]["feature_names"]
+    assert report["oos_prediction_count"] > 0
