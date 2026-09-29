@@ -1,5 +1,5 @@
 {
-  "event_count": 10,
+  "event_count": 11,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -360,10 +360,33 @@
       "recorded_at_utc": "2026-09-29T10:08:48+00:00",
       "seq": 10,
       "trial_id": "AE001-T004"
+    },
+    {
+      "event_sha256": "6776db1b0c22e4c42758aef5a55dfb391076a9f233788ec941f79bf8d2eb193d",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "augmented_feature_count": 27,
+        "base_feature_count": 18,
+        "fixed_model_artifact": "research/prospective/ae001-t004/frozen-models-v1.json",
+        "live_capital_allowed": false,
+        "model_type": "ridge",
+        "no_retraining_during_primary_trial": true,
+        "primary_training_horizon_sessions": 5,
+        "protocol_id": "AE001-T004-P1",
+        "reason": "Freeze a single pretrial model state before the first eligible prospective T004 decision session.",
+        "ridge_l2": 1.0,
+        "sample_contract": "IDENTICAL_ACTION_SAFE_DELIVERY_COMPLETE_ROWS",
+        "source_end_date": "2026-09-25",
+        "training_examples_require_exit_on_or_before_source_end_date": true,
+        "transform": "WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1"
+      },
+      "recorded_at_utc": "2026-09-29T10:12:41+00:00",
+      "seq": 11,
+      "trial_id": "AE001-T004"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "acee8314cea10c3ada33dede71fd6468af735d78cabed7475377eb810743886b",
+  "ledger_sha256": "14ff32fd74f2ba866090fc5ad60d69b6df8e44a06cf0abf4cfeb27f744cbf8ef",
   "live_capital_allowed": false,
   "schema_version": 1
 }
