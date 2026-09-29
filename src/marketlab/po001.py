@@ -320,8 +320,35 @@ def optimize_portfolio(
     def objective(weights: np.ndarray) -> float:
         return -float(terms(weights)["utility"])
 
+    def objective_gradient(weights: np.ndarray) -> np.ndarray:
+        delta = weights - current
+        immediate_cost_gradient = np.where(
+            delta > 0.0,
+            buy_cost,
+            np.where(delta < 0.0, -sell_cost, 0.0),
+        )
+        factor_exposure = weights @ exposure_matrix
+        variance_gradient = 2.0 * (
+            exposure_matrix @ (factor_covariance @ factor_exposure)
+            + weights * idio
+        )
+        utility_gradient = (
+            alpha
+            - risk_aversion_value
+            * float(horizon_sessions)
+            * variance_gradient
+            - immediate_cost_gradient
+        )
+        if terminal_liquidation:
+            utility_gradient = utility_gradient - sell_cost
+        return -utility_gradient
+
     def turnover_slack(weights: np.ndarray) -> float:
         return max_traded - float(np.abs(weights - current).sum())
+
+    def turnover_slack_gradient(weights: np.ndarray) -> np.ndarray:
+        delta = weights - current
+        return -np.sign(delta)
 
     initial = np.minimum(current, name_caps)
     if float(initial.sum()) > max_invested:
@@ -331,13 +358,18 @@ def optimize_portfolio(
         objective,
         initial,
         method="SLSQP",
+        jac=objective_gradient,
         bounds=Bounds(
             np.zeros(len(normalized), dtype=float),
             name_caps,
         ),
         constraints=[
             linear_constraint,
-            {"type": "ineq", "fun": turnover_slack},
+            {
+                "type": "ineq",
+                "fun": turnover_slack,
+                "jac": turnover_slack_gradient,
+            },
         ],
         options={
             "maxiter": 2000,
@@ -429,6 +461,8 @@ def optimize_portfolio(
         },
         "solver": {
             "method": "SLSQP",
+            "objective_gradient": "ANALYTIC_V1",
+            "turnover_constraint_gradient": "SUBGRADIENT_SIGN_V1",
             "iterations": int(result.nit),
             "message": str(result.message),
             "success": bool(result.success),
