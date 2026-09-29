@@ -19,6 +19,7 @@ SEC_BHAVDATA_URL_TEMPLATE = (
     "https://nsearchives.nseindia.com/products/content/"
     "sec_bhavdata_full_{ddmmyyyy}.csv"
 )
+DELIVERY_RECONCILIATION_TOLERANCE_PP = 0.05
 
 DELIVERY_DEFINITIONS = [
     FeatureDefinition(
@@ -208,16 +209,6 @@ def parse_sec_bhavdata_full(
             raise AlphaContractError(
                 f"{symbol}: delivery percentage outside [0, 100]"
             )
-        if (
-            delivery_qty is not None
-            and delivery_pct is not None
-            and traded_qty > 0
-        ):
-            implied = 100.0 * delivery_qty / traded_qty
-            if abs(implied - delivery_pct) > 0.05:
-                raise AlphaContractError(
-                    f"{symbol}: delivery quantity/percentage mismatch"
-                )
         if delivery_qty is not None and delivery_qty > traded_qty + 1e-9:
             raise AlphaContractError(
                 f"{symbol}: delivery quantity exceeds traded quantity"
@@ -241,6 +232,51 @@ def parse_sec_bhavdata_full(
     if not rows:
         raise AlphaContractError(f"no delivery EQ rows for {session_date}")
     return sorted(rows, key=lambda row: row.symbol)
+
+
+def delivery_session_quality(
+    rows: list[DeliveryObservation],
+) -> dict[str, Any]:
+    """Audit whether NSE delivery quantity and percentage are internally coherent.
+
+    The two fields are retained exactly as published. A session with any complete
+    EQ row differing by more than the frozen tolerance is excluded wholesale
+    rather than selecting one conflicting field as authoritative.
+    """
+
+    diffs = []
+    for row in rows:
+        if (
+            row.delivery_qty is None
+            or row.delivery_pct is None
+            or row.traded_qty <= 0
+        ):
+            continue
+        implied_pct = 100.0 * row.delivery_qty / row.traded_qty
+        reported_pct = 100.0 * row.delivery_pct
+        diffs.append(abs(implied_pct - reported_pct))
+    if not diffs:
+        return {
+            "status": "EXCLUDE_SESSION_NO_COMPLETE_RECONCILIATION_ROWS",
+            "complete_row_count": 0,
+            "violating_row_count": 0,
+            "max_abs_diff_pp": None,
+            "tolerance_pp": DELIVERY_RECONCILIATION_TOLERANCE_PP,
+        }
+    violating = sum(
+        diff > DELIVERY_RECONCILIATION_TOLERANCE_PP for diff in diffs
+    )
+    return {
+        "status": (
+            "READY"
+            if violating == 0
+            else "EXCLUDE_SESSION_INTERNAL_FIELD_INCONSISTENCY"
+        ),
+        "complete_row_count": len(diffs),
+        "violating_row_count": violating,
+        "max_abs_diff_pp": max(diffs),
+        "tolerance_pp": DELIVERY_RECONCILIATION_TOLERANCE_PP,
+    }
 
 
 def acquire_historical_delivery_panel(
@@ -273,12 +309,6 @@ def acquire_historical_delivery_panel(
             raise DeliveryAcquisitionError(
                 f"{day}: NSE delivery report is unavailable"
             )
-        try:
-            rows = parse_sec_bhavdata_full(raw, session_date=day)
-        except AlphaContractError as exc:
-            raise DeliveryAcquisitionError(
-                f"{day}: NSE delivery report failed parser contract"
-            ) from exc
         raw_sha = sha256_bytes(raw)
         if store is not None:
             store.retain(
@@ -287,11 +317,19 @@ def acquire_historical_delivery_panel(
                 captured_at=captured,
                 suffix=".csv",
             )
+        try:
+            rows = parse_sec_bhavdata_full(raw, session_date=day)
+        except AlphaContractError as exc:
+            raise DeliveryAcquisitionError(
+                f"{day}: NSE delivery report failed parser contract"
+            ) from exc
+        quality = delivery_session_quality(rows)
         sessions.append(
             {
                 "session_date": day.isoformat(),
                 "source_url": url,
                 "raw_sha256": raw_sha,
+                "source_quality": quality,
                 "rows": [asdict(row) for row in rows],
             }
         )
@@ -301,6 +339,19 @@ def acquire_historical_delivery_panel(
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "historical_archives_captured_prospectively": False,
         "session_count": len(sessions),
+        "source_quality_policy": (
+            "EXCLUDE_WHOLE_SESSION_IF_ANY_COMPLETE_EQ_ROW_HAS_"
+            "ABS_DELIV_PER_VS_QTY_RATIO_DIFF_GT_0_05_PERCENTAGE_POINTS"
+        ),
+        "excluded_source_quality_session_count": sum(
+            session["source_quality"]["status"] != "READY"
+            for session in sessions
+        ),
+        "excluded_source_quality_sessions": [
+            session["session_date"]
+            for session in sessions
+            if session["source_quality"]["status"] != "READY"
+        ],
         "sessions": sessions,
         "live_capital_allowed": False,
     }
@@ -434,6 +485,14 @@ def augment_feature_panel_with_delivery(
     session_summary = []
     excluded_missing_delivery = 0
     excluded_noncontiguous_delivery = 0
+    excluded_source_quality_sessions = [
+        str(session["session_date"])
+        for session in delivery_sessions
+        if not (
+            isinstance(session.get("source_quality"), dict)
+            and session["source_quality"].get("status") == "READY"
+        )
+    ]
     source_sha_by_session: dict[str, str] = {}
 
     for session_index, (market_session, delivery_session) in enumerate(
@@ -457,7 +516,15 @@ def augment_feature_panel_with_delivery(
             market_by_symbol[market_row.symbol] = market_row
 
         delivery_by_symbol = {}
-        for raw in delivery_session.get("rows", []):
+        source_quality = delivery_session.get("source_quality")
+        source_ready = (
+            isinstance(source_quality, dict)
+            and source_quality.get("status") == "READY"
+        )
+        delivery_rows = (
+            delivery_session.get("rows", []) if source_ready else []
+        )
+        for raw in delivery_rows:
             delivery_row = (
                 raw
                 if isinstance(raw, DeliveryObservation)
@@ -563,6 +630,12 @@ def augment_feature_panel_with_delivery(
             "DELIVERY_SYMBOL_EQ_REBOUND_TO_SAME_SESSION_UDIFF_SYMBOL_PLUS_ISIN"
         ),
         "delivery_history_sessions": 21,
+        "delivery_source_quality_policy": delivery_panel[
+            "source_quality_policy"
+        ],
+        "delivery_excluded_source_quality_sessions": (
+            excluded_source_quality_sessions
+        ),
         "delivery_missing_excluded_row_count": excluded_missing_delivery,
         "delivery_noncontiguous_excluded_row_count": (
             excluded_noncontiguous_delivery
