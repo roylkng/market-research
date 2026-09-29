@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from marketlab.tc001_t003 import build_t003_tc001_report
@@ -61,3 +64,19 @@ def test_daily_churn_cost_is_not_netted_into_5d_forward_label():
     assert report["interpretation_limits"][
         "net_rolling_portfolio_pnl_estimated"
     ] is False
+
+
+
+def test_checked_in_t003_tc001_report_matches_builder():
+    root = Path(__file__).resolve().parents[1]
+    source = json.loads(
+        (root / "research/ae001/t003-tc001-input-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    expected = json.loads(
+        (root / "research/ae001/t003-tc001-sensitivity-v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert build_t003_tc001_report(source) == expected
