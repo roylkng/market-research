@@ -18,7 +18,16 @@ alpha:
 risk:
   source: RM001-v1-DEVELOPMENT
   as_of_session: 2026-08-31
-  required_risk_state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+  executable_input:
+    source: EXACT_PINNED_I002_RISK_STATE
+    required_risk_state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+    path: research/po001-i003/inputs/i002-risk-state-legacy.json.gz
+  canonical_rebuild_diagnostic:
+    required_risk_state_sha256: 7a0a440515a2f75e0114281dd37a1bf4c6801e1b2e17a0b78183e89fe663abce
+    economic_equivalence_audit_run_id: 36579160593
+    portfolio_equivalence_audit_run_id: 36579611661
+    portfolio_equivalence_gate_passed: false
+    resolution: PIN_EXACT_SEALED_I002_RISK_STATE
 
 baseline_optimizer:
   source: PO001-v1-DEVELOPMENT
