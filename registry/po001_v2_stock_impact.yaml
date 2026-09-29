@@ -1,0 +1,42 @@
+schema_version: 1
+id: PO001-v2-DEVELOPMENT
+name: long_only_stock_specific_impact_optimizer
+status: DEVELOPMENT
+created: 2026-09-29
+live_capital_allowed: false
+
+base_optimizer: PO001-v1-DEVELOPMENT
+
+execution:
+  adv20:
+    source: NSE traded_value
+    estimator: median
+    completed_sessions: 20
+    includes_decision_session: true
+  daily_volatility:
+    source_feature: realized_vol_20
+  impact:
+    model: square_root_participation
+    coefficient: 0.50
+    calibrated_to_nse_execution: false
+  spread:
+    included: false
+    reason: POINT_IN_TIME_QUOTED_SPREAD_SOURCE_NOT_FROZEN
+  maximum_participation_per_side: 0.10
+
+risk:
+  source: RM001-v1-DEVELOPMENT
+
+constraints:
+  long_only: true
+  leverage_allowed: false
+  po001_v1_constraints_retained: true
+  liquidity_participation_cap: true
+
+solver:
+  implementation: scipy_slsqp
+  objective_gradient: analytic
+  fail_closed: true
+
+promotion:
+  live_capital_directly_allowed: false
