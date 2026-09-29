@@ -1,23 +1,37 @@
 {
   "analysis_id": "AE001-T003-TC001-v1",
   "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "gross_augmented_minus_base_top_decile_excess_bps": 10.521280163858556,
   "horizon_sessions": 5,
   "illustrative_execution_scenarios": {
     "BASE": {
-      "augmented": {
-        "break_even_round_trip_cost_bps": 150.78856638816222,
-        "gross_top_decile_excess_bps": 55.98934179157281,
-        "net_excess_after_replacement_cost_bps": 40.249404954189764,
-        "replacement_cost_bps": 15.739936837383047,
-        "selection_churn": 0.37131026000634687
+      "cohort_5d": {
+        "augmented": {
+          "cohort_break_even_round_trip_cost_bps": 55.98934179157281,
+          "full_cohort_round_trip_cost_bps": 42.39025562373095,
+          "gross_5d_top_decile_excess_bps": 55.98934179157281,
+          "net_5d_excess_after_full_round_trip_bps": 13.599086167841861
+        },
+        "augmented_minus_base_net_5d_excess_bps": 10.521280163858556,
+        "base": {
+          "cohort_break_even_round_trip_cost_bps": 45.468061627714256,
+          "full_cohort_round_trip_cost_bps": 42.39025562373095,
+          "gross_5d_top_decile_excess_bps": 45.468061627714256,
+          "net_5d_excess_after_full_round_trip_bps": 3.077806003983305
+        },
+        "equal_cost_assumption_causes_common_cost_to_cancel_in_delta": true
       },
-      "augmented_minus_base_net_excess_bps": 9.216112244657495,
-      "base": {
-        "break_even_round_trip_cost_bps": 133.52501630189656,
-        "gross_top_decile_excess_bps": 45.468061627714256,
-        "net_excess_after_replacement_cost_bps": 31.03329270953227,
-        "replacement_cost_bps": 14.43476891818199,
-        "selection_churn": 0.340520921749316
+      "daily_selection_turnover_pressure": {
+        "augmented": {
+          "daily_replacement_cost_proxy_bps": 15.739936837383047,
+          "daily_selection_churn": 0.37131026000634687
+        },
+        "augmented_minus_base_daily_replacement_cost_proxy_bps": 1.3051679192010575,
+        "base": {
+          "daily_replacement_cost_proxy_bps": 14.43476891818199,
+          "daily_selection_churn": 0.340520921749316
+        },
+        "may_be_subtracted_from_5d_forward_label": false
       },
       "daily_volatility_decimal": 0.02,
       "half_spread_bps_each_side": 3.0,
@@ -27,20 +41,33 @@
       "round_trip_cost_bps": 42.39025562373095
     },
     "HIGH": {
-      "augmented": {
-        "break_even_round_trip_cost_bps": 150.78856638816222,
-        "gross_top_decile_excess_bps": 55.98934179157281,
-        "net_excess_after_replacement_cost_bps": 14.310463169149187,
-        "replacement_cost_bps": 41.678878622423625,
-        "selection_churn": 0.37131026000634687
+      "cohort_5d": {
+        "augmented": {
+          "cohort_break_even_round_trip_cost_bps": 55.98934179157281,
+          "full_cohort_round_trip_cost_bps": 112.24812,
+          "gross_5d_top_decile_excess_bps": 55.98934179157281,
+          "net_5d_excess_after_full_round_trip_bps": -56.25877820842719
+        },
+        "augmented_minus_base_net_5d_excess_bps": 10.521280163858549,
+        "base": {
+          "cohort_break_even_round_trip_cost_bps": 45.468061627714256,
+          "full_cohort_round_trip_cost_bps": 112.24812,
+          "gross_5d_top_decile_excess_bps": 45.468061627714256,
+          "net_5d_excess_after_full_round_trip_bps": -66.78005837228574
+        },
+        "equal_cost_assumption_causes_common_cost_to_cancel_in_delta": true
       },
-      "augmented_minus_base_net_excess_bps": 7.0652348284627635,
-      "base": {
-        "break_even_round_trip_cost_bps": 133.52501630189656,
-        "gross_top_decile_excess_bps": 45.468061627714256,
-        "net_excess_after_replacement_cost_bps": 7.245228340686424,
-        "replacement_cost_bps": 38.22283328702783,
-        "selection_churn": 0.340520921749316
+      "daily_selection_turnover_pressure": {
+        "augmented": {
+          "daily_replacement_cost_proxy_bps": 41.678878622423625,
+          "daily_selection_churn": 0.37131026000634687
+        },
+        "augmented_minus_base_daily_replacement_cost_proxy_bps": 3.4560453353957925,
+        "base": {
+          "daily_replacement_cost_proxy_bps": 38.22283328702783,
+          "daily_selection_churn": 0.340520921749316
+        },
+        "may_be_subtracted_from_5d_forward_label": false
       },
       "daily_volatility_decimal": 0.04,
       "half_spread_bps_each_side": 5.0,
@@ -50,20 +77,33 @@
       "round_trip_cost_bps": 112.24812
     },
     "LOW": {
-      "augmented": {
-        "break_even_round_trip_cost_bps": 150.78856638816222,
-        "gross_top_decile_excess_bps": 55.98934179157281,
-        "net_excess_after_replacement_cost_bps": 46.10512644455068,
-        "replacement_cost_bps": 9.884215347022137,
-        "selection_churn": 0.37131026000634687
+      "cohort_5d": {
+        "augmented": {
+          "cohort_break_even_round_trip_cost_bps": 55.98934179157281,
+          "full_cohort_round_trip_cost_bps": 26.619828245126286,
+          "gross_5d_top_decile_excess_bps": 55.98934179157281,
+          "net_5d_excess_after_full_round_trip_bps": 29.369513546446527
+        },
+        "augmented_minus_base_net_5d_excess_bps": 10.521280163858556,
+        "base": {
+          "cohort_break_even_round_trip_cost_bps": 45.468061627714256,
+          "full_cohort_round_trip_cost_bps": 26.619828245126286,
+          "gross_5d_top_decile_excess_bps": 45.468061627714256,
+          "net_5d_excess_after_full_round_trip_bps": 18.84823338258797
+        },
+        "equal_cost_assumption_causes_common_cost_to_cancel_in_delta": true
       },
-      "augmented_minus_base_net_excess_bps": 9.701673267675304,
-      "base": {
-        "break_even_round_trip_cost_bps": 133.52501630189656,
-        "gross_top_decile_excess_bps": 45.468061627714256,
-        "net_excess_after_replacement_cost_bps": 36.403453176875374,
-        "replacement_cost_bps": 9.064608450838879,
-        "selection_churn": 0.340520921749316
+      "daily_selection_turnover_pressure": {
+        "augmented": {
+          "daily_replacement_cost_proxy_bps": 9.884215347022137,
+          "daily_selection_churn": 0.37131026000634687
+        },
+        "augmented_minus_base_daily_replacement_cost_proxy_bps": 0.8196068961832577,
+        "base": {
+          "daily_replacement_cost_proxy_bps": 9.064608450838879,
+          "daily_selection_churn": 0.340520921749316
+        },
+        "may_be_subtracted_from_5d_forward_label": false
       },
       "daily_volatility_decimal": 0.015,
       "half_spread_bps_each_side": 1.0,
@@ -74,30 +114,52 @@
     }
   },
   "interpretation_limits": {
+    "cohort_cost_method": "SUBTRACT_ONE_FULL_ROUND_TRIP_FROM_EACH_5D_COHORT_RETURN",
+    "cohort_round_trip_costing_allowed": true,
+    "daily_churn_cost_method": "REPORT_REPLACEMENT_COST_PRESSURE_SEPARATELY_ONLY",
+    "daily_selection_churn_reported_as_turnover_pressure_only": true,
+    "forward_return_clock": "FIVE_SESSION_COHORT",
     "live_capital_allowed": false,
     "long_short_spread_costed_by_tc001_v1": false,
-    "portfolio_surface": "LONG_ONLY_EQUAL_WEIGHT_TOP_DECILE_APPROXIMATION",
+    "mixed_clock_netting_prohibited": true,
+    "net_rolling_portfolio_pnl_estimated": false,
+    "portfolio_surface": "LONG_ONLY_EQUAL_WEIGHT_TOP_DECILE_DIAGNOSTIC",
     "reason_long_short_not_costed": "TC001-v1 does not model short borrow, short-side turnover or financing.",
-    "selection_churn_maps_to_replacement_fraction": true
+    "rolling_portfolio_path_constructed": false,
+    "selection_churn_clock": "CONSECUTIVE_DAILY_DECISIONS"
   },
   "live_capital_allowed": false,
   "observable_cost_floor": {
-    "augmented": {
-      "break_even_round_trip_cost_bps": 150.78856638816222,
-      "gross_top_decile_excess_bps": 55.98934179157281,
-      "net_excess_after_replacement_cost_bps": 47.728386569720406,
-      "replacement_cost_bps": 8.260955221852406,
-      "selection_churn": 0.37131026000634687
+    "cohort_5d": {
+      "augmented": {
+        "cohort_break_even_round_trip_cost_bps": 55.98934179157281,
+        "full_cohort_round_trip_cost_bps": 22.24812,
+        "gross_5d_top_decile_excess_bps": 55.98934179157281,
+        "net_5d_excess_after_full_round_trip_bps": 33.74122179157281
+      },
+      "augmented_minus_base_net_5d_excess_bps": 10.521280163858556,
+      "base": {
+        "cohort_break_even_round_trip_cost_bps": 45.468061627714256,
+        "full_cohort_round_trip_cost_bps": 22.24812,
+        "gross_5d_top_decile_excess_bps": 45.468061627714256,
+        "net_5d_excess_after_full_round_trip_bps": 23.219941627714256
+      },
+      "equal_cost_assumption_causes_common_cost_to_cancel_in_delta": true
     },
-    "augmented_minus_base_net_excess_bps": 9.83627527159554,
-    "base": {
-      "break_even_round_trip_cost_bps": 133.52501630189656,
-      "gross_top_decile_excess_bps": 45.468061627714256,
-      "net_excess_after_replacement_cost_bps": 37.89211129812487,
-      "replacement_cost_bps": 7.575950329589392,
-      "selection_churn": 0.340520921749316
+    "daily_selection_turnover_pressure": {
+      "augmented": {
+        "daily_replacement_cost_proxy_bps": 8.260955221852406,
+        "daily_selection_churn": 0.37131026000634687
+      },
+      "augmented_minus_base_daily_replacement_cost_proxy_bps": 0.6850048922630139,
+      "base": {
+        "daily_replacement_cost_proxy_bps": 7.575950329589392,
+        "daily_selection_churn": 0.340520921749316
+      },
+      "may_be_subtracted_from_5d_forward_label": false
     },
-    "equal_notional_round_trip_bps": 22.24812
+    "equal_notional_round_trip_bps": 22.24812,
+    "round_trip_cost_bps": 22.24812
   },
   "paired_augmented_minus_base": {
     "rank_ic_delta": 0.01940524017918471,
@@ -107,8 +169,7 @@
     "top_minus_bottom_spread_delta": 0.00313938232464598,
     "top_minus_bottom_spread_p_value": 2.658654307394919e-05
   },
-  "relative_break_even_round_trip_cost_bps": 341.7182946910517,
-  "schema_version": 1,
+  "schema_version": 2,
   "source_report_sha256": "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270",
   "source_run_id": 36533659236,
   "tc001_does_not_establish_prospective_alpha": true,
