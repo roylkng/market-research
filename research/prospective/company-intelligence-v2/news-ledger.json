@@ -1763,9 +1763,120 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-09-29T16:05:23.227218+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "captured_at": "2026-09-29T16:10:42.861581+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 3
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "ada72273e278b6ad9ad690573f8a1cd48ce58e07aff19175a53c9f519d8a2529",
+      "identity_session": "2026-09-28",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "c6034fe2d8a433207c32a60b7bd7b24753619b96a7be78c655deeaa119fb35c4",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 3,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-09-29T16:10:00.526200+00:00"
     }
   ],
-  "ledger_sha256": "7ebfe8ae3504b45869928ec9e960df1166bdfa9f89e002655421e93aa7928714",
+  "ledger_sha256": "23dba707828a68944535aa951428cc5fabba90accea198a22670b2d2ab59e2d5",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -225536,6 +225647,283 @@
       "topics": [
         "RESULTS_GUIDANCE"
       ]
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:08.817604+00:00",
+      "item_id": "4b6c34bd657cdf2e8e59fad591dbb77c8d2b736f697b64e72454aad383ee62fb",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "616fdd5238054ec65c694e08e1ccd774b6a41ce1383f8e73dc6b516ffd5cc2c6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 16:04:00 +0000",
+        "value": "2026-09-29T16:04:00+00:00"
+      },
+      "resource_key": "prn:302892562",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "79f5205c96be006783c6fbf144cfa99c8d24d02b126038af72a84c17110f5454",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:08.817604+00:00",
+      "item_id": "c3e78ee89086834a7231bcd17a4b876247a2c537bd7c8e64a553fd573f811223",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8e58ad03a53277662c1d81864288285edce53dc4a2a75e03fa341a8a89efdedd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 16:06:00 +0000",
+        "value": "2026-09-29T16:06:00+00:00"
+      },
+      "resource_key": "prn:302893183",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "4939041c0f3c6e64d12b07cc867aab2409c9219bd1b14e63a9dec9ab205e2b99",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:08.817604+00:00",
+      "item_id": "c4dce50b67fe51ea737113e6ff803f24cbea5cc8e5e655da21fb1a2cdf73c29a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ab3c04e638c2145694989887d95447cdbdc75382d28a44e0ec42525009fabecc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 16:05:00 +0000",
+        "value": "2026-09-29T16:05:00+00:00"
+      },
+      "resource_key": "prn:302893181",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "700b78b8f13d7c3978cac75e82ccd95a4dd7d62b3f94ebea189122c950e84624",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "TAC Infosec Limited has informed the Exchange regarding Outcome of Board Meeting held on September 29, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "0c86c065894d33364377a5cfdf684923fa7b1032a6a83dc301f44ae9d63ffd1f",
+      "first_seen_at": "2026-09-29T16:10:09.567831+00:00",
+      "item_id": "2240182bc0e25ec8eeb28e709c68e2a166884149df8c209bb64e9db976258c0c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2a1498855e880926b28d1fb72dfa24a39eb187ae1f87358df939cf8e0240b0d8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "29-Sep-2026 21:36:34",
+        "value": "2026-09-29T16:06:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TAC_29092026213543_Outcome_of_Board_Meeting.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e49bd978a0e5be5325726b4438d3d96fb85a39d281204c30a1c479ca68b10ac6",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "PRESTIGE ESTATES PROJECTS LIMITED has informed the Exchange regarding Sale or disposal of unit(s)/division(s)/subsidiary |SUBJECT: Sale or disposal-XBRL",
+      "event_context_sha256": "2208700a0d201ab3e76f4e735838d8084451c15aa5d5157bdf4e4afeb09a8edf",
+      "first_seen_at": "2026-09-29T16:10:09.567831+00:00",
+      "item_id": "3fadfc350a1a0d413ad9e1f6a340e9aaaa9b104b591b7c4e85746f725d357ad4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5328deeb42ec42fa4f7c37767bdb9fd2709b4c4c9d2a853bd227741b73387b6a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "29-Sep-2026 21:37:16",
+        "value": "2026-09-29T16:07:16+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_Restructuring_3661_WebXMLFile_20260929_213715683.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8b8a2c8134d66ca4b987456b1624f5ae7054f6c1053d29b4426c4dd46d0ae577",
+      "topics": [
+        "CAPITAL_TRANSACTION",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "Maan Aluminium Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 28, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "86c058ce5e8b9c89fdf90e61e6b90a78200c5a608fd564079cedf5252ea2cb93",
+      "first_seen_at": "2026-09-29T16:10:09.567831+00:00",
+      "item_id": "3f3e7dc533007f67b419c3ffc5f968833f5f3fd71f8dd65400194f40470edbf3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MAANALU"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "782fcf4de784daac5cb034cc4f83035f9410f4bf068686da0513f9d69e22c22b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "29-Sep-2026 21:38:05",
+        "value": "2026-09-29T16:08:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MAANALU_29092026213753_reportmerged.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8bcca54874eb469480f5f6c061eb2886050a00845a8bb56ed1f4996eaba40529",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "Vipul Limited has submitted to the Exchange, the financial results for the period ended March 31, 2026 |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "ff3fa31365830d06c0e043b83894f2f93db5abcc2bc883a4b9fd254015f0213d",
+      "first_seen_at": "2026-09-29T16:10:09.567831+00:00",
+      "item_id": "59124baa263985b50f9de337989a0f1a3de774ecdaf295cb0eb8ce9d978a2f58",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c0502aa0f4367ea8d9dd91bcc87cf39c420199806326da910e2086d5a776523b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "29-Sep-2026 21:35:33",
+        "value": "2026-09-29T16:05:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VIPULLTD_29092026211947_OUTCOME290926.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7640b0f01c3901d3c612b7cdcc65909840a9021f6f0176dbc47be27a3ff33b05",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:37.714201+00:00",
+      "item_id": "0006a3393bebf6c53951e9c37627cfa834128e2786af388f2512788c471b139e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4f60c1a2e0cefd49ee71a6a5c2a34def8ef6b10b4daff81162e8fe19f6195164",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 21:09:36 +0530",
+        "value": "2026-09-29T15:39:36+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/kkr-buys-majority-stake-in-cisternina-logistics-11790694076134.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "fcca2a324f639233f9415620e865d42e5e6c3acfd11414dce5bc52b0269914ec",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:37.714201+00:00",
+      "item_id": "007f41ffc5e9e398c708efa419da823563258a59dff09704609ebd265a94be75",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "55865e00f80652a19702209568c6df427b7ca2834e4afdd62e42e28f23ed741f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 21:15:10 +0530",
+        "value": "2026-09-29T15:45:10+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/sun-pharma-plans-rs-10-000-crore-bond-sale-to-refinance-organon-acquisition-loan-report-11790695336859.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "0142b5faf54fd0cd079226a5ebc343fa2c91e224b219540f871e0b2587b4afd2",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:37.714201+00:00",
+      "item_id": "1193af4eae4265727a96228b2033c7f5c201549adab971c5218a51af14a2ee6f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a057789188ac892c011ba9f56fd0017ce5e19a6528d286d1ca94639ba5251ade",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 19:37:09 +0530",
+        "value": "2026-09-29T14:07:09+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/anuj-rathi-named-next-hsbc-mutual-fund-ceo-11790684481398.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "062c79762732a972cd372670cf4edd07887ab62e5a36dc76f52d5d4f221677d8",
+      "topics": []
+    },
+    {
+      "capture_id": "c073c73bdf3d0fd6965074082163ad477d0fe1899f8cc911853f93715a0a04ad",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-29T16:10:37.714201+00:00",
+      "item_id": "b9319d6e3f0dc44978aea9a9b52fc1dba20efe939b9bbe5312066ec950b868fa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LLOYDSENT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f61c651f0d1cba225bf20772676cbdfb40deeb0a9a451dda18b96a6feb00a570",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 29 Sep 2026 20:23:40 +0530",
+        "value": "2026-09-29T14:53:40+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/lloyds-enterprises-settles-sebi-case-over-144-82-crore-advances-11790689813323.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "62a053f0e78b1e0589a4dc5e7a83240634981946a2a3d89108eed6460118da44",
+      "topics": []
     }
   ],
   "schema_version": 1
