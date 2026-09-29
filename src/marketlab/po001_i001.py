@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import math
+import statistics
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -470,9 +471,7 @@ def run_po001_i001(
         "top_decile_count": len(top_decile),
         "alpha_distribution": {
             "min": min(alphas),
-            "median": float(
-                sorted(alphas)[len(alphas) // 2]
-            ),
+            "median": float(statistics.median(alphas)),
             "max": max(alphas),
             "positive_count": sum(value > 0.0 for value in alphas),
         },
