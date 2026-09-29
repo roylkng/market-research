@@ -234,7 +234,6 @@ def _validate_alpha_diagnostic(
     diagnostic = asdict(diagnostic_model)
     structural_fields = (
         "model_id",
-        "feature_names",
         "l2",
         "training_example_count",
         "training_last_exit_session",
@@ -244,6 +243,12 @@ def _validate_alpha_diagnostic(
             raise AlphaContractError(
                 f"I003 diagnostic alpha structural invariant differs: {field}"
             )
+    if tuple(pinned_model.get("feature_names") or ()) != tuple(
+        diagnostic.get("feature_names") or ()
+    ):
+        raise AlphaContractError(
+            "I003 diagnostic alpha structural invariant differs: feature_names"
+        )
 
     pinned_predictions = _score_model(pinned_model, decision_rows)
     diagnostic_predictions = _score_model(diagnostic, decision_rows)
