@@ -1,0 +1,51 @@
+{
+  "base_feature_count": 27,
+  "comparison": "AUGMENTED_37_VS_BASE_27_ON_IDENTICAL_FUTURES_COMPLETE_ROWS",
+  "decision_sleeve": "EOD_18_30_IST",
+  "derivative_feature_count": 10,
+  "diagnostic": {
+    "horizon_sessions": 20,
+    "newey_west_lag": 19,
+    "rescues_failed_primary": false
+  },
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "historical_fo_publication_timestamp_verified": false,
+  "live_capital_allowed": false,
+  "model": {
+    "l2": 1.0,
+    "type": "ridge"
+  },
+  "name": "nse_stock_futures_positioning_incremental_feature_family",
+  "outcomes_opened_before_registration": false,
+  "primary": {
+    "folds": [
+      ["2026-04-01", "2026-06-30"],
+      ["2026-07-01", "2026-09-18"]
+    ],
+    "horizon_sessions": 5,
+    "newey_west_lag": 4,
+    "success_requires": [
+      "paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05",
+      "paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05"
+    ]
+  },
+  "protocol_file": "research/AE001_T005_STOCK_FUTURES_POSITIONING_V1.md",
+  "registry_file": "registry/ae001_t005_stock_futures.yaml",
+  "secondary": {
+    "folds": [
+      ["2026-04-01", "2026-06-30"],
+      ["2026-07-01", "2026-09-24"]
+    ],
+    "horizon_sessions": 1,
+    "newey_west_lag": 5,
+    "rescues_failed_primary": false
+  },
+  "source": {
+    "instrument_code": "STF",
+    "provider": "NSE",
+    "report": "F&O - UDiFF Common Bhavcopy Final",
+    "url_pattern": "https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_YYYYMMDD_F_0000.csv.zip"
+  },
+  "source_window": ["2025-09-01", "2026-09-25"],
+  "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+}
