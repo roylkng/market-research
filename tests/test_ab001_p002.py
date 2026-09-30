@@ -2,12 +2,12 @@ from datetime import date, timedelta
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
 from marketlab.ab001_p002 import (
     _causal_h024_events,
     _common_prediction_streams,
     _h024_event_lift,
 )
+from marketlab.alpha import AlphaContractError
 from marketlab.alpha_diagnostics import newey_west_mean_inference
 from marketlab.alpha_model import ModelExample
 
