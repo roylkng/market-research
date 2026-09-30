@@ -213,7 +213,14 @@ def build_t008_event_feature_panel(
         if not isinstance(base_values, dict) or set(base_values) != set(base_names):
             raise AlphaContractError("T008 CORE27 event row feature set mismatch")
         values = {
-            **{name: float(base_values[name]) for name in base_names},
+            **{
+                name: (
+                    None
+                    if base_values[name] is None
+                    else float(base_values[name])
+                )
+                for name in base_names
+            },
             **fundamental_values,
         }
         key = (decision_session, symbol, isin)
@@ -308,7 +315,11 @@ def _transform_fundamentals(
         result = []
         for row in rows:
             features = {
-                name: float(row.features[name])
+                name: (
+                    None
+                    if row.features[name] is None
+                    else float(row.features[name])
+                )
                 for name in base_feature_names
             }
             for feature in FUNDAMENTAL_FEATURE_NAMES:
