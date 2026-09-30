@@ -12,6 +12,7 @@ from marketlab.alpha_acquisition import (
     http_fetcher,
 )
 from marketlab.alpha_delivery import acquire_historical_delivery_panel
+from marketlab.alpha_delivery_readiness import delivery_source_warmup_readiness
 from marketlab.alpha_history import canonical_gzip_json
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.alpha_t004 import validate_frozen_t004_models
@@ -159,6 +160,26 @@ def main() -> int:
         store_root=args.support_dir,
         captured_at_utc=datetime.now(UTC),
     )
+    warmup = delivery_source_warmup_readiness(
+        prior_delivery["sessions"]
+    )
+    if warmup["state"] != "READY":
+        report = {
+            "state": "DELIVERY_SOURCE_WARMUP_BLOCKED",
+            "session_date": session_text,
+            "sc001_attempt_sha256": attempt["attempt_sha256"],
+            "support_market_panel_sha256": prior_market["panel_sha256"],
+            "support_delivery_panel_sha256": prior_delivery["panel_sha256"],
+            "delivery_warmup": warmup,
+            "changed": False,
+            "live_capital_allowed": False,
+        }
+        _write_json(
+            args.support_dir / f"t004-warmup-{session_text}.json",
+            report,
+        )
+        print(json.dumps(report, sort_keys=True))
+        return 0
 
     action_client = NSEClient(
         timeout=args.timeout_seconds,
