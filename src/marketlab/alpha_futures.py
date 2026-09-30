@@ -735,6 +735,9 @@ def augment_feature_panel_with_futures(
         },
         "panel_id": "AE001-HISTORICAL-FUTURES-AUGMENTED-v1",
         "base_feature_panel_sha256": feature_panel["panel_sha256"],
+        "base_action_safe_feature_panel_sha256": feature_panel.get(
+            "base_feature_panel_sha256"
+        ),
         "futures_panel_sha256": futures_panel["panel_sha256"],
         "feature_definitions": definitions,
         "feature_set_sha256": feature_set_sha256,
