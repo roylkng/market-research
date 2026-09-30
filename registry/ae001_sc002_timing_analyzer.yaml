@@ -1,0 +1,29 @@
+schema_version: 1
+id: AE001-SC002-TIMING-v1
+name: prospective_futures_publication_timing_analyzer
+status: FROZEN_BEFORE_SECOND_DISTINCT_READY_SESSION
+frozen_date: 2026-09-30
+live_capital_allowed: false
+
+source:
+  ledger: research/prospective/ae001-sc002/source-ledger.json
+  observation: EARLIEST_READY_PER_DISTINCT_SESSION
+  uses_return_outcomes: false
+  uses_alpha_outcomes: false
+
+minimum_distinct_ready_sessions: 3
+
+candidate_rule:
+  statistic: MAX_FIRST_READY_TIME_RELATIVE_TO_SESSION_MIDNIGHT
+  safety_buffer_minutes: 30
+  round_up_minutes: 15
+  supports_next_local_day: true
+
+states:
+  insufficient: INSUFFICIENT_EVIDENCE
+  ready: SOURCE_TIMING_READY_FOR_SUCCESSOR_DESIGN
+
+promotion:
+  candidate_is_frozen_successor_cutoff: false
+  requires_separate_successor_trial_protocol: true
+  changes_t006: false

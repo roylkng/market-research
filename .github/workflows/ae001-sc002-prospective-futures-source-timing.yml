@@ -61,12 +61,16 @@ jobs:
         run: |
           ruff check \
             src/marketlab/alpha_prospective_futures_sources.py \
+            src/marketlab/alpha_sc002_timing.py \
             scripts/probe_ae001_sc002.py \
             scripts/verify_ae001_sc002.py \
-            tests/test_alpha_prospective_futures_sources.py
+            scripts/summarize_ae001_sc002_timing.py \
+            tests/test_alpha_prospective_futures_sources.py \
+            tests/test_alpha_sc002_timing.py
           pytest -q \
             tests/test_alpha_prospective_futures_sources.py \
-            tests/test_alpha_futures.py
+            tests/test_alpha_futures.py \
+            tests/test_alpha_sc002_timing.py
           python scripts/verify_ae001_sc002.py \
             --ledger research/prospective/ae001-sc002/source-ledger.json
 
@@ -108,6 +112,15 @@ jobs:
           python scripts/verify_ae001_sc002.py \
             --ledger research/prospective/ae001-sc002/source-ledger.json
 
+      - name: Refresh source-only publication timing summary
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/summarize_ae001_sc002_timing.py \
+            --ledger research/prospective/ae001-sc002/source-ledger.json \
+            --output research/prospective/ae001-sc002/publication-timing-summary.json
+
       - name: Anchor append-only SC002 evidence
         if: steps.gate.outputs.state == 'READY'
         shell: bash
@@ -132,9 +145,11 @@ jobs:
             "research/AE001_SC002_PROSPECTIVE_FUTURES_SOURCE_TIMING_V1.md"
             "research/prospective/ae001-sc002"
             "src/marketlab/alpha_prospective_futures_sources.py"
+            "src/marketlab/alpha_sc002_timing.py"
             "src/marketlab/alpha_futures.py"
             "scripts/probe_ae001_sc002.py"
             "scripts/verify_ae001_sc002.py"
+            "scripts/summarize_ae001_sc002_timing.py"
           )
 
           for ATTEMPT in 1 2 3; do
@@ -148,6 +163,9 @@ jobs:
               fi
               git rebase origin/main
               python scripts/verify_ae001_sc002.py --ledger "$LEDGER"
+              python scripts/summarize_ae001_sc002_timing.py \
+                --ledger "$LEDGER" \
+                --output research/prospective/ae001-sc002/publication-timing-summary.json
             fi
             if git push origin HEAD:main; then
               exit 0
