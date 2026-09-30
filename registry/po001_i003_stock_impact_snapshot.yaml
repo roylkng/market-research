@@ -1,0 +1,57 @@
+schema_version: 1
+id: PO001-I003-v1
+name: stock_specific_impact_integration_snapshot
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-29
+live_capital_allowed: false
+
+decision_session: 2026-08-31
+horizon_sessions: 5
+realized_outcome_opened: false
+
+alpha:
+  source: PO001-I002-v1
+  reconstruction: same_purged_t003_fold2_model
+  required_model_sha256: 179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260
+  required_delivery_feature_panel_sha256: 47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44
+
+risk:
+  source: RM001-v1-DEVELOPMENT
+  as_of_session: 2026-08-31
+  executable_input:
+    source: EXACT_PINNED_I002_RISK_STATE
+    required_risk_state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+    path: research/po001-i003/inputs/i002-risk-state-legacy.json.gz
+  canonical_rebuild_diagnostic:
+    required_risk_state_sha256: 7a0a440515a2f75e0114281dd37a1bf4c6801e1b2e17a0b78183e89fe663abce
+    economic_equivalence_audit_run_id: 36579160593
+    portfolio_equivalence_audit_run_id: 36579611661
+    portfolio_equivalence_gate_passed: false
+    resolution: PIN_EXACT_SEALED_I002_RISK_STATE
+
+baseline_optimizer:
+  source: PO001-v1-DEVELOPMENT
+  required_artifact_sha256: ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e
+
+impact:
+  optimizer: PO001-v2-DEVELOPMENT
+  coefficient: 0.50
+  maximum_participation: 0.10
+  spread_included: false
+
+nav_surfaces_inr:
+  - 1000000
+  - 10000000
+  - 100000000
+primary_nav_inr: 10000000
+
+portfolio_parameters:
+  risk_aversion: 5.0
+  max_name_weight: 0.05
+  max_invested_weight: 1.0
+  max_traded_fraction_of_nav: 1.0
+  terminal_liquidation: true
+  factor_bounds: {}
+
+promotion:
+  live_capital_directly_allowed: false

@@ -1,0 +1,33 @@
+PO001 I003 stock-specific impact integration snapshot.
+
+Frozen contracts:
+- research/PO001_V2_STOCK_SPECIFIC_IMPACT_V1.md
+- research/PO001_I003_STOCK_IMPACT_SNAPSHOT_V1.md
+- registry/po001_v2_stock_impact.yaml
+- registry/po001_i003_stock_impact_snapshot.yaml
+
+Do not add [po001-i003] until implementation CI passes.
+
+I003 materialization opened after full implementation CI success on 2026-09-29.
+No realized post-31-Aug five-session outcome is opened by this workflow.
+
+P3-governed rerun after:
+- RM001 economic-equivalence audit run 36579160593;
+- PO001 baseline-equivalence audit run 36579611661 (gate failed);
+- exact sealed I002 RM001 state pinned per P3;
+- final implementation CI success.
+
+The pinned legacy I002 RM001 state is the executable risk input.
+The canonical RM001 rebuild is diagnostic only.
+
+Final pinned-input I003 materialization attempt after P3/P4.
+Executable alpha and risk inputs are exact sealed I002 artifacts.
+Canonical RM001 and fresh fold-2 ridge remain diagnostic gates only.
+Full branch CI passed before this attempt.
+
+Post-P5 rerun after full CI success.
+Executable comparison inputs remain exact pinned I002 alpha and RM001 artifacts.
+Fresh rebuilds are diagnostic-only under the frozen P5 numerical-equivalence gates.
+
+Post-P6 rerun after exact sealed I002 integrated control was pinned and full CI passed.
+The control portfolio is no longer re-solved; only PO001-v2 NAV surfaces are treatment outputs.
