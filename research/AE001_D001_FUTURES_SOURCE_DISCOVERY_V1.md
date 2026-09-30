@@ -52,3 +52,5 @@ No outcome labels are opened.
 ## Next gate
 
 Only after D001 succeeds may a separate derivatives-feature trial be frozen.
+
+D001 source discovery opened after protocol creation on 2026-09-30.
