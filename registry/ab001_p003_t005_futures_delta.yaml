@@ -1,0 +1,45 @@
+schema_version: 1
+id: AB001-P003-v1
+name: t005_futures_delta_orthogonality_diagnostic
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_KNOWN_OUTCOME_COMBINATION_DIAGNOSTIC
+horizon_sessions: 5
+
+source:
+  t005_report_sha256: 2c72c9207ad3cfe2bc73637e4c10b7ad378c9a6c1b347fa2dd8936831a7511e2
+  market_panel_sha256: 9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
+  action_safe_base_feature_panel_sha256: 300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8
+  corporate_action_ledger_sha256: 1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1
+  delivery_augmented_feature_panel_sha256: 99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
+  futures_panel_sha256: 02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5
+  futures_augmented_feature_panel_sha256: 62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f
+
+folds:
+  - start: 2026-04-01
+    end: 2026-06-30
+  - start: 2026-07-01
+    end: 2026-09-18
+ridge_l2: 1.0
+
+alphas:
+  core: AB001-P003-CORE27
+  futures_delta: AB001-P003-FUTURES-DELTA
+  full_reference: AB001-P003-FULL37
+
+additivity_absolute_tolerance: 1.0e-15
+aggregate_reproduction_absolute_tolerance: 1.0e-15
+newey_west_lag: 4
+
+diagnostics:
+  standalone: true
+  pairwise_orthogonality: true
+  incremental_equal_weight_residual_blend: true
+  reference_full37_comparison: true
+  dynamic_blender: false
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false

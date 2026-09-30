@@ -1,0 +1,98 @@
+name: AB001 P003 T005 futures-delta diagnostic
+
+on:
+  push:
+    branches:
+      - feat/ab001-p003-t005-futures-residual-20260930
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[ab001-p003]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify P003 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/ab001_p003.py \
+            scripts/run_ab001_p003.py \
+            tests/test_ab001_p003.py
+          pytest -q \
+            tests/test_ab001_p003.py \
+            tests/test_ab001.py \
+            tests/test_alpha_futures_trial.py \
+            tests/test_alpha_multihorizon.py
+
+      - name: Rebuild frozen official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/ab001-p003 \
+            --output reports/ab001-p003/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild action-safe base features from exact pinned T003 ledger
+        run: |
+          python scripts/build_ab001_p001_action_safe.py \
+            --market-panel reports/ab001-p003/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p003/panel/feature-panel.json.gz \
+            --action-ledger research/ab001-p001/inputs/t003-corporate-action-ledger.json.gz \
+            --action-ledger-manifest research/ab001-p001/inputs/t003-corporate-action-ledger.manifest.json \
+            --output reports/ab001-p003/action-safe
+
+      - name: Rebuild frozen delivery feature panel
+        run: |
+          python scripts/build_ae001_delivery_features.py \
+            --market-panel reports/ab001-p003/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p003/action-safe/action-safe-feature-panel.json.gz \
+            --store .marketlab/ab001-p003 \
+            --output reports/ab001-p003/delivery \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Rebuild frozen stock-futures feature panel
+        run: |
+          python scripts/build_ae001_futures_features.py \
+            --market-panel reports/ab001-p003/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p003/delivery/delivery-feature-panel.json.gz \
+            --store .marketlab/ab001-p003 \
+            --output reports/ab001-p003/futures \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Run frozen P003 residual orthogonality diagnostic
+        run: |
+          python scripts/run_ab001_p003.py \
+            --market-panel reports/ab001-p003/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p003/futures/futures-feature-panel.json.gz \
+            --action-ledger reports/ab001-p003/action-safe/corporate-action-ledger.json.gz \
+            --output reports/ab001-p003/study
+
+      - name: Print compact result
+        run: cat reports/ab001-p003/study/summary.json
+
+      - name: Upload exact P003 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ab001-p003-${{ github.run_id }}
+          path: |
+            reports/ab001-p003
+            .marketlab/ab001-p003/market-data
+          if-no-files-found: warn
+          retention-days: 90
