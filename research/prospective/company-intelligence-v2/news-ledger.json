@@ -2548,9 +2548,122 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-09-30T16:07:20.721788+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "captured_at": "2026-09-30T18:09:05.958606+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "a30fa5330e5434937fa583473b3ee89d7678bce9209177fa29805c66c33369a7",
+      "identity_session": "2026-09-29",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "bd2523f10b23c1097d1b383d882c01187067125ad9f4b0c335914cd99a7e67be",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-09-30T18:08:24.994699+00:00"
     }
   ],
-  "ledger_sha256": "9c79f261ecb285295439ac76daf5d1abc5d524cb4588476fd6e0ed682b518945",
+  "ledger_sha256": "0c690f079b9bf0c1a35a4dd6410f502a66295cce610b6874fd6a8eaec033ba6f",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -302222,6 +302335,3539 @@
       "source_class": "EXCHANGE_DISCLOSURE",
       "source_id": "nse-announcements",
       "title_sha256": "3fc64606eec642b0f3e0d7a548f819490ec1bd41d43520b37f5790461c1715f1",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "9aa3444b606e8069e52a14ec175f35d687a27a237b5fd40fa7cc142072f54b48",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "04ace8d1a827c56702f3705bd5c9248a531442356c73e59927dac27d435a4e8e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:07:00 +0000",
+        "value": "2026-09-30T18:07:00+00:00"
+      },
+      "resource_key": "prn:302894721",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "e60ae5fc22ded92f2341cfc9ad70d1febf8cbcabf2d57813d3d084afc0b0cda6",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "e1515c755cea17332ce74104200b99c019f68cdfce69f705ef35e48cd5358a97",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0d1bd327dcc9023d247c0dded5e08da03528d50600912d58d9efd6c8b2c3326f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:59:00 +0000",
+        "value": "2026-09-30T17:59:00+00:00"
+      },
+      "resource_key": "prn:302894838",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "07cbe2acd6193fab1af295f3480d9c159505fd5f0ed0bc59015ad3aa1beb8880",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "1a4ff28ac72aaa4b7edfa34a6e483c5c045ef0943025b3c6a0f4b9727ffb37c0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "178e2d9759526f167eda4de2bdc33812ee508dc1b6fa9587126cef843f5e8a5b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:04:00 +0000",
+        "value": "2026-09-30T18:04:00+00:00"
+      },
+      "resource_key": "prn:858795702",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8e4b2562d843fd319082f45bfabdf8c4a2d01e7594457e5edeb6e70825d99933",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "244b036f36df92618a9d815d70781fbd51711c2060ac2e82e7d07ac5b2ebac13",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1b23ff2086dcc804835bba7fb606cb6b342c1c1bc6b487756ebaa78579b56274",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:06:00 +0000",
+        "value": "2026-09-30T18:06:00+00:00"
+      },
+      "resource_key": "prn:302894844",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "45636ef300f084f0d5d7565e219e5de73d71b0a472df1da21fe35c5b99b73a99",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "424c63d7c552e243c962f7a25bc512f682f1993b1c04de2a31e21c688bbb11b2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2f5fc91aadb2d457681e8a667400ab17f92f6ac8e2d1481a2c5f13e18325c9ee",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:54:00 +0000",
+        "value": "2026-09-30T17:54:00+00:00"
+      },
+      "resource_key": "prn:302886233",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2fd0a3c7d1216cfe7e5baeea110659da07a67534442edd92df7de703f4c7ce00",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "6fdeaa8acfed460a7c244fa879e00e8eb6aea40d78d5aa9d5ef348c6d9086980",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "34a163cf0754c512dac08529466efb2467fc8ab44acc21518a5d0a77c5d41014",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:01:00 +0000",
+        "value": "2026-09-30T18:01:00+00:00"
+      },
+      "resource_key": "prn:302894487",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a7ef996fd50b4c84498afa3f115d9c34b0568990f5d3e5c3d5c907345e23b987",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "efa8b03bb275a8e8cce4ebbfae34642396449cec9624c33dce4bf34aa75d9669",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "35ee09f2ff1c3bf80b535ba481fd766b4468332d4ecabef7d9afbac232a76869",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:46:00 +0000",
+        "value": "2026-09-30T17:46:00+00:00"
+      },
+      "resource_key": "prn:302894829",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "f8b8cd219bcb6aa30e3686e41fbfa24cc0dd94d142077d039603df0f84bb81a1",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "e48262f15cf1ec593c049e97b6cf272713a66e2ba27014bf268588707465215e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3e94b36f25a93c46aa224808ef0f8f2951f47c9ee606ee80652f0e42e64d4b84",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:06:00 +0000",
+        "value": "2026-09-30T18:06:00+00:00"
+      },
+      "resource_key": "prn:302894843",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8d18e034bcd7362351842d9929543eefa763fc7c14375fcde4f88e6a1331a591",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "91a0b6a79583a60d146c3a5b9b241cadf69583ef381cf6d6f19f9f1f74627c89",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3f8adb5737373115dd871bb3dbb8c07c2ffac815554c799b98e73a0bee4c037a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:02:00 +0000",
+        "value": "2026-09-30T18:02:00+00:00"
+      },
+      "resource_key": "prn:302894839",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "7db0facb14b60438001ae05e00728980e4259dc6001ecc97d9426aabaea495de",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "f01856b633dc34be6fef2e9b0405d2f18b8a9c006e6005b3ff657e5abd210a51",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "43e20534fa0ba9992bd0951b138b9a597d928537ea554cc25e271ddd82f43d15",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:00:00 +0000",
+        "value": "2026-09-30T18:00:00+00:00"
+      },
+      "resource_key": "prn:302894564",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2d3ef28316540273272b013e207fbd597791ea733757e1d47173ec771f7c822c",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "310b896fa79dc25f320286f763381c428ac987e722c591a14c73b4e2e00926d6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6482dd1ebfeead579ab1e05c7f74a70668231d1b14393a204c8989a065c094ce",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:06:00 +0000",
+        "value": "2026-09-30T18:06:00+00:00"
+      },
+      "resource_key": "prn:840102294",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "083a999085cdcb38b5a4d7a628d439295af861c5f38c584657b7cc13d99430c2",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "3841782cd9653abfd9bb7cc096ce593b86c87b1cb57f613ac2c7db75c04e4bc9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7043d8b99b7a75b98427059a56fb45cdfa00b79d24c6d6a84dcf902f533a0113",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:00:00 +0000",
+        "value": "2026-09-30T18:00:00+00:00"
+      },
+      "resource_key": "prn:302893814",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "35a9d5f86d8bd58705d9c9784c3c30e8669778453f796c24189900bd35138f57",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "f63bc165c73f1916d6480c5e85bac6f623f819cadd90cb1ee8ccbc0bdae57962",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7fc8dc848c6c4d0272c7bbbecdb71a28a3d518213a764d6b59c277c135e930ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:49:00 +0000",
+        "value": "2026-09-30T17:49:00+00:00"
+      },
+      "resource_key": "prn:302894830",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "02273cea2145ab6f3d3eb8b23376b88d9e21392721a292541d30c07825a76e60",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "d6a0fa046db2279c88c536fc1effbe2269da01aad91770ab7b038121e5f1fec4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "82160b8e2bc026dd3e99bf9b19b281867458a00a2b72236e84d5142ac98324e7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:00:00 +0000",
+        "value": "2026-09-30T18:00:00+00:00"
+      },
+      "resource_key": "prn:302894820",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "36004fdd3b4816e20e68ec90879ff60c7d642b01aa3b9dc7e6e5863d6f0a1e90",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "b7f5229b863104b84670780700e36f6e3751207be4aea7c7a1db19a201dda5e9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "85af6d744fed66affb0a27ac8ce620c3fbbf458e77c7910d6b84d47c3ca42511",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:43:00 +0000",
+        "value": "2026-09-30T17:43:00+00:00"
+      },
+      "resource_key": "prn:302894822",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "d7a312f739b609cbe65d544c0280d9aadc11b87852d8a0df918f787e347fb748",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "986b025225142256a0f6a9495893ec8eb001bd9d4c1c21a845696bd0023947d7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8d75889388523c5c51b0e3f2ca9f5c932cf9d9fa61f4925607cd740b70be10a1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:07:00 +0000",
+        "value": "2026-09-30T18:07:00+00:00"
+      },
+      "resource_key": "prn:302894836",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "44ef309ffdbf9cd0e44204b18da22a9e9b49677ec2f518df9678afd34dbe0d25",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "18e76981039436670e04428fe9a93f781c4a213e58d637be7474c23e87caad85",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a0ec9029fdf37f9a9a7af4c734e5b02ec0501f8b2d1fc09fa4b611dba0c980c4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:43:00 +0000",
+        "value": "2026-09-30T17:43:00+00:00"
+      },
+      "resource_key": "prn:302894823",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "f78832ec003e24277203c59a3cece6cdb20654beaf3733224cbf3139cefc1e72",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "b2f90ef1648f417df028b75070c116845f7d640e218d424a45ec0cc8a8487a51",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a8b51a0bb2e5cf9966c87b3a11288eb52f05016bbb7c5217fce463e3002dd3be",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:00:00 +0000",
+        "value": "2026-09-30T18:00:00+00:00"
+      },
+      "resource_key": "prn:302894814",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "ead42c5d5d669a126121abcb60f937dd8f7227054f7809ed683284df0e49a7fc",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "a3f26aaa9247e569766800bd59e7639a92d0cbfef28a89bc905cc0cbaed23701",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "af9bf2391d1ba539b86f508792f836d9df0f69c7f1c98e7a7aceec92d9e56393",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 17:47:00 +0000",
+        "value": "2026-09-30T17:47:00+00:00"
+      },
+      "resource_key": "prn:302768018",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "dd1d002ac9faa0f236a147612a91794b6369b181dc94c47851c9e1d6fa6039fa",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:34.976687+00:00",
+      "item_id": "4f6b818d46650cb127c74742a08b6654083c546fa6651f8d04d3df173e723008",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b5b17bc56dccb59e82d48e4d775fbc5432825e5f15fd0d179693a4d05d45d01e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 18:00:00 +0000",
+        "value": "2026-09-30T18:00:00+00:00"
+      },
+      "resource_key": "prn:302894367",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "c86d3f486001900027f4debc648b4e7b673334fa974cbdbe9ca1ff960d9ce4b5",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Foce India Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "2580ab9ab901054720bfd22bf2169c5ce4e7e1b11c4118ff3118d91061ea80fa",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "d9e8c988f055005865d5543b0ea2082df64e2dc0c109971e63e56964cdbb777b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "000d7b37fa9a301989b5407d433fee3bb5842d745509c5e154a2b2db1516c1d2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:07:09",
+        "value": "2026-09-30T16:37:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/FOCE_30092026220641_agm.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5821ee4d4abd9dfefd8efb2afb8809f559b1f79b51b138fc2cc477ac72cbbe36",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Anya Polytech & Fertilizers Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "d7af6952d39f45e25de1d73bdb5b440c11561be31dc9c4eb3687b4dc0e1bd0fc",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f5f91f66cd22f660a7bd8270c46faa3010056329c346ce8426d79e1f324adefe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "01f8de7488a79b109e14db11a53109e1231552377fed26399562eb3a743ec212",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:43:42",
+        "value": "2026-09-30T17:13:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ANYAPOLY_30092026224310_Anya_SE_Trading_Window_Closure_30092026_.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "53c382140d20713d98815ce7dcc1d8e89904db699dec8af3011b6774e31021fd",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Hexaware Technologies Limited has informed the Exchange regarding 'Clarification regarding voting recommendations issued by Proxy Advisory Firms'. |SUBJECT: Updates",
+      "event_context_sha256": "a159e70c1da6f9864fcedab9f1851d271cd195ff0287adecad07fa5556a55ad2",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5326928dd9844ca1fa5462617261067d597b2d9dac27391b46c0b71fca4fdb52",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HEXT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "07db25effb7c08f7b461559823c2b5bb782b9861c79526ba105198eec3cebe7e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:49:53",
+        "value": "2026-09-30T17:19:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HEXAWARETECH_30092026224845_Clarification_to_Proxy_advisory_firms_report.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c988b03f0badef98e960238c9dbdb0566514b57f9fb803b9e139ab015cfa6b70",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "RENTOMOJO LIMITED has informed the Exchange about Board Meeting to be held on 05-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended June 2027 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "43d5d87d9cfd262c25c9558235b29143eff5b8ed3b03eb9932d2631c966f5683",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "ed4d7ea75f03170ba25f3d08179cf7eaeb97b58ca7c5bf1ba6ac0fa4d4c58d87",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "RENTOMOJO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0896eda1ad504e0234ad4fa253b82a46f72cd831c76bae4760e7cf6a78498e68",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:40:31",
+        "value": "2026-09-30T16:10:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_28271_WebXMLFile_20260930_214030706.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a64cdd33cc1edf25e42084feb738afffe21c9005496e7723a2dc430ae563d077",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "HDFC BANK LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "4af2b74335192256613486f12f05c2446f4ff72f0577d03916224c72356f20bc",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "032de7b415a53c8c2b068639da6faf1640c92790d66eb1409b8048115b831162",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HDFCBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "09fa7b5426ae5b345b142303f6db6a075dbfa1bd4aa651bafeae69cfabb45e3d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:55:06",
+        "value": "2026-09-30T16:25:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_797_WebXMLFile_20260930_215505042.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "19c976c5fbcb1244b3c80e25647821fbcc5d0cdeabfce4e1c71fcb5b12fd5b6c",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Disclosure Under Regulation 51 |SUBJECT: Disclosure Under Regulation 51",
+      "event_context_sha256": "c7527af44a51f45076ac7afa705d4de82c8d8ebf4394a14e39ec12733da9d8a0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "4dbb767c3c9f57735c1aa404791f7b2771c8c346f414644436537bec12122211",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0cfe52a2d871b860efc1c17fe5a22387a0a357523dfe0e52ae8fcc656696d126",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:13:32",
+        "value": "2026-09-30T17:43:32+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/nabfidtt_30092026231222_Allotment_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "677246e5a3daabe723a2fef7ecb3000b154855b78b82844d8a55aea76613fb5e",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Tata Teleservices (Maharashtra) Limited has informed the Exchange relating to superannuation of Senior Management Personnel of the Company. |SUBJECT: Retirement",
+      "event_context_sha256": "fc1a4f2afb01ea0cbfefcea8d64b5bb1d4219d8de95ac7c7f6f313513a3f22de",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "fd50df9e12e11ca72680c5bfb8b0cdee5ae52cd041c98aa271340ee30839dc70",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0ee6058c33e5cd9710620c42b08e5222036d8e02d0eda4231259a8618e071e08",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:16:55",
+        "value": "2026-09-30T16:46:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TTML_30092026221631_TTML532371.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d957887ac22c3a71dbb95a1a72675b91a4e471d0c17386f86f8cd9e4fce8a0b9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "SAMMAAN CAPITAL LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "80ae2ac395194ea4f640109d31da7d58876e40734f00bda610afade0f5174ee2",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "02b3b504e42f9ce1e64cd2cd0ba92acd2b41b4c4c708686316212a5a6d10d46f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAMMAANCAP"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "128da68f74b515ab65e085ae34ea6bdb3caff6d2fcceabb0629ccc47c54aed33",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:25:01",
+        "value": "2026-09-30T16:55:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_7057_WebXMLFile_20260930_222459643.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "235c6c7f65727ec863808760b38dc30dd62f19a81d372011443e8e5c04533054",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Moneyboxx Finance Limited has informed the Exchange regarding Allotment of 9650 Shares. |SUBJECT: ESOP/ESOS/ESPS",
+      "event_context_sha256": "99cfabae9c08b5e700d674bcba80242b35fc1c42affc360422de9c3e4d5549f6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5906626c50a5a39a1f8b780265e80384d2e969073d9912e088babb36e1d0afb2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MONEYBOXX"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "12e8b8ab447866af83f9fbb84cfb0cabde3b23d42d04c9f5d31541ce050a7eae",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:23:54",
+        "value": "2026-09-30T16:53:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MONEYBOXX_30092026222338_SE_intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "957d998b2e5fa01208fa2967737fa13a59f82d8f9b94b282dc98eae614be08e2",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "OnEMI Technology Solutions Limited has informed the Exchange about Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B) |SUBJECT: Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B)",
+      "event_context_sha256": "05147ca0f576cf21805453780cdbe13f8cf3886f5e1f543fbb532bf0e2411774",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b8a4d6b09d644d009eee5909ff0817df3b20cdffc39fb2db987e595b071e1a8b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "15ce9bcf64b980a7d01ae4f4bb741dcc759c3ed032ba1962d5187dfec22c0498",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:03:41",
+        "value": "2026-09-30T16:33:41+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_26757_WebXMLFile_20260930_220340378.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ebdbfaa10e85c9620013a4da5b0d67b73079977b87b73baac74545ab6cdd4266",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "INNOMET ADVANCED MATERIALS LIMITED has informed the Exchange about Bagging/Receiving of orders/contracts (Sub-para 4-Para B) |SUBJECT: Bagging/Receiving of orders/contracts (Sub-para 4-Para B)",
+      "event_context_sha256": "78be9832000b0684e34e7e8d504cd4b652b555286ba8e2a84f95b8bb84d25e58",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "110bfeee93d83b2007f8b2207dad16e2c644905b6c4b17cd9998f2cf73511616",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1927365407349fd2a041aae5b31515b9e0142f7bea475527e6c1e923cd37e9a2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:40:46",
+        "value": "2026-09-30T16:10:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_23290_WebXMLFile_20260930_214045301.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ce14cb75ad21fb899b70440143291d4b3414e518e5bfe69d65d4a433da0935c9",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Primo Chemicals Limited has informed the Exchange about Credit Rating |SUBJECT: Credit Rating",
+      "event_context_sha256": "652b5efe23c23619091bb950710fa78c5de4ddd499f1fa5765f5d22d322acf6e",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "bb8e2b52f81d159d3db4851636a86ade29ece959edbdc9206a9b531c9e731aa6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PRIMO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1e3919c5697dfde0ebdd71cee628bb3e49064c97023eca4d14fd0a27d5b007c4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:31:06",
+        "value": "2026-09-30T17:01:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PRIMO607_30092026223058_PCL-Credit_Rating_30092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "228e8a9b42a0c318b39a875b04877b2c499490159079dd819ef23cd72d06f669",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Karamtara Engineering Limited has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "06188c4448e364146d0dbe52ffc31f0a7ff41d2f1955fa4bb8d987afde69ac8a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "42aa1a269717f4533a7151c5b6f1836380b931aba5ca3fc3d2cb6636cefbaa43",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KARAMTARA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1f21358c8842ceea438025ef69077ca1d677a962e740a8e05f927bd8b60f3a33",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:50:09",
+        "value": "2026-09-30T16:20:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_25302_WebXMLFile_20260930_215008392.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "093a5e5e05686a9f6acaac01d6bd5364143ec8343c18c70237d76cb2add2b31d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CSM Technologies Limited has informed the Exchange about Change in Management approved by the shareholders in 27th AGM held on 29th September 2026. |SUBJECT: Change in Management",
+      "event_context_sha256": "0360b739e3d0a11325231577de93a1254237e078304b27f4abf6d7d0ba7a2662",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "d5b169e0f195edbf02026a51dd1aa5374adc9f60a9001a9769ff35528b0f6c54",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CSM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "212b865e93d39c30e13c549ca7017a22ee22468bae80acd5c113662cb125c513",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:44:36",
+        "value": "2026-09-30T16:14:36+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CSMTECH_30092026214405_CSM_BSE_NSE_intimation_under_Reg_30.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0008d54528722f63885bbd9ee88a3c738c197533a363c778da1e8dbc56fa6100",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "TAC Infosec Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "5bb30ac5500e436c18139e02beb88b3283d8989e426ec24d95bbfb6c8620f111",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a65b3991774031a016c8a7f34ebf5458cdf7b23f65d6331fd2c16f3928b1ba12",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "22212180b71ec878a0b1db6729d8e98afa12867ae19fe7e6b8d82e9107c115a2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:40:22",
+        "value": "2026-09-30T17:10:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TAC_30092026224008_AGM_Proceedings_september_30.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e49bd978a0e5be5325726b4438d3d96fb85a39d281204c30a1c479ca68b10ac6",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Mahindra Lifespace Developers Limited has informed the Exchange regarding a press release dated September 30, 2026, titled \"Mahindra Lifespaces adds Rs 1,500 crore GDV in MMR\". |SUBJECT: Press Release",
+      "event_context_sha256": "adf54b8caef50ede1ed0384b2a31e5c98c2e657caf1a4bcf3e5d1b6d76ecb343",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "814be23d71a7ef61d92b564977134c80d1ad72b348e4a5418f74212178d1007d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "24834a4562f974f626b8780cdeb5de1d30b0c7bb5e1495a691090c610a1725a7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:11:08",
+        "value": "2026-09-30T17:41:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MAHLIFE1_30092026231036_IntimationofPressRelease300926_BPsg.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8e3d89512c3b4522fc96b96343aa365e87781719ce3295b277ae14751848105b",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "RENTOMOJO LIMITED has informed the Exchange about Board Meeting to be held on 05-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended June 2027 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "43d5d87d9cfd262c25c9558235b29143eff5b8ed3b03eb9932d2631c966f5683",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "0e64824e15fb6c547293750ef18e8e01c68aa01eed32140e0733a2aa22ca1512",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "RENTOMOJO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "25e2654b69ca1391e6109109ba3721bdfb3ef7bdee5a123ebefe6efc2a0154d0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:39:31",
+        "value": "2026-09-30T16:09:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_28271_WebXMLFile_20260930_213930821.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a64cdd33cc1edf25e42084feb738afffe21c9005496e7723a2dc430ae563d077",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "1BAnnualImpactReportpart |SUBJECT: Annual Impact Report",
+      "event_context_sha256": "12a45fbd65497e90387010689540b89d4859353201fd3c44167ae3d75060cecb",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "43e8d992dc7490f8e73694343bbc43d2ad2b43ee30da7bfcd567ca9a81885c55",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2ab6f295963a1dedaf051af39e2c887ab004bd0e9360384d648d1ba7e20d719d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:35:00",
+        "value": "2026-09-30T17:05:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/500003490_30092026223530_1BAnnualImpactReport.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "01eeee65c71ececb3db346a106b7a32bc1bcdc318c35138873431ba665cfe89d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Sical Logistics Limited has informed the Exchange regarding Proceedings of 71st Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "597cfc42a5593435be4d5c5097e2e43ebf6b885a1496b71e57e2e67318b4a8ca",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "cacfd2354093260bb5cca70cf0c7fbbc5e2c1b6b814f10094c9a9f8a8b6ec691",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2ac9bb4f89ff58818459d89e03bc643cc14a51c101e27ac7d5189f64635d9e2f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:06:53",
+        "value": "2026-09-30T16:36:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SICALLOG_30092026220635_proceedingagm.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "77fb4630f0dc1a61a1e443047d7d2c918a3896e5f6bf7c193632af231ace51c3",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Update on the Disclosure under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 related to Crickley. |SUBJECT: Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company",
+      "event_context_sha256": "f6f4f02541efc614b5f40b09dbfb8b0e863256f69e808cd7fde8a8a7615dd8bb",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "2a85a69bc8758fbf4c5ce3b7705e98c494b48f3c048571209d522108f6895489",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VBL"
+        ],
+        "panel_symbols": [
+          "VBL"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2ee0bac38cc9a3aff45ba8210c135f3707a5c801a24553c9d9c0e0d2183da128",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:40:51",
+        "value": "2026-09-30T16:10:51+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VBL_30092026214014_Update_Crickely.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7b5235162ac884cabc8cfd2ce7bd7a4c1de59f102f36ac223f5f2df230ff4e9e",
+      "topics": [
+        "GOVERNANCE_RISK",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Disclosure Under Regulation 51 |SUBJECT: Disclosure Under Regulation 51",
+      "event_context_sha256": "c7527af44a51f45076ac7afa705d4de82c8d8ebf4394a14e39ec12733da9d8a0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "9837eefaae6d47a68f423a80e4216fa2afb4f61b42feed18457ed386e6bcd078",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "30597694e9aeb6208c6503f1b6ec98ae511e40aad347067a279661a4c7ca0a2f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:42:06",
+        "value": "2026-09-30T17:12:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/MUTHOOTCAPS_30092026224151_Intimation_-_DA.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8d4715f8f8e7c038a68491770563cb64e4ed20be7d85317d3e58d3a34afde2de",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Adani Ports and Special Economic Zone Limited has informed the Exchange regarding 'Media Release' APSEZ's Colombo West International Terminal Doubles Capacity to 3.2 million TEUs with Total USD 750 Million Investment. |SUBJECT: Updates",
+      "event_context_sha256": "f029405d346e35f60ba94d57181eeefd94389ca3862f3a2e965a82a07bd385e2",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "10bec97213faabd9cd12b9a42a3c2ecbcb552511834c8a0914f9b81901ff6289",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ADANIPORTS"
+        ],
+        "panel_symbols": [
+          "ADANIPORTS"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "317d5dd5a08ee60533840809b0030d421ea6a8fac7a028dbc248fbe707452638",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:40:33",
+        "value": "2026-09-30T17:10:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/rkbhagia_30092026224020_APSEZSEIntimation30092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5f99d1da6cbf9b5db9d739784313893977a03bd73a0177fecdb1f2b779ec4d94",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CSM TECHNOLOGIES LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "4733a128e1954eb33fcb94d90e21bd90f3ddada1a62ce146c404e567f5a67da9",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "05a1f1674190e7e6127dc4cfb76ec5491a3df946cea7c45ec9ef8d6df8062669",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CSM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "34ed93ba4538c1867e82d10ab670714e34c6ec26a73252b65439da4b8a0ebacc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:48:59",
+        "value": "2026-09-30T16:18:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_26998_WebXMLFile_20260930_214858001.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0008d54528722f63885bbd9ee88a3c738c197533a363c778da1e8dbc56fa6100",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "TATA TELESERVICES (MAHARASHTRA) LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "744b88a64ab4fbd0710fcf064b5254345615961c0d54c8362b79e0ae57b458bc",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "fadcb4a41839ed5bc172be168846e94b0375971d82f54253b15e075f7a36c73b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "360ab6ac32a933cc8cbb9a3ee47c7948a02fd8d079b5e29de63a36b3c0881a01",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:21:42",
+        "value": "2026-09-30T16:51:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_1926_WebXMLFile_20260930_222140873.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d957887ac22c3a71dbb95a1a72675b91a4e471d0c17386f86f8cd9e4fce8a0b9",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "SHRENIK LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "89c08cf4509e31d130ae0079add5398d5f67f9b620021a4f75bd4200e8b25d0e",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "8a6920aadcb082f44ee4ceded3c2f3abe0360826e3d32d6e63d3860bc11006b5",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3d3049a75eb08b52f6660877a1973a75888258493a2b09daa30065890bbf6486",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:47:38",
+        "value": "2026-09-30T16:17:38+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_15331_WebXMLFile_20260930_214737887.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3f0f06e96bea83965e614cf05ae07df7a4dd30ed2f3d12affdccd94db2e9dd29",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "B&B Triplewall Containers Limited has informed the Exchange regarding Proceedings of 15th Annual General Meeting of the Company held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "df4e57e273fd95eccd0c281c2c110bdf720995094f3351493e76ec198f528256",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "586e4d9dba5deb1ab3e4457bfd11079afed238d79e2e6933be117c6955370f9a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3d9969cd0b06f2bc7e2fb6f942dc705fa3352ea350aac4c1fe1eb2994c875897",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:30:14",
+        "value": "2026-09-30T17:00:14+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BBTCL_30092026222728_PROCEEDINGS_AGM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "57baed17f640e99c2ed67b891bcdfcb0ce9d35cdbc31e99dfbbc7f5ef7de07bb",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Viviana Power Tech Limited has informed the Exchange regarding the Amendment to AOA/MOA of the company. |SUBJECT: Amendment to AOA/MOA",
+      "event_context_sha256": "3f52731b93c4f761a61551e0272cf2beb2fed6d7ddeb20277c444e3dfac02122",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "64b9c213c5c24e3e62ed122b585eff3563181028e671f38a6a7a7784801c8d62",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VIVIANA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4360e4515d53259c4cee48988de191fe248b40c68a99731368cb518bc1076745",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:27:55",
+        "value": "2026-09-30T17:57:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VIVIANA_30092026232744_ALTER_AOA.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b244ae9ec9cc4bdb666b1b9e8ef5d5c2a1d32cb9e559b3c9969408fa80d3c57d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "AVRO INDIA LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "c537b5819ea0f6f2e0ef55b245af071f10e9d18aae0955533c66813f3112d85d",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "104e002d1fb02d4902e24a047dece22e756881dd1e24207314e229d2767cb6a1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AVROIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "43718c22b75f58fe9dbed2faeb546680819ed1bd49d14f2dcd2609cf306fd13f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:19:46",
+        "value": "2026-09-30T17:49:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_16484_WebXMLFile_20260930_231945837.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "00751937724f8d291291e1ac14eb9d8f88b2e3381edc622f5263b60370eeebb9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Sical Logistics Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "5cf77332f97a96334af7d1f66cf951b793cd11631b576aa720db03c632afcabb",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a5cac05ad0e60c8bcb6cf4ecfb0fa855b1b75c4e032f95fc833a5dc91cac5f36",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "43d98e78decee22df5e00a0da5210a6bd467cbd2015ac9a408e472122906ea74",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:34:21",
+        "value": "2026-09-30T17:04:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_21775_WebXMLFile_20260930_223419889.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "77fb4630f0dc1a61a1e443047d7d2c918a3896e5f6bf7c193632af231ace51c3",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Confirmation of Redemption/Payment of Interest and Principal |SUBJECT: Confirmation of Redemption/Payment of Interest and Principal",
+      "event_context_sha256": "a34b75bf42f5022e5ce8f92dac202ea43b9107c965a95e27b86b86b8bd47dcc5",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b5a2e6ab831ed4b80f91627e08a1c0dc534d4bd1b6a7b328e1887663ba6a5cb0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "46b35b73e52cad5396c5b198989f39287c764446596944e02d98f67b66f32220",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:14:36",
+        "value": "2026-09-30T16:44:36+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/RAUPL_30092026221424_57.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ab8078b14fd72a9d4c831edd3b116e78baafe552ad2e177cd206bedab3631868",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Tunwal E-Motors Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 29, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "4f6ac416fbc67c1e5e0fe5350318540abfee8d7715226e68f18660f4729b8522",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "770568abc1f8f395f5990ce91a223903d489b4c2b348cfabd029ca72c8244f01",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "480493f83ffde5366afe9b7c0b09647036243c27982df9d64d784699a6a8c6ce",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:47:22",
+        "value": "2026-09-30T17:17:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TUNWAL2024_30092026224714_CL_SR_Reg44-Final_signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9418259b4ef81b862e07d9c2347fa52f066d19cd50dcd105490a29336db953d2",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "1B Annual Disclosure part with annexures |SUBJECT: Annual Disclosure",
+      "event_context_sha256": "e6c216caa1ae2d304da3041d13e3a9e7c9548bf721acab67db784f080f4bd998",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "7a118760b44ab0ab68c350b8ec966500af2661941acb37669e4d82b2f8a6fde0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4a3fb8d27482b3e0c39cea5007ac4f672c8e772b7ca481fd76f83c07c60e43bf",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:34:00",
+        "value": "2026-09-30T17:04:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/500003489_30092026223420_1BAnnualDisclosure.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "01eeee65c71ececb3db346a106b7a32bc1bcdc318c35138873431ba665cfe89d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Prime Focus Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 30, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "58ec4c182317c57ef6017153cfe1522a9608f622c12049e13e9f9910869c56da",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "0aeecaa9af1658a86b52311155aef4c95c994a2fd8a6e5bf97240510b4c1af78",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PFOCUS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "519a661dee4adf9b8dadafc70a48dfd565fa8596bbd8c87964a7cf5f438b6f39",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:36:38",
+        "value": "2026-09-30T17:06:38+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PFOCUS_30092026223625_voting_results_final_signed__1_.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "42049c2486a537ec67413b7cca29f3ed38226b9176b2d21436645b7fffc8d205",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Rajgor Castor Derivatives Limited has informed the Exchange regarding allotment of 23913000 securities pursuant to Rights Issue at its Rights Issue Committee meeting held on September 30, 2026. |SUBJECT: Allotment of Securities",
+      "event_context_sha256": "239c99a3d020048dcbdea521c53cabcee3db99c96d2edf0615b2d2b641c10109",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "3d8f4e2a3beb97ea560ed1eaf5b1e1f67f3ffdefbc8f3a4b61431f1a59d9a618",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "51b4029ae9ea5fac68a1a8f620e9125f7a316b44cb5b3b8716c0b250e95cfdba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:15:12",
+        "value": "2026-09-30T16:45:12+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RAJGOR_30092026221350_RCM_Outcome_Sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "dc2a3424a306e8da89029c7ef14ffb2855845a6b02e90b415acf6b0be427ad13",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Resignation |SUBJECT: Resignation",
+      "event_context_sha256": "357bc4a9daeb4ef18373157a80c1669988c3da4a4a1ecdf5ab004ce4b59d616b",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a5ecb7563052cdaa8b0becb59188bf4eb0f7f6f10ad4c293289560304c3c781e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "554fd4fce2310972a5ea587e1e71de3c89d8ab55e535de256edf5eb4def2ac48",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:50:20",
+        "value": "2026-09-30T16:20:20+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/godrejcdpl_30092026214845_NSEintimation30-09-2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "776c8b8a6b09bf69dfa5389779216921a0484a7705352b2d4a70e6dae778be8f",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Tankup Engineers Limited has submitted the Exchange a copy Scrutinizers report of Annual General Meeting held on September 29, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "c537880bf3dc5b6e43ab3ecf8f0198a716ee029bdd5c55b4f84a1393f5e33dc6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "dd7b00b44c8e19d1b6591059fafd18937e0803387e9f8d82e382b976aef9396b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "572aadbb557fb920d0870bcc13034b9c2b3fbd90d99538618d5f29f233d27860",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:51:29",
+        "value": "2026-09-30T17:21:29+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TANKUP_30092026225102_Final_Scrutiniser_Report_Tankup_Engineers_Limited_AGM_2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d58ff047e40e670e39c6d15b85864d3bf8ec068274fecdaaff456eb7a17a60fd",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Sammaan Capital Limited has informed the Exchange regarding Appointment of Mr. P. S. Negi (DIN: 11918934) as LIC Nominee Director on the Board of the Company with effect from September 30, 2026. |SUBJECT: Appointment",
+      "event_context_sha256": "3d6f8ca48783574921c9cf763185a62656aa46ac71faaccbe437614abc0b956e",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "96931acfe068a15f15ac13bc772a3f948c707b2880a3c54b86cc1662a2a34fb4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAMMAANCAP"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5909ef0f8b97afe31f204b84ff0851422d3703e5b22e8ae2788ef53a0a380280",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:18:26",
+        "value": "2026-09-30T16:48:26+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/IHFL_30092026221747_SCL_Change_in_director_Intimation_30Sep2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "235c6c7f65727ec863808760b38dc30dd62f19a81d372011443e8e5c04533054",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Sical Logistics Limited has informed the Exchange regarding Change in Auditors of the company. |SUBJECT: Change in Auditors",
+      "event_context_sha256": "9e5cd8dc24ff1205b06f18b58bea1bff72884b6a2284f0b66eedd69344f245c8",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "21b5fcf3b151b6874a8d646bc5a70e6527932e73d9111b23ae15d2f40f431529",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5e9729ad30aad38d0b03c0074029051dbddd66444293c7ecad7516237f899664",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:31:25",
+        "value": "2026-09-30T17:01:25+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SICALLOG_30092026223112_REGULATION30.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "77fb4630f0dc1a61a1e443047d7d2c918a3896e5f6bf7c193632af231ace51c3",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "OnEMI Technology Solutions Limited has informed the Exchange about Intimation under Regulation 30 of SEBI Listing Regulations. |SUBJECT: Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company",
+      "event_context_sha256": "4bf6af028dee74f4796b27a23a16d0837c31b4a8e02a77a3d0b1d023e48d44f6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "43617dc62f3521ab79962a8dcff02565c9e0826874a29ee402b3042e7938f501",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "62b4687b5b4f1c9edfe31f078045039b802a12addabc9c9b67a23a2930815cee",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:00:46",
+        "value": "2026-09-30T16:30:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ONEMI_30092026215916_IntimationforGSTSCNSi_Creva.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ebdbfaa10e85c9620013a4da5b0d67b73079977b87b73baac74545ab6cdd4266",
+      "topics": [
+        "GOVERNANCE_RISK",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "SBI Cards and Payment Services Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "9dfaaddda3c2e1437ea9b4d88b726950925877a51bae3908586f2809f1137617",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f89360966ef9a11331bf161d0acd05f2dd392f98c31bd1480b313359c30cf75d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "639e8e74745a76c4d4d9184fc5f8d429ed0b66b2ffdf9e273172e79269569ff3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:57:49",
+        "value": "2026-09-30T17:27:49+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SBICARDS_30092026225608_SEFilingGroupCallNuvama.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "71069ac351abd40e1a3bc1aaae048a26dc1227bd52a7228585d90b375b8e6cad",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Confirmation of Redemption/Payment of Interest and Principal |SUBJECT: Confirmation of Redemption/Payment of Interest and Principal",
+      "event_context_sha256": "a34b75bf42f5022e5ce8f92dac202ea43b9107c965a95e27b86b86b8bd47dcc5",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "7512d6da2d3425cc64028a04a81680d331dce468d479264a56b015d1266a9b30",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "662a65826fa197126d8bc68dc22d8ac0de5c5e266bae9a5dc19f46900b6bd9c7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:14:35",
+        "value": "2026-09-30T16:44:35+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/RAUPL_30092026221424_57.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ab8078b14fd72a9d4c831edd3b116e78baafe552ad2e177cd206bedab3631868",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Flexituff Ventures International Limited has informed the Exchange regarding Proceedings of 33rd Annual General Meeting of the Company held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "6d335b4feaa76864de0d418865efdff93e3229237895698ee64f9ebc35a19ff6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a326e1b761eae3183ca3ca9a0b0cf4f43f24fb5aa064c8f6da467b754e6e7097",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "66cf5a2e3991a212a3bb0f8dae9b01b9edd2945bb18b5919822e0382f32ac423",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:56:06",
+        "value": "2026-09-30T16:26:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/FLEXITUFF_30092026215539_AGM_Proceedings.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "1cafdb784b62026d3f5262cacfb0debd0ffe455ba0f0b6b3eaa613ef91720f67",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Disclosure Under Regulation 51 |SUBJECT: Disclosure Under Regulation 51",
+      "event_context_sha256": "c7527af44a51f45076ac7afa705d4de82c8d8ebf4394a14e39ec12733da9d8a0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "7162bd1d25552592d9e48e501b1b85ff06b1900c7348518fa8e4626233722e73",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAMMAANCAP"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6752774de228eb7b7ce4ecf9f5bf43ecc88ca4b86f8b22794429c2608963bee6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:22:50",
+        "value": "2026-09-30T16:52:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/IHFL_30092026222235_SCL_Change_in_director_Intimation_30Sep2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "235c6c7f65727ec863808760b38dc30dd62f19a81d372011443e8e5c04533054",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Reliance Infrastructure Limited has informed the Exchange about Agreements |SUBJECT: Agreements",
+      "event_context_sha256": "3b99151d287673831b0a34d6f4e84dd82d22f6a7bdb75877edc8274a29c7b98c",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "790d4c10cd5c1dc8059e35c1279748108f1dfefebcf747c154a21f3803c14b70",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6aabea4f275ef86a6c1bf14c622ce4b886b94d46bc02fa73b3444276856ca0d7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:51:13",
+        "value": "2026-09-30T17:21:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RELINFRA_30092026225022_RInfraSE_DiscMMOPLIBCandRevoofMRA3092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "97b2a5eea7f3ec89273b1be91f3637f951acf3a935bb06837e0dd7bfcd4eeb04",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Om Power Transmission Limited has informed the Exchange regarding Change in Auditors of the company. |SUBJECT: Change in Auditors",
+      "event_context_sha256": "b81e5d82163cbc2d054b05001743f920e18fee228505e0ca04d29f804ea7326c",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "e53310c5aaf7d92be6d15fc4696ffe442010508e31a028c7f299815abc67e1b7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMPOWER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6de74508ecea89c245676b8cdb6e98aaf022691e783aa390b6ce3dcef3d1da45",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:27:51",
+        "value": "2026-09-30T16:57:51+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OMPOWER_30092026222739_V0_Change_in_management.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "eaa27d91ac5b601dd71786bb4b23379a05e00da923088207568bbfb0f7790840",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Karamtara Engineering Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "0c6060f2a369409f79001c74825f9e85bb183187cecff3003858e01272b78c3f",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "47a430d68ef5978dfaec87cfa78bcd05e0f651d5f6a61a7c4397d60b418b318d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KARAMTARA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "71fe4e50d239903caa6d02b86adb42275cc8c74c7d415992abd8aaec855b360b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:41:02",
+        "value": "2026-09-30T16:11:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/9833315135_30092026214051_KEL-Trading_Window.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "093a5e5e05686a9f6acaac01d6bd5364143ec8343c18c70237d76cb2add2b31d",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "GUJARAT MINERAL DEVELOPMENT CORPORATION LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "e9713c6f472f4f5db73a5d7f63582be445ff7d5c6fff9bef12c5a412c4a791c9",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b7dd24f532a35e41563e61f32ca60ba47c6c734faa628b973b1530c19e573a19",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "733e0b3e023c4ea9b9c4e97e706b701fdb0a899cf9ebdfe7266a2bce970c5b57",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:04:21",
+        "value": "2026-09-30T16:34:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_1651_WebXMLFile_20260930_220420580.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7c7901a03275ccd25d9fc6f11e54d9ce169829256310dd9213d19c0e93b850c0",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Unicommerce Esolutions Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "cbdce162725ff01157ab2c8407307714049a04e630ad32578d7ee50630d6e437",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "662ed2727df16f2539d4682ce2c45166d8beb28f092bcdde2eeaa8c0ea469af4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "UNIECOM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "738fad6713180ebeec7b8e3f47bc9fbbb981f9a1d3250114b6f12b1bb6ffbfbc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:25:54",
+        "value": "2026-09-30T17:55:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/UNICOMMERCE_30092026232534_Proceedings_of_15th_AGM_UeSL.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ce7bf863523ebc2858edd306d2b8cc57171e56f606e150ad7cb2874dff07cae5",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CSM TECHNOLOGIES LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "4733a128e1954eb33fcb94d90e21bd90f3ddada1a62ce146c404e567f5a67da9",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "04154b668a123a8e922013b6f632b173e76b0af8c4de2f1829ad55be617ff31e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CSM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "778959b6365c69cc847be6b2cf6d3394c6473783799fd67c4844731381f93191",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:28:39",
+        "value": "2026-09-30T16:58:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_26998_WebXMLFile_20260930_222838451.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0008d54528722f63885bbd9ee88a3c738c197533a363c778da1e8dbc56fa6100",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Alpa Laboratories Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "772438783b4a9ba7418b8589a0488caad2af02c30987b4a3ec1dde1750ec9555",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "ef12701c9b6c0e16c51b8a0e6f8e5fae8114f69e05505e95b0dffa06e353bc47",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ALPA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "779bd1c3ea51f5a56aa21513d39558fcb5487f7354debb7a9ae6f0c3693a7a47",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:07:12",
+        "value": "2026-09-30T16:37:12+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ALPA_30092026220413_AGM_Outcome_Alpa_Lab.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6b56233a0286c611cd80b2fcca214d65df8951c60faee61035c0bf4b1d5130f9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Zaggle Prepaid Ocean Services Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 29, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "a71b6a7cf4bbc2ecb4add19eefefe696f6a0751d9744d48294731f462b3d4cd0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "6f8a01f33a913f09cbec27defeb5fc2a95b0c4d8ef44537a356bae0555f3c213",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7a6d25e3843cc8e8c470d2f5e36f033195b890243a029beface917c4b0aef1c7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:28:13",
+        "value": "2026-09-30T16:58:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ZAGGLE_30092026222756_SE_Voting_Results.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8cca8a21cb3b74a92acc1b1dc47efca59302b487af57571d8f2efba8397edbe2",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Rajgor Castor Derivatives Limited has informed the Exchange regarding Allotment of Securities |SUBJECT: Alteration Of Capital and Fund Raising-XBRL",
+      "event_context_sha256": "7c59d8645d909eb295a1193247e34df143bbb5963ad9301afd6f883018d56334",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b848e8fecf2774f8461c7b4f0e8c2306b4b7e91b28e9049ebb7460d91aa4d08c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7e34e2c8e3e99f5dd30c32174003ca8075ab4f0bae02aed8e0fa46a7a51754da",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:19:52",
+        "value": "2026-09-30T16:49:52+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/ALTERATION_OF_CAPITAL_AND_FUND_RAISING_22334_WebXMLFile_20260930_221951290.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "dc2a3424a306e8da89029c7ef14ffb2855845a6b02e90b415acf6b0be427ad13",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "PRANAV CONSTRUCTIONS LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "3b5ca7a7c56435bb2ba6c54a05aa70a0e3bc96e1d32628ae0e93f89ee5b5ff95",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "23682c8d4dd3ee6ea42f2c6da365d4b5bba40f5a16b125307005972a7277a2b0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PRANAV"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "829883aa8a303f9c5009e48e000da2728128008bebbadc43c0f2f46d005be9ec",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:53:58",
+        "value": "2026-09-30T17:23:58+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_25529_WebXMLFile_20260930_225357328.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9909bdf6995a440e948ac03d5a3c26b52b54af861aa637825491fa93f8d1a2ad",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "KONTOR SPACE LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "f188237e72c59ba7b1502f39e668a7b3235380bf8045a7de012d61f54322abaa",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "36677f79676a5184ee25a070a82a6a004c0ad0f964e68bf37d972c3889fc7a84",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "84519c7e43559ad386b7d902bd9dabca1f0d2c93277d64a9fd37d26321007fbe",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:49:54",
+        "value": "2026-09-30T17:19:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_22363_WebXMLFile_20260930_224953155.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e59cc09bac09cf9b54fbd5bc90a348c63ab5eb3ca46d18dc0e2a4811bfae5d29",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Sical Logistics Limited has submitted the Exchange a copy Srutinizers report of 71st Annual General Meeting held on September 30, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "36d29a095bbc26e76e6a8be5364413e481782871db35d82e7c245a20992a8951",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f37762f2a600c4a7b21c973daff9c507f3fb0153d57d8f15dc00a7e3efc81149",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "853c3cbe508684fc2f441f67b189ae7756b96a8f84aff2d3bb6fd15b92e1dd8d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:15:24",
+        "value": "2026-09-30T16:45:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SICALLOG_30092026221511_SUBMISSION.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "77fb4630f0dc1a61a1e443047d7d2c918a3896e5f6bf7c193632af231ace51c3",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Anya Polytech & Fertilizers Limited has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "74490a590cc8f9d1744359aef1f1a9c434931ddcaba1807d52bfe866e6cc6b40",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "636d42957b39f66c4941d3bf95c6ee1dd4618f4372a690e4b4e80ec53419f352",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8732c5aa80120c3b8ffdc2b4c70a308b3d6a9ed5e5948487a05c81e8ca350371",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:57:21",
+        "value": "2026-09-30T17:27:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_24197_WebXMLFile_20260930_225720887.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "53c382140d20713d98815ce7dcc1d8e89904db699dec8af3011b6774e31021fd",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Owais Metal And Mineral Processing Limited has informed the Exchange about the Withdrawal of the Corporate Insolvency Resolution Process |SUBJECT: Corporate Insolvency Resolution Process",
+      "event_context_sha256": "fc290a897d2281d6f72062b4c9d11087254e26aab802d3683725d707daa0a855",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "2e37bc87cb4203b77c7740a95874e5386dd4f2bac0a9e32fbdd35bd52af327e0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "892ca88815bf12e0b6352b5a1c0e95cebc7c90b72b3290bb96dbb276fc85c55f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:47:19",
+        "value": "2026-09-30T17:17:19+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OWAIS_30092026224706_Withdrawl_application_dsc.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d2bd3221637bcd5b067a69b4a4a6b6dea4869b0b053b6ac07dcadce1b77b71c9",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Bombay Super Hybrid Seeds Limited has informed the Exchange regarding Appointment of Mrs Richa Kaushal Mashru (DIN: 09302729) as Non- Executive Independent Director of the company w.e.f. October 01, 2026. |SUBJECT: Appointment",
+      "event_context_sha256": "7398e209589505cab366bda38631b086edb0df1a9f658dde6935ed234a19917b",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "2f54de8542831bdfb100ca5ab922b16c5928a9eee200416e2f3ade69b8ee5e22",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "BSHSL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8b4fee6a104ccfe1beee7d5da9ef1e76826ad5240ed552883a9bea01e30af87b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:52:37",
+        "value": "2026-09-30T17:22:37+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BSHSL_30092026225226_apptrsS.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d1f98ea103bf4ee0ca42e05c74144c5b56631e5a84909df802c90f38d68056e3",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Owais Metal And Mineral Processing Limited has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "5e75fb7372f2a63dec416bc58dc24ce8cadaf629dca014b377ae511cc143d230",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "cb15381e235fad046e947b1c804ff8396c55ca74b1be8073ee49b94fd27b9fa9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8b714aa48e2adda4eec96a6c5e611c19cd7c7d9c30fa7923e5a6a23123ef0e04",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:59:28",
+        "value": "2026-09-30T17:29:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_22585_WebXMLFile_20260930_225927202.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d2bd3221637bcd5b067a69b4a4a6b6dea4869b0b053b6ac07dcadce1b77b71c9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Intense Technologies Limited has informed the Exchange with copy of minutes of Annual General Meeting held on September 25, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "9afc3bb716ab5c68d949c0c34d9efaa73a70a6aa56b70faf97258080a975bdb7",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "7df54b307a727892c42641ede5021fe615351b96798b006ba52f30d63e7ac307",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INTENTECH"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "94cae7f06e8ccbd9849a28b491aa4045d290f00727565e590a07d58036ee1a38",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:23:13",
+        "value": "2026-09-30T17:53:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/INTENTECH_30092026232259_36th_AGM_Minutes.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8013104f05ac7d08c7917bca5ab18b97d8b3fc01ceaf92e0e58dfa4e0179cb5a",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Ptc Industries Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026. Further, the company has submitted the Exchange a copy of Srutinizers report along with voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "268721457710031c29b3711b63f77da0ca4136e2d8da9d992aedc3f0584807ec",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "2f92d3659711c4cc6e40fc914e0ee7c90915a47b9db460880c5e0406fab5079d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PTCIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "973fd54527c978f07d996ac2c530528005fe57551a516aaad29cb5d97e82faf5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:12:55",
+        "value": "2026-09-30T16:42:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PTCINDUSTRIES_30092026221227_AGM_Proceeding_63rd_AGM_2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "4747fd95dfa55c1aa840c77b8f893c1b3fad331e1bd93a4f722ef8bb2b7bfbcd",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Bombay Super Hybrid Seeds Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "fbd191b3bd057b9ea600a0bd814dfe6d836df830c194c36deb875e6570625ccd",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "9023c53e4f42a6ad240917e5ae056ad3718d143758f99d89479fbb72c07a2c5b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "BSHSL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9d54d4dfd55931e61c1b57507a8bd83c6234eded3498a890439ef49143554e6d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:54:03",
+        "value": "2026-09-30T17:24:03+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_16112_WebXMLFile_20260930_225402156.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d1f98ea103bf4ee0ca42e05c74144c5b56631e5a84909df802c90f38d68056e3",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "VARUN BEVERAGES LIMITED has informed the Exchange about Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B) |SUBJECT: Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B)",
+      "event_context_sha256": "10164031670b64fcc34fddfa7607b5e1f73314461878a825d8f53834adf72134",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "094f624d3976f75e9ef7125e0112bbd77ed384580f7c8898c14556b6dd9e69f8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VBL"
+        ],
+        "panel_symbols": [
+          "VBL"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a2125216dba813c8446adc3ab420522265261178466428ea0e4b43f7a7f75ca2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:48:14",
+        "value": "2026-09-30T16:18:14+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_14348_WebXMLFile_20260930_214813767.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7b5235162ac884cabc8cfd2ce7bd7a4c1de59f102f36ac223f5f2df230ff4e9e",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "NTPC Green Energy Limited has informed the Exchange about Declaration of Commercial Operation of Project Sixteen Renewable Power Private Limited, a step-down subsidiary of our joint venture ONGC NTPC Green Private Limited. |SUBJECT: General Updates",
+      "event_context_sha256": "a304872fa3e68098edf273ef8542769af6cc3473f279776486fefaf05486760a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "4172a52d1483972672a96dd29c2d1514a15eefe9ce77a78f4f1470bc9a1f35f9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NTPCGREEN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a762bb9e008638ef96c9056238347472106a238f265b8d5b8789f375946fa9a0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:07:37",
+        "value": "2026-09-30T17:37:37+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/gauravrai02_30092026230722_STXDisclosure30092026_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "718b3642fd63475538a83fb2cdf04b5fc3180ad70b9b68f4c21cf059ccacbbb9",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "SBI CARDS AND PAYMENT SERVICES LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "ad4ab72f47e862234ee1f9e81fbf0ebf571d8b0976c80581c6c1bbb272386843",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "0ce1feacb1ee703146b204236d89ccf1e43eb93def9ac91650fb59996e89a83a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a98ccb58612a29dbfc66ac7c989360045ef4a87ddfe9271760c60168ac3401fb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:00:08",
+        "value": "2026-09-30T17:30:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_17645_WebXMLFile_20260930_230006566.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "71069ac351abd40e1a3bc1aaae048a26dc1227bd52a7228585d90b375b8e6cad",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Reliance Infrastructure Limited has informed the Exchange about Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company |SUBJECT: Pendency of Litigation(s)/dispute(s) or the outcome impacting the Company",
+      "event_context_sha256": "c19cebf93f44ff1a3000014bfa34964eefe63452c8d033a304b845c8869e2b0d",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "d3ea9274bc7637b89f693cb86d3c67146016edbcdf16b00d34478100d1f2368a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "aadee9547fa8c50f8bc74b34ba47872c0522090e612ba793081dae06e8adf35f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:56:24",
+        "value": "2026-09-30T17:26:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RELINFRA_30092026225456_RInfraSE_DiscMMOPLIBCandRevoofMRA3092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "97b2a5eea7f3ec89273b1be91f3637f951acf3a935bb06837e0dd7bfcd4eeb04",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CG Power and Industrial Solutions Limited has informed the Exchange about change in Management |SUBJECT: Change in Management",
+      "event_context_sha256": "3d30c46d7736c515aff789a163531f23dd64ce91d5a9aaef45b993fcc9df8df0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "64605918c8a6b8a8302ed00fd62e87effe7db641aef67a12e90a71e014af3c54",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CGPOWER"
+        ],
+        "panel_symbols": [
+          "CGPOWER"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "adfb13b34324972d3bec039ec56ed2d85ac68d1f5214f04e22003625fd8a8873",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:38:26",
+        "value": "2026-09-30T16:08:26+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CGPOWER_30092026213812_Disclosure_on_change_in_SMP_300926.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "64799d3003e0173954bf262350cb122e7bffa40644832d08aa7e933d2c150a31",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Update on the Disclosure under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 related to Crickley. |SUBJECT: General Updates",
+      "event_context_sha256": "f0ec7acec60ec1edf042a40ae3a5ec007865ea4beaeae525a4c0653b03e99c0a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "64a29611d9b37710d766c662904820c55f7e9253ffcb8a2a6119b5a704d000b2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VBL"
+        ],
+        "panel_symbols": [
+          "VBL"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b66f5f8831e06b8ba91cb30044f9c35b649419cf63a53f3d374578f2aaa054ea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:43:40",
+        "value": "2026-09-30T16:13:40+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VBL_30092026214303_Update_Crickely.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7b5235162ac884cabc8cfd2ce7bd7a4c1de59f102f36ac223f5f2df230ff4e9e",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Kontor Space Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "3002a1a5160d0d23b71f44c3a1bca8707689e9b07fb105b65aed096fbe262731",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a91ffc254fce818f3ebebba43b8a42639ee38726e619e3a3b966cdecb0e4583e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b8d24628cdbb7e3e1b8c0556668530bf02f35a353ee764de87c0ee7f53333922",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:52:20",
+        "value": "2026-09-30T17:22:20+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KONTORSPACE_30092026225207_Closure_of_Trading_window_Final__Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e59cc09bac09cf9b54fbd5bc90a348c63ab5eb3ca46d18dc0e2a4811bfae5d29",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "dd38f6abdfb570ef6c07a27f5da1e7f2523f0a4525380687ed3c32e1a62e8ab2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b96ae77cdb9d4c4d40624eb06263a36273fa9ee9618d6f6ab497524b64d65177",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:48:28",
+        "value": "2026-09-30T17:18:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/APMDC_30092026224654_FY2526STATAUD436BMOUTCOME.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "271c6cc9bd8644e4ab3d56da84a0c58d77d884db701eb7a79f61923a66109081",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Viviana Power Tech Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 29, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "150ec18dd8b1e62cf09be76e520ff8a77d423242675500b76835d759ad0e3d7a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "217fd8385f04af21d2f928cfee0c3bca68a1adb56749970ff34f6a2faa112bdd",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VIVIANA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bb0d1b24fd23f621acd2c2ad144b84ad894d4ff91ccda834c68c3bece281323a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:21:15",
+        "value": "2026-09-30T17:51:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VIVIANA_30092026232105_SCRUTINIZER_REPORT_NSE.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b244ae9ec9cc4bdb666b1b9e8ef5d5c2a1d32cb9e559b3c9969408fa80d3c57d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "FORCE MOTORS LTD has informed the Exchange regarding Monthly Business Updates for the month of September 2026 |SUBJECT: Monthly Business Updates",
+      "event_context_sha256": "47fdfb21abdd7d9e60a50421a3b5da254683df018994693bece32d934dc8bb24",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "287243880d51c1be2bbdeb5d37e465dd6fd0799f03334a42370091c57018f638",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "FORCEMOT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bc89df3622b2cb678a4aceb5039eed76f47deb1734b22cf6edbdcb9ecbb23cd1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:24:10",
+        "value": "2026-09-30T16:54:10+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/FORCEMOTORS_30092026222345_intisalesdataseptember2026fml.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c779e1e162a931c8ae84620606e1e74c4516ef9ae0bebc4b039bb6c612ab0dca",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Carborundum Universal Limited has informed the Exchange about Capital infusion in CUMI international Limited, Wholly owned subsidiary. |SUBJECT: General Updates",
+      "event_context_sha256": "f09055b2a1031cb7fe80c64c5483f53c4e648d8d0ba9dbd78200f499bfeb7e34",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "7471d1ef835e2f168f4ecbd32ee6cfe46f922c8c9d5be100d2cd06ee65b0c48a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CARBORUNIV"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "be31e65d83afbd6ef1f244dabdbb45c958c1ae9958b03ef87d4b9ac2f6cab622",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:16:34",
+        "value": "2026-09-30T16:46:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CARBORUNIV_30092026221024_intimation_sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b55c6b80f8502cdae52cc536b8487c05f296de194409eadf0541249fc6625220",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "1A submission |SUBJECT: Annual Disclosure",
+      "event_context_sha256": "6d48669ee1ad71c1bc6d5cc966f67f90dc7774a6acb519ae8620b0181426aa12",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5be9bb7ceb77bfe594ab2875901dbdafac889a2fd4c4ccdfafb821b52d75cb48",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bec85b24a4428e739eb4ca384ac8e8d253b8f9a589ac6c6b6b41c3f9fffe6962",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:18:00",
+        "value": "2026-09-30T16:48:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/500003488_30092026221817_1Awithannexures.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "01eeee65c71ececb3db346a106b7a32bc1bcdc318c35138873431ba665cfe89d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Eros International Media Limited has informed the Exchange regarding Proceedings of undefined held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "8c6a4dbde8d42d052778ade06abf6baa34d88f880c18519a5d905d11e3d089d6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5c54f8a3c0dc23a67adf30af1f3f4856b0ac58eb6ee756028848ab46cfc478f7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bf22ba10518584583833b5536b1c2e24c30cafd624f66d69b52cf8313380ba8c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:14:55",
+        "value": "2026-09-30T16:44:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/EROSMEDIA_30092026221444_Proceedings_of_AGM_2026_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "52cf1adf8eceaf56d4add50ebd80e24c2cf085e7b6d3679b503669c02c05237b",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "HEC Infra Projects Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "193f6e5136104692ec3094c32aca8cf73cb8ce9a1336af8402373e6ee2688879",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "ba6949820a593160eb11ff0ac63bb29c91a99dcfe3290b0de8e5e3464d889ced",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HECPROJECT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c12f3afab17b73363ba63f36a2bafda85a66d701f9669b0872ba6f57cccb376c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:15:15",
+        "value": "2026-09-30T17:45:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HECPROJECT_30092026231451_intimation_of_subs_co.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b3e65d7412bea3f0a1df0580770e236a360227817d6d5ca68e01a2dd2e29d32b",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Proceedings and Outcome of the 35th Annual General Meeting of the Company held on Wednesday, 30th September 2026, at 04:00 P.M (IST) through Video Conferencing ( VC )/ Other Audio-Visual Means ( OAVM ) as per Regulation 30 read with Para A of Part A in Schedule III of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 ( SEBI Listing Regulations ) read with SEBI Circular No. SEBI/HO/49/14/14(7)2025-CFD-POD2/I/3762/2026 dated January 30, 2026. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "9b5e022ba9c9c06ea2dda9fa7de8adb373a22a380989a2ea774cc1389b16e826",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "28d7177a869fdbb4806b069585cbda58c2d5e7e019ed91a15070cbebd77a852b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c25611afe0bfd4adb8d9d3b237d82fabc8f489154c178d076355bcbfe6505592",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:58:15",
+        "value": "2026-09-30T16:28:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CANARYS_30092026215747_35thAGMProceedingandoutcomedt30092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "4f645a5a76caebb2fbae261f12a01b8ef33650daaaf8d4e4ef0963324192083d",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Updates |SUBJECT: Updates",
+      "event_context_sha256": "0abe3941db03fa0b7589faf84013f0c863124cfdcf46f49e9f5c9e3b1b92267f",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "385c5a5c65890116ae2d0f06a1c02ada94d9ee2b9a19cbadf4ca5ba1fbe59ffe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c3274c3a31c5f70bb333f41a29414957088ea1be6ef6ac5c7e8442f7386caa66",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:13:34",
+        "value": "2026-09-30T17:43:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/nabfidtt_30092026231319_Pricing_supplement_intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "677246e5a3daabe723a2fef7ecb3000b154855b78b82844d8a55aea76613fb5e",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Proceeding of the Annual General Meeting |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "72af69b1e7cfb640498ec918e5e2b6290e56315ab5bd7caa3ea75be22b107cbf",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "573ac583b7ba58254140f4c21abef7ea550ebced32b275237875714ff3907d49",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c35d52141000e8b3a98b0f48e9801d730066345c8a4ef16fd5d55982420ae993",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:36:42",
+        "value": "2026-09-30T17:06:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KONTORSPACE_30092026223557_AGM_Proceeding__Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e59cc09bac09cf9b54fbd5bc90a348c63ab5eb3ca46d18dc0e2a4811bfae5d29",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "SHRENIK LIMITED has informed the Exchange about Corporate Insolvency Resolution Process for the event related to Appointment/ Replacement of the Resolution Professional |SUBJECT: Corporate Insolvency Resolution Process-XBRL",
+      "event_context_sha256": "7271c4b9913956e3d1aa1d9f8a6d06c5f49647297620ac7026c3c2277d2398af",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "8a64a0de0187669ecbc31a4207718362ffdbaff389d92e7ddf5e2cfbbc71566c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c7181717e1811f0054f055cf2a8695f2e0d08ffb9178d6337e56e8627942c94d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:43:46",
+        "value": "2026-09-30T16:13:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIRP_15331_WebXMLFile_20260930_214345508.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3f0f06e96bea83965e614cf05ae07df7a4dd30ed2f3d12affdccd94db2e9dd29",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Kirloskar Oil Engines Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "472244e488c1dda8bf3bfd9214e799beb48c78750a0a519ecf94ba1fe835196a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "c6f35eaa104a443802e2a17bd24b3b6ba6f456b35732218669d0b0b2f2fa2ff2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c95382b2394ae0f9c12cbfe5b0306f88ea1a25bf782dcd82870a77897ede0637",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:55:22",
+        "value": "2026-09-30T16:25:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KIRLOSENG_30092026215455_SE_KTSPL_30Sep2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "15749dc0575545c8c83f5af9cd64a6e29a0eab5b6a2b1acbd96f0838aa615195",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Visdem Technosys Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "771f12261c3d434bb906633ea134b4fe8a8a18950802a68a6908d9e4505958af",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "c2bb1b5064347ec1d475d51dacc9fc5dbbc6439f415d14f91cd39ef9ab44c071",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "cc5152f5fbe811bb29b48fb9d51274ed40b7d786261a54d12ad5a07f14492499",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:54:38",
+        "value": "2026-09-30T17:24:38+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_22063_WebXMLFile_20260930_225437529.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "f668d4b30447f0b0751398519bc06de9e367293a14556afff1499166e20b1841",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "The Orissa Minerals Development Company Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "91f21ca796c21f36fa6e777d1b1523997848f67c85f7c59bfeac6e22a48ef186",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "e03d8ab6c08fefb6322a3186ec2a7ccd566fecb9a5cbb2c8a1251cd2ec0316db",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d179f9096d0bd7a424377464cccec1b702903fa2c2c9e74066404955f7a7c4f7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:08:53",
+        "value": "2026-09-30T17:38:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ORISSAMINE_30092026230840_OMDC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d2003aba82cd63caefcb95dae8acefa0fc2b6cdbc48a6b91ae9cbbc3a1623204",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Mahindra & Mahindra Limited has informed the Exchange regarding Transfer Of Equity Shares by Mahindra & Mahindra Employees Stock Option Trust to the Stock Option Grantees. |SUBJECT: Updates",
+      "event_context_sha256": "64426405d0b6f03aee647823de5827d64901607c76a0e9107b2e32ddc7f9c948",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "4ea18318b1c1f4a3111f1f1d8505945108a5af40812f31ef5642dfaaf5e481d4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "M&M"
+        ],
+        "panel_symbols": [
+          "M&M"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d71b36e8e3d79f8e3636678b2c59ed5e1553a21631cca1010fca7727a6b31ac1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:32:56",
+        "value": "2026-09-30T18:02:56+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/Deepak_30092026233243_Employeeslist30092026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a2ea9adbb0a5cbb93b5fb6a42c847c6bd63595a87096edbf82c99402ed04b51e",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Karamtara Engineering Limited has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "06188c4448e364146d0dbe52ffc31f0a7ff41d2f1955fa4bb8d987afde69ac8a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "616970f75e12cdec31241670e5eaa729ccf555888f767ecfd5615a6f737140ca",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KARAMTARA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d911f3c6c4845bd8550fff0190160a12197e9ff682a738d536fc13a5aaea9077",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:49:50",
+        "value": "2026-09-30T16:19:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_25302_WebXMLFile_20260930_214949984.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "093a5e5e05686a9f6acaac01d6bd5364143ec8343c18c70237d76cb2add2b31d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "AVRO INDIA LIMITED has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "182f5bdf9ad24cb2612a9e0c609464bdb518563d8cbd046c949e1c81fbb85b0e",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b14bae7aab81f8c528a7944beeea37362a9f55cca89698f9c65098ebc8e9aa73",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AVROIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "daabaeaf5c97d599d0ae5f23496897e9aee35509a36cfb35ffbe02aef712d1ed",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:48:55",
+        "value": "2026-09-30T16:18:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/AVONMPL_30092026214846_Summaryproceedings.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "00751937724f8d291291e1ac14eb9d8f88b2e3381edc622f5263b60370eeebb9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Rajgor Castor Derivatives Limited has informed the Exchange regarding Allotment of Securities |SUBJECT: Alteration Of Capital and Fund Raising-XBRL",
+      "event_context_sha256": "7c59d8645d909eb295a1193247e34df143bbb5963ad9301afd6f883018d56334",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5ef7a9b77c614a45ff1bb6b1dbce0ce46fa09768367981477f5606587034d809",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "db3f2d5e580ce9f36b3eae7291519db14be3c9d4b71119f93450f61dc17ce584",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:24:49",
+        "value": "2026-09-30T16:54:49+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/ALTERATION_OF_CAPITAL_AND_FUND_RAISING_22334_WebXMLFile_20260930_222448484.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "dc2a3424a306e8da89029c7ef14ffb2855845a6b02e90b415acf6b0be427ad13",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Milton Industries Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 28, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "df12350c73bff69d59d63bfcacedd6fed45fc6d8ff80ff8ba42f4a3cd278d7b8",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f140c67306e3bc3056de14ba084860ef84ea2d64e3f7b5dde0b11e2c44f23714",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "de26a59753c8bc6027424e94cd80cd93d9cb022fa63cac7d930507d6c667c99a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:45:25",
+        "value": "2026-09-30T17:15:25+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MILTON_30092026224500_Final.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9dd33eff23f5dd34f015b23ecc774e895b5f3113960a7f53247ebad489aa0f23",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CG Power and Industrial Solutions Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "c6d418e6697315f71a9af836b1c7e1e4fc3b0dd80336c3411e6871f7042daf32",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "5c2d1bbe21a821ef78efdbdd9eb4e349a86b53d46489f01da58a7e01c8e3bab2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CGPOWER"
+        ],
+        "panel_symbols": [
+          "CGPOWER"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "df650558cd851975b8087218634415cb869a7fb3546544b271ccee680e1aca67",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:06:05",
+        "value": "2026-09-30T16:36:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_1241_WebXMLFile_20260930_220604636.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "64799d3003e0173954bf262350cb122e7bffa40644832d08aa7e933d2c150a31",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Srinibas Pradhan Constructions Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "e68c3689c4151833e7605a44f9c90de78224c18ff57091fde5cc4da176749713",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "ea8bc2f42e0e19ce928133078bfdbce92aa63dade7dd5ac1b65c74cb3cd3c800",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e10f9f7633a7f548fc36393dac2da464b5f25cb07971d7808596f1e5ed6c5d87",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:41:48",
+        "value": "2026-09-30T16:11:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SPCL_30092026213939_AGM_Proceedings__Signed___.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9d070d4917623468f163172710d6f8867c7647d9da99b980a4f79850c822f8ba",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Disclosure Under Regulation 51 |SUBJECT: Disclosure Under Regulation 51",
+      "event_context_sha256": "c7527af44a51f45076ac7afa705d4de82c8d8ebf4394a14e39ec12733da9d8a0",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f2f1ced697a2fa4f3e87e52ce4a7959c143ba45122df81c08612297d6bc74b5e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e23def0d7c46c5a319d87675e10c1e4c58e2a81205871438becbe16cee5ee1e2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:13:33",
+        "value": "2026-09-30T17:43:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/nabfidtt_30092026231303_Pricing_supplement_intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "677246e5a3daabe723a2fef7ecb3000b154855b78b82844d8a55aea76613fb5e",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Owais Metal And Mineral Processing Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "ed36c3a717d2bafbde850a4488a17d12cf7e3c28babd310074c5429000e41230",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "26eb8abad8b71dfeb52c49ee25c8ea1e20672be5de933b9df3eb2c08441d5cee",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e2f679ffe510780b972cf621fb918a0ac1780164be8ddf4d4e5fdfb8ef562024",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:50:24",
+        "value": "2026-09-30T17:20:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OWAIS_30092026225011_cover_trading_window_dsc.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d2bd3221637bcd5b067a69b4a4a6b6dea4869b0b053b6ac07dcadce1b77b71c9",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Rajgor Castor Derivatives Limited has informed the Exchange regarding Outcome of Committee Meeting held on September 30, 2026 for allotment of Equity Shares of Face Value of INR 10/- each on Rights Basis. |SUBJECT: Committee Meeting Updates",
+      "event_context_sha256": "08eee7fd6cb070f76e41f3854534487aa5306041fcc6f78396f680d1ef884a8a",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "cba92e0b555bc361faa8d06a5e80a2116d9f45092867c5d12037f98b9a59ec8d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e311718ccd72bfb87af6688bc10ffacad76d6874dd1932c251f312b50f8985a7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:10:34",
+        "value": "2026-09-30T16:40:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RAJGOR_30092026221013_RCM_Outcome_Sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "dc2a3424a306e8da89029c7ef14ffb2855845a6b02e90b415acf6b0be427ad13",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Muthoot Capital Services Limited has informed the Exchange about Raising of funds |SUBJECT: General Updates",
+      "event_context_sha256": "bbb47f2fe4bc12bc1a2167f240b6aa844c87c5ee62df96537b01808c9c81c0da",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "d7416c33e8d576ebb7a2f5196e3a2b6d061ccb2a21b056e309740ef3c043f53d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e37277ab436bd87d398c2a8d400c96cb6f544d4acf4d3da4d075c7b25f8776ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:39:12",
+        "value": "2026-09-30T17:09:12+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MUTHOOTCAPS_30092026223855_Intimation_-_DA.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8d4715f8f8e7c038a68491770563cb64e4ed20be7d85317d3e58d3a34afde2de",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Tunwal E-Motors Limited has informed the Exchange regarding voting results of Annual General Meeting held on September 29, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "18da93bf8e217c903c369fde8e4957a661666c988e178759409c247a001e1a35",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "0f03b1e5f92f559ba999d27cd2c986f4b417ce7cf918755f8d0df052a5f063a8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e3f61cd14b446e10b67150c5b3cf72cd3527f8aa28a9b11cb355cb20f36a785a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:48:51",
+        "value": "2026-09-30T17:18:51+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TUNWAL2024_30092026224844_CL_SR_Reg44-Final_signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9418259b4ef81b862e07d9c2347fa52f066d19cd50dcd105490a29336db953d2",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Housing & Urban Development Corporation Limited has informed the Exchange about General Updates- Business Performance for the half year ended 30th September, 2026 |SUBJECT: General Updates",
+      "event_context_sha256": "f6009a78ebebda1cf5575f47f6b81a8cb572d7a038c3eec08923c8b9f788de22",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "9503dc9edbceace19631220eac3147e6e98352eb6aa859fdb900f6161b5cccaa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e49eeb11a180397e48a9687f54feb0b0691aa4efebdd7aab7971ceb258ff15d2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:17:56",
+        "value": "2026-09-30T17:47:56+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HUDCO_30092026231746_BP_SP_Disclosure.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "540deeb06b97ea34757c1eaaf052cf8135b368b57500fbf51f2f4aeddf65ad2a",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Om Power Transmission Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "1868afd6a6fcc707803a71a0defe92d088f5a8e6551881bd98163cb2fa1d26f6",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "aef95b536f33c467f2dfab75117502893a78f7f2668c3d145e6642afc1ef5cc0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMPOWER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e9d699dd9a45f8c443ab671309e0e5e081ca5d472a9ab5770c6c5fe3af9ae100",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:56:40",
+        "value": "2026-09-30T17:26:40+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_27090_WebXMLFile_20260930_225639774.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "eaa27d91ac5b601dd71786bb4b23379a05e00da923088207568bbfb0f7790840",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Yes Bank Limited has informed the Exchange regarding 'Intimation under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015'. |SUBJECT: Updates",
+      "event_context_sha256": "87460c3b561d407e005a93057e9093d705f90aa8d7a134fe32d7f7e1a126ca50",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f0884e9db68dd0097e6c64b9f024e496f41c42f657140e0b50b21918c93f3871",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "YESBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ea0dd93766e3f0b4f408e3ce5daed04317c1dc030553b5e8e72934d7782138c9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:18:28",
+        "value": "2026-09-30T17:48:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/YESBANK_30092026231736_Stock_Exchange_Intimation_Income_Tax_AY_17-18-OGE_Order_signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "82cb743168662581c1e3c1e42fc71cd4c5f45f5ed80e99b5926aa6d0aaf512b4",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Updates |SUBJECT: Updates",
+      "event_context_sha256": "0abe3941db03fa0b7589faf84013f0c863124cfdcf46f49e9f5c9e3b1b92267f",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "54c7131a238118966147cd015ca91cd3bd37c5c7733e1cd0e7833f19694a931b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ea8b4a440d7c8538ebd0e11619af54adb3bcd7f963f4499e98ad3ce0174be43f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:13:33",
+        "value": "2026-09-30T17:43:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/nabfidtt_30092026231243_Allotment_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "677246e5a3daabe723a2fef7ecb3000b154855b78b82844d8a55aea76613fb5e",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Om Power Transmission Limited has submitted the Exchange a copy Srutinizers report of Annual General Meeting held on September 30, 2026. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "8f60c20ce0497a0afce51f9f24f6c511e1b3091a2561795ea5c1bc44b335fb66",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "1941267ae25b63be74aa2f204b77574a75bb707b96c1d6d0aa994c7cb2f3976e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMPOWER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "efedad9e794df2f1d4558d0b63a511d0f68ecf9588557ac1aeccddc9ca9e6763",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:17:07",
+        "value": "2026-09-30T16:47:07+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OMPOWER_30092026221004_Intimation_Scrutinizer_Report.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "eaa27d91ac5b601dd71786bb4b23379a05e00da923088207568bbfb0f7790840",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CSM Technologies Limited has informed the Exchange about change in Management |SUBJECT: Change in Management",
+      "event_context_sha256": "26fe16117709c4cbb003924c685eef2a4aa638b591c307c5d477c6a4b7df98e2",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "a74cee7ece4b0f0f29cfa4cf611aed1723581ab25906de8a788fd9174ea27c3a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CSM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f1e9a19e52afb430234014e5f3e7c97c039fe438572a659e5a5feaacb6b2d252",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:27:03",
+        "value": "2026-09-30T16:57:03+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CSMTECH_30092026222645_CSM_BSE_NSE_Change_in_SMP.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0008d54528722f63885bbd9ee88a3c738c197533a363c778da1e8dbc56fa6100",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Seya Industries Limited has informed the Exchange about Shareholders meeting |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "98ad7077b8a5a3f7d0ddf6087bfeb98298cba2fa36f902bf442eac0a958c592f",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "f5c66ab2160b9da495c0874d2df598c887a1a148e110b3ebb8d476a3280db48c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f793da611fcaceb4c061692aea3914df203a90b10e063cff493958e9ae3a58f6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:03:05",
+        "value": "2026-09-30T17:33:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SEYAIND_30092026230247_Proceedingsof36AGM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d757a810dc5f526152b38cb2c381de81285458bb65badf923713fe286482124b",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "AVRO INDIA LIMITED has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "039f25f0fcdf42d92136bd8a2eb5a186697bc1efd7aeffb6eca1ebac1f954de3",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "398e0f1c2d9d0841fbf43c1262dc5e8dced419d89796573b14b6d277098e2595",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AVROIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fa255dce71d2f96ea27fd74fb36d846a1da33831fa2e621f3f30e519660949d8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:11:06",
+        "value": "2026-09-30T17:41:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/AVONMPL_30092026231052_TradingwindowclosureSept2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "00751937724f8d291291e1ac14eb9d8f88b2e3381edc622f5263b60370eeebb9",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Appointment |SUBJECT: Appointment",
+      "event_context_sha256": "eb1a9716bd0f969829603e6cbeaf2c91b203a6c2955486675cbfdce28e5321a8",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "431647e50e7cd8cb54c4723f0fd96f677835899ad5b04b57d9ad518c6c98746e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fa43dab89b2e02f8f648a38a2326d36b4c9483988edd12fc7e6ba287a6de9597",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 21:50:21",
+        "value": "2026-09-30T16:20:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/godrejcdpl_30092026214913_NSEintimation30-09-2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "776c8b8a6b09bf69dfa5389779216921a0484a7705352b2d4a70e6dae778be8f",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "Eros International Media Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "29cd8d510f94182561abd8174b34acbeb57640e5077de42a59d66587fd301ac7",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "981ad054aa5fd9ed39c04ccb32b1b635acb7b7f34e6700030c05f93032fa8392",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fae3557c56100bcc7f0ac3fdbae85d4dab7e4fd496f1263edebd2a6fd041d189",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:38:09",
+        "value": "2026-09-30T17:08:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/EROSMEDIA_30092026223745_Proceedings_of_AGM_2026_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "52cf1adf8eceaf56d4add50ebd80e24c2cf085e7b6d3679b503669c02c05237b",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "PRANAV CONSTRUCTIONS LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "3b5ca7a7c56435bb2ba6c54a05aa70a0e3bc96e1d32628ae0e93f89ee5b5ff95",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "103467042145cfee021bfd252bcd9a2d042cade9e1d5f469f70d9e4f87055f09",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PRANAV"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fb7de934cd0c7080bb67ad53131e983aaad521c4f31eb6a4f9c028a1ff2f566e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:07:15",
+        "value": "2026-09-30T17:37:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_25529_WebXMLFile_20260930_230714640.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9909bdf6995a440e948ac03d5a3c26b52b54af861aa637825491fa93f8d1a2ad",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "CG Power and Industrial Solutions Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "c6d418e6697315f71a9af836b1c7e1e4fc3b0dd80336c3411e6871f7042daf32",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "b7a9182bbb0daa76588a8aba90b469b2ef5fc5b561bcbf4bb3a4ac681f5eb123",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CGPOWER"
+        ],
+        "panel_symbols": [
+          "CGPOWER"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fc01f8ad48f3cce2e47ffe66815e358a863e6e1286e02e792dbeea888ad03b49",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:16:30",
+        "value": "2026-09-30T16:46:30+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_1241_WebXMLFile_20260930_221629416.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "64799d3003e0173954bf262350cb122e7bffa40644832d08aa7e933d2c150a31",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "C2C Advanced Systems Limited has informed the Exchange regarding Proceedings of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "2bc2820ac846b6244dd43a765a37ea62ecaa038054d0621d777e5c8a1e08e530",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "1a75bf1b77862847ad281b2384432dae3a2c4cbb5ed0a2a422b1656172b10a01",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fcdaaf532a181c906c2f249f3e72dfd3886bad7bf2ebbe6ab06a0217fef33dd7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 22:32:00",
+        "value": "2026-09-30T17:02:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/C2CAS_30092026223059_9_AGM_Proceedings_C2C_ADV.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "73067c37597132b566d23536d70ed657bde1c878dafd301f735b7a09d9ff6ace",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "AVRO INDIA LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "c537b5819ea0f6f2e0ef55b245af071f10e9d18aae0955533c66813f3112d85d",
+      "first_seen_at": "2026-09-30T18:08:35.163525+00:00",
+      "item_id": "d7b0d76329e72614813608d98b1998e3f976f76581e387e9c6cf8733d9a7975c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AVROIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "feba695858a59a83a9b32b4fa1af3466289c0210a1863e82798093dcc873fca5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "30-Sep-2026 23:19:41",
+        "value": "2026-09-30T17:49:41+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_16484_WebXMLFile_20260930_231940958.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "00751937724f8d291291e1ac14eb9d8f88b2e3381edc622f5263b60370eeebb9",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:59.003357+00:00",
+      "item_id": "89f5c98ec86f74129cfc076b0d40746c8f1059e80af87f9a2c3a2d2cb14db897",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4354ccb686e9a1f8b428ff53accc6741f19f846019cb0dea704d39c69ceb0591",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 22:14:17 +0530",
+        "value": "2026-09-30T16:44:17+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/from-1-truck-to-800-what-ashok-goyal-learned-about-leadership-through-peer-learning-11790786352066.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "c43e8c1485c8f93e65998fe6668450282ee15a267c882707f277eaa8701e7e96",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:59.003357+00:00",
+      "item_id": "81b5dcd28339bad91b4daec9eff0520bfc973b61b54ee998247bd44d42c2518f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "642c84159fcb6aaa093125075b74138685dfd88213ed55fc344c4a8196cd62cd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 23:16:18 +0530",
+        "value": "2026-09-30T17:46:18+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/scotch-whisky-gets-cheaper-johnnie-walker-j-b-prices-fall-10-15-after-india-uk-trade-agreement-says-report-11790787929321.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "9a1ad26379c2d6e7e091b789bf1dc56e27ff5840c6c63793f1b9a7909ccdc6a7",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:59.003357+00:00",
+      "item_id": "27aec9b1cf00078ad46ac9d2e31d5731ea9ef93645d6a32d0c4074e8f34e76cf",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "744a4c2a636ea3a63907d51bebe0cc39fc82e32899440efbfb33d385104839ef",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 23:17:17 +0530",
+        "value": "2026-09-30T17:47:17+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/start-ups/from-10-crore-seed-funding-to-17x-sales-growth-how-16-year-old-founder-sold-1-unit-every-2-minutes-startup-story-11790786080726.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "f6aed4de7098bf90b84f68268d181217db45eec455670e8fd0e524de84ef277e",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:59.003357+00:00",
+      "item_id": "b915cc08eb115a20a946aa417d30f4d41d435236e22d5996aeac32eb434a9dec",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "78e62ade515b3c2e6f001d4837984e38aee4997f3dc7b8451b8f4fa5206dd678",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 22:21:36 +0530",
+        "value": "2026-09-30T16:51:36+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/from-software-to-17-000-students-how-akhil-shahani-built-an-employability-business-through-peer-learning-11790786697888.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "c4fa36b7ba1cc4ceebba327a537a06aca09cf461f61ca4fc94f54d28a7ded465",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:08:59.003357+00:00",
+      "item_id": "11457e20218be0acd6cfd48840649b200d4a32e48dc404857d1ab446049acb55",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bf134a3280959c7edf736065b4fcd69bc54ec5bf10c66a3b14397af0c96c9f8f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 22:01:09 +0530",
+        "value": "2026-09-30T16:31:09+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/bmw-layoffs-german-carmaker-to-use-ai-to-drive-20-cut-in-senior-management-roles-11790785357010.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "2f807efa79388dd4473b1ff0b81abc8b60f7bd84239758cc5c94a6db56a8b1ec",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:09:00.336140+00:00",
+      "item_id": "3ad2c63063a55b3d6949c0cb815152da0117ebdebb02f0dedf1462efcdc02c7e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INFY"
+        ],
+        "panel_symbols": [
+          "INFY"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "575ac62c7fecaba7519a0828bef5b7dfd9158aceb437e1cd7bd687d54c59ed10",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 23:09:49 +0530",
+        "value": "2026-09-30T17:39:49+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/10-nifty-50-stocks-including-infosys-and-tcs-posted-double-digit-losses-in-september-as-market-sell-off-deepens-11790786786742.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "029eacb79cc4ef97ac79f7acbbb39c217172e955ca129cd1f3bd45c776b6a32c",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:09:00.336140+00:00",
+      "item_id": "474693b6bf205506d838f8b19d616d28ae51061014066b1bb93ecdf5832b1c83",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "935a2bb297e2926571948810eea8fd592338a44d55d46dca8df24d5d347897a8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 23:32:50 +0530",
+        "value": "2026-09-30T18:02:50+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/nifty-50-prediction-today-oversold-zone-raises-counter-trend-rally-hopes-support-resistance-11790790026650.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "e814d35e0384a6a6cb7d631b2f5fabd3319fcdc2b5e2f3b0daa489231655ca8d",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:09:00.336140+00:00",
+      "item_id": "66d5f8fbe0d20ca0e57fc41325db87f1afcc688d80a87aa6eef31648f0c6a41d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a159a6a6b7f35c1682852fae712a96b94b87af8c9b43eb818ce5aa24fa059058",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 22:25:51 +0530",
+        "value": "2026-09-30T16:55:51+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/top-5-breakout-stocks-to-buy-pvrinox-jk-tyre-icicigi-texmaco-rail-mishra-dhatu-by-sumeet-bagadia-target-stoploss-11790778479716.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "0b2861a1c04dadc721d1fbfd07905431da0a81e6ef47f5991a5fc650b31525c2",
+      "topics": []
+    },
+    {
+      "capture_id": "495163c2cfa56d0609686c39cd87391f287b7b239789f26234f163ff4d2ab17c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-09-30T18:09:00.336140+00:00",
+      "item_id": "a5c237f01b0e2f894d97f699c1267af84ba786750e0f8e7861b6d1a77f0885b3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "dbee64a3ae4fee4720d0871d68403be832b63a78506835f8808e233a60f6bb35",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 30 Sep 2026 22:06:39 +0530",
+        "value": "2026-09-30T16:36:39+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/cocacola-india-ipo-on-the-cards-bottling-unit-may-file-draft-papers-in-december-says-report-11790783318793.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "32c07093a6d4474889105b66adb5c4d2051d3ffac259f7d71554157cd917670d",
       "topics": []
     }
   ],
