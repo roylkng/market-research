@@ -1,0 +1,55 @@
+name: Rescue T004 decision 2026-09-30
+
+on:
+  push:
+    branches:
+      - ops/rescue-sc001-sc002-20260930
+
+permissions:
+  contents: write
+
+jobs:
+  score:
+    if: contains(github.event.head_commit.message, '[rescue-t004]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Score frozen T004 decision
+        run: |
+          set -euo pipefail
+          mkdir -p reports/t004-rescue
+          python scripts/score_ae001_t004_decision.py \
+            --session-date 2026-09-30 \
+            --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
+            --decision-ledger research/prospective/ae001-t004/decision-ledger.json \
+            --models research/prospective/ae001-t004/frozen-models-v1.json \
+            --decision-dir research/prospective/ae001-t004/decisions \
+            --support-dir reports/t004-rescue \
+            --attempts 4 \
+            --timeout-seconds 15 | tee reports/t004-rescue/score.json
+          python scripts/verify_ae001_t004_decisions.py \
+            --ledger research/prospective/ae001-t004/decision-ledger.json
+
+      - name: Commit T004 evidence if sealed
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-t004
+          if git diff --cached --quiet; then
+            echo "No T004 decision sealed; scorer failed closed or session excluded"
+            exit 0
+          fi
+          git commit -m "AE001 T004: seal 2026-09-30 rescue decision [skip ci]"
+          git push origin HEAD:ops/rescue-sc001-sc002-20260930
