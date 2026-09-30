@@ -1,0 +1,85 @@
+schema_version: 1
+id: AE001-T006-v1
+name: prospective_stock_futures_5d_confirmation
+status: FROZEN_BEFORE_FIRST_ELIGIBLE_DECISION_SESSION
+frozen_date: 2026-09-30
+earliest_calendar_date: 2026-10-01
+live_capital_allowed: false
+
+research_class:
+  type: PROSPECTIVE_CONFIRMATORY
+  predecessor_trial: AE001-T005
+  retrospective_backfill_allowed: false
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+  source_timing_gates:
+    - ledger: research/prospective/ae001-sc001/source-ledger.json
+      required_field: eligible_before_cutoff
+      required_value: true
+    - ledger: research/prospective/ae001-sc002/source-ledger.json
+      required_field: eligible_before_cutoff
+      required_value: true
+
+models:
+  base:
+    type: ridge
+    l2: 1.0
+    feature_count: 27
+  augmented:
+    type: ridge
+    l2: 1.0
+    feature_count: 37
+    futures_feature_count: 10
+  training_mode: FIXED_PRETRIAL_MODEL
+  source_end_date: 2026-09-25
+  retraining_during_trial: prohibited
+  model_freeze_amendment: research/AE001_T006_MODEL_FREEZE_P1.md
+  frozen_model_artifact: research/prospective/ae001-t006/frozen-models-v1.json
+
+sample:
+  identical_rows_for_base_and_augmented: true
+  minimum_common_stocks_per_session: 100
+  identity: symbol_plus_isin
+  required_market_history_sessions: 60
+  required_delivery_history_sessions_including_current: 21
+  median_prior_20d_traded_value_inr_min: 20000000
+  corporate_action_policy: FAIL_CLOSED
+  delivery_source_quality_policy: T003_P3
+  futures_contract_policy: T005_V1
+  expiry_selection: STRICTLY_FUTURE_FRONT_AND_NEXT
+  missing_derivative_policy: EXCLUDE_NO_IMPUTATION
+
+primary:
+  horizon_sessions: 5
+  minimum_eligible_decision_sessions: 60
+  minimum_valid_paired_ic_sessions: 50
+  inference:
+    method: paired_newey_west
+    lag: 4
+  success_requires_all:
+    - metric: paired_mean_rank_ic_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+    - metric: paired_top_minus_bottom_spread_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+
+secondary:
+  horizon_sessions: 1
+  inference:
+    method: paired_newey_west
+    lag: 5
+  rescues_failed_primary: false
+
+labels:
+  entry: next_completed_nse_session_open
+  target: stock_return_minus_nifty500_return
+  entry_session_counts_as_holding_session_1: true
+
+promotion:
+  prospective_claim_allowed_after_primary_gate: true
+  live_capital_directly_allowed: false

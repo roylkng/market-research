@@ -1,0 +1,180 @@
+name: AE001 T006 prospective outcomes
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 20:00 and 23:00 Asia/Kolkata, every calendar day.
+    - cron: '30 14 * * *'
+    - cron: '30 17 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-t006-prospective-outcomes
+  cancel-in-progress: false
+
+jobs:
+  advance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refresh latest canonical main before T006 outcome acquisition
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVENT_SHA="${GITHUB_SHA}"
+          git fetch origin main
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+
+          RULE_PATHS=(
+            ".github/workflows/ae001-t006-prospective-outcomes.yml"
+            ".github/workflows/ae001-t006-prospective-decisions.yml"
+            "registry/ae001_t006_futures_confirmatory.yaml"
+            "research/AE001_T006_PROSPECTIVE_FUTURES_CONFIRMATION_V1.md"
+            "research/AE001_T006_MODEL_FREEZE_P1.md"
+            "research/AE001_T006_OUTCOME_COHORT_P2.md"
+            "research/prospective/ae001-t006/frozen-models-v1.json"
+            "src/marketlab/alpha_t006_outcomes.py"
+            "src/marketlab/alpha_t006_prospective.py"
+            "scripts/advance_ae001_t006_outcomes.py"
+            "scripts/verify_ae001_t006_outcomes.py"
+            "scripts/verify_ae001_t006_decisions.py"
+          )
+          if [ "$EVENT_SHA" != "$CURRENT_MAIN" ]; then
+            if ! git diff --quiet "$EVENT_SHA" "$CURRENT_MAIN" -- "${RULE_PATHS[@]}"; then
+              echo "Frozen T006 outcome rules changed after schedule event creation"
+              git diff --stat "$EVENT_SHA" "$CURRENT_MAIN" -- "${RULE_PATHS[@]}"
+              exit 1
+            fi
+          fi
+
+          git checkout --detach "$CURRENT_MAIN"
+          echo "OUTCOME_BASE_SHA=$CURRENT_MAIN" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T006 outcome implementation
+        run: |
+          ruff check \
+            src/marketlab/alpha_t006_outcomes.py \
+            src/marketlab/alpha_t006_prospective.py \
+            scripts/advance_ae001_t006_outcomes.py \
+            scripts/verify_ae001_t006_outcomes.py \
+            scripts/verify_ae001_t006_decisions.py \
+            tests/test_alpha_t006_outcomes.py \
+            tests/test_alpha_t006_prospective.py
+          pytest -q \
+            tests/test_alpha_t006_outcomes.py \
+            tests/test_alpha_t006_prospective.py \
+            tests/test_alpha_t006.py
+          python scripts/verify_ae001_t006_decisions.py \
+            --ledger research/prospective/ae001-t006/decision-ledger.json
+          python scripts/verify_ae001_t006_outcomes.py \
+            --ledger research/prospective/ae001-t006/outcome-ledger.json
+
+      - name: Resolve India as-of date
+        id: clock
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+
+      - name: Advance matured T006 outcomes and frozen P2 result gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/ae001-t006-outcomes/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          python scripts/advance_ae001_t006_outcomes.py \
+            --as-of-date "${{ steps.clock.outputs.date }}" \
+            --decision-ledger research/prospective/ae001-t006/decision-ledger.json \
+            --outcome-ledger research/prospective/ae001-t006/outcome-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --outcome-dir research/prospective/ae001-t006/outcomes \
+            --work-dir "$WORK" \
+            --attempts 4 \
+            --timeout-seconds 30 | tee "$WORK/run.log"
+          python scripts/verify_ae001_t006_outcomes.py \
+            --ledger research/prospective/ae001-t006/outcome-ledger.json
+
+      - name: Anchor append-only T006 outcome state
+        shell: bash
+        run: |
+          set -euo pipefail
+          DECISION_LEDGER="research/prospective/ae001-t006/decision-ledger.json"
+          OUTCOME_LEDGER="research/prospective/ae001-t006/outcome-ledger.json"
+          TRIAL_LEDGER="research/ae001/trial-ledger.json"
+          START_SHA="$OUTCOME_BASE_SHA"
+
+          python scripts/verify_ae001_t006_decisions.py --ledger "$DECISION_LEDGER"
+          python scripts/verify_ae001_t006_outcomes.py --ledger "$OUTCOME_LEDGER"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUTCOME_LEDGER" "$TRIAL_LEDGER"
+          if [ -d research/prospective/ae001-t006/outcomes ]; then
+            git add research/prospective/ae001-t006/outcomes
+          fi
+          if git diff --cached --quiet; then
+            echo "No new T006 outcome state"
+            exit 0
+          fi
+
+          git commit -m "AE001 T006: seal prospective matured outcomes ${{ steps.clock.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-t006-prospective-outcomes.yml"
+            ".github/workflows/ae001-t006-prospective-decisions.yml"
+            "registry/ae001_t006_futures_confirmatory.yaml"
+            "research/AE001_T006_PROSPECTIVE_FUTURES_CONFIRMATION_V1.md"
+            "research/AE001_T006_MODEL_FREEZE_P1.md"
+            "research/AE001_T006_OUTCOME_COHORT_P2.md"
+            "research/ae001/trial-ledger.json"
+            "research/prospective/ae001-t006"
+            "src/marketlab/alpha_t006_outcomes.py"
+            "src/marketlab/alpha_t006_prospective.py"
+            "scripts/advance_ae001_t006_outcomes.py"
+            "scripts/verify_ae001_t006_outcomes.py"
+            "scripts/verify_ae001_t006_decisions.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "T006 canonical rules/state changed while outcomes were in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_t006_decisions.py --ledger "$DECISION_LEDGER"
+              python scripts/verify_ae001_t006_outcomes.py --ledger "$OUTCOME_LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor T006 outcomes after bounded retries"
+          exit 1
+
+      - name: Upload T006 outcome acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t006-outcomes-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/ae001-t006-outcomes
+          if-no-files-found: warn
+          retention-days: 90

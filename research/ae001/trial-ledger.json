@@ -1,5 +1,5 @@
 {
-  "event_count": 18,
+  "event_count": 21,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -668,10 +668,99 @@
       "recorded_at_utc": "2026-09-30T09:50:40.891130+00:00",
       "seq": 18,
       "trial_id": "AE001-T005"
+    },
+    {
+      "event_sha256": "5bfabc055030095a46a5ab11b4eb0a8fe22f2fa0933291e5a94746aa44f4fa84",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "augmented_feature_count": 37,
+        "base_feature_count": 27,
+        "decision_cutoff_ist": "18:30:00",
+        "earliest_calendar_date": "2026-10-01",
+        "futures_feature_count": 10,
+        "historical_predecessor_outcome_known": true,
+        "live_capital_allowed": false,
+        "minimum_common_stocks_per_session": 100,
+        "model": {
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "name": "prospective_stock_futures_5d_confirmation",
+        "predecessor_trial": "AE001-T005",
+        "primary": {
+          "horizon_sessions": 5,
+          "minimum_eligible_decision_sessions": 60,
+          "minimum_valid_paired_ic_sessions": 50,
+          "newey_west_lag": 4,
+          "success_requires_both_rank_ic_and_spread": true
+        },
+        "research_class": "PROSPECTIVE_CONFIRMATORY",
+        "secondary": {
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "rescues_failed_primary": false
+        },
+        "source_timing_ledgers": [
+          "research/prospective/ae001-sc001/source-ledger.json",
+          "research/prospective/ae001-sc002/source-ledger.json"
+        ],
+        "status": "FROZEN_BEFORE_FIRST_ELIGIBLE_DECISION_SESSION"
+      },
+      "recorded_at_utc": "2026-09-30T10:44:49.302514+00:00",
+      "seq": 19,
+      "trial_id": "AE001-T006"
+    },
+    {
+      "event_sha256": "b1829c8bb395ba863eb20acbfd91b543220a95faeb8ac8dc87ae0b4ecf903303",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "augmented_feature_count": 37,
+        "base_feature_count": 27,
+        "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+        "delivery_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+        "earliest_eligible_decision_date": "2026-10-01",
+        "futures_feature_count": 10,
+        "futures_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+        "futures_panel_sha256": "02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5",
+        "live_capital_allowed": false,
+        "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+        "only_examples_with_exit_on_or_before_source_end_date": true,
+        "protocol_id": "AE001-T006-P1",
+        "retraining_during_trial_allowed": false,
+        "ridge_l2": 1.0,
+        "source_end_date": "2026-09-25",
+        "training_horizon_sessions": 5
+      },
+      "recorded_at_utc": "2026-09-30T10:44:49.305307+00:00",
+      "seq": 20,
+      "trial_id": "AE001-T006"
+    },
+    {
+      "event_sha256": "4d68153954ef26fda9ef25f20f0643faaed674dbe6b958ffc354391303bda24b",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "all_primary_outcomes_in_prefix_must_be_mature": true,
+        "cohort_rule": "SMALLEST_CHRONOLOGICAL_CANONICAL_PREFIX",
+        "live_capital_allowed": false,
+        "minimum_decision_sessions": 60,
+        "minimum_valid_paired_ic_sessions": 50,
+        "parameter_change_after_first_eligible_decision": "PROHIBITED",
+        "primary_horizon_sessions": 5,
+        "primary_newey_west_lag": 4,
+        "protocol_id": "AE001-T006-P2",
+        "secondary_horizon_sessions": 1,
+        "secondary_newey_west_lag": 5,
+        "secondary_rescues_failed_primary": false,
+        "secondary_uses_exact_primary_cohort": true,
+        "success_requires_both_rank_ic_and_spread": true
+      },
+      "recorded_at_utc": "2026-09-30T10:58:10.010425+00:00",
+      "seq": 21,
+      "trial_id": "AE001-T006"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "2b1d79076d32e912739f9a50169213b182d638071987ecb6259874fbaa16924e",
+  "ledger_sha256": "9d2fe3ce90c2c9205d6980dd2e321f3d82fb2d614a4b81e56a56a6f5d795bdaf",
   "live_capital_allowed": false,
   "schema_version": 1
 }
