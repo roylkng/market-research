@@ -4,8 +4,11 @@ import pytest
 
 from marketlab.alpha import AlphaContractError
 from marketlab.alpha_fundamental import (
+    FilingCandidate,
+    FundamentalPair,
     build_fundamental_features,
     monetary_scale,
+    pair_record,
     select_fundamental_pair,
 )
 from marketlab.events import (
@@ -210,3 +213,66 @@ def test_non_inr_fails_closed():
     event = replace(_event(), currency="USD")
     with pytest.raises(AlphaContractError, match="currency"):
         monetary_scale(event)
+
+
+
+def test_fundamental_features_support_nondefault_quarter_pair():
+    baseline = _event(
+        period="2024-09-30",
+        revenue=80.0,
+        pbt=8.0,
+        profit=6.0,
+    )
+    target = _event(
+        period="2025-09-30",
+        revenue=100.0,
+        pbt=12.0,
+        profit=9.0,
+    )
+    features = build_fundamental_features(
+        target_event=target,
+        baseline_event=baseline,
+        target_period_end="2025-09-30",
+        baseline_period_end="2024-09-30",
+    )
+    assert features["revenue_yoy"] == pytest.approx(0.25)
+    assert features["pbt_margin"] == pytest.approx(0.12)
+
+
+def test_pair_record_binds_diagnostic_and_period_pair():
+    target_candidate = FilingCandidate(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        period_end="2025-09-30",
+        exchange_published_at_utc="2025-10-20T06:30:00Z",
+        source_url="https://x/target.xml",
+        discovery_row_sha256="a" * 64,
+        discovery_row={},
+    )
+    baseline_candidate = FilingCandidate(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        period_end="2024-09-30",
+        exchange_published_at_utc="2024-10-20T06:30:00Z",
+        source_url="https://x/base.xml",
+        discovery_row_sha256="b" * 64,
+        discovery_row={},
+    )
+    pair = FundamentalPair(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        target=target_candidate,
+        baseline=baseline_candidate,
+    )
+    target = _event(period="2025-09-30")
+    baseline = _event(period="2024-09-30", revenue=100.0, pbt=10.0, profit=8.0)
+    record = pair_record(
+        pair=pair,
+        target_event=target,
+        baseline_event=baseline,
+        discovery_raw_sha256="c" * 64,
+        diagnostic_id="AE001-T008-D002-v1",
+    )
+    assert record["diagnostic_id"] == "AE001-T008-D002-v1"
+    assert record["target_period_end"] == "2025-09-30"
+    assert record["baseline_period_end"] == "2024-09-30"
