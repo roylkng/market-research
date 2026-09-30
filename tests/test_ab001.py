@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 import pytest
 
 from marketlab.ab001 import (
@@ -132,6 +134,10 @@ def test_normalize_oos_alpha_source_is_tie_aware_and_centered():
             "oos_only": True,
         },
     ]
+    for row in rows:
+        row["entry_session"] = "2026-01-02"
+        row["exit_session"] = "2026-01-02"
+
     normalized = normalize_oos_alpha_source(
         alpha_id="A1",
         alpha_version="v1",
@@ -248,6 +254,62 @@ def test_dynamic_blend_uses_only_prior_oos_evidence():
     assert max(session_21["weights"].values()) <= 0.5000000001
     assert sum(session_21["weights"].values()) == pytest.approx(1.0)
     assert session_21["weights"]["ALPHA_C"] == pytest.approx(0.0)
+
+
+def test_dynamic_blend_waits_for_full_label_maturity():
+    def delayed(mode):
+        rows = _predictions(sessions=30, names=20, mode=mode)
+        for row in rows:
+            feature_day = date.fromisoformat(row["feature_session"])
+            row["horizon_sessions"] = 5
+            row["entry_session"] = (
+                feature_day + timedelta(days=1)
+            ).isoformat()
+            row["exit_session"] = (
+                feature_day + timedelta(days=5)
+            ).isoformat()
+        return rows
+
+    library = build_alpha_library(
+        [
+            {
+                "alpha_id": "ALPHA_A",
+                "alpha_version": "v1",
+                "source_artifact_sha256": "a" * 64,
+                "predictions": delayed("positive"),
+            },
+            {
+                "alpha_id": "ALPHA_B",
+                "alpha_version": "v1",
+                "source_artifact_sha256": "b" * 64,
+                "predictions": delayed("positive_shifted"),
+            },
+            {
+                "alpha_id": "ALPHA_C",
+                "alpha_version": "v1",
+                "source_artifact_sha256": "c" * 64,
+                "predictions": delayed("negative"),
+            },
+        ]
+    )
+    blend = dynamic_blend(
+        library,
+        alpha_ids=["ALPHA_A", "ALPHA_B", "ALPHA_C"],
+        horizon_sessions=5,
+    )
+    by_session = {
+        row["feature_session"]: row
+        for row in blend["weights_by_session"]
+    }
+    assert by_session["2026-01-25"]["weighting_status"] == (
+        "INSUFFICIENT_TRAILING_EVIDENCE_EQUAL_WEIGHT_FALLBACK"
+    )
+    assert by_session["2026-01-25"]["efficacy_session_count"]["ALPHA_A"] == 19
+
+    assert by_session["2026-01-26"]["weighting_status"] == (
+        "TRAILING_EFFICACY_CORRELATION_SHRUNK"
+    )
+    assert by_session["2026-01-26"]["efficacy_session_count"]["ALPHA_A"] == 20
 
 
 def test_dynamic_blend_fails_closed_on_mixed_outcome_maturity():
