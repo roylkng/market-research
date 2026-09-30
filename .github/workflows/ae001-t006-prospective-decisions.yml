@@ -1,0 +1,162 @@
+name: AE001 T006 prospective decisions
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC -> Asia/Kolkata: 18:08, 18:20, 18:26.
+    - cron: '38 12 * * 1-5'
+    - cron: '50 12 * * 1-5'
+    - cron: '56 12 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-t006-prospective-decisions
+  cancel-in-progress: false
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T006 implementation and frozen inputs
+        run: |
+          ruff check \
+            src/marketlab/alpha_t006.py \
+            src/marketlab/alpha_t006_prospective.py \
+            scripts/score_ae001_t006_decision.py \
+            scripts/verify_ae001_t006_decisions.py \
+            tests/test_alpha_t006.py \
+            tests/test_alpha_t006_prospective.py
+          pytest -q \
+            tests/test_alpha_t006.py \
+            tests/test_alpha_t006_prospective.py \
+            tests/test_alpha_futures.py
+          python scripts/verify_ae001_sc001.py \
+            --ledger research/prospective/ae001-sc001/source-ledger.json
+          python scripts/verify_ae001_sc002.py \
+            --ledger research/prospective/ae001-sc002/source-ledger.json
+          python scripts/verify_ae001_t006_decisions.py \
+            --ledger research/prospective/ae001-t006/decision-ledger.json
+          python - <<'PY'
+          import json
+          from marketlab.alpha_t006 import validate_frozen_t006_models
+          artifact=json.load(open("research/prospective/ae001-t006/frozen-models-v1.json"))
+          validate_frozen_t006_models(artifact)
+          print("T006 fixed model artifact:", artifact["artifact_sha256"])
+          PY
+
+      - name: Resolve India decision date
+        id: clock
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          if [[ "$TODAY" < "2026-10-01" ]]; then
+            echo "state=BEFORE_START" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=READY" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Seal T006 fixed-model decision
+        if: steps.clock.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/ae001-t006-decisions/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          python scripts/score_ae001_t006_decision.py \
+            --session-date "${{ steps.clock.outputs.date }}" \
+            --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
+            --sc002-ledger research/prospective/ae001-sc002/source-ledger.json \
+            --decision-ledger research/prospective/ae001-t006/decision-ledger.json \
+            --models research/prospective/ae001-t006/frozen-models-v1.json \
+            --decision-dir research/prospective/ae001-t006/decisions \
+            --support-dir "$WORK" \
+            --attempts 4 \
+            --timeout-seconds 30 | tee "$WORK/score.log"
+          python scripts/verify_ae001_t006_decisions.py \
+            --ledger research/prospective/ae001-t006/decision-ledger.json
+
+      - name: Anchor append-only T006 decision
+        if: steps.clock.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/ae001-t006/decision-ledger.json"
+          python scripts/verify_ae001_t006_decisions.py --ledger "$LEDGER"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$LEDGER"
+          if [ -d research/prospective/ae001-t006/decisions ]; then
+            git add research/prospective/ae001-t006/decisions
+          fi
+          if git diff --cached --quiet; then
+            echo "No new T006 decision state"
+            exit 0
+          fi
+
+          START_SHA="${GITHUB_SHA}"
+          git commit -m "AE001 T006: seal prospective decision ${{ steps.clock.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-t006-prospective-decisions.yml"
+            "registry/ae001_t006_futures_confirmatory.yaml"
+            "research/AE001_T006_PROSPECTIVE_FUTURES_CONFIRMATION_V1.md"
+            "research/AE001_T006_MODEL_FREEZE_P1.md"
+            "research/prospective/ae001-sc001"
+            "research/prospective/ae001-sc002"
+            "research/prospective/ae001-t006"
+            "research/ae001/trial-ledger.json"
+            "src/marketlab/alpha_t006.py"
+            "src/marketlab/alpha_t006_prospective.py"
+            "scripts/score_ae001_t006_decision.py"
+            "scripts/verify_ae001_t006_decisions.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "T006 rules/source state changed while prediction was in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_t006_decisions.py --ledger "$LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor T006 decision after bounded retries"
+          exit 1
+
+      - name: Upload T006 decision support evidence
+        if: always() && steps.clock.outputs.state == 'READY'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t006-decision-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/ae001-t006-decisions
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Report pre-start
+        if: steps.clock.outputs.state != 'READY'
+        run: echo "T006 has not reached its frozen October 1 start boundary"
