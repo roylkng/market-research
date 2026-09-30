@@ -1,0 +1,58 @@
+schema_version: 1
+id: AB001-P002-v1
+name: h024_cross_family_orthogonality_pilot
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+horizon_sessions: 20
+historical_outcome_cutoff_session: 2026-09-11
+
+h024:
+  event_panel_path: research/historical/h024/challenge-2026-09-15/event-panel.json
+  event_panel_sha256: 65b957a2a66144194690f0298602ca0118eb4af8e725cce5df7549da6b1baec4
+  score: binary
+  event_score: 1.0
+  non_event_score: 0.0
+  decision_cutoff_ist: "18:30:00"
+  require_disclosure_on_market_session: true
+  require_immediate_next_session_entry: true
+  require_exact_symbol_isin_identity: true
+  purchase_value_weighting: prohibited
+
+ae001:
+  alpha_id: AB001-P002-A1
+  construction: T003_AUGMENTED_27_FEATURE_RIDGE
+  ridge_l2: 1.0
+  folds:
+    - start: 2026-04-01
+      end: 2026-06-30
+    - start: 2026-07-01
+      end: 2026-08-27
+
+expected_inputs:
+  market_panel_sha256: 9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
+  base_action_safe_feature_panel_sha256: 300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8
+  corporate_action_ledger_sha256: 1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1
+  augmented_delivery_feature_panel_sha256: 99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
+
+feasibility:
+  total_h024_events: 209
+  eod_causal_match_events: 148
+  eod_causal_match_symbols: 66
+  eod_causal_match_decision_sessions: 57
+  mature_20d_events_by_h024_cutoff: 113
+  mature_20d_symbols_by_h024_cutoff: 54
+  mature_20d_decision_sessions_by_h024_cutoff: 41
+
+diagnostics:
+  standalone: true
+  event_vs_non_event_lift: true
+  pairwise_orthogonality: true
+  equal_weight_incremental_blend: true
+  dynamic_blender: false
+  newey_west_lag: 19
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
