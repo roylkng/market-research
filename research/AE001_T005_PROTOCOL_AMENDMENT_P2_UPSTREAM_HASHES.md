@@ -52,3 +52,5 @@ P2 changes no:
 - outcome.
 
 No prospective or live-capital claim.
+
+Canonical ledger append retried from stable T005 implementation head before any outcome run.
