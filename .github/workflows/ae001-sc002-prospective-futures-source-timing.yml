@@ -6,14 +6,24 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    # Uncommon UTC minutes reduce scheduler contention.
-    # UTC -> Asia/Kolkata: 16:37, 17:07, 17:37, 17:57, 18:17, 18:27.
+    # Pre-cutoff T006 eligibility probes, IST:
+    # 16:37, 17:07, 17:37, 17:57, 18:17, 18:27.
     - cron: '7 11 * * 1-5'
     - cron: '37 11 * * 1-5'
     - cron: '7 12 * * 1-5'
     - cron: '27 12 * * 1-5'
     - cron: '47 12 * * 1-5'
     - cron: '57 12 * * 1-5'
+
+    # SC002-P1 diagnostic-only post-cutoff publication probes, IST:
+    # 21:07, 21:37, 22:07, 22:37, 23:07, 23:37.
+    # READY observations here remain ineligible for T006.
+    - cron: '37 15 * * 1-5'
+    - cron: '7 16 * * 1-5'
+    - cron: '37 16 * * 1-5'
+    - cron: '7 17 * * 1-5'
+    - cron: '37 17 * * 1-5'
+    - cron: '7 18 * * 1-5'
 
 permissions:
   contents: write
