@@ -1,0 +1,57 @@
+schema_version: 1
+id: AB001-v1-DEVELOPMENT
+name: oos_alpha_library_and_blender
+status: DEVELOPMENT
+created: 2026-09-30
+live_capital_allowed: false
+
+record_identity:
+  - alpha_id
+  - feature_session
+  - symbol
+  - isin
+  - horizon_sessions
+
+normalization:
+  method: tie_aware_cross_sectional_percentile
+  centered_range: [-1.0, 1.0]
+  per_alpha_per_session: true
+
+standalone_metrics:
+  - daily_spearman_rank_ic
+  - mean_rank_ic
+  - median_rank_ic
+  - top_decile_mean_excess
+  - bottom_decile_mean_excess
+  - top_minus_bottom_spread
+  - top_decile_selection_churn
+
+orthogonality:
+  prediction_correlation: mean_daily_spearman
+  spread_correlation: pearson_daily_top_minus_bottom
+  overlap_required: true
+
+incremental:
+  baseline: equal_weight_rank_blend_existing_set
+  challenger: equal_weight_rank_blend_existing_plus_candidate
+  inference: paired_newey_west
+
+dynamic_blender:
+  efficacy_metric: trailing_mean_daily_rank_ic
+  lookback_sessions: 60
+  minimum_efficacy_sessions: 20
+  negative_efficacy_floor: 0.0
+  correlation_penalty: inverse_one_plus_mean_absolute_pairwise_correlation
+  minimum_correlation_sessions: 20
+  maximum_single_alpha_weight: 0.50
+  fallback: equal_weight_if_fewer_than_two_positive_efficacy_alphas
+  current_session_outcome_allowed: false
+
+inputs:
+  prediction_role_required: OOS
+  immutable_source_hash_required: true
+  horizon_required: true
+
+promotion:
+  live_capital_directly_allowed: false
+  next_stage: RM001_PO001_WITH_BLENDED_ALPHA
