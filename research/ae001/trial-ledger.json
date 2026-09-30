@@ -1,5 +1,5 @@
 {
-  "event_count": 13,
+  "event_count": 14,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -475,10 +475,26 @@
       "recorded_at_utc": "2026-09-30T08:34:25+00:00",
       "seq": 13,
       "trial_id": "AE001-T005"
+    },
+    {
+      "event_sha256": "29fd7bac8cd8f15fd839f736d37cb45053405ff3309a2856ffea53f8736661fc",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "live_capital_allowed": false,
+        "protocol_file": "research/AE001_T005_PROTOCOL_AMENDMENT_P1_EXPIRY_SELECTION.md",
+        "protocol_id": "AE001-T005-P1",
+        "reason": "Resolve expiry-day denominator ambiguity before any T005 outcome materialization.",
+        "selection_rule": "FEATURE_CONSTRUCTION_USES_ONLY_STF_CONTRACTS_WITH_EXPIRY_STRICTLY_GREATER_THAN_TRADE_DATE",
+        "totals_rule": "AGGREGATE_OI_VOLUME_AND_NOTIONAL_USE_ONLY_STRICTLY_FUTURE_EXPIRIES",
+        "two_distinct_future_expiries_required": true
+      },
+      "recorded_at_utc": "2026-09-30T08:37:36+00:00",
+      "seq": 14,
+      "trial_id": "AE001-T005"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "c107d08836a41f1ad7e79630e2a1aaddbb06b36793bbc307df625dcdfb6b7242",
+  "ledger_sha256": "714fb88a56a861c4792aff76e68ffbf5081d7775ca7eec0fa0d36e39a646a8d1",
   "live_capital_allowed": false,
   "schema_version": 1
 }
