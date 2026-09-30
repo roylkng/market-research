@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from marketlab.alpha_fundamental import FEATURE_NAMES
 from marketlab.alpha_fundamental_trial import (
     _cluster_bootstrap,
@@ -108,7 +110,7 @@ def test_t008_event_metrics_use_quintiles():
     report = _event_metrics(rows)
     assert report["event_count"] == 10
     assert report["quintile_count"] == 2
-    assert report["rank_ic"] == 1.0
+    assert report["rank_ic"] == pytest.approx(1.0)
     assert report["top_minus_bottom_quintile_spread"] > 0.0
 
 
