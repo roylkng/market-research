@@ -219,6 +219,24 @@ def augment_feature_panel_with_announcements(
         raise AlphaContractError("T007 feature panel must be outcome-free")
     if announcement_panel.get("market_return_outcomes_attached") is not False:
         raise AlphaContractError("T007 announcement panel contains outcomes")
+    expected_source_dates = [
+        day.isoformat() for day in _calendar_days(SOURCE_START, SOURCE_END)
+    ]
+    observed_source_dates = [
+        str(row.get("calendar_date") or "")
+        for row in announcement_panel.get("sessions", [])
+    ]
+    if (
+        announcement_panel.get("panel_id")
+        != "AE001-T007-HISTORICAL-ANNOUNCEMENTS-v1"
+        or announcement_panel.get("source_start") != SOURCE_START.isoformat()
+        or announcement_panel.get("source_end") != SOURCE_END.isoformat()
+        or announcement_panel.get("daily_source_count") != len(expected_source_dates)
+        or observed_source_dates != expected_source_dates
+    ):
+        raise AlphaContractError(
+            "T007 announcement source panel does not exactly cover frozen calendar window"
+        )
 
     market_sessions = market_panel.get("sessions")
     if not isinstance(market_sessions, list) or not market_sessions:
