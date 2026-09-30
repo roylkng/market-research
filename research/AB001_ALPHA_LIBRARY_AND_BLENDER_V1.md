@@ -28,6 +28,7 @@ Each OOS alpha record contains:
 - normalized_score;
 - prediction_role = OOS;
 - target_excess_return when mature;
+- entry_session and exit_session;
 - outcome_status;
 - live_capital_allowed = false.
 
@@ -92,8 +93,14 @@ This is a diagnostic, not an automatic promotion decision.
 
 The first dynamic blender is deliberately simple and auditable.
 
-For decision session D, each alpha's weight may use only sessions strictly before
-D.
+For decision session D, each alpha's weight may use only OOS outcomes whose
+entire label horizon had matured before D.
+
+A historical record is eligible for efficacy only when:
+
+    exit_session < D
+
+Feature-session ordering alone is insufficient for multi-session labels.
 
 For each alpha:
 
@@ -121,7 +128,8 @@ equal weight across all available alphas for that session and marks:
 
     weighting_status = INSUFFICIENT_TRAILING_EVIDENCE_EQUAL_WEIGHT_FALLBACK
 
-No current-session target or future outcome may enter the weight calculation.
+No current-session target, partially matured label, or future outcome may enter
+the weight calculation.
 
 ## Blend prediction
 
