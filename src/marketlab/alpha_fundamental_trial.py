@@ -185,8 +185,14 @@ def build_t008_event_labels(
         market_panel
     )
     action_by_symbol = action_index(action_ledger)
+    coverage_start = str(action_ledger.get("coverage_start_date") or "")
     coverage_end = str(action_ledger.get("coverage_end_date") or "")
-    if not coverage_end or coverage_end < dates[-1]:
+    if (
+        not coverage_start
+        or not coverage_end
+        or coverage_start > dates[0]
+        or coverage_end < dates[-1]
+    ):
         raise AlphaContractError(
             "T008 corporate-action coverage does not span market panel"
         )
