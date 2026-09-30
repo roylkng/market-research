@@ -1,0 +1,80 @@
+name: AE001 T008 D002 multi-quarter source panel
+
+on:
+  push:
+    branches:
+      - research/t008-multiquarter-panel-20260930
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[t008-d002]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D002 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_fundamental.py \
+            scripts/run_ae001_t008_d002.py \
+            tests/test_alpha_fundamental.py
+          pytest -q \
+            tests/test_alpha_fundamental.py \
+            tests/test_events_xbrl.py \
+            tests/test_preparation.py
+
+      - name: Run frozen 400-attempt source diagnostic
+        run: |
+          python scripts/run_ae001_t008_d002.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --raw-dir reports/ae001-t008-d002/raw \
+            --output reports/ae001-t008-d002 \
+            --attempts 4 \
+            --timeout-seconds 20
+
+      - name: Prove outcome-blind panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          panel = json.loads(
+              Path("reports/ae001-t008-d002/t008-d002-panel.json").read_text()
+          )
+          assert panel["return_outcomes_opened"] is False
+          assert panel["model_fitted"] is False
+          assert panel["frozen_attempt_count"] == 400
+          assert panel["record_count"] + panel["failure_count"] == 400
+          assert len(panel["per_period"]) == 4
+          print(json.dumps({
+              "panel_sha256": panel["panel_sha256"],
+              "record_count": panel["record_count"],
+              "complete_six_feature_count": panel[
+                  "complete_six_feature_count"
+              ],
+              "per_period": panel["per_period"],
+              "failure_stage_counts": panel["failure_stage_counts"],
+              "feasibility_pass": panel["feasibility_pass"],
+              "return_outcomes_opened": panel["return_outcomes_opened"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact D002 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t008-d002-${{ github.run_id }}
+          path: reports/ae001-t008-d002
+          if-no-files-found: warn
+          retention-days: 90
