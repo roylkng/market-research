@@ -1,0 +1,117 @@
+{
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "interpretation": "PRIMARY_20D_NOT_SUPPORTED; SECONDARY_5D_POSITIVE_SPREAD_BUT_NONRESCUING_AND_BOOTSTRAP_UNCERTAIN; DO_NOT_PROMOTE_T008_TO_AB001; DO_NOT_RETUNE_UNDER_T008; NEW_TRIAL_REQUIRED_FOR_ANY_REVISED_FUNDAMENTAL_SIGNAL; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+  "live_capital_allowed": false,
+  "primary_20d": {
+    "bootstrap": {
+      "mean_rank_ic_ci95": [
+        -0.119454431382763,
+        0.174691719906894
+      ],
+      "mean_spread_ci95": [
+        -0.030109966460423486,
+        0.029073011357789155
+      ],
+      "method": "SYMBOL_CLUSTER_PERCENTILE_BOOTSTRAP_V1",
+      "replicates": 10000,
+      "seed": 8008,
+      "unique_symbol_count": 95
+    },
+    "combined_prediction_count": 180,
+    "equal_weight_composite_diagnostic": {
+      "mean_rank_ic": -0.006577036114835046,
+      "mean_top_minus_bottom_spread": -0.00568262990566882
+    },
+    "label_exclusions": {
+      "CORPORATE_ACTION_BLOCKED": 1
+    },
+    "mean_rank_ic": 0.025578150748376955,
+    "mean_top_minus_bottom_spread": -0.0018976143767178762,
+    "per_period": {
+      "2026-03-31": {
+        "bottom_quartile_mean_excess": 0.007029518292498513,
+        "observation_count": 86,
+        "rank_ic": 0.03555828105099297,
+        "top_minus_bottom_spread": -0.0015512199554360666,
+        "top_quartile_mean_excess": 0.005478298337062446
+      },
+      "2026-06-30": {
+        "bottom_quartile_mean_excess": 0.011676100828002434,
+        "observation_count": 94,
+        "rank_ic": 0.015598020445760937,
+        "top_minus_bottom_spread": -0.002244008797999686,
+        "top_quartile_mean_excess": 0.009432092030002748
+      }
+    },
+    "success_gates": {
+      "fold_1_rank_ic_positive": true,
+      "fold_1_spread_positive": false,
+      "fold_2_rank_ic_positive": true,
+      "fold_2_spread_positive": false,
+      "mean_rank_ic_at_least_0_03": false,
+      "mean_spread_at_least_50bps": false,
+      "minimum_sample_gates": true,
+      "rank_ic_bootstrap_lower_positive": false,
+      "spread_bootstrap_lower_positive": false
+    },
+    "supported": false,
+    "training_example_counts": {
+      "F1": 188,
+      "F2": 274
+    }
+  },
+  "prospective_claim_allowed": false,
+  "report_artifact_sha256": "d959a553b469048b7095bfe41ba6bb26d191dba39333dd07245867bc1952b4ce",
+  "report_sha256": "383f31dc4d28c4e972a84fd622ee5207e3a4cdd1fee2e71aedf5c16cda435e9f",
+  "result_sha256": "b78e995648f434c7cef87cbddc927f1ebdb1d0cb9fc8bb27488a1c0e732ed4b6",
+  "schema_version": 1,
+  "secondary_5d": {
+    "bootstrap": {
+      "mean_rank_ic_ci95": [
+        -0.14365345479675423,
+        0.17313755796101457
+      ],
+      "mean_spread_ci95": [
+        -0.015631398653561033,
+        0.020738238272426032
+      ]
+    },
+    "can_rescue_primary": false,
+    "combined_prediction_count": 180,
+    "equal_weight_composite_diagnostic": {
+      "mean_rank_ic": -0.08474900258477538,
+      "mean_top_minus_bottom_spread": -0.00956471602636149
+    },
+    "mean_rank_ic": 0.017386303263962927,
+    "mean_top_minus_bottom_spread": 0.0060944866639064165,
+    "per_period": {
+      "2026-03-31": {
+        "observation_count": 86,
+        "rank_ic": 0.01601018915986603,
+        "top_minus_bottom_spread": 0.007069771535260838
+      },
+      "2026-06-30": {
+        "observation_count": 94,
+        "rank_ic": 0.01876241736805982,
+        "top_minus_bottom_spread": 0.005119201792551995
+      }
+    },
+    "training_example_counts": {
+      "F1": 189,
+      "F2": 275
+    }
+  },
+  "source": {
+    "corporate_action_ledger_sha256": "1106d4f8ad0f6f67f1562620f420c2c34397aa4533595e7526e8dc49d1a74724",
+    "d004_panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+    "event_count": 369,
+    "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e"
+  },
+  "status": "COMPLETE_DEVELOPMENT",
+  "successful_run": {
+    "artifact_id": 11120765408,
+    "artifact_name": "ae001-t008-36763956057",
+    "run_id": 36763956057
+  },
+  "trial_id": "AE001-T008"
+}
