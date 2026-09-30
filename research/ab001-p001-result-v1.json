@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "pilot_id": "AB001-P001-v1",
+  "status": "COMPLETE_DEVELOPMENT",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_OOS_COMBINATION_DIAGNOSTIC",
+  "live_capital_allowed": false,
+  "prospective_claim_allowed": false,
+  "successful_run": {
+    "run_id": 36671145985,
+    "artifact_id": 11079536520,
+    "artifact_name": "ab001-p001-36671145985"
+  },
+  "report_sha256": "45965b95ac9b93df72a82a04bc82e53d93bbc4d041717849a8f68761880e0bbf",
+  "report_artifact_sha256": "ea4e30b52111f30e1823e77b591e00d157fbc09dbd06d75ce691f4783dd22ffb",
+  "library_sha256": "2a225b19d647ce3aa2bd63a97a337eabc421d12a9a752756d3307ddf36addc6b",
+  "dynamic_blend_artifact_sha256": "8fcc046722f23f03f170f1b71e7dbfdf3879b6615d8412a8aa44c74246dec55c",
+  "sealed_t003_report_sha256": "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270",
+  "horizon_sessions": 5,
+  "session_count": 112,
+  "prediction_count_per_alpha": 145453,
+  "standalone": {
+    "AB001-P001-A1": {
+      "construction": "T003_AUGMENTED_27_FEATURE_RIDGE",
+      "mean_rank_ic": 0.025015754407677233,
+      "median_rank_ic": 0.03355510590008127,
+      "mean_top_decile_excess": 0.005598934179157281,
+      "mean_top_minus_bottom_spread": 0.004119889007319015,
+      "average_top_decile_selection_churn": 0.37131026000634687
+    },
+    "AB001-P001-A2": {
+      "construction": "T003_BASE_18_FEATURE_RIDGE",
+      "mean_rank_ic": 0.005610514228492526,
+      "median_rank_ic": 0.016955070643943804,
+      "mean_top_decile_excess": 0.004546806162771425,
+      "mean_top_minus_bottom_spread": 0.000980506682673035,
+      "average_top_decile_selection_churn": 0.340520921749316
+    },
+    "AB001-P001-A3": {
+      "construction": "T003_PURGED_TRAINING_SELECTED_SIGNED_SINGLE_FEATURE",
+      "mean_rank_ic": 0.01493015396790724,
+      "median_rank_ic": 0.03380610738523518,
+      "mean_top_decile_excess": 0.0018599612655895452,
+      "mean_top_minus_bottom_spread": -0.0003226041999632485,
+      "average_top_decile_selection_churn": 0.48153725348942117
+    }
+  },
+  "pairwise": [
+    {
+      "left_alpha_id": "AB001-P001-A1",
+      "right_alpha_id": "AB001-P001-A2",
+      "mean_daily_spearman_prediction_correlation": 0.8291465691013729,
+      "median_daily_spearman_prediction_correlation": 0.8417539034401875,
+      "daily_top_minus_bottom_spread_correlation": 0.9340932672859964
+    },
+    {
+      "left_alpha_id": "AB001-P001-A1",
+      "right_alpha_id": "AB001-P001-A3",
+      "mean_daily_spearman_prediction_correlation": 0.3517614461918094,
+      "median_daily_spearman_prediction_correlation": 0.3139707062306517,
+      "daily_top_minus_bottom_spread_correlation": 0.5975330783427537
+    },
+    {
+      "left_alpha_id": "AB001-P001-A2",
+      "right_alpha_id": "AB001-P001-A3",
+      "mean_daily_spearman_prediction_correlation": 0.17305578657138668,
+      "median_daily_spearman_prediction_correlation": 0.30497989715613144,
+      "daily_top_minus_bottom_spread_correlation": 0.6006095134255383
+    }
+  ],
+  "incremental_augmented_candidate": {
+    "existing_alpha_ids": [
+      "AB001-P001-A2",
+      "AB001-P001-A3"
+    ],
+    "candidate_alpha_id": "AB001-P001-A1",
+    "baseline_mean_rank_ic": 0.017206298700771,
+    "challenger_mean_rank_ic": 0.020025350093957416,
+    "delta_mean_rank_ic": 0.002819051393186414,
+    "delta_rank_ic_p_value": 0.38942644872624815,
+    "baseline_mean_top_decile_excess": 0.0037736417136853945,
+    "challenger_mean_top_decile_excess": 0.004578355177565744,
+    "delta_mean_top_decile_excess": 0.0008047134638803493,
+    "delta_top_decile_excess_p_value": 0.029214575995900167,
+    "baseline_mean_top_minus_bottom_spread": 0.00024125384655414355,
+    "challenger_mean_top_minus_bottom_spread": 0.0017289650046934339,
+    "delta_mean_top_minus_bottom_spread": 0.0014877111581392904,
+    "delta_top_minus_bottom_spread_p_value": 0.0029640402285019104
+  },
+  "dynamic_blend": {
+    "mean_rank_ic": 0.01913013674015248,
+    "median_rank_ic": 0.03221533635881587,
+    "mean_top_decile_excess": 0.0037438690003453886,
+    "mean_top_minus_bottom_spread": 0.0014511028333801575,
+    "average_top_decile_selection_churn": 0.408358092687522,
+    "mean_alpha_weights": {
+      "AB001-P001-A1": 0.4311602025254121,
+      "AB001-P001-A2": 0.2902150165128305,
+      "AB001-P001-A3": 0.2786247809617574
+    },
+    "weighting_status_counts": {
+      "INSUFFICIENT_TRAILING_EVIDENCE_EQUAL_WEIGHT_FALLBACK": 41,
+      "TRAILING_EFFICACY_CORRELATION_SHRUNK": 71
+    }
+  },
+  "dynamic_vs_augmented": {
+    "delta_mean_rank_ic": -0.005885617667524754,
+    "delta_rank_ic_p_value": 0.3128240238574409,
+    "delta_mean_top_decile_excess": -0.0018550651788118917,
+    "delta_top_decile_excess_p_value": 0.019916813179007935,
+    "delta_mean_top_minus_bottom_spread": -0.002668786173938858,
+    "delta_top_minus_bottom_spread_p_value": 0.013648318205161538
+  },
+  "interpretation": {
+    "a1_is_strongest_standalone": true,
+    "a1_and_a2_are_highly_redundant": true,
+    "a3_is_more_prediction_orthogonal_but_weak_standalone": true,
+    "a1_adds_incremental_top_decile_and_spread_information_vs_a2_plus_a3": true,
+    "a1_incremental_rank_ic_is_not_statistically_clear": true,
+    "dynamic_blender_improves_over_a1": false,
+    "dynamic_blender_materially_dilutes_top_decile_and_spread_vs_a1": true,
+    "ab001_v1_should_be_used_as_library_and_orthogonality_infrastructure": true,
+    "next_research_need": "ADD_GENUINELY_ORTHOGONAL_EVENT_OR_OWNERSHIP_ALPHA_BEFORE_REVISITING_BLEND_WEIGHTS"
+  }
+}
