@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
 
@@ -96,7 +96,7 @@ def _period_iso(value: object) -> str | None:
         return None
     for fmt in ("%Y-%m-%d", "%d-%b-%Y", "%d-%m-%Y"):
         try:
-            return datetime.strptime(raw, fmt).date().isoformat()
+            return datetime.strptime(raw, fmt).replace(tzinfo=UTC).date().isoformat()
         except ValueError:
             continue
     return None
@@ -178,7 +178,7 @@ def _unique_at_timestamp(
         raise AlphaContractError(
             "T008 same-timestamp filing candidates have ambiguous source URLs"
         )
-    return sorted(rows, key=lambda item: item.source_url)[0]
+    return min(rows, key=lambda item: item.source_url)
 
 
 def select_fundamental_pair(
