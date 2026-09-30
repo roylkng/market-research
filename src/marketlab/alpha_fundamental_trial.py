@@ -86,7 +86,7 @@ def _parse_utc(value: object, field: str) -> datetime:
     if not raw:
         raise AlphaContractError(f"{field} is missing")
     try:
-        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(raw)
     except ValueError as exc:
         raise AlphaContractError(f"{field} is not ISO datetime") from exc
     if parsed.tzinfo is None:
