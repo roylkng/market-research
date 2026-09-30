@@ -1,0 +1,61 @@
+name: AE001 D003 announcement source audit
+
+on:
+  push:
+    branches:
+      - feat/ae001-t007-announcement-events-20260930
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    if: contains(github.event.head_commit.message, '[ae001-d003]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D003 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/nse.py \
+            src/marketlab/alpha_announcements.py \
+            scripts/run_ae001_d003_announcement_audit.py \
+            tests/test_alpha_announcements.py
+          pytest -q \
+            tests/test_alpha_announcements.py \
+            tests/test_h003_sources.py
+
+      - name: Run frozen D003 official NSE source audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_ae001_d003_announcement_audit.py \
+            --output reports/ae001-d003 \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.10
+
+      - name: Print audit summary
+        if: always()
+        run: |
+          if [ -f reports/ae001-d003/summary.json ]; then
+            cat reports/ae001-d003/summary.json
+          fi
+
+      - name: Upload exact D003 source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d003-${{ github.run_id }}
+          path: reports/ae001-d003
+          if-no-files-found: error
+          retention-days: 90
