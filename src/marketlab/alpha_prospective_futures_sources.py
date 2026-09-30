@@ -73,6 +73,21 @@ def session_already_eligible(
     )
 
 
+
+def session_source_ready_observed(
+    ledger: dict[str, Any],
+    session_date: str,
+) -> bool:
+    """Return whether any same-session SC002 probe has observed a READY FO source."""
+
+    validate_futures_source_ledger(ledger)
+    return any(
+        attempt.get("session_date") == session_date
+        and isinstance(attempt.get("futures"), dict)
+        and attempt["futures"].get("status") == "READY"
+        for attempt in ledger["attempts"]
+    )
+
 def _futures_observation(
     raw: bytes | None,
     *,
