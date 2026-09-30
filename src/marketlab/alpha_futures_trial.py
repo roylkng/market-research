@@ -17,6 +17,8 @@ TRIAL_ID = "AE001-T005"
 TRIAL_STATUS = "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
 PROTOCOL_ID = "AE001-T005-P1"
 UPSTREAM_PROTOCOL_ID = "AE001-T005-P2"
+DIAGNOSTIC_PROTOCOL_ID = "AE001-T005-P3"
+UNIT_PROTOCOL_ID = "AE001-T005-P4"
 
 
 def _names(definitions) -> list[str]:
@@ -53,14 +55,46 @@ def run_futures_incremental_trial(
         trial_id=TRIAL_ID,
         protocol_id=UPSTREAM_PROTOCOL_ID,
     )
+    p3 = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=DIAGNOSTIC_PROTOCOL_ID,
+    )
+    p4 = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=UNIT_PROTOCOL_ID,
+    )
     frozen = registration["payload"]
     upstream = p2["payload"]
+    diagnostic_frozen = p3["payload"]["diagnostic"]
+    units_frozen = p4["payload"]
     if p1["payload"].get("selection_rule") != (
         "FEATURE_CONSTRUCTION_USES_ONLY_STF_CONTRACTS_WITH_"
         "EXPIRY_STRICTLY_GREATER_THAN_TRADE_DATE"
     ):
         raise AlphaContractError(
             "T005 expiry-selection rule differs from frozen P1"
+        )
+
+    if (
+        int(diagnostic_frozen.get("horizon_sessions") or 0) != 20
+        or int(diagnostic_frozen.get("newey_west_lag") or -1) != 19
+        or diagnostic_frozen.get("rescues_failed_primary") is not False
+    ):
+        raise AlphaContractError(
+            "T005 diagnostic protocol differs from frozen P3"
+        )
+    if (
+        units_frozen.get("existing_t005_feature_formulas_unchanged")
+        is not True
+        or units_frozen.get("oi_unit")
+        != "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT"
+        or units_frozen.get("traded_volume_unit") != "CONTRACT_COUNT"
+        or units_frozen.get("transferred_value_unit") != "RUPEE_NOTIONAL"
+    ):
+        raise AlphaContractError(
+            "T005 FO unit semantics differ from frozen P4"
         )
 
     expected_market = str(upstream["market_panel_sha256"])
@@ -122,7 +156,7 @@ def run_futures_incremental_trial(
     folds_by_horizon = {
         1: _folds(frozen, "secondary"),
         5: _folds(frozen, "primary"),
-        20: _folds(frozen, "diagnostic"),
+        20: _folds({"diagnostic": diagnostic_frozen}, "diagnostic"),
     }
     base = run_action_safe_horizon_walkforward(
         feature_panel=feature_panel,
@@ -156,7 +190,7 @@ def run_futures_incremental_trial(
         (
             20,
             "diagnostic_20d",
-            int(frozen["diagnostic"]["newey_west_lag"]),
+            int(diagnostic_frozen["newey_west_lag"]),
         ),
     ):
         key = str(horizon)
@@ -192,6 +226,8 @@ def run_futures_incremental_trial(
         "trial_registration_event_sha256": registration["event_sha256"],
         "trial_protocol_p1_event_sha256": p1["event_sha256"],
         "trial_protocol_p2_event_sha256": p2["event_sha256"],
+        "trial_protocol_p3_event_sha256": p3["event_sha256"],
+        "trial_protocol_p4_event_sha256": p4["event_sha256"],
         "trial_ledger_sha256": trial_ledger["ledger_sha256"],
         "market_panel_sha256": market_panel["panel_sha256"],
         "feature_panel_sha256": feature_panel["panel_sha256"],
@@ -210,6 +246,13 @@ def run_futures_incremental_trial(
         "primary_5d": comparisons["primary_5d"],
         "secondary_1d": comparisons["secondary_1d"],
         "diagnostic_20d": comparisons["diagnostic_20d"],
+        "fo_unit_semantics": {
+            "oi_unit": units_frozen["oi_unit"],
+            "traded_volume_unit": units_frozen["traded_volume_unit"],
+            "transferred_value_unit": units_frozen["transferred_value_unit"],
+            "d002_result_file": units_frozen["d002_result_file"],
+            "d002_raw_sha256": units_frozen["d002_raw_sha256"],
+        },
         "historical_fo_publication_timestamp_verified": False,
         "prospective_claim_allowed": False,
         "live_capital_allowed": False,
