@@ -207,20 +207,26 @@ class NSEClient:
 
     def corporate_announcements_with_raw(
         self,
-        symbol: str,
+        symbol: str | None = None,
         *,
         from_date: str,
         to_date: str,
     ) -> tuple[JSONPayload, bytes]:
-        """Fetch exact NSE announcement discovery bytes for one equity symbol."""
+        """Fetch exact NSE corporate-announcement discovery bytes.
+
+        Omitting symbol requests the exchange-wide equity announcement range.
+        Existing symbol-scoped H-series callers retain identical parameters.
+        """
+        params: dict[str, Any] = {
+            "index": "equities",
+            "from_date": from_date,
+            "to_date": to_date,
+        }
+        if symbol:
+            params["symbol"] = symbol
         return self._json_get_with_raw(
             self.CORPORATE_ANNOUNCEMENT_ENDPOINT,
-            params={
-                "index": "equities",
-                "symbol": symbol,
-                "from_date": from_date,
-                "to_date": to_date,
-            },
+            params=params,
         )
 
     def archive_bytes(self, url: str) -> bytes:
