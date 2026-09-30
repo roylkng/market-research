@@ -521,14 +521,28 @@ def incremental_alpha_contribution(
         alpha_ids=[*existing_alpha_ids, candidate_alpha_id],
         horizon_sessions=horizon_sessions,
     )
-    challenger_sessions = {
-        str(row["feature_session"]) for row in challenger_predictions
+    challenger_keys = {
+        (
+            str(row["feature_session"]),
+            str(row["symbol"]),
+            str(row["isin"]),
+        )
+        for row in challenger_predictions
     }
     baseline_common = [
         row
         for row in baseline_predictions
-        if str(row["feature_session"]) in challenger_sessions
+        if (
+            str(row["feature_session"]),
+            str(row["symbol"]),
+            str(row["isin"]),
+        )
+        in challenger_keys
     ]
+    if len(baseline_common) != len(challenger_predictions):
+        raise AlphaContractError(
+            "AB001 incremental comparison could not align identical OOS rows"
+        )
     baseline_report = evaluate_cross_sectional_predictions(baseline_common)
     challenger_report = evaluate_cross_sectional_predictions(
         challenger_predictions
@@ -807,6 +821,13 @@ def dynamic_blend(
                 by_alpha_session[alpha][session][identity]
                 for alpha in ids
             ]
+            complete_count = sum(
+                row["target_excess_return"] is not None for row in rows
+            )
+            if complete_count not in {0, len(rows)}:
+                raise AlphaContractError(
+                    "AB001 dynamic blend aligned outcomes have mixed maturity"
+                )
             targets = {
                 row["target_excess_return"]
                 for row in rows
