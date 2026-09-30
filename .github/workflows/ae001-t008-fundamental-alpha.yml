@@ -1,0 +1,147 @@
+name: AE001 T008 fundamental alpha trial
+
+on:
+  push:
+    branches:
+      - feat/ae001-t008-fundamental-alpha-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  trial:
+    if: contains(github.event.head_commit.message, '[t008-outcome]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T008 implementation before outcome access
+        run: |
+          ruff check \
+            src/marketlab/alpha_fundamental_trial.py \
+            scripts/run_ae001_t008.py \
+            tests/test_alpha_fundamental_trial.py
+          pytest -q \
+            tests/test_alpha_fundamental_trial.py \
+            tests/test_alpha_fundamental.py \
+            tests/test_alpha_fundamental_combined.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.alpha_trials import (
+              require_unopened_registered_trial,
+              validate_trial_ledger,
+          )
+
+          ledger = json.loads(
+              Path("research/ae001/trial-ledger.json").read_text()
+          )
+          validate_trial_ledger(ledger)
+          event = require_unopened_registered_trial(
+              ledger,
+              trial_id="AE001-T008",
+              required_status="FROZEN_BEFORE_OUTCOME_MATERIALIZATION",
+          )
+          print("T008 registration:", event["event_sha256"])
+          PY
+
+      - name: Download exact sealed D004 panel
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t008-d004-36748060295
+          path: evidence/d004
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36748060295
+
+      - name: Verify frozen D004 artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          D004_PANEL="$(find evidence/d004 -name t008-d004-panel.json -print -quit)"
+          test -n "$D004_PANEL"
+          python - "$D004_PANEL" <<'PY'
+          import json
+          import sys
+
+          path = sys.argv[1]
+          panel = json.load(open(path, encoding="utf-8"))
+          assert panel["panel_sha256"] == (
+              "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5"
+          )
+          assert panel["record_count"] == 369
+          assert panel["return_outcomes_opened"] is False
+          assert panel["model_fitted"] is False
+          print(path)
+          PY
+
+      - name: Build official market panel through T008 freeze date
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-06-01 \
+            --end-date 2026-09-30 \
+            --store .marketlab/ae001-t008 \
+            --output reports/ae001-t008/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Build action-safe CORE18 panel
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/ae001-t008/panel/market-panel.json.gz \
+            --feature-panel reports/ae001-t008/panel/feature-panel.json.gz \
+            --start-date 2025-06-01 \
+            --end-date 2026-09-30 \
+            --raw-dir reports/ae001-t008/corporate-actions/raw \
+            --output reports/ae001-t008/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build reusable CORE27 delivery panel
+        run: |
+          python scripts/build_ae001_delivery_features.py \
+            --market-panel reports/ae001-t008/panel/market-panel.json.gz \
+            --feature-panel reports/ae001-t008/action-safe/action-safe-feature-panel.json.gz \
+            --store .marketlab/ae001-t008 \
+            --output reports/ae001-t008/delivery \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Run frozen T008 outcome trial
+        shell: bash
+        run: |
+          set -euo pipefail
+          D004_PANEL="$(find evidence/d004 -name t008-d004-panel.json -print -quit)"
+          python scripts/run_ae001_t008.py \
+            --d004-panel "$D004_PANEL" \
+            --market-panel reports/ae001-t008/panel/market-panel.json.gz \
+            --delivery-feature-panel reports/ae001-t008/delivery/delivery-feature-panel.json.gz \
+            --action-ledger reports/ae001-t008/action-safe/corporate-action-ledger.json.gz \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --output reports/ae001-t008/trial
+
+      - name: Print compact T008 result
+        run: cat reports/ae001-t008/trial/summary.json
+
+      - name: Upload exact T008 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t008-${{ github.run_id }}
+          path: |
+            reports/ae001-t008
+            .marketlab/ae001-t008/market-data
+          if-no-files-found: warn
+          retention-days: 90
