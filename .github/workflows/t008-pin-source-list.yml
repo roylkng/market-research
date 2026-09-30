@@ -1,0 +1,154 @@
+name: T008 pin rating source list
+
+on:
+  push:
+    branches:
+      - feat/ae001-t008-credit-rating-semantics-20260930
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pin:
+    if: contains(github.event.head_commit.message, '[t008-pin-source-list]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download sealed T007 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t007-36715752748
+          path: evidence/t007
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36715752748
+
+      - name: Build exact frozen T008 source list
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          from marketlab.alpha import digest
+
+          PARENT_SHA = "fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d"
+          ALLOWED = {
+              "credit rating",
+              "credit rating- revision",
+              "credit rating- new",
+          }
+          HOSTS = {"nsearchives.nseindia.com", "archives.nseindia.com"}
+
+          matches = list(Path("evidence/t007").rglob("announcement-panel.json.gz"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one T007 announcement panel, got {matches}")
+          panel = json.loads(gzip.decompress(matches[0].read_bytes()).decode("utf-8"))
+          if panel["panel_sha256"] != PARENT_SHA:
+              raise SystemExit("T007 parent announcement panel SHA mismatch")
+
+          records = []
+          for session in panel["sessions"]:
+              for row in session["announcements"]:
+                  desc = " ".join(str(row.get("desc") or "").split()).casefold()
+                  if desc not in ALLOWED:
+                      continue
+                  url = str(row.get("attchmntFile") or "").strip()
+                  parsed = urlparse(url)
+                  if parsed.scheme != "https" or (parsed.hostname or "").lower() not in HOSTS:
+                      raise SystemExit(f"unsupported T008 attachment URL: {url}")
+                  if Path(parsed.path).suffix.casefold() != ".pdf":
+                      raise SystemExit(f"T008 attachment is not PDF: {url}")
+                  records.append(
+                      {
+                          "announcement_id": str(row["announcement_id"]),
+                          "symbol": str(row["symbol"]).upper(),
+                          "seq_id": str(row["seq_id"]),
+                          "exchange_published_at_utc": str(
+                              row["exchange_published_at_utc"]
+                          ),
+                          "description": str(row.get("desc") or "").strip(),
+                          "attachment_text": str(
+                              row.get("attchmntText") or ""
+                          ).strip(),
+                          "attachment_url": url,
+                      }
+                  )
+
+          records.sort(
+              key=lambda row: (
+                  row["exchange_published_at_utc"],
+                  row["symbol"],
+                  row["seq_id"],
+                  row["announcement_id"],
+              )
+          )
+          if len(records) != 2552:
+              raise SystemExit(
+                  f"T008 frozen source count mismatch: {len(records)} != 2552"
+              )
+          identities = [row["announcement_id"] for row in records]
+          if len(identities) != len(set(identities)):
+              raise SystemExit("T008 source list has duplicate announcement IDs")
+
+          source = {
+              "schema_version": 1,
+              "source_list_id": "AE001-T008-RATING-SOURCES-v1",
+              "trial_id": "AE001-T008-v1",
+              "parent_t007_announcement_panel_sha256": PARENT_SHA,
+              "source_start": "2025-09-01",
+              "source_end": "2026-09-25",
+              "normalized_description_filter": sorted(ALLOWED),
+              "source_count": len(records),
+              "records": records,
+              "market_return_outcomes_attached": False,
+              "live_capital_allowed": False,
+          }
+          source["source_list_sha256"] = digest(source)
+          destination = Path("research/ae001-t008/source-list-v1.json")
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_text(
+              json.dumps(
+                  source,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(
+              json.dumps(
+                  {
+                      "source_count": source["source_count"],
+                      "source_list_sha256": source["source_list_sha256"],
+                      "first": records[0],
+                      "last": records[-1],
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
+
+      - name: Commit frozen source list
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001-t008/source-list-v1.json
+          git commit -m "research: pin frozen T008 credit-rating source list [skip ci]"
+          git push origin HEAD:feat/ae001-t008-credit-rating-semantics-20260930
