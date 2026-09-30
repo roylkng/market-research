@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "pilot_id": "AB001-P003-v1",
+  "status": "COMPLETE_DEVELOPMENT",
+  "evidence_class": "HISTORICAL_KNOWN_OUTCOME_COMBINATION_DIAGNOSTIC",
+  "live_capital_allowed": false,
+  "prospective_claim_allowed": false,
+  "successful_run": {
+    "run_id": 36703199954,
+    "artifact_id": 11090624849,
+    "artifact_name": "ab001-p003-36703199954"
+  },
+  "report_sha256": "0d833a280dcc741ebba13bfe8b753689b7ff1ad41f0b2c13181fd8b0c37552c6",
+  "report_artifact_sha256": "fad3f2ee9dba9ebf9a06ea0bb1bce019135006bb8b7ca729f731426128dd8d73",
+  "library_sha256": "4e04142bb3b33ca9f1c86de456bed1e5479d7d6c89bd72e59bff14b5c713ec36",
+  "horizon_sessions": 5,
+  "session_count": 112,
+  "prediction_count_per_alpha": 23084,
+  "source_reproduction": {
+    "sealed_t005_report_sha256": "2c72c9207ad3cfe2bc73637e4c10b7ad378c9a6c1b347fa2dd8936831a7511e2",
+    "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+    "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+    "delivery_augmented_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+    "futures_panel_sha256": "02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5",
+    "futures_augmented_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+    "aggregate_absolute_tolerance": 1e-15,
+    "passed": true
+  },
+  "standalone": {
+    "core27": {
+      "mean_rank_ic": -0.0006030060148556494,
+      "median_rank_ic": 0.007633704148227186,
+      "mean_top_decile_excess": 0.00038839032457309075,
+      "mean_top_minus_bottom_spread": 0.00008999948207925853,
+      "average_top_decile_selection_churn": 0.5345345345345346
+    },
+    "futures_delta": {
+      "mean_rank_ic": 0.03449804204587633,
+      "median_rank_ic": 0.031861589583991975,
+      "mean_top_decile_excess": 0.00224524158533303,
+      "mean_top_minus_bottom_spread": 0.005559310457389058,
+      "average_top_decile_selection_churn": 0.6662376662376662
+    },
+    "full37": {
+      "mean_rank_ic": 0.021664130700606535,
+      "median_rank_ic": 0.03455985056461198,
+      "mean_top_decile_excess": 0.0011398627229922808,
+      "mean_top_minus_bottom_spread": 0.003935681355715129,
+      "average_top_decile_selection_churn": 0.5765765765765766
+    }
+  },
+  "core_delta_orthogonality": {
+    "mean_daily_spearman_prediction_correlation": -0.011771060215251487,
+    "median_daily_spearman_prediction_correlation": -0.012210171675873155,
+    "daily_top_minus_bottom_spread_correlation": 0.023494586741422404,
+    "overlapping_session_count": 112,
+    "overlapping_stock_session_count": 23084
+  },
+  "core_plus_delta_incremental": {
+    "baseline_mean_rank_ic": -0.0006030060148556494,
+    "challenger_mean_rank_ic": 0.02466531788274166,
+    "delta_mean_rank_ic": 0.02526832389759731,
+    "delta_rank_ic_p_value": 0.011244897347395201,
+    "baseline_mean_top_decile_excess": 0.00038839032457309075,
+    "challenger_mean_top_decile_excess": 0.001085591341569076,
+    "delta_mean_top_decile_excess": 0.0006972010169959852,
+    "delta_top_decile_excess_p_value": 0.5060482341068157,
+    "baseline_mean_top_minus_bottom_spread": 0.00008999948207925853,
+    "challenger_mean_top_minus_bottom_spread": 0.003386452461992242,
+    "delta_mean_top_minus_bottom_spread": 0.0032964529799129833,
+    "delta_spread_p_value": 0.040639656625113985
+  },
+  "core_plus_delta_vs_full37": {
+    "blend_mean_rank_ic": 0.02466531788274166,
+    "full37_mean_rank_ic": 0.021664130700606535,
+    "delta_mean_rank_ic": 0.003001187182135125,
+    "delta_rank_ic_p_value": 0.3912213985153104,
+    "blend_mean_top_decile_excess": 0.001085591341569076,
+    "full37_mean_top_decile_excess": 0.0011398627229922808,
+    "delta_mean_top_decile_excess": -0.000054271381423204737,
+    "delta_top_decile_excess_p_value": 0.9080978779913714,
+    "blend_mean_top_minus_bottom_spread": 0.003386452461992242,
+    "full37_mean_top_minus_bottom_spread": 0.003935681355715129,
+    "delta_mean_top_minus_bottom_spread": -0.0005492288937228868,
+    "delta_spread_p_value": 0.4331647875318553
+  },
+  "interpretation": {
+    "futures_delta_is_prediction_orthogonal_to_core27": true,
+    "futures_delta_is_spread_orthogonal_to_core27": true,
+    "futures_delta_has_stronger_standalone_rank_ic_than_full37": true,
+    "normalized_core_plus_delta_improves_rank_ic_vs_core27": true,
+    "normalized_core_plus_delta_improves_spread_vs_core27": true,
+    "top_decile_excess_increment_not_statistically_supported": true,
+    "normalized_core_plus_delta_not_statistically_different_from_full37": true,
+    "promote_futures_delta_as_distinct_ab001_candidate_for_future_confirmatory_work": true,
+    "historical_known_outcome_only": true,
+    "next_gate": "PROSPECTIVE_T006_WITH_SC001_AND_SC002_SOURCE_TIMING"
+  }
+}
