@@ -9,6 +9,7 @@ from marketlab.alpha_prospective_futures_sources import (
     append_futures_source_probe,
     new_futures_source_ledger,
     session_already_eligible,
+    session_source_ready_observed,
     validate_futures_source_ledger,
 )
 
@@ -134,3 +135,30 @@ def test_sc002_rejects_pre_start_probe():
             source_url="x",
             raw=None,
         )
+
+
+
+def test_sc002_postcutoff_ready_is_publication_observed_but_not_t006_eligible():
+    ledger, attempt = append_futures_source_probe(
+        new_futures_source_ledger(),
+        session_date="2026-09-30",
+        captured_at_utc="2026-09-30T15:37:00+00:00",
+        source_url="https://nsearchives.nseindia.com/fo.zip",
+        raw=_fo_zip("2026-09-30"),
+    )
+    assert attempt is not None
+    assert attempt["futures"]["status"] == "READY"
+    assert attempt["eligible_before_cutoff"] is False
+    assert session_already_eligible(ledger, "2026-09-30") is False
+    assert session_source_ready_observed(ledger, "2026-09-30") is True
+
+
+def test_sc002_ready_observation_can_stop_later_diagnostic_probes():
+    ledger, _ = append_futures_source_probe(
+        new_futures_source_ledger(),
+        session_date="2026-09-30",
+        captured_at_utc="2026-09-30T15:37:00+00:00",
+        source_url="x",
+        raw=_fo_zip("2026-09-30"),
+    )
+    assert session_source_ready_observed(ledger, "2026-09-30") is True
