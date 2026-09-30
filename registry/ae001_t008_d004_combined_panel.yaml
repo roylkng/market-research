@@ -1,0 +1,51 @@
+schema_version: 1
+id: AE001-T008-D004-v1
+name: combined_four_period_fundamental_panel
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+universe_sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+
+inputs:
+  d002:
+    run_id: 36742740631
+    artifact_id: 11111600748
+    artifact_name: ae001-t008-d002-36742740631
+    panel_sha256: 6426dbe7fc47faa8ce440e599d3566ce98fe8d675efc5abb61145c940d6bfd64
+    target_periods:
+      - 2026-03-31
+      - 2026-06-30
+  d003:
+    run_id: 36746275777
+    artifact_id: 11113075870
+    artifact_name: ae001-t008-d003-36746275777
+    panel_sha256: 69fdda1d51b7a070849556a53794f224d054270974958ae45eab6555fbaa1e35
+    target_periods:
+      - 2025-09-30
+      - 2025-12-31
+
+feature_names:
+  - revenue_yoy
+  - pbt_change_to_prior_revenue
+  - total_profit_change_to_prior_revenue
+  - pbt_margin
+  - pbt_margin_delta_yoy
+  - total_profit_margin_delta_yoy
+
+selection:
+  require_all_six_features_complete: true
+  duplicate_key: target_period_end_plus_symbol
+  duplicate_policy: fail_closed
+
+thresholds:
+  minimum_complete_rows_per_target_period: 60
+  minimum_total_complete_rows: 280
+
+outcomes:
+  return_labels_allowed: false
+  model_fitting_allowed: false
+
+promotion:
+  next_if_pass: T008_ALPHA_PROTOCOL_FREEZE
+  lower_thresholds_after_result: false
