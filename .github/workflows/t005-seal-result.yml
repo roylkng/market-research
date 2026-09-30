@@ -1,0 +1,300 @@
+name: AE001 T005 canonical result seal
+
+on:
+  push:
+    branches:
+      - feat/ae001-futures-positioning-features-20260930
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  seal:
+    if: contains(github.event.head_commit.message, '[seal-t005-result]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download exact successful T005 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t005-36696476204
+          path: evidence/t005
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36696476204
+
+      - name: Seal exact T005 result
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha import digest
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          ledger_path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+          state = trial_state(ledger, "AE001-T005")
+          if state["result_count"] != 0:
+              raise SystemExit("T005 already has a canonical result event")
+
+          summary_paths = list(Path("evidence/t005").rglob("summary.json"))
+          futures_manifest_paths = list(
+              Path("evidence/t005").rglob("futures/manifest.json")
+          )
+          if len(summary_paths) != 1:
+              raise SystemExit(
+                  f"expected exactly one T005 summary, got {summary_paths}"
+              )
+          if len(futures_manifest_paths) != 1:
+              raise SystemExit(
+                  "expected exactly one T005 futures manifest, got "
+                  f"{futures_manifest_paths}"
+              )
+
+          summary = json.loads(
+              summary_paths[0].read_text(encoding="utf-8")
+          )
+          futures_manifest = json.loads(
+              futures_manifest_paths[0].read_text(encoding="utf-8")
+          )
+
+          if summary["trial_id"] != "AE001-T005":
+              raise SystemExit("unexpected T005 summary trial ID")
+          if summary["report_sha256"] != (
+              "2c72c9207ad3cfe2bc73637e4c10b7ad378c9a6c1b347fa2dd8936831a7511e2"
+          ):
+              raise SystemExit("unexpected T005 report SHA")
+          if summary["report_artifact_sha256"] != (
+              "f21cd59c6cb9fc85918369902fba637d34ce71de747d82357ff9fdd8a50885ff"
+          ):
+              raise SystemExit("unexpected T005 report artifact SHA")
+          if summary["primary_success_criteria_supported"] is not True:
+              raise SystemExit("T005 frozen primary success gate is not supported")
+          if futures_manifest["futures_panel_sha256"] != (
+              "02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5"
+          ):
+              raise SystemExit("unexpected T005 futures panel SHA")
+          if futures_manifest["augmented_feature_panel_sha256"] != (
+              "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f"
+          ):
+              raise SystemExit("unexpected T005 37-feature panel SHA")
+
+          def paired_metrics(section):
+              inference = section[
+                  "augmented_minus_base_inference"
+              ]["metrics"]
+              return {
+                  "session_count": section["augmented"]["session_count"],
+                  "prediction_count": section["augmented"][
+                      "prediction_count"
+                  ],
+                  "base_mean_rank_ic": section["base"]["mean_rank_ic"],
+                  "augmented_mean_rank_ic": section["augmented"][
+                      "mean_rank_ic"
+                  ],
+                  "delta_mean_rank_ic": inference["rank_ic"]["mean"],
+                  "delta_rank_ic_p_value": inference["rank_ic"][
+                      "p_value_two_sided"
+                  ],
+                  "base_mean_top_decile_excess": section["base"][
+                      "mean_top_decile_excess"
+                  ],
+                  "augmented_mean_top_decile_excess": section["augmented"][
+                      "mean_top_decile_excess"
+                  ],
+                  "delta_mean_top_decile_excess": inference[
+                      "top_decile_excess"
+                  ]["mean"],
+                  "delta_top_decile_excess_p_value": inference[
+                      "top_decile_excess"
+                  ]["p_value_two_sided"],
+                  "base_mean_top_minus_bottom_spread": section["base"][
+                      "mean_top_minus_bottom_spread"
+                  ],
+                  "augmented_mean_top_minus_bottom_spread": section[
+                      "augmented"
+                  ]["mean_top_minus_bottom_spread"],
+                  "delta_mean_top_minus_bottom_spread": inference[
+                      "top_minus_bottom_spread"
+                  ]["mean"],
+                  "delta_top_minus_bottom_spread_p_value": inference[
+                      "top_minus_bottom_spread"
+                  ]["p_value_two_sided"],
+              }
+
+          primary = paired_metrics(summary["primary_5d"])
+          secondary = paired_metrics(summary["secondary_1d"])
+          diagnostic = paired_metrics(summary["diagnostic_20d"])
+
+          result = {
+              "schema_version": 1,
+              "trial_id": "AE001-T005",
+              "status": "COMPLETE_DEVELOPMENT",
+              "evidence_class": summary["evidence_class"],
+              "successful_run": {
+                  "run_id": 36696476204,
+                  "artifact_id": 11088556814,
+                  "artifact_name": "ae001-t005-36696476204",
+              },
+              "failed_pre_model_run": {
+                  "run_id": 36692550419,
+                  "reason": "REGISTRATION_OMITTED_ALREADY_FROZEN_20D_DIAGNOSTIC_FOLDS",
+                  "model_fit_started": False,
+                  "outcome_metric_opened": False,
+              },
+              "report_sha256": summary["report_sha256"],
+              "report_artifact_sha256": summary[
+                  "report_artifact_sha256"
+              ],
+              "source_chain": {
+                  "market_panel_sha256": summary["market_panel_sha256"],
+                  "action_safe_base_feature_panel_sha256": (
+                      "300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8"
+                  ),
+                  "corporate_action_ledger_sha256": summary[
+                      "corporate_action_ledger_sha256"
+                  ],
+                  "delivery_augmented_feature_panel_sha256": summary[
+                      "base_feature_panel_sha256"
+                  ],
+                  "futures_panel_sha256": summary[
+                      "futures_panel_sha256"
+                  ],
+                  "futures_augmented_37_feature_panel_sha256": summary[
+                      "feature_panel_sha256"
+                  ],
+              },
+              "futures_source": {
+                  "ready_session_count": futures_manifest[
+                      "futures_ready_session_count"
+                  ],
+                  "unavailable_session_count": futures_manifest[
+                      "futures_unavailable_session_count"
+                  ],
+                  "parser_rejected_session_count": futures_manifest[
+                      "futures_parser_rejected_session_count"
+                  ],
+                  "futures_complete_feature_row_count": futures_manifest[
+                      "futures_feature_row_count"
+                  ],
+                  "exclusion_counts": futures_manifest[
+                      "exclusion_counts"
+                  ],
+              },
+              "d002_unit_audit": {
+                  "result_file": "research/ae001-d002-result-v1.json",
+                  "status": "PASS",
+                  "raw_sha256": (
+                      "d7fda7c5881bf6b1aff715af0c90ae5bdc8fccbb7d537c83e3b1e44470dfa4af"
+                  ),
+                  "oi_divisibility_violations": 0,
+                  "change_oi_divisibility_violations": 0,
+                  "traded_price_range_violations": 0,
+              },
+              "primary_5d": {
+                  **primary,
+                  "endpoint_supported": True,
+                  "frozen_success_criteria_supported": True,
+              },
+              "secondary_1d": {
+                  **secondary,
+                  "endpoint_supported": True,
+                  "rescues_failed_primary": False,
+              },
+              "diagnostic_20d": {
+                  **diagnostic,
+                  "incremental_signal_supported": False,
+                  "rescues_failed_primary": False,
+              },
+              "interpretation": (
+                  "PRIMARY_5D_SUPPORTED; SECONDARY_1D_SUPPORTED; "
+                  "20D_DIAGNOSTIC_NOT_SUPPORTED; "
+                  "TOP_DECILE_MEAN_EXCESS_PRIMARY_DELTA_NOT_STATISTICALLY_CLEAR; "
+                  "HISTORICAL_FO_PUBLICATION_TIMING_UNVERIFIED; "
+                  "NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM"
+              ),
+              "historical_fo_publication_timestamp_verified": False,
+              "prospective_claim_allowed": False,
+              "live_capital_allowed": False,
+          }
+          result["result_sha256"] = digest(result)
+
+          result_path = Path("research/ae001-t005-result-v1.json")
+          result_path.write_text(
+              json.dumps(
+                  result,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+
+          event_payload = {
+              key: value
+              for key, value in result.items()
+              if key not in {"schema_version", "trial_id", "result_sha256"}
+          }
+          event_payload["result_file"] = str(result_path)
+          event_payload["result_sha256"] = result["result_sha256"]
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_RESULT_RECORDED",
+              trial_id="AE001-T005",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=event_payload,
+          )
+          ledger_path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          validate_trial_ledger(updated)
+          final_state = trial_state(updated, "AE001-T005")
+          if final_state["result_count"] != 1:
+              raise SystemExit("T005 canonical result count is not exactly one")
+          print(json.dumps(result, sort_keys=True))
+          print("LEDGER_SHA256", updated["ledger_sha256"])
+          print("RESULT_EVENT_SHA256", final_state["results"][0]["event_sha256"])
+          PY
+
+      - name: Commit canonical T005 result
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/ae001/trial-ledger.json \
+            research/ae001-t005-result-v1.json
+          git commit -m "research: seal canonical AE001 T005 result [skip ci]"
+          git push origin HEAD:feat/ae001-futures-positioning-features-20260930
