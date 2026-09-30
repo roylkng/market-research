@@ -78,9 +78,15 @@ jobs:
           TODAY="$(TZ=Asia/Kolkata date +%F)"
           NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
           EVENT_NAME="${{ github.event_name }}"
+          COMMIT_MESSAGE="${{ github.event.head_commit.message || '' }}"
+          MANUAL_POSTCUTOFF="false"
+          if [[ "$COMMIT_MESSAGE" == *"[sc002-postcutoff]"* ]]; then
+            MANUAL_POSTCUTOFF="true"
+          fi
+
           if [[ "$TODAY" < "2026-09-30" ]]; then
             STATE="BEFORE_START"
-          elif [[ "$EVENT_NAME" == "push" && ( "$NOW_HM" < "1630" || "$NOW_HM" > "1829" ) ]]; then
+          elif [[ "$EVENT_NAME" == "push" && "$MANUAL_POSTCUTOFF" != "true" && ( "$NOW_HM" < "1630" || "$NOW_HM" > "1829" ) ]]; then
             STATE="OUTSIDE_PUSH_WINDOW"
           else
             STATE="READY"

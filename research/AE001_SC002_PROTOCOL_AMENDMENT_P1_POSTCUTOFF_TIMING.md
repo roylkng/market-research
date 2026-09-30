@@ -86,3 +86,24 @@ later same-day cutoff would require a new trial ID and a separately frozen
 protocol.
 
 Live capital remains disabled.
+
+
+## Manual diagnostic trigger
+
+A main-branch push may intentionally request an immediate post-cutoff diagnostic
+probe by including:
+
+`[sc002-postcutoff]`
+
+in the commit message.
+
+This trigger is permitted only as an operational source-timing observation.
+It never changes the frozen 18:30 eligibility boundary.
+
+For a manual post-cutoff probe:
+
+- actual post-fetch UTC timestamp remains authoritative;
+- READY after 18:30 remains `eligible_before_cutoff = false`;
+- the first READY observation still stops later probes for that session;
+- the observation may inform a future new-trial cutoff only after the frozen
+  three-session publication-timing requirement is satisfied.
