@@ -2,7 +2,12 @@ from datetime import date, timedelta
 
 import pytest
 
-from marketlab.ab001_p001 import run_ab001_p001
+from marketlab.ab001_p001 import (
+    ALPHA_AUGMENTED,
+    SEALED_T003_H5,
+    _validate_t003_reproduction,
+    run_ab001_p001,
+)
 from marketlab.alpha import AlphaContractError
 from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_model import ModelExample
@@ -102,6 +107,13 @@ def test_p001_reconstructs_three_frozen_oos_sources(monkeypatch):
         "marketlab.ab001_p001.build_action_safe_horizon_examples",
         lambda **kwargs: ({5: _examples()}, {}),
     )
+    monkeypatch.setattr(
+        "marketlab.ab001_p001._validate_t003_reproduction",
+        lambda alpha_id, report: {
+            "alpha_id": alpha_id,
+            "passed": True,
+        },
+    )
 
     result = run_ab001_p001(
         market_panel={"panel_sha256": "m" * 64},
@@ -140,4 +152,23 @@ def test_p001_fails_closed_on_upstream_hash_drift(monkeypatch):
             market_panel={"panel_sha256": "x" * 64},
             augmented_feature_panel=_feature_panel(),
             action_ledger={"ledger_sha256": "a" * 64},
+        )
+
+
+
+def test_p001_t003_reproduction_gate_uses_frozen_tolerance():
+    expected = dict(SEALED_T003_H5[ALPHA_AUGMENTED])
+    gate = _validate_t003_reproduction(
+        ALPHA_AUGMENTED,
+        expected,
+    )
+    assert gate["passed"] is True
+    assert max(gate["absolute_differences"].values()) == pytest.approx(0.0)
+
+    drifted = dict(expected)
+    drifted["mean_rank_ic"] += 1e-10
+    with pytest.raises(AlphaContractError, match="drift exceeds"):
+        _validate_t003_reproduction(
+            ALPHA_AUGMENTED,
+            drifted,
         )
