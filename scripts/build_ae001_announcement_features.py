@@ -9,9 +9,13 @@ from pathlib import Path
 from marketlab.alpha_announcement_features import (
     SOURCE_END,
     SOURCE_START,
+    augment_feature_panel_with_announcements,
     build_announcement_source_panel,
 )
-from marketlab.alpha_history import canonical_gzip_json
+from marketlab.alpha_history import (
+    canonical_gzip_json,
+    load_canonical_gzip_json,
+)
 from marketlab.events import sha256_bytes
 from marketlab.nse import NSEClient
 
@@ -53,6 +57,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build frozen T007 daily whole-market NSE announcement panel"
     )
+    parser.add_argument("--market-panel", type=Path, required=True)
+    parser.add_argument("--feature-panel", type=Path, required=True)
     parser.add_argument("--store", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--attempts", type=int, default=4)
@@ -63,6 +69,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    market_bytes = args.market_panel.read_bytes()
+    feature_bytes = args.feature_panel.read_bytes()
+    market = load_canonical_gzip_json(market_bytes)
+    features = load_canonical_gzip_json(feature_bytes)
+
     client = NSEClient(
         timeout=args.timeout_seconds,
         attempts=args.attempts,
@@ -87,9 +98,18 @@ def main() -> int:
         daily_payloads=payloads,
         daily_raw_sha256=hashes,
     )
+    augmented = augment_feature_panel_with_announcements(
+        feature_panel=features,
+        market_panel=market,
+        announcement_panel=panel,
+    )
     args.output.mkdir(parents=True, exist_ok=True)
     panel_bytes = canonical_gzip_json(panel)
+    augmented_bytes = canonical_gzip_json(augmented)
     (args.output / "announcement-panel.json.gz").write_bytes(panel_bytes)
+    (args.output / "announcement-feature-panel.json.gz").write_bytes(
+        augmented_bytes
+    )
 
     manifest = {
         "schema_version": 1,
@@ -99,8 +119,24 @@ def main() -> int:
         "source_end": SOURCE_END.isoformat(),
         "daily_source_count": panel["daily_source_count"],
         "announcement_count": panel["announcement_count"],
-        "panel_sha256": panel["panel_sha256"],
-        "artifact_sha256": sha256_bytes(panel_bytes),
+        "market_panel_sha256": market["panel_sha256"],
+        "market_artifact_sha256": sha256_bytes(market_bytes),
+        "base_feature_panel_sha256": features["panel_sha256"],
+        "base_feature_artifact_sha256": sha256_bytes(feature_bytes),
+        "announcement_panel_sha256": panel["panel_sha256"],
+        "announcement_artifact_sha256": sha256_bytes(panel_bytes),
+        "augmented_feature_panel_sha256": augmented["panel_sha256"],
+        "augmented_feature_artifact_sha256": sha256_bytes(
+            augmented_bytes
+        ),
+        "feature_row_count": augmented["feature_row_count"],
+        "mapped_event_count": augmented["announcement_mapped_event_count"],
+        "excluded_no_same_session_eq_identity": augmented[
+            "announcement_excluded_no_same_session_eq_identity"
+        ],
+        "excluded_after_last_decision_cutoff": augmented[
+            "announcement_excluded_after_last_decision_cutoff"
+        ],
         "d003_report_sha256": (
             "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f"
         ),
