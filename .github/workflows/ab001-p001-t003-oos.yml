@@ -1,0 +1,94 @@
+name: AB001 P001 T003 OOS alpha library
+
+on:
+  push:
+    branches:
+      - feat/ab001-t003-oos-pilot-20260930
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[ab001-p001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify P001 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/ab001.py \
+            src/marketlab/ab001_p001.py \
+            scripts/run_ab001_p001.py \
+            tests/test_ab001.py \
+            tests/test_ab001_p001.py
+          pytest -q \
+            tests/test_ab001.py \
+            tests/test_ab001_p001.py \
+            tests/test_alpha_multihorizon.py \
+            tests/test_alpha_diagnostics.py
+
+      - name: Rebuild frozen T003 market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/ab001-p001 \
+            --output reports/ab001-p001/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild frozen T003 action-safe base features
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/ab001-p001/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p001/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --raw-dir reports/ab001-p001/corporate-actions/raw \
+            --output reports/ab001-p001/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Rebuild frozen T003 delivery features
+        run: |
+          python scripts/build_ae001_delivery_features.py \
+            --market-panel reports/ab001-p001/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p001/action-safe/action-safe-feature-panel.json.gz \
+            --store .marketlab/ab001-p001 \
+            --output reports/ab001-p001/delivery \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Run frozen AB001 P001
+        run: |
+          python scripts/run_ab001_p001.py \
+            --market-panel reports/ab001-p001/panel/market-panel.json.gz \
+            --feature-panel reports/ab001-p001/delivery/delivery-feature-panel.json.gz \
+            --action-ledger reports/ab001-p001/action-safe/corporate-action-ledger.json.gz \
+            --output reports/ab001-p001/study
+
+      - name: Print compact result
+        run: cat reports/ab001-p001/study/summary.json
+
+      - name: Upload exact P001 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ab001-p001-${{ github.run_id }}
+          path: |
+            reports/ab001-p001
+            .marketlab/ab001-p001/market-data
+          if-no-files-found: warn
+          retention-days: 90
