@@ -165,3 +165,41 @@ def test_t006_decision_ledger_is_unique_and_hash_verified():
             decision_artifact=artifact,
             artifact_path="duplicate",
         )
+
+
+
+def test_t006_decision_ledger_rejects_out_of_order_session():
+    first = {
+        "session_date": "2026-10-02",
+        "artifact_sha256": "1" * 64,
+        "sealed_at_utc": "2026-10-02T12:45:00+00:00",
+        "common_row_count": 150,
+        "sc001_attempt_sha256": "2" * 64,
+        "sc002_attempt_sha256": "3" * 64,
+        "base_model_sha256": "4" * 64,
+        "augmented_model_sha256": "5" * 64,
+        "outcomes_attached": False,
+    }
+    ledger = append_t006_decision(
+        new_t006_decision_ledger(),
+        decision_artifact=first,
+        artifact_path=(
+            "research/prospective/ae001-t006/decisions/"
+            "2026-10-02-v1.json.gz"
+        ),
+    )
+    earlier = {
+        **first,
+        "session_date": "2026-10-01",
+        "artifact_sha256": "6" * 64,
+        "sealed_at_utc": "2026-10-01T12:45:00+00:00",
+    }
+    with pytest.raises(AlphaContractError, match="strictly increasing"):
+        append_t006_decision(
+            ledger,
+            decision_artifact=earlier,
+            artifact_path=(
+                "research/prospective/ae001-t006/decisions/"
+                "2026-10-01-v1.json.gz"
+            ),
+        )
