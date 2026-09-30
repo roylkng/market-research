@@ -1,0 +1,128 @@
+name: AE001 SC002 prospective futures source timing
+
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC -> Asia/Kolkata: 17:00, 17:30, 18:00, 18:15, 18:25.
+    - cron: '30 11 * * 1-5'
+    - cron: '0 12 * * 1-5'
+    - cron: '30 12 * * 1-5'
+    - cron: '45 12 * * 1-5'
+    - cron: '55 12 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-sc002-prospective-futures-source-timing
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify SC002 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_prospective_futures_sources.py \
+            scripts/probe_ae001_sc002.py \
+            scripts/verify_ae001_sc002.py \
+            tests/test_alpha_prospective_futures_sources.py
+          pytest -q \
+            tests/test_alpha_prospective_futures_sources.py \
+            tests/test_alpha_futures.py
+          python scripts/verify_ae001_sc002.py \
+            --ledger research/prospective/ae001-sc002/source-ledger.json
+
+      - name: Resolve frozen start boundary
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          if [[ "$TODAY" < "2026-09-30" ]]; then
+            STATE="BEFORE_START"
+          else
+            STATE="READY"
+          fi
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "SC002 gate: date=$TODAY state=$STATE"
+
+      - name: Probe same-session official NSE FO UDiFF
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/probe_ae001_sc002.py \
+            --session-date "${{ steps.gate.outputs.date }}" \
+            --ledger research/prospective/ae001-sc002/source-ledger.json \
+            --attempts 4 \
+            --timeout-seconds 30 | tee sc002-probe.json
+          python scripts/verify_ae001_sc002.py \
+            --ledger research/prospective/ae001-sc002/source-ledger.json
+
+      - name: Anchor append-only SC002 evidence
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/ae001-sc002/source-ledger.json"
+          python scripts/verify_ae001_sc002.py --ledger "$LEDGER"
+
+          START_SHA="${GITHUB_SHA}"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-sc002
+          if git diff --cached --quiet; then
+            echo "No new SC002 evidence to anchor"
+            exit 0
+          fi
+          git commit -m "AE001 SC002: seal prospective futures source probe ${{ steps.gate.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-sc002-prospective-futures-source-timing.yml"
+            "research/AE001_SC002_PROSPECTIVE_FUTURES_SOURCE_TIMING_V1.md"
+            "research/prospective/ae001-sc002"
+            "src/marketlab/alpha_prospective_futures_sources.py"
+            "src/marketlab/alpha_futures.py"
+            "scripts/probe_ae001_sc002.py"
+            "scripts/verify_ae001_sc002.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "SC002 rules or canonical state changed while observation was in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_sc002.py --ledger "$LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor SC002 evidence after bounded retries"
+          exit 1
+
+      - name: Report pre-start probe
+        if: steps.gate.outputs.state != 'READY'
+        run: echo "SC002 has not reached its frozen start boundary"
