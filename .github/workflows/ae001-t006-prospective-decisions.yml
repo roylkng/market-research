@@ -24,6 +24,37 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refresh latest canonical main before T006 scoring
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVENT_SHA="${GITHUB_SHA}"
+          git fetch origin main
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+
+          RULE_PATHS=(
+            ".github/workflows/ae001-t006-prospective-decisions.yml"
+            "registry/ae001_t006_futures_confirmatory.yaml"
+            "research/AE001_T006_PROSPECTIVE_FUTURES_CONFIRMATION_V1.md"
+            "research/AE001_T006_MODEL_FREEZE_P1.md"
+            "research/AE001_T006_OUTCOME_COHORT_P2.md"
+            "research/prospective/ae001-t006/frozen-models-v1.json"
+            "src/marketlab/alpha_t006.py"
+            "src/marketlab/alpha_t006_prospective.py"
+            "scripts/score_ae001_t006_decision.py"
+            "scripts/verify_ae001_t006_decisions.py"
+          )
+          if [ "$EVENT_SHA" != "$CURRENT_MAIN" ]; then
+            if ! git diff --quiet "$EVENT_SHA" "$CURRENT_MAIN" -- "${RULE_PATHS[@]}"; then
+              echo "Frozen T006 decision rules changed after schedule event creation"
+              git diff --stat "$EVENT_SHA" "$CURRENT_MAIN" -- "${RULE_PATHS[@]}"
+              exit 1
+            fi
+          fi
+
+          git checkout --detach "$CURRENT_MAIN"
+          echo "DECISION_BASE_SHA=$CURRENT_MAIN" >> "$GITHUB_ENV"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -110,7 +141,7 @@ jobs:
             exit 0
           fi
 
-          START_SHA="${GITHUB_SHA}"
+          START_SHA="$DECISION_BASE_SHA"
           git commit -m "AE001 T006: seal prospective decision ${{ steps.clock.outputs.date }} [skip ci]"
 
           CRITICAL_PATHS=(
