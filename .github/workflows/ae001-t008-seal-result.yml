@@ -1,0 +1,240 @@
+name: AE001 T008 result seal
+
+on:
+  push:
+    branches:
+      - feat/ae001-t008-fundamental-alpha-20261001
+
+permissions:
+  contents: write
+
+jobs:
+  seal:
+    if: contains(github.event.head_commit.message, '[t008-seal]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Seal exact T008 result and trial event
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha import digest
+          from marketlab.alpha_trials import append_trial_event, trial_state
+
+          result = {
+              "schema_version": 1,
+              "trial_id": "AE001-T008",
+              "status": "COMPLETE_DEVELOPMENT",
+              "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+              "successful_run": {
+                  "run_id": 36763956057,
+                  "artifact_id": 11120765408,
+                  "artifact_name": "ae001-t008-36763956057",
+              },
+              "source": {
+                  "d004_panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+                  "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+                  "corporate_action_ledger_sha256": "1106d4f8ad0f6f67f1562620f420c2c34397aa4533595e7526e8dc49d1a74724",
+                  "event_count": 369,
+              },
+              "report_sha256": "383f31dc4d28c4e972a84fd622ee5207e3a4cdd1fee2e71aedf5c16cda435e9f",
+              "report_artifact_sha256": "d959a553b469048b7095bfe41ba6bb26d191dba39333dd07245867bc1952b4ce",
+              "primary_20d": {
+                  "supported": False,
+                  "combined_prediction_count": 180,
+                  "training_example_counts": {
+                      "F1": 188,
+                      "F2": 274,
+                  },
+                  "per_period": {
+                      "2026-03-31": {
+                          "observation_count": 86,
+                          "rank_ic": 0.03555828105099297,
+                          "top_minus_bottom_spread": -0.0015512199554360666,
+                          "top_quartile_mean_excess": 0.005478298337062446,
+                          "bottom_quartile_mean_excess": 0.007029518292498513,
+                      },
+                      "2026-06-30": {
+                          "observation_count": 94,
+                          "rank_ic": 0.015598020445760937,
+                          "top_minus_bottom_spread": -0.002244008797999686,
+                          "top_quartile_mean_excess": 0.009432092030002748,
+                          "bottom_quartile_mean_excess": 0.011676100828002434,
+                      },
+                  },
+                  "mean_rank_ic": 0.025578150748376955,
+                  "mean_top_minus_bottom_spread": -0.0018976143767178762,
+                  "bootstrap": {
+                      "method": "SYMBOL_CLUSTER_PERCENTILE_BOOTSTRAP_V1",
+                      "replicates": 10000,
+                      "seed": 8008,
+                      "unique_symbol_count": 95,
+                      "mean_rank_ic_ci95": [
+                          -0.119454431382763,
+                          0.174691719906894,
+                      ],
+                      "mean_spread_ci95": [
+                          -0.030109966460423486,
+                          0.029073011357789155,
+                      ],
+                  },
+                  "success_gates": {
+                      "fold_1_rank_ic_positive": True,
+                      "fold_2_rank_ic_positive": True,
+                      "mean_rank_ic_at_least_0_03": False,
+                      "rank_ic_bootstrap_lower_positive": False,
+                      "fold_1_spread_positive": False,
+                      "fold_2_spread_positive": False,
+                      "mean_spread_at_least_50bps": False,
+                      "spread_bootstrap_lower_positive": False,
+                      "minimum_sample_gates": True,
+                  },
+                  "label_exclusions": {
+                      "CORPORATE_ACTION_BLOCKED": 1,
+                  },
+                  "equal_weight_composite_diagnostic": {
+                      "mean_rank_ic": -0.006577036114835046,
+                      "mean_top_minus_bottom_spread": -0.00568262990566882,
+                  },
+              },
+              "secondary_5d": {
+                  "can_rescue_primary": False,
+                  "combined_prediction_count": 180,
+                  "training_example_counts": {
+                      "F1": 189,
+                      "F2": 275,
+                  },
+                  "per_period": {
+                      "2026-03-31": {
+                          "observation_count": 86,
+                          "rank_ic": 0.01601018915986603,
+                          "top_minus_bottom_spread": 0.007069771535260838,
+                      },
+                      "2026-06-30": {
+                          "observation_count": 94,
+                          "rank_ic": 0.01876241736805982,
+                          "top_minus_bottom_spread": 0.005119201792551995,
+                      },
+                  },
+                  "mean_rank_ic": 0.017386303263962927,
+                  "mean_top_minus_bottom_spread": 0.0060944866639064165,
+                  "bootstrap": {
+                      "mean_rank_ic_ci95": [
+                          -0.14365345479675423,
+                          0.17313755796101457,
+                      ],
+                      "mean_spread_ci95": [
+                          -0.015631398653561033,
+                          0.020738238272426032,
+                      ],
+                  },
+                  "equal_weight_composite_diagnostic": {
+                      "mean_rank_ic": -0.08474900258477538,
+                      "mean_top_minus_bottom_spread": -0.00956471602636149,
+                  },
+              },
+              "interpretation": (
+                  "PRIMARY_20D_NOT_SUPPORTED; "
+                  "SECONDARY_5D_POSITIVE_SPREAD_BUT_NONRESCUING_AND_"
+                  "BOOTSTRAP_UNCERTAIN; "
+                  "DO_NOT_PROMOTE_T008_TO_AB001; "
+                  "DO_NOT_RETUNE_UNDER_T008; "
+                  "NEW_TRIAL_REQUIRED_FOR_ANY_REVISED_FUNDAMENTAL_SIGNAL; "
+                  "NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM"
+              ),
+              "prospective_claim_allowed": False,
+              "live_capital_allowed": False,
+          }
+          result["result_sha256"] = digest(result)
+
+          result_path = Path("research/ae001-t008-result-v1.json")
+          result_path.write_text(
+              json.dumps(
+                  result,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ) + "\n",
+              encoding="utf-8",
+          )
+
+          ledger_path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          state = trial_state(ledger, "AE001-T008")
+          if state["result_count"] != 0:
+              raise SystemExit("T008 result already recorded")
+
+          event_payload = {
+              "status": result["status"],
+              "evidence_class": result["evidence_class"],
+              "successful_run": result["successful_run"],
+              "report_sha256": result["report_sha256"],
+              "report_artifact_sha256": result["report_artifact_sha256"],
+              "result_file": str(result_path),
+              "result_sha256": result["result_sha256"],
+              "primary_20d": {
+                  "supported": False,
+                  "mean_rank_ic": result["primary_20d"]["mean_rank_ic"],
+                  "mean_top_minus_bottom_spread": result["primary_20d"][
+                      "mean_top_minus_bottom_spread"
+                  ],
+                  "bootstrap_rank_ic_ci95": result["primary_20d"][
+                      "bootstrap"
+                  ]["mean_rank_ic_ci95"],
+                  "bootstrap_spread_ci95": result["primary_20d"][
+                      "bootstrap"
+                  ]["mean_spread_ci95"],
+              },
+              "secondary_5d": {
+                  "can_rescue_primary": False,
+                  "mean_rank_ic": result["secondary_5d"]["mean_rank_ic"],
+                  "mean_top_minus_bottom_spread": result["secondary_5d"][
+                      "mean_top_minus_bottom_spread"
+                  ],
+              },
+              "interpretation": result["interpretation"],
+              "prospective_claim_allowed": False,
+              "live_capital_allowed": False,
+          }
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_RESULT_RECORDED",
+              trial_id="AE001-T008",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=event_payload,
+          )
+          ledger_path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ) + "\n",
+              encoding="utf-8",
+          )
+          print("result_sha256", result["result_sha256"])
+          print("result_event_sha256", updated["events"][-1]["event_sha256"])
+          print("ledger_sha256", updated["ledger_sha256"])
+          PY
+
+      - name: Commit sealed result
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001-t008-result-v1.json research/ae001/trial-ledger.json
+          git commit -m "research: seal AE001 T008 failed primary result [skip ci]"
+          git push origin HEAD:feat/ae001-t008-fundamental-alpha-20261001
