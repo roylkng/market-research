@@ -1,5 +1,5 @@
 {
-  "event_count": 24,
+  "event_count": 25,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -939,10 +939,96 @@
       "recorded_at_utc": "2026-09-30T13:10:00+00:00",
       "seq": 24,
       "trial_id": "AE001-T007"
+    },
+    {
+      "event_sha256": "5d167b283992777281f3c4e6e21162140453a213c4e7a70ac8cfcd4e784aa7e8",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "bootstrap": {
+          "confidence_interval": 0.95,
+          "replicates": 10000,
+          "seed": 8008,
+          "unit": "symbol"
+        },
+        "entry_rule": "NEXT_NSE_SESSION_OPEN_STRICTLY_AFTER_PUBLICATION_LOCAL_DATE",
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "feature_transform": "TRAINING_ONLY_EMPIRICAL_CDF_CENTERED_V1",
+        "features": [
+          "revenue_yoy",
+          "pbt_change_to_prior_revenue",
+          "total_profit_change_to_prior_revenue",
+          "pbt_margin",
+          "pbt_margin_delta_yoy",
+          "total_profit_margin_delta_yoy"
+        ],
+        "folds": [
+          {
+            "fold_id": "F1",
+            "oos_target_period": "2026-03-31",
+            "training_target_periods": [
+              "2025-09-30",
+              "2025-12-31"
+            ]
+          },
+          {
+            "fold_id": "F2",
+            "oos_target_period": "2026-06-30",
+            "training_target_periods": [
+              "2025-09-30",
+              "2025-12-31",
+              "2026-03-31"
+            ]
+          }
+        ],
+        "live_capital_allowed": false,
+        "maturity_rule": "TRAIN_LABEL_EXIT_CLOSE_STRICTLY_BEFORE_EARLIEST_OOS_PUBLICATION",
+        "minimum_samples": {
+          "combined_primary_oos_predictions": 120,
+          "training_examples_per_fold": 120,
+          "valid_oos_events_per_period_primary": 60
+        },
+        "model": {
+          "hyperparameter_search": false,
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "multiple_testing": {
+          "parameter_sweep_allowed": false,
+          "trial_count_increment": 1
+        },
+        "name": "fundamental_filing_medium_horizon_alpha",
+        "outcomes_opened_before_registration": false,
+        "primary": {
+          "all_gates_required": true,
+          "bootstrap_lower_rank_ic_gt": 0.0,
+          "bootstrap_lower_spread_gt": 0.0,
+          "each_period_rank_ic_positive": true,
+          "each_period_spread_positive": true,
+          "horizon_sessions": 20,
+          "mean_rank_ic_min": 0.03,
+          "mean_spread_min": 0.005
+        },
+        "secondary": {
+          "can_rescue_primary": false,
+          "horizon_sessions": 5
+        },
+        "source": {
+          "artifact_id": 11112604385,
+          "diagnostic_id": "AE001-T008-D004-v1",
+          "event_count": 369,
+          "panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+          "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+          "workflow_run_id": 36748060295
+        },
+        "status": "FROZEN_BEFORE_RETURN_OUTCOMES"
+      },
+      "recorded_at_utc": "2026-09-30T19:05:31.649471+00:00",
+      "seq": 25,
+      "trial_id": "AE001-T008"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "b2d8b8616311651f8e95be3599a5ccea40a356c7aad3952629e1a0d8db5b2d5e",
+  "ledger_sha256": "5f5049c088adb53fca81d45ca6a223918180f20f9b560441e935eff73b16c1f1",
   "live_capital_allowed": false,
   "schema_version": 1
 }
