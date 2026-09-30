@@ -1,0 +1,141 @@
+name: AE001 T007 trial registration
+
+on:
+  push:
+    branches:
+      - feat/ae001-t007-structured-announcement-alpha-20260930
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    if: contains(github.event.head_commit.message, '[ae001-t007-register]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Append T007 trial registration
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+
+          try:
+              state = trial_state(ledger, "AE001-T007")
+          except Exception as exc:
+              if "trial is not registered" not in str(exc):
+                  raise
+              state = None
+
+          if state is not None:
+              raise SystemExit("AE001-T007 is already registered")
+
+          payload = {
+              "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION",
+              "name": "structured_nse_corporate_announcement_incremental_feature_family",
+              "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+              "source": {
+                  "provider": "NSE",
+                  "endpoint": "/api/corporate-announcements",
+                  "daily_whole_market": True,
+                  "window": ["2025-09-01", "2026-09-25"],
+                  "d003_report_sha256": (
+                      "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f"
+                  ),
+              },
+              "decision_cutoff": "18:30:00 Asia/Kolkata",
+              "base_features": "CORE27",
+              "challenger_features": "CORE43",
+              "new_feature_count": 16,
+              "attachment_body_used": False,
+              "llm_used": False,
+              "sentiment_used": False,
+              "model": {"type": "ridge", "l2": 1.0},
+              "primary": {
+                  "horizon_sessions": 1,
+                  "folds": [
+                      ["2026-04-01", "2026-06-30"],
+                      ["2026-07-01", "2026-09-24"],
+                  ],
+                  "newey_west_lag": 5,
+                  "success_rule": (
+                      "BOTH_POSITIVE_PAIRED_RANK_IC_AND_TOP_MINUS_BOTTOM_"
+                      "SPREAD_WITH_TWO_SIDED_P_LT_0_05"
+                  ),
+              },
+              "secondary": {
+                  "horizon_sessions": 5,
+                  "folds": [
+                      ["2026-04-01", "2026-06-30"],
+                      ["2026-07-01", "2026-09-18"],
+                  ],
+                  "newey_west_lag": 4,
+                  "may_rescue_failed_primary": False,
+              },
+              "excluded_horizons": [20, 60],
+              "outcomes_opened_before_registration": False,
+              "live_capital_allowed": False,
+          }
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_REGISTERED",
+              trial_id="AE001-T007",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          validate_trial_ledger(updated)
+          print(
+              json.dumps(
+                  {
+                      "event_count": updated["event_count"],
+                      "ledger_sha256": updated["ledger_sha256"],
+                      "event_sha256": updated["events"][-1]["event_sha256"],
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
+
+      - name: Commit registration to trial branch
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/trial-ledger.json
+          git commit -m "research: register frozen AE001 T007 trial [skip ci]"
+          git push origin HEAD:feat/ae001-t007-structured-announcement-alpha-20260930
