@@ -140,6 +140,7 @@ def _reconstruct_oos_pair(
     list[dict[str, Any]],
     list[dict[str, Any]],
     list[dict[str, Any]],
+    list[dict[str, Any]],
 ]:
     core_predictions: list[dict[str, Any]] = []
     full_predictions: list[dict[str, Any]] = []
