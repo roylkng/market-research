@@ -9,7 +9,6 @@ from marketlab.alpha_futures_trial import run_futures_incremental_trial
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
 from marketlab.alpha_trials import append_trial_event, new_trial_ledger
 
-
 MARKET_SHA = "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e"
 BASE_SHA = "300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8"
 ACTION_SHA = "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1"
