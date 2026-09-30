@@ -2,7 +2,7 @@ import csv
 import io
 import math
 import zipfile
-from datetime import date, timedelta
+from datetime import date
 
 import pytest
 
