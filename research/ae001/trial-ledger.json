@@ -1,5 +1,5 @@
 {
-  "event_count": 24,
+  "event_count": 25,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -939,10 +939,95 @@
       "recorded_at_utc": "2026-09-30T13:10:00+00:00",
       "seq": 24,
       "trial_id": "AE001-T007"
+    },
+    {
+      "event_sha256": "2ea3a3a2e5b6709ebfcdf714f9b6fc48af2aecd6bdd839dbdeec9f0c43dd37da",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "augmented_features": "CORE33_FUND",
+        "base_features": "CORE27",
+        "evaluation": {
+          "bootstrap_cluster": "DECISION_ISO_WEEK",
+          "bootstrap_repetitions": 10000,
+          "bootstrap_seed": 20260930,
+          "minimum_valid_bootstrap_repetitions": 9500,
+          "quintile_share": 0.2,
+          "rank_ic": "SPEARMAN_EVENT_LEVEL",
+          "spread": "TOP_MINUS_BOTTOM_QUINTILE"
+        },
+        "excluded_horizons": [
+          1,
+          60
+        ],
+        "folds": [
+          {
+            "fold": 1,
+            "training_target_periods": [
+              "2025-09-30",
+              "2025-12-31"
+            ],
+            "validation_target_period": "2026-03-31"
+          },
+          {
+            "fold": 2,
+            "training_target_periods": [
+              "2025-09-30",
+              "2025-12-31",
+              "2026-03-31"
+            ],
+            "validation_target_period": "2026-06-30"
+          }
+        ],
+        "fundamental_feature_names": [
+          "revenue_yoy",
+          "pbt_change_to_prior_revenue",
+          "total_profit_change_to_prior_revenue",
+          "pbt_margin",
+          "pbt_margin_delta_yoy",
+          "total_profit_margin_delta_yoy"
+        ],
+        "fundamental_transform": "PURGED_TRAINING_EMPIRICAL_PERCENTILE",
+        "historical_delivery_publication_timing_verified": false,
+        "live_capital_allowed": false,
+        "market_support_window": [
+          "2025-06-01",
+          "2026-09-30"
+        ],
+        "minimum_purged_training_events": 100,
+        "minimum_validation_events": 60,
+        "model": {
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "name": "fundamental_growth_profitability_incremental_alpha",
+        "outcomes_opened_before_registration": false,
+        "primary": {
+          "horizon_sessions": 20,
+          "success_rule": "ALL_8_FROZEN_INCREMENTAL_CONDITIONS"
+        },
+        "purge_rule": "TRAIN_EXIT_STRICTLY_BEFORE_EARLIEST_VALIDATION_DECISION_SESSION",
+        "research_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "same_quarter_cross_sectional_rank": "PROHIBITED",
+        "secondary": {
+          "horizon_sessions": 5,
+          "may_rescue_failed_primary": false
+        },
+        "source_panel": {
+          "artifact_id": 11112604385,
+          "diagnostic_id": "AE001-T008-D004-v1",
+          "event_count": 369,
+          "panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+          "run_id": 36748060295
+        },
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+      },
+      "recorded_at_utc": "2026-09-30T17:38:33.816459+00:00",
+      "seq": 25,
+      "trial_id": "AE001-T008"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "b2d8b8616311651f8e95be3599a5ccea40a356c7aad3952629e1a0d8db5b2d5e",
+  "ledger_sha256": "41fc141dafa291cabe0726cf19c39b4d4e9e7b32d20c80abb28f196f486faa3c",
   "live_capital_allowed": false,
   "schema_version": 1
 }
