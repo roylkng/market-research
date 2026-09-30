@@ -2,8 +2,8 @@ import copy
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
 import marketlab.alpha_fundamental_combined as combined
+from marketlab.alpha import AlphaContractError, digest
 
 
 FEATURES = {
