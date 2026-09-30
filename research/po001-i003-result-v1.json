@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "study_id": "PO001-I003-v1",
+  "status": "COMPLETE_DEVELOPMENT",
+  "evidence_class": "HISTORICAL_WALKFORWARD_OOS_COST_INTEGRATION",
+  "decision_session": "2026-08-31",
+  "horizon_sessions": 5,
+  "realized_outcome_opened": false,
+  "live_capital_allowed": false,
+  "successful_runs": [
+    {
+      "run_id": 36610045578,
+      "artifact_id": 11053194879,
+      "artifact_name": "po001-i003-36610045578",
+      "purpose": "FULL_FROZEN_I003_MATERIALIZATION"
+    },
+    {
+      "run_id": 36610131262,
+      "artifact_id": 11052349828,
+      "artifact_name": "i003-p6-replay-36610131262",
+      "purpose": "INDEPENDENT_P6_TREATMENT_REPLAY"
+    }
+  ],
+  "report_sha256": "b466946e891f2f377f455fe5630df983d2b0d60324bc92ea44e0607c948e32b5",
+  "report_artifact_sha256": "cafdc1bc219610026848c8fdd8cd53399554b63f65dbf9a4d08d2f06f15c2b67",
+  "reproduction": {
+    "all_executable_reproduction_gates_matched": true,
+    "pinned_alpha_model_sha256": "179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260",
+    "pinned_i002_risk_state_sha256": "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1",
+    "pinned_i002_control_artifact_sha256": "d3cb62d0f1c041fa0af76a4275138ede5a12c0b5709106c441cafd8a8ca82ac1",
+    "pinned_i002_control_optimizer_artifact_sha256": "ad77db26c76e54921254aea9e49c30da8b1f044076b57961671229e93100154e",
+    "delivery_feature_panel_sha256": "47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44",
+    "fresh_alpha_top_decile_symmetric_diff_count": 0,
+    "fresh_alpha_max_prediction_abs_diff": 3.469446951953614e-16,
+    "fresh_rm001_max_exposure_abs_diff": 1.3322676295501878e-15,
+    "fresh_rm001_max_covariance_abs_diff": 0.0,
+    "fresh_rm001_max_idiosyncratic_variance_abs_diff": 0.0
+  },
+  "control_i002": {
+    "holding_count": 39,
+    "expected_5d_excess_return": 0.01056267666652251,
+    "annualized_volatility": 0.13713480625195076,
+    "total_transaction_cost_fraction": 0.0022248120000000057,
+    "objective_utility": 0.006472194519125673
+  },
+  "impact_contract": {
+    "impact_coefficient": 0.5,
+    "maximum_participation": 0.1,
+    "quoted_spread_included": false,
+    "calibrated_to_nse_execution": false
+  },
+  "nav_surfaces": {
+    "1000000": {
+      "holding_count": 46,
+      "expected_5d_excess_return": 0.010435571134218079,
+      "annualized_volatility": 0.13309611752432035,
+      "total_transaction_cost_fraction": 0.002406011176197269,
+      "immediate_impact_cost_fraction": 0.00009059958809862383,
+      "terminal_impact_cost_fraction": 0.00009059958809862383,
+      "maximum_observed_participation": 0.0003696443381667933,
+      "objective_utility": 0.006272161495714491,
+      "delta_vs_i002": {
+        "expected_5d_excess_return_bps": -1.2710553230443207,
+        "annualized_volatility_percentage_points": -0.4038688727630413,
+        "transaction_cost_bps": 1.8119917619726331,
+        "objective_utility_bps": -2.0003302341118148
+      }
+    },
+    "10000000": {
+      "holding_count": 47,
+      "expected_5d_excess_return": 0.010268398328395899,
+      "annualized_volatility": 0.12926327992563452,
+      "total_transaction_cost_fraction": 0.00268388045086663,
+      "immediate_impact_cost_fraction": 0.00022953422543330209,
+      "terminal_impact_cost_fraction": 0.00022953422543330209,
+      "maximum_observed_participation": 0.0036964433816679327,
+      "objective_utility": 0.005926879431385127,
+      "delta_vs_i002": {
+        "expected_5d_excess_return_bps": -2.9427833812661204,
+        "annualized_volatility_percentage_points": -0.7871526326316242,
+        "transaction_cost_bps": 4.590684508666244,
+        "objective_utility_bps": -5.453150877405459
+      }
+    },
+    "100000000": {
+      "holding_count": 95,
+      "expected_5d_excess_return": 0.00985701261489654,
+      "annualized_volatility": 0.12454886306640882,
+      "total_transaction_cost_fraction": 0.0032311879682014252,
+      "immediate_impact_cost_fraction": 0.0005031879841007017,
+      "terminal_impact_cost_fraction": 0.0005031879841007017,
+      "maximum_observed_participation": 0.02216312237371684,
+      "objective_utility": 0.005086894161463462,
+      "delta_vs_i002": {
+        "expected_5d_excess_return_bps": -7.056640516259708,
+        "annualized_volatility_percentage_points": -1.2585943185541946,
+        "transaction_cost_bps": 10.063759682014195,
+        "objective_utility_bps": -13.853003576622106
+      }
+    }
+  },
+  "interpretation": {
+    "primary_nav_inr": 10000000,
+    "primary_result": "CAPACITY_COST_REDUCES_ALPHA_AND_RISK; NO_FREE_UTILITY_GAIN",
+    "participation_cap_binding_in_tested_surfaces": false,
+    "largest_observed_participation_fraction": 0.02216312237371684,
+    "impact_model_calibrated": false,
+    "prospective_alpha_claim": false,
+    "sector_factor_available": false,
+    "size_factor_available": false,
+    "next_research_need": "ROLLING_OOS_CAPACITY_CURVE_AND_CALIBRATED_EXECUTION_INPUTS"
+  }
+}
