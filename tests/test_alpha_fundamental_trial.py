@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha import digest
 from marketlab.alpha_fundamental import FEATURE_NAMES
 from marketlab.alpha_fundamental_trial import (
     _aggregate_period_metrics,
