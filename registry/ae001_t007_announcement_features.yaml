@@ -1,0 +1,81 @@
+schema_version: 1
+id: AE001-T007-v1
+name: structured_nse_corporate_announcement_incremental_feature_family
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+source:
+  provider: NSE
+  endpoint: /api/corporate-announcements
+  daily_whole_market: true
+  source_window:
+    start: 2025-09-01
+    end: 2026-09-25
+  completeness_audit:
+    id: AE001-D003-v1
+    report_sha256: 7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+  execution: next_completed_nse_session_open
+
+features:
+  base: CORE27
+  added:
+    - ann_total_current
+    - ann_material_current
+    - ann_routine_current
+    - ann_unique_topics_current
+    - ann_after_close_material_current
+    - ann_material_5
+    - ann_material_20
+    - ann_sessions_since_material_cap20
+    - ann_order_customer_current
+    - ann_capacity_investment_current
+    - ann_results_guidance_current
+    - ann_product_approval_current
+    - ann_capital_transaction_current
+    - ann_ownership_control_current
+    - ann_governance_risk_current
+    - ann_policy_regulation_current
+  challenger: CORE43
+  attachment_body_used: false
+  llm_used: false
+  sentiment_used: false
+
+model:
+  type: ridge
+  l2: 1.0
+  transform: WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1
+
+primary:
+  horizon_sessions: 1
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-24]
+  newey_west_lag: 5
+  success:
+    paired_rank_ic_delta_gt_zero_p_lt: 0.05
+    paired_top_minus_bottom_spread_delta_gt_zero_p_lt: 0.05
+    rule: BOTH
+
+secondary:
+  horizon_sessions: 5
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-18]
+  newey_west_lag: 4
+  may_rescue_failed_primary: false
+
+excluded_horizons:
+  - 20
+  - 60
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
+  next_if_supported:
+    - prospective_confirmation_new_trial_id
+    - AB001_orthogonality_diagnostic
