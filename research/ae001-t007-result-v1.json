@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "trial_id": "AE001-T007",
+  "status": "COMPLETE_DEVELOPMENT",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "successful_run": {
+    "run_id": 36715752748,
+    "artifact_id": 11097526199,
+    "artifact_name": "ae001-t007-36715752748"
+  },
+  "report_sha256": "2a38305dd1d5f2a20ffbbf3ecb7ab7a8fac79980928ce74e846875f40af8958b",
+  "report_artifact_sha256": "c8c63511203b1c09b129fcb5445b18a63ac630fbbf0242b93ece93c4c7b5a2f2",
+  "source": {
+    "daily_source_count": 390,
+    "announcement_count": 193718,
+    "announcement_panel_sha256": "fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d",
+    "mapped_event_count": 176244,
+    "excluded_no_same_session_eq_identity": 17252,
+    "excluded_after_last_decision_cutoff": 222,
+    "feature_row_count": 244855,
+    "feature_panel_sha256": "c7e766059125b60c1b0b2f68a5cc1380eec8eabd9b398f8d30cd7ca92edbe0bb",
+    "d003_report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f"
+  },
+  "primary_1d": {
+    "endpoint_supported": false,
+    "base_mean_rank_ic": 0.05057227796742435,
+    "augmented_mean_rank_ic": 0.05048329077707576,
+    "delta_mean_rank_ic": -0.00008898719034858617,
+    "delta_rank_ic_p_value": 0.9380644864094401,
+    "base_mean_top_decile_excess": 0.00007458906945828733,
+    "augmented_mean_top_decile_excess": 0.0001244590763350315,
+    "delta_mean_top_decile_excess": 0.000049870006876744185,
+    "delta_top_decile_excess_p_value": 0.6879986896073359,
+    "base_top_minus_bottom_spread": 0.002146872816307611,
+    "augmented_top_minus_bottom_spread": 0.002217490371862521,
+    "delta_top_minus_bottom_spread": 0.00007061755555491002,
+    "delta_spread_p_value": 0.7021435080415549
+  },
+  "secondary_5d": {
+    "endpoint_supported": false,
+    "may_rescue_primary": false,
+    "base_mean_rank_ic": 0.025015754407677233,
+    "augmented_mean_rank_ic": 0.02009743412306563,
+    "delta_mean_rank_ic": -0.004918320284611602,
+    "delta_rank_ic_p_value": 0.10134418386875012,
+    "base_mean_top_decile_excess": 0.005598934179157281,
+    "augmented_mean_top_decile_excess": 0.004199882268977077,
+    "delta_mean_top_decile_excess": -0.0013990519101802035,
+    "delta_top_decile_excess_p_value": 0.002838313233954021,
+    "base_top_minus_bottom_spread": 0.004119889007319015,
+    "augmented_top_minus_bottom_spread": 0.0024068296023715854,
+    "delta_top_minus_bottom_spread": -0.0017130594049474296,
+    "delta_spread_p_value": 0.016202617739233177
+  },
+  "source_count_audit": {
+    "run_id": 36719423653,
+    "daily_count": 390,
+    "total_announcements": 193718,
+    "minimum_daily_count": 13,
+    "maximum_daily_count": 1649,
+    "median_daily_count": 482.0,
+    "p95_daily_count": 1083,
+    "p99_daily_count": 1489,
+    "zero_day_count": 0,
+    "fixed_daily_cap_evidence_found": false
+  },
+  "interpretation": {
+    "primary_1d_supported": false,
+    "secondary_5d_supported": false,
+    "secondary_5d_top_decile_and_spread_significantly_worse": true,
+    "promote_to_ab001": false,
+    "retune_same_t007_taxonomy": false,
+    "historical_known_outcome_only": true,
+    "next_if_revisiting_text_events": "NEW_TRIAL_ID_WITH_SEMANTIC_ATTACHMENT_OR_DIRECTIONAL_FEATURES"
+  },
+  "prospective_claim_allowed": false,
+  "live_capital_allowed": false
+}
