@@ -10,6 +10,7 @@ from marketlab.alpha_futures import fo_udiff_url
 from marketlab.alpha_prospective_futures_sources import (
     append_futures_source_probe,
     session_already_eligible,
+    session_source_ready_observed,
     validate_futures_source_ledger,
 )
 
@@ -57,6 +58,18 @@ def main() -> int:
             json.dumps(
                 {
                     "state": "ALREADY_ELIGIBLE",
+                    "session_date": session_text,
+                    "changed": False,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+    if session_source_ready_observed(ledger, session_text):
+        print(
+            json.dumps(
+                {
+                    "state": "SOURCE_READY_ALREADY_OBSERVED",
                     "session_date": session_text,
                     "changed": False,
                 },
