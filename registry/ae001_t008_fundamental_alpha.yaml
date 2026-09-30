@@ -1,0 +1,104 @@
+schema_version: 1
+id: AE001-T008-v1
+name: fundamental_growth_profitability_incremental_alpha
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+source_panel:
+  diagnostic_id: AE001-T008-D004-v1
+  run_id: 36748060295
+  artifact_id: 11112604385
+  artifact_name: ae001-t008-d004-36748060295
+  panel_sha256: 35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5
+  event_count: 369
+
+universe:
+  id: U001
+  sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+
+market_support:
+  start_date: 2025-06-01
+  end_date: 2026-09-30
+  base_features: CORE27
+  historical_delivery_publication_timing_verified: false
+
+decision:
+  cutoff_ist: "18:30:00"
+  mapping: EARLIEST_COMPLETED_NSE_SESSION_WITH_CUTOFF_GTE_FILING_PUBLICATION
+  entry: NEXT_COMPLETED_NSE_SESSION_OPEN
+
+features:
+  base_count: 27
+  fundamental_count: 6
+  augmented_count: 33
+  fundamental_names:
+    - revenue_yoy
+    - pbt_change_to_prior_revenue
+    - total_profit_change_to_prior_revenue
+    - pbt_margin
+    - pbt_margin_delta_yoy
+    - total_profit_margin_delta_yoy
+  fundamental_transform: TRAINING_ONLY_EMPIRICAL_PERCENTILE
+  same_quarter_cross_sectional_rank: prohibited
+  imputation: prohibited
+  winsorization: prohibited
+
+model:
+  family: ridge
+  l2: 1.0
+  hyperparameter_search: prohibited
+
+horizons:
+  primary: 20
+  secondary: 5
+  secondary_may_rescue_primary: false
+  excluded:
+    - 1
+    - 60
+
+folds:
+  - fold: 1
+    validation_target_period: 2026-03-31
+    candidate_training_target_periods:
+      - 2025-09-30
+      - 2025-12-31
+  - fold: 2
+    validation_target_period: 2026-06-30
+    candidate_training_target_periods:
+      - 2025-09-30
+      - 2025-12-31
+      - 2026-03-31
+  purge_rule: TRAIN_LABEL_EXIT_STRICTLY_BEFORE_EARLIEST_VALIDATION_DECISION_SESSION
+  minimum_purged_training_events: 100
+  minimum_validation_events: 60
+
+evaluation:
+  rank_ic: SPEARMAN_EVENT_LEVEL
+  spread: TOP_MINUS_BOTTOM_QUINTILE
+  quintile_share: 0.20
+  pooled_weighting: VALIDATION_EVENT_COUNT
+  bootstrap:
+    cluster: DECISION_ISO_WEEK
+    repetitions: 10000
+    seed: 20260930
+    minimum_valid_repetitions: 9500
+    confidence_interval: PERCENTILE_95
+
+primary_success:
+  require_positive_delta_rank_ic_each_fold: true
+  require_positive_delta_spread_each_fold: true
+  require_positive_pooled_delta_rank_ic: true
+  require_rank_ic_ci95_lower_gt_zero: true
+  require_positive_pooled_delta_spread: true
+  require_spread_ci95_lower_gt_zero: true
+
+outcomes:
+  historical_only: true
+  prospective_claim_allowed: false
+
+promotion:
+  if_primary_supported:
+    - T008_PROSPECTIVE_CONFIRMATION
+    - AB001_ORTHOGONALITY
+  live_capital_directly_allowed: false
