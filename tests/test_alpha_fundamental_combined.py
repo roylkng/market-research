@@ -5,7 +5,6 @@ import pytest
 import marketlab.alpha_fundamental_combined as combined
 from marketlab.alpha import AlphaContractError, digest
 
-
 FEATURES = {
     "revenue_yoy": 0.1,
     "pbt_change_to_prior_revenue": 0.01,
