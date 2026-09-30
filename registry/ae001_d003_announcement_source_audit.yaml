@@ -1,0 +1,43 @@
+schema_version: 1
+id: AE001-D003-v1
+name: nse_whole_market_corporate_announcement_source_audit
+status: FROZEN_BEFORE_SOURCE_QUERY
+created: 2026-09-30
+live_capital_allowed: false
+
+source:
+  provider: NSE
+  endpoint: /api/corporate-announcements
+  index: equities
+
+window:
+  start: 2026-09-15
+  end: 2026-09-21
+
+queries:
+  whole_window_market: true
+  daily_whole_market: true
+  symbol_sample:
+    - RELIANCE
+    - TCS
+    - INFY
+    - LT
+    - HDFCBANK
+    - ICICIBANK
+    - SBIN
+    - BHARTIARTL
+    - ITC
+    - MARUTI
+
+primary_gates:
+  exact_full_vs_daily_union: true
+  exact_symbol_reconciliation: true
+  duplicates_allowed: false
+  conflicting_identity_allowed: false
+  out_of_window_timestamp_allowed: false
+
+outcomes:
+  market_returns_opened: false
+
+promotion:
+  next_stage_if_pass: AE001-T007

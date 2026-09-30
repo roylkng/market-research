@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "audit_id": "AE001-D003-v1",
+  "status": "PASS",
+  "evidence_class": "NSE_SOURCE_COMPLETENESS_AUDIT",
+  "successful_run": {
+    "run_id": 36712893339,
+    "artifact_id": 11095131511,
+    "artifact_name": "ae001-d003-36712893339"
+  },
+  "report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f",
+  "window": {
+    "start": "2026-09-15",
+    "end": "2026-09-21"
+  },
+  "whole_market": {
+    "full_window_count": 2713,
+    "daily_union_count": 2713,
+    "exact_identity_match": true,
+    "distinct_symbol_count": 1224,
+    "max_daily_count": 563,
+    "max_rows_for_one_symbol": 14,
+    "full_count_exceeds_100": true,
+    "full_count_exceeds_200": true,
+    "full_count_exceeds_500": true,
+    "full_count_exceeds_1000": true
+  },
+  "symbol_reconciliation": {
+    "sample_size": 10,
+    "all_exact_identity_match": true,
+    "symbols": [
+      "RELIANCE",
+      "TCS",
+      "INFY",
+      "LT",
+      "HDFCBANK",
+      "ICICIBANK",
+      "SBIN",
+      "BHARTIARTL",
+      "ITC",
+      "MARUTI"
+    ]
+  },
+  "primary_gates": {
+    "full_vs_daily_exact": true,
+    "all_symbol_scoped_exact": true,
+    "duplicate_canonical_identity_allowed": false,
+    "conflicting_identity_allowed": false,
+    "out_of_window_timestamp_allowed": false
+  },
+  "market_return_outcomes_opened": false,
+  "promotion": {
+    "historical_daily_whole_market_announcement_acquisition_allowed": true,
+    "next_stage": "AE001-T007"
+  },
+  "live_capital_allowed": false
+}
