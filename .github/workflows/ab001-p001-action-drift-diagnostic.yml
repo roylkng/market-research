@@ -1,0 +1,207 @@
+name: AB001 P001 corporate-action drift diagnostic
+
+on:
+  push:
+    branches:
+      - feat/ab001-t003-oos-pilot-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    if: contains(github.event.head_commit.message, '[ab001-p001-action-drift]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download sealed T003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-delivery-pilot-36533659236
+          path: evidence/old
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36533659236
+
+      - name: Download invalid pre-fix P001 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ab001-p001-36669808434
+          path: evidence/new
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36669808434
+
+      - name: Compare action and feature economics
+        run: |
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def locate(root, name):
+              matches = list(Path(root).rglob(name))
+              if len(matches) != 1:
+                  raise SystemExit(f"expected one {name} under {root}, got {matches}")
+              return matches[0]
+
+          def load_gzip(root, name):
+              path = locate(root, name)
+              raw = path.read_bytes()
+              return path, raw, json.loads(gzip.decompress(raw).decode("utf-8"))
+
+          old_action_path, old_action_raw, old_action = load_gzip(
+              "evidence/old", "corporate-action-ledger.json.gz"
+          )
+          new_action_path, new_action_raw, new_action = load_gzip(
+              "evidence/new", "corporate-action-ledger.json.gz"
+          )
+          old_base_path, old_base_raw, old_base = load_gzip(
+              "evidence/old", "action-safe-feature-panel.json.gz"
+          )
+          new_base_path, new_base_raw, new_base = load_gzip(
+              "evidence/new", "action-safe-feature-panel.json.gz"
+          )
+          old_aug_path, old_aug_raw, old_aug = load_gzip(
+              "evidence/old", "delivery-feature-panel.json.gz"
+          )
+          new_aug_path, new_aug_raw, new_aug = load_gzip(
+              "evidence/new", "delivery-feature-panel.json.gz"
+          )
+
+          print("OLD_ACTION_PATH", old_action_path)
+          print("NEW_ACTION_PATH", new_action_path)
+          print("OLD_ACTION_SHA", old_action["ledger_sha256"])
+          print("NEW_ACTION_SHA", new_action["ledger_sha256"])
+          print("OLD_ACTION_FILE_SHA", hashlib.sha256(old_action_raw).hexdigest())
+          print("NEW_ACTION_FILE_SHA", hashlib.sha256(new_action_raw).hexdigest())
+          print("OLD_ACTION_RECORD_COUNT", old_action["record_count"])
+          print("NEW_ACTION_RECORD_COUNT", new_action["record_count"])
+
+          old_records = old_action["records"]
+          new_records = new_action["records"]
+          print("ACTION_NORMALIZED_RECORDS_EXACT", old_records == new_records)
+          old_record_map = {
+              (r.get("symbol"), r.get("ex_date"), r.get("subject")): r
+              for r in old_records
+          }
+          new_record_map = {
+              (r.get("symbol"), r.get("ex_date"), r.get("subject")): r
+              for r in new_records
+          }
+          old_keys = set(old_record_map)
+          new_keys = set(new_record_map)
+          print("ACTION_OLD_ONLY_COUNT", len(old_keys - new_keys))
+          print("ACTION_NEW_ONLY_COUNT", len(new_keys - old_keys))
+          print("ACTION_OLD_ONLY_SAMPLE", sorted(old_keys - new_keys)[:20])
+          print("ACTION_NEW_ONLY_SAMPLE", sorted(new_keys - old_keys)[:20])
+
+          old_chunks = old_action.get("source_chunks", [])
+          new_chunks = new_action.get("source_chunks", [])
+          print("SOURCE_CHUNK_COUNT_OLD", len(old_chunks))
+          print("SOURCE_CHUNK_COUNT_NEW", len(new_chunks))
+          print("SOURCE_CHUNKS_EXACT", old_chunks == new_chunks)
+          if len(old_chunks) == len(new_chunks):
+              changed_chunks = []
+              for i, (left, right) in enumerate(zip(old_chunks, new_chunks, strict=True)):
+                  if left != right:
+                      changed_chunks.append({
+                          "index": i,
+                          "old": left,
+                          "new": right,
+                      })
+              print("SOURCE_CHANGED_CHUNK_COUNT", len(changed_chunks))
+              print("SOURCE_CHANGED_CHUNK_SAMPLE", json.dumps(changed_chunks[:5], sort_keys=True))
+
+          print("OLD_BASE_SHA", old_base["panel_sha256"])
+          print("NEW_BASE_SHA", new_base["panel_sha256"])
+          print("OLD_BASE_ROWS", old_base["feature_row_count"])
+          print("NEW_BASE_ROWS", new_base["feature_row_count"])
+
+          def canonical_rows(panel):
+              return panel["rows"]
+
+          old_base_rows = canonical_rows(old_base)
+          new_base_rows = canonical_rows(new_base)
+          print("BASE_ROWS_EXACT", old_base_rows == new_base_rows)
+          if old_base_rows != new_base_rows:
+              old_map = {
+                  (r["feature_session"], r["symbol"], r["isin"]): r
+                  for r in old_base_rows
+              }
+              new_map = {
+                  (r["feature_session"], r["symbol"], r["isin"]): r
+                  for r in new_base_rows
+              }
+              print("BASE_IDENTITY_SYMDIFF", len(set(old_map) ^ set(new_map)))
+              common = sorted(set(old_map) & set(new_map))
+              value_diff = 0
+              non_provenance_diff = 0
+              for key in common:
+                  if old_map[key].get("values") != new_map[key].get("values"):
+                      value_diff += 1
+                  left = {
+                      k:v for k,v in old_map[key].items()
+                      if k not in {"corporate_action_ledger_sha256","feature_set_sha256","universe_sha256"}
+                  }
+                  right = {
+                      k:v for k,v in new_map[key].items()
+                      if k not in {"corporate_action_ledger_sha256","feature_set_sha256","universe_sha256"}
+                  }
+                  if left != right:
+                      non_provenance_diff += 1
+              print("BASE_VALUE_DIFF_ROW_COUNT", value_diff)
+              print("BASE_NON_PROVENANCE_DIFF_ROW_COUNT", non_provenance_diff)
+
+          print("OLD_AUG_SHA", old_aug["panel_sha256"])
+          print("NEW_AUG_SHA", new_aug["panel_sha256"])
+          print("OLD_AUG_ROWS", old_aug["feature_row_count"])
+          print("NEW_AUG_ROWS", new_aug["feature_row_count"])
+          old_aug_rows = old_aug["rows"]
+          new_aug_rows = new_aug["rows"]
+          print("AUG_ROWS_EXACT", old_aug_rows == new_aug_rows)
+          old_aug_map = {
+              (r["feature_session"], r["symbol"], r["isin"]): r
+              for r in old_aug_rows
+          }
+          new_aug_map = {
+              (r["feature_session"], r["symbol"], r["isin"]): r
+              for r in new_aug_rows
+          }
+          print("AUG_IDENTITY_SYMDIFF", len(set(old_aug_map) ^ set(new_aug_map)))
+          common = sorted(set(old_aug_map) & set(new_aug_map))
+          value_diff = 0
+          for key in common:
+              if old_aug_map[key].get("values") != new_aug_map[key].get("values"):
+                  value_diff += 1
+          print("AUG_VALUE_DIFF_ROW_COUNT", value_diff)
+
+          old_session_summary = [
+              {
+                  k:v for k,v in row.items()
+                  if k not in {"universe_sha256"}
+              }
+              for row in old_base.get("sessions", [])
+          ]
+          new_session_summary = [
+              {
+                  k:v for k,v in row.items()
+                  if k not in {"universe_sha256"}
+              }
+              for row in new_base.get("sessions", [])
+          ]
+          print("BASE_SESSION_ECONOMICS_EXACT", old_session_summary == new_session_summary)
+
+          if len(old_keys - new_keys) or len(new_keys - old_keys):
+              raise SystemExit("normalized action record set changed")
+          if len(set(old_aug_map) ^ set(new_aug_map)):
+              raise SystemExit("augmented feature identity set changed")
+          if value_diff:
+              raise SystemExit("augmented feature values changed")
+
+          print("ACTION_FEATURE_ECONOMIC_EQUIVALENCE", True)
+          PY
