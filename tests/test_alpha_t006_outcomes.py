@@ -1,7 +1,5 @@
 from datetime import date, timedelta
 
-import pytest
-
 from marketlab.alpha_t006_outcomes import (
     append_t006_outcome,
     finalize_t006_results,
