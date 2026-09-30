@@ -1,0 +1,59 @@
+schema_version: 1
+id: AB001-P003-v1
+name: t005_futures_cross_family_orthogonality
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_KNOWN_OUTCOME_CROSSFAMILY_COMBINATION_DIAGNOSTIC
+horizon_sessions: 5
+newey_west_lag: 4
+
+folds:
+  - [2026-04-01, 2026-06-30]
+  - [2026-07-01, 2026-09-18]
+
+model:
+  type: ridge
+  l2: 1.0
+
+alphas:
+  existing_t003:
+    id: AB001-P003-A1
+    features: T003_AUGMENTED_27
+    training_sample: FULL_DELIVERY_COMPLETE
+  t005_base:
+    id: AB001-P003-FB27
+    features: T005_BASE_27
+    training_sample: FUTURES_COMPLETE
+    diagnostic_only: true
+  t005_augmented:
+    id: AB001-P003-F37
+    features: T005_AUGMENTED_37
+    training_sample: FUTURES_COMPLETE
+  t005_increment:
+    id: AB001-P003-FDELTA
+    construction: RAW_F37_MINUS_RAW_FB27_THEN_AB001_CROSS_SECTIONAL_NORMALIZATION
+    refit: false
+
+expected_inputs:
+  market_panel_sha256: 9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
+  action_safe_base_feature_panel_sha256: 300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8
+  corporate_action_ledger_sha256: 1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1
+  delivery_augmented_feature_panel_sha256: 99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
+  futures_panel_sha256: 02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5
+  futures_augmented_feature_panel_sha256: 62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f
+  sealed_t003_report_sha256: 0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270
+  sealed_t005_report_sha256: 2c72c9207ad3cfe2bc73637e4c10b7ad378c9a6c1b347fa2dd8936831a7511e2
+
+diagnostics:
+  standalone: true
+  pairwise_orthogonality: true
+  fixed_equal_weight_a1_f37: true
+  fixed_equal_weight_a1_fdelta: true
+  dynamic_blender: false
+
+promotion:
+  automatic_blender_promotion: false
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
