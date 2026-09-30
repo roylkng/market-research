@@ -1,0 +1,37 @@
+schema_version: 1
+id: AE001-T008-D001-v1
+name: fundamental_filing_source_feasibility
+status: FROZEN_BEFORE_SOURCE_DIAGNOSTIC
+created: 2026-09-30
+live_capital_allowed: false
+
+universe:
+  path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+  member_count: 100
+
+periods:
+  target_period_end: 2026-06-30
+  baseline_period_end: 2025-06-30
+  same_accounting_basis_required: true
+  basis_preference:
+    - Consolidated
+    - Standalone
+  target_revision_policy: earliest_official_publication
+  baseline_revision_policy: latest_publication_strictly_before_target
+
+candidate_features:
+  - revenue_yoy
+  - pbt_change_to_prior_revenue
+  - total_profit_change_to_prior_revenue
+  - pbt_margin
+  - pbt_margin_delta_yoy
+  - total_profit_margin_delta_yoy
+
+feasibility:
+  minimum_same_basis_pairs: 70
+  minimum_complete_six_feature_rows: 60
+
+outcomes:
+  return_labels_opened: false
+  model_fitted: false
