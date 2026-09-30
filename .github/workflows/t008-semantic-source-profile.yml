@@ -1,0 +1,103 @@
+name: T008 semantic source profile diagnostic
+
+on:
+  push:
+    branches:
+      - diag/t008-semantic-source-profile-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  profile:
+    if: contains(github.event.head_commit.message, '[t008-source-profile]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download sealed T007 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t007-36715752748
+          path: evidence/t007
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36715752748
+      - name: Profile announcement descriptions, topics and attachment URLs
+        run: |
+          python - <<'PY'
+          import collections
+          import gzip
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          candidates = list(Path("evidence/t007").rglob("*announcement*panel*.json.gz"))
+          if not candidates:
+              candidates = list(Path("evidence/t007").rglob("*.json.gz"))
+          print("CANDIDATE_FILES", [str(p) for p in candidates[:30]])
+
+          panel_path = None
+          panel = None
+          for path in candidates:
+              try:
+                  payload = json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
+              except Exception:
+                  continue
+              if payload.get("panel_id") == "AE001-T007-HISTORICAL-ANNOUNCEMENTS-v1":
+                  panel_path = path
+                  panel = payload
+                  break
+          if panel is None:
+              raise SystemExit("announcement panel not found")
+          print("PANEL_PATH", panel_path)
+          print("PANEL_SHA", panel["panel_sha256"])
+          print("ANNOUNCEMENT_COUNT", panel["announcement_count"])
+
+          desc = collections.Counter()
+          topics = collections.Counter()
+          extensions = collections.Counter()
+          attachment_present = collections.Counter()
+          keyword_groups = {
+              "CREDIT_RATING": ("credit rating", "rating"),
+              "ORDER_CONTRACT": ("order", "contract", "letter of award", "letter of acceptance"),
+              "RESULTS_GUIDANCE": ("financial results", "guidance", "outlook", "earnings"),
+              "CAPACITY": ("capex", "capacity", "commissioning", "manufacturing facility"),
+              "REGULATORY_APPROVAL": ("approval", "approved", "regulatory"),
+              "BUYBACK": ("buyback",),
+              "DEFAULT_INSOLVENCY": ("default", "insolvency", "fraud"),
+          }
+          group_counts = collections.Counter()
+          group_with_attachment = collections.Counter()
+
+          for session in panel["sessions"]:
+              for row in session["announcements"]:
+                  description = " ".join(str(row.get("desc") or "").split()).casefold()
+                  attach_text = " ".join(str(row.get("attchmntText") or "").split()).casefold()
+                  text = f"{description} {attach_text}"
+                  desc[description] += 1
+                  for topic in row.get("topics") or []:
+                      topics[topic] += 1
+                  url = str(row.get("attchmntFile") or "").strip()
+                  has_attachment = bool(url)
+                  attachment_present["present" if has_attachment else "missing"] += 1
+                  if has_attachment:
+                      path = urlparse(url).path.casefold()
+                      suffix = Path(path).suffix or "<none>"
+                      extensions[suffix] += 1
+                  for group, needles in keyword_groups.items():
+                      if any(needle in text for needle in needles):
+                          group_counts[group] += 1
+                          if has_attachment:
+                              group_with_attachment[group] += 1
+
+          print("TOP_DESCRIPTIONS", json.dumps(desc.most_common(80)))
+          print("TOPICS", json.dumps(topics.most_common()))
+          print("ATTACHMENT_PRESENCE", json.dumps(attachment_present))
+          print("ATTACHMENT_EXTENSIONS", json.dumps(extensions.most_common(20)))
+          print("KEYWORD_GROUP_COUNTS", json.dumps(group_counts))
+          print("KEYWORD_GROUP_WITH_ATTACHMENT", json.dumps(group_with_attachment))
+          PY
