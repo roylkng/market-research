@@ -13,7 +13,7 @@ from marketlab.alpha_prospective_futures_sources import (
 
 IST = ZoneInfo("Asia/Kolkata")
 MIN_DISTINCT_READY_SESSIONS = 3
-SAFETY_BUFFER_MINUTES = 15
+SAFETY_BUFFER_MINUTES = 30
 ROUNDING_MINUTES = 15
 
 
@@ -90,6 +90,16 @@ def first_ready_observations(
             field="SC002 captured_at_utc",
         )
         captured_ist = captured_utc.astimezone(IST)
+        session_local_date = datetime.fromisoformat(
+            f"{session}T00:00:00+05:30"
+        ).astimezone(IST)
+        local_seconds_after_session_midnight = (
+            (captured_ist - session_local_date).total_seconds()
+        )
+        if local_seconds_after_session_midnight < 0:
+            raise AlphaContractError(
+                "SC002 READY capture precedes its local session date"
+            )
         observations.append(
             {
                 "session_date": session,
@@ -97,11 +107,8 @@ def first_ready_observations(
                 "attempt_sha256": first["attempt_sha256"],
                 "captured_at_utc": captured_utc.isoformat(),
                 "captured_at_ist": captured_ist.isoformat(),
-                "local_seconds_after_midnight": (
-                    captured_ist.hour * 3600
-                    + captured_ist.minute * 60
-                    + captured_ist.second
-                    + captured_ist.microsecond / 1_000_000
+                "local_seconds_after_session_midnight": (
+                    local_seconds_after_session_midnight
                 ),
                 "eligible_before_1830": bool(
                     first.get("eligible_before_cutoff")
@@ -135,7 +142,7 @@ def publication_timing_summary(
         "distinct_ready_session_count": ready_count,
         "observations": observations,
         "candidate_rule": (
-            "LATEST_FIRST_READY_PLUS_15_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES"
+            "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES"
         ),
         "safety_buffer_minutes": SAFETY_BUFFER_MINUTES,
         "rounding_minutes": ROUNDING_MINUTES,
@@ -160,6 +167,7 @@ def publication_timing_summary(
                     )
                 ),
                 "candidate_cutoff_ist": None,
+                "candidate_cutoff_session_offset_days": None,
                 "candidate_cutoff_basis_session": None,
                 "median_first_ready_local_seconds": (
                     None
@@ -167,7 +175,7 @@ def publication_timing_summary(
                     else float(
                         statistics.median(
                             observation[
-                                "local_seconds_after_midnight"
+                                "local_seconds_after_session_midnight"
                             ]
                             for observation in observations
                         )
@@ -179,7 +187,7 @@ def publication_timing_summary(
         latest = max(
             observations,
             key=lambda observation: observation[
-                "local_seconds_after_midnight"
+                "local_seconds_after_session_midnight"
             ],
         )
         latest_local = datetime.fromisoformat(
@@ -200,12 +208,20 @@ def publication_timing_summary(
                     "captured_at_ist"
                 ],
                 "candidate_cutoff_ist": candidate.strftime("%H:%M:%S"),
+                "candidate_cutoff_session_offset_days": (
+                    candidate.date()
+                    - datetime.fromisoformat(
+                        f"{latest['session_date']}T00:00:00+05:30"
+                    ).date()
+                ).days,
                 "candidate_cutoff_basis_session": latest[
                     "session_date"
                 ],
                 "median_first_ready_local_seconds": float(
                     statistics.median(
-                        observation["local_seconds_after_midnight"]
+                        observation[
+                            "local_seconds_after_session_midnight"
+                        ]
                         for observation in observations
                     )
                 ),
