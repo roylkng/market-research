@@ -18,44 +18,48 @@ def _ready_zip(day: str) -> bytes:
         "Sgmt",
         "Src",
         "FinInstrmTp",
-        "ISIN",
+        "FinInstrmId",
         "TckrSymb",
         "XpryDt",
         "FininstrmActlXpryDt",
+        "SttlmPric",
+        "PrvsClsgPric",
+        "UndrlygPric",
         "OpnIntrst",
         "ChngInOpnIntrst",
         "TtlTradgVol",
         "TtlTrfVal",
-        "OpnPric",
-        "HghPric",
-        "LwPric",
-        "ClsPric",
-        "SttlmPric",
+        "TtlNbOfTxsExctd",
+        "NewBrdLotQty",
     ]
     text = io.StringIO()
     writer = csv.DictWriter(text, fieldnames=fields)
     writer.writeheader()
-    writer.writerow(
-        {
-            "TradDt": day,
-            "Sgmt": "FO",
-            "Src": "NSE",
-            "FinInstrmTp": "STF",
-            "ISIN": "",
-            "TckrSymb": "TEST",
-            "XpryDt": "2026-10-29",
-            "FininstrmActlXpryDt": "2026-10-29",
-            "OpnIntrst": "1000",
-            "ChngInOpnIntrst": "100",
-            "TtlTradgVol": "500",
-            "TtlTrfVal": "5000000",
-            "OpnPric": "100",
-            "HghPric": "103",
-            "LwPric": "99",
-            "ClsPric": "102",
-            "SttlmPric": "102",
-        }
-    )
+    for index, expiry in enumerate(
+        ("2026-10-29", "2026-11-26"),
+        start=1,
+    ):
+        writer.writerow(
+            {
+                "TradDt": day,
+                "Sgmt": "FO",
+                "Src": "NSE",
+                "FinInstrmTp": "STF",
+                "FinInstrmId": f"FUT{index}",
+                "TckrSymb": "TEST",
+                "XpryDt": expiry,
+                "FininstrmActlXpryDt": expiry,
+                "SttlmPric": str(101 + index),
+                "PrvsClsgPric": str(100 + index),
+                "UndrlygPric": "100",
+                "OpnIntrst": "100000",
+                "ChngInOpnIntrst": "1000",
+                "TtlTradgVol": "500",
+                "TtlTrfVal": "5000000",
+                "TtlNbOfTxsExctd": "100",
+                "NewBrdLotQty": "50",
+            }
+        )
     raw = io.BytesIO()
     with zipfile.ZipFile(raw, "w") as archive:
         archive.writestr("fo.csv", text.getvalue())
