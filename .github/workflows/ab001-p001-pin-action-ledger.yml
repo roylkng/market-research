@@ -1,0 +1,110 @@
+name: AB001 P001 pin sealed T003 action ledger
+
+on:
+  push:
+    branches:
+      - feat/ab001-t003-oos-pilot-20260930
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pin:
+    if: contains(github.event.head_commit.message, '[ab001-p001-pin-action]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download sealed T003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-delivery-pilot-36533659236
+          path: evidence/t003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36533659236
+
+      - name: Pin exact corporate-action ledger
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          from pathlib import Path
+
+          matches = list(Path("evidence/t003").rglob("corporate-action-ledger.json.gz"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one action ledger, got {matches}")
+          source = matches[0]
+          raw = source.read_bytes()
+          file_sha = hashlib.sha256(raw).hexdigest()
+          expected_file_sha = (
+              "6ee878d48eadae0b76c7b4db3a02b3f1fb6cada61c2d3c39b40fb872b1622e2d"
+          )
+          if file_sha != expected_file_sha:
+              raise SystemExit(
+                  f"sealed T003 action gzip SHA mismatch: {file_sha}"
+              )
+          payload = json.loads(gzip.decompress(raw).decode("utf-8"))
+          expected_internal = (
+              "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1"
+          )
+          if payload.get("ledger_sha256") != expected_internal:
+              raise SystemExit(
+                  f"sealed T003 action ledger SHA mismatch: {payload.get('ledger_sha256')}"
+              )
+
+          destination = Path(
+              "research/ab001-p001/inputs/t003-corporate-action-ledger.json.gz"
+          )
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_bytes(raw)
+
+          manifest = {
+              "schema_version": 1,
+              "artifact_id": "AB001-P001-PINNED-T003-ACTION-LEDGER-v1",
+              "source_workflow_run_id": 36533659236,
+              "source_workflow_artifact_id": 11017864952,
+              "source_workflow_artifact_name": "ae001-delivery-pilot-36533659236",
+              "source_path": (
+                  "reports/ae001-delivery-pilot/action-safe/"
+                  "corporate-action-ledger.json.gz"
+              ),
+              "pinned_path": str(destination),
+              "gzip_file_sha256": file_sha,
+              "internal_ledger_sha256": expected_internal,
+              "record_count": payload["record_count"],
+              "coverage_start_date": payload["coverage_start_date"],
+              "coverage_end_date": payload["coverage_end_date"],
+              "live_capital_allowed": False,
+          }
+          manifest_path = Path(
+              "research/ab001-p001/inputs/"
+              "t003-corporate-action-ledger.manifest.json"
+          )
+          manifest_path.write_text(
+              json.dumps(
+                  manifest,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(manifest, sort_keys=True))
+          PY
+
+      - name: Commit pinned action ledger to branch
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add             research/ab001-p001/inputs/t003-corporate-action-ledger.json.gz             research/ab001-p001/inputs/t003-corporate-action-ledger.manifest.json
+          git commit -m "research: pin exact sealed T003 action ledger [skip ci]"
+          git push origin HEAD:feat/ab001-t003-oos-pilot-20260930
