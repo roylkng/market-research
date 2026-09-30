@@ -1,5 +1,5 @@
 {
-  "event_count": 15,
+  "event_count": 17,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -508,10 +508,60 @@
       "recorded_at_utc": "2026-09-30T08:44:31+00:00",
       "seq": 15,
       "trial_id": "AE001-T005"
+    },
+    {
+      "event_sha256": "efe572361380642c8d0adcc2a51abeaf5c3486af332f293d9205d80198d4d7b3",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "diagnostic": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-08-27"
+            ]
+          ],
+          "horizon_sessions": 20,
+          "newey_west_lag": 19,
+          "rescues_failed_primary": false
+        },
+        "failed_run_id": 36692550419,
+        "failed_run_reached_model_fit": false,
+        "live_capital_allowed": false,
+        "protocol_file": "research/AE001_T005_PROTOCOL_AMENDMENT_P3_DIAGNOSTIC_FOLDS.md",
+        "protocol_id": "AE001-T005-P3",
+        "reason": "Restore diagnostic fold dates omitted from the registration event after fail-closed run 36692550419 and before any T005 model fit or metric."
+      },
+      "recorded_at_utc": "2026-09-30T09:26:32.595893+00:00",
+      "seq": 16,
+      "trial_id": "AE001-T005"
+    },
+    {
+      "event_sha256": "c9454ce7eb8e9e82f5913a6fff7b4dacb60667a02f86b62c9662f1febcecba20",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "d002_raw_sha256": "d7fda7c5881bf6b1aff715af0c90ae5bdc8fccbb7d537c83e3b1e44470dfa4af",
+        "d002_result_file": "research/ae001-d002-result-v1.json",
+        "existing_t005_feature_formulas_unchanged": true,
+        "live_capital_allowed": false,
+        "oi_unit": "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT",
+        "outcomes_opened_before_p4": false,
+        "protocol_id": "AE001-T005-P4",
+        "reason": "Seal D002 FO UDiFF unit semantics before any T005 model fit or outcome metric.",
+        "stock_future_row_count": 629,
+        "traded_volume_unit": "CONTRACT_COUNT",
+        "transferred_value_unit": "RUPEE_NOTIONAL"
+      },
+      "recorded_at_utc": "2026-09-30T09:26:33.211341+00:00",
+      "seq": 17,
+      "trial_id": "AE001-T005"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "22c2e486d8f1432c86664054f31b8cd8a5bc59b63479e37c6166cba974648197",
+  "ledger_sha256": "bd6c3363f488e6886e0592d6ca32141da7405962f4f0d90356772ac3fe4919b7",
   "live_capital_allowed": false,
   "schema_version": 1
 }
