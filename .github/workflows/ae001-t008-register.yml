@@ -1,0 +1,154 @@
+name: AE001 T008 trial registration
+
+on:
+  push:
+    branches:
+      - feat/ae001-t008-fundamental-alpha-20261001
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    if: contains(github.event.head_commit.message, '[t008-register]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Register T008 before outcomes
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha_trials import append_trial_event, trial_state
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          try:
+              state = trial_state(ledger, "AE001-T008")
+          except Exception:
+              state = None
+          if state is not None:
+              raise SystemExit("AE001-T008 is already registered")
+
+          payload = {
+              "name": "fundamental_filing_medium_horizon_alpha",
+              "status": "FROZEN_BEFORE_RETURN_OUTCOMES",
+              "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+              "source": {
+                  "diagnostic_id": "AE001-T008-D004-v1",
+                  "workflow_run_id": 36748060295,
+                  "artifact_id": 11112604385,
+                  "panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+                  "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+                  "event_count": 369,
+              },
+              "features": [
+                  "revenue_yoy",
+                  "pbt_change_to_prior_revenue",
+                  "total_profit_change_to_prior_revenue",
+                  "pbt_margin",
+                  "pbt_margin_delta_yoy",
+                  "total_profit_margin_delta_yoy",
+              ],
+              "feature_transform": "TRAINING_ONLY_EMPIRICAL_CDF_CENTERED_V1",
+              "entry_rule": (
+                  "NEXT_NSE_SESSION_OPEN_STRICTLY_AFTER_PUBLICATION_LOCAL_DATE"
+              ),
+              "primary": {
+                  "horizon_sessions": 20,
+                  "mean_rank_ic_min": 0.03,
+                  "mean_spread_min": 0.005,
+                  "each_period_rank_ic_positive": True,
+                  "each_period_spread_positive": True,
+                  "bootstrap_lower_rank_ic_gt": 0.0,
+                  "bootstrap_lower_spread_gt": 0.0,
+                  "all_gates_required": True,
+              },
+              "secondary": {
+                  "horizon_sessions": 5,
+                  "can_rescue_primary": False,
+              },
+              "folds": [
+                  {
+                      "fold_id": "F1",
+                      "oos_target_period": "2026-03-31",
+                      "training_target_periods": [
+                          "2025-09-30",
+                          "2025-12-31",
+                      ],
+                  },
+                  {
+                      "fold_id": "F2",
+                      "oos_target_period": "2026-06-30",
+                      "training_target_periods": [
+                          "2025-09-30",
+                          "2025-12-31",
+                          "2026-03-31",
+                      ],
+                  },
+              ],
+              "maturity_rule": (
+                  "TRAIN_LABEL_EXIT_CLOSE_STRICTLY_BEFORE_"
+                  "EARLIEST_OOS_PUBLICATION"
+              ),
+              "model": {
+                  "type": "ridge",
+                  "l2": 1.0,
+                  "hyperparameter_search": False,
+              },
+              "minimum_samples": {
+                  "training_examples_per_fold": 120,
+                  "valid_oos_events_per_period_primary": 60,
+                  "combined_primary_oos_predictions": 120,
+              },
+              "bootstrap": {
+                  "unit": "symbol",
+                  "replicates": 10000,
+                  "seed": 8008,
+                  "confidence_interval": 0.95,
+              },
+              "multiple_testing": {
+                  "trial_count_increment": 1,
+                  "parameter_sweep_allowed": False,
+              },
+              "outcomes_opened_before_registration": False,
+              "live_capital_allowed": False,
+          }
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_REGISTERED",
+              trial_id="AE001-T008",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ) + "\n",
+              encoding="utf-8",
+          )
+          print("event_sha256", updated["events"][-1]["event_sha256"])
+          print("ledger_sha256", updated["ledger_sha256"])
+          PY
+
+      - name: Commit registration
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/trial-ledger.json
+          git commit -m "research: register AE001 T008 before return outcomes [skip ci]"
+          git push origin HEAD:feat/ae001-t008-fundamental-alpha-20261001
