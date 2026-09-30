@@ -1,0 +1,305 @@
+name: AE001 T005 pre-outcome protocol repair
+
+on:
+  push:
+    branches:
+      - feat/ae001-futures-positioning-features-20260930
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: contains(github.event.head_commit.message, '[t005-preoutcome-repair]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Append P3 and run D002 unit audit
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import io
+          import json
+          import math
+          import zipfile
+          from datetime import UTC, date, datetime
+          from pathlib import Path
+
+          from marketlab.alpha_acquisition import http_fetcher
+          from marketlab.alpha_futures import fo_udiff_url
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          ledger_path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+
+          state = trial_state(ledger, "AE001-T005")
+          if state["result_count"] != 0:
+              raise SystemExit("T005 already has a result event")
+          amendment_ids = {
+              str(event["payload"].get("protocol_id") or "")
+              for event in state["amendments"]
+          }
+          if "AE001-T005-P1" not in amendment_ids or "AE001-T005-P2" not in amendment_ids:
+              raise SystemExit("T005 P1/P2 must exist before P3")
+
+          now = datetime.now(UTC).isoformat()
+          if "AE001-T005-P3" not in amendment_ids:
+              ledger = append_trial_event(
+                  ledger,
+                  event_type="TRIAL_PROTOCOL_AMENDED",
+                  trial_id="AE001-T005",
+                  recorded_at_utc=now,
+                  payload={
+                      "protocol_id": "AE001-T005-P3",
+                      "protocol_file": (
+                          "research/AE001_T005_PROTOCOL_AMENDMENT_P3_"
+                          "DIAGNOSTIC_FOLDS.md"
+                      ),
+                      "reason": (
+                          "Restore diagnostic fold dates omitted from the "
+                          "registration event after fail-closed run 36692550419 "
+                          "and before any T005 model fit or metric."
+                      ),
+                      "failed_run_id": 36692550419,
+                      "failed_run_reached_model_fit": False,
+                      "diagnostic": {
+                          "horizon_sessions": 20,
+                          "folds": [
+                              ["2026-04-01", "2026-06-30"],
+                              ["2026-07-01", "2026-08-27"],
+                          ],
+                          "newey_west_lag": 19,
+                          "rescues_failed_primary": False,
+                      },
+                      "live_capital_allowed": False,
+                  },
+              )
+
+          session = date(2026, 9, 25)
+          url = fo_udiff_url(session)
+          raw = http_fetcher(attempts=4, timeout=30.0)(url)
+          if raw is None:
+              raise SystemExit("D002 source unavailable")
+          raw_sha = hashlib.sha256(raw).hexdigest()
+
+          with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+              names = archive.namelist()
+              if len(names) != 1 or not names[0].lower().endswith(".csv"):
+                  raise SystemExit("D002 source archive structure changed")
+              csv_bytes = archive.read(names[0])
+
+          reader = csv.DictReader(io.StringIO(csv_bytes.decode("utf-8-sig")))
+          required = {
+              "TradDt",
+              "Sgmt",
+              "Src",
+              "FinInstrmTp",
+              "TckrSymb",
+              "OpnIntrst",
+              "ChngInOpnIntrst",
+              "TtlTradgVol",
+              "TtlTrfVal",
+              "NewBrdLotQty",
+              "HghPric",
+              "LwPric",
+          }
+          if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+              raise SystemExit("D002 required UDiFF fields are missing")
+
+          stf_count = 0
+          oi_violations = 0
+          change_oi_violations = 0
+          max_oi_residual = 0.0
+          max_change_oi_residual = 0.0
+          price_identity_count = 0
+          price_range_violations = 0
+          max_price_range_violation = 0.0
+
+          for row in reader:
+              if (
+                  str(row.get("TradDt") or "").strip() != session.isoformat()
+                  or str(row.get("Sgmt") or "").strip().upper() != "FO"
+                  or str(row.get("Src") or "").strip().upper() != "NSE"
+                  or str(row.get("FinInstrmTp") or "").strip().upper() != "STF"
+              ):
+                  continue
+              stf_count += 1
+              lot = float(str(row["NewBrdLotQty"]).strip())
+              oi = float(str(row["OpnIntrst"]).strip())
+              change_oi = float(str(row["ChngInOpnIntrst"]).strip())
+              if lot <= 0:
+                  raise SystemExit("D002 encountered non-positive stock-futures lot")
+
+              oi_contracts = oi / lot
+              oi_residual = abs(oi_contracts - round(oi_contracts))
+              max_oi_residual = max(max_oi_residual, oi_residual)
+              if oi_residual > 1e-9:
+                  oi_violations += 1
+
+              change_contracts = change_oi / lot
+              change_residual = abs(change_contracts - round(change_contracts))
+              max_change_oi_residual = max(
+                  max_change_oi_residual,
+                  change_residual,
+              )
+              if change_residual > 1e-9:
+                  change_oi_violations += 1
+
+              volume = float(str(row["TtlTradgVol"]).strip())
+              transferred = float(str(row["TtlTrfVal"]).strip())
+              high = float(str(row["HghPric"]).strip())
+              low = float(str(row["LwPric"]).strip())
+              if (
+                  volume > 0
+                  and transferred > 0
+                  and high > 0
+                  and low > 0
+              ):
+                  price_identity_count += 1
+                  implied = transferred / (volume * lot)
+                  lower_violation = max(0.0, low - implied)
+                  upper_violation = max(0.0, implied - high)
+                  violation = max(lower_violation, upper_violation)
+                  max_price_range_violation = max(
+                      max_price_range_violation,
+                      violation,
+                  )
+                  if violation > 0.02:
+                      price_range_violations += 1
+
+          if stf_count == 0:
+              raise SystemExit("D002 found no STF rows")
+          if oi_violations:
+              raise SystemExit(
+                  f"D002 OI divisibility failed: {oi_violations} rows; "
+                  f"max residual={max_oi_residual}"
+              )
+          if change_oi_violations:
+              raise SystemExit(
+                  f"D002 change-OI divisibility failed: "
+                  f"{change_oi_violations} rows; "
+                  f"max residual={max_change_oi_residual}"
+              )
+          if price_identity_count == 0:
+              raise SystemExit("D002 has no traded STF rows for value audit")
+          if price_range_violations:
+              raise SystemExit(
+                  f"D002 traded-value identity failed: "
+                  f"{price_range_violations} rows; "
+                  f"max violation={max_price_range_violation}"
+              )
+
+          result = {
+              "schema_version": 1,
+              "discovery_id": "AE001-D002-v1",
+              "status": "PASS",
+              "session_date": session.isoformat(),
+              "source_url": url,
+              "raw_sha256": raw_sha,
+              "stock_future_row_count": stf_count,
+              "oi_divisibility_violation_count": oi_violations,
+              "oi_max_contract_fraction_residual": max_oi_residual,
+              "change_oi_divisibility_violation_count": change_oi_violations,
+              "change_oi_max_contract_fraction_residual": max_change_oi_residual,
+              "traded_price_identity_observation_count": price_identity_count,
+              "traded_price_range_violation_count": price_range_violations,
+              "traded_price_max_range_violation_inr": max_price_range_violation,
+              "interpretation": {
+                  "OpnIntrst": "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT",
+                  "ChngInOpnIntrst": "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT",
+                  "TtlTradgVol": "CONTRACT_COUNT",
+                  "TtlTrfVal": "RUPEE_NOTIONAL",
+                  "NewBrdLotQty": "UNDERLYING_UNITS_PER_CONTRACT",
+              },
+              "t005_existing_feature_formulas_validated": True,
+              "outcome_data_opened": False,
+              "live_capital_allowed": False,
+          }
+          result_path = Path("research/ae001-d002-result-v1.json")
+          result_path.write_text(
+              json.dumps(
+                  result,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+
+          state = trial_state(ledger, "AE001-T005")
+          amendment_ids = {
+              str(event["payload"].get("protocol_id") or "")
+              for event in state["amendments"]
+          }
+          if "AE001-T005-P4" not in amendment_ids:
+              ledger = append_trial_event(
+                  ledger,
+                  event_type="TRIAL_PROTOCOL_AMENDED",
+                  trial_id="AE001-T005",
+                  recorded_at_utc=datetime.now(UTC).isoformat(),
+                  payload={
+                      "protocol_id": "AE001-T005-P4",
+                      "reason": (
+                          "Seal D002 FO UDiFF unit semantics before any T005 "
+                          "model fit or outcome metric."
+                      ),
+                      "d002_result_file": "research/ae001-d002-result-v1.json",
+                      "d002_raw_sha256": raw_sha,
+                      "stock_future_row_count": stf_count,
+                      "oi_unit": "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT",
+                      "traded_volume_unit": "CONTRACT_COUNT",
+                      "transferred_value_unit": "RUPEE_NOTIONAL",
+                      "existing_t005_feature_formulas_unchanged": True,
+                      "outcomes_opened_before_p4": False,
+                      "live_capital_allowed": False,
+                  },
+              )
+
+          ledger_path.write_text(
+              json.dumps(
+                  ledger,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          validate_trial_ledger(ledger)
+          print(json.dumps(result, sort_keys=True))
+          print("LEDGER_SHA256", ledger["ledger_sha256"])
+          print("T005_RESULT_COUNT", trial_state(ledger, "AE001-T005")["result_count"])
+          PY
+
+      - name: Commit pre-outcome repair evidence
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/ae001/trial-ledger.json \
+            research/ae001-d002-result-v1.json
+          git commit -m "research: seal T005 P3/P4 pre-outcome repair [skip ci]"
+          git push origin HEAD:feat/ae001-futures-positioning-features-20260930
