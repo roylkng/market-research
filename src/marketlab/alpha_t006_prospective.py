@@ -73,13 +73,19 @@ def validate_t006_decision_ledger(ledger: dict[str, Any]) -> None:
     if ledger.get("decision_count") != len(decisions):
         raise AlphaContractError("T006 decision count mismatch")
     seen: set[str] = set()
+    previous_session: str | None = None
     for index, row in enumerate(decisions, start=1):
         if row.get("seq") != index:
             raise AlphaContractError("T006 decision sequence mismatch")
         session = str(row.get("session_date") or "")
         if not session or session in seen:
             raise AlphaContractError("T006 decision sessions must be unique")
+        if previous_session is not None and session <= previous_session:
+            raise AlphaContractError(
+                "T006 decision sessions must be strictly increasing"
+            )
         seen.add(session)
+        previous_session = session
         stored = str(row.get("decision_entry_sha256") or "")
         unsigned = dict(row)
         unsigned.pop("decision_entry_sha256", None)
