@@ -17,6 +17,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refresh latest T007 branch before registration
+        run: |
+          set -euo pipefail
+          git fetch origin feat/ae001-t007-structured-announcement-alpha-20260930
+          git checkout -B feat/ae001-t007-structured-announcement-alpha-20260930 \
+            origin/feat/ae001-t007-structured-announcement-alpha-20260930
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
