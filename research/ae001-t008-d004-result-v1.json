@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-T008-D004-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_FEASIBILITY_NO_RETURNS",
+  "successful_run": {
+    "run_id": 36748060295,
+    "artifact_id": 11112604385,
+    "artifact_name": "ae001-t008-d004-36748060295"
+  },
+  "panel_sha256": "35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5",
+  "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+  "record_count": 369,
+  "complete_six_feature_count": 369,
+  "feasibility_thresholds": {
+    "minimum_complete_rows_per_target_period": 60,
+    "minimum_total_complete_rows": 280
+  },
+  "feasibility_pass": true,
+  "per_period": {
+    "2025-09-30": {
+      "record_count": 94,
+      "source_diagnostic_id": "AE001-T008-D003-v1",
+      "passes_minimum_complete_rows": true
+    },
+    "2025-12-31": {
+      "record_count": 95,
+      "source_diagnostic_id": "AE001-T008-D003-v1",
+      "passes_minimum_complete_rows": true
+    },
+    "2026-03-31": {
+      "record_count": 86,
+      "source_diagnostic_id": "AE001-T008-D002-v1",
+      "passes_minimum_complete_rows": true
+    },
+    "2026-06-30": {
+      "record_count": 94,
+      "source_diagnostic_id": "AE001-T008-D002-v1",
+      "passes_minimum_complete_rows": true
+    }
+  },
+  "interpretation": {
+    "combined_four_period_source_panel_viable": true,
+    "lower_frozen_thresholds": false,
+    "open_return_outcomes": false,
+    "next_allowed_step": "FREEZE_T008_ALPHA_PROTOCOL_BEFORE_RETURN_LABELS"
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "live_capital_allowed": false,
+  "result_sha256": "903e83c828f30684d020c35b94984965e803b432572fa5d71c8b3901cf3ff28a"
+}
