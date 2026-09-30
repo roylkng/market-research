@@ -3,6 +3,7 @@ from datetime import date, timedelta
 import pytest
 
 from marketlab.ab001_p001 import run_ab001_p001
+from marketlab.alpha import AlphaContractError
 from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_model import ModelExample
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
@@ -134,7 +135,7 @@ def test_p001_fails_closed_on_upstream_hash_drift(monkeypatch):
         "marketlab.ab001_p001.EXPECTED_MARKET_SHA",
         "m" * 64,
     )
-    with pytest.raises(Exception, match="market panel"):
+    with pytest.raises(AlphaContractError, match="market panel"):
         run_ab001_p001(
             market_panel={"panel_sha256": "x" * 64},
             augmented_feature_panel=_feature_panel(),
