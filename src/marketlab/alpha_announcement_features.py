@@ -103,6 +103,19 @@ for topic, feature in _TOPIC_TO_FEATURE.items():
         )
     )
 
+ANNOUNCEMENT_TAXONOMY_SHA256 = digest(
+    {
+        topic: pattern.pattern
+        for topic, pattern in sorted(TOPIC_PATTERNS.items())
+    }
+)
+ANNOUNCEMENT_FEATURE_DEFINITION_SHA256 = digest(
+    sorted(
+        (asdict(definition) for definition in ANNOUNCEMENT_DEFINITIONS),
+        key=lambda row: row["name"],
+    )
+)
+
 
 def _calendar_days(start: date, end: date) -> list[date]:
     if start > end:
