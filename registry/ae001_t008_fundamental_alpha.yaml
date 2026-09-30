@@ -1,0 +1,106 @@
+schema_version: 1
+id: AE001-T008-v1
+name: fundamental_filing_medium_horizon_alpha
+status: FROZEN_BEFORE_RETURN_OUTCOMES
+created: 2026-10-01
+live_capital_allowed: false
+
+source:
+  diagnostic_id: AE001-T008-D004-v1
+  workflow_run_id: 36748060295
+  artifact_id: 11112604385
+  artifact_name: ae001-t008-d004-36748060295
+  panel_sha256: 35ba8ea6bb87c9c9e39f79b6f9479114d96535cfefecffed4f713b1a362cb5c5
+  universe_sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+  event_count: 369
+
+features:
+  names:
+    - revenue_yoy
+    - pbt_change_to_prior_revenue
+    - total_profit_change_to_prior_revenue
+    - pbt_margin
+    - pbt_margin_delta_yoy
+    - total_profit_margin_delta_yoy
+  transform: TRAINING_ONLY_EMPIRICAL_CDF_CENTERED_V1
+  missing_policy: fail_closed
+
+decision:
+  timestamp_field: target_exchange_published_at_utc
+  timezone: Asia/Kolkata
+  execution: NEXT_NSE_SESSION_OPEN_STRICTLY_AFTER_PUBLICATION_LOCAL_DATE
+  same_calendar_day_execution: false
+  identity: entry_session_symbol_plus_isin
+
+labels:
+  benchmark: nifty_500
+  primary_horizon_sessions: 20
+  secondary_horizon_sessions: 5
+  entry_session_counts_as_holding_session_1: true
+  corporate_action_policy: fail_closed
+  identity_continuity_required: true
+
+folds:
+  - id: F1
+    oos_target_period: 2026-03-31
+    training_target_periods:
+      - 2025-09-30
+      - 2025-12-31
+  - id: F2
+    oos_target_period: 2026-06-30
+    training_target_periods:
+      - 2025-09-30
+      - 2025-12-31
+      - 2026-03-31
+
+maturity:
+  rule: TRAIN_LABEL_EXIT_CLOSE_STRICTLY_BEFORE_EARLIEST_OOS_PUBLICATION
+  session_close_time_ist: "15:30:00"
+
+model:
+  type: ridge
+  l2: 1.0
+  hyperparameter_search: false
+
+baseline:
+  type: equal_weight_six_feature_composite
+  promotion_role: diagnostic_only
+
+minimum_samples:
+  training_examples_per_fold: 120
+  valid_oos_events_per_period_primary: 60
+  combined_primary_oos_predictions: 120
+
+evaluation:
+  period_weighting: equal
+  rank_ic: spearman
+  spread:
+    top_bucket: quartile
+    bottom_bucket: quartile
+  bootstrap:
+    unit: symbol
+    replicates: 10000
+    seed: 8008
+    confidence_interval: 0.95
+
+primary_success:
+  require_all: true
+  each_period_rank_ic_positive: true
+  mean_rank_ic_min: 0.03
+  rank_ic_bootstrap_lower_gt: 0.0
+  each_period_spread_positive: true
+  mean_spread_min: 0.005
+  spread_bootstrap_lower_gt: 0.0
+  minimum_sample_gates: true
+
+secondary:
+  horizon_sessions: 5
+  can_rescue_primary: false
+
+multiple_testing:
+  trial_count_increment: 1
+  parameter_sweep_allowed: false
+
+promotion:
+  next_stage_if_supported: AB001_ORTHOGONALITY
+  direct_live_capital: prohibited
