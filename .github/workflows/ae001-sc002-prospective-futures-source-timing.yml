@@ -1,14 +1,19 @@
 name: AE001 SC002 prospective futures source timing
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
-    # UTC -> Asia/Kolkata: 17:00, 17:30, 18:00, 18:15, 18:25.
-    - cron: '30 11 * * 1-5'
-    - cron: '0 12 * * 1-5'
-    - cron: '30 12 * * 1-5'
-    - cron: '45 12 * * 1-5'
-    - cron: '55 12 * * 1-5'
+    # Uncommon UTC minutes reduce scheduler contention.
+    # UTC -> Asia/Kolkata: 16:37, 17:07, 17:37, 17:57, 18:17, 18:27.
+    - cron: '7 11 * * 1-5'
+    - cron: '37 11 * * 1-5'
+    - cron: '7 12 * * 1-5'
+    - cron: '27 12 * * 1-5'
+    - cron: '47 12 * * 1-5'
+    - cron: '57 12 * * 1-5'
 
 permissions:
   contents: write
@@ -19,6 +24,7 @@ concurrency:
 
 jobs:
   probe:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -60,14 +66,18 @@ jobs:
         run: |
           set -euo pipefail
           TODAY="$(TZ=Asia/Kolkata date +%F)"
+          NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
+          EVENT_NAME="${{ github.event_name }}"
           if [[ "$TODAY" < "2026-09-30" ]]; then
             STATE="BEFORE_START"
+          elif [[ "$EVENT_NAME" == "push" && ( "$NOW_HM" < "1630" || "$NOW_HM" > "1829" ) ]]; then
+            STATE="OUTSIDE_PUSH_WINDOW"
           else
             STATE="READY"
           fi
           echo "date=$TODAY" >> "$GITHUB_OUTPUT"
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
-          echo "SC002 gate: date=$TODAY state=$STATE"
+          echo "SC002 gate: date=$TODAY time=$NOW_HM event=$EVENT_NAME state=$STATE"
 
       - name: Probe same-session official NSE FO UDiFF
         if: steps.gate.outputs.state == 'READY'
