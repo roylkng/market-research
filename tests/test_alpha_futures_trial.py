@@ -65,7 +65,7 @@ def _ledger():
             ),
         },
     )
-    return append_trial_event(
+    ledger = append_trial_event(
         ledger,
         event_type="TRIAL_PROTOCOL_AMENDED",
         trial_id="AE001-T005",
@@ -76,6 +76,39 @@ def _ledger():
             "action_safe_base_feature_panel_sha256": BASE_SHA,
             "corporate_action_ledger_sha256": ACTION_SHA,
             "delivery_augmented_feature_panel_sha256": DELIVERY_SHA,
+        },
+    )
+    ledger = append_trial_event(
+        ledger,
+        event_type="TRIAL_PROTOCOL_AMENDED",
+        trial_id="AE001-T005",
+        recorded_at_utc="2026-09-30T09:26:32+00:00",
+        payload={
+            "protocol_id": "AE001-T005-P3",
+            "diagnostic": {
+                "horizon_sessions": 20,
+                "folds": [
+                    ["2026-04-01", "2026-06-30"],
+                    ["2026-07-01", "2026-08-27"],
+                ],
+                "newey_west_lag": 19,
+                "rescues_failed_primary": False,
+            },
+        },
+    )
+    return append_trial_event(
+        ledger,
+        event_type="TRIAL_PROTOCOL_AMENDED",
+        trial_id="AE001-T005",
+        recorded_at_utc="2026-09-30T09:26:33+00:00",
+        payload={
+            "protocol_id": "AE001-T005-P4",
+            "d002_result_file": "research/ae001-d002-result-v1.json",
+            "d002_raw_sha256": "d" * 64,
+            "oi_unit": "UNDERLYING_UNITS_DIVISIBLE_BY_BOARD_LOT",
+            "traded_volume_unit": "CONTRACT_COUNT",
+            "transferred_value_unit": "RUPEE_NOTIONAL",
+            "existing_t005_feature_formulas_unchanged": True,
         },
     )
 
@@ -169,6 +202,52 @@ def test_t005_fails_closed_without_upstream_p2(monkeypatch):
     unsigned.pop("ledger_sha256", None)
     ledger["ledger_sha256"] = digest(unsigned)
     with pytest.raises(AlphaContractError, match="protocol amendment"):
+        run_futures_incremental_trial(
+            market_panel={"panel_sha256": MARKET_SHA},
+            feature_panel=_feature_panel(),
+            action_ledger={"ledger_sha256": ACTION_SHA},
+            trial_ledger=ledger,
+        )
+
+
+
+def test_t005_fails_closed_without_p3_diagnostic_folds(monkeypatch):
+    ledger = _ledger()
+    ledger["events"] = [
+        event
+        for event in ledger["events"]
+        if event["payload"].get("protocol_id") != "AE001-T005-P3"
+    ]
+    for index, event in enumerate(ledger["events"], start=1):
+        event["seq"] = index
+        unsigned_event = dict(event)
+        unsigned_event.pop("event_sha256", None)
+        event["event_sha256"] = digest(unsigned_event)
+    ledger["event_count"] = len(ledger["events"])
+    unsigned = dict(ledger)
+    unsigned.pop("ledger_sha256", None)
+    ledger["ledger_sha256"] = digest(unsigned)
+    with pytest.raises(AlphaContractError, match="protocol amendment"):
+        run_futures_incremental_trial(
+            market_panel={"panel_sha256": MARKET_SHA},
+            feature_panel=_feature_panel(),
+            action_ledger={"ledger_sha256": ACTION_SHA},
+            trial_ledger=ledger,
+        )
+
+
+def test_t005_fails_closed_if_p4_unit_contract_changes(monkeypatch):
+    ledger = _ledger()
+    for event in ledger["events"]:
+        if event["payload"].get("protocol_id") == "AE001-T005-P4":
+            event["payload"]["traded_volume_unit"] = "UNKNOWN"
+            unsigned_event = dict(event)
+            unsigned_event.pop("event_sha256", None)
+            event["event_sha256"] = digest(unsigned_event)
+    unsigned = dict(ledger)
+    unsigned.pop("ledger_sha256", None)
+    ledger["ledger_sha256"] = digest(unsigned)
+    with pytest.raises(AlphaContractError, match="unit semantics"):
         run_futures_incremental_trial(
             market_panel={"panel_sha256": MARKET_SHA},
             feature_panel=_feature_panel(),
