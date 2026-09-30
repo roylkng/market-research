@@ -130,7 +130,38 @@ def test_sc002_timing_candidate_is_latest_plus_buffer_rounded_up():
     assert summary["state"] == "SOURCE_TIMING_READY_FOR_SUCCESSOR_DESIGN"
     assert summary["distinct_ready_session_count"] == 3
     assert summary["additional_distinct_ready_sessions_needed"] == 0
-    # Latest is 21:17:10 IST, +15 minutes = 21:32:10, rounded -> 21:45.
-    assert summary["candidate_cutoff_ist"] == "21:45:00"
+    # Latest is 21:17:10 IST, +30 minutes = 21:47:10, rounded -> 22:00.
+    assert summary["candidate_cutoff_ist"] == "22:00:00"
+    assert summary["candidate_cutoff_session_offset_days"] == 0
     assert summary["candidate_cutoff_basis_session"] == "2026-10-05"
     assert summary["successor_trial_cutoff_frozen"] is False
+
+
+
+def test_sc002_timing_supports_first_ready_after_local_midnight():
+    ledger = new_futures_source_ledger()
+    ledger = _append_ready(
+        ledger,
+        "2026-09-30",
+        "2026-09-30T18:45:00+00:00",
+    )
+    ledger = _append_ready(
+        ledger,
+        "2026-10-01",
+        "2026-10-01T18:50:00+00:00",
+    )
+    ledger = _append_ready(
+        ledger,
+        "2026-10-05",
+        "2026-10-05T19:05:00+00:00",
+    )
+    summary = publication_timing_summary(ledger)
+    # 19:05 UTC is 00:35 IST on D+1. Add 30m -> 01:05, round -> 01:15 D+1.
+    assert summary["candidate_cutoff_ist"] == "01:15:00"
+    assert summary["candidate_cutoff_session_offset_days"] == 1
+    assert (
+        summary["observations"][-1][
+            "local_seconds_after_session_midnight"
+        ]
+        > 24 * 3600
+    )
