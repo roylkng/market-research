@@ -61,7 +61,17 @@ jobs:
               trial_id="AE001-T005",
               protocol_id="AE001-T005-P2",
           )
-          print("T005 ledger gates: READY")
+          require_protocol_amendment(
+              ledger,
+              trial_id="AE001-T005",
+              protocol_id="AE001-T005-P3",
+          )
+          require_protocol_amendment(
+              ledger,
+              trial_id="AE001-T005",
+              protocol_id="AE001-T005-P4",
+          )
+          print("T005 ledger gates P1-P4: READY")
           PY
 
       - name: Rebuild frozen official NSE market panel
