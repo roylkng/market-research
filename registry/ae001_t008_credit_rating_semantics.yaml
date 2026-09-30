@@ -1,0 +1,93 @@
+schema_version: 1
+id: AE001-T008-v1
+name: credit_rating_semantic_attachment_feature_family
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+source:
+  parent_trial: AE001-T007
+  parent_announcement_panel_sha256: fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d
+  window:
+    start: 2025-09-01
+    end: 2026-09-25
+  normalized_descriptions:
+    - credit rating
+    - credit rating- revision
+    - credit rating- new
+  expected_source_count: 2552
+  attachment:
+    format: pdf
+    parser: pypdf
+    parser_version: 6.17.0
+    strict: false
+    semantic_pages: 3
+    ocr_allowed: false
+  source_only_diagnostics:
+    profile_run_id: 36726903972
+    attachment_text_sample_run_id: 36727389077
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+  execution: next_completed_nse_session_open
+
+features:
+  base: CORE27
+  added:
+    - rating_event_current
+    - rating_new_current
+    - rating_upgrade_current
+    - rating_downgrade_current
+    - rating_reaffirmed_current
+    - rating_outlook_positive_current
+    - rating_outlook_negative_current
+    - rating_watch_positive_current
+    - rating_watch_negative_current
+    - rating_watch_developing_current
+    - rating_watch_removed_current
+    - rating_noncooperation_current
+    - rating_withdrawn_current
+    - rating_upgrade_20
+    - rating_downgrade_20
+    - rating_sessions_since_directional_cap60
+    - rating_text_unavailable_current
+  challenger: CORE44
+  llm_used: false
+  sentiment_used: false
+  manual_bullish_bearish_weight_used: false
+
+model:
+  type: ridge
+  l2: 1.0
+  transform: WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1
+
+primary:
+  horizon_sessions: 5
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-18]
+  newey_west_lag: 4
+  success:
+    paired_rank_ic_delta_gt_zero_p_lt: 0.05
+    paired_top_minus_bottom_spread_delta_gt_zero_p_lt: 0.05
+    rule: BOTH
+
+secondary:
+  horizon_sessions: 1
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-24]
+  newey_west_lag: 5
+  may_rescue_failed_primary: false
+
+excluded_horizons:
+  - 20
+  - 60
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
+  next_if_supported:
+    - prospective_confirmation_new_trial_id
+    - AB001_orthogonality_against_delivery_and_futures
