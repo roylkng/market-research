@@ -98,6 +98,8 @@ def normalize_oos_alpha_source(
         seen.add(identity)
         prediction = _finite(row.get("prediction"), f"{alpha}.prediction")
 
+        entry_session = str(row.get("entry_session") or "").strip()
+        exit_session = str(row.get("exit_session") or "").strip()
         target_raw = row.get("target_excess_return")
         if target_raw is None:
             target = None
@@ -108,6 +110,14 @@ def normalize_oos_alpha_source(
                 f"{alpha}.target_excess_return",
             )
             outcome_status = "COMPLETE"
+            if not exit_session:
+                raise AlphaContractError(
+                    f"{alpha}: complete OOS outcome requires exit_session"
+                )
+            if exit_session < session:
+                raise AlphaContractError(
+                    f"{alpha}: exit_session precedes feature_session"
+                )
 
         key = f"{symbol}|{isin}"
         by_session_horizon[(session, horizon)][key] = prediction
@@ -120,6 +130,8 @@ def normalize_oos_alpha_source(
                 "symbol": symbol,
                 "isin": isin,
                 "horizon_sessions": horizon,
+                "entry_session": entry_session or None,
+                "exit_session": exit_session or None,
                 "raw_prediction": prediction,
                 "target_excess_return": target,
                 "outcome_status": outcome_status,
@@ -283,8 +295,10 @@ def _mature_records(
             and row["target_excess_return"] is not None
         ):
             session = str(row["feature_session"])
-            if before_session is not None and session >= before_session:
-                continue
+            if before_session is not None:
+                exit_session = str(row.get("exit_session") or "")
+                if not exit_session or exit_session >= before_session:
+                    continue
             if sessions is not None and session not in sessions:
                 continue
             rows.append(row)
