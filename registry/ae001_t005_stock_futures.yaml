@@ -1,0 +1,72 @@
+schema_version: 1
+id: AE001-T005-v1
+name: nse_stock_futures_positioning_incremental_feature_family
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_RECONSTRUCTION_DEVELOPMENT
+source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+source:
+  provider: NSE
+  report: F&O - UDiFF Common Bhavcopy Final
+  url_pattern: https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_YYYYMMDD_F_0000.csv.zip
+  stock_future_instrument_code: STF
+  historical_publication_timestamp_verified: false
+
+identity:
+  derivative_isin_available: false
+  join: SAME_SESSION_FO_SYMBOL_TO_CM_EQ_SYMBOL_PLUS_ISIN
+
+base_feature_count: 27
+derivative_feature_count: 10
+augmented_feature_count: 37
+
+derivative_features:
+  - fut_front_basis
+  - fut_front_log_basis_per_day
+  - fut_next_log_basis_per_day
+  - fut_curve_slope_per_day
+  - fut_front_oi_change_fraction
+  - fut_total_oi_change_fraction
+  - fut_front_oi_share
+  - fut_total_volume_to_oi
+  - fut_notional_to_cash_turnover
+  - fut_front_settlement_return_1
+
+model:
+  type: ridge
+  l2: 1.0
+  comparison: augmented_37_vs_base_27_on_identical_futures_complete_rows
+
+horizons:
+  primary:
+    sessions: 5
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-18]
+    newey_west_lag: 4
+    success_requires:
+      - paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05
+      - paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05
+  secondary:
+    sessions: 1
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-24]
+    newey_west_lag: 5
+    rescues_failed_primary: false
+  diagnostic:
+    sessions: 20
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-08-27]
+    newey_west_lag: 19
+    rescues_failed_primary: false
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
