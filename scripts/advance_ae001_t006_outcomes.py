@@ -116,6 +116,16 @@ def main() -> int:
         from_date=from_text,
         to_date=to_text,
     )
+    action_raw_sha256 = sha256_bytes(action_raw)
+    action_raw_path = (
+        args.work_dir
+        / f"corporate-actions-{action_raw_sha256}.json"
+    )
+    if action_raw_path.exists() and action_raw_path.read_bytes() != action_raw:
+        raise AlphaContractError(
+            f"T006 outcome corporate-action raw path collision: {action_raw_path}"
+        )
+    action_raw_path.write_bytes(action_raw)
     query = urlencode(
         {
             "index": "equities",
@@ -217,7 +227,8 @@ def main() -> int:
             for event in emitted
         ],
         "market_panel_sha256": market["panel_sha256"],
-        "corporate_action_raw_sha256": sha256_bytes(action_raw),
+        "corporate_action_raw_sha256": action_raw_sha256,
+        "corporate_action_raw_path": str(action_raw_path),
         "corporate_action_source_url": action_source_url,
         "outcome_ledger_sha256": outcomes["ledger_sha256"],
         "trial_ledger_sha256": updated_trials["ledger_sha256"],
