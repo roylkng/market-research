@@ -1,0 +1,123 @@
+name: Diagnose T004 zero universe 2026-09-30
+
+on:
+  push:
+    branches:
+      - diag/t004-zero-universe-20260930
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: contains(github.event.head_commit.message, '[diag-t004-zero]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Reconstruct exact T004 feature diagnostics
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          from datetime import UTC, date, datetime, timedelta
+          from pathlib import Path
+
+          from marketlab.alpha_acquisition import acquire_historical_market_panel, http_fetcher
+          from marketlab.alpha_delivery import acquire_historical_delivery_panel, delivery_session_quality, parse_sec_bhavdata_full
+          from marketlab.alpha_prospective_sources import validate_source_ledger
+          from marketlab.alpha_t004_prospective import build_t004_current_feature_rows, eligible_sc001_attempt
+          from marketlab.nse import NSEClient
+
+          session_date = "2026-09-30"
+          ledger_path = Path("research/prospective/ae001-sc001/source-ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          validate_source_ledger(ledger)
+          attempt = eligible_sc001_attempt(ledger, session_date=session_date)
+
+          def current_raw(field):
+              source = attempt[field]
+              path = Path(source["raw_repo_path"])
+              raw = path.read_bytes()
+              if path.suffix == ".gz":
+                  raw = gzip.decompress(raw)
+              return raw
+
+          current_market_raw = current_raw("market")
+          current_delivery_raw = current_raw("delivery")
+
+          fetch = http_fetcher(attempts=4, timeout=20)
+          day = date.fromisoformat(session_date)
+          prior_market = acquire_historical_market_panel(
+              start_date=day - timedelta(days=120),
+              end_date=day - timedelta(days=1),
+              fetcher=fetch,
+              captured_at_utc=datetime.now(UTC),
+              pause_seconds=0.0,
+          )
+          prior_market_sessions = prior_market["sessions"][-60:]
+          prior_delivery_dates = [
+              str(row["session_date"]) for row in prior_market_sessions[-20:]
+          ]
+          prior_delivery = acquire_historical_delivery_panel(
+              session_dates=prior_delivery_dates,
+              fetcher=fetch,
+              captured_at_utc=datetime.now(UTC),
+          )
+
+          action_client = NSEClient(timeout=20, attempts=4)
+          action_from = date.fromisoformat(
+              str(prior_market_sessions[0]["session_date"])
+          ).strftime("%d-%m-%Y")
+          action_to = day.strftime("%d-%m-%Y")
+          action_payload, _ = action_client.corporate_actions_with_raw(
+              None,
+              from_date=action_from,
+              to_date=action_to,
+          )
+
+          current_delivery_rows = parse_sec_bhavdata_full(
+              current_delivery_raw,
+              session_date=day,
+          )
+          print("SC001_ATTEMPT", json.dumps(attempt, sort_keys=True))
+          print("PRIOR_MARKET_SESSION_COUNT", len(prior_market_sessions))
+          print("PRIOR_MARKET_FIRST", prior_market_sessions[0]["session_date"])
+          print("PRIOR_MARKET_LAST", prior_market_sessions[-1]["session_date"])
+          print("PRIOR_MARKET_LAST20", json.dumps(prior_delivery_dates))
+          print("PRIOR_DELIVERY_QUALITY", json.dumps([
+              {
+                  "session_date": row["session_date"],
+                  "status": row["source_quality"]["status"],
+                  "complete_row_count": row["source_quality"].get("complete_row_count"),
+                  "violating_row_count": row["source_quality"].get("violating_row_count"),
+              }
+              for row in prior_delivery["sessions"]
+          ], sort_keys=True))
+          print("CURRENT_DELIVERY_QUALITY", json.dumps(
+              delivery_session_quality(current_delivery_rows),
+              sort_keys=True,
+          ))
+
+          rows, diagnostics = build_t004_current_feature_rows(
+              prior_market_sessions=prior_market_sessions,
+              current_market_raw=current_market_raw,
+              prior_delivery_sessions=prior_delivery["sessions"],
+              current_delivery_raw=current_delivery_raw,
+              session_date=session_date,
+              corporate_action_payload=action_payload,
+          )
+          print("T004_DIAGNOSTICS", json.dumps(diagnostics, sort_keys=True))
+          print("T004_ROW_COUNT", len(rows))
+          print("T004_SAMPLE", json.dumps(rows[:5], sort_keys=True))
+          PY
