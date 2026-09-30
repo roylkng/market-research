@@ -16,6 +16,7 @@ from marketlab.alpha_trials import (
 TRIAL_ID = "AE001-T005"
 TRIAL_STATUS = "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
 PROTOCOL_ID = "AE001-T005-P1"
+UPSTREAM_PROTOCOL_ID = "AE001-T005-P2"
 
 
 def _names(definitions) -> list[str]:
@@ -47,13 +48,49 @@ def run_futures_incremental_trial(
         trial_id=TRIAL_ID,
         protocol_id=PROTOCOL_ID,
     )
+    p2 = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=UPSTREAM_PROTOCOL_ID,
+    )
     frozen = registration["payload"]
+    upstream = p2["payload"]
     if p1["payload"].get("selection_rule") != (
         "FEATURE_CONSTRUCTION_USES_ONLY_STF_CONTRACTS_WITH_"
         "EXPIRY_STRICTLY_GREATER_THAN_TRADE_DATE"
     ):
         raise AlphaContractError(
             "T005 expiry-selection rule differs from frozen P1"
+        )
+
+    expected_market = str(upstream["market_panel_sha256"])
+    expected_base = str(
+        upstream["action_safe_base_feature_panel_sha256"]
+    )
+    expected_action = str(upstream["corporate_action_ledger_sha256"])
+    expected_delivery = str(
+        upstream["delivery_augmented_feature_panel_sha256"]
+    )
+    if market_panel.get("panel_sha256") != expected_market:
+        raise AlphaContractError("T005 market panel differs from frozen P2")
+    if action_ledger.get("ledger_sha256") != expected_action:
+        raise AlphaContractError(
+            "T005 corporate-action ledger differs from frozen P2"
+        )
+    if feature_panel.get("base_feature_panel_sha256") != expected_delivery:
+        raise AlphaContractError(
+            "T005 futures panel is not based on frozen delivery panel"
+        )
+    if feature_panel.get("corporate_action_ledger_sha256") != expected_action:
+        raise AlphaContractError(
+            "T005 futures panel/action-ledger binding mismatch"
+        )
+    if feature_panel.get("base_action_safe_feature_panel_sha256") not in (
+        None,
+        expected_base,
+    ):
+        raise AlphaContractError(
+            "T005 futures panel base action-safe lineage mismatch"
         )
 
     base_names = [
@@ -154,6 +191,7 @@ def run_futures_incremental_trial(
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "trial_registration_event_sha256": registration["event_sha256"],
         "trial_protocol_p1_event_sha256": p1["event_sha256"],
+        "trial_protocol_p2_event_sha256": p2["event_sha256"],
         "trial_ledger_sha256": trial_ledger["ledger_sha256"],
         "market_panel_sha256": market_panel["panel_sha256"],
         "feature_panel_sha256": feature_panel["panel_sha256"],
