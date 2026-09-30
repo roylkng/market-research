@@ -314,6 +314,8 @@ def build_fundamental_features(
     *,
     target_event: FinancialEvent,
     baseline_event: FinancialEvent,
+    target_period_end: str = TARGET_PERIOD_END,
+    baseline_period_end: str = BASELINE_PERIOD_END,
 ) -> dict[str, float | None]:
     if target_event.symbol.upper() != baseline_event.symbol.upper():
         raise AlphaContractError("T008 target/baseline symbol mismatch")
@@ -322,9 +324,9 @@ def build_fundamental_features(
         != baseline_event.accounting_basis.strip().casefold()
     ):
         raise AlphaContractError("T008 target/baseline accounting basis mismatch")
-    if target_event.reporting_period_end != TARGET_PERIOD_END:
+    if target_event.reporting_period_end != target_period_end:
         raise AlphaContractError("T008 target event period mismatch")
-    if baseline_event.reporting_period_end != BASELINE_PERIOD_END:
+    if baseline_event.reporting_period_end != baseline_period_end:
         raise AlphaContractError("T008 baseline event period mismatch")
 
     target = normalized_monetary_facts(target_event)
@@ -427,10 +429,13 @@ def pair_record(
     target_event: FinancialEvent,
     baseline_event: FinancialEvent,
     discovery_raw_sha256: str,
+    diagnostic_id: str = T008_D001_ID,
 ) -> dict[str, Any]:
     features = build_fundamental_features(
         target_event=target_event,
         baseline_event=baseline_event,
+        target_period_end=pair.target.period_end,
+        baseline_period_end=pair.baseline.period_end,
     )
     complete_count = sum(value is not None for value in features.values())
     exceptional_ratio = None
@@ -446,8 +451,10 @@ def pair_record(
         )
     record: dict[str, Any] = {
         "schema_version": 1,
-        "diagnostic_id": T008_D001_ID,
+        "diagnostic_id": diagnostic_id,
         "symbol": pair.symbol,
+        "target_period_end": pair.target.period_end,
+        "baseline_period_end": pair.baseline.period_end,
         "accounting_basis": pair.accounting_basis,
         "target_exchange_published_at_utc": (
             pair.target.exchange_published_at_utc
