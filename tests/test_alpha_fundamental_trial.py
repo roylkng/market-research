@@ -13,7 +13,6 @@ from marketlab.alpha_fundamental_trial import (
     _fit_ecdf,
     build_t008_event_labels,
 )
-from marketlab.marketdata import IndexDailyPrice
 
 
 def _action_ledger(start: str, end: str):
