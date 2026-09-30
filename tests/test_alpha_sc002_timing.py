@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from marketlab.alpha_prospective_futures_sources import (
     append_futures_source_probe,
     new_futures_source_ledger,
@@ -165,3 +168,21 @@ def test_sc002_timing_supports_first_ready_after_local_midnight():
         ]
         > 24 * 3600
     )
+
+
+
+def test_checked_in_sc002_timing_summary_matches_canonical_ledger():
+    root = Path(__file__).resolve().parents[1]
+    ledger = json.loads(
+        (
+            root
+            / "research/prospective/ae001-sc002/source-ledger.json"
+        ).read_text(encoding="utf-8")
+    )
+    expected = json.loads(
+        (
+            root
+            / "research/prospective/ae001-sc002/publication-timing-summary.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert publication_timing_summary(ledger) == expected
