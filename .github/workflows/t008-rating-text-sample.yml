@@ -1,0 +1,105 @@
+name: T008 rating attachment text diagnostic
+
+on:
+  push:
+    branches:
+      - diag/t008-semantic-source-profile-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sample:
+    if: contains(github.event.head_commit.message, '[t008-rating-text-sample]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download sealed T007 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t007-36715752748
+          path: evidence/t007
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36715752748
+      - name: Fetch deterministic rating PDF sample and print action-bearing lines
+        run: |
+          python - <<'PY'
+          import gzip
+          import io
+          import json
+          import math
+          import re
+          from pathlib import Path
+
+          from pypdf import PdfReader
+          from marketlab.nse import NSEClient
+
+          panel_path = next(Path("evidence/t007").rglob("announcement-panel.json.gz"))
+          panel = json.loads(gzip.decompress(panel_path.read_bytes()).decode("utf-8"))
+          rows = []
+          for session in panel["sessions"]:
+              for row in session["announcements"]:
+                  desc = " ".join(str(row.get("desc") or "").split()).casefold()
+                  if not desc.startswith("credit rating"):
+                      continue
+                  rows.append(row)
+          rows.sort(
+              key=lambda r: (
+                  str(r["exchange_published_at_utc"]),
+                  str(r["symbol"]),
+                  str(r["seq_id"]),
+              )
+          )
+          print("EXACT_CREDIT_RATING_SOURCE_COUNT", len(rows))
+          count = min(24, len(rows))
+          indexes = sorted({
+              math.floor(i * (len(rows) - 1) / (count - 1))
+              for i in range(count)
+          })
+          client = NSEClient(timeout=30.0, attempts=4)
+          pattern = re.compile(
+              r"(?i)(upgrade|downgrade|reaffirm|re-affirm|outlook|"
+              r"rating watch|watch with|assigned|withdraw|rating action|"
+              r"positive|negative|stable|developing implications|"
+              r"issuer not cooperating|non-cooperation)"
+          )
+          for sample_index, row_index in enumerate(indexes, start=1):
+              row = rows[row_index]
+              url = str(row["attchmntFile"])
+              raw = client.archive_bytes(url)
+              reader = PdfReader(io.BytesIO(raw), strict=False)
+              text_parts = []
+              for page in reader.pages[:3]:
+                  text_parts.append(page.extract_text() or "")
+              lines = [
+                  " ".join(line.split())
+                  for line in "\n".join(text_parts).splitlines()
+                  if " ".join(line.split())
+              ]
+              hits = [line for line in lines if pattern.search(line)]
+              print(
+                  "SAMPLE",
+                  json.dumps(
+                      {
+                          "sample_index": sample_index,
+                          "source_index": row_index,
+                          "symbol": row["symbol"],
+                          "desc": row["desc"],
+                          "published": row["exchange_published_at_utc"],
+                          "page_count": len(reader.pages),
+                          "first3_char_count": sum(len(x) for x in text_parts),
+                          "hit_lines": hits[:25],
+                      },
+                      ensure_ascii=False,
+                      sort_keys=True,
+                  ),
+              )
+          PY
