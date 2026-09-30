@@ -195,14 +195,18 @@ def test_h024_source_earliest_filing_is_authoritative_and_mismatch_fails_closed(
 
 
 def test_common_streams_are_exact_full_cross_section_with_binary_h024_score():
-    examples = [
-        _example(
-            f"S{index:02d}",
-            f"INE{index:09d}",
-            target=index / 1000.0,
-        )
-        for index in range(10)
-    ]
+    sessions = ["2026-05-14", "2026-05-15", "2026-05-16"]
+    examples = []
+    for session_index, session in enumerate(sessions):
+        for stock_index in range(10):
+            examples.append(
+                _example(
+                    f"S{stock_index:02d}",
+                    f"INE{stock_index:09d}",
+                    session=session,
+                    target=(stock_index + session_index) / 1000.0,
+                )
+            )
     ae001 = [
         {
             "model_id": "A1",
@@ -213,7 +217,7 @@ def test_common_streams_are_exact_full_cross_section_with_binary_h024_score():
             "entry_session": row.entry_session,
             "exit_session": row.exit_session,
             "horizon_sessions": 20,
-            "prediction": index / 10.0,
+            "prediction": index / 100.0,
             "target_excess_return": row.target_excess_return,
             "prediction_role": "OOS",
             "oos_only": True,
@@ -221,21 +225,33 @@ def test_common_streams_are_exact_full_cross_section_with_binary_h024_score():
         }
         for index, row in enumerate(examples)
     ]
-    event_identity = (examples[7].symbol, examples[7].isin)
+    event_identity = ("S07", "INE000000007")
+    event_sessions = {
+        session: {event_identity}
+        for session in sessions
+    }
     left, right, diagnostics = _common_prediction_streams(
         ae001_predictions=ae001,
         examples=examples,
-        event_identities={"2026-05-14": {event_identity}},
+        event_identities=event_sessions,
     )
-    assert len(left) == len(right) == 10
-    assert diagnostics["common_stock_session_count"] == 10
-    assert sum(float(row["prediction"]) for row in right) == pytest.approx(1.0)
-    selected = [
-        (row["symbol"], row["isin"])
-        for row in right
-        if row["prediction"] == 1.0
-    ]
-    assert selected == [event_identity]
+    assert len(left) == len(right) == 30
+    assert diagnostics["common_session_count"] == 3
+    assert diagnostics["common_stock_session_count"] == 30
+    assert sum(float(row["prediction"]) for row in right) == pytest.approx(3.0)
+    selected_by_session = {
+        session: [
+            (row["symbol"], row["isin"])
+            for row in right
+            if row["feature_session"] == session
+            and row["prediction"] == 1.0
+        ]
+        for session in sessions
+    }
+    assert all(
+        selected == [event_identity]
+        for selected in selected_by_session.values()
+    )
 
 
 def test_h024_event_lift_uses_event_vs_non_event_targets_and_hac():
