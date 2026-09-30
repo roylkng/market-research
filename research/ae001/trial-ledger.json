@@ -1,5 +1,5 @@
 {
-  "event_count": 22,
+  "event_count": 23,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -826,10 +826,52 @@
       "recorded_at_utc": "2026-09-30T12:22:36.332366+00:00",
       "seq": 22,
       "trial_id": "AE001-T007"
+    },
+    {
+      "event_sha256": "d7a7fda516e97bbb6f1b1da54a72d3c8af080a2e764056ea36473f825983d3de",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "announcement_feature_definition_sha256": "238d4ed7ba54f25328814cf4126dbdf09e527a99efc8425710612151b80c27a8",
+        "announcement_feature_names": [
+          "ann_total_current",
+          "ann_material_current",
+          "ann_routine_current",
+          "ann_unique_topics_current",
+          "ann_after_close_material_current",
+          "ann_material_5",
+          "ann_material_20",
+          "ann_sessions_since_material_cap20",
+          "ann_order_customer_current",
+          "ann_capacity_investment_current",
+          "ann_results_guidance_current",
+          "ann_product_approval_current",
+          "ann_capital_transaction_current",
+          "ann_ownership_control_current",
+          "ann_governance_risk_current",
+          "ann_policy_regulation_current"
+        ],
+        "announcement_taxonomy_sha256": "e847f3115d4a47228fc555e3a7ee4ac17b6719dca29fc85d30c6e7aa3a8d1d27",
+        "d003_report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f",
+        "live_capital_allowed": false,
+        "outcome_materialization_started": false,
+        "protocol_document_sha256": "8ac8a54749e22827896e1aaa67519191e508f1ce3a97433e9bd55223f49448b9",
+        "protocol_id": "AE001-T007-P1",
+        "registry_document_sha256": "b53b116a04927539e2154fe93092a2431f840356ad21b2d8993188e246dc370d",
+        "source_query_granularity": "ONE_WHOLE_MARKET_QUERY_PER_CALENDAR_DATE",
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ],
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION",
+        "zero_event_policy": "VALID_ONLY_WITH_COMPLETE_DAILY_SOURCE_WINDOW"
+      },
+      "recorded_at_utc": "2026-09-30T12:33:08.557676+00:00",
+      "seq": 23,
+      "trial_id": "AE001-T007"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "7be73c2e1a22fc3f03b741acb5310f2d3186c2c508037fcd2ec8257c3a46beab",
+  "ledger_sha256": "661c3f06d41fd4a48ae7ac08e05bebb7ab164af2d73168a37b1cb15b6f0dce11",
   "live_capital_allowed": false,
   "schema_version": 1
 }
