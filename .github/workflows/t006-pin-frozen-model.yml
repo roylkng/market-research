@@ -1,0 +1,86 @@
+name: T006 pin verified frozen model artifact
+
+on:
+  push:
+    branches:
+      - feat/ae001-t006-prospective-futures-20260930
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pin:
+    if: contains(github.event.head_commit.message, '[t006-pin-model]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download verified deterministic freeze evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t006-model-freeze-36706764607
+          path: evidence/freeze
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36706764607
+
+      - name: Pin and verify exact frozen model
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import shutil
+          from pathlib import Path
+
+          from marketlab.alpha_t006 import validate_frozen_t006_models
+
+          matches=list(Path("evidence/freeze").rglob("frozen-models-v1.json"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one T006 frozen model artifact, got {matches}")
+
+          source=matches[0]
+          artifact=json.loads(source.read_text(encoding="utf-8"))
+          validate_frozen_t006_models(artifact)
+
+          expected={
+              "artifact_sha256": "da1ce462b5d9c59fb5bea2f4b69c574c8ecbf1f728c44b23af8f3e73bd5de091",
+              "base_model_sha256": "774ce4b6ac0955b213521f017116ea32e579e73bfcbdb9ed3441c8e57248378c",
+              "augmented_model_sha256": "7030afd449058e54a03d3febb6db0910b75acbe2be403e01ded8ee14eb68fa02",
+              "training_example_count": 39789,
+              "training_last_exit_session": "2026-09-18",
+          }
+          observed={
+              "artifact_sha256": artifact["artifact_sha256"],
+              "base_model_sha256": artifact["base_model"]["model_sha256"],
+              "augmented_model_sha256": artifact["augmented_model"]["model_sha256"],
+              "training_example_count": artifact["training_example_count"],
+              "training_last_exit_session": artifact["training_last_exit_session"],
+          }
+          if observed != expected:
+              raise SystemExit(f"T006 frozen model mismatch: {observed} != {expected}")
+
+          destination=Path("research/prospective/ae001-t006/frozen-models-v1.json")
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          shutil.copyfile(source, destination)
+          print("Pinned exact T006 model:", observed)
+          PY
+
+      - name: Commit exact frozen model to T006 branch
+        run: |
+          set -euo pipefail
+          BRANCH="feat/ae001-t006-prospective-futures-20260930"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-t006/frozen-models-v1.json
+          git commit -m "research: pin verified AE001 T006 frozen models [skip ci]"
+          git push origin HEAD:"$BRANCH"
