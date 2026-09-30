@@ -25,7 +25,6 @@ from marketlab.alpha_futures import (
     parse_fo_udiff_stock_futures,
 )
 from marketlab.alpha_market import (
-    DailyEquityObservation,
     build_price_volume_features_from_history,
     eligible_history_for_ae001,
     parse_udiff_eq_panel,
@@ -35,7 +34,6 @@ from marketlab.alpha_t004_prospective import (
     _market_histories,
     _rank_feature_rows,
     _score_model,
-    eligible_sc001_attempt,
     t004_cutoff_utc,
 )
 from marketlab.alpha_t006 import validate_frozen_t006_models
