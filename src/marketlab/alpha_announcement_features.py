@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import re
 from bisect import bisect_left
 from collections import Counter, defaultdict
