@@ -1,0 +1,73 @@
+name: T007 source-count cap diagnostic
+
+on:
+  push:
+    branches:
+      - feat/ae001-t007-structured-announcement-alpha-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit:
+    if: contains(github.event.head_commit.message, '[t007-source-cap-audit]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download sealed T007 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t007-36715752748
+          path: evidence/t007
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36715752748
+
+      - name: Audit daily source counts
+        run: |
+          python - <<'PY'
+          import gzip
+          import json
+          import statistics
+          from pathlib import Path
+
+          matches = list(Path("evidence/t007").rglob("announcement-panel.json.gz"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one announcement panel, got {matches}")
+          panel = json.loads(gzip.decompress(matches[0].read_bytes()).decode("utf-8"))
+          counts = [
+              (row["calendar_date"], int(row["announcement_count"]))
+              for row in panel["sessions"]
+          ]
+          values = [count for _, count in counts]
+          print("DAY_COUNT", len(values))
+          print("TOTAL", sum(values))
+          print("MIN", min(values))
+          print("MAX", max(values))
+          print("MEAN", statistics.mean(values))
+          print("MEDIAN", statistics.median(values))
+          ordered = sorted(values)
+          for p in (50, 75, 90, 95, 99):
+              idx = round((p / 100) * (len(ordered)-1))
+              print(f"P{p}", ordered[idx])
+          for threshold in (100, 200, 250, 500, 563, 600, 750, 1000):
+              print(
+                  f"EXACT_{threshold}",
+                  sum(value == threshold for value in values),
+              )
+          print("ZERO_DAYS", sum(value == 0 for value in values))
+          print("TOP_DAYS")
+          for day, count in sorted(counts, key=lambda x:(-x[1],x[0]))[:30]:
+              print(day, count)
+          print("D003_WINDOW")
+          for day, count in counts:
+              if "2026-09-15" <= day <= "2026-09-21":
+                  print(day, count)
+          if panel["announcement_count"] != sum(values):
+              raise SystemExit("panel total differs from daily sum")
+          if panel["daily_source_count"] != len(values):
+              raise SystemExit("panel daily source count mismatch")
+          PY
