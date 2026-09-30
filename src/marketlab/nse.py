@@ -36,6 +36,9 @@ class NSEClient:
     INTEGRATED_FILING_ENDPOINT = NSEEndpoint(
         "integrated_filing_results", f"{BASE_URL}/api/integrated-filing-results"
     )
+    FINANCIAL_RESULTS_ENDPOINT = NSEEndpoint(
+        "financial_results", f"{BASE_URL}/api/corporates-financial-results"
+    )
     CORPORATE_ACTION_ENDPOINT = NSEEndpoint(
         "corporate_actions", f"{BASE_URL}/api/corporates-corporateActions"
     )
@@ -175,6 +178,22 @@ class NSEClient:
         return self._json_get_with_raw(
             self.INTEGRATED_FILING_ENDPOINT,
             params={"index": "equities", "symbol": symbol, "period": period},
+        )
+
+    def financial_results_with_raw(
+        self,
+        symbol: str,
+        *,
+        period: str = "Quarterly",
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact legacy NSE financial-results discovery bytes."""
+        return self._json_get_with_raw(
+            self.FINANCIAL_RESULTS_ENDPOINT,
+            params={
+                "index": "equities",
+                "symbol": symbol,
+                "period": period,
+            },
         )
 
     def corporate_actions_with_raw(

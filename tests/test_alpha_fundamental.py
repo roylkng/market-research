@@ -10,6 +10,7 @@ from marketlab.alpha_fundamental import (
     monetary_scale,
     pair_record,
     select_fundamental_pair,
+    select_mixed_source_fundamental_pair,
 )
 from marketlab.events import (
     HISTORICAL_RECONSTRUCTION,
@@ -116,6 +117,114 @@ def test_pair_rejects_same_timestamp_different_target_urls():
     with pytest.raises(AlphaContractError, match="ambiguous"):
         select_fundamental_pair(payload, symbol="TEST")
 
+
+
+
+def _legacy_row(
+    *,
+    period,
+    time,
+    basis="Consolidated",
+    url="https://x/legacy.xml",
+):
+    return {
+        "symbol": "TEST",
+        "period": "Quarterly",
+        "toDate": period,
+        "broadCastDate": time,
+        "consolidated": basis,
+        "xbrl": url,
+    }
+
+
+def test_mixed_pair_uses_integrated_target_and_legacy_baseline():
+    integrated = {
+        "data": [
+            _row(
+                period="30-Sep-2025",
+                time="20-Oct-2025 12:00:00",
+                basis="Consolidated",
+                url="https://x/integrated-target.xml",
+            )
+        ]
+    }
+    legacy = [
+        _legacy_row(
+            period="30-Sep-2024",
+            time="20-Oct-2024 12:00:00",
+            basis="Consolidated",
+            url="https://x/legacy-base.xml",
+        )
+    ]
+    pair = select_mixed_source_fundamental_pair(
+        integrated,
+        legacy,
+        symbol="TEST",
+        target_period_end="2025-09-30",
+        baseline_period_end="2024-09-30",
+    )
+    assert pair.accounting_basis == "Consolidated"
+    assert pair.target.source_url.endswith("integrated-target.xml")
+    assert pair.baseline.source_url.endswith("legacy-base.xml")
+    assert pair.baseline.exchange_published_at_utc < pair.target.exchange_published_at_utc
+
+
+def test_mixed_pair_normalizes_non_consolidated_to_standalone():
+    integrated = {
+        "data": [
+            _row(
+                period="31-Dec-2025",
+                time="20-Jan-2026 12:00:00",
+                basis="Standalone",
+                url="https://x/integrated-target-sa.xml",
+            )
+        ]
+    }
+    legacy = [
+        _legacy_row(
+            period="31-Dec-2024",
+            time="20-Jan-2025 12:00:00",
+            basis="Non-Consolidated",
+            url="https://x/legacy-base-sa.xml",
+        )
+    ]
+    pair = select_mixed_source_fundamental_pair(
+        integrated,
+        legacy,
+        symbol="TEST",
+        target_period_end="2025-12-31",
+        baseline_period_end="2024-12-31",
+    )
+    assert pair.accounting_basis == "Standalone"
+
+
+def test_mixed_pair_rejects_legacy_baseline_published_after_target():
+    integrated = {
+        "data": [
+            _row(
+                period="30-Sep-2025",
+                time="20-Oct-2025 12:00:00",
+                basis="Consolidated",
+                url="https://x/integrated-target.xml",
+            )
+        ]
+    }
+    legacy = [
+        _legacy_row(
+            period="30-Sep-2024",
+            time="21-Oct-2025 12:00:00",
+            basis="Consolidated",
+            url="https://x/late-legacy-base.xml",
+        )
+    ]
+    with pytest.raises(AlphaContractError, match="mixed-source"):
+        select_mixed_source_fundamental_pair(
+            integrated,
+            legacy,
+            symbol="TEST",
+            target_period_end="2025-09-30",
+            baseline_period_end="2024-09-30",
+        )
 
 def _event(
     *,

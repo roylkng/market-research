@@ -1,0 +1,63 @@
+schema_version: 1
+id: AE001-T008-D003-v1
+name: legacy_financial_results_baseline_feasibility
+status: FROZEN_BEFORE_SOURCE_ACCESS
+created: 2026-09-30
+live_capital_allowed: false
+
+universe:
+  path: research/prospective/universes/FY27-Q2-2026-09-06.json
+  sha256: cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb
+  member_count: 100
+
+sources:
+  target:
+    provider: NSE
+    endpoint: /api/integrated-filing-results
+    role: TARGET_ONLY
+  baseline:
+    provider: NSE
+    endpoint: /api/corporates-financial-results
+    params:
+      index: equities
+      period: Quarterly
+    role: BASELINE_ONLY
+
+period_pairs:
+  - target_period_end: 2025-09-30
+    baseline_period_end: 2024-09-30
+  - target_period_end: 2025-12-31
+    baseline_period_end: 2024-12-31
+
+feature_names:
+  - revenue_yoy
+  - pbt_change_to_prior_revenue
+  - total_profit_change_to_prior_revenue
+  - pbt_margin
+  - pbt_margin_delta_yoy
+  - total_profit_margin_delta_yoy
+
+selection:
+  basis_preference:
+    - Consolidated
+    - Standalone
+  target: earliest_integrated_publication
+  baseline: latest_legacy_publication_strictly_before_target
+  same_timestamp_multi_url: fail_closed
+
+parser:
+  modify_after_source_open: false
+  path: parse_historical_filing
+  monetary_normalization: T008_D001_UNCHANGED
+
+thresholds:
+  minimum_complete_rows_per_target_period: 60
+  minimum_total_complete_rows: 120
+
+outcomes:
+  return_labels_allowed: false
+  model_fitting_allowed: false
+
+promotion:
+  next_if_pass: AE001-T008-D004
+  lower_thresholds_after_result: false

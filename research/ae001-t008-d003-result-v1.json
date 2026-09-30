@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-T008-D003-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_FEASIBILITY_NO_RETURNS",
+  "successful_run": {
+    "run_id": 36746275777,
+    "artifact_id": 11113075870,
+    "artifact_name": "ae001-t008-d003-36746275777"
+  },
+  "panel_sha256": "69fdda1d51b7a070849556a53794f224d054270974958ae45eab6555fbaa1e35",
+  "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+  "frozen_attempt_count": 200,
+  "record_count": 189,
+  "complete_six_feature_count": 189,
+  "failure_count": 11,
+  "feasibility_thresholds": {
+    "minimum_complete_rows_per_target_period": 60,
+    "minimum_total_complete_rows": 120
+  },
+  "feasibility_pass": true,
+  "per_period": {
+    "2025-09-30": {
+      "baseline_period_end": "2024-09-30",
+      "record_count": 94,
+      "complete_six_feature_count": 94,
+      "failure_count": 6,
+      "passes_minimum_complete_rows": true,
+      "failure_stage_counts": {
+        "PAIR_SELECTION": 1,
+        "PARSE_OR_FEATURE": 5
+      },
+      "basis_counts": {
+        "Consolidated": 91,
+        "Standalone": 3
+      },
+      "parser_pair_counts": {
+        "indas-xbrl-2025-v1|indas-xbrl-2025-v1": 94
+      }
+    },
+    "2025-12-31": {
+      "baseline_period_end": "2024-12-31",
+      "record_count": 95,
+      "complete_six_feature_count": 95,
+      "failure_count": 5,
+      "passes_minimum_complete_rows": true,
+      "failure_stage_counts": {
+        "PAIR_SELECTION": 1,
+        "PARSE_OR_FEATURE": 4
+      },
+      "basis_counts": {
+        "Consolidated": 92,
+        "Standalone": 3
+      },
+      "parser_pair_counts": {
+        "indas-xbrl-2025-v1|indas-xbrl-2025-v1": 95
+      }
+    }
+  },
+  "failure_stage_counts": {
+    "PAIR_SELECTION": 2,
+    "PARSE_OR_FEATURE": 9
+  },
+  "failure_reason_counts": {
+    "T008 D003 no mixed-source same-basis target/baseline filing pair": 2,
+    "T008 D003 target filing ISIN differs from frozen universe": 1,
+    "T008 parsed filing symbol mismatch": 8
+  },
+  "interpretation": {
+    "legacy_2024_baseline_source_viable": true,
+    "parser_change_required": false,
+    "lower_frozen_thresholds": false,
+    "open_return_outcomes": false,
+    "next_allowed_step": "AE001-T008-D004_COMBINED_SOURCE_FOUR_PERIOD_PANEL"
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "live_capital_allowed": false,
+  "result_sha256": "6d8405cadd65614607efc95482adf222a426e1941ce9f29b4dddbf35aea75d70"
+}

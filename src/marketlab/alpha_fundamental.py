@@ -156,6 +156,85 @@ def _candidate_rows(
     return candidates
 
 
+def _legacy_basis(value: object) -> str | None:
+    raw = " ".join(
+        str(value or "")
+        .strip()
+        .casefold()
+        .replace("_", " ")
+        .replace("-", " ")
+        .split()
+    )
+    if raw == "consolidated":
+        return "Consolidated"
+    if raw in {
+        "standalone",
+        "non consolidated",
+        "nonconsolidated",
+    }:
+        return "Standalone"
+    return None
+
+
+def _legacy_candidate_rows(
+    payload: object,
+    *,
+    symbol: str,
+    period_end: str,
+    accounting_basis: str,
+) -> list[FilingCandidate]:
+    """Normalize legacy /api/corporates-financial-results rows."""
+
+    wanted_symbol = symbol.strip().upper()
+    candidates = []
+    for row in _rows(payload):
+        if str(row.get("symbol") or "").strip().upper() != wanted_symbol:
+            continue
+        basis = _legacy_basis(row.get("consolidated"))
+        if basis != accounting_basis:
+            continue
+        period_raw = (
+            row.get("toDate")
+            or row.get("to_Date")
+            or row.get("periodEnded")
+            or row.get("period_end")
+        )
+        if _period_iso(period_raw) != period_end:
+            continue
+        source_url = str(row.get("xbrl") or "").strip()
+        if not source_url or source_url in {"-", "--"}:
+            continue
+        available_raw = (
+            row.get("broadCastDate")
+            or row.get("broadcastDate")
+            or row.get("broadcast_Date")
+            or row.get("filingDate")
+            or row.get("filing_Date")
+        )
+        try:
+            available = _parse_exchange_time(available_raw)
+        except AlphaContractError:
+            continue
+        candidates.append(
+            FilingCandidate(
+                symbol=wanted_symbol,
+                accounting_basis=accounting_basis,
+                period_end=period_end,
+                exchange_published_at_utc=_iso_utc(available),
+                source_url=source_url,
+                discovery_row_sha256=digest(row),
+                discovery_row=dict(row),
+            )
+        )
+    candidates.sort(
+        key=lambda item: (
+            item.exchange_published_at_utc,
+            item.source_url,
+        )
+    )
+    return candidates
+
+
 def _unique_at_timestamp(
     candidates: list[FilingCandidate],
     *,
@@ -226,6 +305,59 @@ def select_fundamental_pair(
         )
     raise AlphaContractError(
         "T008 no same-basis target/baseline filing pair"
+    )
+
+
+def select_mixed_source_fundamental_pair(
+    integrated_payload: object,
+    legacy_payload: object,
+    *,
+    symbol: str,
+    target_period_end: str,
+    baseline_period_end: str,
+) -> FundamentalPair:
+    """Select Integrated target plus legacy already-known same-basis baseline."""
+
+    for basis in BASIS_PREFERENCE:
+        target_candidates = _candidate_rows(
+            integrated_payload,
+            symbol=symbol,
+            period_end=target_period_end,
+            accounting_basis=basis,
+        )
+        if not target_candidates:
+            continue
+        target = _unique_at_timestamp(
+            target_candidates,
+            use_first=True,
+        )
+
+        baseline_candidates = [
+            candidate
+            for candidate in _legacy_candidate_rows(
+                legacy_payload,
+                symbol=symbol,
+                period_end=baseline_period_end,
+                accounting_basis=basis,
+            )
+            if candidate.exchange_published_at_utc
+            < target.exchange_published_at_utc
+        ]
+        if not baseline_candidates:
+            continue
+        baseline = _unique_at_timestamp(
+            baseline_candidates,
+            use_first=False,
+        )
+        return FundamentalPair(
+            symbol=symbol.strip().upper(),
+            accounting_basis=basis,
+            target=target,
+            baseline=baseline,
+        )
+
+    raise AlphaContractError(
+        "T008 D003 no mixed-source same-basis target/baseline filing pair"
     )
 
 
