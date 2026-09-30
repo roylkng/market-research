@@ -85,14 +85,89 @@ jobs:
             --trial-ledger research/ae001/trial-ledger.json \
             --output research/prospective/ae001-t006/frozen-models-v1.json
 
+      - name: Verify deterministic T006 model freeze
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.alpha_t006 import validate_frozen_t006_models
+
+          path=Path("research/prospective/ae001-t006/frozen-models-v1.json")
+          artifact=json.loads(path.read_text(encoding="utf-8"))
+          validate_frozen_t006_models(artifact)
+
+          expected={
+              "artifact_sha256": "da1ce462b5d9c59fb5bea2f4b69c574c8ecbf1f728c44b23af8f3e73bd5de091",
+              "base_model_sha256": "774ce4b6ac0955b213521f017116ea32e579e73bfcbdb9ed3441c8e57248378c",
+              "augmented_model_sha256": "7030afd449058e54a03d3febb6db0910b75acbe2be403e01ded8ee14eb68fa02",
+              "training_example_count": 39789,
+              "training_last_exit_session": "2026-09-18",
+          }
+          observed={
+              "artifact_sha256": artifact["artifact_sha256"],
+              "base_model_sha256": artifact["base_model"]["model_sha256"],
+              "augmented_model_sha256": artifact["augmented_model"]["model_sha256"],
+              "training_example_count": artifact["training_example_count"],
+              "training_last_exit_session": artifact["training_last_exit_session"],
+          }
+          if observed != expected:
+              raise SystemExit(
+                  f"T006 deterministic model freeze mismatch: {observed} != {expected}"
+              )
+          print("T006 deterministic freeze reproduced:", observed)
+          PY
+
       - name: Commit frozen model artifact
         run: |
           set -euo pipefail
+          BRANCH="feat/ae001-t006-prospective-futures-20260930"
+          START_SHA="${GITHUB_SHA}"
+
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add research/prospective/ae001-t006/frozen-models-v1.json
+          if git diff --cached --quiet; then
+            echo "T006 frozen model artifact already committed"
+            exit 0
+          fi
           git commit -m "research: freeze AE001 T006 fixed models [skip ci]"
-          git push origin HEAD:feat/ae001-t006-prospective-futures-20260930
+
+          CRITICAL_PATHS=(
+            "research/AE001_T006_MODEL_FREEZE_P1.md"
+            "research/AE001_T006_PROSPECTIVE_FUTURES_CONFIRMATION_V1.md"
+            "research/ae001/trial-ledger.json"
+            "research/prospective/ae001-t006"
+            "src/marketlab/alpha_t006.py"
+            "scripts/freeze_ae001_t006_models.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin "$BRANCH"
+            REMOTE_SHA="$(git rev-parse "origin/$BRANCH")"
+            if [ "$REMOTE_SHA" != "$START_SHA" ]; then
+              if ! git diff --quiet "$START_SHA" "$REMOTE_SHA" -- "${CRITICAL_PATHS[@]}"; then
+                echo "T006 model-freeze rules/state changed while freeze was in flight"
+                git diff --stat "$START_SHA" "$REMOTE_SHA" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase "origin/$BRANCH"
+              python - <<'PY'
+              import json
+              from marketlab.alpha_t006 import validate_frozen_t006_models
+              artifact=json.load(open("research/prospective/ae001-t006/frozen-models-v1.json"))
+              validate_frozen_t006_models(artifact)
+              if artifact["artifact_sha256"] != "da1ce462b5d9c59fb5bea2f4b69c574c8ecbf1f728c44b23af8f3e73bd5de091":
+                  raise SystemExit("T006 model artifact changed after branch refresh")
+              PY
+            fi
+            if git push origin HEAD:"$BRANCH"; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor T006 frozen model artifact after bounded retries"
+          exit 1
 
       - name: Upload model-freeze evidence
         if: always()
