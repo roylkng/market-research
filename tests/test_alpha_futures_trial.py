@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
+from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_futures import FUTURES_DEFINITIONS
 from marketlab.alpha_futures_trial import run_futures_incremental_trial
@@ -168,8 +168,6 @@ def test_t005_fails_closed_without_upstream_p2(monkeypatch):
     ledger["event_count"] -= 1
     unsigned = dict(ledger)
     unsigned.pop("ledger_sha256", None)
-    from marketlab.alpha import digest
-
     ledger["ledger_sha256"] = digest(unsigned)
     with pytest.raises(AlphaContractError, match="protocol amendment"):
         run_futures_incremental_trial(
