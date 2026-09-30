@@ -194,6 +194,17 @@ def main() -> int:
         from_date=action_from,
         to_date=action_to,
     )
+    action_raw_sha256 = sha256_bytes(action_raw)
+    args.support_dir.mkdir(parents=True, exist_ok=True)
+    action_raw_path = (
+        args.support_dir
+        / f"corporate-actions-{action_raw_sha256}.json"
+    )
+    if action_raw_path.exists() and action_raw_path.read_bytes() != action_raw:
+        raise AlphaContractError(
+            f"T006 corporate-action raw path collision: {action_raw_path}"
+        )
+    action_raw_path.write_bytes(action_raw)
 
     try:
         artifact = build_t006_decision_artifact(
@@ -260,7 +271,8 @@ def main() -> int:
         "sc002_attempt_sha256": sc002_attempt["attempt_sha256"],
         "support_market_panel_sha256": prior_market["panel_sha256"],
         "support_delivery_panel_sha256": prior_delivery["panel_sha256"],
-        "corporate_action_raw_sha256": sha256_bytes(action_raw),
+        "corporate_action_raw_sha256": action_raw_sha256,
+        "corporate_action_raw_path": str(action_raw_path),
         "decision_artifact_sha256": artifact["artifact_sha256"],
         "decision_artifact_file_sha256": sha256_bytes(artifact_bytes),
         "decision_ledger_sha256": updated["ledger_sha256"],
