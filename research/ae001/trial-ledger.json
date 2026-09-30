@@ -165,16 +165,6 @@
               "2026-09-24"
             ]
           ],
-          "5": [
-            [
-              "2026-04-01",
-              "2026-06-30"
-            ],
-            [
-              "2026-07-01",
-              "2026-09-18"
-            ]
-          ],
           "20": [
             [
               "2026-04-01",
@@ -183,6 +173,16 @@
             [
               "2026-07-01",
               "2026-08-27"
+            ]
+          ],
+          "5": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
             ]
           ]
         },
@@ -300,8 +300,8 @@
           "base_mean_rank_ic": 0.005610514228492526,
           "base_top_minus_bottom_spread": 0.000980506682673035,
           "delta_mean_rank_ic": 0.01940524017918471,
-          "delta_rank_ic_p_value": 0.000004820927634886007,
-          "delta_spread_p_value": 0.00002658654307394919,
+          "delta_rank_ic_p_value": 4.820927634886007e-06,
+          "delta_spread_p_value": 2.658654307394919e-05,
           "delta_top_minus_bottom_spread": 0.00313938232464598,
           "endpoint_supported": true
         },
@@ -332,7 +332,7 @@
         "models": {
           "augmented_feature_count": 27,
           "base_feature_count": 18,
-          "ridge_l2": 1
+          "ridge_l2": 1.0
         },
         "name": "prospective_delivery_vwap_5d_confirmation",
         "predecessor_trial": "AE001-T003",
@@ -374,7 +374,7 @@
         "primary_training_horizon_sessions": 5,
         "protocol_id": "AE001-T004-P1",
         "reason": "Freeze a single pretrial model state before the first eligible prospective T004 decision session.",
-        "ridge_l2": 1,
+        "ridge_l2": 1.0,
         "sample_contract": "IDENTICAL_ACTION_SAFE_DELIVERY_COMPLETE_ROWS",
         "source_end_date": "2026-09-25",
         "training_examples_require_exit_on_or_before_source_end_date": true,
@@ -420,7 +420,7 @@
         "historical_fo_publication_timestamp_verified": false,
         "live_capital_allowed": false,
         "model": {
-          "l2": 1,
+          "l2": 1.0,
           "type": "ridge"
         },
         "name": "nse_stock_futures_positioning_incremental_feature_family",
@@ -615,7 +615,7 @@
           "augmented_mean_top_minus_bottom_spread": 0.003935681355715129,
           "base_mean_rank_ic": -0.0006030060148556494,
           "base_mean_top_decile_excess": 0.00038839032457309075,
-          "base_mean_top_minus_bottom_spread": 0.00008999948207925853,
+          "base_mean_top_minus_bottom_spread": 8.999948207925853e-05,
           "delta_mean_rank_ic": 0.022267136715462182,
           "delta_mean_top_decile_excess": 0.0007514723984191901,
           "delta_mean_top_minus_bottom_spread": 0.00384568187363587,
@@ -682,7 +682,7 @@
         "live_capital_allowed": false,
         "minimum_common_stocks_per_session": 100,
         "model": {
-          "l2": 1,
+          "l2": 1.0,
           "type": "ridge"
         },
         "name": "prospective_stock_futures_5d_confirmation",
@@ -727,7 +727,7 @@
         "only_examples_with_exit_on_or_before_source_end_date": true,
         "protocol_id": "AE001-T006-P1",
         "retraining_during_trial_allowed": false,
-        "ridge_l2": 1,
+        "ridge_l2": 1.0,
         "source_end_date": "2026-09-25",
         "training_horizon_sessions": 5
       },
@@ -774,7 +774,7 @@
         "live_capital_allowed": false,
         "llm_used": false,
         "model": {
-          "l2": 1,
+          "l2": 1.0,
           "type": "ridge"
         },
         "name": "structured_nse_corporate_announcement_incremental_feature_family",
@@ -873,68 +873,68 @@
       "event_sha256": "98d35376d2839ee9f3ca65f7d75af1ea0b200a6edc6a85af69d491434ffa58b2",
       "event_type": "TRIAL_RESULT_RECORDED",
       "payload": {
-        "status": "COMPLETE_DEVELOPMENT",
-        "successful_run_id": 36715752748,
-        "report_sha256": "2a38305dd1d5f2a20ffbbf3ecb7ab7a8fac79980928ce74e846875f40af8958b",
-        "report_artifact_sha256": "c8c63511203b1c09b129fcb5445b18a63ac630fbbf0242b93ece93c4c7b5a2f2",
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
-        "source": {
-          "daily_source_count": 390,
-          "announcement_count": 193718,
-          "announcement_panel_sha256": "fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d",
-          "mapped_event_count": 176244,
-          "excluded_no_same_session_eq_identity": 17252,
-          "excluded_after_last_decision_cutoff": 222,
-          "feature_row_count": 244855,
-          "feature_panel_sha256": "c7e766059125b60c1b0b2f68a5cc1380eec8eabd9b398f8d30cd7ca92edbe0bb",
-          "d003_report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f"
-        },
-        "primary_1d": {
-          "endpoint_supported": false,
-          "base_mean_rank_ic": 0.05057227796742435,
-          "augmented_mean_rank_ic": 0.05048329077707576,
-          "delta_mean_rank_ic": -0.00008898719034858617,
-          "delta_rank_ic_p_value": 0.9380644864094401,
-          "base_top_minus_bottom_spread": 0.002146872816307611,
-          "augmented_top_minus_bottom_spread": 0.002217490371862521,
-          "delta_top_minus_bottom_spread": 0.00007061755555491002,
-          "delta_spread_p_value": 0.7021435080415549,
-          "success_rule": "BOTH"
-        },
-        "secondary_5d": {
-          "endpoint_supported": false,
-          "may_rescue_primary": false,
-          "base_mean_rank_ic": 0.025015754407677233,
-          "augmented_mean_rank_ic": 0.02009743412306563,
-          "delta_mean_rank_ic": -0.004918320284611602,
-          "delta_rank_ic_p_value": 0.10134418386875012,
-          "base_top_decile_excess": 0.005598934179157281,
-          "augmented_top_decile_excess": 0.004199882268977077,
-          "delta_top_decile_excess": -0.0013990519101802035,
-          "delta_top_decile_excess_p_value": 0.002838313233954021,
-          "base_top_minus_bottom_spread": 0.004119889007319015,
-          "augmented_top_minus_bottom_spread": 0.0024068296023715854,
-          "delta_top_minus_bottom_spread": -0.0017130594049474296,
-          "delta_spread_p_value": 0.016202617739233177
-        },
+        "interpretation": "PRIMARY_1D_NOT_SUPPORTED; SECONDARY_5D_WORSE_THAN_CORE27_ON_TOP_DECILE_AND_SPREAD; DO_NOT_PROMOTE_T007_TO_AB001; DO_NOT_RETUNE_TAXONOMY_UNDER_T007; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+        "live_capital_allowed": false,
         "post_outcome_source_count_audit": {
           "audit_run_id": 36719423653,
           "daily_count": 390,
-          "total_announcements": 193718,
-          "minimum_daily_count": 13,
+          "exact_1000_day_count": 0,
+          "exact_500_day_count": 0,
+          "hidden_fixed_daily_cap_evidence_found": false,
           "maximum_daily_count": 1649,
-          "median_daily_count": 482,
+          "median_daily_count": 482.0,
+          "minimum_daily_count": 13,
+          "note": "POST_OUTCOME_SOURCE_QUALITY_AUDIT_ONLY_NO_MODEL_CHANGE",
           "p95_daily_count": 1083,
           "p99_daily_count": 1489,
-          "zero_day_count": 0,
-          "exact_500_day_count": 0,
-          "exact_1000_day_count": 0,
-          "hidden_fixed_daily_cap_evidence_found": false,
-          "note": "POST_OUTCOME_SOURCE_QUALITY_AUDIT_ONLY_NO_MODEL_CHANGE"
+          "total_announcements": 193718,
+          "zero_day_count": 0
         },
-        "interpretation": "PRIMARY_1D_NOT_SUPPORTED; SECONDARY_5D_WORSE_THAN_CORE27_ON_TOP_DECILE_AND_SPREAD; DO_NOT_PROMOTE_T007_TO_AB001; DO_NOT_RETUNE_TAXONOMY_UNDER_T007; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+        "primary_1d": {
+          "augmented_mean_rank_ic": 0.05048329077707576,
+          "augmented_top_minus_bottom_spread": 0.002217490371862521,
+          "base_mean_rank_ic": 0.05057227796742435,
+          "base_top_minus_bottom_spread": 0.002146872816307611,
+          "delta_mean_rank_ic": -8.898719034858617e-05,
+          "delta_rank_ic_p_value": 0.9380644864094401,
+          "delta_spread_p_value": 0.7021435080415549,
+          "delta_top_minus_bottom_spread": 7.061755555491002e-05,
+          "endpoint_supported": false,
+          "success_rule": "BOTH"
+        },
         "prospective_claim_allowed": false,
-        "live_capital_allowed": false
+        "report_artifact_sha256": "c8c63511203b1c09b129fcb5445b18a63ac630fbbf0242b93ece93c4c7b5a2f2",
+        "report_sha256": "2a38305dd1d5f2a20ffbbf3ecb7ab7a8fac79980928ce74e846875f40af8958b",
+        "secondary_5d": {
+          "augmented_mean_rank_ic": 0.02009743412306563,
+          "augmented_top_decile_excess": 0.004199882268977077,
+          "augmented_top_minus_bottom_spread": 0.0024068296023715854,
+          "base_mean_rank_ic": 0.025015754407677233,
+          "base_top_decile_excess": 0.005598934179157281,
+          "base_top_minus_bottom_spread": 0.004119889007319015,
+          "delta_mean_rank_ic": -0.004918320284611602,
+          "delta_rank_ic_p_value": 0.10134418386875012,
+          "delta_spread_p_value": 0.016202617739233177,
+          "delta_top_decile_excess": -0.0013990519101802035,
+          "delta_top_decile_excess_p_value": 0.002838313233954021,
+          "delta_top_minus_bottom_spread": -0.0017130594049474296,
+          "endpoint_supported": false,
+          "may_rescue_primary": false
+        },
+        "source": {
+          "announcement_count": 193718,
+          "announcement_panel_sha256": "fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d",
+          "d003_report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f",
+          "daily_source_count": 390,
+          "excluded_after_last_decision_cutoff": 222,
+          "excluded_no_same_session_eq_identity": 17252,
+          "feature_panel_sha256": "c7e766059125b60c1b0b2f68a5cc1380eec8eabd9b398f8d30cd7ca92edbe0bb",
+          "feature_row_count": 244855,
+          "mapped_event_count": 176244
+        },
+        "status": "COMPLETE_DEVELOPMENT",
+        "successful_run_id": 36715752748
       },
       "recorded_at_utc": "2026-09-30T13:10:00+00:00",
       "seq": 24,
