@@ -1,5 +1,5 @@
 {
-  "event_count": 20,
+  "event_count": 21,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -734,10 +734,33 @@
       "recorded_at_utc": "2026-09-30T10:44:49.305307+00:00",
       "seq": 20,
       "trial_id": "AE001-T006"
+    },
+    {
+      "event_sha256": "4d68153954ef26fda9ef25f20f0643faaed674dbe6b958ffc354391303bda24b",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "all_primary_outcomes_in_prefix_must_be_mature": true,
+        "cohort_rule": "SMALLEST_CHRONOLOGICAL_CANONICAL_PREFIX",
+        "live_capital_allowed": false,
+        "minimum_decision_sessions": 60,
+        "minimum_valid_paired_ic_sessions": 50,
+        "parameter_change_after_first_eligible_decision": "PROHIBITED",
+        "primary_horizon_sessions": 5,
+        "primary_newey_west_lag": 4,
+        "protocol_id": "AE001-T006-P2",
+        "secondary_horizon_sessions": 1,
+        "secondary_newey_west_lag": 5,
+        "secondary_rescues_failed_primary": false,
+        "secondary_uses_exact_primary_cohort": true,
+        "success_requires_both_rank_ic_and_spread": true
+      },
+      "recorded_at_utc": "2026-09-30T10:58:10.010425+00:00",
+      "seq": 21,
+      "trial_id": "AE001-T006"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "430f7c71945f65efcd26c46705b9c403f57aa27561fb9db9e8cae4f11a951cba",
+  "ledger_sha256": "9d2fe3ce90c2c9205d6980dd2e321f3d82fb2d614a4b81e56a56a6f5d795bdaf",
   "live_capital_allowed": false,
   "schema_version": 1
 }
