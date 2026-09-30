@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 import pytest
 
 from marketlab.alpha_announcements import (
-    AnnouncementAuditError,
     SYMBOL_SAMPLE,
+    AnnouncementAuditError,
     build_d003_audit,
     normalize_announcement_payload,
 )
