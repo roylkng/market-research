@@ -28,6 +28,7 @@ jobs:
           ruff check \
             src/marketlab/ab001.py \
             src/marketlab/ab001_p001.py \
+            scripts/build_ab001_p001_action_safe.py \
             scripts/run_ab001_p001.py \
             tests/test_ab001.py \
             tests/test_ab001_p001.py
@@ -50,16 +51,12 @@ jobs:
 
       - name: Rebuild frozen T003 action-safe base features
         run: |
-          python scripts/build_ae001_action_safe_panel.py \
+          python scripts/build_ab001_p001_action_safe.py \
             --market-panel reports/ab001-p001/panel/market-panel.json.gz \
             --feature-panel reports/ab001-p001/panel/feature-panel.json.gz \
-            --start-date 2025-09-01 \
-            --end-date 2026-09-25 \
-            --raw-dir reports/ab001-p001/corporate-actions/raw \
-            --output reports/ab001-p001/action-safe \
-            --chunk-days 31 \
-            --attempts 4 \
-            --timeout-seconds 30
+            --action-ledger research/ab001-p001/inputs/t003-corporate-action-ledger.json.gz \
+            --action-ledger-manifest research/ab001-p001/inputs/t003-corporate-action-ledger.manifest.json \
+            --output reports/ab001-p001/action-safe
 
       - name: Rebuild frozen T003 delivery features
         run: |
