@@ -1,5 +1,5 @@
 {
-  "event_count": 12,
+  "event_count": 13,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -402,10 +402,83 @@
       "recorded_at_utc": "2026-09-29T10:52:31.156952+00:00",
       "seq": 12,
       "trial_id": "AE001-T004"
+    },
+    {
+      "event_sha256": "bfb13264ee7d60586e6853e33bd424a81bb988dfe485a9aaf35ee34a757aca5d",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "base_feature_count": 27,
+        "comparison": "AUGMENTED_37_VS_BASE_27_ON_IDENTICAL_FUTURES_COMPLETE_ROWS",
+        "decision_sleeve": "EOD_18_30_IST",
+        "derivative_feature_count": 10,
+        "diagnostic": {
+          "horizon_sessions": 20,
+          "newey_west_lag": 19,
+          "rescues_failed_primary": false
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "historical_fo_publication_timestamp_verified": false,
+        "live_capital_allowed": false,
+        "model": {
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "name": "nse_stock_futures_positioning_incremental_feature_family",
+        "outcomes_opened_before_registration": false,
+        "primary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "horizon_sessions": 5,
+          "newey_west_lag": 4,
+          "success_requires": [
+            "paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05",
+            "paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05"
+          ]
+        },
+        "protocol_file": "research/AE001_T005_STOCK_FUTURES_POSITIONING_V1.md",
+        "registry_file": "registry/ae001_t005_stock_futures.yaml",
+        "secondary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "rescues_failed_primary": false
+        },
+        "source": {
+          "instrument_code": "STF",
+          "provider": "NSE",
+          "report": "F&O - UDiFF Common Bhavcopy Final",
+          "url_pattern": "https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_YYYYMMDD_F_0000.csv.zip"
+        },
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ],
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+      },
+      "recorded_at_utc": "2026-09-30T08:34:25+00:00",
+      "seq": 13,
+      "trial_id": "AE001-T005"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "352512c3cb0fdf0fb0cff086c1d5de3fb8bf5e338b0f4f231445066b73b78342",
+  "ledger_sha256": "c107d08836a41f1ad7e79630e2a1aaddbb06b36793bbc307df625dcdfb6b7242",
   "live_capital_allowed": false,
   "schema_version": 1
 }
