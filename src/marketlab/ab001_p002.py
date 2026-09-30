@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import copy
-import math
 import statistics
 from collections import defaultdict
 from dataclasses import asdict
 from datetime import datetime, time
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from marketlab.ab001 import (
     build_alpha_library,
@@ -35,6 +35,7 @@ H024_CUTOFF_SESSION = "2026-09-11"
 DECISION_CUTOFF = time(18, 30, 0)
 ALPHA_AE001 = "AB001-P002-A1"
 ALPHA_H024 = "AB001-P002-H024"
+IST = ZoneInfo("Asia/Kolkata")
 
 FOLDS = (
     {"start": "2026-04-01", "end": "2026-06-30"},
@@ -100,7 +101,7 @@ def _parse_h024_timestamp(value: object) -> datetime:
     if not isinstance(value, str):
         raise AlphaContractError("AB001 P002 H024 timestamp is missing")
     try:
-        return datetime.strptime(value.strip(), "%d-%b-%Y %H:%M:%S")
+        return datetime.strptime(value.strip(), "%d-%b-%Y %H:%M:%S").replace(tzinfo=IST)
     except ValueError as exc:
         raise AlphaContractError(
             f"AB001 P002 unsupported H024 timestamp: {value}"
