@@ -54,6 +54,60 @@ EXPECTED_AUGMENTED_FEATURE_SHA = (
 SEALED_T003_REPORT_SHA = (
     "0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270"
 )
+REPRODUCTION_TOLERANCE = 1e-12
+SEALED_T003_H5 = {
+    ALPHA_AUGMENTED: {
+        "prediction_count": 145453,
+        "session_count": 112,
+        "mean_rank_ic": 0.025015754407677233,
+        "median_rank_ic": 0.03355510590008127,
+        "mean_top_decile_excess": 0.005598934179157281,
+        "mean_top_minus_bottom_spread": 0.004119889007319015,
+        "average_top_decile_selection_churn": 0.37131026000634687,
+    },
+    ALPHA_BASE: {
+        "prediction_count": 145453,
+        "session_count": 112,
+        "mean_rank_ic": 0.005610514228492526,
+        "median_rank_ic": 0.016955070643943804,
+        "mean_top_decile_excess": 0.004546806162771425,
+        "mean_top_minus_bottom_spread": 0.000980506682673035,
+        "average_top_decile_selection_churn": 0.340520921749316,
+    },
+}
+
+
+def _validate_t003_reproduction(
+    alpha_id: str,
+    report: dict[str, Any],
+) -> dict[str, Any]:
+    expected = SEALED_T003_H5[alpha_id]
+    for field in ("prediction_count", "session_count"):
+        if int(report[field]) != int(expected[field]):
+            raise AlphaContractError(
+                f"AB001 P001 {alpha_id} {field} does not reproduce sealed T003"
+            )
+    differences = {}
+    for field in (
+        "mean_rank_ic",
+        "median_rank_ic",
+        "mean_top_decile_excess",
+        "mean_top_minus_bottom_spread",
+        "average_top_decile_selection_churn",
+    ):
+        difference = abs(float(report[field]) - float(expected[field]))
+        differences[field] = difference
+        if difference > REPRODUCTION_TOLERANCE:
+            raise AlphaContractError(
+                f"AB001 P001 {alpha_id} {field} drift exceeds frozen P2 tolerance"
+            )
+    return {
+        "alpha_id": alpha_id,
+        "sealed_t003_report_sha256": SEALED_T003_REPORT_SHA,
+        "tolerance": REPRODUCTION_TOLERANCE,
+        "absolute_differences": differences,
+        "passed": True,
+    }
 
 
 def _require_hash(
@@ -270,6 +324,21 @@ def _reconstruct_sources(
             }
         )
 
+    augmented_report = evaluate_cross_sectional_predictions(
+        augmented_predictions
+    )
+    base_report = evaluate_cross_sectional_predictions(base_predictions)
+    reproduction_gates = {
+        ALPHA_AUGMENTED: _validate_t003_reproduction(
+            ALPHA_AUGMENTED,
+            augmented_report,
+        ),
+        ALPHA_BASE: _validate_t003_reproduction(
+            ALPHA_BASE,
+            base_report,
+        ),
+    }
+
     streams = {
         ALPHA_AUGMENTED: augmented_predictions,
         ALPHA_BASE: base_predictions,
@@ -317,6 +386,7 @@ def _reconstruct_sources(
         "example_exclusions": exclusions,
         "fold_lineage": fold_lineage,
         "source_lineage": source_lineage,
+        "t003_reproduction_gates": reproduction_gates,
         "ranked_feature_panel_sha256": ranked["panel_sha256"],
         "live_capital_allowed": False,
     }
