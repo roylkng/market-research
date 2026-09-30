@@ -1,0 +1,56 @@
+schema_version: 1
+id: AB001-P001-v1
+name: t003_oos_alpha_library_pilot
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-09-30
+live_capital_allowed: false
+
+source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+expected_inputs:
+  market_panel_sha256: 9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
+  base_action_safe_feature_panel_sha256: 300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8
+  corporate_action_ledger_sha256: 1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1
+  augmented_delivery_feature_panel_sha256: 99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
+  sealed_t003_report_sha256: 0b9cb3003b76548f35bb66ff24c3090f0e9b236a0219a6d35bcdd92a70732270
+
+horizon_sessions: 5
+ridge_l2: 1.0
+
+folds:
+  - start: 2026-04-01
+    end: 2026-06-30
+  - start: 2026-07-01
+    end: 2026-09-18
+
+alpha_sources:
+  - id: AB001-P001-A1
+    construction: T003_AUGMENTED_27_FEATURE_RIDGE
+  - id: AB001-P001-A2
+    construction: T003_BASE_18_FEATURE_RIDGE
+  - id: AB001-P001-A3
+    construction: T003_PURGED_TRAINING_SELECTED_SIGNED_SINGLE_FEATURE
+
+incremental_test:
+  existing:
+    - AB001-P001-A2
+    - AB001-P001-A3
+  candidate: AB001-P001-A1
+  newey_west_lag: 4
+
+dynamic_blend:
+  alpha_ids:
+    - AB001-P001-A1
+    - AB001-P001-A2
+    - AB001-P001-A3
+  lookback_sessions: 60
+  newey_west_lag: 4
+
+outcomes:
+  historical_oos_only: true
+  prospective_claim_allowed: false
+
+promotion:
+  live_capital_directly_allowed: false
