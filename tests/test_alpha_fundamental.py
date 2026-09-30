@@ -4,8 +4,8 @@ import pytest
 
 from marketlab.alpha import AlphaContractError
 from marketlab.alpha_fundamental import (
-    FundamentalPair,
     FilingCandidate,
+    FundamentalPair,
     build_fundamental_features,
     monetary_scale,
     pair_record,
