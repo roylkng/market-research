@@ -100,4 +100,29 @@ jobs:
           print("ATTACHMENT_EXTENSIONS", json.dumps(extensions.most_common(20)))
           print("KEYWORD_GROUP_COUNTS", json.dumps(group_counts))
           print("KEYWORD_GROUP_WITH_ATTACHMENT", json.dumps(group_with_attachment))
+
+          credit_desc = collections.Counter()
+          credit_ext = collections.Counter()
+          credit_rows = []
+          for session in panel["sessions"]:
+              for row in session["announcements"]:
+                  description = " ".join(str(row.get("desc") or "").split()).casefold()
+                  attach_text = " ".join(str(row.get("attchmntText") or "").split()).casefold()
+                  combined = f"{description} {attach_text}"
+                  if "credit rating" not in combined and "rating" not in description:
+                      continue
+                  url = str(row.get("attchmntFile") or "").strip()
+                  credit_desc[description] += 1
+                  suffix = Path(urlparse(url).path.casefold()).suffix or "<none>"
+                  credit_ext[suffix] += 1
+                  if len(credit_rows) < 30:
+                      credit_rows.append({
+                          "symbol": row.get("symbol"),
+                          "desc": row.get("desc"),
+                          "attchmntText": row.get("attchmntText"),
+                          "attachment_suffix": suffix,
+                      })
+          print("CREDIT_DESCRIPTION_COUNTS", json.dumps(credit_desc.most_common(50)))
+          print("CREDIT_ATTACHMENT_EXTENSIONS", json.dumps(credit_ext.most_common()))
+          print("CREDIT_SAMPLE", json.dumps(credit_rows))
           PY
