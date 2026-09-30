@@ -26,6 +26,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refresh latest canonical main before observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -81,6 +89,66 @@ jobs:
           python scripts/verify_ae001_sc001.py \
             --ledger research/prospective/ae001-sc001/source-ledger.json
 
+      - name: Anchor SC001 source evidence immediately
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/ae001-sc001/source-ledger.json"
+          BRANCH="main"
+          START_SHA="$OBSERVATION_BASE_SHA"
+
+          python scripts/verify_ae001_sc001.py --ledger "$LEDGER"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-sc001
+
+          if ! git diff --cached --quiet; then
+            git commit -m "AE001 SC001: seal prospective source probe ${{ steps.gate.outputs.date }} [skip ci]"
+
+            CRITICAL_PATHS=(
+              ".github/workflows/ae001-sc001-prospective-source-timing.yml"
+              "research/AE001_SC001_PROSPECTIVE_SOURCE_TIMING_PROTOCOL_V1.md"
+              "research/prospective/ae001-sc001"
+              "src/marketlab/alpha_prospective_sources.py"
+              "scripts/probe_ae001_sc001.py"
+              "scripts/verify_ae001_sc001.py"
+            )
+
+            for ATTEMPT in 1 2 3; do
+              git fetch origin "$BRANCH"
+              CURRENT_MAIN="$(git rev-parse "origin/$BRANCH")"
+              if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+                if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                  echo "SC001 rules or canonical source state changed while observation was in flight"
+                  git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                  exit 1
+                fi
+                git rebase "origin/$BRANCH"
+                python scripts/verify_ae001_sc001.py --ledger "$LEDGER"
+              fi
+              if git push origin HEAD:"$BRANCH"; then
+                break
+              fi
+              if [ "$ATTEMPT" -eq 3 ]; then
+                echo "Unable to anchor SC001 source evidence after bounded retries"
+                exit 1
+              fi
+              sleep $((ATTEMPT * 2))
+            done
+          else
+            echo "No new SC001 source evidence to anchor"
+          fi
+
+          # Ensure downstream T004 scoring starts from the current canonical main.
+          git fetch origin main
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+          if [ "$(git rev-parse HEAD)" != "$CURRENT_MAIN" ]; then
+            git rebase origin/main
+          fi
+          python scripts/verify_ae001_sc001.py --ledger "$LEDGER"
+          echo "POST_SC001_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - name: Seal fixed-model T004 decision when source timing qualifies
         if: steps.gate.outputs.state == 'READY'
         shell: bash
@@ -100,37 +168,32 @@ jobs:
           python scripts/verify_ae001_t004_decisions.py \
             --ledger research/prospective/ae001-t004/decision-ledger.json
 
-      - name: Anchor append-only SC001 and T004 evidence
+      - name: Anchor T004 decision separately
         if: steps.gate.outputs.state == 'READY'
         shell: bash
         run: |
           set -euo pipefail
-          SC001_LEDGER="research/prospective/ae001-sc001/source-ledger.json"
-          T004_LEDGER="research/prospective/ae001-t004/decision-ledger.json"
-          python scripts/verify_ae001_sc001.py --ledger "$SC001_LEDGER"
-          python scripts/verify_ae001_t004_decisions.py --ledger "$T004_LEDGER"
+          LEDGER="research/prospective/ae001-t004/decision-ledger.json"
+          BRANCH="main"
+          START_SHA="$POST_SC001_SHA"
 
-          START_SHA="${GITHUB_SHA}"
-
+          python scripts/verify_ae001_t004_decisions.py --ledger "$LEDGER"
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add \
-            research/prospective/ae001-sc001 \
-            research/prospective/ae001-t004/decision-ledger.json
+          git add "$LEDGER"
           if [ -d research/prospective/ae001-t004/decisions ]; then
             git add research/prospective/ae001-t004/decisions
           fi
           if git diff --cached --quiet; then
-            echo "No new SC001/T004 canonical evidence to anchor"
+            echo "No new T004 decision state to anchor"
             exit 0
           fi
 
-          git commit -m "AE001: seal SC001/T004 prospective decision ${{ steps.gate.outputs.date }} [skip ci]"
+          git commit -m "AE001 T004: seal prospective decision ${{ steps.gate.outputs.date }} [skip ci]"
 
           CRITICAL_PATHS=(
             ".github/workflows/ae001-sc001-prospective-source-timing.yml"
             "registry/ae001_t004_delivery_confirmatory.yaml"
-            "research/AE001_SC001_PROSPECTIVE_SOURCE_TIMING_PROTOCOL_V1.md"
             "research/AE001_T004_PROSPECTIVE_DELIVERY_CONFIRMATION_V1.md"
             "research/AE001_T004_MODEL_FREEZE_P1.md"
             "research/prospective/ae001-sc001"
@@ -138,31 +201,30 @@ jobs:
             "src/marketlab/alpha_prospective_sources.py"
             "src/marketlab/alpha_t004.py"
             "src/marketlab/alpha_t004_prospective.py"
-            "scripts/probe_ae001_sc001.py"
-            "scripts/verify_ae001_sc001.py"
             "scripts/score_ae001_t004_decision.py"
             "scripts/verify_ae001_t004_decisions.py"
           )
 
           for ATTEMPT in 1 2 3; do
-            git fetch origin main
-            CURRENT_MAIN="$(git rev-parse origin/main)"
+            git fetch origin "$BRANCH"
+            CURRENT_MAIN="$(git rev-parse "origin/$BRANCH")"
             if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
               if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
-                echo "SC001/T004 rules or canonical state changed while observation was in flight"
+                echo "SC001/T004 rules or canonical state changed while T004 prediction was in flight"
                 git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
                 exit 1
               fi
-              git rebase origin/main
-              python scripts/verify_ae001_sc001.py --ledger "$SC001_LEDGER"
-              python scripts/verify_ae001_t004_decisions.py --ledger "$T004_LEDGER"
+              git rebase "origin/$BRANCH"
+              python scripts/verify_ae001_sc001.py \
+                --ledger research/prospective/ae001-sc001/source-ledger.json
+              python scripts/verify_ae001_t004_decisions.py --ledger "$LEDGER"
             fi
-            if git push origin HEAD:main; then
+            if git push origin HEAD:"$BRANCH"; then
               exit 0
             fi
             sleep $((ATTEMPT * 2))
           done
-          echo "Unable to anchor SC001/T004 evidence after bounded retries"
+          echo "Unable to anchor T004 decision after bounded retries"
           exit 1
 
       - name: Upload T004 prospective support evidence
