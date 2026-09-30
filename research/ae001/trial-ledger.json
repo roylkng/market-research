@@ -1,5 +1,5 @@
 {
-  "event_count": 21,
+  "event_count": 22,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -757,10 +757,79 @@
       "recorded_at_utc": "2026-09-30T10:58:10.010425+00:00",
       "seq": 21,
       "trial_id": "AE001-T006"
+    },
+    {
+      "event_sha256": "dc74a8f9ec4fddb2a6e46096abb2d6724597acd94ea7c113f9d4c992055ed60d",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "attachment_body_used": false,
+        "base_features": "CORE27",
+        "challenger_features": "CORE43",
+        "decision_cutoff": "18:30:00 Asia/Kolkata",
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "excluded_horizons": [
+          20,
+          60
+        ],
+        "live_capital_allowed": false,
+        "llm_used": false,
+        "model": {
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "name": "structured_nse_corporate_announcement_incremental_feature_family",
+        "new_feature_count": 16,
+        "outcomes_opened_before_registration": false,
+        "primary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "success_rule": "BOTH_POSITIVE_PAIRED_RANK_IC_AND_TOP_MINUS_BOTTOM_SPREAD_WITH_TWO_SIDED_P_LT_0_05"
+        },
+        "secondary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "horizon_sessions": 5,
+          "may_rescue_failed_primary": false,
+          "newey_west_lag": 4
+        },
+        "sentiment_used": false,
+        "source": {
+          "d003_report_sha256": "7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f",
+          "daily_whole_market": true,
+          "endpoint": "/api/corporate-announcements",
+          "provider": "NSE",
+          "window": [
+            "2025-09-01",
+            "2026-09-25"
+          ]
+        },
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+      },
+      "recorded_at_utc": "2026-09-30T12:22:36.332366+00:00",
+      "seq": 22,
+      "trial_id": "AE001-T007"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "9d2fe3ce90c2c9205d6980dd2e321f3d82fb2d614a4b81e56a56a6f5d795bdaf",
+  "ledger_sha256": "7be73c2e1a22fc3f03b741acb5310f2d3186c2c508037fcd2ec8257c3a46beab",
   "live_capital_allowed": false,
   "schema_version": 1
 }
