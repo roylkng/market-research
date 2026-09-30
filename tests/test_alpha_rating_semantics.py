@@ -300,11 +300,6 @@ def test_t008_augmentation_maps_cutoff_and_preserves_quiet_rows(monkeypatch):
         source_list=source_list,
         records=records,
     )
-    # Production frozen binding is overridden only for this synthetic fixture.
-    semantic["source_list_sha256"] = SOURCE_LIST_SHA256
-    unsigned = dict(semantic)
-    unsigned.pop("panel_sha256")
-    semantic["panel_sha256"] = digest(unsigned)
 
     augmented = augment_feature_panel_with_rating_semantics(
         feature_panel=_feature_panel(),
