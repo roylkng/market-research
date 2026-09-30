@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import UTC, date, datetime
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -126,7 +126,7 @@ def normalize_announcement_payload(
     for raw in announcement_rows(payload):
         row = canonical_announcement(raw)
         published_day = datetime.fromisoformat(
-            row["exchange_published_at_utc"].replace("Z", "+00:00")
+            row["exchange_published_at_utc"]
         ).astimezone(IST).date()
         if not requested_start <= published_day <= requested_end:
             raise AnnouncementAuditError(
