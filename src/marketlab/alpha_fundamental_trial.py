@@ -97,7 +97,7 @@ def _verify_d004_panel(panel: dict[str, Any]) -> None:
 
 def _parse_utc(value: str) -> datetime:
     try:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(value))
     except ValueError as exc:
         raise AlphaContractError(
             f"T008 invalid publication timestamp: {value}"
