@@ -1,0 +1,100 @@
+name: AE001 T008 D004 combined four-period panel
+
+on:
+  push:
+    branches:
+      - research/t008-combined-four-period-panel-20260930
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  materialize:
+    if: contains(github.event.head_commit.message, '[t008-d004]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D004 implementation before evidence access
+        run: |
+          ruff check \
+            src/marketlab/alpha_fundamental_combined.py \
+            scripts/run_ae001_t008_d004.py \
+            tests/test_alpha_fundamental_combined.py
+          pytest -q \
+            tests/test_alpha_fundamental_combined.py \
+            tests/test_alpha_fundamental.py
+
+      - name: Download sealed D002 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t008-d002-36742740631
+          path: evidence/d002
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36742740631
+
+      - name: Download sealed D003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t008-d003-36746275777
+          path: evidence/d003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36746275777
+
+      - name: Materialize frozen combined panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          D002_PANEL="$(find evidence/d002 -name t008-d002-panel.json -print -quit)"
+          D003_PANEL="$(find evidence/d003 -name t008-d003-panel.json -print -quit)"
+          test -n "$D002_PANEL"
+          test -n "$D003_PANEL"
+          python scripts/run_ae001_t008_d004.py \
+            --d002-panel "$D002_PANEL" \
+            --d003-panel "$D003_PANEL" \
+            --output reports/ae001-t008-d004
+
+      - name: Prove D004 thresholds and outcome boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          panel = json.loads(
+              Path("reports/ae001-t008-d004/t008-d004-panel.json").read_text()
+          )
+          assert panel["return_outcomes_opened"] is False
+          assert panel["model_fitted"] is False
+          assert len(panel["per_period"]) == 4
+          assert all(
+              row["passes_minimum_complete_rows"]
+              for row in panel["per_period"].values()
+          )
+          assert panel["complete_six_feature_count"] >= 280
+          print(json.dumps({
+              "panel_sha256": panel["panel_sha256"],
+              "record_count": panel["record_count"],
+              "per_period": panel["per_period"],
+              "feasibility_pass": panel["feasibility_pass"],
+              "return_outcomes_opened": panel["return_outcomes_opened"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact D004 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t008-d004-${{ github.run_id }}
+          path: reports/ae001-t008-d004
+          if-no-files-found: error
+          retention-days: 90
