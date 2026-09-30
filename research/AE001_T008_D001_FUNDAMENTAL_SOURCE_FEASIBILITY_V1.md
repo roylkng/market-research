@@ -85,12 +85,16 @@ fact may be inferred.
 
 ## Monetary normalization
 
-A filing pair is monetary-comparable only when:
+A filing pair is monetary-comparable only when both filings are INR.
 
-- both filings are INR; and
-- their rounding metadata can be converted to an explicit INR scale.
+Normalization is source-format aware:
 
-Allowed rounding families:
+- native XBRL numeric facts are already actual currency amounts and are not
+  multiplied again by presentation-rounding metadata;
+- legacy Integrated Filing HTML/table values are presentation values and must be
+  converted to INR using their explicit rounding metadata.
+
+Allowed HTML/table rounding families:
 
 - actual / rupees / units -> 1;
 - thousands -> 1,000;
@@ -98,7 +102,8 @@ Allowed rounding families:
 - millions -> 1,000,000;
 - crores -> 10,000,000.
 
-Unknown currency or rounding fails closed for monetary features.
+Unknown currency or required HTML/table rounding fails closed for monetary
+features.
 
 ## Candidate T008 features
 
