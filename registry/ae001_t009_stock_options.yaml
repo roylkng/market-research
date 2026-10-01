@@ -1,0 +1,78 @@
+schema_version: 1
+id: AE001-T009-v1
+name: nse_stock_options_positioning_incremental_feature_family
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_RECONSTRUCTION_DEVELOPMENT
+
+source_feasibility:
+  diagnostic: AE001-D006-v1
+  result: PASSED_SOURCE_FEASIBILITY
+  report_sha256: 4aaa0fb2166c5093eb7e23b16b72ceccd19c7eb5ab3b441528160fe527a965c6
+  source_hashes_sha256: edf21ed30ea4021a82118c8699f1a7470442bcee29155810772a09c4b24bc6dc
+
+source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+source:
+  provider: NSE
+  report: F&O - UDiFF Common Bhavcopy Final
+  stock_option_instrument_code: STO
+  historical_publication_timestamp_verified: false
+  timing_authority_for_future_confirmation: SC002
+
+identity:
+  join: SAME_SESSION_FO_SYMBOL_TO_CM_EQ_SYMBOL_PLUS_ISIN
+
+base_feature_count: 37
+option_feature_count: 10
+augmented_feature_count: 47
+
+option_features:
+  - opt_front_log1p_days_to_expiry
+  - opt_nearest_abs_moneyness
+  - opt_atm_straddle_fraction
+  - opt_atm_put_call_premium_imbalance
+  - opt_paired_put_call_oi_imbalance
+  - opt_paired_put_call_volume_imbalance
+  - opt_paired_put_call_change_oi_imbalance
+  - opt_paired_total_oi_change_fraction
+  - opt_near_atm_oi_share
+  - opt_near_atm_volume_share
+
+model:
+  type: ridge
+  l2: 1.0
+  comparison: augmented_47_vs_base_37_on_identical_option_complete_rows
+
+horizons:
+  primary:
+    sessions: 5
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-18]
+    newey_west_lag: 4
+    success_requires:
+      - paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05
+      - paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05
+  secondary:
+    sessions: 1
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-24]
+    newey_west_lag: 5
+    rescues_failed_primary: false
+  diagnostic:
+    sessions: 20
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-08-27]
+    newey_west_lag: 19
+    rescues_failed_primary: false
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
