@@ -1,0 +1,37 @@
+schema_version: 1
+id: RM001-v3-P001-v1
+name: statistical_residual_risk_historical_attribution
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-10-02
+live_capital_allowed: false
+
+decision_session: 2026-08-31
+historical_source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+baseline: RM001-v2-DEVELOPMENT
+challenger: RM001-v3-DEVELOPMENT
+
+integrity:
+  exact_identity_set_required: true
+  minimum_complete_statistical_identities: 500
+  statistical_factor_count: 5
+  covariance_factor_count: 11
+  named_factor_exposure_tolerance: 1.0e-12
+
+portfolio_controls:
+  source: research/po001-i003/inputs/i002-integrated-control-v1.json.gz
+  keys:
+    - equal_weight_top_decile
+    - positive_alpha_proportional_top_decile
+
+interpretation:
+  in_sample_residual_reduction_is_promotion_gate: false
+  oos_risk_validation_required_next: true
+  alpha_outcome_opened: false
+
+promotion:
+  preferred_risk_model_change_allowed: false
+  next_stage: RM001-v3-P002-OOS-RISK-CALIBRATION
+  live_capital_directly_allowed: false
