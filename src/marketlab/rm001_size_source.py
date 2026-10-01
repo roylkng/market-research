@@ -4,10 +4,11 @@ import csv
 import gzip
 import io
 import math
-from dataclasses import asdict, dataclass
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_market import DailyEquityObservation
