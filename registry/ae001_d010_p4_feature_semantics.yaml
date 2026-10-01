@@ -1,0 +1,49 @@
+schema_version: 1
+id: AE001-D010-P4-v1
+name: short_borrow_feature_semantics
+status: FROZEN_BEFORE_FEATURE_MATERIALIZATION
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED
+
+upstream:
+  short_p3b_report_sha256: 0cc1f518d8c91d4648851d55861cee66cca722c0e1858204cbdd6635f7c98528
+  slb_p3_report_sha256: e41e749a9d0514ffc4a01af6dd923d6c838e898320bf0e4f0e699bafc9d8dd27
+
+history:
+  prior_source_sessions: 20
+  source_gap_policy: break_window_no_imputation
+
+short_selling:
+  publication_session: D
+  embedded_trade_session: D_minus_1_completed_nse_session
+  absent_identity_on_ready_file: zero_reported_quantity
+  duplicate_mapped_identity: fail_closed
+
+slb:
+  distinct_series_are_additive: true
+  duplicate_symbol_series: fail_closed
+  absent_identity_on_ready_file:
+    outstanding_quantity: 0
+    active_series_count: 0
+  maturity_weighting: none
+
+features:
+  - short_volume_share_lag1
+  - short_volume_share_change_1
+  - short_volume_share_zscore_20
+  - slb_outstanding_days_volume20
+  - slb_outstanding_change_days_volume20
+  - slb_outstanding_zscore_20
+  - slb_active_series_count
+
+audit:
+  expected_total_feature_count: 25
+  minimum_feature_sessions: 200
+  minimum_feature_rows: 100000
+  outcomes_attached: false
+
+promotion:
+  next_stage: AE001-D010-INCREMENTAL-ALPHA-TRIAL
+  prospective_claim_requires_live_source_timing: true
