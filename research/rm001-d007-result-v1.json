@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D007-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "evidence_class": "SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES",
+  "successful_run": {
+    "run_id": 36832837824,
+    "artifact_id": 11147443716,
+    "artifact_name": "rm001-d007-36832837824"
+  },
+  "result_sha256": "4151612cb85c88d605344fd018fab85118c295e71a90fabbe6c2223d15f27c14",
+  "historical_window": {
+    "start": "2025-09-01",
+    "end": "2026-09-25",
+    "expected_session_count": 266,
+    "ready_session_count": 266,
+    "unavailable_sessions": [],
+    "parser_rejected_sessions": []
+  },
+  "total_market_cap_source": {
+    "passed": true,
+    "minimum_exact_join_coverage": 0.9945742904841403,
+    "minimum_positive_issued_size_coverage": 1.0,
+    "minimum_positive_market_cap_coverage": 1.0,
+    "maximum_duplicate_real_eq_identity_count": 0,
+    "formula": "TOTAL_MARKET_CAP_INR = OFFICIAL_CLOSE * ISSD_CPTL",
+    "issued_size_source_field": "IssdCptl",
+    "par_value_used_in_formula": false
+  },
+  "free_float_market_cap_source": {
+    "passed": false,
+    "minimum_positive_free_float_capital_coverage": 0.0,
+    "reason": "FREEFLTCPTL_NOT_MATERIALLY_POPULATED"
+  },
+  "sector_source": {
+    "passed": false,
+    "reason": "SECURITY_MASTER_COMPANY_INDUSTRY_FIELDS_NOT_MATERIALLY_POPULATED"
+  },
+  "interpretation": {
+    "promote_total_market_cap_size_to_rm001_v2": true,
+    "promote_free_float_size": false,
+    "promote_sector": false,
+    "return_labels_opened": false,
+    "model_fit_performed": false
+  },
+  "live_capital_allowed": false
+}
