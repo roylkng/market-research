@@ -1,0 +1,66 @@
+name: AE001 D005 stock-options source feasibility
+
+on:
+  push:
+    branches:
+      - feat/ae001-d005-options-source-feasibility-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[ae001-d005]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D005 before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_options_source.py \
+            scripts/audit_ae001_d005_options_source.py \
+            tests/test_alpha_options_source.py
+          pytest -q tests/test_alpha_options_source.py
+
+      - name: Rebuild fixed official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/ae001-d005 \
+            --output reports/ae001-d005/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Run frozen source-only options audit
+        run: |
+          python scripts/audit_ae001_d005_options_source.py \
+            --market-panel reports/ae001-d005/panel/market-panel.json.gz \
+            --store .marketlab/ae001-d005 \
+            --output reports/ae001-d005/options \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Print result
+        run: cat reports/ae001-d005/options/summary.json
+
+      - name: Upload exact D005 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d005-${{ github.run_id }}
+          path: |
+            reports/ae001-d005
+            .marketlab/ae001-d005/market-data
+          if-no-files-found: warn
+          retention-days: 90
