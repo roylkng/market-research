@@ -60,7 +60,7 @@ def _ledger(*, include_p1=True):
     )
     if not include_p1:
         return ledger
-    return append_trial_event(
+    ledger = append_trial_event(
         ledger,
         event_type="TRIAL_PROTOCOL_AMENDED",
         trial_id="AE001-T009",
@@ -82,6 +82,18 @@ def _ledger(*, include_p1=True):
             "outcomes_opened_before_amendment": False,
             "model_fit_started_before_amendment": False,
             "live_capital_allowed": False,
+        },
+    )
+    return append_trial_event(
+        ledger,
+        event_type="TRIAL_PROTOCOL_AMENDED",
+        trial_id="AE001-T009",
+        recorded_at_utc="2026-10-01T07:06:50+00:00",
+        payload={
+            "protocol_id": "AE001-T009-P2",
+            "repair_scope": "SIGNED_SINGLE_FEATURE_DIAGNOSTICS_ONLY",
+            "multivariate_ridge_feature_retained": True,
+            "primary_success_criteria_changed": False,
         },
     )
 
