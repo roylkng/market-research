@@ -31,6 +31,9 @@ def _v2_state():
         "model_id": "RM001-v2-DEVELOPMENT",
         "as_of_session": "2026-08-31",
         "factor_names": list(FACTOR_NAMES_V2),
+        "factor_covariance_window": 60,
+        "factor_covariance_first_realized_session": "2026-06-08",
+        "factor_covariance_last_realized_session": "2026-08-31",
         "factor_covariance_daily": (
             np.eye(len(FACTOR_NAMES_V2)) * 0.00001
         ).tolist(),
@@ -161,6 +164,9 @@ def test_p001_preserves_identity_and_named_exposures(monkeypatch):
         v3_risk_state=v3,
         sealed_i002_artifact=_i002_artifact(),
     )
+    assert report["treatment_isolation"][
+        "named_covariance_max_abs_diff"
+    ] == pytest.approx(0.0)
     assert report["identity"]["exact_identity_set_match"] is True
     assert report["identity"]["complete_statistical_identity_count"] == 2
     assert report["identity"]["fallback_identity_count"] == 1
