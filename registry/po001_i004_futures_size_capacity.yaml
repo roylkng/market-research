@@ -1,0 +1,58 @@
+schema_version: 1
+id: PO001-I004-v1
+name: futures_increment_under_size_risk_and_capacity
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-10-01
+live_capital_allowed: false
+
+decision_session: 2026-08-31
+horizon_sessions: 5
+realized_outcome_opened: false
+
+alpha:
+  source_trial: AE001-T005
+  source_diagnostic: AB001-P003
+  fold:
+    validation_start: 2026-07-01
+    validation_end: 2026-09-18
+  ridge_l2: 1.0
+  treatments:
+    - CORE27
+    - FULL37
+
+risk:
+  model: RM001-v2-DEVELOPMENT
+  as_of_session: 2026-08-31
+  required_factors:
+    - MARKET_COMMON
+    - BETA60_RELATIVE
+    - MOMENTUM20
+    - VOLATILITY60
+    - LIQUIDITY
+    - SIZE
+  sector_factor: false
+
+execution:
+  optimizer: PO001-v2-DEVELOPMENT
+  risk_aversion: 5.0
+  max_name_weight: 0.05
+  max_invested_weight: 1.0
+  max_traded_fraction_of_nav: 1.0
+  terminal_liquidation: true
+  impact_coefficient: 0.50
+  max_participation: 0.10
+  quoted_spread_included: false
+  nav_surfaces_inr:
+    - 1000000
+    - 10000000
+    - 100000000
+  primary_nav_inr: 10000000
+
+universe:
+  identity: symbol_plus_isin
+  minimum_common_identities: 100
+  exact_same_rows_across_treatments: true
+
+promotion:
+  prospective_alpha_claim: false
+  live_capital_directly_allowed: false
