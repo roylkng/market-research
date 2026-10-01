@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import copy
 import math
 from collections import defaultdict
+from itertools import pairwise
 from typing import Any
 
 import numpy as np
@@ -64,7 +64,7 @@ def _relative_gaps(values: np.ndarray, count: int) -> list[float]:
             "RM001-v3 singular values are not ordered descending"
         )
     gaps = []
-    for left, right in zip(selected[:-1], selected[1:], strict=True):
+    for left, right in pairwise(selected):
         denominator = max(abs(float(left)), abs(float(right)))
         if denominator <= 0:
             raise AlphaContractError(
