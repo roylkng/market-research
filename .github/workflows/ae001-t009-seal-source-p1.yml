@@ -233,59 +233,62 @@ jobs:
               encoding="utf-8",
           )
 
-          protocol = f"""# AE001 T009 Protocol Amendment P1: Frozen Source Materialization
-
-Frozen: 2026-10-01
-Status: FROZEN BEFORE OUTCOME MATERIALIZATION
-Live capital: DISABLED
-
-## Purpose
-
-Freeze the exact T009 source-only materialization from workflow run
-`36820216915` before any future-return label is opened or any T009 model is fit.
-
-## Reproduced upstream lineage
-
-- market panel: `{source['market_panel_sha256']}`
-- action-safe feature panel: `{action_safe['panel_sha256']}`
-- corporate-action ledger: `{action['ledger_sha256']}`
-- delivery 27-feature panel: `{delivery['augmented_feature_panel_sha256']}`
-- futures source panel: `{futures['futures_panel_sha256']}`
-- futures 37-feature panel: `{source['base_37_feature_panel_sha256']}`
-
-## New T009 source artifacts
-
-- D006 FO source-hash chain: `{source['options_source_hashes_sha256']}`
-- options panel: `{source['options_panel_sha256']}`
-- options-augmented 47-feature panel:
-  `{source['augmented_47_feature_panel_sha256']}`
-
-## Coverage
-
-- READY options sessions: {source['options_ready_session_count']}
-- unavailable sessions: {source['options_unavailable_session_count']}
-- parser-rejected sessions: {source['options_parser_rejected_session_count']}
-- option-complete sessions: {source['option_complete_session_count']}
-- option-complete stock/session rows: {source['option_complete_feature_row_count']}
-
-Exclusion counts:
-
-```json
-{json.dumps(source['exclusion_counts'], indent=2, sort_keys=True)}
-```
-
-## Outcome boundary
-
-The source-only run explicitly reports:
-
-- `outcomes_opened = false`
-- `model_fit_started = false`
-
-P1 changes no T009 feature, fold, horizon, ridge parameter or success criterion.
-
-Historical FO publication timing remains unverified. No prospective or
-live-capital claim.
-"""
+          protocol_lines = [
+              "# AE001 T009 Protocol Amendment P1: Frozen Source Materialization",
+              "",
+              "Frozen: 2026-10-01",
+              "Status: FROZEN BEFORE OUTCOME MATERIALIZATION",
+              "Live capital: DISABLED",
+              "",
+              "## Purpose",
+              "",
+              "Freeze the exact T009 source-only materialization from workflow run",
+              "\`36820216915\` before any future-return label is opened or any T009 model is fit.",
+              "",
+              "## Reproduced upstream lineage",
+              "",
+              f"- market panel: \`{source['market_panel_sha256']}\`",
+              f"- action-safe feature panel: \`{action_safe['panel_sha256']}\`",
+              f"- corporate-action ledger: \`{action['ledger_sha256']}\`",
+              f"- delivery 27-feature panel: \`{delivery['augmented_feature_panel_sha256']}\`",
+              f"- futures source panel: \`{futures['futures_panel_sha256']}\`",
+              f"- futures 37-feature panel: \`{source['base_37_feature_panel_sha256']}\`",
+              "",
+              "## New T009 source artifacts",
+              "",
+              f"- D006 FO source-hash chain: \`{source['options_source_hashes_sha256']}\`",
+              f"- options panel: \`{source['options_panel_sha256']}\`",
+              "- options-augmented 47-feature panel:",
+              f"  \`{source['augmented_47_feature_panel_sha256']}\`",
+              "",
+              "## Coverage",
+              "",
+              f"- READY options sessions: {source['options_ready_session_count']}",
+              f"- unavailable sessions: {source['options_unavailable_session_count']}",
+              f"- parser-rejected sessions: {source['options_parser_rejected_session_count']}",
+              f"- option-complete sessions: {source['option_complete_session_count']}",
+              f"- option-complete stock/session rows: {source['option_complete_feature_row_count']}",
+              "",
+              "Exclusion counts:",
+              "",
+              "\`\`\`json",
+              json.dumps(source["exclusion_counts"], indent=2, sort_keys=True),
+              "\`\`\`",
+              "",
+              "## Outcome boundary",
+              "",
+              "The source-only run explicitly reports:",
+              "",
+              "- \`outcomes_opened = false\`",
+              "- \`model_fit_started = false\`",
+              "",
+              "P1 changes no T009 feature, fold, horizon, ridge parameter or success criterion.",
+              "",
+              "Historical FO publication timing remains unverified. No prospective or",
+              "live-capital claim.",
+              "",
+          ]
+          protocol = "\n".join(protocol_lines)
           Path(
               "research/AE001_T009_PROTOCOL_AMENDMENT_P1_SOURCE_HASHES.md"
           ).write_text(protocol, encoding="utf-8")
