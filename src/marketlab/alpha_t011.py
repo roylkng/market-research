@@ -131,9 +131,10 @@ def build_t011_lagged_feature_panel(
         raise AlphaContractError("T011 feature definitions are missing")
     if {str(row["name"]) for row in current_defs} != set(BASE27_NAMES):
         raise AlphaContractError("T011 current panel is not the frozen 27-feature set")
-    if {str(row["name"]) for row in t005_defs} != set(
-        [*BASE27_NAMES, *T005_FUTURES_NAMES]
-    ):
+    if {str(row["name"]) for row in t005_defs} != {
+        *BASE27_NAMES,
+        *T005_FUTURES_NAMES,
+    }:
         raise AlphaContractError("T011 T005 panel is not the frozen 37-feature set")
 
     sessions = market_panel.get("sessions")
