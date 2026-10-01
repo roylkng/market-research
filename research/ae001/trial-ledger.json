@@ -1,5 +1,5 @@
 {
-  "event_count": 33,
+  "event_count": 36,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1522,10 +1522,201 @@
       "recorded_at_utc": "2026-10-01T17:40:01.185585+00:00",
       "seq": 33,
       "trial_id": "AE001-T010"
+    },
+    {
+      "event_sha256": "c1fd30c4364a04c918365a2ad2f2e9da1af1e239fa25bdb6e9b1b908cf55b1cb",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "augmented_feature_count": 37,
+        "base_feature_count": 27,
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED",
+        "information_timing": {
+          "base_features_session": "D",
+          "decision_cutoff": "18:30:00 Asia/Kolkata",
+          "decision_session": "D",
+          "entry": "NEXT_COMPLETED_NSE_SESSION_OPEN",
+          "futures_features_session": "PREVIOUS_COMPLETED_NSE_SESSION_D_MINUS_1"
+        },
+        "join": {
+          "current_identity": "SYMBOL_PLUS_ISIN",
+          "lagged_identity": "EXACT_SAME_SYMBOL_PLUS_ISIN_ON_D_MINUS_1",
+          "missing_lagged_futures_policy": "EXCLUDE_NO_IMPUTATION",
+          "previous_session": "ORDERED_MARKET_PANEL_PREVIOUS_COMPLETED_SESSION"
+        },
+        "lagged_futures_feature_count": 10,
+        "live_capital_allowed": false,
+        "medium_horizon": {
+          "reason": "T005_20D_UNSUPPORTED",
+          "tested": false
+        },
+        "model": {
+          "hyperparameter_search": false,
+          "l2": 1.0,
+          "type": "ridge"
+        },
+        "multiple_testing": {
+          "parameter_sweep_allowed": false,
+          "trial_count_increment": 1
+        },
+        "name": "lagged_previous_session_stock_futures_incremental_feature_family",
+        "outcomes_for_t011_opened_before_registration": false,
+        "primary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "horizon_sessions": 5,
+          "newey_west_lag": 4,
+          "success_requires": [
+            "PAIRED_MEAN_RANK_IC_DELTA_GT_0_AND_P_LT_0_05",
+            "PAIRED_TOP_MINUS_BOTTOM_SPREAD_DELTA_GT_0_AND_P_LT_0_05"
+          ]
+        },
+        "prospective": {
+          "historical_t011_prospective_claim_allowed": false,
+          "minimum_distinct_ready_preopen_sessions_before_successor_design": 3,
+          "source_timing_gate": "AE001-SC003"
+        },
+        "secondary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "rescues_failed_primary": false
+        },
+        "source_only_gate": {
+          "amendment_required_before_outcomes": true,
+          "minimum_feature_rows": 30000,
+          "minimum_feature_sessions": 150
+        },
+        "status": "FROZEN_BEFORE_RETURN_OUTCOMES",
+        "upstream": {
+          "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+          "current_27_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+          "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+          "t005_37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+          "trial": "AE001-T005",
+          "workflow_run_id": 36696476204
+        }
+      },
+      "recorded_at_utc": "2026-10-01T17:46:26.999480+00:00",
+      "seq": 34,
+      "trial_id": "AE001-T011"
+    },
+    {
+      "event_sha256": "728c1887c5cd0bc01954d071ea7632ef42c970975e8e855251b9cae5ad085a36",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+        "current27_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+        "excluded_missing_lagged_futures_row_count": 205244,
+        "feature_row_count": 39611,
+        "feature_session_count": 195,
+        "feature_set_sha256": "4a157ede3322bcbb3ac4f4fba4c26e3cbacc6eded3cfaee059c04932c07b206f",
+        "future_source_timing_gate": "AE001-SC003",
+        "historical_previous_session_fo_preopen_timing_verified": false,
+        "lagged37_feature_panel_sha256": "619f81c33a937443b814160774e634764c4e96ff0e37f15339854197ebfdaa74",
+        "live_capital_allowed": false,
+        "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+        "max_copied_futures_abs_diff": 0.0,
+        "model_fit_started_before_amendment": false,
+        "protocol_id": "AE001-T011-P1",
+        "reason": "Freeze exact lagged-futures source panel after source-only materialization and before any T011 return label or model fit.",
+        "return_outcomes_opened_before_amendment": false,
+        "source_artifact_id": 11192142435,
+        "source_artifact_name": "ae001-t011-source-36922295491",
+        "source_report_sha256": "ff00bcefbb9213297796312c6359cdb4a17f7afc897727f27951f3088999b053",
+        "source_run_id": 36922295491,
+        "t005_same_session37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+        "upstream_t005_run_id": 36696476204
+      },
+      "recorded_at_utc": "2026-10-01T20:33:27.556922+00:00",
+      "seq": 35,
+      "trial_id": "AE001-T011"
+    },
+    {
+      "event_sha256": "8003db7cd491c9b3d4befb5fda134fddd3c0cade30240aa07bfee41f06872ff2",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED",
+        "future_source_timing_gate": "AE001-SC003",
+        "historical_previous_session_fo_preopen_timing_verified": false,
+        "interpretation": "PRIMARY_5D_NOT_SUPPORTED; DO_NOT_RETUNE_UNDER_T011; HISTORICAL_PREVIOUS_SESSION_FO_PREOPEN_TIMING_UNVERIFIED; SC003_REQUIRED_BEFORE_PROSPECTIVE_SUCCESSOR_DESIGN; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+        "live_capital_allowed": false,
+        "medium_horizon_tested": false,
+        "primary_5d": {
+          "augmented_mean_rank_ic": 0.0009118569111457907,
+          "augmented_mean_top_decile_excess": 0.0006028793103951251,
+          "augmented_mean_top_minus_bottom_spread": 0.0008586827801521659,
+          "base_mean_rank_ic": -0.0004882006178959147,
+          "base_mean_top_decile_excess": 0.000442511752222562,
+          "base_mean_top_minus_bottom_spread": -0.00010588205958396825,
+          "delta_mean_rank_ic": 0.0014000575290417055,
+          "delta_mean_top_decile_excess": 0.00016036755817256304,
+          "delta_mean_top_minus_bottom_spread": 0.0009645648397361343,
+          "delta_rank_ic_p_value": 0.7964398866487491,
+          "delta_top_decile_excess_p_value": 0.8596069182467104,
+          "delta_top_minus_bottom_spread_p_value": 0.4977721076736295,
+          "frozen_success_criteria_supported": false,
+          "prediction_count": 23068,
+          "session_count": 112
+        },
+        "promote_causal_lagged_futures_candidate": false,
+        "prospective_claim_allowed": false,
+        "report_artifact_sha256": "9595ba0ea2ec2dc4626b8f2c193d18ff44ef0c300f6ca11d6f0a374700911e78",
+        "report_sha256": "20bc3dfc0823248a1ff66aba472803a7093454c90be844363039191766c666dd",
+        "secondary_1d": {
+          "augmented_mean_rank_ic": 0.03159860083477704,
+          "augmented_mean_top_decile_excess": 0.000498110142222945,
+          "augmented_mean_top_minus_bottom_spread": 0.001731132216225784,
+          "base_mean_rank_ic": 0.03425724619065492,
+          "base_mean_top_decile_excess": 0.00044141758772636925,
+          "base_mean_top_minus_bottom_spread": 0.0012962096927925314,
+          "delta_mean_rank_ic": -0.00265864535587789,
+          "delta_mean_top_decile_excess": 5.669255449657572e-05,
+          "delta_mean_top_minus_bottom_spread": 0.00043492252343325255,
+          "delta_rank_ic_p_value": 0.3999221166804306,
+          "delta_top_decile_excess_p_value": 0.7636373069503025,
+          "delta_top_minus_bottom_spread_p_value": 0.23461540633030775,
+          "prediction_count": 23078,
+          "rescues_failed_primary": false,
+          "session_count": 112
+        },
+        "source_chain": {
+          "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+          "current27_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+          "lagged37_feature_panel_sha256": "619f81c33a937443b814160774e634764c4e96ff0e37f15339854197ebfdaa74",
+          "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+          "t005_same_session37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f"
+        },
+        "status": "COMPLETE_DEVELOPMENT",
+        "successful_run": {
+          "artifact_id": 11191788868,
+          "artifact_name": "ae001-t011-36922518427",
+          "run_id": 36922518427
+        }
+      },
+      "recorded_at_utc": "2026-10-01T20:35:16.156169+00:00",
+      "seq": 36,
+      "trial_id": "AE001-T011"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "e44a3ce2d8236cdc55dc0a22d589675f8c76f4f00a3297532ee7cfdbd98c56c9",
+  "ledger_sha256": "d317a385cceb72330371041a89c8dfb59acc3cef6a3692ac9b0b2cbd7e90ce3c",
   "live_capital_allowed": false,
   "schema_version": 1
 }
