@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D006-v1",
+  "status": "PASSED_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_FEASIBILITY_NO_OUTCOMES",
+  "successful_run": {
+    "run_id": 36812205721,
+    "artifact_id": 11140272663,
+    "artifact_name": "ae001-d006-36812205721"
+  },
+  "report_sha256": "4aaa0fb2166c5093eb7e23b16b72ceccd19c7eb5ab3b441528160fe527a965c6",
+  "report_artifact_sha256": "edb438cfaadcfa473328bfa77e48024cc68050ee2065eca6e86b6eaa07a51b12",
+  "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+  "source_hashes_sha256": "edf21ed30ea4021a82118c8699f1a7470442bcee29155810772a09c4b24bc6dc",
+  "session_count": 266,
+  "ready_session_count": 266,
+  "unavailable_session_count": 0,
+  "parser_rejected_session_count": 0,
+  "total_stock_option_row_count": 8847309,
+  "total_accepted_contract_row_count": 8757538,
+  "row_exclusion_counts": {
+    "AMBIGUOUS_LOGICAL_CONTRACT": 1615,
+    "INVALID_SETTLEMENT_PRICE": 88156
+  },
+  "ambiguous_logical_contract_count": 664,
+  "surface_exclusion_counts": {
+    "INSUFFICIENT_PAIRED_STRIKES": 6,
+    "NO_STRICTLY_FUTURE_EXPIRY": 19
+  },
+  "usable_symbol_distribution": {
+    "minimum": 204,
+    "p10": 207.0,
+    "median": 209.0,
+    "p90": 211.0,
+    "maximum": 213
+  },
+  "low_coverage_session_count_lt_75": 0,
+  "viability_gates": {
+    "parser_rejected_sessions_zero": true,
+    "ready_sessions_at_least_200": true,
+    "median_usable_symbols_at_least_100": true,
+    "p10_usable_symbols_at_least_75": true
+  },
+  "all_viability_gates_passed": true,
+  "d005_comparison": {
+    "d005_status": "FAILED_SOURCE_FEASIBILITY",
+    "same_source_hashes_sha256": true,
+    "d005_minimum_usable_symbols": 0,
+    "d006_minimum_usable_symbols": 204,
+    "d005_p10_usable_symbols": 13.0,
+    "d006_p10_usable_symbols": 207.0,
+    "d005_median_usable_symbols": 199.5,
+    "d006_median_usable_symbols": 209.0,
+    "d005_low_coverage_session_count_lt_75": 54,
+    "d006_low_coverage_session_count_lt_75": 0
+  },
+  "interpretation": {
+    "d006_passed": true,
+    "d005_failure_was_parser_granularity_not_source_sparsity": true,
+    "whole_symbol_invalidation_should_not_be_used_for_option_row_defects": true,
+    "options_source_is_broad_enough_for_separately_frozen_feature_trial": true,
+    "historical_fo_publication_timing_verified": false,
+    "same_fo_archive_as_sc002": true,
+    "next_research_gate": "NEW_OPTIONS_FEATURE_TRIAL_WITH_NO_PROSPECTIVE_CLAIM_UNTIL_SC002_TIMING_CUTOFF_IS_FROZEN"
+  },
+  "future_returns_opened": false,
+  "model_fit_started": false,
+  "prospective_claim_allowed": false,
+  "live_capital_allowed": false
+}
