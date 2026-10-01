@@ -1,0 +1,153 @@
+name: AE001 SC004 prospective short SLB source timing
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    # Pre-cutoff IST: 16:37, 17:07, 17:37, 17:57, 18:17, 18:27.
+    - cron: '7 11 * * 1-5'
+    - cron: '37 11 * * 1-5'
+    - cron: '7 12 * * 1-5'
+    - cron: '27 12 * * 1-5'
+    - cron: '47 12 * * 1-5'
+    - cron: '57 12 * * 1-5'
+
+    # Diagnostic-only post-cutoff IST: 20:07, 21:07, 22:07, 23:07.
+    - cron: '37 14 * * 1-5'
+    - cron: '37 15 * * 1-5'
+    - cron: '37 16 * * 1-5'
+    - cron: '37 17 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-sc004-prospective-short-slb-source-timing
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refresh latest canonical main before observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify SC004 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_prospective_d010_sources.py \
+            scripts/probe_ae001_sc004.py \
+            scripts/verify_ae001_sc004.py \
+            tests/test_alpha_prospective_d010_sources.py
+          pytest -q \
+            tests/test_alpha_d010_p3.py \
+            tests/test_alpha_d010_p3b.py \
+            tests/test_alpha_prospective_d010_sources.py
+          python scripts/verify_ae001_sc004.py \
+            --ledger research/prospective/ae001-sc004/source-ledger.json
+
+      - name: Resolve frozen start boundary
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
+          EVENT_NAME="${{ github.event_name }}"
+          if [[ "$TODAY" < "2026-10-02" ]]; then
+            STATE="BEFORE_START"
+          elif [[ "$EVENT_NAME" == "push" && ( "$NOW_HM" < "1630" || "$NOW_HM" > "1829" ) ]]; then
+            STATE="OUTSIDE_PUSH_WINDOW"
+          else
+            STATE="READY"
+          fi
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "SC004 gate: date=$TODAY time=$NOW_HM event=$EVENT_NAME state=$STATE"
+
+      - name: Probe same-session short-selling and SLB sources
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/probe_ae001_sc004.py \
+            --session-date "${{ steps.gate.outputs.date }}" \
+            --ledger research/prospective/ae001-sc004/source-ledger.json \
+            --attempts 4 \
+            --timeout-seconds 30 | tee sc004-probe.json
+          python scripts/verify_ae001_sc004.py \
+            --ledger research/prospective/ae001-sc004/source-ledger.json
+
+      - name: Anchor append-only SC004 evidence
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/ae001-sc004/source-ledger.json"
+          START_SHA="$OBSERVATION_BASE_SHA"
+
+          python scripts/verify_ae001_sc004.py --ledger "$LEDGER"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-sc004
+
+          if git diff --cached --quiet; then
+            echo "No new SC004 evidence to anchor"
+            exit 0
+          fi
+
+          git commit -m "AE001 SC004: seal prospective short SLB source probe ${{ steps.gate.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-sc004-prospective-short-slb.yml"
+            "registry/ae001_sc004_short_slb_source_timing.yaml"
+            "research/AE001_SC004_PROSPECTIVE_SHORT_SLB_SOURCE_TIMING_V1.md"
+            "research/prospective/ae001-sc004"
+            "src/marketlab/alpha_prospective_d010_sources.py"
+            "scripts/probe_ae001_sc004.py"
+            "scripts/verify_ae001_sc004.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "SC004 rules or canonical state changed while observation was in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_sc004.py --ledger "$LEDGER"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor SC004 evidence after bounded retries"
+          exit 1
+
+      - name: Report inactive probe
+        if: steps.gate.outputs.state != 'READY'
+        run: echo "SC004 source probe inactive for this event/time"

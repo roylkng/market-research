@@ -1,0 +1,41 @@
+schema_version: 1
+id: AE001-SC004-v1
+name: prospective_short_slb_source_timing
+status: FROZEN_BEFORE_FIRST_PROBE
+created: 2026-10-01
+live_capital_allowed: false
+
+start_date: 2026-10-02
+decision_cutoff:
+  timezone: Asia/Kolkata
+  time: "18:30:00"
+
+required_sources:
+  - NSE_CM_UDIFF_PUBLICATION_SESSION
+  - NSE_CM_UDIFF_PREVIOUS_COMPLETED_SESSION
+  - NSE_CM_SHORT_SELLING_PUBLICATION_SESSION
+  - NSE_SLB_DAILY_OPEN_POSITIONS
+
+short_selling:
+  publication_file_session: D
+  embedded_trade_session: D_minus_1_completed_nse_session
+  minimum_trade_date_identity_mapping_fraction: 0.95
+  minimum_publication_isin_continuity_fraction: 0.95
+
+slb:
+  session: D
+  minimum_identity_mapping_fraction: 0.95
+
+previous_session_resolution:
+  source: NSE_CM_UDIFF
+  maximum_calendar_lookback_days: 7
+
+evidence:
+  ledger: research/prospective/ae001-sc004/source-ledger.json
+  raw_root: research/prospective/ae001-sc004/raw
+  actual_post_fetch_timestamp_authoritative: true
+  late_capture_may_be_backfilled_as_eligible: false
+
+outcomes:
+  return_labels_opened: false
+  model_fit_allowed: false
