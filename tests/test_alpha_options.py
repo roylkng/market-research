@@ -6,7 +6,6 @@ from marketlab.alpha_futures import FUTURES_DEFINITIONS
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_options import (
     OPTIONS_DEFINITIONS,
-    acquire_historical_options_panel,
     augment_feature_panel_with_options,
     options_features,
 )
