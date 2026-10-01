@@ -33,11 +33,13 @@ jobs:
             scripts/build_rm001_v2_historical_state.py \
             scripts/run_rm001_v2_p001.py \
             tests/test_rm001_v2.py \
-            tests/test_rm001_size_panel.py
+            tests/test_rm001_size_panel.py \
+            tests/test_rm001_v2_p001.py
           pytest -q \
             tests/test_rm001.py \
             tests/test_rm001_v2.py \
             tests/test_rm001_size_panel.py \
+            tests/test_rm001_v2_p001.py \
             tests/test_po001_i003.py
 
       - name: Rebuild fixed official NSE market panel
