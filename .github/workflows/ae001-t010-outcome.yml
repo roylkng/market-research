@@ -1,0 +1,313 @@
+name: AE001 T010 short-SLB incremental trial
+
+on:
+  push:
+    branches:
+      - feat/ae001-t010-short-slb-20261001
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  outcome:
+    if: contains(github.event.head_commit.message, '[ae001-t010-outcome]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Resolve frozen T010-P1 source artifact
+        id: source
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from marketlab.alpha_trials import (
+              require_protocol_amendment,
+              require_unopened_registered_trial,
+              validate_trial_ledger,
+          )
+
+          ledger = json.load(open("research/ae001/trial-ledger.json"))
+          validate_trial_ledger(ledger)
+          require_unopened_registered_trial(
+              ledger,
+              trial_id="AE001-T010",
+              required_status="FROZEN_BEFORE_RETURN_OUTCOMES",
+          )
+          p1 = require_protocol_amendment(
+              ledger,
+              trial_id="AE001-T010",
+              protocol_id="AE001-T010-P1",
+          )
+          payload = p1["payload"]
+          print(f"run_id={payload['source_run_id']}")
+          print(f"artifact_name={payload['source_artifact_name']}")
+          print(f"artifact_id={payload['source_artifact_id']}")
+          PY
+
+      - name: Download frozen T010 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.source.outputs.artifact_name }}
+          path: evidence/t010
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: ${{ steps.source.outputs.run_id }}
+
+      - name: Verify implementation and frozen P1 before opening outcomes
+        run: |
+          ruff check \
+            src/marketlab/alpha_t010.py \
+            scripts/run_ae001_t010.py \
+            tests/test_alpha_t010.py
+          pytest -q \
+            tests/test_alpha_t010.py \
+            tests/test_alpha_multihorizon.py
+          python - <<'PY'
+          import json
+          from marketlab.alpha_trials import (
+              require_protocol_amendment,
+              require_unopened_registered_trial,
+              validate_trial_ledger,
+          )
+
+          ledger = json.load(open("research/ae001/trial-ledger.json"))
+          validate_trial_ledger(ledger)
+          require_unopened_registered_trial(
+              ledger,
+              trial_id="AE001-T010",
+              required_status="FROZEN_BEFORE_RETURN_OUTCOMES",
+          )
+          require_protocol_amendment(
+              ledger,
+              trial_id="AE001-T010",
+              protocol_id="AE001-T010-P1",
+          )
+          print("T010 frozen outcome gate: READY")
+          PY
+
+      - name: Run frozen T010 comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          MARKET="$(find evidence/t010 -name market-panel.json.gz -print -quit)"
+          ACTION="$(find evidence/t010 -name corporate-action-ledger.json.gz -print -quit)"
+          PANEL="$(find evidence/t010 -name t010-feature-panel.json.gz -print -quit)"
+          test -n "$MARKET"
+          test -n "$ACTION"
+          test -n "$PANEL"
+          python scripts/run_ae001_t010.py \
+            --market-panel "$MARKET" \
+            --feature-panel "$PANEL" \
+            --action-ledger "$ACTION" \
+            --trial-ledger research/ae001/trial-ledger.json \
+            --output reports/ae001-t010/outcome
+          cat reports/ae001-t010/outcome/summary.json
+
+      - name: Upload exact T010 outcome evidence
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t010-${{ github.run_id }}
+          path: reports/ae001-t010/outcome
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Seal T010 result in append-only ledger
+        env:
+          PYTHONPATH: src
+          OUTCOME_RUN_ID: ${{ github.run_id }}
+          OUTCOME_ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          OUTCOME_ARTIFACT_NAME: ae001-t010-${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha import digest
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          summary = json.load(
+              open("reports/ae001-t010/outcome/summary.json")
+          )
+          ledger_path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+          state = trial_state(ledger, "AE001-T010")
+          if state["result_count"] != 0:
+              raise SystemExit("T010 result already exists")
+
+          primary = summary["primary_5d"]
+          secondary = summary["secondary_1d"]
+          diagnostic = summary["diagnostic_20d"]
+
+          def compact(value):
+              inference = value["augmented_minus_base_inference"]["metrics"]
+              return {
+                  "base_mean_rank_ic": value["base"]["mean_rank_ic"],
+                  "augmented_mean_rank_ic": value["augmented"]["mean_rank_ic"],
+                  "delta_mean_rank_ic": inference["rank_ic"]["mean"],
+                  "delta_rank_ic_p_value": inference["rank_ic"][
+                      "p_value_two_sided"
+                  ],
+                  "base_mean_top_decile_excess": value["base"][
+                      "mean_top_decile_excess"
+                  ],
+                  "augmented_mean_top_decile_excess": value["augmented"][
+                      "mean_top_decile_excess"
+                  ],
+                  "delta_mean_top_decile_excess": inference[
+                      "top_decile_excess"
+                  ]["mean"],
+                  "delta_top_decile_excess_p_value": inference[
+                      "top_decile_excess"
+                  ]["p_value_two_sided"],
+                  "base_mean_top_minus_bottom_spread": value["base"][
+                      "mean_top_minus_bottom_spread"
+                  ],
+                  "augmented_mean_top_minus_bottom_spread": value[
+                      "augmented"
+                  ]["mean_top_minus_bottom_spread"],
+                  "delta_mean_top_minus_bottom_spread": inference[
+                      "top_minus_bottom_spread"
+                  ]["mean"],
+                  "delta_top_minus_bottom_spread_p_value": inference[
+                      "top_minus_bottom_spread"
+                  ]["p_value_two_sided"],
+                  "prediction_count": value["augmented"]["prediction_count"],
+                  "session_count": value["augmented"]["session_count"],
+              }
+
+          primary_compact = compact(primary)
+          secondary_compact = compact(secondary)
+          diagnostic_compact = compact(diagnostic)
+          primary_supported = bool(
+              summary["primary_success_criteria_supported"]
+          )
+          primary_compact["frozen_success_criteria_supported"] = (
+              primary_supported
+          )
+          secondary_compact["rescues_failed_primary"] = False
+          diagnostic_compact["rescues_failed_primary"] = False
+
+          interpretation = (
+              "PRIMARY_5D_SUPPORTED; "
+              if primary_supported
+              else "PRIMARY_5D_NOT_SUPPORTED; "
+          )
+          interpretation += (
+              "SHORT_SLB_FEATURE_FAMILY_PROMOTE_TO_AB001_ORTHOGONALITY; "
+              if primary_supported
+              else "DO_NOT_PROMOTE_T010_TO_AB001; DO_NOT_RETUNE_UNDER_T010; "
+          )
+          interpretation += (
+              "HISTORICAL_SHORT_SLB_PUBLICATION_TIMING_UNVERIFIED; "
+              "SC004_REQUIRED_FOR_FUTURE_PROSPECTIVE_CONFIRMATION; "
+              "NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM"
+          )
+
+          payload = {
+              "status": "COMPLETE_DEVELOPMENT",
+              "evidence_class": summary["evidence_class"],
+              "successful_run": {
+                  "run_id": int(os.environ["OUTCOME_RUN_ID"]),
+                  "artifact_id": int(os.environ["OUTCOME_ARTIFACT_ID"]),
+                  "artifact_name": os.environ["OUTCOME_ARTIFACT_NAME"],
+              },
+              "report_sha256": summary["report_sha256"],
+              "report_artifact_sha256": summary[
+                  "report_artifact_sha256"
+              ],
+              "source_chain": {
+                  "market_panel_sha256": summary["market_panel_sha256"],
+                  "corporate_action_ledger_sha256": summary[
+                      "corporate_action_ledger_sha256"
+                  ],
+                  "base37_feature_panel_sha256": summary[
+                      "base37_feature_panel_sha256"
+                  ],
+                  "d010_p4a_feature_panel_sha256": summary[
+                      "d010_p4a_feature_panel_sha256"
+                  ],
+                  "combined44_feature_panel_sha256": summary[
+                      "feature_panel_sha256"
+                  ],
+              },
+              "primary_5d": primary_compact,
+              "secondary_1d": secondary_compact,
+              "diagnostic_20d": diagnostic_compact,
+              "historical_short_slb_publication_timestamp_verified": False,
+              "future_source_timing_gate": "AE001-SC004",
+              "prospective_claim_allowed": False,
+              "promote_to_ab001": primary_supported,
+              "interpretation": interpretation,
+              "live_capital_allowed": False,
+          }
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_RESULT_RECORDED",
+              trial_id="AE001-T010",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          ledger_path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+
+          result = {
+              "schema_version": 1,
+              "trial_id": "AE001-T010",
+              **payload,
+          }
+          result["result_sha256"] = digest(result)
+          Path("research/ae001-t010-result-v1.json").write_text(
+              json.dumps(
+                  result,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(result, sort_keys=True))
+          PY
+
+      - name: Commit sealed T010 result
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/ae001/trial-ledger.json \
+            research/ae001-t010-result-v1.json
+          git commit -m "research: seal AE001 T010 historical result [skip ci]"
+          git push origin HEAD:feat/ae001-t010-short-slb-20261001
