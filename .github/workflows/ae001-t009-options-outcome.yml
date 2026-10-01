@@ -58,7 +58,12 @@ jobs:
               trial_id="AE001-T009",
               protocol_id="AE001-T009-P1",
           )
-          print("T009 registration + P1 source hashes: READY")
+          require_protocol_amendment(
+              ledger,
+              trial_id="AE001-T009",
+              protocol_id="AE001-T009-P2",
+          )
+          print("T009 registration + P1 source hashes + P2 diagnostic repair: READY")
           PY
 
       - name: Rebuild frozen official NSE market panel
