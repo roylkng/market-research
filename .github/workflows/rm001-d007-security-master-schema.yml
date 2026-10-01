@@ -1,0 +1,55 @@
+name: RM001 D007 security-master schema diagnostic
+
+on:
+  push:
+    branches:
+      - feat/rm001-d007-security-master-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: contains(github.event.head_commit.message, '[rm001-d007-schema]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inspect official NSE security-master schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          for DATE in 24092026 25092026; do
+            URL="https://nsearchives.nseindia.com/content/cm/NSE_CM_security_${DATE}.csv.gz"
+            OUT="/tmp/NSE_CM_security_${DATE}.csv.gz"
+            curl --fail --location --retry 4 --retry-delay 2 --max-time 60 \
+              --user-agent "Mozilla/5.0" "$URL" -o "$OUT"
+            echo "SOURCE_URL $URL"
+            echo "GZIP_SHA256 $(sha256sum "$OUT" | awk '{print $1}')"
+            python - "$OUT" <<'PY'
+          import csv
+          import gzip
+          import json
+          import sys
+
+          path=sys.argv[1]
+          with gzip.open(path, "rt", encoding="utf-8-sig", newline="") as handle:
+              reader=csv.DictReader(handle)
+              if reader.fieldnames is None:
+                  raise SystemExit("missing header")
+              fields=[field.strip() for field in reader.fieldnames]
+              rows=[]
+              for index,row in enumerate(reader):
+                  if index < 3:
+                      rows.append({str(k).strip(): str(v or "").strip() for k,v in row.items() if k is not None})
+              count=index+1 if 'index' in locals() else 0
+
+          keywords=("cap","industry","sector","isin","symbol","issuer","name","share","paid","face","series","instrument")
+          interesting=[field for field in fields if any(word in field.casefold() for word in keywords)]
+          print("HEADER_JSON", json.dumps(fields, ensure_ascii=False))
+          print("FIELD_COUNT", len(fields))
+          print("ROW_COUNT", count)
+          print("INTERESTING_FIELDS", json.dumps(interesting, ensure_ascii=False))
+          print("SAMPLE_ROWS", json.dumps(rows, ensure_ascii=False))
+          PY
+          done
