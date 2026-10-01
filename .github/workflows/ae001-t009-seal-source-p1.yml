@@ -29,11 +29,11 @@ jobs:
       - name: Download exact source-only evidence
         uses: actions/download-artifact@v4
         with:
-          name: ae001-t009-source-36820216915
+          name: ae001-t009-source-36821482949
           path: evidence/t009-source
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repository: roylkng/market-research
-          run-id: 36820216915
+          run-id: 36821482949
 
       - name: Verify source-only evidence and append T009-P1
         env:
@@ -158,8 +158,8 @@ jobs:
                   "Freeze exact source/materialization hashes after source-only "
                   "T009 run and before any future-return label or model fit."
               ),
-              "source_run_id": 36820216915,
-              "source_artifact_name": "ae001-t009-source-36820216915",
+              "source_run_id": 36821482949,
+              "source_artifact_name": "ae001-t009-source-36821482949",
               "market_panel_sha256": source["market_panel_sha256"],
               "action_safe_feature_panel_sha256": action_safe["panel_sha256"],
               "corporate_action_ledger_sha256": action["ledger_sha256"],
@@ -243,7 +243,7 @@ jobs:
               "## Purpose",
               "",
               "Freeze the exact T009 source-only materialization from workflow run",
-              "`36820216915` before any future-return label is opened or any T009 model is fit.",
+              "`36821482949` before any future-return label is opened or any T009 model is fit.",
               "",
               "## Reproduced upstream lineage",
               "",
