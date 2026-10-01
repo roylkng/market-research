@@ -89,12 +89,23 @@ def test_source_result_passes_when_full_sample_is_ready():
     evidence = {}
     for symbol in symbols:
         sources = []
+        broadcast_dates = (
+            "2024-04-15T10:00:00Z",
+            "2024-07-15T10:00:00Z",
+            "2024-10-15T10:00:00Z",
+            "2025-01-15T10:00:00Z",
+            "2025-04-15T10:00:00Z",
+            "2025-07-15T10:00:00Z",
+            "2025-10-15T10:00:00Z",
+            "2026-01-15T10:00:00Z",
+            "2026-04-15T10:00:00Z",
+            "2026-07-15T10:00:00Z",
+        )
         for index, report_date in enumerate(D011_REPORT_DATES):
             source = _source(
                 symbol,
                 report_date,
-                f"{2024 + (index // 4):04d}-"
-                f"{((index % 4) * 3 + 4):02d}-15T10:00:00Z",
+                broadcast_dates[index],
                 f"R{index}",
             )
             sources.append(source)
