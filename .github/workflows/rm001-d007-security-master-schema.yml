@@ -53,3 +53,66 @@ jobs:
           print("SAMPLE_ROWS", json.dumps(rows, ensure_ascii=False))
           PY
           done
+
+      - name: Audit real EQ capital/reference fields
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="/tmp/NSE_CM_security_25092026.csv.gz"
+          python - "$FILE" <<'PY'
+          import csv
+          import gzip
+          import json
+          import sys
+          from collections import Counter
+
+          path=sys.argv[1]
+          wanted={"RELIANCE","SBIN","INFY","HDFCBANK","TCS","ICICIBANK","ITC"}
+          selected={}
+          eq=[]
+          with gzip.open(path,"rt",encoding="utf-8-sig",newline="") as handle:
+              reader=csv.DictReader(handle)
+              for raw in reader:
+                  row={str(k).strip():str(v or "").strip() for k,v in raw.items() if k is not None}
+                  if row.get("SctySrs")!="EQ":
+                      continue
+                  symbol=row.get("TckrSymb","").upper()
+                  isin=row.get("ISIN","")
+                  if not symbol or not isin or isin.startswith("DUMMY"):
+                      continue
+                  eq.append(row)
+                  if symbol in wanted:
+                      selected[symbol]={
+                          key:row.get(key,"")
+                          for key in [
+                              "TckrSymb","ISIN","ParVal","IssdCptl","FreeFltCptl",
+                              "FinInstrmClssfctn","ClssfctnTp","AsstClss","Indx",
+                              "SctyTpFlg","FinInstrmId","FinInstrmNm"
+                          ]
+                      }
+
+          fields=["IssdCptl","ParVal","FreeFltCptl","FinInstrmClssfctn","ClssfctnTp","AsstClss","Indx"]
+          completeness={
+              field:{
+                  "nonempty":sum(bool(row.get(field,"")) for row in eq),
+                  "distinct_nonempty":len({row.get(field,"") for row in eq if row.get(field,"")}),
+                  "sample_values":sorted({row.get(field,"") for row in eq if row.get(field,"")})[:20],
+              }
+              for field in fields
+          }
+          calculated={}
+          for symbol,row in selected.items():
+              try:
+                  issued=float(row["IssdCptl"])
+                  par=float(row["ParVal"])
+                  calculated[symbol]={
+                      **row,
+                      "issued_capital_div_par_value":None if par<=0 else issued/par,
+                  }
+              except Exception:
+                  calculated[symbol]={**row,"issued_capital_div_par_value":None}
+
+          print("REAL_EQ_ROW_COUNT",len(eq))
+          print("FIELD_COMPLETENESS",json.dumps(completeness,sort_keys=True))
+          print("SELECTED_REAL_ROWS",json.dumps(calculated,sort_keys=True))
+          PY
