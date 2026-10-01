@@ -7,8 +7,8 @@ from dataclasses import asdict
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_d010_p4 import D010_DEFINITIONS
+from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_diagnostics import paired_report_difference_inference
 from marketlab.alpha_futures import FUTURES_DEFINITIONS
 from marketlab.alpha_multihorizon import run_action_safe_horizon_walkforward
@@ -116,9 +116,10 @@ def build_t010_feature_panel(
         raise AlphaContractError("T010 feature definitions are missing")
     if {str(row["name"]) for row in t005_defs} != set(BASE37_NAMES):
         raise AlphaContractError("T010 T005 panel is not the frozen 37-feature set")
-    if {str(row["name"]) for row in d010_defs} != set(
-        [*BASE18_NAMES, *D010_NAMES]
-    ):
+    if {str(row["name"]) for row in d010_defs} != {
+        *BASE18_NAMES,
+        *D010_NAMES,
+    }:
         raise AlphaContractError("T010 D010 panel is not the frozen P4A set")
 
     d010_rows: dict[tuple[str, str, str], dict[str, Any]] = {}
