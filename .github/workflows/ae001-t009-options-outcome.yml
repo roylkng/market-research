@@ -72,18 +72,14 @@ jobs:
             --timeout-seconds 30 \
             --pause-seconds 0.05
 
-      - name: Rebuild corporate-action-safe base features
+      - name: Rebuild action-safe base from exact pinned T003 ledger
         run: |
-          python scripts/build_ae001_action_safe_panel.py \
+          python scripts/build_ab001_p001_action_safe.py \
             --market-panel reports/ae001-t009-outcome/panel/market-panel.json.gz \
             --feature-panel reports/ae001-t009-outcome/panel/feature-panel.json.gz \
-            --start-date 2025-09-01 \
-            --end-date 2026-09-25 \
-            --raw-dir reports/ae001-t009-outcome/corporate-actions/raw \
-            --output reports/ae001-t009-outcome/action-safe \
-            --chunk-days 31 \
-            --attempts 4 \
-            --timeout-seconds 30
+            --action-ledger research/ab001-p001/inputs/t003-corporate-action-ledger.json.gz \
+            --action-ledger-manifest research/ab001-p001/inputs/t003-corporate-action-ledger.manifest.json \
+            --output reports/ae001-t009-outcome/action-safe
 
       - name: Rebuild delivery features
         run: |
