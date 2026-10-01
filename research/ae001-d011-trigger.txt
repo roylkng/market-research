@@ -1,0 +1,15 @@
+AE001 D011 historical Mutual Fund ownership source-feasibility diagnostic.
+
+Frozen protocol:
+- research/AE001_D011_OWNERSHIP_SOURCE_FEASIBILITY_V1.md
+- registry/ae001_d011_ownership_source.yaml
+
+This diagnostic opens no return outcomes.
+
+Do not add [ae001-d011] until normal implementation CI is green.
+
+Source audit opened after full implementation CI success on 2026-10-01.
+No return outcomes are loaded by D011.
+
+Retry after operational-only fix: NSE master-session warm-up now retries and
+request timeout is 45 seconds. Frozen D011 sample/source/promotion rules unchanged.
