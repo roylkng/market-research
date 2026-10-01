@@ -1,0 +1,37 @@
+schema_version: 1
+id: AE001-D010-P3-v1
+name: cash_short_borrow_historical_coverage_identity_audit
+status: FROZEN_BEFORE_FULL_WINDOW_AUDIT
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: SOURCE_COVERAGE_IDENTITY_NO_RETURN_OUTCOMES
+
+window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+session_denominator:
+  source: NSE_CM_UDIFF_EQ
+
+sources:
+  short_selling:
+    pattern: https://nsearchives.nseindia.com/archives/equities/shortSelling/shortselling_DDMMYYYY.csv
+    minimum_ready_session_fraction: 0.95
+    minimum_identity_mapping_fraction: 0.95
+    schema_count_required: 1
+    row_date_mismatch_allowed: 0
+  slb_open_positions:
+    pattern: https://nsearchives.nseindia.com/archives/slbs/open_pos/slb_openpos_DDMMYYYY.csv
+    minimum_ready_session_fraction: 0.95
+    minimum_identity_mapping_fraction: 0.95
+    schema_count_required: 1
+
+row_absence_numeric_zero: false
+duplicate_rows_automatically_aggregated: false
+return_labels_opened: false
+model_fit_allowed: false
+
+promotion:
+  next_stage: AE001-D010-P4-FEATURE-SEMANTICS
+  requires_both_families_pass: true
