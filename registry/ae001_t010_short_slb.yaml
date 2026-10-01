@@ -1,0 +1,85 @@
+schema_version: 1
+id: AE001-T010-v1
+name: short_selling_slb_incremental_feature_family
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_RECONSTRUCTION_DEVELOPMENT
+
+base:
+  trial: AE001-T005
+  feature_count: 37
+  feature_panel_sha256: 62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f
+  result_report_sha256: 2c72c9207ad3cfe2bc73637e4c10b7ad378c9a6c1b347fa2dd8936831a7511e2
+
+d010_p4a:
+  feature_count: 7
+  feature_panel_sha256: 1b629fee85e7430466d81e5c8e5a3497cca77221ab7d38633b23c7db5b49f4b0
+  feature_artifact_sha256: dcb9d4e59df3992dbc71b0633c51c27e20dcd81de5eb5570c0e7d0f9fbb92513
+  report_sha256: 58ce64d9a247f30da13a535991658a36a6696e2b61e2b3094a71741963fb3b41
+
+features:
+  - short_volume_share_lag1
+  - short_volume_share_change_1
+  - short_volume_share_percentile_20
+  - slb_outstanding_days_volume20
+  - slb_outstanding_change_days_volume20
+  - slb_outstanding_percentile_20
+  - slb_active_series_count
+
+comparison:
+  base_feature_count: 37
+  augmented_feature_count: 44
+  row_contract: IDENTICAL_T010_COMPLETE_ROWS
+  identity: feature_session_plus_symbol_plus_isin
+
+model:
+  type: ridge
+  l2: 1.0
+
+horizons:
+  primary:
+    sessions: 5
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-18]
+    newey_west_lag: 4
+    success_requires:
+      - paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05
+      - paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05
+  secondary:
+    sessions: 1
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-09-24]
+    newey_west_lag: 5
+    rescues_failed_primary: false
+  diagnostic:
+    sessions: 20
+    folds:
+      - [2026-04-01, 2026-06-30]
+      - [2026-07-01, 2026-08-27]
+    newey_west_lag: 19
+    rescues_failed_primary: false
+
+pre_model_gate:
+  joined_44_feature_panel_sha256_must_be_frozen: true
+  joined_common_row_count_must_be_frozen: true
+  joined_common_session_count_must_be_frozen: true
+
+excluded_prior_failures:
+  - AE001-T007
+  - AE001-T008
+  - AE001-T009
+
+timing:
+  historical_publication_timing_verified: false
+  short_slb_future_timing_authority: AE001-SC004
+  historical_result_may_be_reclassified_as_prospective: false
+
+promotion:
+  if_primary_passes:
+    - AB001_ORTHOGONALITY_VS_T005
+    - SEPARATE_PROSPECTIVE_CONFIRMATION_AFTER_TIMING_GATES
+  live_capital_directly_allowed: false
