@@ -1,3 +1,4 @@
+import math
 from datetime import date, timedelta
 
 import pytest
@@ -238,6 +239,11 @@ def test_d010_p4_builds_exact_seven_features_on_common_base_row():
         0.001
     )
     assert row["values"]["slb_active_series_count"] == pytest.approx(1.0)
+    assert 0.0 <= row["values"]["short_volume_share_percentile_20"] <= 1.0
+    assert 0.0 <= row["values"]["slb_outstanding_percentile_20"] <= 1.0
+    assert "short_volume_share_zscore_20" not in row["values"]
+    assert "slb_outstanding_zscore_20" not in row["values"]
+    assert panel["feature_semantics_id"] == "AE001-D010-P4A-v1"
     assert panel["outcomes_attached"] is False
 
 
@@ -308,5 +314,64 @@ def test_p4_summary_promotes_when_frozen_gates_are_met(monkeypatch):
     report = summarize_p4(panel)
     assert report["status"] == "PROMOTE_INCREMENTAL_ALPHA_TRIAL"
     assert report["feature_count"] == 25
+    assert report["p4a_rank_stabilization"]["percentile_bounds_valid"] is True
     assert report["return_labels_opened"] is False
     assert report["model_fit_performed"] is False
+
+
+
+def test_p4a_percentiles_remain_bounded_under_near_zero_variance():
+    from marketlab.alpha_d010_p4 import D010Observation, d010_features
+
+    history = []
+    for index in range(20):
+        history.append(
+            D010Observation(
+                session_date=f"2026-01-{index + 1:02d}",
+                symbol="TEST",
+                isin="INE000000001",
+                short_volume_share_lag1=1e-12 + index * 1e-18,
+                slb_outstanding_quantity=1_000_000.0 + index * 1e-6,
+                slb_active_series_count=1,
+                cash_volume=10_000_000.0,
+            )
+        )
+    history.append(
+        D010Observation(
+            session_date="2026-01-21",
+            symbol="TEST",
+            isin="INE000000001",
+            short_volume_share_lag1=2e-12,
+            slb_outstanding_quantity=1_000_001.0,
+            slb_active_series_count=1,
+            cash_volume=10_000_000.0,
+        )
+    )
+
+    values = d010_features(history)
+    assert values["short_volume_share_percentile_20"] == pytest.approx(1.0)
+    assert values["slb_outstanding_percentile_20"] == pytest.approx(1.0)
+    assert all(
+        value is None or math.isfinite(float(value))
+        for value in values.values()
+    )
+
+
+def test_p4a_tie_aware_percentile_is_neutral_for_flat_zero_history():
+    from marketlab.alpha_d010_p4 import D010Observation, d010_features
+
+    history = [
+        D010Observation(
+            session_date=f"2026-02-{index + 1:02d}",
+            symbol="TEST",
+            isin="INE000000001",
+            short_volume_share_lag1=0.0,
+            slb_outstanding_quantity=0.0,
+            slb_active_series_count=0,
+            cash_volume=10_000_000.0,
+        )
+        for index in range(21)
+    ]
+    values = d010_features(history)
+    assert values["short_volume_share_percentile_20"] == pytest.approx(0.5)
+    assert values["slb_outstanding_percentile_20"] == pytest.approx(0.5)
