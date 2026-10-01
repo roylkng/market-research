@@ -10,7 +10,7 @@ from marketlab.alpha import AlphaContractError, FeatureDefinition, digest
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
 
-D010_P4_ID = "AE001-D010-P4-v1"
+D010_P4_ID = "AE001-D010-P4A-v1"
 SHORT_P3B_REPORT_SHA256 = (
     "0cc1f518d8c91d4648851d55861cee66cca722c0e1858204cbdd6635f7c98528"
 )
@@ -38,10 +38,10 @@ D010_DEFINITIONS = [
         1,
     ),
     FeatureDefinition(
-        "short_volume_share_zscore_20",
+        "short_volume_share_percentile_20",
         "cash_flows",
-        "v1",
-        "Lagged short-selling volume share standardized against prior 20 source-valid sessions.",
+        "v2",
+        "Tie-aware percentile of lagged short-selling volume share versus prior 20 source-valid sessions.",
         20,
         1,
     ),
@@ -62,10 +62,10 @@ D010_DEFINITIONS = [
         0,
     ),
     FeatureDefinition(
-        "slb_outstanding_zscore_20",
+        "slb_outstanding_percentile_20",
         "cash_flows",
-        "v1",
-        "Current total SLB outstanding quantity standardized against prior 20 source-valid sessions.",
+        "v2",
+        "Tie-aware percentile of current total SLB outstanding quantity versus prior 20 source-valid sessions.",
         20,
         0,
     ),
@@ -184,13 +184,25 @@ def _source_maps(
     return short_by_day, slb_by_day
 
 
-def _zscore(current: float, prior: list[float]) -> float | None:
+def _prior_percentile(current: float, prior: list[float]) -> float:
     if len(prior) != 20:
-        raise AlphaContractError("D010 z-score requires 20 prior observations")
-    std = statistics.pstdev(prior)
-    if std == 0.0:
-        return None
-    return (current - statistics.mean(prior)) / std
+        raise AlphaContractError(
+            "D010 trailing percentile requires 20 prior observations"
+        )
+    if not math.isfinite(current) or any(
+        not math.isfinite(value) for value in prior
+    ):
+        raise AlphaContractError(
+            "D010 trailing percentile inputs must be finite"
+        )
+    below = sum(value < current for value in prior)
+    equal = sum(value == current for value in prior)
+    percentile = (below + 0.5 * equal) / len(prior)
+    if not 0.0 <= percentile <= 1.0:
+        raise AlphaContractError(
+            "D010 trailing percentile escaped [0, 1]"
+        )
+    return percentile
 
 
 def d010_features(history: list[D010Observation]) -> dict[str, float | None]:
@@ -213,7 +225,7 @@ def d010_features(history: list[D010Observation]) -> dict[str, float | None]:
             current.short_volume_share_lag1
             - prior[-1].short_volume_share_lag1
         ),
-        "short_volume_share_zscore_20": _zscore(
+        "short_volume_share_percentile_20": _prior_percentile(
             current.short_volume_share_lag1,
             prior_short,
         ),
@@ -225,7 +237,7 @@ def d010_features(history: list[D010Observation]) -> dict[str, float | None]:
             - prior[-1].slb_outstanding_quantity
         )
         / median_volume,
-        "slb_outstanding_zscore_20": _zscore(
+        "slb_outstanding_percentile_20": _prior_percentile(
             current.slb_outstanding_quantity,
             prior_slb,
         ),
@@ -513,7 +525,7 @@ def augment_feature_panel_with_d010(
                 "session_count",
             }
         },
-        "panel_id": "AE001-D010-P4-AUGMENTED-FEATURE-PANEL-v1",
+        "panel_id": "AE001-D010-P4A-AUGMENTED-FEATURE-PANEL-v1",
         "evidence_class": (
             "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_"
             "SOURCE_TIMING_UNVERIFIED"
@@ -527,6 +539,10 @@ def augment_feature_panel_with_d010(
         "feature_definitions": definitions,
         "feature_set_sha256": feature_set_sha256,
         "feature_semantics_id": D010_P4_ID,
+        "feature_semantics_base_id": "AE001-D010-P4-v1",
+        "feature_semantics_amendment": (
+            "AE001-D010-P4A-SPARSE-HISTORY-RANK-STABILIZATION"
+        ),
         "history_sessions": 21,
         "source_gap_policy": "BREAK_WINDOW_NO_IMPUTATION",
         "session_count": len(session_summaries),
@@ -546,7 +562,7 @@ def augment_feature_panel_with_d010(
 def summarize_p4(panel: dict[str, Any]) -> dict[str, Any]:
     _verify_panel(
         panel,
-        expected_id="AE001-D010-P4-AUGMENTED-FEATURE-PANEL-v1",
+        expected_id="AE001-D010-P4A-AUGMENTED-FEATURE-PANEL-v1",
         name="D010 P4 augmented",
     )
     definitions = panel.get("feature_definitions")
@@ -590,11 +606,28 @@ def summarize_p4(panel: dict[str, Any]) -> dict[str, Any]:
             "max": max(values) if values else None,
         }
 
+    definition_names = {str(row["name"]) for row in definitions}
+    removed_names = {
+        "short_volume_share_zscore_20",
+        "slb_outstanding_zscore_20",
+    }
+    percentile_names = {
+        "short_volume_share_percentile_20",
+        "slb_outstanding_percentile_20",
+    }
+    percentile_bounds_valid = all(
+        0.0 <= value <= 1.0
+        for name in percentile_names
+        for value in values_by_feature[name]
+    )
     passes = (
         len(definitions) == 25
         and len(sessions) >= MIN_FEATURE_SESSIONS
         and len(rows) >= MIN_FEATURE_ROWS
         and panel.get("outcomes_attached") is False
+        and removed_names.isdisjoint(definition_names)
+        and percentile_names.issubset(definition_names)
+        and percentile_bounds_valid
     )
     report: dict[str, Any] = {
         "schema_version": 1,
@@ -609,6 +642,17 @@ def summarize_p4(panel: dict[str, Any]) -> dict[str, Any]:
         "feature_session_count": len(sessions),
         "feature_row_count": len(rows),
         "feature_stats": feature_stats,
+        "p4a_rank_stabilization": {
+            "removed_features": sorted(removed_names),
+            "replacement_features": sorted(percentile_names),
+            "percentile_bounds_valid": percentile_bounds_valid,
+            "source_only_trigger_run_id": 36888897172,
+            "source_only_p4_report_sha256": (
+                "b0548e1fdece6257d86bc16d3fa4a64b337627f406bf94869911dbdf4715b75c"
+            ),
+            "return_labels_opened_before_amendment": False,
+            "model_fit_performed_before_amendment": False,
+        },
         "excluded_source_gap_row_count": panel[
             "excluded_source_gap_row_count"
         ],
