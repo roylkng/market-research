@@ -17,6 +17,7 @@ from marketlab.alpha_trials import (
 TRIAL_ID = "AE001-T009"
 TRIAL_STATUS = "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
 SOURCE_PROTOCOL_ID = "AE001-T009-P1"
+DIAGNOSTIC_PROTOCOL_ID = "AE001-T009-P2"
 
 EXPECTED_MARKET_PANEL_SHA256 = (
     "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e"
@@ -97,8 +98,20 @@ def run_options_incremental_trial(
         trial_id=TRIAL_ID,
         protocol_id=SOURCE_PROTOCOL_ID,
     )
+    p2 = require_protocol_amendment(
+        trial_ledger,
+        trial_id=TRIAL_ID,
+        protocol_id=DIAGNOSTIC_PROTOCOL_ID,
+    )
     frozen = registration["payload"]
     source = p1["payload"]
+    diagnostic = p2["payload"]
+    if diagnostic.get("repair_scope") != "SIGNED_SINGLE_FEATURE_DIAGNOSTICS_ONLY":
+        raise AlphaContractError("T009 P2 diagnostic repair scope differs")
+    if diagnostic.get("multivariate_ridge_feature_retained") is not True:
+        raise AlphaContractError("T009 P2 must retain the frozen ridge feature")
+    if diagnostic.get("primary_success_criteria_changed") is not False:
+        raise AlphaContractError("T009 P2 cannot change primary success criteria")
     _source_contract(source)
 
     if market_panel.get("panel_sha256") != EXPECTED_MARKET_PANEL_SHA256:
@@ -225,6 +238,7 @@ def run_options_incremental_trial(
         "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
         "trial_registration_event_sha256": registration["event_sha256"],
         "trial_protocol_p1_event_sha256": p1["event_sha256"],
+        "trial_protocol_p2_event_sha256": p2["event_sha256"],
         "trial_ledger_sha256": trial_ledger["ledger_sha256"],
         "market_panel_sha256": market_panel["panel_sha256"],
         "feature_panel_sha256": feature_panel["panel_sha256"],
