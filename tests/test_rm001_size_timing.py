@@ -6,7 +6,6 @@ import zipfile
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.alpha_prospective_sources import new_source_ledger
 from marketlab.rm001_size_timing import (
     append_size_source_probe,
     new_size_source_ledger,
