@@ -17,6 +17,7 @@ from marketlab.alpha_d010_p3 import (
 )
 from marketlab.alpha_d010_p3b import build_p3b_panel, map_lagged_short_rows
 from marketlab.alpha_d010_p4 import (
+    D010_P4_ID,
     SHORT_P3B_REPORT_SHA256,
     SLB_P3_REPORT_SHA256,
     augment_feature_panel_with_d010,
@@ -54,7 +55,7 @@ def _retain(path: Path, raw: bytes) -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Materialize frozen AE001 D010 P4 short/borrow features"
+        description="Materialize frozen AE001 D010 P4A short/borrow features"
     )
     parser.add_argument("--market-panel", type=Path, required=True)
     parser.add_argument("--feature-panel", type=Path, required=True)
@@ -200,7 +201,7 @@ def main() -> int:
 
     manifest = {
         "schema_version": 1,
-        "diagnostic_id": "AE001-D010-P4-v1",
+        "diagnostic_id": D010_P4_ID,
         "market_panel_sha256": market["panel_sha256"],
         "base_feature_panel_sha256": base_features["panel_sha256"],
         "short_source_panel_sha256": short_panel["panel_sha256"],
