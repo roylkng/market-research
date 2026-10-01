@@ -1,5 +1,5 @@
 {
-  "event_count": 31,
+  "event_count": 32,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1408,10 +1408,42 @@
       "recorded_at_utc": "2026-10-01T17:26:45.208334+00:00",
       "seq": 31,
       "trial_id": "AE001-T010"
+    },
+    {
+      "event_sha256": "2d779f85770047ba55dafa2399177296cf6e51404df58afa12f31970a1afce97",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "base37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+        "combined44_feature_panel_sha256": "2cc6006fbcf371cdcedae2d976069e746710161d40343c10c0a6af87fa473d4f",
+        "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+        "d010_p4a_feature_panel_sha256": "1b629fee85e7430466d81e5c8e5a3497cca77221ab7d38633b23c7db5b49f4b0",
+        "excluded_no_d010_row_count": 4190,
+        "feature_row_count": 35639,
+        "feature_session_count": 175,
+        "feature_set_sha256": "86d73fdca30f5c3a0b5487055564d732c3ae42add14d5e895db71a29fd9af6f2",
+        "future_source_timing_gate": "AE001-SC004",
+        "historical_short_slb_publication_timestamp_verified": false,
+        "live_capital_allowed": false,
+        "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+        "max_overlapping_base_feature_abs_diff": 0.0,
+        "model_fit_started_before_amendment": false,
+        "protocol_id": "AE001-T010-P1",
+        "reason": "Freeze exact T005/P4A/common-row source hashes after source-only materialization and before any T010 return label or model fit.",
+        "return_outcomes_opened_before_amendment": false,
+        "source_artifact_id": 11181566194,
+        "source_artifact_name": "ae001-t010-source-36900438825",
+        "source_report_sha256": "3530a7d4417c241a6b6208a73d9d749ca26c412c171ce7014a753b3f70fa66ee",
+        "source_run_id": 36900438825,
+        "upstream_d010_p4a_run_id": 36894325553,
+        "upstream_t005_run_id": 36696476204
+      },
+      "recorded_at_utc": "2026-10-01T17:36:48.831305+00:00",
+      "seq": 32,
+      "trial_id": "AE001-T010"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "08bb716a3fe865f4ae450c8d4cb5439eb1479e3dcd3b0ab9cdd0f7ac269d3e8f",
+  "ledger_sha256": "6a4c47c7b0c07de793bd64994b176153c3358abaee9be5a7a967053fe29469af",
   "live_capital_allowed": false,
   "schema_version": 1
 }
