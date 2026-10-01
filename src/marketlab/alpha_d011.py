@@ -57,7 +57,7 @@ def sample_symbols(universe: dict[str, Any]) -> tuple[str, ...]:
 
 def _timestamp(value: str) -> datetime:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AlphaContractError(f"D011 invalid timestamp: {value}") from exc
     if parsed.tzinfo is None:
