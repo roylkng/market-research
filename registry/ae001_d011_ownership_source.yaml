@@ -1,0 +1,65 @@
+schema_version: 1
+id: AE001-D011-v1
+name: nse_historical_mutual_fund_ownership_source_feasibility
+status: FROZEN_BEFORE_SOURCE_ACCESS
+created: 2026-10-01
+live_capital_allowed: false
+return_outcomes_allowed: false
+
+source:
+  provider: NSE
+  master_endpoint: corporate-share-holdings-master
+  filing_hosts:
+    - nsearchives.nseindia.com
+    - archives.nseindia.com
+  parser_contract: H023-NSE-SHAREHOLDING-XBRL-V1
+
+sample:
+  universe: research/prospective/universes/FY27-Q2-2026-09-06.json
+  ranks:
+    - 1
+    - 5
+    - 9
+    - 13
+    - 17
+    - 21
+    - 25
+    - 29
+    - 33
+    - 37
+    - 41
+    - 45
+    - 49
+    - 53
+    - 57
+    - 61
+    - 65
+    - 69
+    - 73
+    - 77
+    - 81
+    - 85
+    - 89
+    - 93
+    - 97
+
+report_dates:
+  start: 2024-03-31
+  end: 2026-06-30
+  standard_quarters_only: true
+
+current_source: first_official_broadcast_for_report_date
+prior_source: latest_adjacent_quarter_revision_public_by_current_broadcast
+
+promotion_gates:
+  all_sample_master_responses_required: true
+  current_source_coverage_min: 0.90
+  current_parse_ready_coverage_min: 0.90
+  adjacent_pair_parse_ready_coverage_min: 0.80
+  duplicate_source_identity_allowed: false
+  unexpected_parser_semantic_drift_allowed: false
+
+promotion:
+  may_authorize_new_trial_design: true
+  may_authorize_returns: false
+  may_promote_to_ab001: false
