@@ -8,7 +8,6 @@ from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_market import parse_udiff_eq_panel
-from marketlab.alpha_sc003_preopen import latest_completed_sc001_target
 from marketlab.events import sha256_bytes
 from marketlab.rm001_size_source import (
     audit_security_master_session,
