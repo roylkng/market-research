@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D010-P1-v1",
+  "status": "COMPLETE_SOURCE_RESOLUTION",
+  "evidence_class": "SOURCE_DISCOVERY_NO_RETURN_OUTCOMES",
+  "successful_run": {
+    "run_id": 36876730846,
+    "artifact_id": 11169437437,
+    "artifact_name": "ae001-d010-p1-36876730846"
+  },
+  "report_sha256": "fb815a3d26c1aea506fa4c956588f2563435e5b0a08729a6a8a3191fcd2978f6",
+  "p0_report_sha256": "eee104e4c41a28170f20fbfdd4f0821a865ccef9404b69a6b0ada0e52b5a0363",
+  "short_selling": {
+    "archive_pattern": "https://nsearchives.nseindia.com/archives/equities/shortSelling/shortselling_{DDMMYYYY}.csv",
+    "ready_probe_sessions": 3,
+    "probe_sessions": [
+      "2026-09-25",
+      "2026-09-24",
+      "2025-09-01"
+    ],
+    "schema": [
+      "Security Name",
+      "Symbol Name",
+      "Trade Date",
+      "Quantity"
+    ],
+    "status": "PROMOTE_HISTORICAL_COVERAGE"
+  },
+  "slb_open_positions": {
+    "metadata_query_key": "SLBS",
+    "file_key": "SLBS-OPEN-POSITION",
+    "display_name": "Daily Open Positions (csv)",
+    "observed_file_path": "https://nsearchives.nseindia.com//archives/slbs/open_pos/",
+    "observed_file_name": "slb_openpos_30092026.csv",
+    "candidate_historical_pattern": "https://nsearchives.nseindia.com/archives/slbs/open_pos/slb_openpos_{DDMMYYYY}.csv",
+    "status": "ROUTE_IDENTIFIED_REQUIRES_FROZEN_HISTORICAL_PROBE"
+  },
+  "return_labels_opened": false,
+  "model_fit_performed": false,
+  "live_capital_allowed": false
+}
