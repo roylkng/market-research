@@ -5,7 +5,7 @@ from datetime import date
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha import AlphaContractError
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_options_source import (
     classify_front_option_surface,
