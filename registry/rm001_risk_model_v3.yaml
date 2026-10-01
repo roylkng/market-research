@@ -26,6 +26,8 @@ statistical:
   source: RM001_V2_REALIZED_RESIDUAL_HISTORY
   trailing_realized_sessions: 120
   component_count: 5
+  basis_estimation_sessions: 120
+  risk_estimation_sessions: 60
   minimum_complete_current_identities: 500
   missing_residual_policy: no_imputation
   current_incomplete_identity_policy: preserve_v2_idio_and_zero_stat_exposures
@@ -37,13 +39,14 @@ statistical:
 
 covariance:
   factor_count: 11
-  trailing_realized_sessions: 120
+  trailing_realized_sessions: 60
   estimator: sample_covariance
   ddof: 1
   retain_named_stat_cross_covariance: true
   shrinkage: none
 
 idiosyncratic:
+  trailing_post_pc_residual_sessions: 60
   complete_stat_history: post_pc_residual_sample_variance_ddof_1
   incomplete_stat_history: exact_rm001_v2_variance
   imputation: none

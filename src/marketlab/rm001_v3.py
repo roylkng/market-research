@@ -22,6 +22,7 @@ STAT_FACTOR_NAMES = (
 FACTOR_NAMES_V3 = (*FACTOR_NAMES_V2, *STAT_FACTOR_NAMES)
 
 DEFAULT_STATISTICAL_WINDOW = 120
+DEFAULT_RISK_ESTIMATION_WINDOW = 60
 DEFAULT_COMPONENT_COUNT = 5
 DEFAULT_MIN_COMPLETE_CURRENT_IDENTITIES = 500
 DEFAULT_MIN_SINGULAR_RELATIVE_GAP = 1e-8
@@ -201,6 +202,7 @@ def build_rm001_v3_risk_state(
     v2_factor_history: dict[str, Any],
     statistical_window: int = DEFAULT_STATISTICAL_WINDOW,
     component_count: int = DEFAULT_COMPONENT_COUNT,
+    risk_estimation_window: int = DEFAULT_RISK_ESTIMATION_WINDOW,
     minimum_complete_current_identities: int = (
         DEFAULT_MIN_COMPLETE_CURRENT_IDENTITIES
     ),
@@ -231,6 +233,15 @@ def build_rm001_v3_risk_state(
     ):
         raise AlphaContractError(
             "RM001-v3 statistical window must be an integer >= 3"
+        )
+    if (
+        isinstance(risk_estimation_window, bool)
+        or not isinstance(risk_estimation_window, int)
+        or risk_estimation_window < 2
+        or risk_estimation_window > statistical_window
+    ):
+        raise AlphaContractError(
+            "RM001-v3 risk-estimation window is invalid"
         )
     if (
         isinstance(component_count, bool)
@@ -359,8 +370,9 @@ def build_rm001_v3_risk_state(
     combined_returns = np.hstack(
         [named_matrix, stat_returns]
     )
+    risk_returns = combined_returns[-risk_estimation_window:, :]
     covariance = np.cov(
-        combined_returns,
+        risk_returns,
         rowvar=False,
         ddof=1,
     )
@@ -384,7 +396,7 @@ def build_rm001_v3_risk_state(
     idio_by_identity = {
         identity: _q(
             np.var(
-                post_stat_residual[:, index],
+                post_stat_residual[-risk_estimation_window:, index],
                 ddof=1,
             )
         )
@@ -491,9 +503,14 @@ def build_rm001_v3_risk_state(
             _q(value) for value in explained_ratio
         ],
         "statistical_sign_anchors": anchors,
-        "factor_covariance_window": statistical_window,
-        "factor_covariance_first_realized_session": sessions[0],
+        "statistical_basis_window": statistical_window,
+        "risk_estimation_window": risk_estimation_window,
+        "factor_covariance_window": risk_estimation_window,
+        "factor_covariance_first_realized_session": sessions[
+            -risk_estimation_window
+        ],
         "factor_covariance_last_realized_session": sessions[-1],
+        "idiosyncratic_window": risk_estimation_window,
         "factor_covariance_daily": [
             [_q(value) for value in row]
             for row in covariance.tolist()

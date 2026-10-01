@@ -121,6 +121,12 @@ def test_v3_extracts_deterministic_statistical_components():
     assert state["complete_statistical_identity_count"] == 12
     assert state["fallback_identity_count"] == 0
     assert state["statistical_factor_names"] == ["STAT_PC01", "STAT_PC02"]
+    assert state["statistical_basis_window"] == 120
+    assert state["factor_covariance_window"] == 60
+    assert state["idiosyncratic_window"] == 60
+    assert state["factor_covariance_first_realized_session"] == (
+        history["factor_returns"][-60]["realized_session"]
+    )
     assert len(state["factor_names"]) == len(FACTOR_NAMES_V2) + 2
     assert len(state["factor_covariance_daily"]) == len(FACTOR_NAMES_V2) + 2
     assert all(
