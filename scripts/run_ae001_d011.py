@@ -51,7 +51,7 @@ def _selected_sources(
     sources_by_symbol: dict[str, list[dict]],
 ) -> dict[str, dict]:
     selected = {}
-    for symbol, sources in sources_by_symbol.items():
+    for sources in sources_by_symbol.values():
         for report_date in D011_REPORT_DATES:
             current, ambiguous = first_current_source(
                 sources,
@@ -122,7 +122,7 @@ def main() -> int:
                 "source_count": len(sources),
             }
             sources_by_symbol[symbol] = sources
-        except Exception as exc:
+        except (H023AcquisitionError, ValueError, TypeError) as exc:
             master_status[symbol] = {
                 "status": "FAILED",
                 "raw_sha256": None,
