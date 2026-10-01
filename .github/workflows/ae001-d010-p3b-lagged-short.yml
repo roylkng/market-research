@@ -1,0 +1,50 @@
+name: AE001 D010 P3B lagged short historical audit
+
+on:
+  push:
+    branches:
+      - feat/ae001-d010-cash-borrow-flow-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[ae001-d010-p3b]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen P3B
+        run: |
+          ruff check \
+            src/marketlab/alpha_d010_p3b.py \
+            scripts/run_ae001_d010_p3b.py \
+            tests/test_alpha_d010_p3b.py
+          pytest -q \
+            tests/test_alpha_d010_p3.py \
+            tests/test_alpha_d010_p3a.py \
+            tests/test_alpha_d010_p3b.py
+      - name: Run corrected lagged short-selling audit
+        run: |
+          python scripts/run_ae001_d010_p3b.py \
+            --output reports/ae001-d010-p3b \
+            --attempts 4 \
+            --timeout-seconds 30
+      - name: Print result
+        run: |
+          cat reports/ae001-d010-p3b/manifest.json
+          cat reports/ae001-d010-p3b/report.json
+      - name: Upload exact P3B evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d010-p3b-${{ github.run_id }}
+          path: reports/ae001-d010-p3b
+          if-no-files-found: warn
+          retention-days: 90
