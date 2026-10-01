@@ -1,0 +1,56 @@
+name: AE001 D011 ownership source feasibility
+
+on:
+  push:
+    branches:
+      - feat/ae001-d011-ownership-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[ae001-d011]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D011 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_d011.py \
+            scripts/run_ae001_d011.py \
+            tests/test_alpha_d011.py
+          pytest -q \
+            tests/test_alpha_d011.py \
+            tests/test_h023_ownership.py \
+            tests/test_h023_prospective.py
+
+      - name: Run frozen D011 source audit
+        run: |
+          python scripts/run_ae001_d011.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --output reports/ae001-d011 \
+            --timeout-seconds 25 \
+            --attempts 4 \
+            --pause-seconds 0.05
+
+      - name: Print compact result
+        run: cat reports/ae001-d011/result.json
+
+      - name: Upload exact D011 source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d011-${{ github.run_id }}
+          path: reports/ae001-d011
+          if-no-files-found: warn
+          retention-days: 90
