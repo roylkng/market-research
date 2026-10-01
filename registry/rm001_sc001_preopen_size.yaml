@@ -1,0 +1,26 @@
+schema_version: 1
+id: RM001-SC001-v1
+name: previous_session_size_preopen_source_timing
+status: PROSPECTIVE_SOURCE_TIMING
+created: 2026-10-01
+live_capital_allowed: false
+
+start_observation_date: 2026-10-02
+timezone: Asia/Kolkata
+preopen_cutoff: "08:30:00"
+
+target_session:
+  source: AE001-SC001-SOURCE-LEDGER-v1
+  rule: LATEST_ELIGIBLE_SC001_SESSION_STRICTLY_BEFORE_OBSERVATION_DATE
+
+source:
+  provider: NSE
+  type: CM_MII_SECURITY_FILE
+  parser: RM001_D007_SECURITY_MASTER_V1
+  size_formula: OFFICIAL_CLOSE_TIMES_ISSD_CPTL
+
+promotion_gate:
+  minimum_distinct_ready_before_cutoff_sessions: 3
+  prospective_size_use_automatically_enabled: false
+
+outcomes_opened: false
