@@ -12,7 +12,6 @@ from marketlab.alpha_futures import fo_udiff_url
 from marketlab.alpha_market import DailyEquityObservation
 from marketlab.alpha_options_source import OptionContractObservation
 from marketlab.alpha_options_source_d006 import (
-    D006ParseDiagnostics,
     parse_fo_udiff_stock_options_d006,
 )
 from marketlab.events import sha256_bytes
