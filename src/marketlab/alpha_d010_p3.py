@@ -5,7 +5,7 @@ import io
 import math
 from collections import Counter
 from dataclasses import asdict, dataclass
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -78,7 +78,7 @@ def _parse_source_date(value: object) -> date:
     raw = str(value or "").strip()
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
         try:
-            return datetime.strptime(raw, fmt).date()
+            return datetime.strptime(raw, fmt).replace(tzinfo=UTC).date()
         except ValueError:
             continue
     raise AlphaContractError(f"unsupported source date: {raw!r}")
