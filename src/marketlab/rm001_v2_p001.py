@@ -29,6 +29,8 @@ def _verify_hash(
 
 def _control_positions(
     artifact: dict[str, Any],
+    *,
+    portfolio_key: str,
 ) -> list[dict[str, Any]]:
     _verify_hash(
         artifact,
@@ -44,12 +46,16 @@ def _control_positions(
     portfolios = artifact.get("portfolios")
     if not isinstance(portfolios, dict):
         raise AlphaContractError("P001 control portfolios missing")
-    portfolio = portfolios.get("full_po001_observable_cost_floor")
+    portfolio = portfolios.get(portfolio_key)
     if not isinstance(portfolio, dict):
-        raise AlphaContractError("P001 observable-cost control missing")
+        raise AlphaContractError(
+            f"P001 exact preserved control missing: {portfolio_key}"
+        )
     raw_positions = portfolio.get("positions")
     if not isinstance(raw_positions, list) or not raw_positions:
-        raise AlphaContractError("P001 control positions missing")
+        raise AlphaContractError(
+            f"P001 control positions missing: {portfolio_key}"
+        )
 
     positions = []
     for row in raw_positions:
@@ -69,7 +75,9 @@ def _control_positions(
             }
         )
     if not positions:
-        raise AlphaContractError("P001 control has no non-zero positions")
+        raise AlphaContractError(
+            f"P001 control has no non-zero positions: {portfolio_key}"
+        )
     return positions
 
 
@@ -152,34 +160,73 @@ def run_rm001_v2_p001(
         if not math.isfinite(size) or not -1.0 <= size <= 1.0:
             raise AlphaContractError("P001 SIZE exposure outside [-1, 1]")
 
-    positions = _control_positions(sealed_i002_artifact)
-    position_ids = {
-        (str(row["symbol"]), str(row["isin"]))
-        for row in positions
-    }
-    missing_v2 = sorted(position_ids - v2_ids)
-    if missing_v2:
-        raise AlphaContractError(
-            f"P001 sealed I002 positions absent from RM001-v2: {missing_v2[:10]}"
+    preserved_portfolio_keys = (
+        "equal_weight_top_decile",
+        "positive_alpha_proportional_top_decile",
+    )
+    portfolio_attribution: dict[str, Any] = {}
+    for portfolio_key in preserved_portfolio_keys:
+        positions = _control_positions(
+            sealed_i002_artifact,
+            portfolio_key=portfolio_key,
         )
+        position_ids = {
+            (str(row["symbol"]), str(row["isin"]))
+            for row in positions
+        }
+        missing_v2 = sorted(position_ids - v2_ids)
+        if missing_v2:
+            raise AlphaContractError(
+                "P001 sealed I002 positions absent from RM001-v2 "
+                f"for {portfolio_key}: {missing_v2[:10]}"
+            )
 
-    v1_portfolio = portfolio_risk(v1_risk_state, positions=positions)
-    v2_portfolio = portfolio_risk_v2(v2_risk_state, positions=positions)
+        v1_portfolio = portfolio_risk(
+            v1_risk_state,
+            positions=positions,
+        )
+        v2_portfolio = portfolio_risk_v2(
+            v2_risk_state,
+            positions=positions,
+        )
+        common_factor_exposure_delta = {}
+        for factor in v1_risk_state["factor_names"]:
+            common_factor_exposure_delta[factor] = (
+                float(v2_portfolio["portfolio_factor_exposures"][factor])
+                - float(v1_portfolio["portfolio_factor_exposures"][factor])
+            )
+        portfolio_attribution[portfolio_key] = {
+            "position_count": len(positions),
+            "v1": v1_portfolio,
+            "v2": v2_portfolio,
+            "annualized_volatility_delta": (
+                float(v2_portfolio["annualized_volatility"])
+                - float(v1_portfolio["annualized_volatility"])
+            ),
+            "factor_variance_daily_delta": (
+                float(v2_portfolio["factor_variance_daily"])
+                - float(v1_portfolio["factor_variance_daily"])
+            ),
+            "idiosyncratic_variance_daily_delta": (
+                float(v2_portfolio["idiosyncratic_variance_daily"])
+                - float(v1_portfolio["idiosyncratic_variance_daily"])
+            ),
+            "size_exposure": float(
+                v2_portfolio["portfolio_factor_exposures"]["SIZE"]
+            ),
+            "size_variance_contribution_daily": float(
+                v2_portfolio["factor_variance_contributions_daily"]["SIZE"]
+            ),
+            "common_factor_exposure_delta": common_factor_exposure_delta,
+        }
 
     v1_median_idio = _median_idio(v1_rows, common)
     v2_median_idio = _median_idio(v2_rows, common)
     v1_factor_variances = _factor_variances(v1_risk_state)
     v2_factor_variances = _factor_variances(v2_risk_state)
 
-    common_factor_exposure_delta = {}
-    for factor in v1_risk_state["factor_names"]:
-        common_factor_exposure_delta[factor] = (
-            float(v2_portfolio["portfolio_factor_exposures"][factor])
-            - float(v1_portfolio["portfolio_factor_exposures"][factor])
-        )
-
     report: dict[str, Any] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "pilot_id": PILOT_ID,
         "evidence_class": "HISTORICAL_RISK_MODEL_ATTRIBUTION_NO_RETURN_OUTCOME",
         "decision_session": DECISION_SESSION,
@@ -212,29 +259,17 @@ def run_rm001_v2_p001(
             "v2": v2_factor_variances,
             "size": v2_factor_variances["SIZE"],
         },
-        "sealed_i002_portfolio_risk": {
-            "position_count": len(positions),
-            "v1": v1_portfolio,
-            "v2": v2_portfolio,
-            "annualized_volatility_delta": (
-                float(v2_portfolio["annualized_volatility"])
-                - float(v1_portfolio["annualized_volatility"])
+        "sealed_i002_preserved_portfolio_risk": portfolio_attribution,
+        "control_resolution": {
+            "protocol_amendment": "RM001-v2-P001-P1",
+            "unavailable_control": "full_po001_observable_cost_floor",
+            "reason": (
+                "SEALED_I002_COMPACT_OPTIMIZER_SUMMARY_DID_NOT_PERSIST_"
+                "FULL_TARGET_WEIGHT_VECTOR"
             ),
-            "factor_variance_daily_delta": (
-                float(v2_portfolio["factor_variance_daily"])
-                - float(v1_portfolio["factor_variance_daily"])
+            "exact_preserved_portfolios_used": list(
+                preserved_portfolio_keys
             ),
-            "idiosyncratic_variance_daily_delta": (
-                float(v2_portfolio["idiosyncratic_variance_daily"])
-                - float(v1_portfolio["idiosyncratic_variance_daily"])
-            ),
-            "size_exposure": float(
-                v2_portfolio["portfolio_factor_exposures"]["SIZE"]
-            ),
-            "size_variance_contribution_daily": float(
-                v2_portfolio["factor_variance_contributions_daily"]["SIZE"]
-            ),
-            "common_factor_exposure_delta": common_factor_exposure_delta,
         },
         "interpretation_limits": {
             "return_outcome_opened": False,
