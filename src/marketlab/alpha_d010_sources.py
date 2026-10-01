@@ -51,8 +51,7 @@ def _looks_like_html(body: bytes, content_type: str) -> bool:
     prefix = body.lstrip()[:256].lower()
     return (
         "text/html" in content_type.lower()
-        or prefix.startswith(b"<!doctype html")
-        or prefix.startswith(b"<html")
+        or prefix.startswith((b"<!doctype html", b"<html"))
     )
 
 
