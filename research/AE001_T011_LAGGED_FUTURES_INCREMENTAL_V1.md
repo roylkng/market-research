@@ -46,13 +46,7 @@ decision time.
 
 Use the exact sealed T005 source artifacts from workflow run 36696476204.
 
-Required upstream hashes:
-
-- market panel:
-  9e644012720084a693071a40ce9c592b4586f8c6cee8445fcaf6da699a7895a
-  is NOT authoritative. The authoritative market hash is specified below.
-
-Authoritative T005 lineage:
+Required authoritative T005 lineage:
 
 - market panel:
   9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
@@ -62,10 +56,6 @@ Authoritative T005 lineage:
   99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
 - T005 same-session 37-feature futures panel:
   62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f
-
-The intentionally non-authoritative typo-like hash above exists only to make
-clear that this protocol recognizes exactly one authoritative T005 market hash.
-Implementations must use the authoritative value.
 
 ## Identity and session join
 
