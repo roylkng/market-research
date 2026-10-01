@@ -1,0 +1,169 @@
+name: AE001 T010 register frozen trial
+
+on:
+  push:
+    branches:
+      - feat/ae001-t010-short-slb-20261001
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    if: contains(github.event.head_commit.message, '[t010-register]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Register T010 before outcomes
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+
+          try:
+              state = trial_state(ledger, "AE001-T010")
+              if state["registration"] is not None:
+                  print("T010 already registered")
+                  raise SystemExit(0)
+          except Exception as exc:
+              if "trial is not registered" not in str(exc):
+                  raise
+
+          payload = {
+              "name": "nse_short_selling_slb_incremental_feature_family",
+              "status": "FROZEN_BEFORE_RETURN_OUTCOMES",
+              "evidence_class": (
+                  "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_"
+                  "SOURCE_TIMING_UNVERIFIED"
+              ),
+              "live_capital_allowed": False,
+              "outcomes_for_t010_opened_before_registration": False,
+              "base": {
+                  "upstream_trial": "AE001-T005",
+                  "feature_count": 37,
+                  "panel_sha256": (
+                      "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f"
+                  ),
+              },
+              "d010": {
+                  "upstream_diagnostic": "AE001-D010-P4A-v1",
+                  "feature_count": 7,
+                  "panel_sha256": (
+                      "1b629fee85e7430466d81e5c8e5a3497cca77221ab7d38633b23c7db5b49f4b0"
+                  ),
+                  "features": [
+                      "short_volume_share_lag1",
+                      "short_volume_share_change_1",
+                      "short_volume_share_percentile_20",
+                      "slb_outstanding_days_volume20",
+                      "slb_outstanding_change_days_volume20",
+                      "slb_outstanding_percentile_20",
+                      "slb_active_series_count",
+                  ],
+              },
+              "augmented_feature_count": 44,
+              "join": {
+                  "identity": "FEATURE_SESSION_PLUS_SYMBOL_PLUS_ISIN",
+                  "comparison_rows": "IDENTICAL_BASE_AND_AUGMENTED",
+                  "overlapping_base_feature_values_must_match": True,
+                  "missing_d010_policy": "EXCLUDE_COMMON_ROW_NO_IMPUTATION",
+              },
+              "model": {
+                  "type": "ridge",
+                  "l2": 1.0,
+                  "hyperparameter_search": False,
+              },
+              "primary": {
+                  "horizon_sessions": 5,
+                  "folds": [
+                      ["2026-04-01", "2026-06-30"],
+                      ["2026-07-01", "2026-09-18"],
+                  ],
+                  "newey_west_lag": 4,
+                  "success_requires": [
+                      "PAIRED_MEAN_RANK_IC_DELTA_GT_0_AND_P_LT_0_05",
+                      "PAIRED_TOP_MINUS_BOTTOM_SPREAD_DELTA_GT_0_AND_P_LT_0_05",
+                  ],
+              },
+              "secondary": {
+                  "horizon_sessions": 1,
+                  "folds": [
+                      ["2026-04-01", "2026-06-30"],
+                      ["2026-07-01", "2026-09-24"],
+                  ],
+                  "newey_west_lag": 5,
+                  "rescues_failed_primary": False,
+              },
+              "diagnostic": {
+                  "horizon_sessions": 20,
+                  "folds": [
+                      ["2026-04-01", "2026-06-30"],
+                      ["2026-07-01", "2026-08-27"],
+                  ],
+                  "newey_west_lag": 19,
+                  "rescues_failed_primary": False,
+              },
+              "source_timing": {
+                  "historical_verified": False,
+                  "future_short_slb_gate": "AE001-SC004",
+              },
+              "pre_outcome_source_amendment_required": True,
+              "multiple_testing": {
+                  "trial_count_increment": 1,
+                  "parameter_sweep_allowed": False,
+              },
+          }
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_REGISTERED",
+              trial_id="AE001-T010",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print("T010_REGISTERED", updated["ledger_sha256"])
+          PY
+
+      - name: Commit registration
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- research/ae001/trial-ledger.json; then
+            echo "No ledger change"
+            exit 0
+          fi
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/trial-ledger.json
+          git commit -m "research: register frozen AE001 T010 trial [skip ci]"
+          git push origin HEAD:feat/ae001-t010-short-slb-20261001
