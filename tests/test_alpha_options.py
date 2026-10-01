@@ -1,5 +1,3 @@
-from datetime import date, timedelta
-
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
