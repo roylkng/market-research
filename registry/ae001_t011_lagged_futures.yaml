@@ -1,0 +1,78 @@
+schema_version: 1
+id: AE001-T011-v1
+name: lagged_previous_session_stock_futures_incremental_feature_family
+status: FROZEN_BEFORE_RETURN_OUTCOMES
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED
+
+information_timing:
+  decision_session: D
+  decision_cutoff: "18:30:00 Asia/Kolkata"
+  current_base_features_session: D
+  futures_features_session: PREVIOUS_COMPLETED_NSE_SESSION_D_MINUS_1
+  entry: NEXT_COMPLETED_NSE_SESSION_OPEN
+
+upstream:
+  trial: AE001-T005
+  workflow_run_id: 36696476204
+  market_panel_sha256: 9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e
+  corporate_action_ledger_sha256: 1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1
+  current_27_feature_panel_sha256: 99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90
+  t005_37_feature_panel_sha256: 62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f
+
+join:
+  current_identity: symbol_plus_isin
+  previous_session: ORDERED_MARKET_PANEL_PREVIOUS_COMPLETED_SESSION
+  lagged_identity: EXACT_SAME_SYMBOL_PLUS_ISIN_ON_D_MINUS_1
+  missing_lagged_futures_policy: EXCLUDE_NO_IMPUTATION
+
+base_feature_count: 27
+lagged_futures_feature_count: 10
+augmented_feature_count: 37
+
+model:
+  type: ridge
+  l2: 1.0
+  hyperparameter_search: false
+
+source_only_gate:
+  amendment_required_before_outcomes: true
+  minimum_feature_sessions: 150
+  minimum_feature_rows: 30000
+
+primary:
+  horizon_sessions: 5
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-18]
+  newey_west_lag: 4
+  success_requires_all:
+    - paired_mean_rank_ic_delta_gt_0_and_p_lt_0_05
+    - paired_top_minus_bottom_spread_delta_gt_0_and_p_lt_0_05
+
+secondary:
+  horizon_sessions: 1
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-24]
+  newey_west_lag: 5
+  rescues_failed_primary: false
+
+medium_horizon:
+  tested: false
+  reason: T005_20D_UNSUPPORTED
+
+prospective:
+  source_timing_gate: AE001-SC003
+  minimum_distinct_ready_preopen_sessions_before_successor_design: 3
+  historical_t011_prospective_claim_allowed: false
+
+multiple_testing:
+  trial_count_increment: 1
+
+promotion:
+  primary_pass: PROMOTE_CAUSAL_LAGGED_FUTURES_CANDIDATE
+  primary_fail: DO_NOT_RETUNE_UNDER_T011
+  live_capital_directly_allowed: false
