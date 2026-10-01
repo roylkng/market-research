@@ -243,7 +243,7 @@ def _normalized_source_observations(
     dict[str, dict[tuple[str, str], D010Observation]],
     dict[str, dict[str, Any]],
 ]:
-    dates, market_by_symbol, market_by_isin = _market_maps(market_panel)
+    dates, _, market_by_isin = _market_maps(market_panel)
     date_index = {value: index for index, value in enumerate(dates)}
     short_by_day, slb_by_day = _source_maps(
         short_panel=short_panel,
