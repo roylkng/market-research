@@ -119,6 +119,7 @@ def main() -> int:
         "v2_risk_artifact_sha256": sha256_bytes(v2_bytes),
         "v3_risk_artifact_sha256": sha256_bytes(v3_bytes),
         "i002_control_artifact_sha256": sha256_bytes(control_bytes),
+        "treatment_isolation": report["treatment_isolation"],
         "identity": report["identity"],
         "statistical_basis": report["statistical_basis"],
         "complete_identity_idiosyncratic": report[
