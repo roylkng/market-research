@@ -1,0 +1,57 @@
+schema_version: 1
+id: RM001-v3-DEVELOPMENT
+name: transparent_plus_statistical_residual_equity_risk_model
+status: DEVELOPMENT_CHALLENGER
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_model: RM001-v2-DEVELOPMENT
+
+named_factor_names:
+  - MARKET_COMMON
+  - BETA60_RELATIVE
+  - MOMENTUM20
+  - VOLATILITY60
+  - LIQUIDITY
+  - SIZE
+
+statistical_factor_names:
+  - STAT_PC01
+  - STAT_PC02
+  - STAT_PC03
+  - STAT_PC04
+  - STAT_PC05
+
+statistical:
+  source: RM001_V2_REALIZED_RESIDUAL_HISTORY
+  trailing_realized_sessions: 120
+  component_count: 5
+  minimum_complete_current_identities: 500
+  missing_residual_policy: no_imputation
+  current_incomplete_identity_policy: preserve_v2_idio_and_zero_stat_exposures
+  center_each_identity_time_series: true
+  volatility_standardize_identity: false
+  decomposition: svd
+  sign_anchor: largest_abs_loading_then_symbol_isin
+  minimum_adjacent_singular_value_relative_gap: 1.0e-8
+
+covariance:
+  factor_count: 11
+  trailing_realized_sessions: 120
+  estimator: sample_covariance
+  ddof: 1
+  retain_named_stat_cross_covariance: true
+  shrinkage: none
+
+idiosyncratic:
+  complete_stat_history: post_pc_residual_sample_variance_ddof_1
+  incomplete_stat_history: exact_rm001_v2_variance
+  imputation: none
+
+deferred_factors:
+  sector: POINT_IN_TIME_COMPANY_CLASSIFICATION_SOURCE_NOT_FROZEN
+
+promotion:
+  historical_po001_challenger_allowed: true
+  prospective_use_requires_separate_protocol: true
+  live_capital_directly_allowed: false
