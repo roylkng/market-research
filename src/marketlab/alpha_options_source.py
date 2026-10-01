@@ -234,10 +234,11 @@ def parse_fo_udiff_stock_options(
 
     rows = [row for row in rows if row.symbol not in invalid_symbols]
 
-    seen: set[tuple[str, str, float, str, str]] = set()
+    seen_physical: set[tuple[str, str, float, str, str]] = set()
+    logical_instrument: dict[tuple[str, str, float, str], str] = {}
     duplicate_symbols: set[str] = set()
     for row in rows:
-        key = (
+        physical = (
             row.symbol,
             row.expiry_date,
             row.strike_price,
@@ -250,23 +251,18 @@ def parse_fo_udiff_stock_options(
             row.strike_price,
             row.option_type,
         )
-        if key in seen:
+        if physical in seen_physical:
             duplicate_symbols.add(row.symbol)
-        seen.add(key)
-        # More than one instrument ID for one logical option is ambiguous.
-        logical_matches = [
-            other
-            for other in rows
-            if (
-                other.symbol,
-                other.expiry_date,
-                other.strike_price,
-                other.option_type,
-            )
-            == logical
-        ]
-        if len(logical_matches) > 1:
+        seen_physical.add(physical)
+
+        prior_instrument = logical_instrument.get(logical)
+        if (
+            prior_instrument is not None
+            and prior_instrument != row.financial_instrument_id
+        ):
             duplicate_symbols.add(row.symbol)
+        else:
+            logical_instrument[logical] = row.financial_instrument_id
 
     if duplicate_symbols:
         invalid_symbols.update(duplicate_symbols)
