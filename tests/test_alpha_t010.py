@@ -3,8 +3,8 @@ from dataclasses import asdict
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_d010_p4 import D010_DEFINITIONS
+from marketlab.alpha_delivery import DELIVERY_DEFINITIONS
 from marketlab.alpha_futures import FUTURES_DEFINITIONS
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
 from marketlab.alpha_t010 import (
@@ -108,7 +108,7 @@ def test_t010_inner_join_builds_exact_44_feature_row(monkeypatch):
         d010_feature_panel=d010,
     )
     assert panel["feature_row_count"] == 1
-    assert panel["feature_session_count"] if "feature_session_count" in panel else True
+    assert panel["session_count"] == 1
     assert len(panel["feature_definitions"]) == 44
     assert set(panel["rows"][0]["values"]) == set(AUGMENTED44_NAMES)
     assert panel["max_overlapping_base_feature_abs_diff"] == pytest.approx(0.0)
