@@ -179,9 +179,9 @@ def test_sc003_summary_requires_three_distinct_preopen_ready_sessions():
     ledger = new_sc003_ledger()
     sc001 = _sc001()
     targets = [
-        dict(sc001["attempts"][0], session_date="2026-09-29"),
-        dict(sc001["attempts"][0], session_date="2026-09-30"),
         dict(sc001["attempts"][1], session_date="2026-10-01"),
+        dict(sc001["attempts"][1], session_date="2026-10-02"),
+        dict(sc001["attempts"][1], session_date="2026-10-03"),
     ]
     from marketlab.alpha import digest
 
@@ -190,7 +190,7 @@ def test_sc003_summary_requires_three_distinct_preopen_ready_sessions():
         target["attempt_sha256"] = digest(target)
 
     for observation_date, target in zip(
-        ("2026-09-30", "2026-10-01", "2026-10-02"),
+        ("2026-10-02", "2026-10-03", "2026-10-04"),
         targets,
         strict=True,
     ):
