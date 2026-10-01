@@ -44,9 +44,9 @@ def test_parse_short_selling_exact_schema_and_date():
 
 def test_parse_slb_exact_schema():
     raw = (
-        "Sr no,Security,Series,Outstanding Quantity at the end of the day\n"
-        "1,SBIN,EQ,2500\n"
-    ).encode()
+        b"Sr no,Security,Series,Outstanding Quantity at the end of the day\n"
+        b"1,SBIN,EQ,2500\n"
+    )
     rows, header = parse_slb_open_positions(raw)
     assert header == SLB_SCHEMA
     assert rows[0].symbol == "SBIN"
@@ -55,15 +55,15 @@ def test_parse_slb_exact_schema():
 
 def test_identity_mapping_retains_duplicates_without_aggregation():
     short_raw = (
-        "Security Name,Symbol Name,Trade Date,Quantity\n"
-        "STATE BANK OF INDIA,SBIN,25-Sep-2026,100\n"
-        "STATE BANK OF INDIA,SBIN,25-Sep-2026,200\n"
-    ).encode()
+        b"Security Name,Symbol Name,Trade Date,Quantity\n"
+        b"STATE BANK OF INDIA,SBIN,25-Sep-2026,100\n"
+        b"STATE BANK OF INDIA,SBIN,25-Sep-2026,200\n"
+    )
     slb_raw = (
-        "Sr no,Security,Series,Outstanding Quantity at the end of the day\n"
-        "1,SBIN,EQ,300\n"
-        "2,SBIN,EQ,400\n"
-    ).encode()
+        b"Sr no,Security,Series,Outstanding Quantity at the end of the day\n"
+        b"1,SBIN,EQ,300\n"
+        b"2,SBIN,EQ,400\n"
+    )
     short_rows, _ = parse_short_selling(
         short_raw,
         session_date=date(2026, 9, 25),
