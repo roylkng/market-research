@@ -1,5 +1,5 @@
 {
-  "event_count": 34,
+  "event_count": 35,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1616,10 +1616,41 @@
       "recorded_at_utc": "2026-10-01T17:46:26.999480+00:00",
       "seq": 34,
       "trial_id": "AE001-T011"
+    },
+    {
+      "event_sha256": "728c1887c5cd0bc01954d071ea7632ef42c970975e8e855251b9cae5ad085a36",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+        "current27_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+        "excluded_missing_lagged_futures_row_count": 205244,
+        "feature_row_count": 39611,
+        "feature_session_count": 195,
+        "feature_set_sha256": "4a157ede3322bcbb3ac4f4fba4c26e3cbacc6eded3cfaee059c04932c07b206f",
+        "future_source_timing_gate": "AE001-SC003",
+        "historical_previous_session_fo_preopen_timing_verified": false,
+        "lagged37_feature_panel_sha256": "619f81c33a937443b814160774e634764c4e96ff0e37f15339854197ebfdaa74",
+        "live_capital_allowed": false,
+        "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+        "max_copied_futures_abs_diff": 0.0,
+        "model_fit_started_before_amendment": false,
+        "protocol_id": "AE001-T011-P1",
+        "reason": "Freeze exact lagged-futures source panel after source-only materialization and before any T011 return label or model fit.",
+        "return_outcomes_opened_before_amendment": false,
+        "source_artifact_id": 11192142435,
+        "source_artifact_name": "ae001-t011-source-36922295491",
+        "source_report_sha256": "ff00bcefbb9213297796312c6359cdb4a17f7afc897727f27951f3088999b053",
+        "source_run_id": 36922295491,
+        "t005_same_session37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+        "upstream_t005_run_id": 36696476204
+      },
+      "recorded_at_utc": "2026-10-01T20:33:27.556922+00:00",
+      "seq": 35,
+      "trial_id": "AE001-T011"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "665957badea66df7d068959a90aa0b559b04f3436f34f629f74a6d1daa87cee5",
+  "ledger_sha256": "680d28c5b0045d6904fe1c43432c7e5895a8faee1058ce2b6b27ff064579991c",
   "live_capital_allowed": false,
   "schema_version": 1
 }
