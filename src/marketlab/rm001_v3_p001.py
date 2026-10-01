@@ -20,6 +20,7 @@ PORTFOLIO_KEYS = (
     "positive_alpha_proportional_top_decile",
 )
 NAMED_EXPOSURE_TOLERANCE = 1e-12
+NAMED_COVARIANCE_TOLERANCE = 5e-15
 MIN_COMPLETE_STATISTICAL_IDENTITIES = 500
 
 
@@ -204,6 +205,47 @@ def run_rm001_v3_p001(
         raise AlphaContractError(
             "RM001-v3 P001 covariance is not 11x11"
         )
+    if int(v2_risk_state.get("factor_covariance_window") or 0) != 60:
+        raise AlphaContractError(
+            "RM001-v3 P001 parent covariance clock differs from frozen 60"
+        )
+    if (
+        v2_risk_state.get("factor_covariance_first_realized_session")
+        != v3_risk_state.get("factor_covariance_first_realized_session")
+        or v2_risk_state.get("factor_covariance_last_realized_session")
+        != v3_risk_state.get("factor_covariance_last_realized_session")
+    ):
+        raise AlphaContractError(
+            "RM001-v3 P001 named covariance realized-session bounds differ"
+        )
+    v2_covariance = v2_risk_state.get("factor_covariance_daily")
+    if (
+        not isinstance(v2_covariance, list)
+        or len(v2_covariance) != len(FACTOR_NAMES_V2)
+        or any(
+            not isinstance(row, list)
+            or len(row) != len(FACTOR_NAMES_V2)
+            for row in v2_covariance
+        )
+    ):
+        raise AlphaContractError(
+            "RM001-v3 P001 parent covariance is not 6x6"
+        )
+    max_named_covariance_abs_diff = 0.0
+    for row_index in range(len(FACTOR_NAMES_V2)):
+        for column_index in range(len(FACTOR_NAMES_V2)):
+            difference = abs(
+                float(covariance[row_index][column_index])
+                - float(v2_covariance[row_index][column_index])
+            )
+            max_named_covariance_abs_diff = max(
+                max_named_covariance_abs_diff,
+                difference,
+            )
+    if max_named_covariance_abs_diff > NAMED_COVARIANCE_TOLERANCE:
+        raise AlphaContractError(
+            "RM001-v3 P001 named covariance block drift exceeds frozen tolerance"
+        )
 
     v2_rows = _rows(v2_risk_state)
     v3_rows = _rows(v3_risk_state)
@@ -369,6 +411,12 @@ def run_rm001_v3_p001(
         "sealed_i002_artifact_sha256": sealed_i002_artifact[
             "artifact_sha256"
         ],
+        "treatment_isolation": {
+            "named_covariance_max_abs_diff": max_named_covariance_abs_diff,
+            "named_covariance_tolerance": NAMED_COVARIANCE_TOLERANCE,
+            "named_covariance_realized_session_bounds_match": True,
+            "named_covariance_window_match": True,
+        },
         "identity": {
             "v2_security_count": len(v2_rows),
             "v3_security_count": len(v3_rows),
