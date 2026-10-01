@@ -1,0 +1,42 @@
+schema_version: 1
+id: AE001-D010-P4A-v1
+name: sparse_history_rank_stabilization
+status: FROZEN_BEFORE_REMATERIALIZATION
+created: 2026-10-01
+live_capital_allowed: false
+
+trigger:
+  source_only_run_id: 36888897172
+  original_p4_report_sha256: b0548e1fdece6257d86bc16d3fa4a64b337627f406bf94869911dbdf4715b75c
+  return_labels_opened_before_amendment: false
+  model_fit_performed_before_amendment: false
+
+remove:
+  - short_volume_share_zscore_20
+  - slb_outstanding_zscore_20
+
+add:
+  short_volume_share_percentile_20:
+    reference_window: prior_20_source_valid_sessions
+    tie_rule: [count_less_than_current, plus_half_count_equal_current, divided_by_20]
+    bounds: [0.0, 1.0]
+  slb_outstanding_percentile_20:
+    reference_window: prior_20_source_valid_sessions
+    tie_rule: [count_less_than_current, plus_half_count_equal_current, divided_by_20]
+    bounds: [0.0, 1.0]
+
+feature_count:
+  base: 18
+  d010: 7
+  total: 25
+
+unchanged:
+  - short_volume_share_lag1
+  - short_volume_share_change_1
+  - slb_outstanding_days_volume20
+  - slb_outstanding_change_days_volume20
+  - slb_active_series_count
+
+promotion:
+  next_stage: AE001-D010-INCREMENTAL-ALPHA-TRIAL
+  prospective_claim_requires_live_source_timing: true
