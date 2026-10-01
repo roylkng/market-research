@@ -1,0 +1,26 @@
+schema_version: 1
+id: AE001-D010-P3B-v1
+name: lagged_short_selling_historical_identity_audit
+status: FROZEN_BEFORE_FULL_WINDOW_REAUDIT
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: SOURCE_COVERAGE_IDENTITY_NO_RETURN_OUTCOMES
+
+publication_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+timing:
+  filename_session: publication_session_D
+  embedded_trade_date: previous_completed_nse_session_D_minus_1
+
+promotion:
+  minimum_ready_session_fraction: 0.95
+  schema_count_required: 1
+  minimum_trade_date_identity_mapping_fraction: 0.95
+  minimum_publication_session_isin_continuity_fraction: 0.95
+  next_stage: AE001-D010-P4-FEATURE-SEMANTICS
+
+return_labels_opened: false
+model_fit_allowed: false
