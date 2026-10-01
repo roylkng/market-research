@@ -1,14 +1,14 @@
 {
-  "additional_distinct_ready_sessions_needed": 2,
+  "additional_distinct_ready_sessions_needed": 1,
   "analysis_id": "AE001-SC002-PUBLICATION-TIMING-v1",
   "candidate_cutoff_basis_session": null,
   "candidate_cutoff_ist": null,
   "candidate_cutoff_session_offset_days": null,
   "candidate_rule": "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES",
-  "distinct_ready_session_count": 1,
-  "latest_first_ready_at_ist": "2026-09-30T21:09:27.254727+05:30",
+  "distinct_ready_session_count": 2,
+  "latest_first_ready_at_ist": "2026-10-01T22:50:52.481590+05:30",
   "live_capital_allowed": false,
-  "median_first_ready_local_seconds": 76167.254727,
+  "median_first_ready_local_seconds": 79209.8681585,
   "minimum_distinct_ready_sessions": 3,
   "observations": [
     {
@@ -20,14 +20,24 @@
       "futures_raw_sha256": "874f28a682ab426c6bed57ecb9ddaa3c81500e909a6ae675a699d52010d788bc",
       "local_seconds_after_session_midnight": 76167.254727,
       "session_date": "2026-09-30"
+    },
+    {
+      "attempt_seq": 12,
+      "attempt_sha256": "ca3407d5bcd0d746c448c8732e251ec682724a3b165d23ab32c8a360f3818dc8",
+      "captured_at_ist": "2026-10-01T22:50:52.481590+05:30",
+      "captured_at_utc": "2026-10-01T17:20:52.481590+00:00",
+      "eligible_before_1830": false,
+      "futures_raw_sha256": "d44a052b79a3961910f74783960ebbd5043696dbed39e7fb86ec84929fd60338",
+      "local_seconds_after_session_midnight": 82252.48159,
+      "session_date": "2026-10-01"
     }
   ],
   "rounding_minutes": 15,
   "safety_buffer_minutes": 30,
   "schema_version": 1,
-  "source_ledger_sha256": "e1582bf43356878671b6144cb00ad53aa639f89520bcbef04c7b0da91ba7c309",
+  "source_ledger_sha256": "e5b4f4681f66e4f5e18c58509715bef20380f5c633e479dc6c83b3e1e58107f9",
   "state": "INSUFFICIENT_EVIDENCE",
   "successor_trial_cutoff_frozen": false,
-  "summary_sha256": "7f86e62cf3b63e645acb0c6a738968cf7061a17ba3bcdab821c00d7e8eed8fb8",
+  "summary_sha256": "af7b1412eff3238c2a1b2e5b9b1296999f231a66742f588d2dc79ff653e82b42",
   "uses_stock_return_or_alpha_outcomes": false
 }
