@@ -8,7 +8,6 @@ from marketlab.alpha_d010_p4 import (
     SHORT_P3B_REPORT_SHA256,
     SLB_P3_REPORT_SHA256,
     augment_feature_panel_with_d010,
-    d010_features,
     summarize_p4,
 )
 from marketlab.alpha_snapshot import PRICE_VOLUME_DEFINITIONS
@@ -227,7 +226,7 @@ def test_d010_p4_builds_exact_seven_features_on_common_base_row():
     assert panel["feature_row_count"] == 1
     assert len(panel["feature_definitions"]) == 25
     row = panel["rows"][0]
-    assert set(definition.name for definition in D010_DEFINITIONS).issubset(
+    assert {definition.name for definition in D010_DEFINITIONS}.issubset(
         row["values"]
     )
     assert row["values"]["short_volume_share_lag1"] == pytest.approx(0.071)
