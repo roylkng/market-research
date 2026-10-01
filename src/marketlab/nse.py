@@ -46,6 +46,10 @@ class NSEClient:
         "corporate_announcements", f"{BASE_URL}/api/corporate-announcements"
     )
     HOLIDAY_ENDPOINT = NSEEndpoint("trading_holidays", f"{BASE_URL}/api/holiday-master")
+    DAILY_REPORTS_ENDPOINT = NSEEndpoint(
+        "daily_reports",
+        f"{BASE_URL}/api/daily-reports",
+    )
     NIFTY200_CONSTITUENT_CSV = (
         "https://archives.nseindia.com/content/indices/ind_nifty200list.csv"
     )
@@ -144,6 +148,18 @@ class NSEClient:
         if not response.content:
             raise NSEAcquisitionError("NSE Nifty 200 constituent CSV returned empty bytes")
         return response.content
+
+    def daily_reports_with_raw(
+        self,
+        key: str,
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact NSE Daily Reports discovery metadata bytes."""
+        if not key or not key.strip():
+            raise NSEAcquisitionError("NSE daily-reports key is required")
+        return self._json_get_with_raw(
+            self.DAILY_REPORTS_ENDPOINT,
+            params={"key": key.strip()},
+        )
 
     def quote_equity(self, symbol: str) -> dict[str, Any]:
         payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
