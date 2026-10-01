@@ -1,0 +1,65 @@
+{
+  "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION",
+  "name": "nse_stock_options_positioning_incremental_feature_family",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+  "predecessor_source_diagnostic": "AE001-D006-v1",
+  "d006_report_sha256": "4aaa0fb2166c5093eb7e23b16b72ceccd19c7eb5ab3b441528160fe527a965c6",
+  "source_window": [
+    "2025-09-01",
+    "2026-09-25"
+  ],
+  "base_feature_count": 37,
+  "option_feature_count": 10,
+  "augmented_feature_count": 47,
+  "model": {
+    "type": "ridge",
+    "l2": 1
+  },
+  "primary": {
+    "horizon_sessions": 5,
+    "folds": [
+      [
+        "2026-04-01",
+        "2026-06-30"
+      ],
+      [
+        "2026-07-01",
+        "2026-09-18"
+      ]
+    ],
+    "newey_west_lag": 4
+  },
+  "secondary": {
+    "horizon_sessions": 1,
+    "folds": [
+      [
+        "2026-04-01",
+        "2026-06-30"
+      ],
+      [
+        "2026-07-01",
+        "2026-09-24"
+      ]
+    ],
+    "newey_west_lag": 5,
+    "rescues_failed_primary": false
+  },
+  "diagnostic": {
+    "horizon_sessions": 20,
+    "folds": [
+      [
+        "2026-04-01",
+        "2026-06-30"
+      ],
+      [
+        "2026-07-01",
+        "2026-08-27"
+      ]
+    ],
+    "newey_west_lag": 19,
+    "rescues_failed_primary": false
+  },
+  "historical_fo_publication_timestamp_verified": false,
+  "outcomes_for_t009_opened_before_registration": false,
+  "live_capital_allowed": false
+}

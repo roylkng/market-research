@@ -1,5 +1,5 @@
 {
-  "event_count": 26,
+  "event_count": 30,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1066,10 +1066,250 @@
       "recorded_at_utc": "2026-09-30T19:21:10.362286+00:00",
       "seq": 26,
       "trial_id": "AE001-T008"
+    },
+    {
+      "event_sha256": "156e0e59d689d8196acb3aa256fd3e88eb384ad76b5e4bf68a5db8dad64b5ca4",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "augmented_feature_count": 47,
+        "base_feature_count": 37,
+        "d006_report_sha256": "4aaa0fb2166c5093eb7e23b16b72ceccd19c7eb5ab3b441528160fe527a965c6",
+        "diagnostic": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-08-27"
+            ]
+          ],
+          "horizon_sessions": 20,
+          "newey_west_lag": 19,
+          "rescues_failed_primary": false
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "historical_fo_publication_timestamp_verified": false,
+        "live_capital_allowed": false,
+        "model": {
+          "l2": 1,
+          "type": "ridge"
+        },
+        "name": "nse_stock_options_positioning_incremental_feature_family",
+        "option_feature_count": 10,
+        "outcomes_for_t009_opened_before_registration": false,
+        "predecessor_source_diagnostic": "AE001-D006-v1",
+        "primary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "horizon_sessions": 5,
+          "newey_west_lag": 4
+        },
+        "secondary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "rescues_failed_primary": false
+        },
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ],
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+      },
+      "recorded_at_utc": "2026-10-01T04:06:00+00:00",
+      "seq": 27,
+      "trial_id": "AE001-T009"
+    },
+    {
+      "event_sha256": "dbaa9ec9ad5b2fafa641a9e96b016466829ae3ddf88ab9cebfaa7f84fb5abb9c",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "action_safe_feature_panel_sha256": "300c45cc6cd5f3e0b37dc419c2d6250317175f367bd74757f1ad45b4a4af63c8",
+        "augmented_47_feature_panel_sha256": "e1e30b94f86aa459bd422b1815701d1eda61e7d6fc7a2736dcf4227c698cba1e",
+        "base_37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+        "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+        "delivery_augmented_feature_panel_sha256": "99c0c34da30a9318c428d44d68d23360c7588a618e54cad80acde22a959c2e90",
+        "exclusion_counts": {
+          "NONPOSITIVE_PAIRED_PRIOR_OI": 18
+        },
+        "futures_panel_sha256": "02656c828a1d5fe22660c154a445ebd69a7492b56f1807da0d8c959a6f0c11d5",
+        "historical_fo_publication_timestamp_verified": false,
+        "live_capital_allowed": false,
+        "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+        "model_fit_started_before_amendment": false,
+        "option_complete_feature_row_count": 39811,
+        "option_complete_session_count": 196,
+        "options_panel_sha256": "e621da419f3562acf8737b00c7acd25199b70c9280d7c3872e331391e23d3912",
+        "options_parser_rejected_session_count": 0,
+        "options_ready_session_count": 266,
+        "options_source_hashes_sha256": "edf21ed30ea4021a82118c8699f1a7470442bcee29155810772a09c4b24bc6dc",
+        "options_unavailable_session_count": 0,
+        "outcomes_opened_before_amendment": false,
+        "protocol_id": "AE001-T009-P1",
+        "reason": "Freeze exact source/materialization hashes after source-only T009 run and before any future-return label or model fit.",
+        "source_artifact_name": "ae001-t009-source-36821482949",
+        "source_run_id": 36821482949
+      },
+      "recorded_at_utc": "2026-10-01T06:16:54.744433+00:00",
+      "seq": 28,
+      "trial_id": "AE001-T009"
+    },
+    {
+      "event_sha256": "77ce291d9906c943472dc66bdd2702d186a86f617b677119fcd66b7dcb25d09e",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "all_unlearnable_fold_policy": "FAIL_CLOSED",
+        "augmented_47_features_changed": false,
+        "base_37_features_changed": false,
+        "failed_outcome_run_id": 36824004775,
+        "failed_run_report_emitted": false,
+        "failed_run_result_event_recorded": false,
+        "failure_class": "AUXILIARY_SINGLE_FEATURE_DIAGNOSTIC_UNDEFINED",
+        "failure_feature": "opt_front_log1p_days_to_expiry",
+        "folds_changed": false,
+        "labels_changed": false,
+        "live_capital_allowed": false,
+        "multivariate_ridge_feature_retained": true,
+        "p1_source_hashes_changed": false,
+        "primary_success_criteria_changed": false,
+        "prospective_claim_allowed": false,
+        "protocol_id": "AE001-T009-P2",
+        "reason": "Freeze non-blocking handling for undefined auxiliary single-feature training rank IC after failed run 36824004775 and before any retry.",
+        "repair_scope": "SIGNED_SINGLE_FEATURE_DIAGNOSTICS_ONLY",
+        "ridge_l2_changed": false,
+        "unlearnable_feature_direction": null,
+        "unlearnable_feature_eligible_for_best_single_selection": false,
+        "unlearnable_feature_oos_prediction_emitted": false,
+        "unlearnable_feature_status": "UNAVAILABLE_TRAINING_RANK_IC"
+      },
+      "recorded_at_utc": "2026-10-01T07:06:50.327653+00:00",
+      "seq": 29,
+      "trial_id": "AE001-T009"
+    },
+    {
+      "event_sha256": "173a4e152122022b75dea0ec0b0aee1ade57c20beaa09bf3e70841ccd8acf875",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "diagnostic_20d": {
+          "augmented_mean_rank_ic": -0.0180745638800206,
+          "augmented_mean_top_decile_excess": -0.0014967749399843787,
+          "augmented_mean_top_minus_bottom_spread": -0.008535923459194175,
+          "base_mean_rank_ic": -0.02519577342975674,
+          "base_mean_top_decile_excess": 0.0008235573185565784,
+          "base_mean_top_minus_bottom_spread": -0.005694123814583098,
+          "delta_mean_rank_ic": 0.007121209549736136,
+          "delta_mean_top_decile_excess": -0.0023203322585409578,
+          "delta_mean_top_minus_bottom_spread": -0.002841799644611077,
+          "delta_rank_ic_p_value": 0.4098065549170568,
+          "delta_top_decile_excess_p_value": 0.13219101442418374,
+          "delta_top_minus_bottom_spread_p_value": 0.46070289867768693,
+          "incremental_signal_supported": false,
+          "prediction_count": 20927,
+          "rescues_failed_primary": false,
+          "session_count": 102
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "failed_initial_outcome_run": {
+          "failure_class": "AUXILIARY_SINGLE_FEATURE_DIAGNOSTIC_UNDEFINED",
+          "failure_feature": "opt_front_log1p_days_to_expiry",
+          "repaired_by_protocol": "AE001-T009-P2",
+          "report_emitted": false,
+          "result_event_recorded": false,
+          "run_id": 36824004775
+        },
+        "historical_fo_publication_timestamp_verified": false,
+        "interpretation": "PRIMARY_5D_NOT_SUPPORTED; SECONDARY_1D_NOT_SUPPORTED; 20D_DIAGNOSTIC_NOT_SUPPORTED; FROZEN_OPTIONS_FEATURE_FAMILY_DOES_NOT_ADD_CLEAR_INCREMENTAL_INFORMATION_BEYOND_T005_FUTURES; DO_NOT_PROMOTE_T009_TO_AB001; DO_NOT_RETUNE_UNDER_T009; NEW_TRIAL_REQUIRED_FOR_ANY_REVISED_OPTIONS_SIGNAL; HISTORICAL_FO_PUBLICATION_TIMING_UNVERIFIED; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+        "live_capital_allowed": false,
+        "options_source": {
+          "exclusion_counts": {
+            "NONPOSITIVE_PAIRED_PRIOR_OI": 18
+          },
+          "option_complete_feature_row_count": 39811,
+          "option_complete_session_count": 196
+        },
+        "primary_5d": {
+          "augmented_mean_rank_ic": 0.023382371111833545,
+          "augmented_mean_top_decile_excess": 0.0010225958214923406,
+          "augmented_mean_top_minus_bottom_spread": 0.003046764556700206,
+          "base_mean_rank_ic": 0.021615146788710755,
+          "base_mean_top_decile_excess": 0.0011131105028811933,
+          "base_mean_top_minus_bottom_spread": 0.003930056242513635,
+          "delta_mean_rank_ic": 0.00176722432312279,
+          "delta_mean_top_decile_excess": -9.051468138885286e-05,
+          "delta_mean_top_minus_bottom_spread": -0.0008832916858134294,
+          "delta_rank_ic_p_value": 0.768804945272528,
+          "delta_top_decile_excess_p_value": 0.8872359638818635,
+          "delta_top_minus_bottom_spread_p_value": 0.4921527895611548,
+          "frozen_success_criteria_supported": false,
+          "incremental_signal_supported": false,
+          "prediction_count": 23071,
+          "session_count": 112
+        },
+        "promote_to_ab001": false,
+        "prospective_claim_allowed": false,
+        "report_artifact_sha256": "fd3f0412cc37f6851aeea9bf299b1485983f1510d942ac3d2dac1f299b82c634",
+        "report_sha256": "c5b7cc8d6adc0f82ea7524084fce78a3b97b8de62d5e59f73d0334e6ce916611",
+        "result_file": "research/ae001-t009-result-v1.json",
+        "result_sha256": "315e35e12df4a38403444e6df8079a9aab92e70e4d65046295c98705ffdd61df",
+        "secondary_1d": {
+          "augmented_mean_rank_ic": 0.06259087485589056,
+          "augmented_mean_top_decile_excess": 0.00103099384036295,
+          "augmented_mean_top_minus_bottom_spread": 0.00281882353914627,
+          "base_mean_rank_ic": 0.05846164043306666,
+          "base_mean_top_decile_excess": 0.0011513442743847576,
+          "base_mean_top_minus_bottom_spread": 0.002667388345126356,
+          "delta_mean_rank_ic": 0.004129234422823894,
+          "delta_mean_top_decile_excess": -0.00012035043402180752,
+          "delta_mean_top_minus_bottom_spread": 0.00015143519401991412,
+          "delta_rank_ic_p_value": 0.2874605312561416,
+          "delta_top_decile_excess_p_value": 0.6206129423561687,
+          "delta_top_minus_bottom_spread_p_value": 0.6763131336126711,
+          "incremental_signal_supported": false,
+          "prediction_count": 23080,
+          "rescues_failed_primary": false,
+          "session_count": 112
+        },
+        "source_chain": {
+          "augmented_47_feature_panel_sha256": "e1e30b94f86aa459bd422b1815701d1eda61e7d6fc7a2736dcf4227c698cba1e",
+          "base_37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+          "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+          "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+          "options_panel_sha256": "e621da419f3562acf8737b00c7acd25199b70c9280d7c3872e331391e23d3912",
+          "options_source_hashes_sha256": "edf21ed30ea4021a82118c8699f1a7470442bcee29155810772a09c4b24bc6dc"
+        },
+        "status": "COMPLETE_DEVELOPMENT",
+        "successful_run": {
+          "artifact_id": 11147065650,
+          "artifact_name": "ae001-t009-p2-replay-36829163944",
+          "run_id": 36829163944
+        }
+      },
+      "recorded_at_utc": "2026-10-01T07:19:15.022310+00:00",
+      "seq": 30,
+      "trial_id": "AE001-T009"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "1a96386d59050ac90470378bf3caac97e6feb7d3466b5dcd70c5319d0c8c7527",
+  "ledger_sha256": "7e6a7e36ce2f7df93c590013101c646df197ebe491567aa0eadca29b20d99948",
   "live_capital_allowed": false,
   "schema_version": 1
 }
