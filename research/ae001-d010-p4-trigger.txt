@@ -10,3 +10,8 @@ Do not add [ae001-d010-p4] until ordinary implementation CI passes.
 
 P4 materialization opened after full implementation CI success on 2026-10-01.
 No return labels or predictive models are permitted in this run.
+
+P4A rematerialization after source-only numerical-stability audit.
+Replaces only the two unstable 20-session z-scores with frozen bounded
+tie-aware prior-20 percentiles. No return labels or model fit were opened before
+this amendment.
