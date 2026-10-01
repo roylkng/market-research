@@ -1,0 +1,22 @@
+schema_version: 1
+id: AE001-D010-P0-v1
+name: cash_short_borrow_flow_source_discovery
+status: FROZEN_BEFORE_SOURCE_PROBE
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: SOURCE_DISCOVERY_NO_RETURN_OUTCOMES
+
+probe_sessions:
+  - 2026-09-25
+  - 2026-09-24
+  - 2025-09-01
+
+source_families:
+  - CM_SHORT_SELLING
+  - SLB_DAILY_OPEN_POSITIONS
+
+promotion:
+  required_ready_probe_sessions_per_family: 3
+  next_stage: AE001-D010-P1-HISTORICAL-COVERAGE
+  predictive_model_fit_allowed: false
