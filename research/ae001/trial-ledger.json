@@ -1,5 +1,5 @@
 {
-  "event_count": 28,
+  "event_count": 29,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1172,10 +1172,42 @@
       "recorded_at_utc": "2026-10-01T06:16:54.744433+00:00",
       "seq": 28,
       "trial_id": "AE001-T009"
+    },
+    {
+      "event_sha256": "77ce291d9906c943472dc66bdd2702d186a86f617b677119fcd66b7dcb25d09e",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "all_unlearnable_fold_policy": "FAIL_CLOSED",
+        "augmented_47_features_changed": false,
+        "base_37_features_changed": false,
+        "failed_outcome_run_id": 36824004775,
+        "failed_run_report_emitted": false,
+        "failed_run_result_event_recorded": false,
+        "failure_class": "AUXILIARY_SINGLE_FEATURE_DIAGNOSTIC_UNDEFINED",
+        "failure_feature": "opt_front_log1p_days_to_expiry",
+        "folds_changed": false,
+        "labels_changed": false,
+        "live_capital_allowed": false,
+        "multivariate_ridge_feature_retained": true,
+        "p1_source_hashes_changed": false,
+        "primary_success_criteria_changed": false,
+        "prospective_claim_allowed": false,
+        "protocol_id": "AE001-T009-P2",
+        "reason": "Freeze non-blocking handling for undefined auxiliary single-feature training rank IC after failed run 36824004775 and before any retry.",
+        "repair_scope": "SIGNED_SINGLE_FEATURE_DIAGNOSTICS_ONLY",
+        "ridge_l2_changed": false,
+        "unlearnable_feature_direction": null,
+        "unlearnable_feature_eligible_for_best_single_selection": false,
+        "unlearnable_feature_oos_prediction_emitted": false,
+        "unlearnable_feature_status": "UNAVAILABLE_TRAINING_RANK_IC"
+      },
+      "recorded_at_utc": "2026-10-01T07:06:50.327653+00:00",
+      "seq": 29,
+      "trial_id": "AE001-T009"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "763f1c3bd5e0e9c94a24873c9984c29d1b4f7f1492472d37a01dc5656bbfb616",
+  "ledger_sha256": "4f89e69d7dd37941153998e08d56c5af826c51b6b002bf250f06824b5f6687fb",
   "live_capital_allowed": false,
   "schema_version": 1
 }
