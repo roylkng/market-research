@@ -421,13 +421,11 @@ def build_rm001_v3_risk_state(
                 exposures[STAT_FACTOR_NAMES[index]] = _q(
                     vector[index]
                 )
-            for index in range(component_count, len(STAT_FACTOR_NAMES)):
-                exposures[STAT_FACTOR_NAMES[index]] = 0.0
             idio_variance = idio_by_identity[identity]
             stat_status = "STAT_COMPLETE_120"
         else:
             fallback_count += 1
-            for factor in STAT_FACTOR_NAMES:
+            for factor in STAT_FACTOR_NAMES[:component_count]:
                 exposures[factor] = 0.0
             idio_variance = _q(
                 parent["idiosyncratic_variance_daily"]
