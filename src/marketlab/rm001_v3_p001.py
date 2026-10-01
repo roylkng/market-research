@@ -20,6 +20,7 @@ PORTFOLIO_KEYS = (
     "positive_alpha_proportional_top_decile",
 )
 NAMED_EXPOSURE_TOLERANCE = 1e-12
+MIN_COMPLETE_STATISTICAL_IDENTITIES = 500
 
 
 def _verify_hash(
@@ -179,7 +180,9 @@ def run_rm001_v3_p001(
         raise AlphaContractError(
             "RM001-v3 P001 idiosyncratic clock differs from frozen 60"
         )
-    if int(v3_risk_state.get("complete_statistical_identity_count") or 0) < 500:
+    if int(
+        v3_risk_state.get("complete_statistical_identity_count") or 0
+    ) < MIN_COMPLETE_STATISTICAL_IDENTITIES:
         raise AlphaContractError(
             "RM001-v3 P001 complete statistical universe below frozen gate"
         )
