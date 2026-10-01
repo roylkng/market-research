@@ -68,9 +68,10 @@ def main() -> int:
         "identity_overlap": report["identity_overlap"],
         "idiosyncratic": report["idiosyncratic"],
         "factor_daily_variances": report["factor_daily_variances"],
-        "sealed_i002_portfolio_risk": report[
-            "sealed_i002_portfolio_risk"
+        "sealed_i002_preserved_portfolio_risk": report[
+            "sealed_i002_preserved_portfolio_risk"
         ],
+        "control_resolution": report["control_resolution"],
         "interpretation_limits": report["interpretation_limits"],
         "live_capital_allowed": False,
     }
