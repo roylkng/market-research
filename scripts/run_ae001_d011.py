@@ -5,6 +5,8 @@ import json
 import time
 from pathlib import Path
 
+import requests
+
 from marketlab.alpha import digest
 from marketlab.alpha_d011 import (
     D011_REPORT_DATES,
@@ -44,6 +46,25 @@ def _write_json(path: Path, payload: object) -> None:
         )
         + "\n",
         encoding="utf-8",
+    )
+
+
+def _open_master_session(
+    *,
+    timeout: float,
+    attempts: int,
+):
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            return master_session(timeout)
+        except requests.RequestException as exc:
+            last_error = exc
+        if attempt < attempts:
+            time.sleep(min(2**attempt, 8))
+    raise H023AcquisitionError(
+        f"NSE master session warm-up failed after {attempts} attempts: "
+        f"{last_error}"
     )
 
 
@@ -96,7 +117,10 @@ def main() -> int:
     master_raw_dir.mkdir(parents=True, exist_ok=True)
     xbrl_raw_dir.mkdir(parents=True, exist_ok=True)
 
-    master_client = master_session(args.timeout_seconds)
+    master_client = _open_master_session(
+        timeout=args.timeout_seconds,
+        attempts=args.attempts,
+    )
     master_status = {}
     sources_by_symbol = {}
 
