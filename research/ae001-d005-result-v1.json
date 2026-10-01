@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D005-v1",
+  "status": "FAILED_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_FEASIBILITY_NO_OUTCOMES",
+  "successful_run": {
+    "run_id": 36809535891,
+    "artifact_id": 11139313164,
+    "artifact_name": "ae001-d005-36809535891"
+  },
+  "report_sha256": "88c609636120983e9954de9c0e68d88b4150a3e1de368513d58b501d24e45b7e",
+  "report_artifact_sha256": "979c9729b3acc8aafcb65807f0011917e8cec0b93b699875829542f5c22ba5e3",
+  "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+  "source_hashes_sha256": "edf21ed30ea4021a82118c8699f1a7470442bcee29155810772a09c4b24bc6dc",
+  "session_count": 266,
+  "ready_session_count": 266,
+  "unavailable_session_count": 0,
+  "parser_rejected_session_count": 0,
+  "total_stock_option_row_count": 8847309,
+  "usable_symbol_distribution": {
+    "minimum": 0,
+    "p10": 13.0,
+    "median": 199.5,
+    "p90": 209.0,
+    "maximum": 213
+  },
+  "viability_gates": {
+    "parser_rejected_sessions_zero": true,
+    "ready_sessions_at_least_200": true,
+    "median_usable_symbols_at_least_100": true,
+    "p10_usable_symbols_at_least_75": false
+  },
+  "all_viability_gates_passed": false,
+  "d1_failure_diagnostic": {
+    "run_id": 36810645464,
+    "low_coverage_session_count_lt_75": 54,
+    "low_coverage_month_counts": {
+      "2025-09": 7,
+      "2026-04": 10,
+      "2026-05": 9,
+      "2026-06": 6,
+      "2026-07": 8,
+      "2026-08": 8,
+      "2026-09": 6
+    },
+    "representative_low_sessions": [
+      {
+        "session_date": "2026-04-27",
+        "stock_option_row_count": 43773,
+        "invalid_symbol_count": 213,
+        "accepted_contract_row_count": 0,
+        "usable_symbol_count": 0
+      },
+      {
+        "session_date": "2026-05-25",
+        "stock_option_row_count": 39215,
+        "invalid_symbol_count": 209,
+        "accepted_contract_row_count": 0,
+        "usable_symbol_count": 0
+      },
+      {
+        "session_date": "2026-06-29",
+        "stock_option_row_count": 40048,
+        "invalid_symbol_count": 211,
+        "accepted_contract_row_count": 0,
+        "usable_symbol_count": 0
+      },
+      {
+        "session_date": "2026-09-25",
+        "stock_option_row_count": 30807,
+        "invalid_symbol_count": 204,
+        "accepted_contract_row_count": 691,
+        "usable_symbol_count": 6
+      }
+    ]
+  },
+  "interpretation": {
+    "d005_passed": false,
+    "options_market_broad_median_coverage_exists": true,
+    "low_tail_failure_is_dominated_by_whole_symbol_invalidation": true,
+    "d005_may_not_be_reinterpreted_as_passed": true,
+    "new_source_contract_required": "AE001-D006",
+    "d006_may_test_row_level_invalid_contract_exclusion": true
+  },
+  "future_returns_opened": false,
+  "model_fit_started": false,
+  "prospective_claim_allowed": false,
+  "live_capital_allowed": false
+}

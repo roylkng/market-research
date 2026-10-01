@@ -1,0 +1,33 @@
+schema_version: 1
+id: AE001-D005-v1
+name: stock_options_source_feasibility
+status: FROZEN_BEFORE_SOURCE_AUDIT
+created: 2026-10-01
+live_capital_allowed: false
+
+window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+source:
+  provider: NSE
+  report: F&O UDiFF Common Bhavcopy Final
+  instrument_type: STO
+  option_types: [CE, PE]
+
+surface:
+  expiry: earliest_strictly_future_expiry
+  minimum_paired_strikes: 3
+  maximum_nearest_paired_strike_abs_moneyness: 0.10
+  same_session_cash_identity: symbol_plus_isin
+
+viability:
+  parser_rejected_sessions_max: 0
+  ready_sessions_min: 200
+  median_usable_symbols_min: 100
+  p10_usable_symbols_min: 75
+
+outcomes:
+  labels_created: false
+  model_fit_allowed: false
+  future_returns_opened: false
