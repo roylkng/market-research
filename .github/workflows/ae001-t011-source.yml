@@ -1,0 +1,238 @@
+name: AE001 T011 source-only freeze
+
+on:
+  push:
+    branches:
+      - feat/ae001-t011-lagged-futures-20261001
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  source:
+    if: contains(github.event.head_commit.message, '[ae001-t011-source]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T011 registration and source-only implementation
+        run: |
+          ruff check \
+            src/marketlab/alpha_t011.py \
+            scripts/build_ae001_t011_source.py \
+            tests/test_alpha_t011.py
+          pytest -q tests/test_alpha_t011.py
+          python - <<'PY'
+          import json
+          from marketlab.alpha_trials import trial_state, validate_trial_ledger
+
+          ledger = json.load(open("research/ae001/trial-ledger.json"))
+          validate_trial_ledger(ledger)
+          state = trial_state(ledger, "AE001-T011")
+          if state["registration"]["payload"]["status"] != "FROZEN_BEFORE_RETURN_OUTCOMES":
+              raise SystemExit("T011 registration status changed")
+          if state["result_count"] != 0:
+              raise SystemExit("T011 outcome already exists")
+          if any(
+              event["payload"].get("protocol_id") == "AE001-T011-P1"
+              for event in state["amendments"]
+          ):
+              raise SystemExit("T011-P1 already exists")
+          print("T011 source-only gate: READY")
+          PY
+
+      - name: Download sealed T005 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ae001-t005-36696476204
+          path: evidence/t005
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36696476204
+
+      - name: Materialize exact T011 lagged-futures panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          MARKET="$(find evidence/t005 -name market-panel.json.gz -print -quit)"
+          ACTION="$(find evidence/t005 -name corporate-action-ledger.json.gz -print -quit)"
+          CURRENT27="$(find evidence/t005 -name delivery-feature-panel.json.gz -print -quit)"
+          T005="$(find evidence/t005 -name futures-feature-panel.json.gz -print -quit)"
+          test -n "$MARKET"
+          test -n "$ACTION"
+          test -n "$CURRENT27"
+          test -n "$T005"
+          python scripts/build_ae001_t011_source.py \
+            --market-panel "$MARKET" \
+            --action-ledger "$ACTION" \
+            --current27-panel "$CURRENT27" \
+            --t005-panel "$T005" \
+            --output reports/ae001-t011/source
+          cat reports/ae001-t011/source/manifest.json
+          cat reports/ae001-t011/source/source-report.json
+
+      - name: Upload exact T011 source-only evidence
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t011-source-${{ github.run_id }}
+          path: reports/ae001-t011/source
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Freeze exact source hashes as T011-P1
+        env:
+          PYTHONPATH: src
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          SOURCE_ARTIFACT_NAME: ae001-t011-source-${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          manifest = json.load(open("reports/ae001-t011/source/manifest.json"))
+          report = json.load(open("reports/ae001-t011/source/source-report.json"))
+          if manifest["status"] != "READY_FOR_P1_SOURCE_FREEZE":
+              raise SystemExit(f"T011 source sample failed: {manifest['status']}")
+          if manifest["return_labels_opened"] is not False:
+              raise SystemExit("T011 source unexpectedly opened returns")
+          if manifest["model_fit_performed"] is not False:
+              raise SystemExit("T011 source unexpectedly fit model")
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+          state = trial_state(ledger, "AE001-T011")
+          if state["result_count"] != 0:
+              raise SystemExit("T011 outcome already exists")
+
+          payload = {
+              "protocol_id": "AE001-T011-P1",
+              "reason": (
+                  "Freeze exact lagged-futures source panel after source-only "
+                  "materialization and before any T011 return label or model fit."
+              ),
+              "source_run_id": int(os.environ["SOURCE_RUN_ID"]),
+              "source_artifact_id": int(os.environ["SOURCE_ARTIFACT_ID"]),
+              "source_artifact_name": os.environ["SOURCE_ARTIFACT_NAME"],
+              "upstream_t005_run_id": 36696476204,
+              "market_panel_sha256": manifest["market_panel_sha256"],
+              "corporate_action_ledger_sha256": manifest[
+                  "corporate_action_ledger_sha256"
+              ],
+              "current27_feature_panel_sha256": manifest[
+                  "current27_feature_panel_sha256"
+              ],
+              "t005_same_session37_feature_panel_sha256": manifest[
+                  "t005_same_session37_feature_panel_sha256"
+              ],
+              "lagged37_feature_panel_sha256": manifest[
+                  "lagged37_feature_panel_sha256"
+              ],
+              "feature_set_sha256": manifest["feature_set_sha256"],
+              "feature_session_count": manifest["feature_session_count"],
+              "feature_row_count": manifest["feature_row_count"],
+              "excluded_missing_lagged_futures_row_count": manifest[
+                  "excluded_missing_lagged_futures_row_count"
+              ],
+              "max_copied_futures_abs_diff": manifest[
+                  "max_copied_futures_abs_diff"
+              ],
+              "source_report_sha256": report["report_sha256"],
+              "model_fit_started_before_amendment": False,
+              "return_outcomes_opened_before_amendment": False,
+              "historical_previous_session_fo_preopen_timing_verified": False,
+              "future_source_timing_gate": "AE001-SC003",
+              "live_capital_allowed": False,
+          }
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_PROTOCOL_AMENDED",
+              trial_id="AE001-T011",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          result = {
+              "schema_version": 1,
+              "trial_id": "AE001-T011",
+              "stage": "SOURCE_ONLY_PRE_OUTCOME",
+              "status": "READY_FOR_OUTCOME",
+              **{
+                  key: payload[key]
+                  for key in (
+                      "source_run_id",
+                      "source_artifact_id",
+                      "source_artifact_name",
+                      "market_panel_sha256",
+                      "corporate_action_ledger_sha256",
+                      "current27_feature_panel_sha256",
+                      "t005_same_session37_feature_panel_sha256",
+                      "lagged37_feature_panel_sha256",
+                      "feature_session_count",
+                      "feature_row_count",
+                      "excluded_missing_lagged_futures_row_count",
+                      "max_copied_futures_abs_diff",
+                      "source_report_sha256",
+                  )
+              },
+              "p1_event_sha256": updated["events"][-1]["event_sha256"],
+              "trial_ledger_sha256": updated["ledger_sha256"],
+              "return_labels_opened": False,
+              "model_fit_performed": False,
+              "live_capital_allowed": False,
+          }
+          Path("research/ae001-t011-source-result-v1.json").write_text(
+              json.dumps(
+                  result,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(result, sort_keys=True))
+          PY
+
+      - name: Commit frozen P1 source state
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add \
+            research/ae001/trial-ledger.json \
+            research/ae001-t011-source-result-v1.json
+          git commit -m "research: freeze exact AE001 T011 source state P1 [skip ci]"
+          git push origin HEAD:feat/ae001-t011-lagged-futures-20261001
