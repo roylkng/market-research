@@ -1,5 +1,5 @@
 {
-  "event_count": 32,
+  "event_count": 33,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1440,10 +1440,92 @@
       "recorded_at_utc": "2026-10-01T17:36:48.831305+00:00",
       "seq": 32,
       "trial_id": "AE001-T010"
+    },
+    {
+      "event_sha256": "360858a862e5e65e844391e712498613a00b52786394f933df07fa02fd37d369",
+      "event_type": "TRIAL_RESULT_RECORDED",
+      "payload": {
+        "diagnostic_20d": {
+          "augmented_mean_rank_ic": -0.006809450203346179,
+          "augmented_mean_top_decile_excess": 0.0005591132997781104,
+          "augmented_mean_top_minus_bottom_spread": -0.003564201564544708,
+          "base_mean_rank_ic": -0.022548346723699535,
+          "base_mean_top_decile_excess": -0.0012381188185734983,
+          "base_mean_top_minus_bottom_spread": -0.006811645962714774,
+          "delta_mean_rank_ic": 0.015738896520353356,
+          "delta_mean_top_decile_excess": 0.0017972321183516082,
+          "delta_mean_top_minus_bottom_spread": 0.003247444398170066,
+          "delta_rank_ic_p_value": 3.142524462262087e-06,
+          "delta_top_decile_excess_p_value": 0.27562101443133885,
+          "delta_top_minus_bottom_spread_p_value": 0.11416240687010373,
+          "prediction_count": 20940,
+          "rescues_failed_primary": false,
+          "session_count": 102
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED",
+        "future_source_timing_gate": "AE001-SC004",
+        "historical_short_slb_publication_timestamp_verified": false,
+        "interpretation": "PRIMARY_5D_NOT_SUPPORTED; DO_NOT_PROMOTE_T010_TO_AB001; DO_NOT_RETUNE_UNDER_T010; HISTORICAL_SHORT_SLB_PUBLICATION_TIMING_UNVERIFIED; SC004_REQUIRED_FOR_FUTURE_PROSPECTIVE_CONFIRMATION; NO_PROSPECTIVE_OR_LIVE_CAPITAL_CLAIM",
+        "live_capital_allowed": false,
+        "primary_5d": {
+          "augmented_mean_rank_ic": 0.007675004453204735,
+          "augmented_mean_top_decile_excess": 0.00028570763614985573,
+          "augmented_mean_top_minus_bottom_spread": 0.0007109072142766598,
+          "base_mean_rank_ic": 0.010509912238878346,
+          "base_mean_top_decile_excess": 0.0002731243856691849,
+          "base_mean_top_minus_bottom_spread": 0.0012517534790984963,
+          "delta_mean_rank_ic": -0.002834907785673611,
+          "delta_mean_top_decile_excess": 1.2583250480670966e-05,
+          "delta_mean_top_minus_bottom_spread": -0.0005408462648218364,
+          "delta_rank_ic_p_value": 0.3316095884800444,
+          "delta_top_decile_excess_p_value": 0.9797202666829768,
+          "delta_top_minus_bottom_spread_p_value": 0.5221426697551679,
+          "frozen_success_criteria_supported": false,
+          "prediction_count": 23084,
+          "session_count": 112
+        },
+        "promote_to_ab001": false,
+        "prospective_claim_allowed": false,
+        "report_artifact_sha256": "90f9b95cc54feed036c8cdd3965d608820f4cb3cb106db2d0fea9f1f46d73a31",
+        "report_sha256": "ba50018b5351bcc0c58464479d2507d5e54265ea5ce50be3b19e1f1954e9dc76",
+        "secondary_1d": {
+          "augmented_mean_rank_ic": 0.05502699733873433,
+          "augmented_mean_top_decile_excess": 0.0009727635330714074,
+          "augmented_mean_top_minus_bottom_spread": 0.002413135543312505,
+          "base_mean_rank_ic": 0.05907398721881607,
+          "base_mean_top_decile_excess": 0.0012469522226153495,
+          "base_mean_top_minus_bottom_spread": 0.002691319458705417,
+          "delta_mean_rank_ic": -0.0040469898800817375,
+          "delta_mean_top_decile_excess": -0.0002741886895439421,
+          "delta_mean_top_minus_bottom_spread": -0.0002781839153929122,
+          "delta_rank_ic_p_value": 0.02442010108085088,
+          "delta_top_decile_excess_p_value": 0.08146909500270202,
+          "delta_top_minus_bottom_spread_p_value": 0.2505522306446327,
+          "prediction_count": 23093,
+          "rescues_failed_primary": false,
+          "session_count": 112
+        },
+        "source_chain": {
+          "base37_feature_panel_sha256": "62dd3c2f50fcaf6d58e47526df76aff41f2a4c2ec43c2a5724f7c23611af803f",
+          "combined44_feature_panel_sha256": "2cc6006fbcf371cdcedae2d976069e746710161d40343c10c0a6af87fa473d4f",
+          "corporate_action_ledger_sha256": "1238ec2c4b2697cf52ea66194aeb0d70171a22071f7249e3fcdc8a8f83ede5c1",
+          "d010_p4a_feature_panel_sha256": "1b629fee85e7430466d81e5c8e5a3497cca77221ab7d38633b23c7db5b49f4b0",
+          "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e"
+        },
+        "status": "COMPLETE_DEVELOPMENT",
+        "successful_run": {
+          "artifact_id": 11181970380,
+          "artifact_name": "ae001-t010-36900758580",
+          "run_id": 36900758580
+        }
+      },
+      "recorded_at_utc": "2026-10-01T17:40:01.185585+00:00",
+      "seq": 33,
+      "trial_id": "AE001-T010"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "6a4c47c7b0c07de793bd64994b176153c3358abaee9be5a7a967053fe29469af",
+  "ledger_sha256": "e44a3ce2d8236cdc55dc0a22d589675f8c76f4f00a3297532ee7cfdbd98c56c9",
   "live_capital_allowed": false,
   "schema_version": 1
 }
