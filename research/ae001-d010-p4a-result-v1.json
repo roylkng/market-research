@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D010-P4A-v1",
+  "status": "PROMOTE_T010_INCREMENTAL_ALPHA_TRIAL",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT_SOURCE_TIMING_UNVERIFIED",
+  "original_p4_source_only_diagnostic": {
+    "run_id": 36888897172,
+    "artifact_id": 11176118037,
+    "report_sha256": "b0548e1fdece6257d86bc16d3fa4a64b337627f406bf94869911dbdf4715b75c",
+    "feature_panel_sha256": "0ccc9d433e11a48839f6cba47185b7298ea84e07d9b279a68ff782db578f1942",
+    "return_labels_opened": false,
+    "model_fit_performed": false,
+    "superseded_reason": "TWO_TRAILING_ZSCORE_FEATURES_NUMERICALLY_UNSTABLE_ON_SPARSE_NEAR_ZERO_VARIANCE_SOURCE_HISTORIES"
+  },
+  "p4a_amendment": {
+    "protocol": "AE001-D010-P4A-SPARSE-HISTORY-RANK-STABILIZATION",
+    "removed_features": [
+      "short_volume_share_zscore_20",
+      "slb_outstanding_zscore_20"
+    ],
+    "replacement_features": [
+      "short_volume_share_percentile_20",
+      "slb_outstanding_percentile_20"
+    ],
+    "replacement_rule": "TIE_AWARE_EMPIRICAL_PERCENTILE_VERSUS_PRIOR_20_SOURCE_VALID_SESSIONS",
+    "return_labels_opened_before_amendment": false,
+    "model_fit_performed_before_amendment": false
+  },
+  "successful_fresh_source_run": {
+    "run_id": 36894325553,
+    "artifact_id": 11178344679,
+    "artifact_name": "ae001-d010-p4-36894325553"
+  },
+  "sealed_source_replay": {
+    "run_id": 36895731596,
+    "artifact_id": 11178579573,
+    "artifact_name": "ae001-d010-p4a-replay-36895731596",
+    "source_run_id": 36888897172,
+    "source_artifact_id": 11176118037
+  },
+  "reproducibility": {
+    "fresh_and_replay_panel_sha_match": true,
+    "fresh_and_replay_artifact_sha_match": true,
+    "fresh_and_replay_report_sha_match": true
+  },
+  "source_chain": {
+    "market_panel_sha256": "b01f22547bc4b76283b5154c8569e6308318f260a505152cd5eef98e3528270f",
+    "base_action_safe_feature_panel_sha256": "e81f85974b8692fd2f20f628dd97752184d158da18cf07ebea94e4e84ff02caa",
+    "short_source_panel_sha256": "6490b8bced422542564aeaf78e29b11fea596e8d5c0e5b3058964093edb62236",
+    "slb_source_panel_sha256": "f9d1353afb2b24f3eb63049380af00a2de022c8bc54b430e159eb58effc2b2b5",
+    "p4a_feature_panel_sha256": "1b629fee85e7430466d81e5c8e5a3497cca77221ab7d38633b23c7db5b49f4b0",
+    "p4a_feature_artifact_sha256": "dcb9d4e59df3992dbc71b0633c51c27e20dcd81de5eb5570c0e7d0f9fbb92513",
+    "p4a_report_sha256": "58ce64d9a247f30da13a535991658a36a6696e2b61e2b3094a71741963fb3b41"
+  },
+  "feature_materialization": {
+    "feature_count": 25,
+    "d010_feature_count": 7,
+    "feature_session_count": 225,
+    "feature_row_count": 277874,
+    "excluded_source_gap_row_count": 4509,
+    "excluded_identity_history_row_count": 46274
+  },
+  "rank_stabilization_audit": {
+    "short_volume_share_percentile_20": {
+      "min": 0.0,
+      "median": 0.5,
+      "max": 1.0,
+      "non_null_count": 277874
+    },
+    "slb_outstanding_percentile_20": {
+      "min": 0.0,
+      "median": 0.5,
+      "max": 1.0,
+      "non_null_count": 277874
+    },
+    "removed_zscore_features_present": false,
+    "percentile_bounds_valid": true
+  },
+  "next_trial_contract": {
+    "trial_id": "AE001-T010",
+    "base": "T005_PASSED_37_FEATURE_PRICE_LIQUIDITY_DELIVERY_FUTURES",
+    "augmented": "SAME_37_PLUS_SEVEN_D010_P4A_SHORT_SLB_FEATURES",
+    "augmented_feature_count": 44,
+    "source_timing_authority_for_future_confirmation": "AE001-SC004"
+  },
+  "return_labels_opened": false,
+  "model_fit_performed": false,
+  "prospective_claim_allowed": false,
+  "live_capital_allowed": false
+}
