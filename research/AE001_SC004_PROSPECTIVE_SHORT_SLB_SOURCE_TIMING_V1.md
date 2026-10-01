@@ -122,6 +122,17 @@ Approximate IST attempts:
 
 Uncommon minutes reduce scheduler contention.
 
+Diagnostic-only post-cutoff attempts:
+
+- 20:07
+- 21:07
+- 22:07
+- 23:07
+
+A READY observation after 18:30 remains permanently ineligible. These later
+attempts exist only to characterize publication timing when the pre-cutoff gate
+fails.
+
 GitHub scheduling delay is expected.
 
 A missed/delayed workflow is operational missingness, not proof that NSE did
