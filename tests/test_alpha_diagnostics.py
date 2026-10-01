@@ -159,3 +159,40 @@ def test_paired_report_difference_inference_uses_common_sessions():
     assert inference["common_session_count"] == 7
     assert inference["metrics"]["rank_ic"]["mean"] > 0
     assert inference["metrics"]["top_minus_bottom_spread"]["mean"] > 0
+
+
+
+def test_unlearnable_single_feature_is_recorded_not_trial_blocking():
+    rows = _examples()
+    rows = [
+        ModelExample(
+            **{
+                **row.__dict__,
+                "features": {
+                    **row.features,
+                    "constant": 0.5,
+                },
+            }
+        )
+        for row in rows
+    ]
+    report = signed_single_feature_walkforward(
+        rows,
+        folds=[{"start": "2026-01-07", "end": "2026-01-09"}],
+        feature_names=["good", "constant"],
+    )
+    fold = report["folds"][0]
+    by_feature = {
+        row["feature"]: row
+        for row in fold["features"]
+    }
+    assert by_feature["constant"]["status"] == "UNAVAILABLE_TRAINING_RANK_IC"
+    assert by_feature["constant"]["direction"] is None
+    assert by_feature["constant"]["training_signed_rank_ic"] is None
+    assert by_feature["good"]["status"] == "AVAILABLE"
+    assert fold["selected_feature"] == "good"
+    assert report["per_feature_oos"]["constant"]["prediction_count"] == 0
+    assert (
+        report["best_single_feature_train_selected_oos"]["mean_rank_ic"]
+        == pytest.approx(1.0)
+    )
