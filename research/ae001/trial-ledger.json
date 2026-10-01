@@ -1,5 +1,5 @@
 {
-  "event_count": 26,
+  "event_count": 27,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1066,10 +1066,82 @@
       "recorded_at_utc": "2026-09-30T19:21:10.362286+00:00",
       "seq": 26,
       "trial_id": "AE001-T008"
+    },
+    {
+      "event_sha256": "156e0e59d689d8196acb3aa256fd3e88eb384ad76b5e4bf68a5db8dad64b5ca4",
+      "event_type": "TRIAL_REGISTERED",
+      "payload": {
+        "augmented_feature_count": 47,
+        "base_feature_count": 37,
+        "d006_report_sha256": "4aaa0fb2166c5093eb7e23b16b72ceccd19c7eb5ab3b441528160fe527a965c6",
+        "diagnostic": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-08-27"
+            ]
+          ],
+          "horizon_sessions": 20,
+          "newey_west_lag": 19,
+          "rescues_failed_primary": false
+        },
+        "evidence_class": "HISTORICAL_RECONSTRUCTION_DEVELOPMENT",
+        "historical_fo_publication_timestamp_verified": false,
+        "live_capital_allowed": false,
+        "model": {
+          "l2": 1,
+          "type": "ridge"
+        },
+        "name": "nse_stock_options_positioning_incremental_feature_family",
+        "option_feature_count": 10,
+        "outcomes_for_t009_opened_before_registration": false,
+        "predecessor_source_diagnostic": "AE001-D006-v1",
+        "primary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-18"
+            ]
+          ],
+          "horizon_sessions": 5,
+          "newey_west_lag": 4
+        },
+        "secondary": {
+          "folds": [
+            [
+              "2026-04-01",
+              "2026-06-30"
+            ],
+            [
+              "2026-07-01",
+              "2026-09-24"
+            ]
+          ],
+          "horizon_sessions": 1,
+          "newey_west_lag": 5,
+          "rescues_failed_primary": false
+        },
+        "source_window": [
+          "2025-09-01",
+          "2026-09-25"
+        ],
+        "status": "FROZEN_BEFORE_OUTCOME_MATERIALIZATION"
+      },
+      "recorded_at_utc": "2026-10-01T04:06:00+00:00",
+      "seq": 27,
+      "trial_id": "AE001-T009"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "1a96386d59050ac90470378bf3caac97e6feb7d3466b5dcd70c5319d0c8c7527",
+  "ledger_sha256": "bf69075fdacf25feb41add5001a53d868930132e477469d3c46c650ebc0041d6",
   "live_capital_allowed": false,
   "schema_version": 1
 }
