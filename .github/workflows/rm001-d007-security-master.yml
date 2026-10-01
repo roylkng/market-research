@@ -1,0 +1,87 @@
+name: RM001 D007 security-master size source audit
+
+on:
+  push:
+    branches:
+      - feat/rm001-d007-security-master-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    if: contains(github.event.head_commit.message, '[rm001-d007]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D007 before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001_size_source.py \
+            scripts/run_rm001_d007.py \
+            tests/test_rm001_size_source.py
+          pytest -q tests/test_rm001_size_source.py
+
+      - name: Rebuild frozen official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/rm001-d007 \
+            --output reports/rm001-d007/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Run frozen security-master size-source audit
+        run: |
+          python scripts/run_rm001_d007.py \
+            --market-panel reports/rm001-d007/panel/market-panel.json.gz \
+            --store .marketlab/rm001-d007 \
+            --output reports/rm001-d007/result.json \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Print compact result
+        run: |
+          python - <<'PY'
+          import json
+          result=json.load(open("reports/rm001-d007/result.json"))
+          keys=[
+              "diagnostic_id",
+              "expected_session_count",
+              "ready_session_count",
+              "unavailable_sessions",
+              "parser_rejected_sessions",
+              "minimum_exact_join_coverage",
+              "minimum_positive_issued_size_coverage",
+              "minimum_positive_market_cap_coverage",
+              "minimum_positive_free_float_capital_coverage",
+              "maximum_duplicate_real_eq_identity_count",
+              "total_market_cap_source_passed",
+              "free_float_market_cap_source_passed",
+              "sector_source_passed",
+              "result_sha256",
+          ]
+          print(json.dumps({key:result[key] for key in keys},sort_keys=True))
+          PY
+
+      - name: Upload exact D007 source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-d007-${{ github.run_id }}
+          path: |
+            reports/rm001-d007
+            .marketlab/rm001-d007/market-data
+          if-no-files-found: warn
+          retention-days: 90
