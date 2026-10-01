@@ -1,0 +1,57 @@
+schema_version: 1
+id: RM001-v2-DEVELOPMENT
+name: transparent_equity_factor_risk_model_with_total_size
+status: DEVELOPMENT
+created: 2026-10-01
+live_capital_allowed: false
+
+parent_model: RM001-v1-DEVELOPMENT
+
+factor_names:
+  - MARKET_COMMON
+  - BETA60_RELATIVE
+  - MOMENTUM20
+  - VOLATILITY60
+  - LIQUIDITY
+  - SIZE
+
+size:
+  source: NSE_CM_MII_SECURITY_FILE
+  source_validation: RM001-D007-v1
+  d007_result_sha256: 4151612cb85c88d605344fd018fab85118c295e71a90fabbe6c2223d15f27c14
+  identity: same_session_symbol_plus_isin
+  formula: OFFICIAL_CLOSE_TIMES_ISSDCPTL
+  transform: centered_within_session_tie_aware_percentile
+  missing_policy: exclude_row_no_imputation
+  free_float_adjustment: false
+  prospective_publication_timing_verified: false
+
+factor_return_estimation:
+  response: next_completed_session_close_to_close_return
+  method: equal_weight_ols
+  minimum_cross_section: 100
+  full_rank_required: true
+  share_changing_action_policy: fail_closed
+
+canonical_serialization:
+  persisted_float_decimal_places: 15
+
+covariance:
+  trailing_factor_return_sessions: 60
+  estimator: sample_covariance
+  ddof: 1
+  shrinkage: none
+
+idiosyncratic:
+  trailing_residual_sessions: 60
+  minimum_observations: 20
+  missing_current_identity_policy: conservative_cross_sectional_p75_variance
+
+deferred_factors:
+  free_float_size: SOURCE_NOT_POPULATED
+  sector: POINT_IN_TIME_COMPANY_CLASSIFICATION_SOURCE_NOT_FROZEN
+
+promotion:
+  prospective_size_use_requires_source_timing_validation: true
+  live_capital_directly_allowed: false
+  next_stage: PO001_SIZE_AWARE_DIAGNOSTIC
