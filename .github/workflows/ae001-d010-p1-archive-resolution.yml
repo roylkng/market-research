@@ -1,0 +1,55 @@
+name: AE001 D010 P1 archive resolution
+
+on:
+  push:
+    branches:
+      - feat/ae001-d010-cash-borrow-flow-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[ae001-d010-p1]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen D010 P1 implementation
+        run: |
+          ruff check \
+            src/marketlab/nse.py \
+            src/marketlab/alpha_d010_sources.py \
+            src/marketlab/alpha_d010_p1.py \
+            scripts/run_ae001_d010_p1.py \
+            tests/test_alpha_d010_sources.py \
+            tests/test_alpha_d010_p1.py
+          pytest -q \
+            tests/test_alpha_d010_sources.py \
+            tests/test_alpha_d010_p1.py
+
+      - name: Resolve official NSE archive and metadata paths
+        run: |
+          python scripts/run_ae001_d010_p1.py \
+            --output reports/ae001-d010-p1 \
+            --timeout-seconds 30
+
+      - name: Print source-only result
+        run: cat reports/ae001-d010-p1/report.json
+
+      - name: Upload exact D010 P1 source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d010-p1-${{ github.run_id }}
+          path: reports/ae001-d010-p1
+          if-no-files-found: warn
+          retention-days: 90

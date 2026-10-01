@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D010-P3B-v1",
+  "status": "PROMOTE_P4_FEATURE_SEMANTICS",
+  "evidence_class": "SOURCE_COVERAGE_IDENTITY_NO_RETURN_OUTCOMES",
+  "successful_run": {
+    "run_id": 36884757425,
+    "artifact_id": 11174766032,
+    "artifact_name": "ae001-d010-p3b-36884757425"
+  },
+  "report_sha256": "0cc1f518d8c91d4648851d55861cee66cca722c0e1858204cbdd6635f7c98528",
+  "short_panel_sha256": "6490b8bced422542564aeaf78e29b11fea596e8d5c0e5b3058964093edb62236",
+  "short_panel_artifact_sha256": "84d64f12acfed0a2ab7b48b85fe03e844d8c14650579aa1e96b529efdf2f1950",
+  "publication_window": {
+    "start": "2025-09-01",
+    "end": "2026-09-25",
+    "completed_publication_session_count": 266
+  },
+  "short_selling": {
+    "historical_viability_pass": true,
+    "ready_session_count": 265,
+    "ready_session_fraction": 0.9962406015037594,
+    "schema_count": 1,
+    "schema": [
+      "Security Name",
+      "Symbol Name",
+      "Trade Date",
+      "Quantity"
+    ],
+    "source_row_count": 29616,
+    "trade_date_mapped_row_count": 29480,
+    "trade_date_identity_mapping_fraction": 0.995407887628309,
+    "publication_continuity_row_count": 29474,
+    "publication_session_isin_continuity_fraction": 0.9997964721845319,
+    "duplicate_symbol_row_count": 0,
+    "timing_semantics": "PUBLICATION_SESSION_D_FILE_CONTAINS_PREVIOUS_COMPLETED_NSE_SESSION_D_MINUS_1_SHORT_SELLING_TRADES"
+  },
+  "slb_open_positions_from_p3": {
+    "historical_viability_pass": true,
+    "p3_report_sha256": "e41e749a9d0514ffc4a01af6dd923d6c838e898320bf0e4f0e699bafc9d8dd27",
+    "ready_session_fraction": 1.0,
+    "identity_mapping_fraction": 0.9797178950631636
+  },
+  "both_families_ready_for_p4_feature_semantics": true,
+  "interpretation": "SHORT_SELLING_AND_SLB_CLEAR_HISTORICAL_SOURCE_AND_IDENTITY_GATES; SHORT_SELLING_HAS_ONE_SESSION_REPORTING_LAG; FEATURE_AGGREGATION_AND_POINT_IN_TIME_SEMANTICS_MUST_BE_FROZEN_BEFORE_ANY_RETURN_LABELS_OR_MODEL_FIT",
+  "return_labels_opened": false,
+  "model_fit_performed": false,
+  "live_capital_allowed": false
+}

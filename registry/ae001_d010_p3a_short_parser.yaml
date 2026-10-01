@@ -1,0 +1,21 @@
+schema_version: 1
+id: AE001-D010-P3A-v1
+name: short_selling_parser_resolution
+status: FROZEN_BEFORE_SOURCE_FORMAT_DIAGNOSTIC
+created: 2026-10-01
+live_capital_allowed: false
+
+evidence_class: SOURCE_FORMAT_DIAGNOSTIC_NO_RETURN_OUTCOMES
+
+probe_sessions:
+  - 2026-09-25
+  - 2026-09-24
+  - 2025-09-01
+
+source:
+  family: CM_SHORT_SELLING
+  route: https://nsearchives.nseindia.com/archives/equities/shortSelling/shortselling_DDMMYYYY.csv
+
+return_labels_opened: false
+model_fit_allowed: false
+next_stage: AE001-D010-P3B-PARSER-REPAIR

@@ -1,0 +1,44 @@
+name: AE001 D010 P2 SLB route validation
+
+on:
+  push:
+    branches:
+      - feat/ae001-d010-cash-borrow-flow-source-20261001
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[ae001-d010-p2]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen P2
+        run: |
+          ruff check \
+            src/marketlab/alpha_d010_p2.py \
+            scripts/run_ae001_d010_p2.py \
+            tests/test_alpha_d010_p2.py
+          pytest -q tests/test_alpha_d010_p2.py
+      - name: Probe exact SLB archive pattern
+        run: |
+          python scripts/run_ae001_d010_p2.py \
+            --output reports/ae001-d010-p2 \
+            --timeout-seconds 30
+      - name: Print source-only result
+        run: cat reports/ae001-d010-p2/report.json
+      - name: Upload exact P2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-d010-p2-${{ github.run_id }}
+          path: reports/ae001-d010-p2
+          if-no-files-found: warn
+          retention-days: 90

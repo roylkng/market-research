@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "AE001-D010-P3-v1",
+  "status": "HISTORICAL_SOURCE_VIABILITY_FAILED",
+  "evidence_class": "SOURCE_COVERAGE_IDENTITY_NO_RETURN_OUTCOMES",
+  "successful_run": {
+    "run_id": 36882557059,
+    "artifact_name": "ae001-d010-p3-36882557059"
+  },
+  "report_sha256": "e41e749a9d0514ffc4a01af6dd923d6c838e898320bf0e4f0e699bafc9d8dd27",
+  "source_panel_sha256": "650c98e8e97b0f92fbc7c79381a6c07bdb896e51fa6cdf23fc1e88e4cd2cc44e",
+  "source_panel_artifact_sha256": "20dddd9a67f7af59a768c20cb041daf436726a5f8e1b120f689c00db15b51d5d",
+  "completed_market_session_count": 266,
+  "short_selling": {
+    "historical_viability_pass": false,
+    "ready_session_count": 0,
+    "ready_session_fraction": 0.0,
+    "schema_count": 0,
+    "source_row_count": 0,
+    "mapped_row_count": 0,
+    "identity_mapping_fraction": 0.0,
+    "interpretation": "ARCHIVE_ROUTE_EXISTS_BUT_P3_SEMANTIC_PARSER_REJECTED_ALL_FILES; REQUIRES_SOURCE_ONLY_PARSER_DIAGNOSTIC"
+  },
+  "slb_open_positions": {
+    "historical_viability_pass": true,
+    "ready_session_count": 266,
+    "ready_session_fraction": 1.0,
+    "schema_count": 1,
+    "source_row_count": 129030,
+    "mapped_row_count": 126413,
+    "unmatched_row_count": 2617,
+    "identity_mapping_fraction": 0.9797178950631636,
+    "duplicate_symbol_row_count": 47336,
+    "duplicate_symbol_series_row_count": 0,
+    "interpretation": "HISTORICALLY_VIABLE; REPEATED_SYMBOLS_ARE_DISTINCT_SERIES_ROWS; FEATURE_SEMANTICS_NOT_YET_FROZEN"
+  },
+  "overall_p4_promotion_allowed": false,
+  "return_labels_opened": false,
+  "model_fit_performed": false,
+  "live_capital_allowed": false
+}
