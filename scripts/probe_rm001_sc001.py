@@ -56,7 +56,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Probe previous-session NSE Security File for RM001-SC001"
     )
-    parser.add_argument("--observation-date", type=date.fromisoformat, required=True)
+    parser.add_argument(
+        "--observation-date",
+        type=date.fromisoformat,
+        required=True,
+    )
     parser.add_argument("--sc001-ledger", type=Path, required=True)
     parser.add_argument("--size-ledger", type=Path, required=True)
     parser.add_argument("--summary", type=Path, required=True)
