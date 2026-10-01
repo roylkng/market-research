@@ -42,7 +42,7 @@ def _write(path: Path, payload: object) -> None:
 def _market_raw(target: dict) -> bytes:
     market = target.get("market")
     if not isinstance(market, dict):
-        raise RuntimeError("RM001-SC001 target lacks SC001 market metadata")
+        raise TypeError("RM001-SC001 target lacks SC001 market metadata")
     path = Path(str(market.get("raw_repo_path") or ""))
     if not path.exists():
         raise RuntimeError(f"SC001 market raw file missing: {path}")
