@@ -121,11 +121,28 @@ def signed_single_feature_walkforward(
 
         train, validation = _fold_examples(examples, start=start, end=end)
         learned = []
+        feature_diagnostics = []
         for feature in feature_names:
-            direction, train_report = learn_feature_direction(
-                train,
-                feature_name=feature,
-            )
+            try:
+                direction, train_report = learn_feature_direction(
+                    train,
+                    feature_name=feature,
+                )
+            except AlphaContractError as exc:
+                if "cannot learn direction without training rank IC" not in str(exc):
+                    raise
+                feature_diagnostics.append(
+                    {
+                        "feature": feature,
+                        "status": "UNAVAILABLE_TRAINING_RANK_IC",
+                        "direction": None,
+                        "training_mean_rank_ic_raw_direction": None,
+                        "training_signed_rank_ic": None,
+                        "oos": evaluate_cross_sectional_predictions([]),
+                    }
+                )
+                continue
+
             train_ic = float(train_report["mean_rank_ic"])
             oos = feature_predictions(
                 validation,
@@ -135,16 +152,21 @@ def signed_single_feature_walkforward(
                 prediction_role="OOS",
             )
             oos_by_feature[feature].extend(oos)
-            learned.append(
-                {
-                    "feature": feature,
-                    "direction": direction,
-                    "training_mean_rank_ic_raw_direction": train_ic,
-                    "training_signed_rank_ic": abs(train_ic),
-                    "oos": evaluate_cross_sectional_predictions(oos),
-                }
-            )
+            diagnostic = {
+                "feature": feature,
+                "status": "AVAILABLE",
+                "direction": direction,
+                "training_mean_rank_ic_raw_direction": train_ic,
+                "training_signed_rank_ic": abs(train_ic),
+                "oos": evaluate_cross_sectional_predictions(oos),
+            }
+            learned.append(diagnostic)
+            feature_diagnostics.append(diagnostic)
 
+        if not learned:
+            raise AlphaContractError(
+                f"fold {fold_index}: no single feature has learnable training rank IC"
+            )
         learned.sort(
             key=lambda row: (
                 -float(row["training_signed_rank_ic"]),
@@ -172,7 +194,10 @@ def signed_single_feature_walkforward(
                 "selected_training_signed_rank_ic": selected[
                     "training_signed_rank_ic"
                 ],
-                "features": learned,
+                "features": sorted(
+                    feature_diagnostics,
+                    key=lambda row: str(row["feature"]),
+                ),
             }
         )
 
