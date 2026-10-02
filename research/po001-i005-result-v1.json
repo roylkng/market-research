@@ -1,0 +1,163 @@
+{
+  "common_identity_count": 1307,
+  "common_metrics": {
+    "control_expected_5d_excess_return": 0.01026835248386464,
+    "control_total_transaction_cost_fraction": 0.0026838403586511893,
+    "expected_5d_excess_return_delta": -3.2103574795390444e-06,
+    "total_transaction_cost_fraction_delta": 1.2795378893266929e-06,
+    "treatment_expected_5d_excess_return": 0.010265142126385102,
+    "treatment_total_transaction_cost_fraction": 0.002685119896540516
+  },
+  "decision_session": "2026-08-31",
+  "evidence_class": "HISTORICAL_OOS_STABLE_RISK_TREATMENT_INTEGRATION",
+  "horizon_sessions": 5,
+  "interpretation_limits": {
+    "live_capital_allowed": false,
+    "realized_return_opened": false,
+    "risk_forecast_superiority_claim_allowed": false
+  },
+  "live_capital_allowed": false,
+  "materiality_flags": {
+    "alpha_material": false,
+    "cost_material": false,
+    "reallocation_material": true,
+    "rm001_v1_risk_material": false,
+    "rm001_v3_risk_material": false
+  },
+  "materiality_thresholds": {
+    "annualized_volatility": 0.005,
+    "expected_5d_excess_return": 0.0001,
+    "max_name_weight": 0.005,
+    "total_transaction_cost_fraction": 0.0001,
+    "weight_l1": 0.05
+  },
+  "realized_outcome_opened": false,
+  "report_sha256": "7dbdd4c1bc6765d6534476d26e0aa9b010d0c7e65111eaa0e8a7b5f87e3b7914",
+  "rm001_v1_common_map": {
+    "control": {
+      "annualized_volatility": 0.1292630397278865,
+      "expected_5d_excess_return": 0.01026835248386464,
+      "factor_names": ["MARKET_COMMON", "BETA60_RELATIVE", "MOMENTUM20", "VOLATILITY60", "LIQUIDITY"],
+      "factor_variance_daily": 5.027312592358565e-05,
+      "idiosyncratic_variance_daily": 1.6032165503768186e-05,
+      "portfolio_factor_exposures": {
+        "BETA60_RELATIVE": -0.20779536714519872,
+        "LIQUIDITY": 0.5619598417152111,
+        "MARKET_COMMON": 1.00000000000076,
+        "MOMENTUM20": -0.27717994734076895,
+        "VOLATILITY60": -0.04228277965565921
+      },
+      "risk_penalty": 0.0016576322856838457,
+      "total_transaction_cost_fraction": 0.0026838403586511893,
+      "total_variance_daily": 6.630529142735383e-05,
+      "utility": 0.005926879839529606
+    },
+    "control_optimality_sanity_passed": true,
+    "treatment": {
+      "annualized_volatility": 0.12967173967811726,
+      "expected_5d_excess_return": 0.010265142126385102,
+      "factor_names": ["MARKET_COMMON", "BETA60_RELATIVE", "MOMENTUM20", "VOLATILITY60", "LIQUIDITY"],
+      "factor_variance_daily": 5.0561814473251144e-05,
+      "idiosyncratic_variance_daily": 1.616342390432589e-05,
+      "portfolio_factor_exposures": {
+        "BETA60_RELATIVE": -0.20800466058172676,
+        "LIQUIDITY": 0.5624184879410986,
+        "MARKET_COMMON": 1.0000000000001903,
+        "MOMENTUM20": -0.2490074215447508,
+        "VOLATILITY60": -0.030079291825876243
+      },
+      "risk_penalty": 0.0016681309594394258,
+      "total_transaction_cost_fraction": 0.002685119896540516,
+      "total_variance_daily": 6.672523837757703e-05,
+      "utility": 0.00591189127040516
+    },
+    "treatment_minus_control": {
+      "annualized_volatility": 0.00040869995023076755,
+      "factor_variance_daily": 2.886885496654936e-07,
+      "idiosyncratic_variance_daily": 1.312584005577049e-07,
+      "risk_penalty": 1.0498673755580034e-05,
+      "total_variance_daily": 4.199469502232019e-07,
+      "utility": -1.4988569124445988e-05
+    }
+  },
+  "rm001_v3_common_map": {
+    "control": {
+      "annualized_volatility": 0.12659554310242108,
+      "expected_5d_excess_return": 0.01026835248386464,
+      "factor_names": ["MARKET_COMMON", "BETA60_RELATIVE", "MOMENTUM20", "VOLATILITY60", "LIQUIDITY", "SIZE", "STAT_PC01", "STAT_PC02", "STAT_PC03", "STAT_PC04", "STAT_PC05"],
+      "factor_variance_daily": 4.867686766279165e-05,
+      "idiosyncratic_variance_daily": 1.4920082866561341e-05,
+      "portfolio_factor_exposures": {
+        "BETA60_RELATIVE": -0.20779536714519872,
+        "LIQUIDITY": 0.5619598417152111,
+        "MARKET_COMMON": 1.00000000000076,
+        "MOMENTUM20": -0.27717994734076895,
+        "SIZE": 0.5799958369505809,
+        "STAT_PC01": 0.003437694939365398,
+        "STAT_PC02": -0.008674492538267485,
+        "STAT_PC03": -0.006787922599919534,
+        "STAT_PC04": 0.0002964833329409201,
+        "STAT_PC05": -2.829929979847399e-06,
+        "VOLATILITY60": -0.04228277965565921
+      },
+      "risk_penalty": 0.0015899237632338247,
+      "total_transaction_cost_fraction": 0.0026838403586511893,
+      "total_variance_daily": 6.359695052935299e-05,
+      "utility": 0.005994588361979626
+    },
+    "treatment": {
+      "annualized_volatility": 0.12577214255508384,
+      "expected_5d_excess_return": 0.010265142126385102,
+      "factor_names": ["MARKET_COMMON", "BETA60_RELATIVE", "MOMENTUM20", "VOLATILITY60", "LIQUIDITY", "SIZE", "STAT_PC01", "STAT_PC02", "STAT_PC03", "STAT_PC04", "STAT_PC05"],
+      "factor_variance_daily": 4.7912897071741385e-05,
+      "idiosyncratic_variance_daily": 1.4859451511180557e-05,
+      "portfolio_factor_exposures": {
+        "BETA60_RELATIVE": -0.20800466058172676,
+        "LIQUIDITY": 0.5624184879410986,
+        "MARKET_COMMON": 1.0000000000001903,
+        "MOMENTUM20": -0.2490074215447508,
+        "SIZE": 0.5762638634386085,
+        "STAT_PC01": 0.003790674560767903,
+        "STAT_PC02": -0.008037418453008153,
+        "STAT_PC03": -0.008074634332840766,
+        "STAT_PC04": -0.001636180343240458,
+        "STAT_PC05": -0.0025957936762178047,
+        "VOLATILITY60": -0.030079291825876243
+      },
+      "risk_penalty": 0.0015693087145730485,
+      "total_transaction_cost_fraction": 0.002685119896540516,
+      "total_variance_daily": 6.277234858292194e-05,
+      "utility": 0.006010713515271537
+    },
+    "treatment_minus_control": {
+      "annualized_volatility": -0.000823400547337233,
+      "factor_variance_daily": -7.639705910502659e-07,
+      "idiosyncratic_variance_daily": -6.063135538078475e-08,
+      "risk_penalty": -2.0615048660776233e-05,
+      "total_variance_daily": -8.246019464310455e-07,
+      "utility": 1.612515329191093e-05
+    },
+    "treatment_optimality_sanity_passed": true
+  },
+  "schema_version": 1,
+  "source": {
+    "control_optimizer_artifact_sha256": "33d90bf35aefc4bb53050d99b95ccffc158cac4ece1196558fcb5b89a1bafd20",
+    "control_risk_state_sha256": "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1",
+    "s001_report_sha256": "688c028a86e7ed0fb2fc981b014b153601569daa9f33c874f954dbb8980c2bbd",
+    "treatment_optimizer_artifact_sha256": "068f3481a454416fa82daf471f33053d4f2d53e0f256e9f0cdb07f21c01384c7",
+    "treatment_risk_state_sha256": "32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441"
+  },
+  "status": "MATERIAL_RISK_MODEL_PORTFOLIO_EFFECT",
+  "study_id": "PO001-I005-v1",
+  "weight_changes": {
+    "control_effective_names": 25.952461905060392,
+    "control_holding_count": 47,
+    "control_weight_hhi": 0.03853198989977182,
+    "holding_count_change": 1,
+    "maximum_absolute_weight_change": 0.016650092286939998,
+    "treatment_effective_names": 26.104075141793857,
+    "treatment_holding_count": 48,
+    "treatment_weight_hhi": 0.038308194968338594,
+    "weight_l1_change": 0.10280804057510999
+  }
+}
