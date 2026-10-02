@@ -178,6 +178,13 @@ def test_i004_changes_only_risk_state(monkeypatch):
         500,
     )
     monkeypatch.setattr(
+        "marketlab.po001_i004._validate_i004_feature_panel",
+        lambda panel: {
+            "economic_equivalence_passed": True,
+            "row_projection_sha256": "r" * 64,
+        },
+    )
+    monkeypatch.setattr(
         "marketlab.po001_i004._score_model",
         lambda model, rows: [
             {
