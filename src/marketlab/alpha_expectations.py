@@ -93,7 +93,7 @@ def _timestamp(value: object, field: str) -> datetime:
     if not isinstance(value, str):
         raise AlphaContractError(f"{field} must be an ISO timestamp")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AlphaContractError(f"{field} is not an ISO timestamp") from exc
     if parsed.tzinfo is None:
