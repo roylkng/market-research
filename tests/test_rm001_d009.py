@@ -1,119 +1,85 @@
-import io
-import zipfile
+import pytest
 
+from marketlab.alpha import AlphaContractError
 from marketlab.rm001_d009 import (
-    SourceBytes,
-    annual_link_selection,
-    build_d009_phase_ab_report,
-    phase_a_taxonomy_report,
+    SAMPLE_SYMBOLS,
+    build_d009_report,
+    parse_quote_industry,
 )
 
 
-def _zip(members):
-    raw = io.BytesIO()
-    with zipfile.ZipFile(raw, "w") as archive:
-        for name, content in members.items():
-            archive.writestr(name, content)
-    return raw.getvalue()
-
-
-def test_phase_a_passes_structured_nic_identity_and_year_concepts():
-    utility = SourceBytes(
-        "utility",
-        "https://nsearchives.nseindia.com/u.zip",
-        _zip(
-            {
-                "xl/sharedStrings.xml": (
-                    "<sst><si>Corporate Identity Number CIN</si>"
-                    "<si>Financial Year</si><si>NIC Code</si>"
-                    "<si>Percentage of Turnover</si></sst>"
-                )
-            }
-        ),
-    )
-    taxonomy = SourceBytes(
-        "taxonomy",
-        "https://nsearchives.nseindia.com/t.zip",
-        _zip(
-            {
-                "brsr.xsd": (
-                    '<schema><element name="CorporateIdentityNumber"/>'
-                    '<element name="FinancialYear"/>'
-                    '<element name="NICCode"/>'
-                    '<element name="ProductService"/>'
-                    '<element name="PercentageTurnover"/></schema>'
-                )
-            }
-        ),
-    )
-    archive = SourceBytes(
-        "archive",
-        "https://nsearchives.nseindia.com/a.zip",
-        _zip({"old/brsr.xsd": '<element name="NICCode"/>'}),
-    )
-    report = phase_a_taxonomy_report(
-        utility=utility,
-        taxonomy=taxonomy,
-        taxonomy_archive=archive,
-    )
-    assert report["status"] == "PASS"
-    assert report["explicit_nic_concept_found"] is True
-    assert report["stable_identity_concept_found"] is True
-    assert report["reporting_year_concept_found"] is True
-    assert report["turnover_share_concept_found"] is True
-
-
-def test_annual_selection_requires_explicit_year_evidence():
-    discovery = {
-        "direct_brsr_links": [
-            {
-                "url": "https://nsearchives.nseindia.com/brsr_fy23-24.zip",
-                "context": "Business Responsibility FY 23-24",
-            },
-            {
-                "url": "https://nsearchives.nseindia.com/brsr_fy24-25.zip",
-                "context": "Business Responsibility FY 24-25",
-            },
-        ],
-        "script_brsr_links": [],
+def _payload(symbol="RELIANCE"):
+    return {
+        "info": {
+            "symbol": symbol,
+            "isin": "INE002A01018",
+        },
+        "industryInfo": {
+            "macro": "Energy",
+            "sector": "Oil Gas & Consumable Fuels",
+            "industry": "Petroleum Products",
+            "basicIndustry": "Refineries & Marketing",
+        },
     }
-    selected = annual_link_selection(discovery)
-    assert len(selected["FY2023-24"]) == 1
-    assert len(selected["FY2024-25"]) == 1
 
 
-def test_phase_ab_does_not_authorize_phase_c_without_bulk_urls():
-    source = SourceBytes(
-        "utility",
-        "https://nsearchives.nseindia.com/u.zip",
-        _zip(
-            {
-                "schema.xsd": (
-                    "NICCode CorporateIdentityNumber FinancialYear Turnover"
-                )
-            }
-        ),
+def test_parse_quote_industry_extracts_four_tiers_and_identity():
+    row = parse_quote_industry(
+        _payload(),
+        requested_symbol="RELIANCE",
     )
-    compliance = SourceBytes(
-        "compliance",
-        "https://www.nseindia.com/regulations/listing-compliance",
-        b"<html><script src='/assets/app.js'></script></html>",
+    assert row["status"] == "READY"
+    assert row["symbol_identity_match"] is True
+    assert row["isin"] == "INE002A01018"
+    assert row["classification"]["macro_economic_sector"] == "Energy"
+    assert row["classification"]["basic_industry"] == "Refineries & Marketing"
+
+
+def test_parse_quote_industry_rejects_symbol_conflict():
+    row = parse_quote_industry(
+        _payload(symbol="TCS"),
+        requested_symbol="RELIANCE",
     )
-    filings = SourceBytes(
-        "filings",
-        "https://www.nseindia.com/companies-listing/"
-        "corporate-filings-bussiness-sustainabilitiy-reports",
-        b"<html></html>",
-    )
-    report = build_d009_phase_ab_report(
-        utility=source,
-        taxonomy=source,
-        taxonomy_archive=source,
-        compliance_html=compliance,
-        filings_html=filings,
-        script_sources=[],
-    )
-    assert report["phase_a"]["status"] == "PASS"
-    assert report["phase_b"]["status"] == "FAIL_URL_DISCOVERY"
-    assert report["phase_c_authorized"] is False
-    assert report["return_labels_opened"] is False
+    assert row["status"] == "SYMBOL_CONFLICT"
+    assert row["symbol_identity_match"] is False
+
+
+def test_d009_report_passes_stable_full_coverage():
+    observations = []
+    for symbol in SAMPLE_SYMBOLS:
+        row = parse_quote_industry(
+            _payload(symbol=symbol),
+            requested_symbol=symbol,
+        )
+        row["raw_sha256"] = "a" * 64
+        observations.append(row)
+    report = build_d009_report(observations=observations)
+    assert report["status"] == "PASS_PROSPECTIVE_SOURCE_FEASIBILITY"
+    assert report["prospective_capture_design_authorized"] is True
+    assert report["historical_backfill_authorized"] is False
+
+
+def test_d009_report_fails_if_two_of_sixteen_lack_classification():
+    observations = []
+    for index, symbol in enumerate(SAMPLE_SYMBOLS):
+        payload = _payload(symbol=symbol)
+        if index < 2:
+            payload["industryInfo"].pop("basicIndustry")
+        observations.append(
+            parse_quote_industry(
+                payload,
+                requested_symbol=symbol,
+            )
+        )
+    report = build_d009_report(observations=observations)
+    assert report["four_level_classification_fraction"] == pytest.approx(14 / 16)
+    assert report["status"] == "FAIL_SOURCE_FEASIBILITY"
+
+
+def test_d009_report_rejects_changed_frozen_sample_order():
+    observations = [
+        parse_quote_industry(_payload(symbol=symbol), requested_symbol=symbol)
+        for symbol in reversed(SAMPLE_SYMBOLS)
+    ]
+    with pytest.raises(AlphaContractError, match="frozen sample"):
+        build_d009_report(observations=observations)
