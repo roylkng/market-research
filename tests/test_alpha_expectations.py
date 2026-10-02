@@ -8,7 +8,6 @@ from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.execution import TradingSession
 from marketlab.h021 import compare_snapshots, select_primary_top_decile
 
-
 SOURCE_VERSION = "source-v1"
 UNIVERSE_PATH = "research/prospective/universes/test-u001.json"
 UNIVERSE_BLOB = "u" * 40
