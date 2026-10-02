@@ -5,9 +5,9 @@ import gzip
 import json
 from pathlib import Path
 
+from marketlab.alpha_history import load_canonical_gzip_json
 from marketlab.events import sha256_bytes
 from marketlab.po001_i005 import run_po001_i005
-from marketlab.alpha_history import load_canonical_gzip_json
 
 
 def _load_json(path: Path) -> dict:
