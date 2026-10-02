@@ -2,6 +2,8 @@ name: Prospective experiment health snapshot
 
 on:
   workflow_dispatch:
+  # Evidence sealers may suppress ordinary push CI; workflow completion is the
+  # authoritative derived-health refresh signal.
   workflow_run:
     workflows:
       - AE001 SC001 prospective source timing
