@@ -39,7 +39,8 @@ jobs:
             tests/test_h021_capture_draft.py \
             tests/test_h021_capture_sealing.py \
             tests/test_h021.py \
-            tests/test_h021_compare_cli.py
+            tests/test_h021_compare_cli.py \
+            tests/test_alpha_expectations.py
 
       - name: Resolve India date and weekly session gate
         id: gate
@@ -123,6 +124,25 @@ jobs:
             --current "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
             --out "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json"
 
+      - name: Materialize AE001 H021 expectations features when comparison exists
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          if [[ "$CAPTURE_DATE" < "2026-10-09" ]]; then
+            echo "No AE001 H021 expectations artifact is permitted before 2026-10-09"
+            exit 0
+          fi
+          python scripts/materialize_ae001_h021_expectations.py \
+            --capture-dir research/prospective/h021/captures \
+            --current "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
+            --comparison "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json" \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --batches research/prospective/h021/capture-batches-v1.json \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --out "research/prospective/ae001-h021/expectations/${CAPTURE_DATE}-v1.json"
+
       - name: Refuse to anchor observations if frozen H021 inputs changed
         if: steps.gate.outputs.state == 'CAPTURE'
         shell: bash
@@ -137,14 +157,19 @@ jobs:
             "research/H021_PROSPECTIVE_PROTOCOL_V1.md"
             "research/H021_COMPARISON_CONTRACT_V1.md"
             "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
+            "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
+            "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
+            "research/prospective/ae001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
             "scripts/check_h021_weekly_session.py"
             "scripts/acquire_h021_weekly_capture.py"
             "scripts/seal_h021_capture.py"
             "scripts/compare_h021_captures.py"
+            "scripts/materialize_ae001_h021_expectations.py"
             "src/marketlab/h021.py"
+            "src/marketlab/alpha_expectations.py"
             "src/marketlab/h021_capture.py"
             "src/marketlab/h021_stockanalysis_acquisition.py"
             "src/marketlab/h021_stockanalysis_parser.py"
@@ -171,7 +196,11 @@ jobs:
           WORK="${{ steps.gate.outputs.work_dir }}"
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add research/prospective/h021/captures "$WORK/session-decision.json" "$WORK/source-evidence.json"
+          git add \
+            research/prospective/h021/captures \
+            research/prospective/ae001-h021 \
+            "$WORK/session-decision.json" \
+            "$WORK/source-evidence.json"
           if [ -d research/prospective/h021/comparisons ]; then
             git add research/prospective/h021/comparisons
           fi
@@ -180,7 +209,50 @@ jobs:
             exit 0
           fi
           git commit -m "H021: seal weekly consensus capture ${CAPTURE_DATE} [skip ci]"
-          git push origin HEAD:main
+
+          ANCHOR_BASE_SHA="$(git rev-parse HEAD^)"
+          CRITICAL_PATHS=(
+            ".github/workflows/h021-weekly-consensus-capture.yml"
+            "pyproject.toml"
+            "research/H021_PROSPECTIVE_PROTOCOL_V1.md"
+            "research/H021_COMPARISON_CONTRACT_V1.md"
+            "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
+            "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
+            "registry/ae001_h021_expectations_family.yaml"
+            "research/prospective/h021"
+            "research/prospective/ae001-h021"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "scripts/check_h021_weekly_session.py"
+            "scripts/acquire_h021_weekly_capture.py"
+            "scripts/seal_h021_capture.py"
+            "scripts/compare_h021_captures.py"
+            "scripts/materialize_ae001_h021_expectations.py"
+            "src/marketlab/h021.py"
+            "src/marketlab/h021_capture.py"
+            "src/marketlab/h021_stockanalysis_acquisition.py"
+            "src/marketlab/h021_stockanalysis_parser.py"
+            "src/marketlab/alpha_expectations.py"
+          )
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$ANCHOR_BASE_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$ANCHOR_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "frozen H021/AE001 expectations state changed before anchor push"
+                git diff --stat "$ANCHOR_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              ANCHOR_BASE_SHA="$CURRENT_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "unable to anchor H021/AE001 expectations evidence after bounded retries"
+          exit 1
 
       - name: Upload acquisition evidence
         if: always() && steps.gate.outputs.state == 'CAPTURE'
