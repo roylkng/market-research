@@ -421,6 +421,7 @@ def build_outcome_artifact(
     forecast_artifact: dict[str, Any],
     realized_session_date: str,
     realized_returns: dict[tuple[str, str], float],
+    unavailable_identities: dict[tuple[str, str], str] | None = None,
 ) -> dict[str, Any]:
     if forecast_artifact.get("outcomes_attached") is not False:
         raise AlphaContractError("C002 forecast artifact already contains outcome")
@@ -428,12 +429,33 @@ def build_outcome_artifact(
     if realized_session_date <= target:
         raise AlphaContractError("C002 realized session must follow target")
 
+    unavailable = unavailable_identities or {}
     rows = []
     for probe in forecast_artifact["probes"]:
         members = [
             (str(row["symbol"]), str(row["isin"]))
             for row in probe["members"]
         ]
+        blocked = [
+            (identity, unavailable[identity])
+            for identity in members
+            if identity in unavailable
+        ]
+        if blocked:
+            reasons = sorted({reason for _, reason in blocked})
+            rows.append(
+                {
+                    "probe_name": probe["probe_name"],
+                    "status": "UNAVAILABLE",
+                    "reason": "MEMBER_UNAVAILABLE",
+                    "member_reason_counts": {
+                        reason: sum(item_reason == reason for _, item_reason in blocked)
+                        for reason in reasons
+                    },
+                    "unavailable_member_count": len(blocked),
+                }
+            )
+            continue
         missing = [identity for identity in members if identity not in realized_returns]
         if missing:
             rows.append(
