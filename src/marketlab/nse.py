@@ -165,6 +165,22 @@ class NSEClient:
         payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
         return self._require_mapping(payload, self.QUOTE_ENDPOINT.name)
 
+    def quote_equity_with_raw(
+        self,
+        symbol: str,
+    ) -> tuple[dict[str, Any], bytes]:
+        """Fetch exact NSE quote-equity JSON bytes for source auditing."""
+        if not symbol or not symbol.strip():
+            raise NSEAcquisitionError("NSE quote-equity symbol is required")
+        payload, raw = self._json_get_with_raw(
+            self.QUOTE_ENDPOINT,
+            params={"symbol": symbol.strip().upper()},
+        )
+        return self._require_mapping(
+            payload,
+            self.QUOTE_ENDPOINT.name,
+        ), raw
+
     def integrated_filings(
         self,
         *,
