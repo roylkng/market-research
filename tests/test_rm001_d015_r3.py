@@ -6,7 +6,6 @@ import marketlab.rm001_d015_r3 as r3
 from marketlab.events import sha256_bytes
 from marketlab.rm001_d015_r3 import build_d015_r3_report
 
-
 DUMMIES = {
     10: ("DUMMYHEG", "DUM545A01024"),
     20: ("DUMMYINGL1", "DU1560A01023"),
