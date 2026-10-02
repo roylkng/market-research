@@ -1,0 +1,118 @@
+name: PO001 v4 backward-equivalence diagnostic
+
+on:
+  push:
+    branches:
+      - feat/po001-v4-stable-solver-20261002
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    if: contains(github.event.head_commit.message, '[po001-v4-equivalence-diagnostic]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Compare v3 and v4 synthetic optimum
+        run: |
+          python - <<'PY'
+          import numpy as np
+          from marketlab.alpha import digest
+          from marketlab.po001_v3 import optimize_portfolio_v3
+          from marketlab.po001_v4 import optimize_portfolio_v4
+
+          count = 8
+          factors = [
+              "MARKET_COMMON",
+              "BETA60_RELATIVE",
+              "MOMENTUM20",
+              "VOLATILITY60",
+              "LIQUIDITY",
+              "SIZE",
+              "STAT_PC01",
+          ]
+          rows = []
+          for index in range(count):
+              centered = (index - (count - 1) / 2.0) / max(1.0, count / 2.0)
+              rows.append({
+                  "symbol": f"S{index:03d}",
+                  "isin": f"INE{index:09d}",
+                  "exposures": {
+                      "MARKET_COMMON": 1.0,
+                      "BETA60_RELATIVE": 0.20 * centered,
+                      "MOMENTUM20": -0.30 * centered,
+                      "VOLATILITY60": 0.15 * centered,
+                      "LIQUIDITY": -0.10 * centered,
+                      "SIZE": 0.25 * centered,
+                      "STAT_PC01": 0.12 * ((index % 3) - 1),
+                  },
+                  "idiosyncratic_variance_daily": 0.00005 + index * 0.000002,
+                  "idiosyncratic_status": "OBSERVED",
+              })
+          state = {
+              "schema_version": 1,
+              "model_id": "RM001-v3-DEVELOPMENT",
+              "as_of_session": "2026-08-31",
+              "factor_names": factors,
+              "factor_covariance_daily": np.diag(
+                  [0.00002,0.00001,0.000008,0.000007,0.000006,0.000005,0.000004]
+              ).tolist(),
+              "rows": rows,
+              "deferred_factors": {},
+              "live_capital_allowed": False,
+          }
+          state["state_sha256"] = digest(state)
+          alpha_rows = [{
+              "symbol": f"S{index:03d}",
+              "isin": f"INE{index:09d}",
+              "expected_excess_return": 0.018 - index * 0.0012,
+              "current_weight": 0.0,
+              "buy_cost_bps": 8.0 + index * 0.2,
+              "sell_cost_bps": 12.0 + index * 0.2,
+              "adv20_inr": 80_000_000.0 + index * 10_000_000.0,
+              "daily_volatility_decimal": 0.018 + index * 0.001,
+          } for index in range(count)]
+          kwargs = dict(
+              decision_session="2026-08-31",
+              horizon_sessions=5,
+              alpha_rows=alpha_rows,
+              risk_state=state,
+              portfolio_nav_inr=10_000_000.0,
+              risk_aversion=5.0,
+              impact_coefficient=0.50,
+              max_participation=0.10,
+              max_name_weight=0.25,
+              max_invested_weight=1.0,
+              max_traded_fraction_of_nav=1.0,
+              factor_bounds={},
+              terminal_liquidation=True,
+          )
+          v3 = optimize_portfolio_v3(**kwargs)
+          v4 = optimize_portfolio_v4(**kwargs)
+          w3={(r["symbol"],r["isin"]):float(r["target_weight"]) for r in v3["rows"]}
+          w4={(r["symbol"],r["isin"]):float(r["target_weight"]) for r in v4["rows"]}
+          print("MAX_WEIGHT_DIFF", repr(max(abs(w3[k]-w4[k]) for k in w3)))
+          for field in [
+              "expected_excess_return",
+              "total_variance_daily",
+              "total_transaction_cost_fraction",
+              "objective_utility",
+              "invested_weight",
+          ]:
+              print(field.upper()+"_V3", repr(float(v3[field])))
+              print(field.upper()+"_V4", repr(float(v4[field])))
+              print(field.upper()+"_DIFF", repr(float(v4[field])-float(v3[field])))
+          print(
+              "V4_KKT",
+              repr(v4["solver"]["kkt"]["maximum_coordinate_kkt_violation"])
+          )
+          print("V3_ITERATIONS", v3["solver"]["iterations"])
+          print("V4_SWEEPS", v4["solver"]["total_coordinate_sweeps"])
+          print("V4_OUTER", v4["solver"]["outer_bisection_iterations"])
+          PY
