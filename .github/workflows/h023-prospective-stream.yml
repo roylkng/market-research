@@ -23,6 +23,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refresh latest canonical main before source observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -41,10 +49,12 @@ jobs:
             scripts/run_h023_prospective_scan.py \
             scripts/verify_h023_prospective_state.py \
             tests/test_h023_ownership.py \
+            tests/test_h023_acquisition.py \
             tests/test_h023_prospective.py \
             tests/test_h023_selection.py
           pytest -q \
             tests/test_h023_ownership.py \
+            tests/test_h023_acquisition.py \
             tests/test_h023_prospective.py \
             tests/test_h023_selection.py
           python scripts/verify_h023_prospective_state.py \
@@ -78,7 +88,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          START_SHA=$(git rev-parse HEAD)
+          START_SHA="$OBSERVATION_BASE_SHA"
           echo "start_sha=$START_SHA" >> "$GITHUB_ENV"
           WORK="reports/h023-prospective/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
           mkdir -p "$WORK/state" "$WORK/raw"
@@ -107,17 +117,38 @@ jobs:
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --state-dir "$work_dir/state"
 
-      - name: Fail closed if main changed during observation
+      - name: Reconcile unrelated main movement and fail on H023 drift
         if: steps.gate.outputs.state == 'READY'
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$start_sha"
           git fetch origin main
-          test "$(git rev-parse origin/main)" = "$start_sha" || {
-            echo "ERROR: main changed while H023 source observation was in flight"
-            exit 1
-          }
+          CURRENT_MAIN="$(git rev-parse origin/main)"
+          CRITICAL_PATHS=(
+            ".github/workflows/h023-prospective-stream.yml"
+            "research/H023_PROSPECTIVE_PROTOCOL_V1.md"
+            "research/H023_PROSPECTIVE_PROTOCOL_AMENDMENT_P1_FORMAL_REVISIONS.md"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/prospective/h023"
+            "src/marketlab/h023_ownership.py"
+            "src/marketlab/h023_acquisition.py"
+            "src/marketlab/h023_prospective.py"
+            "src/marketlab/h023_selection.py"
+            "scripts/run_h023_prospective_scan.py"
+            "scripts/verify_h023_prospective_state.py"
+          )
+          if [ "$start_sha" != "$CURRENT_MAIN" ]; then
+            if ! git diff --quiet "$start_sha" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+              echo "ERROR: H023 rules or canonical state changed while source observation was in flight"
+              git diff --stat "$start_sha" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+              exit 1
+            fi
+            git rebase origin/main
+            python scripts/verify_h023_prospective_state.py \
+              --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+              --state-dir research/prospective/h023
+          fi
+          echo "H023_OBSERVATION_BASE_SHA=$start_sha" >> "$GITHUB_ENV"
 
       - name: Seal canonical H023 state
         if: steps.gate.outputs.state == 'READY'
@@ -133,8 +164,46 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add research/prospective/h023/*.json
+          if git diff --cached --quiet; then
+            echo "No new H023 canonical state"
+            exit 0
+          fi
           git commit -m "H023: seal prospective ownership scan [skip ci]"
-          git push origin HEAD:main
+
+          CRITICAL_PATHS=(
+            ".github/workflows/h023-prospective-stream.yml"
+            "research/H023_PROSPECTIVE_PROTOCOL_V1.md"
+            "research/H023_PROSPECTIVE_PROTOCOL_AMENDMENT_P1_FORMAL_REVISIONS.md"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/prospective/h023"
+            "src/marketlab/h023_ownership.py"
+            "src/marketlab/h023_acquisition.py"
+            "src/marketlab/h023_prospective.py"
+            "src/marketlab/h023_selection.py"
+            "scripts/run_h023_prospective_scan.py"
+            "scripts/verify_h023_prospective_state.py"
+          )
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$H023_OBSERVATION_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+              echo "ERROR: H023 critical state changed upstream before anchor push"
+              git diff --stat "$H023_OBSERVATION_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+              exit 1
+            fi
+            if test "$(git rev-parse origin/main)" != "$(git rev-parse HEAD^)"; then
+              git rebase origin/main
+              python scripts/verify_h023_prospective_state.py \
+                --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+                --state-dir research/prospective/h023
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "ERROR: unable to anchor H023 state after bounded safe retries"
+          exit 1
 
       - name: Upload raw source-only evidence
         if: steps.gate.outputs.state == 'READY' && always()
