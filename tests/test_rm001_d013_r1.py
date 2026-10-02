@@ -1,10 +1,6 @@
-from copy import deepcopy
-
 import pytest
 
 from marketlab.rm001_d013_r1 import (
-    BRSR_PAGE_URL,
-    build_r1_report,
     discover_brsr_api_candidates,
     evaluate_endpoint_correspondence,
     extract_first_party_script_urls,
