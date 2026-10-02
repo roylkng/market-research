@@ -45,6 +45,14 @@ class NSEClient:
     CORPORATE_ANNOUNCEMENT_ENDPOINT = NSEEndpoint(
         "corporate_announcements", f"{BASE_URL}/api/corporate-announcements"
     )
+    BRSR_FILING_ENDPOINT = NSEEndpoint(
+        "brsr_filings",
+        f"{BASE_URL}/api/corporate-bussiness-sustainabilitiy",
+    )
+    BRSR_TABLE_CONFIG_ENDPOINT = NSEEndpoint(
+        "brsr_table_config",
+        f"{BASE_URL}/json/CorporateFiling/CF-bussinesssustainabilitiyreports.json",
+    )
     HOLIDAY_ENDPOINT = NSEEndpoint("trading_holidays", f"{BASE_URL}/api/holiday-master")
     DAILY_REPORTS_ENDPOINT = NSEEndpoint(
         "daily_reports",
@@ -223,6 +231,32 @@ class NSEClient:
                 "symbol": symbol,
                 "period": period,
             },
+        )
+
+    def brsr_filings_with_raw(
+        self,
+        *,
+        symbol: str,
+        from_date: str,
+        to_date: str,
+    ) -> tuple[JSONPayload, bytes]:
+        """Fetch exact official NSE BRSR public-table API bytes."""
+        if not symbol.strip():
+            raise NSEAcquisitionError("NSE BRSR symbol is required")
+        return self._json_get_with_raw(
+            self.BRSR_FILING_ENDPOINT,
+            params={
+                "symbol": symbol.strip().upper(),
+                "from_date": from_date,
+                "to_date": to_date,
+            },
+        )
+
+    def brsr_table_config_with_raw(self) -> tuple[JSONPayload, bytes]:
+        """Fetch exact official NSE BRSR table-configuration JSON bytes."""
+        return self._json_get_with_raw(
+            self.BRSR_TABLE_CONFIG_ENDPOINT,
+            params={},
         )
 
     def corporate_actions_with_raw(
