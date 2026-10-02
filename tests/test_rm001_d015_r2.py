@@ -4,8 +4,8 @@ import io
 
 import pytest
 
-from marketlab.events import sha256_bytes
 import marketlab.rm001_d015_r2 as r2
+from marketlab.events import sha256_bytes
 from marketlab.rm001_d015_r2 import build_d015_r2_report
 
 
