@@ -52,23 +52,24 @@ jobs:
           ruff check \
             src/marketlab/alpha_prospective_sources.py \
             src/marketlab/alpha_t004_prospective.py \
+            src/marketlab/alpha_t004_readiness.py \
             scripts/probe_ae001_sc001.py \
             scripts/verify_ae001_sc001.py \
             scripts/score_ae001_t004_decision.py \
             scripts/verify_ae001_t004_decisions.py \
             scripts/verify_ae001_t004_readiness.py \
             tests/test_alpha_prospective_sources.py \
-            tests/test_alpha_t004_prospective.py
+            tests/test_alpha_t004_prospective.py \
+            tests/test_alpha_t004_readiness.py
           pytest -q \
             tests/test_alpha_prospective_sources.py \
             tests/test_alpha_t004_prospective.py \
+            tests/test_alpha_t004_readiness.py \
             tests/test_alpha_t004.py
           python scripts/verify_ae001_sc001.py \
             --ledger research/prospective/ae001-sc001/source-ledger.json
           python scripts/verify_ae001_t004_decisions.py \
             --ledger research/prospective/ae001-t004/decision-ledger.json
-          python scripts/verify_ae001_t004_readiness.py \
-            --readiness research/prospective/ae001-t004/readiness.json
           python scripts/verify_ae001_t004_readiness.py \
             --readiness research/prospective/ae001-t004/readiness.json
 
@@ -184,6 +185,8 @@ jobs:
             --timeout-seconds 30 | tee "$T004_WORK/score.json"
           python scripts/verify_ae001_t004_decisions.py \
             --ledger research/prospective/ae001-t004/decision-ledger.json
+          python scripts/verify_ae001_t004_readiness.py \
+            --readiness research/prospective/ae001-t004/readiness.json
 
       - name: Anchor T004 decision separately
         if: steps.gate.outputs.state == 'READY'
@@ -220,8 +223,10 @@ jobs:
             "src/marketlab/alpha_prospective_sources.py"
             "src/marketlab/alpha_t004.py"
             "src/marketlab/alpha_t004_prospective.py"
+            "src/marketlab/alpha_t004_readiness.py"
             "scripts/score_ae001_t004_decision.py"
             "scripts/verify_ae001_t004_decisions.py"
+            "scripts/verify_ae001_t004_readiness.py"
           )
 
           for ATTEMPT in 1 2 3; do
