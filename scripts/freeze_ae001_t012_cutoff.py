@@ -5,7 +5,10 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.alpha import AlphaContractError
+from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha_prospective_futures_sources import (
+    validate_futures_source_ledger,
+)
 from marketlab.alpha_t012 import (
     freeze_t012_cutoff,
     validate_t012_cutoff_freeze,
@@ -49,6 +52,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cutoff-freeze", type=Path, required=True)
     parser.add_argument("--timing-summary", type=Path, required=True)
     parser.add_argument("--trial-ledger", type=Path, required=True)
+    parser.add_argument("--sc002-ledger", type=Path, required=True)
     return parser.parse_args()
 
 
@@ -57,8 +61,19 @@ def main() -> int:
     current = _load(args.cutoff_freeze)
     timing = _load(args.timing_summary)
     trials = _load(args.trial_ledger)
+    sc002 = _load(args.sc002_ledger)
     validate_t012_cutoff_freeze(current)
     validate_trial_ledger(trials)
+    validate_futures_source_ledger(sc002)
+
+    summary_unsigned = dict(timing)
+    summary_stored = str(summary_unsigned.pop("summary_sha256", ""))
+    if summary_stored != digest(summary_unsigned):
+        raise AlphaContractError("SC002 timing summary hash mismatch")
+    if timing.get("source_ledger_sha256") != sc002.get("ledger_sha256"):
+        raise AlphaContractError(
+            "SC002 timing summary is stale relative to source ledger"
+        )
 
     state = trial_state(trials, "AE001-T012")
     if state["registration"] is None:
