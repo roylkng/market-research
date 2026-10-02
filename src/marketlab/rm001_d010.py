@@ -4,8 +4,8 @@ import hashlib
 import io
 import math
 import re
-import zipfile
 import xml.etree.ElementTree as ET
+import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import PurePosixPath
