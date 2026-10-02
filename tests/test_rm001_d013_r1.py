@@ -83,10 +83,11 @@ def test_endpoint_discovery_uses_brsr_neighborhood_and_is_deterministic():
     }
     candidates = discover_brsr_api_candidates(scripts)
     assert [row["endpoint_path"] for row in candidates] == [
-        "/api/brsr-filings",
         "/api/corporate-brsr",
+        "/api/brsr-filings",
     ]
-    assert candidates[0]["relevance_token_count"] >= 2
+    assert candidates[0]["relevance_token_count"] == 3
+    assert candidates[1]["relevance_token_count"] == 2
     assert len(candidates[0]["occurrences"][0]["script_sha256"]) == 64
 
 
