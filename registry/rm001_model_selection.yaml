@@ -1,0 +1,37 @@
+schema_version: 1
+id: RM001-MODEL-SELECTION-v1
+status: FROZEN_AFTER_C001
+created: 2026-10-02
+live_capital_allowed: false
+
+primary_predictive_risk_model:
+  model_id: RM001-v1-DEVELOPMENT
+  reason: lowest_frozen_C001_mean_qlike_and_significantly_better_than_v2_and_v3
+
+c001:
+  study_id: RM001-C001-v1
+  status: V3_MIXED_OOS_RISK_FORECAST
+  result_path: research/rm001-c001-result-v1.json
+  report_sha256: 7e8d03a697bc0e76eca96ec263a5353b2749bcc1fcbcfcca79dc36740aa7a228
+  workflow_run_id: 36977456260
+
+model_roles:
+  RM001-v1-DEVELOPMENT:
+    role: PREDICTIVE_DEFAULT
+    portfolio_default_allowed: true
+  RM001-v2-DEVELOPMENT:
+    role: SIZE_ATTRIBUTION_CHALLENGER
+    portfolio_default_allowed: false
+  RM001-v3-DEVELOPMENT:
+    role: DESCRIPTIVE_STATISTICAL_CHALLENGER
+    portfolio_default_allowed: false
+    prospective_state_collection_allowed: true
+    prospective_portfolio_default_allowed: false
+
+promotion:
+  v3_default_promotion_requires_new_pre_registered_evidence: true
+  c001_supports_v3_default_promotion: false
+  future_evidence_examples:
+    - prospective_risk_calibration
+    - independent_historical_period
+    - pre_registered_multi_horizon_risk_forecast_calibration
