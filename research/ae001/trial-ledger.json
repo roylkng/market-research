@@ -1,5 +1,5 @@
 {
-  "event_count": 37,
+  "event_count": 38,
   "events": [
     {
       "event_sha256": "cb3423a24a89631f411819ae1e8912bef3c6e637e702f8ea273e58573782d780",
@@ -1742,10 +1742,48 @@
       "recorded_at_utc": "2026-10-02T08:15:13.121866+00:00",
       "seq": 37,
       "trial_id": "AE001-T012"
+    },
+    {
+      "event_sha256": "395454464cdd05b6365a59b061d253a9f03b571d52ce6f543b0a2bcd5feb5287",
+      "event_type": "TRIAL_PROTOCOL_AMENDED",
+      "payload": {
+        "frozen_protocol": "research/AE001_T012_LATE_FUTURES_CONFIRMATION_V1.md",
+        "horizons": [
+          1,
+          5
+        ],
+        "live_capital_allowed": false,
+        "primary_cohort_rule": "SMALLEST_CHRONOLOGICAL_CANONICAL_PREFIX",
+        "primary_horizon_sessions": 5,
+        "primary_inference": {
+          "lag": 4,
+          "method": "paired_newey_west"
+        },
+        "primary_minimum_decision_sessions": 60,
+        "primary_minimum_valid_paired_ic_sessions": 50,
+        "primary_success_requires_both": [
+          "AUGMENTED_MINUS_BASE_MEAN_RANK_IC_GT_0_P_LT_0_05",
+          "AUGMENTED_MINUS_BASE_MEAN_TOP_MINUS_BOTTOM_SPREAD_GT_0_P_LT_0_05"
+        ],
+        "protocol_id": "AE001-T012-P2",
+        "retrospective_backfill_allowed": false,
+        "secondary_horizon_sessions": 1,
+        "secondary_inference": {
+          "lag": 5,
+          "method": "paired_newey_west"
+        },
+        "secondary_rescues_failed_primary": false,
+        "single_cutoff_freeze_required_across_primary_cohort": true,
+        "status": "OUTCOME_COHORT_FROZEN_BEFORE_FIRST_DECISION",
+        "timing_basis_sessions_may_enter_outcomes": false
+      },
+      "recorded_at_utc": "2026-10-02T08:24:43.846990+00:00",
+      "seq": 38,
+      "trial_id": "AE001-T012"
     }
   ],
   "ledger_id": "AE001-TRIAL-LEDGER-v1",
-  "ledger_sha256": "8fdd49f283fea64fd330216a8a789ca36560b962067f44033cfce340902fcb85",
+  "ledger_sha256": "44061f615e058a15323a9b33a11f0a6bfbcc1fa4e76bb7a41af47fd96110623d",
   "live_capital_allowed": false,
   "schema_version": 1
 }
