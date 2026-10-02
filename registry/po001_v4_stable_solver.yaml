@@ -1,0 +1,59 @@
+schema_version: 1
+id: PO001-v4-DEVELOPMENT
+name: deterministic_cash_start_convex_portfolio_solver
+status: DEVELOPMENT_CHALLENGER
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_economics: PO001-v3-DEVELOPMENT
+
+domain:
+  current_weights: ZERO_ONLY
+  terminal_liquidation: REQUIRED_TRUE
+  factor_bounds: REQUIRED_EMPTY
+  long_only: true
+
+solver:
+  method: DETERMINISTIC_CYCLIC_COORDINATE_DESCENT_WITH_BUDGET_DUAL_BISECTION
+  identity_order: SYMBOL_THEN_ISIN
+  inner_weight_tolerance: 1.0e-13
+  inner_max_sweeps: 20000
+  outer_budget_tolerance: 1.0e-12
+  outer_max_bisection_iterations: 100
+  canonical_zero_threshold: 5.0e-14
+  canonical_decimal_places: 14
+  kkt_tolerance: 1.0e-9
+
+economics:
+  alpha_changed: false
+  risk_changed: false
+  observable_cost_changed: false
+  impact_model_changed: false
+  participation_changed: false
+
+backward_equivalence:
+  control_optimizer: PO001-v3-DEVELOPMENT
+  maximum_weight_abs_difference: 1.0e-8
+  maximum_expected_alpha_abs_difference: 1.0e-10
+  maximum_variance_abs_difference: 1.0e-12
+  maximum_cost_abs_difference: 1.0e-10
+  maximum_utility_abs_difference: 1.0e-10
+
+s001_reproducibility:
+  source_study: PO001-I004-v1
+  replica_count: 3
+  economic_scalar_range:
+    expected_excess_return: 1.0e-10
+    annualized_volatility: 1.0e-9
+    total_variance_daily: 1.0e-12
+    risk_penalty: 1.0e-11
+    total_transaction_cost_fraction: 1.0e-10
+    objective_utility: 1.0e-10
+  weight_pairwise:
+    maximum_absolute_difference: 1.0e-10
+    maximum_l1_difference: 1.0e-8
+  maximum_kkt_violation: 1.0e-9
+
+promotion:
+  live_capital_directly_allowed: false
+  rm001_v3_revisit_requires_s001_pass: true
