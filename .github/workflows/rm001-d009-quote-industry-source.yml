@@ -1,0 +1,58 @@
+name: RM001 D009 quote industry source feasibility
+
+on:
+  push:
+    branches:
+      - feat/rm001-d009-quote-industry-source-20261002
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    if: contains(github.event.head_commit.message, '[rm001-d009]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen D009 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/nse.py \
+            src/marketlab/rm001_d009.py \
+            scripts/run_rm001_d009.py \
+            tests/test_rm001_d009.py \
+            tests/test_nse_quote_raw.py
+          pytest -q \
+            tests/test_rm001_d009.py \
+            tests/test_nse_quote_raw.py
+          marketlab validate-registry registry/hypotheses.yaml
+
+      - name: Run frozen source-only D009 scan
+        run: |
+          python scripts/run_rm001_d009.py \
+            --raw-dir reports/rm001-d009/raw \
+            --output reports/rm001-d009/report.json \
+            --attempts 4 \
+            --timeout-seconds 20 \
+            --pause-seconds 0.15
+
+      - name: Print result
+        run: cat reports/rm001-d009/report.json
+
+      - name: Upload exact D009 source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-d009-${{ github.run_id }}
+          path: reports/rm001-d009
+          if-no-files-found: warn
+          retention-days: 90

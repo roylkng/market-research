@@ -1,0 +1,59 @@
+schema_version: 1
+id: RM001-D009-v1
+name: nse_quote_industry_source_feasibility
+status: FROZEN_BEFORE_SOURCE_SCAN
+created: 2026-10-02
+live_capital_allowed: false
+
+research_class:
+  type: SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES
+  return_labels_allowed: false
+  alpha_outcomes_allowed: false
+  risk_model_fit_allowed: false
+
+source:
+  provider: NSE
+  endpoint: https://www.nseindia.com/api/quote-equity
+  exact_raw_bytes_required: true
+  historical_backfill_authorized: false
+
+sample_symbols:
+  - RELIANCE
+  - TCS
+  - HDFCBANK
+  - BHARTIARTL
+  - SUNPHARMA
+  - LT
+  - MARUTI
+  - HINDUNILVR
+  - TATASTEEL
+  - POWERGRID
+  - TITAN
+  - DIVISLAB
+  - BBOX
+  - WALCHANNAG
+  - DAMODARIND
+  - PIDILITIND
+
+required_fields:
+  identity:
+    - symbol
+    - isin
+  classification:
+    - macro_economic_sector
+    - sector
+    - industry
+    - basic_industry
+
+promotion_gates:
+  minimum_parseable_fraction: 0.90
+  minimum_symbol_identity_fraction: 0.90
+  minimum_isin_fraction: 0.90
+  minimum_four_level_classification_fraction: 0.90
+  conflicting_symbol_count_max: 0
+  stable_industry_info_semantics_required: true
+
+promotion:
+  pass: AUTHORIZE_PROSPECTIVE_CLASSIFICATION_CAPTURE_DESIGN
+  historical_sector_factor_directly_allowed: false
+  live_capital_directly_allowed: false

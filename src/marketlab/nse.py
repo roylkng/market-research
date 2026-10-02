@@ -165,6 +165,19 @@ class NSEClient:
         payload = self._json_get(self.QUOTE_ENDPOINT, params={"symbol": symbol})
         return self._require_mapping(payload, self.QUOTE_ENDPOINT.name)
 
+    def quote_equity_with_raw(
+        self,
+        symbol: str,
+    ) -> tuple[dict[str, Any], bytes]:
+        payload, raw = self._json_get_with_raw(
+            self.QUOTE_ENDPOINT,
+            params={"symbol": symbol},
+        )
+        return self._require_mapping(
+            payload,
+            self.QUOTE_ENDPOINT.name,
+        ), raw
+
     def integrated_filings(
         self,
         *,
