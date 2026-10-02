@@ -29,9 +29,23 @@ from marketlab.tc001 import TC001Config, observable_side_cost
 
 STUDY_ID = "PO001-I004-v1"
 PORTFOLIO_NAV_INR = 10_000_000.0
-EXPECTED_DELIVERY_PANEL_SHA256 = (
+LEGACY_I003_DELIVERY_FEATURE_PANEL_SHA256 = (
     "47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44"
 )
+EXPECTED_RAW_DELIVERY_PANEL_SHA256 = (
+    "3d1755bad85a8cebcbc27effbe3a1a4c33a01ebdad47a0c9ea15a89febb6de96"
+)
+EXPECTED_DELIVERY_DEFINITION_PROJECTION_SHA256 = (
+    "de753b2357df96308d999adb1636c18d2c0770cf3e9e5f631b9ba7cbb577bd7b"
+)
+EXPECTED_DELIVERY_SESSION_PROJECTION_SHA256 = (
+    "9f5ce211cd75f2e921bbad383bbc7a7ce81ef1c22a91bb6dae85bc68454defa6"
+)
+EXPECTED_DELIVERY_ROW_PROJECTION_SHA256 = (
+    "640694c8c5e44398281912b0d2d64551f63d21f9a76d33ebde577f5e3038a163"
+)
+EXPECTED_DELIVERY_FEATURE_ROW_COUNT = 234401
+FEATURE_EQUIVALENCE_AUDIT_RUN_ID = 36967504413
 EXPECTED_CONTROL_RISK_SHA256 = (
     "b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1"
 )
@@ -63,6 +77,80 @@ def _verify_hash(
     unsigned.pop(hash_field, None)
     if len(stored) != 64 or digest(unsigned) != stored:
         raise AlphaContractError(f"{name} hash mismatch")
+
+
+def _validate_i004_feature_panel(
+    delivery_feature_panel: dict[str, Any],
+) -> dict[str, Any]:
+    raw_delivery_sha = str(
+        delivery_feature_panel.get("delivery_panel_sha256") or ""
+    )
+    if raw_delivery_sha != EXPECTED_RAW_DELIVERY_PANEL_SHA256:
+        raise AlphaContractError(
+            "I004 raw delivery panel differs from frozen P1 source"
+        )
+    rows = delivery_feature_panel.get("rows")
+    sessions = delivery_feature_panel.get("sessions")
+    definitions = delivery_feature_panel.get("feature_definitions")
+    if (
+        not isinstance(rows, list)
+        or not isinstance(sessions, list)
+        or not isinstance(definitions, list)
+    ):
+        raise AlphaContractError(
+            "I004 delivery feature panel is missing canonical projections"
+        )
+    if len(rows) != EXPECTED_DELIVERY_FEATURE_ROW_COUNT:
+        raise AlphaContractError(
+            f"I004 delivery feature row count changed: {len(rows)}"
+        )
+    row_projection = [
+        {
+            "feature_session": row["feature_session"],
+            "symbol": row["symbol"],
+            "isin": row["isin"],
+            "values": row["values"],
+        }
+        for row in rows
+    ]
+    session_projection = [
+        {
+            "session_date": row["session_date"],
+            "eligible_count": row["eligible_count"],
+            "universe_sha256": row["universe_sha256"],
+        }
+        for row in sessions
+    ]
+    definition_sha = digest(definitions)
+    session_sha = digest(session_projection)
+    row_sha = digest(row_projection)
+    if definition_sha != EXPECTED_DELIVERY_DEFINITION_PROJECTION_SHA256:
+        raise AlphaContractError(
+            "I004 delivery feature definitions differ from frozen P1"
+        )
+    if session_sha != EXPECTED_DELIVERY_SESSION_PROJECTION_SHA256:
+        raise AlphaContractError(
+            "I004 delivery session universe differs from frozen P1"
+        )
+    if row_sha != EXPECTED_DELIVERY_ROW_PROJECTION_SHA256:
+        raise AlphaContractError(
+            "I004 stock-date delivery feature values differ from frozen P1"
+        )
+    return {
+        "legacy_i003_top_level_panel_sha256": (
+            LEGACY_I003_DELIVERY_FEATURE_PANEL_SHA256
+        ),
+        "current_top_level_panel_sha256": delivery_feature_panel.get(
+            "panel_sha256"
+        ),
+        "raw_delivery_panel_sha256": raw_delivery_sha,
+        "definition_projection_sha256": definition_sha,
+        "session_projection_sha256": session_sha,
+        "row_projection_sha256": row_sha,
+        "feature_row_count": len(rows),
+        "equivalence_audit_run_id": FEATURE_EQUIVALENCE_AUDIT_RUN_ID,
+        "economic_equivalence_passed": True,
+    }
 
 
 def _validate_risk_state(
@@ -251,12 +339,9 @@ def run_po001_i004(
         expected_model_id="RM001-v3-DEVELOPMENT",
         name="I004 treatment RM001-v3 state",
     )
-    if delivery_feature_panel.get("panel_sha256") != (
-        EXPECTED_DELIVERY_PANEL_SHA256
-    ):
-        raise AlphaContractError(
-            "I004 delivery feature panel does not reproduce frozen source"
-        )
+    feature_equivalence = _validate_i004_feature_panel(
+        delivery_feature_panel
+    )
 
     ranked = (
         delivery_feature_panel
@@ -393,6 +478,7 @@ def run_po001_i004(
         "delivery_feature_panel_sha256": delivery_feature_panel[
             "panel_sha256"
         ],
+        "delivery_feature_economic_equivalence": feature_equivalence,
         "control_risk_state_sha256": control_risk_state["state_sha256"],
         "treatment_risk_state_sha256": treatment_risk_state["state_sha256"],
         "common_identity_count": len(common),
