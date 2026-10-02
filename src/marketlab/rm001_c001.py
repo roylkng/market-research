@@ -462,8 +462,8 @@ def run_rm001_c001(
                 for key, value in variances.items()
             }
             valid_probe_count += 1
-            for key in valid_losses:
-                valid_losses[key].append(losses[key])
+            for key, values in valid_losses.items():
+                values.append(losses[key])
 
             probe_rows.append(
                 {
