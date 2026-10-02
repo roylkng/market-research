@@ -10,6 +10,8 @@ from marketlab.alpha_t004_readiness import build_t004_readiness
 from marketlab.calendar_snapshot import build_calendar_snapshot
 from marketlab.prospective_health import build_prospective_health_summary
 from marketlab.rm001_c002 import new_forecast_ledger, new_outcome_ledger
+from marketlab.rm001_industry_timing import new_industry_source_ledger
+from marketlab.rm001_size_timing import new_size_source_ledger
 
 
 def _rehash(ledger, field="ledger_sha256"):
@@ -135,6 +137,8 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
         sc001_ledger=_sc001_ready(),
         sc002_ledger=_sc002_late_ready(),
         sc003_ledger=new_sc003_ledger(),
+        rm001_sc001_size_ledger=new_size_source_ledger(),
+        rm001_sc002_industry_ledger=new_industry_source_ledger(),
         t004_decision_ledger=t004_d,
         t004_outcome_ledger=t004_o,
         t004_readiness=_t004_warmup(),
@@ -154,6 +158,14 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
     assert (
         summary["components"]["SC002"]["state"]
         == "BLOCKED_SAME_DAY_FUTURES_TIMING"
+    )
+    assert (
+        summary["components"]["RM001_SC001_SIZE"]["state"]
+        == "WAITING_FOR_SIZE_TIMING_EVIDENCE"
+    )
+    assert (
+        summary["components"]["RM001_SC002_INDUSTRY"]["state"]
+        == "BEFORE_FROZEN_START"
     )
     assert (
         summary["components"]["T006"]["state"]
@@ -197,6 +209,8 @@ def test_health_marks_sc001_stale_when_expected_session_is_missing():
         sc001_ledger=_sc001_ready(),
         sc002_ledger=new_futures_source_ledger(),
         sc003_ledger=new_sc003_ledger(),
+        rm001_sc001_size_ledger=new_size_source_ledger(),
+        rm001_sc002_industry_ledger=new_industry_source_ledger(),
         t004_decision_ledger=t004_d,
         t004_outcome_ledger=t004_o,
         t004_readiness=_t004_warmup(),
@@ -208,6 +222,10 @@ def test_health_marks_sc001_stale_when_expected_session_is_missing():
     )
     assert summary["latest_expected_market_session"] == "2026-10-05"
     assert summary["components"]["SC001"]["state"] == "STALE"
+    assert (
+        summary["components"]["RM001_SC002_INDUSTRY"]["state"]
+        == "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
+    )
     assert "SC001_STALE" in summary["blockers"]
 
 
@@ -250,6 +268,8 @@ def test_health_confirms_t006_timing_infeasible_only_after_five_late_ready_sessi
         sc001_ledger=_sc001_ready(),
         sc002_ledger=_sc002_all_late_ready(),
         sc003_ledger=new_sc003_ledger(),
+        rm001_sc001_size_ledger=new_size_source_ledger(),
+        rm001_sc002_industry_ledger=new_industry_source_ledger(),
         t004_decision_ledger=t004_d,
         t004_outcome_ledger=t004_o,
         t004_readiness=_t004_warmup(),
