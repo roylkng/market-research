@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D010-R2-v1",
+  "evidence_class": "SOURCE_SEMANTICS_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37012646730,
+  "workflow_artifact_id": 11227778458,
+  "workflow_artifact_name": "rm001-d010-r2-37012646730",
+  "result_sha256": "5e11b42733d069115d15c4985a9eb60263ffaad2375db3463b0904ae9cba4b34",
+  "status": "FAIL_CROSS_PERIOD_SEMANTICS",
+  "parent_r1_status": "FAIL_DUPLICATE_SEMANTICS",
+  "parent_r1_result_sha256": "eedc9bba0dfcb15a394af800cdc84f2e20ab48b95632d8941e5af169e1291522",
+  "d010_status_changed": false,
+  "r1_status_changed": false,
+  "d011_authorized": false,
+  "d012_period_keyed_authorized": false,
+  "candidate_count": 1,
+  "candidate_count_matches_frozen_expectation": true,
+  "candidate": {
+    "stable_identity": "CIN:L65191TN1993PLC025280",
+    "symbols": ["EQUITASBNK"],
+    "filing_count": 2,
+    "distinct_period_count": 2,
+    "nic_changed_between_periods": false,
+    "nic_code": "64191",
+    "periods": [
+      {
+        "financial_year_start": "2024-04-01",
+        "financial_year_end": "2025-03-31",
+        "submission_timestamp": "2024-08-13T20:39:34",
+        "app_id": "54402",
+        "period_length_days": 364
+      },
+      {
+        "financial_year_start": "2025-04-01",
+        "financial_year_end": "2026-03-31",
+        "submission_timestamp": "2025-08-14T13:20:24",
+        "app_id": "111384",
+        "period_length_days": 364
+      }
+    ],
+    "gates": {
+      "all_period_dates_parseable": true,
+      "at_least_two_distinct_periods": true,
+      "all_periods_valid": false,
+      "periods_non_overlapping": true,
+      "cross_period_app_ids_unique": true,
+      "cross_period_submission_timestamps_unique": true,
+      "all_filings_on_or_after_period_end": false
+    },
+    "candidate_pass": false
+  },
+  "interpretation": {
+    "period_structure_itself_is_clean": true,
+    "frozen_temporal_sanity_gate_failed": true,
+    "current_financial_year_fields_behave_like_filing_time_context_not_report_period": true,
+    "threshold_weakened_after_inspection": false,
+    "next_step": "SEPARATE_STRUCTURED_REPORTING_PERIOD_FIELD_SEMANTICS_DIAGNOSTIC",
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false
+  },
+  "live_capital_allowed": false
+}
