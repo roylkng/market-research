@@ -1,5 +1,3 @@
-from datetime import UTC, datetime
-
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
