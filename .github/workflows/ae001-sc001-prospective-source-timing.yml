@@ -56,6 +56,7 @@ jobs:
             scripts/verify_ae001_sc001.py \
             scripts/score_ae001_t004_decision.py \
             scripts/verify_ae001_t004_decisions.py \
+            scripts/verify_ae001_t004_readiness.py \
             tests/test_alpha_prospective_sources.py \
             tests/test_alpha_t004_prospective.py
           pytest -q \
@@ -66,6 +67,10 @@ jobs:
             --ledger research/prospective/ae001-sc001/source-ledger.json
           python scripts/verify_ae001_t004_decisions.py \
             --ledger research/prospective/ae001-t004/decision-ledger.json
+          python scripts/verify_ae001_t004_readiness.py \
+            --readiness research/prospective/ae001-t004/readiness.json
+          python scripts/verify_ae001_t004_readiness.py \
+            --readiness research/prospective/ae001-t004/readiness.json
 
       - name: Resolve frozen start boundary
         id: gate
@@ -173,6 +178,8 @@ jobs:
             --models research/prospective/ae001-t004/frozen-models-v1.json \
             --decision-dir research/prospective/ae001-t004/decisions \
             --support-dir "$T004_WORK" \
+            --readiness research/prospective/ae001-t004/readiness.json \
+            --workflow-run-id "$GITHUB_RUN_ID" \
             --attempts 4 \
             --timeout-seconds 30 | tee "$T004_WORK/score.json"
           python scripts/verify_ae001_t004_decisions.py \
@@ -184,13 +191,15 @@ jobs:
         run: |
           set -euo pipefail
           LEDGER="research/prospective/ae001-t004/decision-ledger.json"
+          READINESS="research/prospective/ae001-t004/readiness.json"
           BRANCH="main"
           START_SHA="$POST_SC001_SHA"
 
           python scripts/verify_ae001_t004_decisions.py --ledger "$LEDGER"
+          python scripts/verify_ae001_t004_readiness.py --readiness "$READINESS"
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add "$LEDGER"
+          git add "$LEDGER" "$READINESS"
           if [ -d research/prospective/ae001-t004/decisions ]; then
             git add research/prospective/ae001-t004/decisions
           fi
@@ -228,6 +237,7 @@ jobs:
               python scripts/verify_ae001_sc001.py \
                 --ledger research/prospective/ae001-sc001/source-ledger.json
               python scripts/verify_ae001_t004_decisions.py --ledger "$LEDGER"
+              python scripts/verify_ae001_t004_readiness.py --readiness "$READINESS"
             fi
             if git push origin HEAD:"$BRANCH"; then
               exit 0
