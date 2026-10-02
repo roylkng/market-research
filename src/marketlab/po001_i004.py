@@ -7,6 +7,11 @@ from typing import Any
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_history import cross_sectionalize_panel
 from marketlab.alpha_t004_prospective import _score_model
+from marketlab.po001 import (
+    DEFAULT_MAX_INVESTED_WEIGHT,
+    DEFAULT_MAX_NAME_WEIGHT,
+    DEFAULT_MAX_TRADED_FRACTION,
+)
 from marketlab.po001_i001 import COST_REFERENCE_NOTIONAL_INR, RISK_AVERSION
 from marketlab.po001_i003 import (
     DECISION_SESSION,
@@ -19,11 +24,6 @@ from marketlab.po001_v3 import (
     DEFAULT_IMPACT_COEFFICIENT,
     DEFAULT_MAX_PARTICIPATION,
     optimize_portfolio_v3,
-)
-from marketlab.po001 import (
-    DEFAULT_MAX_INVESTED_WEIGHT,
-    DEFAULT_MAX_NAME_WEIGHT,
-    DEFAULT_MAX_TRADED_FRACTION,
 )
 from marketlab.tc001 import TC001Config, observable_side_cost
 
