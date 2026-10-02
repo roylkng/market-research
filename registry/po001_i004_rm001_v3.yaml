@@ -1,0 +1,62 @@
+schema_version: 1
+id: PO001-I004-v1
+name: rm001_v3_risk_treatment_integration
+status: COMPLETE_DEVELOPMENT_NUMERICALLY_UNSTABLE
+created: 2026-10-02
+live_capital_allowed: false
+
+decision:
+  session: 2026-08-31
+  horizon_sessions: 5
+  realized_outcome_opened: false
+
+alpha:
+  model_path: research/po001-i003/inputs/i002-alpha-model-v1.json
+  model_sha256: 179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260
+  delivery_feature_panel_sha256: 47ee538af6cfca16405632ce6396571455a548687b4ceabfd7999040a86f8b44
+
+optimizer:
+  id: PO001-v3-DEVELOPMENT
+  portfolio_nav_inr: 10000000
+  risk_aversion: 5.0
+  impact_coefficient: 0.50
+  max_participation: 0.10
+  max_name_weight: 0.05
+  max_invested_weight: 1.0
+  max_traded_fraction_of_nav: 1.0
+  terminal_liquidation: true
+  factor_bounds: {}
+
+control_risk:
+  path: research/po001-i003/inputs/i002-risk-state-legacy.json.gz
+  state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+
+treatment_risk:
+  source_run_id: 36958406605
+  source_artifact_name: rm001-v3-p001-36958406605
+  state_sha256: 32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441
+  pinned_path: research/po001-i004/inputs/rm001-v3-p001-risk-state.json.gz
+
+control_reproduction:
+  scalar_tolerance: 1.0e-10
+  holding_count: 47
+  expected_5d_excess_return: 0.010268398328395899
+  annualized_volatility: 0.12926327992563452
+  total_transaction_cost_fraction: 0.00268388045086663
+  objective_utility: 0.005926879431385127
+
+treatment:
+  only_changed_input: risk_state
+
+promotion:
+  prospective_use_requires_prospective_rm001_v3_state: true
+  live_capital_directly_allowed: false
+
+result:
+  path: research/po001-i004-result-v1.json
+  result_sha256: 4e2ea7380d015432b97b46f0ca6bf1d58cd8dddf6655cb260ed0a0645b020740
+  corrected_materialization_run_id: 36969967153
+  numerical_audit_run_id: 36970779566
+  economic_scalar_stability_passed: false
+  exact_weight_interpretation_reproducible: false
+  portfolio_promotion_supported: false
