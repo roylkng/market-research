@@ -1,0 +1,44 @@
+schema_version: 1
+id: PO001-v3-DEVELOPMENT
+name: factor_dynamic_capacity_aware_portfolio_optimizer
+status: DEVELOPMENT_CHALLENGER
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_optimizer: PO001-v2-DEVELOPMENT
+
+treatment:
+  change: DYNAMIC_HASH_VERIFIED_RISK_FACTOR_SET
+  objective_changed: false
+  execution_model_changed: false
+  constraints_changed: false
+
+risk_contract:
+  factor_names_source: risk_state.factor_names
+  factor_names_nonempty_unique: true
+  exposure_keys_exactly_match_factor_names: true
+  covariance_dimension_matches_factor_count: true
+  covariance_symmetric: true
+  covariance_psd_tolerance: -1.0e-10
+
+compatible_initial_models:
+  - RM001-v1-DEVELOPMENT
+  - RM001-v2-DEVELOPMENT
+  - RM001-v3-DEVELOPMENT
+
+execution:
+  model: PO001_V2_TC001_SQUARE_ROOT_PARTICIPATION
+  impact_coefficient_default: 0.50
+  maximum_participation_default: 0.10
+  quoted_spread_included: false
+
+backward_equivalence:
+  control_optimizer: PO001-v2-DEVELOPMENT
+  control_risk_model: RM001-v1-DEVELOPMENT
+  maximum_weight_abs_difference: 1.0e-10
+  maximum_scalar_abs_difference: 1.0e-12
+
+promotion:
+  rm001_v3_historical_integration_requires_separate_i004: true
+  prospective_use_requires_separate_protocol: true
+  live_capital_directly_allowed: false
