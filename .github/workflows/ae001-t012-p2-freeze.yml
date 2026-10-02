@@ -1,0 +1,128 @@
+name: AE001 T012 freeze outcome cohort
+
+on:
+  push:
+    branches:
+      - feat/ae001-t012-late-futures-20261002
+
+permissions:
+  contents: write
+
+jobs:
+  freeze:
+    if: contains(github.event.head_commit.message, '[ae001-t012-p2]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Freeze T012 P2 before first decision
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import UTC, datetime
+          from pathlib import Path
+
+          from marketlab.alpha import AlphaContractError
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+          state = trial_state(ledger, "AE001-T012")
+          if state["registration"] is None:
+              raise AlphaContractError("T012 must be registered before P2")
+
+          existing = [
+              event
+              for event in state["amendments"]
+              if event["payload"].get("protocol_id") == "AE001-T012-P2"
+          ]
+          if len(existing) > 1:
+              raise AlphaContractError("duplicate T012-P2 amendments")
+          if existing:
+              print("T012-P2 already frozen", existing[0]["event_sha256"])
+              raise SystemExit(0)
+          if state["results"]:
+              raise AlphaContractError(
+                  "T012 result exists before P2 outcome protocol"
+              )
+
+          payload = {
+              "protocol_id": "AE001-T012-P2",
+              "status": "OUTCOME_COHORT_FROZEN_BEFORE_FIRST_DECISION",
+              "frozen_protocol": (
+                  "research/AE001_T012_LATE_FUTURES_CONFIRMATION_V1.md"
+              ),
+              "horizons": [1, 5],
+              "primary_horizon_sessions": 5,
+              "primary_minimum_decision_sessions": 60,
+              "primary_minimum_valid_paired_ic_sessions": 50,
+              "primary_cohort_rule": (
+                  "SMALLEST_CHRONOLOGICAL_CANONICAL_PREFIX"
+              ),
+              "primary_inference": {
+                  "method": "paired_newey_west",
+                  "lag": 4,
+              },
+              "primary_success_requires_both": [
+                  "AUGMENTED_MINUS_BASE_MEAN_RANK_IC_GT_0_P_LT_0_05",
+                  "AUGMENTED_MINUS_BASE_MEAN_TOP_MINUS_BOTTOM_SPREAD_GT_0_P_LT_0_05",
+              ],
+              "secondary_horizon_sessions": 1,
+              "secondary_inference": {
+                  "method": "paired_newey_west",
+                  "lag": 5,
+              },
+              "secondary_rescues_failed_primary": False,
+              "single_cutoff_freeze_required_across_primary_cohort": True,
+              "timing_basis_sessions_may_enter_outcomes": False,
+              "retrospective_backfill_allowed": False,
+              "live_capital_allowed": False,
+          }
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_PROTOCOL_AMENDED",
+              trial_id="AE001-T012",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print("T012_P2_EVENT_SHA", updated["events"][-1]["event_sha256"])
+          print("LEDGER_SHA", updated["ledger_sha256"])
+          PY
+
+      - name: Commit P2 to branch
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/trial-ledger.json
+          if git diff --cached --quiet; then
+            echo "No T012 P2 change"
+            exit 0
+          fi
+          git commit -m "research: freeze AE001 T012 outcome cohort P2 [skip ci]"
+          git push origin HEAD:feat/ae001-t012-late-futures-20261002
