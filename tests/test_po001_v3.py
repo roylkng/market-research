@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from marketlab.alpha import digest
+from marketlab.alpha import AlphaContractError, digest
 from marketlab.po001_v2 import optimize_portfolio_v2
 from marketlab.po001_v3 import optimize_portfolio_v3
 from marketlab.rm001 import FACTOR_NAMES
@@ -199,7 +199,7 @@ def test_po001_v3_rejects_exposure_factor_mismatch():
     unsigned.pop("state_sha256", None)
     state["state_sha256"] = digest(unsigned)
 
-    with pytest.raises(Exception, match="exposure factor set mismatch"):
+    with pytest.raises(AlphaContractError, match="exposure factor set mismatch"):
         optimize_portfolio_v3(
             decision_session="2026-08-31",
             horizon_sessions=5,
