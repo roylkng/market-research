@@ -1,7 +1,7 @@
 schema_version: 1
 id: RM001-C001-v1
 name: historical_oos_risk_forecast_calibration
-status: FROZEN_BEFORE_CALIBRATION_OUTCOMES
+status: COMPLETE_HISTORICAL_OOS
 created: 2026-10-02
 live_capital_allowed: false
 
@@ -72,3 +72,10 @@ classification:
 promotion:
   prospective_claim_allowed: false
   live_capital_directly_allowed: false
+
+result:
+  path: research/rm001-c001-result-v1.json
+  report_sha256: 7e8d03a697bc0e76eca96ec263a5353b2749bcc1fcbcfcca79dc36740aa7a228
+  classification: V3_MIXED_OOS_RISK_FORECAST
+  predictive_default_model: RM001-v1-DEVELOPMENT
+  v3_default_promotion_supported: false
