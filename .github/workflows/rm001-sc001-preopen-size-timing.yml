@@ -2,8 +2,15 @@ name: RM001 SC001 previous-session size pre-open timing
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - AE001 SC003 previous-session futures pre-open timing
+      - H024 prospective insider stream
+    types:
+      - completed
   schedule:
-    # Asia/Kolkata: 06:30, 07:00, 07:30, 08:00, 08:15, 08:25.
+    # Frozen primary cadence, Asia/Kolkata:
+    # 06:30, 07:00, 07:30, 08:00, 08:15, 08:25.
     - cron: '0 1 * * 1-5'
     - cron: '30 1 * * 1-5'
     - cron: '0 2 * * 1-5'
@@ -20,6 +27,9 @@ concurrency:
 
 jobs:
   probe:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -59,20 +69,24 @@ jobs:
             --ledger research/prospective/rm001-sc001/source-ledger.json \
             --summary research/prospective/rm001-sc001/readiness-summary.json
 
-      - name: Resolve observation date
+      - name: Resolve observation date and causal window
         id: gate
         shell: bash
         run: |
           set -euo pipefail
           TODAY="$(TZ=Asia/Kolkata date +%F)"
+          NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
           if [[ "$TODAY" < "2026-10-02" ]]; then
             STATE="BEFORE_START"
+          elif [[ "$NOW_HM" > "0830" ]]; then
+            STATE="AFTER_PREOPEN_CUTOFF"
           else
             STATE="READY"
           fi
           echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "time_hm=$NOW_HM" >> "$GITHUB_OUTPUT"
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
-          echo "RM001-SC001 gate: observation_date=$TODAY state=$STATE"
+          echo "RM001-SC001 gate: observation_date=$TODAY time=$NOW_HM event=${GITHUB_EVENT_NAME} state=$STATE"
 
       - name: Probe latest completed SC001 session Security File
         if: steps.gate.outputs.state == 'READY'
@@ -117,6 +131,7 @@ jobs:
             ".github/workflows/rm001-sc001-preopen-size-timing.yml"
             "registry/rm001_sc001_preopen_size.yaml"
             "research/RM001_SC001_PREOPEN_SIZE_SOURCE_TIMING_V1.md"
+            "research/RM001_SC001_OPERATIONAL_TRIGGER_REDUNDANCY_P1.md"
             "research/prospective/ae001-sc001"
             "research/prospective/rm001-sc001"
             "src/marketlab/rm001_size_timing.py"
@@ -147,6 +162,7 @@ jobs:
           echo "Unable to anchor RM001-SC001 evidence after bounded retries"
           exit 1
 
-      - name: Report pre-start probe
+      - name: Report non-observation gate
         if: steps.gate.outputs.state != 'READY'
-        run: echo "RM001-SC001 has not reached its frozen start boundary"
+        run: |
+          echo "RM001-SC001 did not probe: state=${{ steps.gate.outputs.state }} date=${{ steps.gate.outputs.date }} time=${{ steps.gate.outputs.time_hm }}"
