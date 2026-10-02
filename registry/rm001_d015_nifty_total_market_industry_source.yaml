@@ -1,0 +1,50 @@
+schema_version: 1
+id: RM001-D015-v1
+name: nifty_total_market_prospective_industry_source_feasibility
+status: FROZEN_BEFORE_SOURCE_SCAN
+created: 2026-10-02
+live_capital_allowed: false
+
+research_class:
+  type: SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES
+  return_labels_allowed: false
+  alpha_outcomes_allowed: false
+  risk_model_fit_allowed: false
+  portfolio_fit_allowed: false
+
+source:
+  provider: NSE_INDICES
+  url: https://nsearchives.nseindia.com/content/indices/ind_niftytotalmarket_list.csv
+  exact_raw_bytes_required: true
+  historical_backfill_authorized: false
+
+required_columns:
+  - Company Name
+  - Industry
+  - Symbol
+  - Series
+  - ISIN Code
+
+identity:
+  key: symbol_plus_isin
+  fuzzy_matching_allowed: false
+
+promotion_gates:
+  minimum_row_count: 700
+  minimum_unique_identity_count: 700
+  duplicate_identity_count_max: 0
+  symbol_to_multiple_isin_conflict_count_max: 0
+  isin_to_multiple_symbol_conflict_count_max: 0
+  minimum_industry_coverage: 0.99
+  required_isin_coverage: 1.0
+  minimum_eq_series_coverage: 0.99
+  minimum_industry_label_count: 10
+  maximum_industry_label_count: 40
+  missing_company_name_count_max: 0
+  missing_symbol_count_max: 0
+
+promotion:
+  pass: AUTHORIZE_RM001_SC002_PROSPECTIVE_INDUSTRY_CAPTURE
+  historical_sector_factor_directly_allowed: false
+  rm001_factor_directly_allowed: false
+  live_capital_directly_allowed: false
