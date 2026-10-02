@@ -276,7 +276,7 @@ def _parse_public_timestamp(value: object) -> datetime | None:
             "%d %b %Y %H:%M:%S",
         ):
             try:
-                parsed = datetime.strptime(raw, fmt)
+                parsed = datetime.strptime(raw, fmt).replace(tzinfo=IST)
                 break
             except ValueError:
                 continue
