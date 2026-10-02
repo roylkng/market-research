@@ -1,0 +1,33 @@
+schema_version: 1
+id: AE001-T006-SOURCE-FEASIBILITY-v1
+name: t006_same_session_futures_timing_feasibility
+status: ACCUMULATING_EVIDENCE
+frozen_date: 2026-10-02
+live_capital_allowed: false
+
+source:
+  ledger: research/prospective/ae001-sc002/source-ledger.json
+  calendar: research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json
+
+window:
+  start_session: 2026-09-30
+  required_sessions: 5
+  expected_sessions:
+    - 2026-09-30
+    - 2026-10-01
+    - 2026-10-05
+    - 2026-10-06
+    - 2026-10-07
+
+classification:
+  feasible_if_any_eligible_before_cutoff: true
+  infeasible_only_if_all_required_sessions_ready_after_cutoff: true
+  missing_observation_counts_as_failure: false
+  observed_not_ready_counts_as_conclusive_late_ready: false
+
+outcomes:
+  alpha_or_return_outcomes_opened: false
+
+promotion:
+  timing_infeasible_does_not_modify_t006: true
+  new_trial_required_for_changed_information_timing: true

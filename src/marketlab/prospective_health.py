@@ -14,6 +14,8 @@ from marketlab.rm001_c002 import validate_forecast_ledger, validate_outcome_ledg
 
 HEALTH_ID = "MARKETLAB-PROSPECTIVE-HEALTH-v1"
 C002_START = date(2026, 10, 5)
+T006_FEASIBILITY_START = date(2026, 9, 30)
+T006_FEASIBILITY_REQUIRED_SESSIONS = 5
 
 
 def _canonical_hash(payload: dict[str, Any]) -> str:
@@ -168,6 +170,132 @@ def _sc003_state(ledger: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _project_t004_first_possible_session(
+    calendar: CalendarSnapshot,
+    *,
+    readiness: dict[str, Any],
+) -> dict[str, Any] | None:
+    if readiness.get("state") != "DELIVERY_SOURCE_WARMUP_BLOCKED":
+        return None
+    warmup = readiness.get("delivery_warmup")
+    if not isinstance(warmup, dict):
+        raise AlphaContractError("T004 warmup projection requires readiness details")
+    needed = int(warmup.get("additional_clean_prior_sessions_needed") or 0)
+    if needed <= 0:
+        raise AlphaContractError("T004 warmup projection requires positive remaining sessions")
+
+    session_date = str(readiness.get("session_date") or "")
+    sessions = [session.session_date for session in calendar.sessions]
+    if session_date not in sessions:
+        return {
+            "state": "CALENDAR_SESSION_NOT_FOUND",
+            "readiness_session": session_date,
+            "additional_clean_prior_sessions_needed": needed,
+            "projected_first_possible_decision_session": None,
+            "assumption": "ALL_SUBSEQUENT_REQUIRED_DELIVERY_SESSIONS_CLEAN",
+            "guaranteed": False,
+        }
+    index = sessions.index(session_date)
+    target = index + needed
+    projected = sessions[target] if target < len(sessions) else None
+    return {
+        "state": (
+            "PROJECTED"
+            if projected is not None
+            else "CALENDAR_RANGE_INSUFFICIENT"
+        ),
+        "readiness_session": session_date,
+        "additional_clean_prior_sessions_needed": needed,
+        "projected_first_possible_decision_session": projected,
+        "assumption": "ALL_SUBSEQUENT_REQUIRED_DELIVERY_SESSIONS_CLEAN",
+        "guaranteed": False,
+    }
+
+
+def _t006_source_feasibility(
+    calendar: CalendarSnapshot,
+    ledger: dict[str, Any],
+) -> dict[str, Any]:
+    validate_futures_source_ledger(ledger)
+    sessions = [
+        session.session_date
+        for session in calendar.sessions
+        if date.fromisoformat(session.session_date) >= T006_FEASIBILITY_START
+    ][:T006_FEASIBILITY_REQUIRED_SESSIONS]
+    if len(sessions) < T006_FEASIBILITY_REQUIRED_SESSIONS:
+        raise AlphaContractError(
+            "T006 source-feasibility calendar lacks required evidence sessions"
+        )
+
+    classifications = []
+    eligible_count = 0
+    late_ready_count = 0
+    observed_not_ready_count = 0
+    no_observation_count = 0
+
+    attempts = ledger.get("attempts")
+    if not isinstance(attempts, list):
+        raise AlphaContractError("SC002 attempts must be a list")
+
+    for session_date in sessions:
+        rows = [
+            row
+            for row in attempts
+            if str(row.get("session_date") or "") == session_date
+        ]
+        if any(row.get("eligible_before_cutoff") is True for row in rows):
+            classification = "ELIGIBLE_BEFORE_CUTOFF"
+            eligible_count += 1
+        elif any(
+            row.get("futures", {}).get("status") == "READY"
+            for row in rows
+        ):
+            classification = "READY_AFTER_CUTOFF"
+            late_ready_count += 1
+        elif rows:
+            classification = "OBSERVED_NOT_READY"
+            observed_not_ready_count += 1
+        else:
+            classification = "NO_OBSERVATION"
+            no_observation_count += 1
+        classifications.append(
+            {
+                "session_date": session_date,
+                "classification": classification,
+                "attempt_count": len(rows),
+                "earliest_ready_capture_utc": min(
+                    (
+                        str(row["captured_at_utc"])
+                        for row in rows
+                        if row.get("futures", {}).get("status") == "READY"
+                    ),
+                    default=None,
+                ),
+            }
+        )
+
+    if eligible_count > 0:
+        state = "TIMING_FEASIBLE"
+    elif late_ready_count == T006_FEASIBILITY_REQUIRED_SESSIONS:
+        state = "TIMING_INFEASIBLE_FOR_FROZEN_T006"
+    else:
+        state = "ACCUMULATING_EVIDENCE"
+
+    return {
+        "state": state,
+        "start_session": T006_FEASIBILITY_START.isoformat(),
+        "required_session_count": T006_FEASIBILITY_REQUIRED_SESSIONS,
+        "expected_sessions": sessions,
+        "eligible_before_cutoff_session_count": eligible_count,
+        "ready_after_cutoff_session_count": late_ready_count,
+        "observed_not_ready_session_count": observed_not_ready_count,
+        "no_observation_session_count": no_observation_count,
+        "session_classifications": classifications,
+        "source_ledger_sha256": ledger.get("ledger_sha256"),
+        "alpha_or_return_outcomes_opened": False,
+    }
+
+
 def _trial_state(
     *,
     decision_ledger: dict[str, Any],
@@ -304,6 +432,12 @@ def build_prospective_health_summary(
     t004["readiness_sha256"] = t004_readiness["readiness_sha256"]
     t004["latest_readiness_session"] = t004_readiness["session_date"]
     t004["readiness_state"] = t004_readiness["state"]
+    t004_projection = _project_t004_first_possible_session(
+        calendar,
+        readiness=t004_readiness,
+    )
+    if t004_projection is not None:
+        t004["eligibility_projection"] = t004_projection
     if t004_readiness["state"] == "DELIVERY_SOURCE_WARMUP_BLOCKED":
         warmup = t004_readiness["delivery_warmup"]
         t004["delivery_warmup"] = {
@@ -317,14 +451,18 @@ def build_prospective_health_summary(
             "required_prior_sessions": warmup["required_prior_sessions"],
         }
 
+    t006_feasibility = _t006_source_feasibility(calendar, sc002_ledger)
     t006_block = None
-    if sc002["eligible_before_1830_session_count"] == 0:
+    if t006_feasibility["state"] == "TIMING_INFEASIBLE_FOR_FROZEN_T006":
+        t006_block = "BLOCKED_BY_CONFIRMED_SC002_TIMING_INFEASIBILITY"
+    elif sc002["eligible_before_1830_session_count"] == 0:
         t006_block = "BLOCKED_BY_SC002_SAME_DAY_FUTURES_TIMING"
     t006 = _trial_state(
         decision_ledger=t006_decision_ledger,
         outcome_ledger=t006_outcome_ledger,
         blocked_reason=t006_block,
     )
+    t006["source_timing_feasibility"] = t006_feasibility
 
     c002 = _c002_state(
         forecast_ledger=c002_forecast_ledger,

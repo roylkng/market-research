@@ -32,8 +32,8 @@ def _calendar():
     return build_calendar_snapshot(
         payload,
         raw_holiday_bytes=raw,
-        start_date=date(2026, 10, 1),
-        end_date=date(2026, 10, 6),
+        start_date=date(2026, 9, 30),
+        end_date=date(2026, 10, 20),
         captured_at=datetime(2026, 9, 1, tzinfo=UTC),
         version="TEST-CALENDAR-v1",
     )
@@ -163,6 +163,24 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
     assert summary["components"]["T004"]["delivery_warmup"][
         "additional_clean_prior_sessions_needed"
     ] == 8
+    assert summary["components"]["T004"]["eligibility_projection"][
+        "projected_first_possible_decision_session"
+    ] == "2026-10-14"
+    assert summary["components"]["T004"]["eligibility_projection"][
+        "guaranteed"
+    ] is False
+    assert summary["components"]["T006"]["source_timing_feasibility"][
+        "state"
+    ] == "ACCUMULATING_EVIDENCE"
+    assert summary["components"]["T006"]["source_timing_feasibility"][
+        "expected_sessions"
+    ] == [
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+    ]
     assert summary["components"]["RM001_C002"]["state"] == "BEFORE_FROZEN_START"
     assert "T004_DELIVERY_WARMUP" in summary["blockers"]
     assert "T006_SOURCE_TIMING" in summary["blockers"]
@@ -191,3 +209,61 @@ def test_health_marks_sc001_stale_when_expected_session_is_missing():
     assert summary["latest_expected_market_session"] == "2026-10-05"
     assert summary["components"]["SC001"]["state"] == "STALE"
     assert "SC001_STALE" in summary["blockers"]
+
+
+
+def _sc002_all_late_ready():
+    ledger = new_futures_source_ledger()
+    sessions = [
+        "2026-09-30",
+        "2026-10-01",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-07",
+    ]
+    attempts = []
+    for index, session in enumerate(sessions, start=1):
+        attempt = {
+            "seq": index,
+            "session_date": session,
+            "captured_at_utc": f"{session}T15:30:00+00:00",
+            "decision_cutoff_utc": f"{session}T13:00:00+00:00",
+            "captured_before_or_at_cutoff": False,
+            "futures": {"status": "READY"},
+            "eligible_before_cutoff": False,
+            "live_capital_allowed": False,
+        }
+        attempt["attempt_sha256"] = digest(attempt)
+        attempts.append(attempt)
+    ledger["attempts"] = attempts
+    ledger["attempt_count"] = len(attempts)
+    return _rehash(ledger)
+
+
+def test_health_confirms_t006_timing_infeasible_only_after_five_late_ready_sessions():
+    t004_d, t004_o = _empty_trial("T004")
+    t006_d, t006_o = _empty_trial("T006")
+    summary = build_prospective_health_summary(
+        as_of_date="2026-10-07",
+        after_market_close=True,
+        calendar=_calendar(),
+        sc001_ledger=_sc001_ready(),
+        sc002_ledger=_sc002_all_late_ready(),
+        sc003_ledger=new_sc003_ledger(),
+        t004_decision_ledger=t004_d,
+        t004_outcome_ledger=t004_o,
+        t004_readiness=_t004_warmup(),
+        t006_decision_ledger=t006_d,
+        t006_outcome_ledger=t006_o,
+        c002_forecast_ledger=new_forecast_ledger(),
+        c002_outcome_ledger=new_outcome_ledger(),
+        h024_summary={"primary_classification": "INSUFFICIENT_COVERAGE"},
+    )
+    feasibility = summary["components"]["T006"]["source_timing_feasibility"]
+    assert feasibility["state"] == "TIMING_INFEASIBLE_FOR_FROZEN_T006"
+    assert feasibility["ready_after_cutoff_session_count"] == 5
+    assert feasibility["eligible_before_cutoff_session_count"] == 0
+    assert (
+        summary["components"]["T006"]["state"]
+        == "BLOCKED_BY_CONFIRMED_SC002_TIMING_INFEASIBILITY"
+    )
