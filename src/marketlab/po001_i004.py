@@ -39,6 +39,7 @@ EXPECTED_TREATMENT_RISK_SHA256 = (
     "32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441"
 )
 CONTROL_SCALAR_TOLERANCE = 1e-10
+FROZEN_COMMON_IDENTITY_COUNT = 1307
 FROZEN_CONTROL = {
     "holding_count": 47,
     "expected_5d_excess_return": 0.010268398328395899,
@@ -295,7 +296,7 @@ def run_po001_i004(
         raise AlphaContractError(
             f"I004 common universe below minimum: {len(common)}"
         )
-    if len(common) != 1307:
+    if len(common) != FROZEN_COMMON_IDENTITY_COUNT:
         raise AlphaContractError(
             f"I004 frozen common identity count changed: {len(common)}"
         )
