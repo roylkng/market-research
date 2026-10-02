@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import math
+import time
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from itertools import pairwise
-import time
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
