@@ -1,7 +1,7 @@
 schema_version: 1
 id: PO001-v4-DEVELOPMENT
 name: deterministic_cash_start_convex_portfolio_solver
-status: DEVELOPMENT_CHALLENGER
+status: NUMERICAL_STABILITY_ESTABLISHED
 created: 2026-10-02
 live_capital_allowed: false
 
@@ -60,3 +60,9 @@ s001_reproducibility:
 promotion:
   live_capital_directly_allowed: false
   rm001_v3_revisit_requires_s001_pass: true
+
+validation:
+  s001_result_path: research/po001-s001-result-v1.json
+  s001_result_sha256: 6eacf70acfd65ecc0e2b2767b9a222c80f299c70747f4879624dbf013f055e62
+  exact_cross_run_weights: true
+  maximum_observed_kkt_violation: 2.7370467003962062e-14
