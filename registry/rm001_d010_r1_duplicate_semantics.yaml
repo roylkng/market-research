@@ -1,0 +1,43 @@
+schema_version: 1
+id: RM001-D010-R1-v1
+name: brsr_duplicate_filing_semantics
+status: FROZEN_BEFORE_DUPLICATE_ROW_INSPECTION
+created: 2026-10-02
+live_capital_allowed: false
+
+evidence_class: SOURCE_SEMANTICS_NO_RETURN_OUTCOMES
+
+parent:
+  diagnostic_id: RM001-D010-PHASE-C-v1
+  workflow_run_id: 37010062836
+  result_sha256: 21aff20c7c3300ecf104d049fdbcad3749bb160735f478643a40bab36618a976
+  status: FAIL_SOURCE_FEASIBILITY
+  d011_authorized: false
+
+archives:
+  FY2023-24:
+    url: https://nsearchives.nseindia.com/web/sites/default/files/inline-files/BRSR_Data_Dump.zip
+    sha256: f287b4137b662a2f1cdba54f8d3858f84f09f43e1f0702ad5b2299cde5fb16ef
+  FY2024-25:
+    url: https://nsearchives.nseindia.com/web/mediaattachment/2026-04/BRSR_DUMP_FY24-25_20260414130852.zip
+    sha256: c5209af34ec21dd76f621f50ca6f8f5f5e07d6d09fb3591a9a636a59e4af0b42
+
+duplicate_chain_gates:
+  unique_app_id_fraction: 1.0
+  parseable_submission_timestamp_fraction: 1.0
+  unique_submission_timestamp_fraction: 1.0
+  reporting_period_consistency_fraction: 1.0
+  explicit_nic_per_duplicate_filing_fraction: 1.0
+  timestamp_collision_count_max: 0
+  app_id_identity_conflict_count_max: 0
+
+promotion:
+  success_status: PASS_DUPLICATE_SEMANTICS
+  authorize: RM001-D012_HISTORICAL_ASOF_TIMELINE_DIAGNOSTIC
+  retroactively_pass_d010: false
+  authorize_d011: false
+  direct_rm001_sector_promotion: false
+
+return_labels_may_be_opened: false
+risk_model_fit_allowed: false
+portfolio_fit_allowed: false
