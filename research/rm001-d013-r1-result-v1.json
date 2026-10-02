@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D013-R1-v1",
+  "evidence_class": "SOURCE_EVENT_CORRESPONDENCE_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37026546774,
+  "workflow_artifact_id": 11235033912,
+  "workflow_artifact_name": "rm001-d013-r1-37026546774",
+  "result_sha256": "dc987132ae8c9229412f91be876668bbd7a351cdb5d1e623cd43509ac91aa02a",
+  "status": "FAIL_DEDICATED_BRSR_SOURCE_EVENT_CORRESPONDENCE",
+  "parent_d013_result_sha256": "1132cd63b0a7da1a8eae96acc5e7ef73d3a9ed9a0846be7a36bb713bb676a5f3",
+  "parent_d013_status": "FAIL_PERIOD_PARTITIONED_ASOF_TIMELINE",
+  "parent_d013_status_changed": false,
+  "d013_r2_authorized": false,
+  "d013_status_changed": false,
+  "d013_multi_nic_failure_resolved": false,
+  "page": {
+    "url": "https://www.nseindia.com/companies-listing/corporate-filings-bussiness-sustainabilitiy-reports",
+    "raw_sha256": "8f2315551bb78117c39b79a4bb505e1ffcf6d42563430da00a66c99f11c5c097"
+  },
+  "script_ready_count": 30,
+  "candidate_endpoint_count": 1,
+  "candidate_endpoint_paths": [
+    "/api/corporate-bussiness-sustainabilitiy"
+  ],
+  "sample_count": 80,
+  "endpoint_reports": [
+    {
+      "endpoint_path": "/api/corporate-bussiness-sustainabilitiy",
+      "sample_count": 80,
+      "matched_count": 0,
+      "match_fraction_by_year": {
+        "FY2023-24": 0.0,
+        "FY2024-25": 0.0
+      },
+      "linkage_mode_counts": {},
+      "explicit_public_time_count": 0,
+      "explicit_public_time_coverage": 0.0,
+      "ambiguous_match_count": 0,
+      "reused_row_identities": {},
+      "ist_median_abs_delta_seconds": null,
+      "ist_p95_abs_delta_seconds": null,
+      "ist_min_signed_delta_seconds": null,
+      "ist_max_signed_delta_seconds": null,
+      "utc_median_abs_delta_seconds": null,
+      "gates": {
+        "minimum_match_fraction_each_year": false,
+        "minimum_explicit_public_time_coverage": false,
+        "ist_median_abs_delta_within_60s": false,
+        "ist_p95_abs_delta_within_300s": false,
+        "all_signed_deltas_within_buffer_contract": false,
+        "utc_median_abs_delta_at_least_4h": false,
+        "zero_row_reuse": true,
+        "zero_same_priority_ambiguity": true
+      },
+      "pass": false,
+      "percentile_method": "NEAREST_RANK"
+    }
+  ],
+  "passing_endpoint_paths": [],
+  "gates": {
+    "dedicated_brsr_api_candidate_discovered": true,
+    "exactly_one_endpoint_passes_correspondence": false
+  },
+  "interpretation": {
+    "dedicated_brsr_machine_surface_discovered": true,
+    "dedicated_surface_correspondence_supported": false,
+    "frozen_sample_match_fraction_zero": true,
+    "explicit_public_time_semantics_supported": false,
+    "r2_replication_not_authorized": true,
+    "parent_d013_remains_failed": true,
+    "multi_nic_parent_failure_remains_unresolved": true,
+    "next_step": "STOP_D013_BRSR_CORRESPONDENCE_PATH_NO_POST_HOC_ENDPOINT_OR_LINKAGE_TUNING",
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false
+  },
+  "return_labels_opened": false,
+  "risk_model_fit_performed": false,
+  "portfolio_fit_performed": false,
+  "live_capital_allowed": false
+}
