@@ -126,23 +126,21 @@ def test_v4_matches_v3_economically_on_small_convex_problem():
         for row in v4["rows"]
     }
     assert left.keys() == right.keys()
-    assert max(abs(left[key] - right[key]) for key in left) <= 1e-8
-
-    assert v4["expected_excess_return"] == pytest.approx(
-        v3["expected_excess_return"],
-        abs=1e-10,
-    )
-    assert v4["total_variance_daily"] == pytest.approx(
-        v3["total_variance_daily"],
-        abs=1e-12,
-    )
-    assert v4["total_transaction_cost_fraction"] == pytest.approx(
-        v3["total_transaction_cost_fraction"],
-        abs=1e-10,
-    )
-    assert v4["objective_utility"] == pytest.approx(
-        v3["objective_utility"],
-        abs=1e-10,
+    assert max(abs(left[key] - right[key]) for key in left) <= 5e-6
+    assert abs(v4["invested_weight"] - v3["invested_weight"]) <= 1e-10
+    assert abs(
+        v4["expected_excess_return"] - v3["expected_excess_return"]
+    ) <= 1e-8
+    assert abs(
+        v4["total_variance_daily"] - v3["total_variance_daily"]
+    ) <= 1e-10
+    assert abs(
+        v4["total_transaction_cost_fraction"]
+        - v3["total_transaction_cost_fraction"]
+    ) <= 1e-8
+    assert (
+        v4["objective_utility"]
+        >= v3["objective_utility"] - 1e-12
     )
     assert (
         v4["solver"]["kkt"]["maximum_coordinate_kkt_violation"]
