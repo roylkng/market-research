@@ -1,0 +1,38 @@
+schema_version: 1
+id: RM001-v3-P001-v1
+name: historical_statistical_residual_risk_attribution
+status: FROZEN_BEFORE_MATERIALIZATION
+created: 2026-10-02
+live_capital_allowed: false
+
+decision_session: 2026-08-31
+source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+baseline_model: RM001-v2-DEVELOPMENT
+challenger_model: RM001-v3-DEVELOPMENT
+
+statistical:
+  component_count: 5
+  basis_window_sessions: 120
+  risk_estimation_window_sessions: 60
+  minimum_complete_current_identities: 500
+  minimum_adjacent_singular_relative_gap: 1.0e-8
+
+preserved_portfolios:
+  source: research/po001-i003/inputs/i002-integrated-control-v1.json.gz
+  keys:
+    - equal_weight_top_decile
+    - positive_alpha_proportional_top_decile
+    - risk_aware_zero_cost
+    - full_po001_observable_cost_floor
+  reoptimization_allowed: false
+
+outcomes:
+  stock_return_outcome_opened: false
+  alpha_model_fit_performed: false
+
+promotion:
+  prospective_use_allowed: false
+  live_capital_directly_allowed: false
