@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "study_id": "RM001-C001-v1",
+  "status": "V3_MIXED_OOS_RISK_FORECAST",
+  "evidence_class": "HISTORICAL_RECONSTRUCTION_OOS_RISK_CALIBRATION",
+  "workflow": {
+    "run_id": 36977456260,
+    "artifact_id": 11215375284,
+    "artifact_name": "rm001-c001-36977456260",
+    "report_sha256": "7e8d03a697bc0e76eca96ec263a5353b2749bcc1fcbcfcca79dc36740aa7a228",
+    "report_artifact_sha256": "58b6a17d247b0ee803b62d4df37ac071b4da6054af98560923945f63e652956c"
+  },
+  "sample": {
+    "candidate_date_count": 121,
+    "evaluated_date_count": 85,
+    "skipped_date_count": 36,
+    "valid_probe_score_count": 1495,
+    "minimum_evaluated_date_count": 40,
+    "minimum_valid_probes_per_date": 12
+  },
+  "model_summary": {
+    "RM001-v1-DEVELOPMENT": {
+      "mean_qlike": -8.34038332110828,
+      "mean_predicted_variance": 0.00016509236889985618,
+      "mean_realized_squared_return": 0.00009362270897321798,
+      "aggregate_calibration_ratio": 0.5670928922826751,
+      "mean_absolute_log_variance_ratio": 2.1547420358862457,
+      "underprediction_fraction": 0.16856187290969898
+    },
+    "RM001-v2-DEVELOPMENT": {
+      "mean_qlike": -8.326617508663325,
+      "mean_predicted_variance": 0.000168051915458511,
+      "mean_realized_squared_return": 0.00009362270897321798,
+      "aggregate_calibration_ratio": 0.557105872419118,
+      "mean_absolute_log_variance_ratio": 2.1734672920291596,
+      "underprediction_fraction": 0.16789297658862876
+    },
+    "RM001-v3-DEVELOPMENT": {
+      "mean_qlike": -8.331902231331181,
+      "mean_predicted_variance": 0.0001706904252758733,
+      "mean_realized_squared_return": 0.00009362270897321798,
+      "aggregate_calibration_ratio": 0.5484942041822377,
+      "mean_absolute_log_variance_ratio": 2.1710284588390687,
+      "underprediction_fraction": 0.16321070234113713
+    }
+  },
+  "paired_date_level_inference": {
+    "v2_minus_v1": {
+      "count": 85,
+      "mean": 0.013870583702287664,
+      "newey_west_lag": 5,
+      "standard_error": 0.003624131835313067,
+      "t_stat": 3.8272845284309223,
+      "p_value_two_sided": 0.00024851891596846436,
+      "ci95_low": 0.006663600100189683,
+      "ci95_high": 0.021077567304385647,
+      "interpretation": "V1_LOWER_BETTER_QLIKE"
+    },
+    "v3_minus_v1": {
+      "count": 85,
+      "mean": 0.008614829663863946,
+      "newey_west_lag": 5,
+      "standard_error": 0.0034760293903274564,
+      "t_stat": 2.4783535167556203,
+      "p_value_two_sided": 0.015200515805070496,
+      "ci95_low": 0.001702364015567088,
+      "ci95_high": 0.015527295312160804,
+      "interpretation": "V1_LOWER_BETTER_QLIKE"
+    },
+    "v3_minus_v2": {
+      "count": 85,
+      "mean": -0.00525575403842372,
+      "newey_west_lag": 5,
+      "standard_error": 0.0023710636611580325,
+      "t_stat": -2.2166229125441523,
+      "p_value_two_sided": 0.029351429806572352,
+      "ci95_low": -0.009970874156017398,
+      "ci95_high": -0.0005406339208300411,
+      "interpretation": "V3_LOWER_BETTER_QLIKE"
+    }
+  },
+  "operational_conclusion": {
+    "predictive_default_model": "RM001-v1-DEVELOPMENT",
+    "RM001-v1-DEVELOPMENT": "RETAIN_PREDICTIVE_DEFAULT",
+    "RM001-v2-DEVELOPMENT": "NO_OOS_FORECAST_PROMOTION",
+    "RM001-v3-DEVELOPMENT": "DESCRIPTIVE_AND_PROSPECTIVE_CHALLENGER_ONLY",
+    "rm001_v3_portfolio_default_promotion_allowed": false,
+    "reason": "V3 significantly improves on V2 but is significantly worse than V1 on the frozen primary paired QLIKE test."
+  },
+  "source": {
+    "market_panel_sha256": "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e",
+    "feature_panel_sha256": "9240102d6e32318190038ddbc0b87b444df8f1253101e60f791aaa2895f519fe",
+    "action_ledger_sha256": "2c65a9f36f23fe6d504fbc5a2a9fa667fe2f16e8952b4fd2c8fd275bf7e7a29f",
+    "size_panel_sha256": "152e8621a8690049ee7b2c17578b875f148ca01f154d12db932ff19dfa893d96"
+  },
+  "interpretation_limits": {
+    "historical_reconstruction": true,
+    "prospective_calibration_claim_allowed": false,
+    "alpha_claim_allowed": false,
+    "realized_investment_return_claim_allowed": false,
+    "live_capital_allowed": false
+  },
+  "live_capital_allowed": false
+}
