@@ -72,8 +72,9 @@ def test_endpoint_discovery_uses_brsr_neighborhood_and_is_deterministic():
     scripts = {
         "https://www.nseindia.com/a.js": (
             b'const generic="/api/foo";'
-            b'const label="Business Responsibility and Sustainability";'
-            b'const x="/api/corporate-brsr";'
+            + (b"x" * 400)
+            + b'const label="Business Responsibility and Sustainability";'
+            + b'const x="/api/corporate-brsr";'
         ),
         "https://www.nseindia.com/b.js": (
             b'let title="BRSR sustainability";'
