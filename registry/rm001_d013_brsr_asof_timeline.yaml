@@ -1,0 +1,96 @@
+schema_version: 1
+id: RM001-D013-v1
+name: brsr_period_keyed_asof_timeline_semantics
+status: FROZEN_BEFORE_D013_API_TIMELINE_SOURCE_INSPECTION
+created: 2026-10-02
+live_capital_allowed: false
+
+evidence_class: SOURCE_TIMING_IDENTITY_TRANSFORM_NO_RETURN_OUTCOMES
+
+parent:
+  diagnostic_id: RM001-D010-R2-v1
+  workflow_run_id: 37012161546
+  result_sha256: 18741e771f314c91e895c4c017e2f079553292b9c30991ffe0a432cf4e5f87d5
+  status: PASS_PERIOD_PARTITION_SEMANTICS
+  d013_authorized: true
+
+annual_archives:
+  FY2023-24:
+    url: https://nsearchives.nseindia.com/web/sites/default/files/inline-files/BRSR_Data_Dump.zip
+    sha256: f287b4137b662a2f1cdba54f8d3858f84f09f43e1f0702ad5b2299cde5fb16ef
+    target_previous_fy_start: 2023-04-01
+    target_previous_fy_end: 2024-03-31
+  FY2024-25:
+    url: https://nsearchives.nseindia.com/web/mediaattachment/2026-04/BRSR_DUMP_FY24-25_20260414130852.zip
+    sha256: c5209af34ec21dd76f621f50ca6f8f5f5e07d6d09fb3591a9a636a59e4af0b42
+    target_previous_fy_start: 2024-04-01
+    target_previous_fy_end: 2025-03-31
+
+official_web_contract:
+  d010_phase_ab_run_id: 37007303564
+  d010_phase_ab_result_sha256: 64a0ec350f76ba3413d037fc8b3bd234dd9389be915032a5048f9526cd3e444b
+  captured_page_js_sha256: b12ac5ec04f5a407f861cf308231673656e902bdf1e35720927c18124f5ea240
+  brsr_api: https://www.nseindia.com/api/corporate-bussiness-sustainabilitiy
+  table_config: https://www.nseindia.com/json/CorporateFiling/CF-bussinesssustainabilitiyreports.json
+
+report_period_candidate:
+  start_field: Previous Financial Year start date
+  end_field: Previous Financial Year end date
+  selected_before_d013_measurement: true
+
+phase_a_gates:
+  all_six_fy_dates_parseable_fraction_min: 0.99
+  previous_fy_annual_length_fraction_min: 0.99
+  current_fy_annual_length_fraction_min: 0.99
+  previous_to_current_adjacent_fraction_min: 0.99
+  prior_to_previous_adjacent_fraction_min: 0.99
+  submission_inside_current_fy_fraction_min: 0.95
+  target_period_stable_identity_coverage_min: 0.90
+  all_period_amendment_groups_deterministic: true
+
+nic_transform:
+  taxonomy: REGULATORY_NIC2
+  nic2_rule: FIRST_TWO_DIGITS
+  turnover_percentage_min: 0
+  turnover_percentage_max: 100
+  reported_total_turnover_min: 90
+  reported_total_turnover_max: 105
+  normalize_reported_basket_to_one: true
+  missing_percentage_imputation: false
+  target_latest_filing_exposure_ready_fraction_min: 0.95
+
+timing_sample:
+  target_period_groups_per_year: 40
+  include_all_amendment_groups: true
+  single_group_ranking: SHA256_YEAR_STABLE_IDENTITY_PREVIOUS_PERIOD
+  query_padding_calendar_days: 30
+
+api_semantics:
+  required_table_labels:
+    - Company
+    - From Year
+    - To Year
+    - Original Submission Date
+    - Latest Revision Date
+  api_success_fraction_min: 0.90
+  unique_period_match_fraction_min: 0.90
+  original_submission_date_match_fraction_min: 0.95
+  latest_revision_date_match_fraction_min_for_amendments: 0.95
+  conflicting_period_time_rows_max: 0
+
+availability:
+  rule: FIRST_COMPLETED_NSE_CASH_SESSION_STRICTLY_AFTER_TLA_SUBMITTED_CALENDAR_DATE
+  infer_timezone: false
+
+pit_identity:
+  exact_symbol_isin_join_fraction_min: 0.95
+  duplicate_eq_identity_count_max: 0
+
+promotion:
+  success_status: PASS_ASOF_TIMELINE_SEMANTICS
+  authorize: RM001-D014_FULL_HISTORICAL_REGULATORY_NIC2_TIMELINE_MATERIALIZATION
+  direct_rm001_factor_promotion: false
+
+return_labels_may_be_opened: false
+risk_model_fit_allowed: false
+portfolio_fit_allowed: false
