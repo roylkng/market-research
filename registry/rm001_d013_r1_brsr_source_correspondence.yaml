@@ -1,0 +1,76 @@
+schema_version: 1
+id: RM001-D013-R1-v1
+name: dedicated_brsr_source_event_correspondence
+status: FROZEN_BEFORE_R1_SOURCE_DISCOVERY
+created: 2026-10-02
+live_capital_allowed: false
+
+evidence_class: SOURCE_EVENT_CORRESPONDENCE_NO_RETURN_OUTCOMES
+
+parent:
+  diagnostic_id: RM001-D013-v1
+  result_sha256: 1132cd63b0a7da1a8eae96acc5e7ef73d3a9ed9a0846be7a36bb713bb676a5f3
+  status: FAIL_PERIOD_PARTITIONED_ASOF_TIMELINE
+  d014_authorized: false
+
+page:
+  url: https://www.nseindia.com/companies-listing/corporate-filings-bussiness-sustainabilitiy-reports
+  first_party_hosts:
+    - nseindia.com
+    - "*.nseindia.com"
+
+endpoint_discovery:
+  api_literal_prefix: /api/
+  neighborhood_characters: 600
+  relevance_tokens:
+    - brsr
+    - business responsibility
+    - sustainability
+    - sustainabilitiy
+  manual_endpoint_insertion_after_open: prohibited
+  selection: UNIQUE_ENDPOINT_MUST_PASS_ALL_GATES
+
+sample:
+  per_year: 40
+  rule: SAME_AS_D013_SHA256_YEAR_IDENTITY_PERIOD_APP_ID
+  years:
+    - FY2023-24
+    - FY2024-25
+
+query:
+  date_window_calendar_days_each_side: 1
+  date_format: DD-MM-YYYY
+  variants_in_order:
+    - [index, symbol, from_date, to_date]
+    - [symbol, from_date, to_date]
+    - [index, from_date, to_date]
+    - [from_date, to_date]
+  index_value: equities
+
+linkage_priority:
+  - EXACT_APP_ID
+  - RESOURCE_CONTAINS_APP_ID
+  - PERIOD_AND_PUBLIC_TIME
+
+public_time:
+  minimum_match_fraction_each_year: 0.90
+  minimum_explicit_public_time_coverage_matched: 0.95
+  ist_median_abs_delta_seconds_max: 60
+  ist_p95_abs_delta_seconds_max: 300
+  signed_delta_seconds_min: -60
+  signed_delta_seconds_max: 900
+  utc_median_abs_delta_seconds_min: 14400
+  zero_row_reuse: true
+  zero_same_priority_ambiguity: true
+
+success_status: PASS_DEDICATED_BRSR_SOURCE_EVENT_CORRESPONDENCE
+failure_status: FAIL_DEDICATED_BRSR_SOURCE_EVENT_CORRESPONDENCE
+
+promotion:
+  authorize_on_pass: RM001-D013-R2_DEDICATED_BRSR_PUBLIC_TIME_REPLICATION
+  direct_d013_reversal: false
+  direct_rm001_factor_promotion: false
+
+return_labels_may_be_opened: false
+risk_model_fit_allowed: false
+portfolio_fit_allowed: false
