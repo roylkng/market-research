@@ -32,10 +32,14 @@ jobs:
       - name: Verify health implementation
         run: |
           ruff check \
+            src/marketlab/alpha_t004_readiness.py \
             src/marketlab/prospective_health.py \
             scripts/build_prospective_health.py \
+            scripts/verify_ae001_t004_readiness.py \
+            tests/test_alpha_t004_readiness.py \
             tests/test_prospective_health.py
           pytest -q \
+            tests/test_alpha_t004_readiness.py \
             tests/test_prospective_health.py \
             tests/test_alpha_prospective_sources.py \
             tests/test_alpha_prospective_futures_sources.py \
