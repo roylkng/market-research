@@ -1,0 +1,88 @@
+name: RM001 D015-R2 triplet series semantics
+
+on:
+  push:
+    branches:
+      - feat/rm001-d015-r2-triplet-semantics-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  scan:
+    if: contains(github.event.head_commit.message, '[rm001-d015-r2]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen R2 implementation before evidence access
+        run: |
+          ruff check \
+            src/marketlab/rm001_d015_r2.py \
+            scripts/run_rm001_d015_r2.py \
+            tests/test_rm001_d015_r2.py
+          pytest -q tests/test_rm001_d015_r2.py
+          marketlab validate-registry registry/hypotheses.yaml
+
+      - name: Download exact D015 parent evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: rm001-d015-37036816006
+          path: evidence/d015
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 37036816006
+
+      - name: Download exact D015-R1 Security File evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: rm001-d015-r1-37037983177
+          path: evidence/r1
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 37037983177
+
+      - name: Locate frozen evidence files
+        id: evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t PARENT < <(find evidence/d015 -type f -name 'nifty-total-market-*.csv' | sort)
+          mapfile -t SECURITY < <(find evidence/r1 -type f -name 'security-2026-10-01-*.csv.gz' | sort)
+          if [ "${#PARENT[@]}" -ne 1 ] || [ "${#SECURITY[@]}" -ne 1 ]; then
+            echo "Expected exactly one frozen parent and security file"
+            printf 'parent=%s\n' "${PARENT[*]:-}"
+            printf 'security=%s\n' "${SECURITY[*]:-}"
+            exit 1
+          fi
+          echo "parent=${PARENT[0]}" >> "$GITHUB_OUTPUT"
+          echo "security=${SECURITY[0]}" >> "$GITHUB_OUTPUT"
+          sha256sum "${PARENT[0]}" "${SECURITY[0]}"
+
+      - name: Run frozen R2 triplet diagnostic
+        run: |
+          python scripts/run_rm001_d015_r2.py \
+            --parent-raw "${{ steps.evidence.outputs.parent }}" \
+            --security-raw "${{ steps.evidence.outputs.security }}" \
+            --output reports/rm001-d015-r2/report.json
+
+      - name: Print result
+        run: cat reports/rm001-d015-r2/report.json
+
+      - name: Upload exact R2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-d015-r2-${{ github.run_id }}
+          path: reports/rm001-d015-r2
+          if-no-files-found: warn
+          retention-days: 90

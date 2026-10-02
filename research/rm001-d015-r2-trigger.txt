@@ -1,0 +1,13 @@
+RM001 D015-R2 exact Symbol+ISIN+Series correspondence diagnostic.
+
+D015 and D015-R1 remain failed regardless of R2.
+
+Frozen protocol:
+- research/RM001_D015_R2_TRIPLET_SERIES_SEMANTICS_V1.md
+- registry/rm001_d015_r2_triplet_semantics.yaml
+
+Do not add [rm001-d015-r2] until full implementation CI passes.
+No new market source is queried by R2. It consumes exact retained parent evidence.
+
+Evidence opening authorized after full CI success on 2026-10-02.
+Run the exact retained D015 and D015-R1 bytes under the frozen R2 gates.
