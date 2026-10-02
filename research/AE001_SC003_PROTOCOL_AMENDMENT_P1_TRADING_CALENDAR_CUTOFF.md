@@ -1,6 +1,6 @@
 # AE001 SC003 Protocol Amendment P1: Trading-Calendar Pre-Open Cutoff
 
-Frozen: 2026-10-02
+Frozen: 2026-10-02T09:07:14Z
 Status: FROZEN BEFORE FIRST P1 PROBE
 Live capital: DISABLED
 
@@ -34,6 +34,9 @@ Its original fields, hash, and v1 cutoff remain canonical historical evidence of
 what the v1 implementation observed.
 
 P1 applies only to new attempts created after this amendment.
+
+A P1 attempt whose actual capture timestamp precedes
+2026-10-02T09:07:14Z fails closed.
 
 ## Frozen calendar
 
