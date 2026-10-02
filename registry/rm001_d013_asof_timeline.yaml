@@ -1,0 +1,74 @@
+schema_version: 1
+id: RM001-D013-v1
+name: brsr_period_partitioned_asof_timeline
+status: FROZEN_BEFORE_D013_SOURCE_QUERIES
+created: 2026-10-02
+live_capital_allowed: false
+
+evidence_class: SOURCE_TIMELINE_NO_RETURN_OUTCOMES
+
+parents:
+  d010:
+    result_sha256: 21aff20c7c3300ecf104d049fdbcad3749bb160735f478643a40bab36618a976
+    status: FAIL_SOURCE_FEASIBILITY
+  r1:
+    result_sha256: eedc9bba0dfcb15a394af800cdc84f2e20ab48b95632d8941e5af169e1291522
+    status: FAIL_DUPLICATE_SEMANTICS
+  r2:
+    result_sha256: 18741e771f314c91e895c4c017e2f079553292b9c30991ffe0a432cf4e5f87d5
+    status: PASS_PERIOD_PARTITION_SEMANTICS
+    d013_authorized: true
+
+archives:
+  FY2023-24:
+    url: https://nsearchives.nseindia.com/web/sites/default/files/inline-files/BRSR_Data_Dump.zip
+    sha256: f287b4137b662a2f1cdba54f8d3858f84f09f43e1f0702ad5b2299cde5fb16ef
+  FY2024-25:
+    url: https://nsearchives.nseindia.com/web/mediaattachment/2026-04/BRSR_DUMP_FY24-25_20260414130852.zip
+    sha256: c5209af34ec21dd76f621f50ca6f8f5f5e07d6d09fb3591a9a636a59e4af0b42
+
+public_time:
+  source: NSE_CORPORATE_ANNOUNCEMENTS
+  sample_per_year: 40
+  sample_rule: SHA256_YEAR_IDENTITY_PERIOD_APP_ID_ASCENDING
+  announcement_window_calendar_days_each_side: 1
+  minimum_match_fraction_each_year: 0.90
+  ist_median_abs_delta_seconds_max: 60
+  ist_p95_abs_delta_seconds_max: 300
+  matched_delta_seconds_min: -60
+  matched_delta_seconds_max: 900
+  utc_median_abs_delta_seconds_min: 14400
+  historical_availability_buffer_minutes: 15
+
+identity:
+  source: NSE_CM_MII_SECURITY_FILE
+  prior_session_only: true
+  maximum_calendar_lookback_days: 10
+  minimum_exact_symbol_isin_coverage: 0.99
+  ambiguous_join_count_max: 0
+
+nic:
+  granularity: EXACT_REPORTED_NIC
+  single_nic_weight: 1.0
+  multi_nic_weight: REPORTED_TURNOVER_SHARE_NORMALIZED
+  multi_nic_missing_weight_rescue: prohibited
+  total_reported_turnover_percent_max: 100.5
+  normalized_sum_tolerance: 1.0e-12
+  minimum_explicit_nic_filing_coverage: 0.99
+  multi_nic_transformable_fraction: 1.0
+
+timeline:
+  period_selection: LATEST_PERIOD_END_PUBLIC_ASOF
+  amendment_selection: LATEST_AVAILABLE_WITHIN_PERIOD
+  maximum_age_days_from_period_end: 550
+  evaluate_at_filing_events: true
+  evaluate_at_expiry_events: true
+
+promotion:
+  success_status: PASS_PERIOD_PARTITIONED_ASOF_TIMELINE
+  authorize: RM001-D014_REGULATORY_NIC_EXPOSURE_PANEL_DIAGNOSTIC
+  direct_rm001_nic_factor_promotion: false
+
+return_labels_may_be_opened: false
+risk_model_fit_allowed: false
+portfolio_fit_allowed: false
