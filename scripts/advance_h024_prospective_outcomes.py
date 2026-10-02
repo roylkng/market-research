@@ -185,9 +185,16 @@ def _advance_observed_sessions(
         )
     else:
         start = PROSPECTIVE_START_DATE
+    observed_dates = {
+        str(row["session_date"]) for row in session_ledger["records"]
+    }
     observed_now: list[str] = []
     cursor = start
     while cursor <= as_of:
+        day = cursor.isoformat()
+        if day in observed_dates:
+            cursor += timedelta(days=1)
+            continue
         bar = _index_bar(
             http,
             session_date=cursor,
@@ -205,7 +212,8 @@ def _advance_observed_sessions(
                 ),
             )
             if int(session_ledger["record_count"]) > before:
-                observed_now.append(cursor.isoformat())
+                observed_now.append(day)
+                observed_dates.add(day)
         cursor += timedelta(days=1)
     return session_ledger, observed_now
 
