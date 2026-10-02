@@ -1,0 +1,93 @@
+name: RM001 C001 historical OOS risk calibration
+
+on:
+  push:
+    branches:
+      - feat/rm001-c001-oos-risk-calibration-20261002
+
+permissions:
+  contents: read
+
+jobs:
+  calibration:
+    if: contains(github.event.head_commit.message, '[rm001-c001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify C001 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001_c001.py \
+            scripts/run_rm001_c001.py \
+            tests/test_rm001_c001.py
+          pytest -q \
+            tests/test_rm001_c001.py \
+            tests/test_rm001.py \
+            tests/test_rm001_v2.py \
+            tests/test_rm001_v3.py \
+            tests/test_rm001_size_panel.py
+
+      - name: Rebuild fixed official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --store .marketlab/rm001-c001 \
+            --output reports/rm001-c001/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild corporate-action-safe AE001 feature plane
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/rm001-c001/panel/market-panel.json.gz \
+            --feature-panel reports/rm001-c001/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-09-25 \
+            --raw-dir reports/rm001-c001/corporate-actions/raw \
+            --output reports/rm001-c001/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build D007-bound historical size panel
+        run: |
+          python scripts/build_rm001_v2_size_panel.py \
+            --market-panel reports/rm001-c001/panel/market-panel.json.gz \
+            --store .marketlab/rm001-c001 \
+            --output reports/rm001-c001/size \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Run frozen C001 calibration
+        run: |
+          python scripts/run_rm001_c001.py \
+            --market-panel reports/rm001-c001/panel/market-panel.json.gz \
+            --feature-panel reports/rm001-c001/action-safe/action-safe-feature-panel.json.gz \
+            --action-ledger reports/rm001-c001/action-safe/corporate-action-ledger.json.gz \
+            --size-panel reports/rm001-c001/size/size-panel.json.gz \
+            --output reports/rm001-c001/study
+
+      - name: Print compact result
+        run: cat reports/rm001-c001/study/summary.json
+
+      - name: Upload exact C001 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-c001-${{ github.run_id }}
+          path: |
+            reports/rm001-c001
+            .marketlab/rm001-c001/market-data
+          if-no-files-found: warn
+          retention-days: 90
