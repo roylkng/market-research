@@ -1,0 +1,196 @@
+name: AE001 T012 late-evening futures decisions
+
+on:
+  workflow_dispatch:
+  schedule:
+    # IST same-evening attempts: 20:45, 21:15, 21:45, 22:15,
+    # 22:45, 23:15, 23:45.
+    - cron: '15 15 * * 1-5'
+    - cron: '45 15 * * 1-5'
+    - cron: '15 16 * * 1-5'
+    - cron: '45 16 * * 1-5'
+    - cron: '15 17 * * 1-5'
+    - cron: '45 17 * * 1-5'
+    - cron: '15 18 * * 1-5'
+    # IST just-after-midnight attempts: 00:15, 00:30, 00:45, 01:00.
+    # UTC weekday refers to the preceding local-session evening.
+    - cron: '45 18 * * 1-5'
+    - cron: '0 19 * * 1-5'
+    - cron: '15 19 * * 1-5'
+    - cron: '30 19 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-t012-late-futures-decisions
+  cancel-in-progress: false
+
+jobs:
+  decide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refresh latest canonical main before observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify T012 implementation before cutoff or source use
+        run: |
+          ruff check \
+            src/marketlab/alpha_t012.py \
+            scripts/freeze_ae001_t012_cutoff.py \
+            scripts/score_ae001_t012_decision.py \
+            scripts/verify_ae001_t012.py \
+            tests/test_alpha_t012.py
+          pytest -q \
+            tests/test_alpha_t012.py \
+            tests/test_alpha_t006.py \
+            tests/test_alpha_t006_prospective.py
+          python scripts/verify_ae001_t012.py \
+            --cutoff-freeze research/prospective/ae001-t012/cutoff-freeze.json \
+            --decision-ledger research/prospective/ae001-t012/decision-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json
+
+      - name: Freeze source-only T012 cutoff when SC002 evidence is sufficient
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/freeze_ae001_t012_cutoff.py \
+            --cutoff-freeze research/prospective/ae001-t012/cutoff-freeze.json \
+            --timing-summary research/prospective/ae001-sc002/publication-timing-summary.json \
+            --sc002-ledger research/prospective/ae001-sc002/source-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json | tee t012-freeze.json
+          python scripts/verify_ae001_t012.py \
+            --cutoff-freeze research/prospective/ae001-t012/cutoff-freeze.json \
+            --decision-ledger research/prospective/ae001-t012/decision-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json
+
+      - name: Resolve candidate market session
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
+          if [[ "$NOW_HM" -ge "1800" ]]; then
+            TARGET="$TODAY"
+          else
+            TARGET="$(TZ=Asia/Kolkata date -d 'yesterday' +%F)"
+          fi
+          echo "session=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "T012 target: now_ist=$NOW_HM target_session=$TARGET"
+
+      - name: Attempt frozen T012 late-evening decision
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/ae001-t012/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$WORK"
+          python scripts/score_ae001_t012_decision.py \
+            --session-date "${{ steps.target.outputs.session }}" \
+            --cutoff-freeze research/prospective/ae001-t012/cutoff-freeze.json \
+            --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
+            --sc002-ledger research/prospective/ae001-sc002/source-ledger.json \
+            --decision-ledger research/prospective/ae001-t012/decision-ledger.json \
+            --models research/prospective/ae001-t006/frozen-models-v1.json \
+            --decision-dir research/prospective/ae001-t012/decisions \
+            --support-dir "$WORK" \
+            --attempts 4 \
+            --timeout-seconds 30 | tee "$WORK/score.log"
+          python scripts/verify_ae001_t012.py \
+            --cutoff-freeze research/prospective/ae001-t012/cutoff-freeze.json \
+            --decision-ledger research/prospective/ae001-t012/decision-ledger.json \
+            --trial-ledger research/ae001/trial-ledger.json
+
+      - name: Anchor append-only T012 canonical state
+        shell: bash
+        run: |
+          set -euo pipefail
+          CUTOFF="research/prospective/ae001-t012/cutoff-freeze.json"
+          DECISIONS="research/prospective/ae001-t012/decision-ledger.json"
+          TRIALS="research/ae001/trial-ledger.json"
+          START_SHA="$OBSERVATION_BASE_SHA"
+
+          python scripts/verify_ae001_t012.py \
+            --cutoff-freeze "$CUTOFF" \
+            --decision-ledger "$DECISIONS" \
+            --trial-ledger "$TRIALS"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$CUTOFF" "$DECISIONS" "$TRIALS"
+          if [ -d research/prospective/ae001-t012/decisions ]; then
+            git add research/prospective/ae001-t012/decisions
+          fi
+          if git diff --cached --quiet; then
+            echo "No new T012 canonical state"
+            exit 0
+          fi
+
+          git commit -m "AE001 T012: seal cutoff/decision ${{ steps.target.outputs.session }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/ae001-t012-late-futures-decisions.yml"
+            "registry/ae001_t012_late_futures.yaml"
+            "research/AE001_T012_LATE_FUTURES_CONFIRMATION_V1.md"
+            "research/ae001/trial-ledger.json"
+            "research/prospective/ae001-t012"
+            "research/prospective/ae001-sc001/source-ledger.json"
+            "research/prospective/ae001-sc002/source-ledger.json"
+            "research/prospective/ae001-sc002/publication-timing-summary.json"
+            "research/prospective/ae001-t006/frozen-models-v1.json"
+            "src/marketlab/alpha_t012.py"
+            "src/marketlab/alpha_t006.py"
+            "src/marketlab/alpha_t006_prospective.py"
+            "scripts/freeze_ae001_t012_cutoff.py"
+            "scripts/score_ae001_t012_decision.py"
+            "scripts/verify_ae001_t012.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "T012 source/rules/state changed while decision was in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_t012.py \
+                --cutoff-freeze "$CUTOFF" \
+                --decision-ledger "$DECISIONS" \
+                --trial-ledger "$TRIALS"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor T012 state after bounded retries"
+          exit 1
+
+      - name: Upload T012 operational evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t012-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/ae001-t012
+          if-no-files-found: warn
+          retention-days: 90
