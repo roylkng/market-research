@@ -1,0 +1,74 @@
+schema_version: 1
+id: RM001-C001-v1
+name: historical_oos_risk_forecast_calibration
+status: FROZEN_BEFORE_CALIBRATION_OUTCOMES
+created: 2026-10-02
+live_capital_allowed: false
+
+source_window:
+  start: 2025-09-01
+  end: 2026-09-25
+
+candidate_decision_window:
+  start: 2026-04-01
+  end: 2026-09-24
+
+models:
+  - RM001-v1-DEVELOPMENT
+  - RM001-v2-DEVELOPMENT
+  - RM001-v3-DEVELOPMENT
+
+common_universe:
+  identity: symbol_plus_isin
+  minimum_identities: 500
+
+probes:
+  identities_per_probe: 30
+  hash_probe_count: 8
+  factor_tail_factors:
+    - BETA60_RELATIVE
+    - MOMENTUM20
+    - VOLATILITY60
+    - LIQUIDITY
+    - SIZE
+  tails:
+    - LOW
+    - HIGH
+  expected_probe_count: 18
+
+outcome:
+  horizon_completed_sessions: 1
+  return: close_to_close
+  share_changing_action_policy: fail_closed
+  missing_identity_policy: fail_probe_no_renormalization
+
+primary_loss:
+  name: QLIKE
+  formula: log(predicted_variance) + realized_squared_return / predicted_variance
+  lower_is_better: true
+
+secondary:
+  log_ratio_epsilon: 1.0e-12
+
+date_aggregation:
+  minimum_valid_probes: 12
+
+inference:
+  method: NEWEY_WEST_BARTLETT_MEAN_INFERENCE_V1
+  lag: 5
+  comparisons:
+    - V3_MINUS_V1
+    - V3_MINUS_V2
+    - V2_MINUS_V1
+
+minimum_evaluated_decision_sessions: 40
+
+classification:
+  superior: V3_SUPERIOR_OOS_RISK_FORECAST
+  mixed: V3_MIXED_OOS_RISK_FORECAST
+  no_superiority: NO_V3_OOS_RISK_SUPERIORITY
+  insufficient: INSUFFICIENT_CALIBRATION_SAMPLE
+
+promotion:
+  prospective_claim_allowed: false
+  live_capital_directly_allowed: false
