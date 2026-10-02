@@ -1,0 +1,51 @@
+schema_version: 1
+id: PO001-S001-v1
+name: po001_v4_exact_i004_numerical_stability
+status: FROZEN_BEFORE_FIRST_RUN
+created: 2026-10-02
+live_capital_allowed: false
+
+source:
+  workflow_run_id: 36967854755
+  workflow_artifact_id: 11210429909
+  workflow_artifact_name: po001-i004-36967854755
+  purpose: PRE_RESULT_I004_SOURCE_EVIDENCE
+
+decision:
+  session: 2026-08-31
+  horizon_sessions: 5
+  realized_outcome_opened: false
+
+alpha:
+  path: research/po001-i003/inputs/i002-alpha-model-v1.json
+  model_sha256: 179ce84f40c1b6e461d2ff1f4104753381d3327b2dda35814b4a913547f91260
+
+control_risk:
+  path: research/po001-i003/inputs/i002-risk-state-legacy.json.gz
+  state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+
+treatment_risk:
+  path: research/po001-i004/inputs/rm001-v3-p001-risk-state.json.gz
+  state_sha256: 32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441
+
+solver:
+  optimizer_id: PO001-v4-DEVELOPMENT
+  changed_component_only: SOLVER
+  economic_problem_changed: false
+
+replicas: 3
+
+gates:
+  expected_excess_return_range: 1.0e-10
+  annualized_volatility_range: 1.0e-9
+  total_variance_daily_range: 1.0e-12
+  risk_penalty_range: 1.0e-11
+  total_transaction_cost_fraction_range: 1.0e-10
+  objective_utility_range: 1.0e-10
+  maximum_pairwise_weight_abs_diff: 1.0e-10
+  maximum_pairwise_weight_l1_diff: 1.0e-8
+  maximum_kkt_violation: 1.0e-9
+
+promotion:
+  rm001_v3_portfolio_revisit_requires_pass: true
+  live_capital_directly_allowed: false
