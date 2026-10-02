@@ -13,7 +13,6 @@ from marketlab.alpha_diagnostics import newey_west_mean_inference
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.rm001 import portfolio_risk
 from marketlab.rm001_calibration import (
-    CAL1_MODEL_ID,
     CALIBRATION_SCALE,
     portfolio_risk_cal1,
 )
