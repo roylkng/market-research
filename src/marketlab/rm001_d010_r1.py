@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import io
 import math
-import re
+import time
 import zipfile
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -16,7 +16,7 @@ from marketlab.rm001_d010 import (
 )
 
 R1_ID = "RM001-D010-R1-v1"
-EXCEL_EPOCH = datetime(1899, 12, 30)
+EXCEL_EPOCH = date(1899, 12, 30)
 
 _REQUIRED_GENERAL = {
     "appid",
@@ -52,9 +52,13 @@ def parse_submission_timestamp(value: object) -> str | None:
         "%Y-%m-%d %H:%M:%S",
     ):
         try:
-            return datetime.strptime(raw, fmt).isoformat()
+            parsed = time.strptime(raw, fmt)
         except ValueError:
             continue
+        return (
+            f"{parsed.tm_year:04d}-{parsed.tm_mon:02d}-{parsed.tm_mday:02d}"
+            f"T{parsed.tm_hour:02d}:{parsed.tm_min:02d}:{parsed.tm_sec:02d}"
+        )
 
     try:
         serial = float(raw)
@@ -62,7 +66,20 @@ def parse_submission_timestamp(value: object) -> str | None:
         return None
     if not math.isfinite(serial) or serial <= 0 or serial > 1_000_000:
         return None
-    return (EXCEL_EPOCH + timedelta(days=serial)).isoformat()
+
+    whole_days = math.floor(serial)
+    fractional_seconds = round(
+        (serial - whole_days) * 24 * 60 * 60
+    )
+    if fractional_seconds >= 24 * 60 * 60:
+        whole_days += 1
+        fractional_seconds -= 24 * 60 * 60
+    day = EXCEL_EPOCH + timedelta(days=whole_days)
+    hour, remainder = divmod(fractional_seconds, 60 * 60)
+    minute, second = divmod(remainder, 60)
+    return (
+        f"{day.isoformat()}T{hour:02d}:{minute:02d}:{second:02d}"
+    )
 
 
 def _stable_identity(row: dict[str, str | None]) -> str:
