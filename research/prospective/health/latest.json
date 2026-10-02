@@ -1,0 +1,149 @@
+{
+  "after_market_close": true,
+  "as_of_date": "2026-10-02",
+  "blocker_count": 3,
+  "blockers": [
+    "SC002_SAME_DAY_FUTURES_TIMING",
+    "T004_DELIVERY_WARMUP",
+    "T006_SOURCE_TIMING"
+  ],
+  "calendar_sha256": "2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce",
+  "calendar_version": "NSE-CM-FY27Q2-v1",
+  "components": {
+    "H024": {
+      "current_primary_event_count": 0,
+      "market_data_cutoff_session": "2026-09-16",
+      "state": "INSUFFICIENT_COVERAGE",
+      "summary_sha256": "63e9f3fa9f4692e8126dd01ae924d66aef615074e5c2e89d11b1f391b39f9381"
+    },
+    "RM001_C002": {
+      "forecast_entry_count": 0,
+      "forecast_ledger_sha256": "5a57c5a046f9eccb0afc060a5e3a22e0b69ecb0304bde2df79933351676258cf",
+      "minimum_evaluated_dates": 20,
+      "outcome_entry_count": 0,
+      "outcome_ledger_sha256": "246e8825be8a836c8abceaff1445ce16873eb6daab3d6bd13e47d6226606b963",
+      "scored_outcome_count": 0,
+      "sealed_forecast_count": 0,
+      "start_date": "2026-10-05",
+      "state": "BEFORE_FROZEN_START"
+    },
+    "SC001": {
+      "eligible_session_count": 2,
+      "expected_latest_session": "2026-10-01",
+      "latest_eligible_session": "2026-10-01",
+      "ledger_sha256": "559fafce795a1fe06bdb7f947514ff6d5cd8b8245dfe2aff1b15c21d171b03bc",
+      "state": "HEALTHY"
+    },
+    "SC002": {
+      "attempt_count": 21,
+      "eligible_before_1830_session_count": 0,
+      "late_ready_session_count": 2,
+      "latest_ready_session": "2026-10-01",
+      "ledger_sha256": "1f09344d96744299c6d738fc2436a7e85796ce95753302f82eba2221590baf75",
+      "ready_session_count": 2,
+      "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
+    },
+    "SC003": {
+      "additional_ready_sessions_needed": 2,
+      "distinct_target_session_count": 1,
+      "ledger_sha256": "7a20af2f7c132cdbcfd22ca34e0bd8e26f7151fca510243050ac655f6deb29d6",
+      "minimum_ready_sessions": 3,
+      "ready_before_preopen_cutoff_session_count": 1,
+      "state": "WAITING_FOR_TIMING_EVIDENCE"
+    },
+    "T004": {
+      "decision_count": 0,
+      "decision_ledger_sha256": "9cd407f05ea7681508ca78eb4871c6cab92bab8e7f2714b5d5cf463daec85b7c",
+      "delivery_warmup": {
+        "additional_clean_prior_sessions_needed": 8,
+        "blocking_sessions": [
+          {
+            "raw_sha256": "b87ff28f3b73d59eb3f29cdd3d5b8c42236865317cc5f9dc4772d0f8f23236b0",
+            "session_date": "2026-09-11",
+            "status": "EXCLUDE_SESSION_INTERNAL_FIELD_INCONSISTENCY"
+          }
+        ],
+        "consecutive_clean_prior_sessions": 12,
+        "required_prior_sessions": 20
+      },
+      "eligibility_projection": {
+        "additional_clean_prior_sessions_needed": 8,
+        "assumption": "ALL_SUBSEQUENT_REQUIRED_DELIVERY_SESSIONS_CLEAN",
+        "guaranteed": false,
+        "projected_first_possible_decision_session": "2026-10-14",
+        "readiness_session": "2026-10-01",
+        "state": "PROJECTED"
+      },
+      "latest_readiness_session": "2026-10-01",
+      "mature_outcome_fraction": null,
+      "outcome_count": 0,
+      "outcome_ledger_sha256": "fb3034e7fee720ce91842d06bb19dc805b3ef65ed8a5e7580b72f36432ece730",
+      "readiness_sha256": "fd6e8410f8675a7c5a8e4e5fe8251037e265632ee912327a6385138c71a2ac5c",
+      "readiness_state": "DELIVERY_SOURCE_WARMUP_BLOCKED",
+      "state": "DELIVERY_SOURCE_WARMUP_BLOCKED"
+    },
+    "T006": {
+      "decision_count": 0,
+      "decision_ledger_sha256": "de25fc9b3536052a11f7094723eb508f997fd136cf9a2f59b76701260477cc7d",
+      "mature_outcome_fraction": null,
+      "outcome_count": 0,
+      "outcome_ledger_sha256": "6b4867ce90aa516f51705c311225b72f47fbea4fe11fcbdbe8ddc4fef980f169",
+      "source_timing_feasibility": {
+        "alpha_or_return_outcomes_opened": false,
+        "eligible_before_cutoff_session_count": 0,
+        "expected_sessions": [
+          "2026-09-30",
+          "2026-10-01",
+          "2026-10-05",
+          "2026-10-06",
+          "2026-10-07"
+        ],
+        "no_observation_session_count": 3,
+        "observed_not_ready_session_count": 0,
+        "ready_after_cutoff_session_count": 2,
+        "required_session_count": 5,
+        "session_classifications": [
+          {
+            "attempt_count": 3,
+            "classification": "READY_AFTER_CUTOFF",
+            "earliest_ready_capture_utc": "2026-09-30T15:39:27.254727+00:00",
+            "session_date": "2026-09-30"
+          },
+          {
+            "attempt_count": 9,
+            "classification": "READY_AFTER_CUTOFF",
+            "earliest_ready_capture_utc": "2026-10-01T17:20:52.481590+00:00",
+            "session_date": "2026-10-01"
+          },
+          {
+            "attempt_count": 0,
+            "classification": "NO_OBSERVATION",
+            "earliest_ready_capture_utc": null,
+            "session_date": "2026-10-05"
+          },
+          {
+            "attempt_count": 0,
+            "classification": "NO_OBSERVATION",
+            "earliest_ready_capture_utc": null,
+            "session_date": "2026-10-06"
+          },
+          {
+            "attempt_count": 0,
+            "classification": "NO_OBSERVATION",
+            "earliest_ready_capture_utc": null,
+            "session_date": "2026-10-07"
+          }
+        ],
+        "source_ledger_sha256": "1f09344d96744299c6d738fc2436a7e85796ce95753302f82eba2221590baf75",
+        "start_session": "2026-09-30",
+        "state": "ACCUMULATING_EVIDENCE"
+      },
+      "state": "BLOCKED_BY_SC002_SAME_DAY_FUTURES_TIMING"
+    }
+  },
+  "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
+  "latest_expected_market_session": "2026-10-01",
+  "live_capital_allowed": false,
+  "schema_version": 1,
+  "summary_sha256": "e13e6911bd07aace3a104abb9f0aeb2837bbb99fb6ebb02a3d24a9442c5d272b"
+}
