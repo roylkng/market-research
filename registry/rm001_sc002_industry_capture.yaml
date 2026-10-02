@@ -1,0 +1,67 @@
+schema_version: 1
+id: RM001-SC002-v1
+name: nifty_total_market_industry_prospective_capture
+status: PROSPECTIVE_SOURCE_CAPTURE
+created: 2026-10-02
+live_capital_allowed: false
+
+start_observation_date: 2026-10-02
+timezone: Asia/Kolkata
+
+parent_authorization:
+  diagnostic_id: RM001-D015-R3-v1
+  status: PASS_DOCUMENTED_DUMMY_SEPARATION_SEMANTICS
+  report_sha256: 35d5245283112885670521a4d771fabf33b66b26fc94d8dbfba5dc0ed8e14288
+
+sources:
+  constituent:
+    provider: NSE_INDICES
+    url: https://nsearchives.nseindia.com/content/indices/ind_niftytotalmarket_list.csv
+  security:
+    provider: NSE
+    rule: LATEST_ELIGIBLE_AE001_SC001_SESSION_ON_OR_BEFORE_OBSERVATION_DATE
+    type: CM_MII_SECURITY_FILE
+
+capture:
+  cadence_ist:
+    - "08:00"
+    - "20:00"
+  calendar_days: ALL
+  actual_post_fetch_timestamp_authoritative: true
+
+identity:
+  exact_key:
+    - symbol
+    - isin
+    - series
+  fallback_allowed: false
+
+dummy_rule:
+  parent_series: EQ
+  symbol_prefix: DUMMY
+  exact_triplet_match_count: 0
+  same_symbol_isin_any_series_match_count: 0
+  future_dummy_count_fixed: false
+
+snapshot_gates:
+  minimum_parent_rows: 700
+  ordinary_eq_exact_match_fraction: 1.0
+  ordinary_eq_missing_count_max: 0
+  ordinary_eq_ambiguous_count_max: 0
+  non_eq_exact_match_fraction: 1.0
+  minimum_projected_tradable_eq_rows: 700
+  projected_identity_unique: true
+  projected_industry_coverage: 1.0
+  projected_isin_coverage: 1.0
+  allowed_security_deletion_flags:
+    - ""
+    - N
+
+operational_promotion:
+  minimum_distinct_ready_observation_dates: 5
+  minimum_distinct_ready_target_sessions: 3
+  factor_automatically_enabled: false
+
+historical_backfill_allowed: false
+return_outcomes_opened: false
+risk_model_fit_allowed: false
