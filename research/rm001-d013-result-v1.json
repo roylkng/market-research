@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D013-v1",
+  "evidence_class": "SOURCE_TIMELINE_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37019806410,
+  "workflow_artifact_id": 11231734269,
+  "workflow_artifact_name": "rm001-d013-37019806410",
+  "result_sha256": "1132cd63b0a7da1a8eae96acc5e7ef73d3a9ed9a0846be7a36bb713bb676a5f3",
+  "status": "FAIL_PERIOD_PARTITIONED_ASOF_TIMELINE",
+  "d014_authorized": false,
+  "parent_d010_status_changed": false,
+  "parent_r1_status_changed": false,
+  "filing_count": 2409,
+  "public_time": {
+    "sample_count": 80,
+    "matched_count": 23,
+    "match_fraction_by_year": {
+      "FY2023-24": 0.275,
+      "FY2024-25": 0.3
+    },
+    "ist_median_abs_delta_seconds": 1233.0,
+    "ist_p95_abs_delta_seconds": 54809.0,
+    "utc_median_abs_delta_seconds": 20866.0,
+    "gate_passed": false
+  },
+  "nic": {
+    "explicit_nic_filing_coverage": 0.9991697799916978,
+    "multi_nic_transformable_fraction": 0.9978858350951374,
+    "reporting_period_parseable_fraction": 1.0,
+    "explicit_nic_coverage_gate_passed": true,
+    "multi_nic_transformability_gate_passed": false,
+    "reporting_period_parseability_gate_passed": true
+  },
+  "identity": {
+    "phase_executed": false,
+    "reason": "SKIPPED_PUBLIC_TIME_NOT_PROVEN",
+    "reported_exact_join_coverage": 0.0,
+    "reported_ambiguous_join_count": 0,
+    "interpretation": "ZERO_COVERAGE_IS_A_SKIP_SENTINEL_NOT_AN_INDEPENDENT_IDENTITY_FAILURE"
+  },
+  "timeline": {
+    "phase_executed": false,
+    "status": "SKIPPED_PUBLIC_TIME_NOT_PROVEN",
+    "pass": false
+  },
+  "gates": {
+    "public_time_semantics": false,
+    "minimum_exact_symbol_isin_coverage": false,
+    "zero_ambiguous_symbol_isin_joins": false,
+    "minimum_explicit_nic_filing_coverage": true,
+    "all_multi_nic_filings_transformable": false,
+    "all_reporting_periods_parseable": true,
+    "timeline_deterministic": false
+  },
+  "interpretation": {
+    "primary_blocker": "TLA_SUBMITTED_DT_NOT_VALIDATED_AS_PUBLIC_DISSEMINATION_TIME_UNDER_FROZEN_GENERAL_ANNOUNCEMENT_MATCH",
+    "public_time_sample_too_sparse_for_promotion": true,
+    "matched_ist_deltas_outside_frozen_tolerance": true,
+    "utc_counterfactual_clearly_worse_but_does_not_rescue_ist_semantics": true,
+    "identity_source_d007_remains_independently_valid": true,
+    "identity_phase_was_not_opened": true,
+    "nic_source_remains_high_coverage_but_not_fully_transformable_under_frozen_multi_nic_rule": true,
+    "next_step": "SEPARATELY_FROZEN_D013_R1_SOURCE_EVENT_CORRESPONDENCE_DIAGNOSTIC_ONLY",
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false
+  },
+  "live_capital_allowed": false
+}
