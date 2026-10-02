@@ -1,0 +1,53 @@
+schema_version: 1
+id: RM001-C002-v1
+name: prospective_v1_variance_level_calibration
+status: FROZEN_BEFORE_PROSPECTIVE
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_model: RM001-v1-DEVELOPMENT
+calibrated_model: RM001-v1-CAL1-DEVELOPMENT
+
+design_source:
+  path: research/rm001-c001-result-v1.json
+  c001_v1_aggregate_calibration_ratio: 0.5670928922826751
+
+calibration:
+  type: MULTIPLICATIVE_VARIANCE_SCALE
+  scalar: 0.5670928922826751
+  factor_exposures_changed: false
+  relative_risk_changed: false
+
+prospective:
+  start_decision_session: 2026-10-05
+  seal_cutoff_ist: "09:05"
+  minimum_common_identities: 500
+  probe_size: 30
+  hash_probe_count: 8
+  tail_factors:
+    - BETA60_RELATIVE
+    - MOMENTUM20
+    - VOLATILITY60
+    - LIQUIDITY
+  expected_probe_count: 16
+
+outcome:
+  horizon_sessions: 1
+  return: close_to_close
+  target: squared_portfolio_return
+  identity: symbol_plus_isin
+  corporate_action_policy: fail_closed
+  missing_member_policy: fail_probe_no_renormalization
+
+primary_loss: QLIKE
+
+inference:
+  minimum_valid_probes_per_date: 12
+  minimum_evaluated_dates: 20
+  method: NEWEY_WEST_BARTLETT_MEAN_INFERENCE_V1
+  lag: 5
+  comparison: CAL1_MINUS_RAW_V1
+
+promotion:
+  prospective_claim_only: true
+  live_capital_directly_allowed: false
