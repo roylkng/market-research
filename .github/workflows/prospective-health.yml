@@ -1,0 +1,98 @@
+name: Prospective experiment health snapshot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 19:45 Asia/Kolkata, Monday-Friday.
+    - cron: '15 14 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: marketlab-prospective-health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify health implementation
+        run: |
+          ruff check \
+            src/marketlab/prospective_health.py \
+            scripts/build_prospective_health.py \
+            tests/test_prospective_health.py
+          pytest -q \
+            tests/test_prospective_health.py \
+            tests/test_alpha_prospective_sources.py \
+            tests/test_alpha_prospective_futures_sources.py \
+            tests/test_alpha_sc003_preopen.py \
+            tests/test_rm001_c002.py
+
+      - name: Build and anchor latest derived health state
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          OUTPUT="research/prospective/health/latest.json"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            git checkout --detach origin/main
+
+            python scripts/build_prospective_health.py \
+              --as-of-date "$TODAY" \
+              --after-market-close \
+              --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+              --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
+              --sc002-ledger research/prospective/ae001-sc002/source-ledger.json \
+              --sc003-ledger research/prospective/ae001-sc003/source-ledger.json \
+              --t004-decision-ledger research/prospective/ae001-t004/decision-ledger.json \
+              --t004-outcome-ledger research/prospective/ae001-t004/outcome-ledger.json \
+              --t006-decision-ledger research/prospective/ae001-t006/decision-ledger.json \
+              --t006-outcome-ledger research/prospective/ae001-t006/outcome-ledger.json \
+              --c002-forecast-ledger research/prospective/rm001-c002/forecast-ledger.json \
+              --c002-outcome-ledger research/prospective/rm001-c002/outcome-ledger.json \
+              --h024-summary research/prospective/h024/summary.json \
+              --output "$OUTPUT" | tee prospective-health.json
+
+            git add "$OUTPUT"
+            if git diff --cached --quiet; then
+              echo "Prospective health state unchanged"
+              exit 0
+            fi
+
+            git commit -m "Prospective health: update derived readiness snapshot [skip ci]"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+
+          echo "Unable to anchor prospective health snapshot after bounded retries"
+          exit 1
+
+      - name: Upload rendered health snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-health-${{ github.run_id }}
+          path: prospective-health.json
+          if-no-files-found: warn
+          retention-days: 30
