@@ -1,0 +1,55 @@
+schema_version: 1
+id: RM001-D015-R1-v1
+name: nifty_total_market_series_semantics
+status: FROZEN_BEFORE_EVIDENCE_ACCESS
+created: 2026-10-02
+live_capital_allowed: false
+
+research_class:
+  type: SOURCE_SEMANTICS_NO_RETURN_OUTCOMES
+  return_labels_allowed: false
+  alpha_outcomes_allowed: false
+  risk_model_fit_allowed: false
+  portfolio_fit_allowed: false
+
+parent:
+  diagnostic_id: RM001-D015-v1
+  result_sha256: dcee31853fcd2f2a61832af19c61722e13ca7f3776c01bee798e859fe71326b9
+  raw_sha256: c469467c0e042e71ce566e8f5df1b9e0c081603ee48919db40d56c4beb44034f
+  workflow_run_id: 37036816006
+  workflow_artifact_id: 11240785634
+  row_count: 755
+  eq_row_count: 745
+  non_eq_row_count: 10
+  status_changed_by_r1: false
+
+security_source:
+  provider: NSE
+  session_date: 2026-10-01
+  url: https://nsearchives.nseindia.com/content/cm/NSE_CM_security_01102026.csv.gz
+  exact_raw_bytes_required: true
+
+projection:
+  rule: SERIES_EXACTLY_EQ
+  alternate_filters_allowed: false
+
+promotion_gates:
+  parent_raw_sha_exact: true
+  parent_row_count_exact: 755
+  parent_eq_row_count_exact: 745
+  parent_non_eq_row_count_exact: 10
+  security_duplicate_identity_count_max: 0
+  required_exact_identity_join_coverage: 1.0
+  required_series_agreement_coverage: 1.0
+  required_parent_eq_confirmed_eq_fraction: 1.0
+  required_parent_non_eq_confirmed_non_eq_fraction: 1.0
+  projected_eq_row_count_exact: 745
+  projected_eq_industry_coverage: 1.0
+  projected_eq_isin_coverage: 1.0
+
+promotion:
+  pass: AUTHORIZE_RM001_SC002_EQ_INDUSTRY_PROSPECTIVE_CAPTURE
+  d015_status_may_change: false
+  historical_backfill_allowed: false
+  rm001_factor_directly_allowed: false
+  live_capital_directly_allowed: false

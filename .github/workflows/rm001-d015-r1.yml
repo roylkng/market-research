@@ -1,0 +1,78 @@
+name: RM001 D015-R1 Nifty Total Market series semantics
+
+on:
+  push:
+    branches:
+      - feat/rm001-d015-r1-series-semantics-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  scan:
+    if: contains(github.event.head_commit.message, '[rm001-d015-r1]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen R1 implementation before evidence access
+        run: |
+          ruff check \
+            src/marketlab/rm001_d015_r1.py \
+            scripts/run_rm001_d015_r1.py \
+            tests/test_rm001_d015_r1.py
+          pytest -q tests/test_rm001_d015_r1.py
+          marketlab validate-registry registry/hypotheses.yaml
+
+      - name: Download exact parent D015 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: rm001-d015-37036816006
+          path: evidence/d015
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 37036816006
+
+      - name: Locate and verify parent raw file
+        id: parent
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t FILES < <(find evidence/d015 -type f -name 'nifty-total-market-*.csv' | sort)
+          if [ "${#FILES[@]}" -ne 1 ]; then
+            printf 'Expected one parent raw CSV, found %s\n' "${#FILES[@]}"
+            printf '%s\n' "${FILES[@]:-}"
+            exit 1
+          fi
+          echo "path=${FILES[0]}" >> "$GITHUB_OUTPUT"
+          sha256sum "${FILES[0]}"
+
+      - name: Run frozen R1 semantics diagnostic
+        run: |
+          python scripts/run_rm001_d015_r1.py \
+            --parent-raw "${{ steps.parent.outputs.path }}" \
+            --raw-dir reports/rm001-d015-r1/raw \
+            --output reports/rm001-d015-r1/report.json \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Print result
+        run: cat reports/rm001-d015-r1/report.json
+
+      - name: Upload exact R1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-d015-r1-${{ github.run_id }}
+          path: reports/rm001-d015-r1
+          if-no-files-found: warn
+          retention-days: 90
