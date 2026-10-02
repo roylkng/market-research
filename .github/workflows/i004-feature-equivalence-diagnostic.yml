@@ -1,0 +1,180 @@
+name: I004 action-feature equivalence diagnostic
+
+on:
+  push:
+    branches:
+      - feat/po001-i004-rm001-v3-risk-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  compare:
+    if: contains(github.event.head_commit.message, '[i004-feature-equivalence]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download sealed I003 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i003-36610045578
+          path: evidence/i003
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36610045578
+
+      - name: Download failed I004 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i004-36966635629
+          path: evidence/i004
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36966635629
+
+      - name: Compare action and feature economics
+        run: |
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def locate(root, filename):
+              matches = list(Path(root).rglob(filename))
+              if len(matches) != 1:
+                  raise SystemExit(
+                      f"expected one {filename} under {root}, got {matches}"
+                  )
+              return matches[0]
+
+          def load_gzip(path):
+              return json.loads(gzip.decompress(path.read_bytes()).decode("utf-8"))
+
+          def canonical_hash(value):
+              raw = json.dumps(
+                  value,
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ).encode()
+              return hashlib.sha256(raw).hexdigest()
+
+          old_action = load_gzip(
+              locate("evidence/i003", "corporate-action-ledger.json.gz")
+          )
+          new_action = load_gzip(
+              locate("evidence/i004", "corporate-action-ledger.json.gz")
+          )
+          old_base = load_gzip(
+              locate("evidence/i003", "action-safe-feature-panel.json.gz")
+          )
+          new_base = load_gzip(
+              locate("evidence/i004", "action-safe-feature-panel.json.gz")
+          )
+          old_delivery = load_gzip(
+              locate("evidence/i003", "delivery-feature-panel.json.gz")
+          )
+          new_delivery = load_gzip(
+              locate("evidence/i004", "delivery-feature-panel.json.gz")
+          )
+
+          print("OLD_ACTION_SHA", old_action["ledger_sha256"])
+          print("NEW_ACTION_SHA", new_action["ledger_sha256"])
+          print("OLD_BASE_SHA", old_base["panel_sha256"])
+          print("NEW_BASE_SHA", new_base["panel_sha256"])
+          print("OLD_DELIVERY_SHA", old_delivery["panel_sha256"])
+          print("NEW_DELIVERY_SHA", new_delivery["panel_sha256"])
+
+          old_records = old_action.get("records", [])
+          new_records = new_action.get("records", [])
+          print("OLD_ACTION_RECORD_COUNT", len(old_records))
+          print("NEW_ACTION_RECORD_COUNT", len(new_records))
+          print("OLD_ACTION_RECORDS_HASH", canonical_hash(old_records))
+          print("NEW_ACTION_RECORDS_HASH", canonical_hash(new_records))
+          if old_records != new_records:
+              old_set = {canonical_hash(row): row for row in old_records}
+              new_set = {canonical_hash(row): row for row in new_records}
+              print("ACTION_OLD_ONLY", len(set(old_set) - set(new_set)))
+              print("ACTION_NEW_ONLY", len(set(new_set) - set(old_set)))
+              raise SystemExit("normalized corporate-action records differ")
+
+          def projection(panel):
+              definitions = panel.get("feature_definitions")
+              rows = panel.get("rows", [])
+              sessions = panel.get("sessions", [])
+              row_projection = [
+                  {
+                      "feature_session": row["feature_session"],
+                      "symbol": row["symbol"],
+                      "isin": row["isin"],
+                      "values": row["values"],
+                  }
+                  for row in rows
+              ]
+              session_projection = [
+                  {
+                      "session_date": row["session_date"],
+                      "eligible_count": row["eligible_count"],
+                      "universe_sha256": row["universe_sha256"],
+                  }
+                  for row in sessions
+              ]
+              return definitions, row_projection, session_projection
+
+          for name, old_panel, new_panel in (
+              ("BASE", old_base, new_base),
+              ("DELIVERY", old_delivery, new_delivery),
+          ):
+              old_defs, old_rows, old_sessions = projection(old_panel)
+              new_defs, new_rows, new_sessions = projection(new_panel)
+              print(name, "OLD_ROW_COUNT", len(old_rows))
+              print(name, "NEW_ROW_COUNT", len(new_rows))
+              print(name, "OLD_ROW_PROJECTION_SHA", canonical_hash(old_rows))
+              print(name, "NEW_ROW_PROJECTION_SHA", canonical_hash(new_rows))
+              print(name, "OLD_SESSION_PROJECTION_SHA", canonical_hash(old_sessions))
+              print(name, "NEW_SESSION_PROJECTION_SHA", canonical_hash(new_sessions))
+              print(name, "OLD_DEFINITION_SHA", canonical_hash(old_defs))
+              print(name, "NEW_DEFINITION_SHA", canonical_hash(new_defs))
+              if old_defs != new_defs:
+                  raise SystemExit(f"{name} feature definitions differ")
+              if old_sessions != new_sessions:
+                  raise SystemExit(f"{name} session universes differ")
+              if old_rows != new_rows:
+                  # Find the first actual economic difference.
+                  for index, (left, right) in enumerate(
+                      zip(old_rows, new_rows, strict=False)
+                  ):
+                      if left != right:
+                          print(name, "FIRST_ROW_DIFF_INDEX", index)
+                          print(name, "OLD_ROW", json.dumps(left, sort_keys=True))
+                          print(name, "NEW_ROW", json.dumps(right, sort_keys=True))
+                          break
+                  raise SystemExit(f"{name} stock-date feature values differ")
+
+          differing_action_keys = sorted(
+              key
+              for key in set(old_action) | set(new_action)
+              if old_action.get(key) != new_action.get(key)
+          )
+          differing_base_keys = sorted(
+              key
+              for key in set(old_base) | set(new_base)
+              if old_base.get(key) != new_base.get(key)
+              and key not in {"rows", "sessions"}
+          )
+          differing_delivery_keys = sorted(
+              key
+              for key in set(old_delivery) | set(new_delivery)
+              if old_delivery.get(key) != new_delivery.get(key)
+              and key not in {"rows", "sessions"}
+          )
+          print("ACTION_DIFFERING_TOP_LEVEL_KEYS", differing_action_keys)
+          print("BASE_DIFFERING_TOP_LEVEL_KEYS", differing_base_keys)
+          print("DELIVERY_DIFFERING_TOP_LEVEL_KEYS", differing_delivery_keys)
+          print("I004_FEATURE_ECONOMIC_EQUIVALENCE", True)
+          PY
