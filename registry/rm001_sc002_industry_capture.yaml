@@ -1,0 +1,58 @@
+schema_version: 1
+id: RM001-SC002-v1
+name: prospective_nifty_total_market_industry_capture
+status: FROZEN_BEFORE_FIRST_CAPTURE
+created: 2026-10-02
+first_observation_date: 2026-10-05
+live_capital_allowed: false
+
+research_class:
+  type: PROSPECTIVE_SOURCE_TIMING_AND_SEMANTICS
+  return_labels_allowed: false
+  risk_model_fit_allowed: false
+  portfolio_fit_allowed: false
+
+sources:
+  constituent:
+    provider: NSE_INDICES
+    url: https://nsearchives.nseindia.com/content/indices/ind_niftytotalmarket_list.csv
+  security:
+    provider: NSE
+    contract: security_master_url_same_session
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+
+ordinary_eq_rule:
+  series: EQ
+  dummy_prefix_excluded: DUMMY
+  exact_symbol_isin_series_match_count: 1
+  fallback_allowed: false
+
+dummy_rule:
+  series: EQ
+  symbol_prefix: DUMMY
+  exact_triplet_match_count: 0
+  same_symbol_isin_any_series_match_count: 0
+
+quality:
+  minimum_parent_rows: 700
+  minimum_projected_eq_rows: 700
+  ordinary_missing_allowed: 0
+  ordinary_ambiguous_allowed: 0
+  non_eq_missing_allowed: 0
+  non_eq_ambiguous_allowed: 0
+  projected_industry_coverage: 1.0
+  projected_isin_coverage: 1.0
+  industry_label_count_min: 10
+  industry_label_count_max: 40
+
+readiness:
+  minimum_ready_before_cutoff_sessions: 3
+  historical_backfill_allowed: false
+  factor_directly_allowed: false
+
+promotion:
+  pass: AUTHORIZE_RM001_PROSPECTIVE_INDUSTRY_FACTOR_DESIGN
+  live_capital_directly_allowed: false
