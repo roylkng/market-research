@@ -1,7 +1,7 @@
 schema_version: 1
 id: PO001-S001-v1
 name: po001_v4_exact_i004_numerical_stability
-status: FROZEN_BEFORE_FIRST_RUN
+status: NUMERICAL_STABILITY_ESTABLISHED
 created: 2026-10-02
 live_capital_allowed: false
 
@@ -49,3 +49,15 @@ gates:
 promotion:
   rm001_v3_portfolio_revisit_requires_pass: true
   live_capital_directly_allowed: false
+
+result:
+  workflow_run_id: 36974074783
+  aggregate_artifact_id: 11212389124
+  result_path: research/po001-s001-result-v1.json
+  result_sha256: 6eacf70acfd65ecc0e2b2767b9a222c80f299c70747f4879624dbf013f055e62
+  control_max_pairwise_weight_abs_diff: 0.0
+  treatment_max_pairwise_weight_abs_diff: 0.0
+  control_max_kkt_violation: 2.7370467003962062e-14
+  treatment_max_kkt_violation: 1.221852480304264e-14
+  po001_v4_numerical_stability_established: true
+  rm001_v3_portfolio_revisit_allowed: true
