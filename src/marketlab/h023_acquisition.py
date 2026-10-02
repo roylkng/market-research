@@ -185,10 +185,15 @@ def _revision_metadata(row: dict[str, Any]) -> dict[str, str]:
             "NSE revised filing is missing revisionDate"
         )
     try:
-        revision_date = datetime.strptime(
-            revision_date_raw.upper(),
-            REPORT_DATE_FORMAT,
-        ).date().isoformat()
+        revision_date = (
+            datetime.strptime(
+                revision_date_raw.upper(),
+                REPORT_DATE_FORMAT,
+            )
+            .replace(tzinfo=IST)
+            .date()
+            .isoformat()
+        )
     except ValueError as exc:
         raise H023AcquisitionError(
             f"invalid NSE revisionDate: {revision_date_raw}"
