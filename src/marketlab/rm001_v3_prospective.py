@@ -100,6 +100,12 @@ def latest_activation_target(
     readiness_summary: dict[str, Any],
 ) -> dict[str, Any] | None:
     ready = _ready_size_attempts(size_ledger)
+    if readiness_summary.get("source_ledger_sha256") != size_ledger.get(
+        "ledger_sha256"
+    ):
+        raise AlphaContractError(
+            "prospective RM001-v3 readiness summary/source ledger binding mismatch"
+        )
     summary_count = int(
         readiness_summary.get(
             "distinct_ready_before_cutoff_session_count",
