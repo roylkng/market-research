@@ -1,11 +1,11 @@
-from datetime import UTC, datetime, timedelta
 import csv
 import gzip
 import io
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
+from marketlab.rm001_d010_r1 import parse_submission_timestamp
 from marketlab.rm001_d013 import (
     IST,
     _nic_exposure,
@@ -38,12 +38,7 @@ def _filing(
         "symbol": symbol,
         "cin": identity.removeprefix("CIN:"),
         "submission_timestamp_raw": submitted,
-        "submission_timestamp_parsed": (
-            datetime.strptime(
-                submitted,
-                "%d-%b-%Y %H:%M:%S",
-            ).isoformat()
-        ),
+        "submission_timestamp_parsed": parse_submission_timestamp(submitted),
         "submission_timestamp_has_timezone": False,
         "reporting_period_start": start,
         "reporting_period_end": end,
