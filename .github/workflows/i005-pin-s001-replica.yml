@@ -1,0 +1,119 @@
+name: I005 pin sealed S001 replica
+
+on:
+  push:
+    branches:
+      - feat/po001-i005-stable-risk-treatment-20261002
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  pin:
+    if: contains(github.event.head_commit.message, '[i005-pin-s001]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download sealed S001 replica 1
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-s001-replica-1-36974074783
+          path: evidence/s001
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36974074783
+
+      - name: Pin exact S001 report
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip
+          import hashlib
+          import json
+          from pathlib import Path
+
+          matches = list(Path("evidence/s001").rglob("replica-report.json.gz"))
+          if len(matches) != 1:
+              raise SystemExit(f"expected one S001 report, got {matches}")
+          source = matches[0]
+          raw = source.read_bytes()
+          report = json.loads(gzip.decompress(raw).decode("utf-8"))
+
+          sealed = json.loads(
+              Path("research/po001-s001-result-v1.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+          if sealed["status"] != "NUMERICAL_STABILITY_ESTABLISHED":
+              raise SystemExit("S001 stability is not established")
+          if report.get("study_id") != "PO001-S001-v1":
+              raise SystemExit("unexpected S001 study id")
+          if report.get("report_sha256") not in sealed[
+              "source_report_sha256_values"
+          ]:
+              raise SystemExit("S001 replica report is not sealed by aggregate result")
+          if report.get("realized_outcome_opened") is not False:
+              raise SystemExit("S001 report unexpectedly opened outcomes")
+
+          destination = Path(
+              "research/po001-i005/inputs/s001-replica-1-report.json.gz"
+          )
+          destination.parent.mkdir(parents=True, exist_ok=True)
+          destination.write_bytes(raw)
+
+          manifest = {
+              "schema_version": 1,
+              "artifact_id": "PO001-I005-PINNED-S001-REPLICA-v1",
+              "source_workflow_run_id": 36974074783,
+              "source_workflow_artifact_id": 11212497670,
+              "source_workflow_artifact_name": (
+                  "po001-s001-replica-1-36974074783"
+              ),
+              "source_path": "replica-report.json.gz",
+              "pinned_path": str(destination),
+              "gzip_file_sha256": hashlib.sha256(raw).hexdigest(),
+              "internal_report_sha256": report["report_sha256"],
+              "study_id": report["study_id"],
+              "control_optimizer_artifact_sha256": report[
+                  "control_rm001_v1"
+              ]["artifact"]["artifact_sha256"],
+              "treatment_optimizer_artifact_sha256": report[
+                  "treatment_rm001_v3"
+              ]["artifact"]["artifact_sha256"],
+              "control_risk_state_sha256": report[
+                  "control_risk_state_sha256"
+              ],
+              "treatment_risk_state_sha256": report[
+                  "treatment_risk_state_sha256"
+              ],
+              "live_capital_allowed": False,
+          }
+          manifest_path = Path(
+              "research/po001-i005/inputs/s001-replica-1-manifest.json"
+          )
+          manifest_path.write_text(
+              json.dumps(
+                  manifest,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(manifest, sort_keys=True))
+          PY
+
+      - name: Commit pinned S001 report
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/po001-i005/inputs
+          git commit -m "research: pin exact sealed S001 replica for I005 [skip ci]"
+          git push origin HEAD:feat/po001-i005-stable-risk-treatment-20261002
