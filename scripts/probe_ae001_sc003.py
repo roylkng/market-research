@@ -3,12 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 from datetime import UTC, date, datetime
-from zoneinfo import ZoneInfo
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from marketlab.alpha_acquisition import http_fetcher
 from marketlab.alpha_futures import fo_udiff_url
-from marketlab.calendar_snapshot import load_calendar_snapshot
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.alpha_sc003_preopen import (
     SC003_P1_PROTOCOL,
@@ -19,6 +18,7 @@ from marketlab.alpha_sc003_preopen import (
     target_ready_observed,
     validate_sc003_ledger,
 )
+from marketlab.calendar_snapshot import load_calendar_snapshot
 
 
 def _load(path: Path) -> dict:
