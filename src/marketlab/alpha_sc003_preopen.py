@@ -6,9 +6,9 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.alpha_futures import parse_fo_udiff_stock_futures
 from marketlab.alpha_prospective_sources import validate_source_ledger
+from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.events import sha256_bytes
 
 SC003_LEDGER_ID = "AE001-SC003-PREOPEN-FUTURES-SOURCE-LEDGER-v1"
@@ -333,9 +333,7 @@ def append_sc003_probe(
     cutoff = preopen_cutoff_utc(cutoff_basis_date)
     if target_close_timestamp_utc is not None:
         try:
-            target_close = datetime.fromisoformat(
-                target_close_timestamp_utc.replace("Z", "+00:00")
-            ).astimezone(UTC)
+            target_close = datetime.fromisoformat(target_close_timestamp_utc).astimezone(UTC)
         except ValueError as exc:
             raise AlphaContractError(
                 "SC003-P1 target close timestamp is invalid"
