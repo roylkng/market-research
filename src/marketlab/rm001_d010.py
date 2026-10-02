@@ -93,7 +93,7 @@ FILE_URL_PATTERN = re.compile(
         |
         /[^"'\s<>]+
     )""",
-    re.X | re.IGNORECASE,
+    re.VERBOSE | re.IGNORECASE,
 )
 API_PATTERN = re.compile(r"/api/[A-Za-z0-9_./?=&%:+\-]+")
 
