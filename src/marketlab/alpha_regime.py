@@ -70,6 +70,12 @@ def _equities(
     return rows
 
 
+def _close_return(closes: list[float], lookback: int) -> float:
+    if lookback < 1 or len(closes) < lookback + 1:
+        raise AlphaContractError("RG001 close-return lookback is invalid")
+    return closes[-1] / closes[-(lookback + 1)] - 1.0
+
+
 def build_rg001_panel(
     market_panel: dict[str, Any],
 ) -> dict[str, Any]:
@@ -148,9 +154,6 @@ def build_rg001_panel(
             for index in range(1, len(benchmark))
         ]
 
-        def bench_return(lookback: int) -> float:
-            return benchmark[-1] / benchmark[-(lookback + 1)] - 1.0
-
         stock_returns_1 = [
             history[-1].close_price / history[-2].close_price - 1.0
             for history in eligible_histories
@@ -166,10 +169,10 @@ def build_rg001_panel(
         ]
 
         values = {
-            "nifty500_return_1": bench_return(1),
-            "nifty500_return_5": bench_return(5),
-            "nifty500_return_20": bench_return(20),
-            "nifty500_return_60": bench_return(60),
+            "nifty500_return_1": _close_return(benchmark, 1),
+            "nifty500_return_5": _close_return(benchmark, 5),
+            "nifty500_return_20": _close_return(benchmark, 20),
+            "nifty500_return_60": _close_return(benchmark, 60),
             "nifty500_realized_vol_20": statistics.pstdev(
                 benchmark_returns[-20:]
             ),
