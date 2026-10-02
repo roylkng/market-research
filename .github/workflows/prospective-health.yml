@@ -2,6 +2,23 @@ name: Prospective experiment health snapshot
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/prospective-health.yml
+      - research/prospective/calendars/**
+      - research/prospective/ae001-sc001/source-ledger.json
+      - research/prospective/ae001-sc002/source-ledger.json
+      - research/prospective/ae001-sc003/source-ledger.json
+      - research/prospective/ae001-t004/decision-ledger.json
+      - research/prospective/ae001-t004/outcome-ledger.json
+      - research/prospective/ae001-t004/readiness.json
+      - research/prospective/ae001-t006/decision-ledger.json
+      - research/prospective/ae001-t006/outcome-ledger.json
+      - research/prospective/rm001-c002/forecast-ledger.json
+      - research/prospective/rm001-c002/outcome-ledger.json
+      - research/prospective/h024/summary.json
   schedule:
     # 19:45 Asia/Kolkata, Monday-Friday.
     - cron: '15 14 * * 1-5'
