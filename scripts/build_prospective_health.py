@@ -42,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--sc003-ledger", type=Path, required=True)
     parser.add_argument("--t004-decision-ledger", type=Path, required=True)
     parser.add_argument("--t004-outcome-ledger", type=Path, required=True)
+    parser.add_argument("--t004-readiness", type=Path, required=True)
     parser.add_argument("--t006-decision-ledger", type=Path, required=True)
     parser.add_argument("--t006-outcome-ledger", type=Path, required=True)
     parser.add_argument("--c002-forecast-ledger", type=Path, required=True)
@@ -62,6 +63,7 @@ def main() -> int:
         sc003_ledger=_load(args.sc003_ledger),
         t004_decision_ledger=_load(args.t004_decision_ledger),
         t004_outcome_ledger=_load(args.t004_outcome_ledger),
+        t004_readiness=_load(args.t004_readiness),
         t006_decision_ledger=_load(args.t006_decision_ledger),
         t006_outcome_ledger=_load(args.t006_outcome_ledger),
         c002_forecast_ledger=_load(args.c002_forecast_ledger),

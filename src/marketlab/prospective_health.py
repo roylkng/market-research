@@ -8,6 +8,7 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_prospective_futures_sources import validate_futures_source_ledger
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc003_ledger
+from marketlab.alpha_t004_readiness import validate_t004_readiness
 from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.rm001_c002 import validate_forecast_ledger, validate_outcome_ledger
 
@@ -249,6 +250,7 @@ def build_prospective_health_summary(
     sc003_ledger: dict[str, Any],
     t004_decision_ledger: dict[str, Any],
     t004_outcome_ledger: dict[str, Any],
+    t004_readiness: dict[str, Any],
     t006_decision_ledger: dict[str, Any],
     t006_outcome_ledger: dict[str, Any],
     c002_forecast_ledger: dict[str, Any],
@@ -268,16 +270,52 @@ def build_prospective_health_summary(
     sc002 = _sc002_state(sc002_ledger)
     sc003 = _sc003_state(sc003_ledger)
 
-    t004_warning = (
-        "EMPTY_DESPITE_SC001_ELIGIBLE_SOURCE"
-        if sc001["eligible_session_count"] > 0
-        else None
-    )
-    t004 = _trial_state(
-        decision_ledger=t004_decision_ledger,
-        outcome_ledger=t004_outcome_ledger,
-        warning_if_empty=t004_warning,
-    )
+    validate_t004_readiness(t004_readiness)
+    t004_decisions = _count_records(t004_decision_ledger)
+    if t004_decisions:
+        t004 = _trial_state(
+            decision_ledger=t004_decision_ledger,
+            outcome_ledger=t004_outcome_ledger,
+        )
+    else:
+        readiness_state = str(t004_readiness["state"])
+        if readiness_state == "DELIVERY_SOURCE_WARMUP_BLOCKED":
+            t004 = _trial_state(
+                decision_ledger=t004_decision_ledger,
+                outcome_ledger=t004_outcome_ledger,
+                blocked_reason="DELIVERY_SOURCE_WARMUP_BLOCKED",
+            )
+        elif readiness_state == "SESSION_EXCLUDED":
+            t004 = _trial_state(
+                decision_ledger=t004_decision_ledger,
+                outcome_ledger=t004_outcome_ledger,
+                warning_if_empty="LATEST_ELIGIBLE_SESSION_EXCLUDED",
+            )
+        elif readiness_state in {"SEALED", "ALREADY_SEALED"}:
+            raise AlphaContractError(
+                "T004 readiness says sealed but decision ledger is empty"
+            )
+        else:
+            t004 = _trial_state(
+                decision_ledger=t004_decision_ledger,
+                outcome_ledger=t004_outcome_ledger,
+                warning_if_empty="WAITING_FOR_FIRST_DECISION",
+            )
+    t004["readiness_sha256"] = t004_readiness["readiness_sha256"]
+    t004["latest_readiness_session"] = t004_readiness["session_date"]
+    t004["readiness_state"] = t004_readiness["state"]
+    if t004_readiness["state"] == "DELIVERY_SOURCE_WARMUP_BLOCKED":
+        warmup = t004_readiness["delivery_warmup"]
+        t004["delivery_warmup"] = {
+            "blocking_sessions": warmup["blocking_sessions"],
+            "consecutive_clean_prior_sessions": warmup[
+                "consecutive_clean_prior_sessions"
+            ],
+            "additional_clean_prior_sessions_needed": warmup[
+                "additional_clean_prior_sessions_needed"
+            ],
+            "required_prior_sessions": warmup["required_prior_sessions"],
+        }
 
     t006_block = None
     if sc002["eligible_before_1830_session_count"] == 0:
@@ -313,8 +351,8 @@ def build_prospective_health_summary(
         blockers.append("SC001_STALE")
     if sc002["state"] == "BLOCKED_SAME_DAY_FUTURES_TIMING":
         blockers.append("SC002_SAME_DAY_FUTURES_TIMING")
-    if t004["state"] == "EMPTY_DESPITE_SC001_ELIGIBLE_SOURCE":
-        blockers.append("T004_EMPTY_WITH_ELIGIBLE_SOURCE")
+    if t004["state"] == "DELIVERY_SOURCE_WARMUP_BLOCKED":
+        blockers.append("T004_DELIVERY_WARMUP")
     if t006["state"].startswith("BLOCKED_"):
         blockers.append("T006_SOURCE_TIMING")
 

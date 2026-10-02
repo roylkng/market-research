@@ -32,10 +32,14 @@ jobs:
       - name: Verify health implementation
         run: |
           ruff check \
+            src/marketlab/alpha_t004_readiness.py \
             src/marketlab/prospective_health.py \
             scripts/build_prospective_health.py \
+            scripts/verify_ae001_t004_readiness.py \
+            tests/test_alpha_t004_readiness.py \
             tests/test_prospective_health.py
           pytest -q \
+            tests/test_alpha_t004_readiness.py \
             tests/test_prospective_health.py \
             tests/test_alpha_prospective_sources.py \
             tests/test_alpha_prospective_futures_sources.py \
@@ -65,6 +69,7 @@ jobs:
               --sc003-ledger research/prospective/ae001-sc003/source-ledger.json \
               --t004-decision-ledger research/prospective/ae001-t004/decision-ledger.json \
               --t004-outcome-ledger research/prospective/ae001-t004/outcome-ledger.json \
+              --t004-readiness research/prospective/ae001-t004/readiness.json \
               --t006-decision-ledger research/prospective/ae001-t006/decision-ledger.json \
               --t006-outcome-ledger research/prospective/ae001-t006/outcome-ledger.json \
               --c002-forecast-ledger research/prospective/rm001-c002/forecast-ledger.json \

@@ -6,6 +6,7 @@ from marketlab.alpha_prospective_futures_sources import (
 )
 from marketlab.alpha_prospective_sources import new_source_ledger
 from marketlab.alpha_sc003_preopen import new_sc003_ledger
+from marketlab.alpha_t004_readiness import build_t004_readiness
 from marketlab.calendar_snapshot import build_calendar_snapshot
 from marketlab.prospective_health import build_prospective_health_summary
 from marketlab.rm001_c002 import new_forecast_ledger, new_outcome_ledger
@@ -75,6 +76,35 @@ def _sc002_late_ready():
     return _rehash(ledger)
 
 
+def _t004_warmup():
+    return build_t004_readiness(
+        session_date="2026-10-01",
+        state="DELIVERY_SOURCE_WARMUP_BLOCKED",
+        sc001_attempt_sha256="a" * 64,
+        support_market_panel_sha256="b" * 64,
+        support_delivery_panel_sha256="c" * 64,
+        delivery_warmup={
+            "state": "WARMUP_BLOCKED",
+            "required_prior_sessions": 20,
+            "prior_session_count": 20,
+            "blocking_session_count": 1,
+            "blocking_sessions": [
+                {
+                    "session_date": "2026-09-11",
+                    "status": "EXCLUDE_SESSION_INTERNAL_FIELD_INCONSISTENCY",
+                    "raw_sha256": "d" * 64,
+                }
+            ],
+            "consecutive_clean_prior_sessions": 12,
+            "additional_clean_prior_sessions_needed": 8,
+            "first_prior_session": "2026-09-02",
+            "last_prior_session": "2026-09-30",
+            "feature_eligibility_changed": False,
+            "live_capital_allowed": False,
+        },
+    )
+
+
 def _empty_trial(prefix):
     decision = {
         "schema_version": 1,
@@ -107,6 +137,7 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
         sc003_ledger=new_sc003_ledger(),
         t004_decision_ledger=t004_d,
         t004_outcome_ledger=t004_o,
+        t004_readiness=_t004_warmup(),
         t006_decision_ledger=t006_d,
         t006_outcome_ledger=t006_o,
         c002_forecast_ledger=new_forecast_ledger(),
@@ -128,7 +159,12 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
         summary["components"]["T006"]["state"]
         == "BLOCKED_BY_SC002_SAME_DAY_FUTURES_TIMING"
     )
+    assert summary["components"]["T004"]["state"] == "DELIVERY_SOURCE_WARMUP_BLOCKED"
+    assert summary["components"]["T004"]["delivery_warmup"][
+        "additional_clean_prior_sessions_needed"
+    ] == 8
     assert summary["components"]["RM001_C002"]["state"] == "BEFORE_FROZEN_START"
+    assert "T004_DELIVERY_WARMUP" in summary["blockers"]
     assert "T006_SOURCE_TIMING" in summary["blockers"]
     assert len(summary["summary_sha256"]) == 64
 
@@ -145,6 +181,7 @@ def test_health_marks_sc001_stale_when_expected_session_is_missing():
         sc003_ledger=new_sc003_ledger(),
         t004_decision_ledger=t004_d,
         t004_outcome_ledger=t004_o,
+        t004_readiness=_t004_warmup(),
         t006_decision_ledger=t006_d,
         t006_outcome_ledger=t006_o,
         c002_forecast_ledger=new_forecast_ledger(),

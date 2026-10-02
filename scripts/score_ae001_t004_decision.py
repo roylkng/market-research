@@ -22,6 +22,7 @@ from marketlab.alpha_t004_prospective import (
     eligible_sc001_attempt,
     validate_t004_decision_ledger,
 )
+from marketlab.alpha_t004_readiness import build_t004_readiness
 from marketlab.events import sha256_bytes
 from marketlab.nse import NSEClient
 
@@ -46,6 +47,36 @@ def _write_json(path: Path, payload: object) -> None:
         + "\n",
         encoding="utf-8",
     )
+
+
+def _persist_readiness(
+    args: argparse.Namespace,
+    *,
+    session_date: str,
+    state: str,
+    sc001_attempt_sha256: str,
+    support_market_panel_sha256: str | None = None,
+    support_delivery_panel_sha256: str | None = None,
+    delivery_warmup: dict | None = None,
+    reason: str | None = None,
+    decision_artifact_sha256: str | None = None,
+    common_row_count: int | None = None,
+) -> None:
+    if args.readiness is None:
+        return
+    readiness = build_t004_readiness(
+        session_date=session_date,
+        state=state,
+        sc001_attempt_sha256=sc001_attempt_sha256,
+        support_market_panel_sha256=support_market_panel_sha256,
+        support_delivery_panel_sha256=support_delivery_panel_sha256,
+        delivery_warmup=delivery_warmup,
+        reason=reason,
+        decision_artifact_sha256=decision_artifact_sha256,
+        common_row_count=common_row_count,
+        source_workflow_run_id=args.workflow_run_id,
+    )
+    _write_json(args.readiness, readiness)
 
 
 def _current_raw(attempt: dict, *, field: str) -> bytes:
@@ -77,6 +108,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--models", type=Path, required=True)
     parser.add_argument("--decision-dir", type=Path, required=True)
     parser.add_argument("--support-dir", type=Path, required=True)
+    parser.add_argument("--readiness", type=Path)
+    parser.add_argument("--workflow-run-id", type=int)
     parser.add_argument("--attempts", type=int, default=4)
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
     return parser.parse_args()
@@ -178,6 +211,15 @@ def main() -> int:
             args.support_dir / f"t004-warmup-{session_text}.json",
             report,
         )
+        _persist_readiness(
+            args,
+            session_date=session_text,
+            state="DELIVERY_SOURCE_WARMUP_BLOCKED",
+            sc001_attempt_sha256=str(attempt["attempt_sha256"]),
+            support_market_panel_sha256=str(prior_market["panel_sha256"]),
+            support_delivery_panel_sha256=str(prior_delivery["panel_sha256"]),
+            delivery_warmup=warmup,
+        )
         print(json.dumps(report, sort_keys=True))
         return 0
 
@@ -227,6 +269,15 @@ def main() -> int:
                 args.support_dir / f"t004-excluded-{session_text}.json",
                 report,
             )
+            _persist_readiness(
+                args,
+                session_date=session_text,
+                state="SESSION_EXCLUDED",
+                sc001_attempt_sha256=str(attempt["attempt_sha256"]),
+                support_market_panel_sha256=str(prior_market["panel_sha256"]),
+                support_delivery_panel_sha256=str(prior_delivery["panel_sha256"]),
+                reason=message,
+            )
             print(json.dumps(report, sort_keys=True))
             return 0
         raise
@@ -249,6 +300,17 @@ def main() -> int:
     )
     _write_json(args.decision_ledger, updated)
     validate_t004_decision_ledger(updated)
+
+    _persist_readiness(
+        args,
+        session_date=session_text,
+        state="SEALED",
+        sc001_attempt_sha256=str(attempt["attempt_sha256"]),
+        support_market_panel_sha256=str(prior_market["panel_sha256"]),
+        support_delivery_panel_sha256=str(prior_delivery["panel_sha256"]),
+        decision_artifact_sha256=str(artifact["artifact_sha256"]),
+        common_row_count=int(artifact["common_row_count"]),
+    )
 
     support_manifest = {
         "schema_version": 1,
