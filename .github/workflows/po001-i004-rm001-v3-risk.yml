@@ -1,0 +1,99 @@
+name: PO001 I004 RM001-v3 risk treatment
+
+on:
+  push:
+    branches:
+      - feat/po001-i004-rm001-v3-risk-20261002
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[po001-i004]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify I004 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/po001_v3.py \
+            src/marketlab/po001_i004.py \
+            scripts/run_po001_i004.py \
+            tests/test_po001_v3.py \
+            tests/test_po001_i004.py
+          pytest -q \
+            tests/test_po001_v3.py \
+            tests/test_po001_i004.py \
+            tests/test_po001_i003.py \
+            tests/test_rm001_v3.py
+
+      - name: Rebuild official NSE market panel through 31 Aug only
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-08-31 \
+            --store .marketlab/po001-i004 \
+            --output reports/po001-i004/panel \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Rebuild corporate-action-safe base features
+        run: |
+          python scripts/build_ae001_action_safe_panel.py \
+            --market-panel reports/po001-i004/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i004/panel/feature-panel.json.gz \
+            --start-date 2025-09-01 \
+            --end-date 2026-08-31 \
+            --raw-dir reports/po001-i004/corporate-actions/raw \
+            --output reports/po001-i004/action-safe \
+            --chunk-days 31 \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Build reusable delivery features through 31 Aug only
+        run: |
+          python scripts/build_ae001_delivery_features.py \
+            --market-panel reports/po001-i004/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i004/action-safe/action-safe-feature-panel.json.gz \
+            --store .marketlab/po001-i004 \
+            --output reports/po001-i004/delivery \
+            --attempts 4 \
+            --timeout-seconds 30
+
+      - name: Run frozen I004 RM001-v3 risk treatment
+        run: |
+          python scripts/run_po001_i004.py \
+            --market-panel reports/po001-i004/panel/market-panel.json.gz \
+            --feature-panel reports/po001-i004/delivery/delivery-feature-panel.json.gz \
+            --alpha-model research/po001-i003/inputs/i002-alpha-model-v1.json \
+            --alpha-model-manifest research/po001-i003/inputs/i002-alpha-model-v1-manifest.json \
+            --control-risk research/po001-i003/inputs/i002-risk-state-legacy.json.gz \
+            --control-risk-manifest research/po001-i003/inputs/i002-risk-state-legacy-manifest.json \
+            --treatment-risk research/po001-i004/inputs/rm001-v3-p001-risk-state.json.gz \
+            --treatment-risk-manifest research/po001-i004/inputs/rm001-v3-p001-risk-state-manifest.json \
+            --output reports/po001-i004/study
+
+      - name: Print compact result
+        run: cat reports/po001-i004/study/summary.json
+
+      - name: Upload exact I004 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: po001-i004-${{ github.run_id }}
+          path: |
+            reports/po001-i004
+            .marketlab/po001-i004/market-data
+          if-no-files-found: warn
+          retention-days: 90
