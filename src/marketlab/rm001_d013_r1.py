@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 import statistics
@@ -156,7 +157,7 @@ def discover_brsr_api_candidates(
             occurrences[endpoint].append(
                 {
                     "script_url": script_url,
-                    "script_sha256": digest({"bytes_hex": raw.hex()}),
+                    "script_sha256": hashlib.sha256(raw).hexdigest(),
                     "relevance_tokens": tokens,
                     "neighborhood": neighborhood,
                 }
