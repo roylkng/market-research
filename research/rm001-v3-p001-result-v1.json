@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "pilot_id": "RM001-v3-P001-v1",
+  "status": "COMPLETE_DEVELOPMENT",
+  "evidence_class": "HISTORICAL_RISK_MODEL_ATTRIBUTION_NO_RETURN_OUTCOME",
+  "decision_session": "2026-08-31",
+  "live_capital_allowed": false,
+  "prospective_claim_allowed": false,
+  "successful_materialization": {
+    "run_id": 36958406605,
+    "artifact_id": 11207466879,
+    "artifact_name": "rm001-v3-p001-36958406605",
+    "purpose": "MATERIALIZE_RM001_V2_PARENT_AND_RM001_V3_CHALLENGER"
+  },
+  "successful_attribution_replay": {
+    "run_id": 36959788977,
+    "artifact_id": 11207052925,
+    "artifact_name": "rm001-v3-p001-p2-replay-36959788977",
+    "purpose": "P2_EXACT_PRESERVED_PORTFOLIO_ATTRIBUTION"
+  },
+  "report_sha256": "d8f5c14c6a81d4524123876a40bf901c49e2467c31896f2b8f98a1bca02e8c00",
+  "report_artifact_sha256": "e4dbe87904d1f4ff58145120bcbcdda06d6c40fbb5483bf13de57fda1ab39a20",
+  "source_chain": {
+    "v2_risk_state_sha256": "7a25e8b086091141d2f7d1ade4b66fe49b00c2f2b34c78b00f490005fe75d3ec",
+    "v2_factor_history_sha256": "c3a88775c029f00bc77f0b95b25c0fa945b2549ee9c149e57b4c42293ebf673a",
+    "v3_risk_state_sha256": "32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441",
+    "sealed_i002_artifact_sha256": "d3cb62d0f1c041fa0af76a4275138ede5a12c0b5709106c441cafd8a8ca82ac1"
+  },
+  "identity": {
+    "v2_security_count": 1307,
+    "v3_security_count": 1307,
+    "identity_sets_equal": true,
+    "complete_statistical_identity_count": 995,
+    "fallback_identity_count": 312
+  },
+  "statistical_basis": {
+    "singular_values": [
+      1.213091915735526,
+      1.181354395238847,
+      1.075034850681952,
+      1.035109115674192,
+      1.004263621257971
+    ],
+    "adjacent_singular_relative_gaps": [
+      0.026162502680134,
+      0.089998009898967,
+      0.037139014593279,
+      0.029799268453094
+    ],
+    "explained_variance_ratio": [
+      0.026010108801506,
+      0.024666933028492,
+      0.020426776584226,
+      0.018937690660691,
+      0.017825848606069
+    ],
+    "explained_variance_ratio_total": 0.10786735768098399,
+    "sign_anchors": [
+      {
+        "factor": "STAT_PC01",
+        "symbol": "COFORGE",
+        "isin": "INE591G01025"
+      },
+      {
+        "factor": "STAT_PC02",
+        "symbol": "SILVERAG",
+        "isin": "INF769K01KG6"
+      },
+      {
+        "factor": "STAT_PC03",
+        "symbol": "ANTELOPUS",
+        "isin": "INE818A01017"
+      },
+      {
+        "factor": "STAT_PC04",
+        "symbol": "SUPRIYA",
+        "isin": "INE07RO01027"
+      },
+      {
+        "factor": "STAT_PC05",
+        "symbol": "UNIVCABLES",
+        "isin": "INE279A01012"
+      }
+    ]
+  },
+  "idiosyncratic": {
+    "v2": {
+      "p25": 0.000227586867305,
+      "median": 0.000374503969929,
+      "p75": 0.000630462752719
+    },
+    "v3": {
+      "p25": 0.0002151514420195,
+      "median": 0.000353530023991,
+      "p75": 0.000630053470778
+    },
+    "median_variance_delta": -0.000020973945938,
+    "median_variance_fractional_change": -0.05600460300613128,
+    "identity_count_lower_in_v3": 796,
+    "identity_count_higher_in_v3": 199,
+    "identity_count_unchanged": 312
+  },
+  "exact_preserved_portfolio_attribution": {
+    "equal_weight_top_decile": {
+      "position_count": 131,
+      "v2_annualized_volatility": 0.1575038506420453,
+      "v3_annualized_volatility": 0.15763561619859268,
+      "annualized_volatility_delta": 0.00013176555654736966,
+      "factor_variance_daily_delta": 4.3643317903288006e-07,
+      "idiosyncratic_variance_daily_delta": -2.716533090396236e-07,
+      "total_variance_daily_delta": 1.6477986999325733e-07,
+      "statistical_factor_exposures": {
+        "STAT_PC01": 0.007722076593969349,
+        "STAT_PC02": -0.0001560537919096795,
+        "STAT_PC03": -0.0065093434456926355,
+        "STAT_PC04": 0.0017677838041722219,
+        "STAT_PC05": 0.0032560464120987165
+      },
+      "statistical_factor_contribution_sum_daily": 6.224692629740665e-07
+    },
+    "positive_alpha_proportional_top_decile": {
+      "position_count": 131,
+      "v2_annualized_volatility": 0.15921967837222584,
+      "v3_annualized_volatility": 0.15940650452457114,
+      "annualized_volatility_delta": 0.00018682615234530409,
+      "factor_variance_daily_delta": 5.250204224385875e-07,
+      "idiosyncratic_variance_daily_delta": -2.887993756644343e-07,
+      "total_variance_daily_delta": 2.36221046774149e-07,
+      "statistical_factor_exposures": {
+        "STAT_PC01": 0.007389772364480016,
+        "STAT_PC02": -0.000653984870882353,
+        "STAT_PC03": -0.006646604585167462,
+        "STAT_PC04": 0.001873461038155135,
+        "STAT_PC05": 0.003576101739868029
+      },
+      "statistical_factor_contribution_sum_daily": 6.622856130833978e-07
+    }
+  },
+  "control_resolution": {
+    "protocol_amendment": "RM001-v3-P001-P2",
+    "exact_preserved_portfolios_used": [
+      "equal_weight_top_decile",
+      "positive_alpha_proportional_top_decile"
+    ],
+    "unavailable_portfolios": [
+      "risk_aware_zero_cost",
+      "full_po001_observable_cost_floor"
+    ],
+    "reason": "SEALED_I002_COMPACT_OPTIMIZER_SUMMARIES_DID_NOT_PERSIST_FULL_TARGET_WEIGHT_VECTORS"
+  },
+  "interpretation": {
+    "statistical_factors_capture_material_omitted_common_covariance": true,
+    "residual_variance_explained_by_five_pcs_fraction": 0.10786735768098399,
+    "median_idiosyncratic_variance_reduced": true,
+    "total_portfolio_volatility_reduced": false,
+    "reason_total_volatility_not_reduced": "COMMON_RISK_RECLASSIFIED_FROM_IDIOSYNCRATIC_TO_FACTOR_RISK",
+    "v3_is_more_descriptive_not_mechanically_lower_risk": true,
+    "sector_semantic_factor_still_missing": true,
+    "prospective_v3_allowed": false,
+    "next_research_need": "PROSPECTIVE_SIZE_TIMING_GATE_AND_SEPARATELY_FROZEN_RM001_V3_PROSPECTIVE_PROTOCOL"
+  }
+}
