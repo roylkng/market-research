@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D010-R1-v1",
+  "evidence_class": "SOURCE_SEMANTICS_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37011294647,
+  "workflow_artifact_id": 11228106275,
+  "workflow_artifact_name": "rm001-d010-r1-37011294647",
+  "result_sha256": "eedc9bba0dfcb15a394af800cdc84f2e20ab48b95632d8941e5af169e1291522",
+  "status": "FAIL_DUPLICATE_SEMANTICS",
+  "d010_status_changed": false,
+  "d011_authorized": false,
+  "d012_authorized": false,
+  "failure_reasons": [
+    "FY2024-25:all_duplicate_groups_deterministic"
+  ],
+  "years": {
+    "FY2023-24": {
+      "duplicate_group_count": 27,
+      "duplicate_filing_record_count": 56,
+      "excess_duplicate_record_count": 29,
+      "deterministic_amendment_group_count": 27,
+      "deterministic_amendment_group_fraction": 1,
+      "duplicate_filing_parseable_timestamp_fraction": 1,
+      "duplicate_filing_explicit_nic_fraction": 1,
+      "timestamp_collision_group_count": 0,
+      "reporting_period_conflict_group_count": 0,
+      "symbol_change_group_count": 4,
+      "nic_change_group_count": 0,
+      "app_id_identity_conflict_count": 0,
+      "orphan_product_row_count": 0,
+      "year_pass": true
+    },
+    "FY2024-25": {
+      "duplicate_group_count": 4,
+      "duplicate_filing_record_count": 8,
+      "excess_duplicate_record_count": 4,
+      "deterministic_amendment_group_count": 3,
+      "deterministic_amendment_group_fraction": 0.75,
+      "duplicate_filing_parseable_timestamp_fraction": 1,
+      "duplicate_filing_explicit_nic_fraction": 1,
+      "timestamp_collision_group_count": 0,
+      "reporting_period_conflict_group_count": 1,
+      "symbol_change_group_count": 3,
+      "nic_change_group_count": 0,
+      "app_id_identity_conflict_count": 0,
+      "orphan_product_row_count": 5049,
+      "year_pass": false
+    }
+  },
+  "interpretation": {
+    "fy2023_duplicate_problem_fully_explained_as_orderable_amendment_chains": true,
+    "fy2024_remaining_blocker": "ONE_DUPLICATE_GROUP_WITH_REPORTING_PERIOD_CONFLICT",
+    "threshold_weakened_after_inspection": false,
+    "next_step": "SEPARATE_CROSS_PERIOD_DUPLICATE_SEMANTICS_DIAGNOSTIC",
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false
+  },
+  "live_capital_allowed": false
+}
