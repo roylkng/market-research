@@ -6,6 +6,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.alpha_futures import parse_fo_udiff_stock_futures
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.events import sha256_bytes
@@ -15,6 +16,7 @@ SC003_START_OBSERVATION_DATE = date(2026, 10, 2)
 IST = ZoneInfo("Asia/Kolkata")
 PREOPEN_CUTOFF = time(8, 30)
 RAW_ROOT_REPO = "research/prospective/ae001-sc003/raw"
+SC003_P1_PROTOCOL = "AE001-SC003-P1"
 
 
 def _ledger_hash(ledger: dict[str, Any]) -> str:
@@ -53,7 +55,32 @@ def validate_sc003_ledger(ledger: dict[str, Any]) -> None:
         observation = str(attempt.get("observation_date") or "")
         if not target or not observation:
             raise AlphaContractError("SC003 target/observation date is required")
-        if target >= observation:
+        protocol = str(attempt.get("protocol") or "AE001-SC003-v1")
+        if protocol == SC003_P1_PROTOCOL:
+            if target > observation:
+                raise AlphaContractError(
+                    "SC003-P1 target session cannot follow observation date"
+                )
+            cutoff_session = str(
+                attempt.get("cutoff_session_date") or ""
+            )
+            if not cutoff_session or cutoff_session <= target:
+                raise AlphaContractError(
+                    "SC003-P1 cutoff session must follow target session"
+                )
+            if not str(attempt.get("frozen_calendar_sha256") or ""):
+                raise AlphaContractError(
+                    "SC003-P1 frozen calendar SHA is required"
+                )
+            if not str(attempt.get("frozen_calendar_version") or ""):
+                raise AlphaContractError(
+                    "SC003-P1 frozen calendar version is required"
+                )
+            if not str(attempt.get("target_close_timestamp_utc") or ""):
+                raise AlphaContractError(
+                    "SC003-P1 target close timestamp is required"
+                )
+        elif target >= observation:
             raise AlphaContractError(
                 "SC003 target session must precede observation date"
             )
@@ -62,10 +89,14 @@ def validate_sc003_ledger(ledger: dict[str, Any]) -> None:
         unsigned.pop("attempt_sha256", None)
         if stored != digest(unsigned):
             raise AlphaContractError("SC003 attempt hash mismatch")
-        if attempt.get("source_status") == "READY":
+        if attempt.get("ready_before_preopen_cutoff") is True:
+            if attempt.get("source_status") != "READY":
+                raise AlphaContractError(
+                    "SC003 pre-open-ready attempt must have READY source"
+                )
             if target in seen_ready_targets:
                 raise AlphaContractError(
-                    "SC003 contains multiple READY observations for one target"
+                    "SC003 contains multiple pre-open-ready observations for one target"
                 )
             seen_ready_targets.add(target)
     if str(ledger.get("ledger_sha256") or "") != _ledger_hash(ledger):
@@ -115,6 +146,66 @@ def latest_completed_sc001_target(
     return same_session[0]
 
 
+def latest_sc001_eligible_target(
+    sc001_ledger: dict[str, Any],
+) -> dict[str, Any]:
+    validate_source_ledger(sc001_ledger)
+    candidates = [
+        attempt
+        for attempt in sc001_ledger["attempts"]
+        if attempt.get("eligible_before_cutoff") is True
+    ]
+    if not candidates:
+        raise AlphaContractError("SC003: no eligible SC001 target exists")
+    candidates.sort(
+        key=lambda row: (
+            str(row["session_date"]),
+            str(row["captured_at_utc"]),
+            int(row["seq"]),
+        )
+    )
+    latest_session = str(candidates[-1]["session_date"])
+    same_session = [
+        row
+        for row in candidates
+        if str(row["session_date"]) == latest_session
+    ]
+    same_session.sort(
+        key=lambda row: (
+            str(row["captured_at_utc"]),
+            int(row["seq"]),
+        )
+    )
+    return same_session[0]
+
+
+def next_frozen_trading_session(
+    calendar: CalendarSnapshot,
+    *,
+    target_session_date: str,
+) -> tuple[str, str]:
+    sessions = list(calendar.sessions)
+    index = next(
+        (
+            position
+            for position, session in enumerate(sessions)
+            if session.session_date == target_session_date
+        ),
+        None,
+    )
+    if index is None:
+        raise AlphaContractError(
+            f"SC003 target absent from frozen calendar: {target_session_date}"
+        )
+    if index + 1 >= len(sessions):
+        raise AlphaContractError(
+            f"SC003 frozen calendar has no next session after {target_session_date}"
+        )
+    target = sessions[index]
+    next_session = sessions[index + 1]
+    return target.close_timestamp_utc, next_session.session_date
+
+
 def target_ready_observed(
     ledger: dict[str, Any],
     target_session_date: str,
@@ -122,7 +213,7 @@ def target_ready_observed(
     validate_sc003_ledger(ledger)
     return any(
         attempt.get("target_session_date") == target_session_date
-        and attempt.get("source_status") == "READY"
+        and attempt.get("ready_before_preopen_cutoff") is True
         for attempt in ledger["attempts"]
     )
 
@@ -187,6 +278,11 @@ def append_sc003_probe(
     captured_at_utc: str,
     source_url: str,
     raw: bytes | None,
+    cutoff_session_date: str | None = None,
+    frozen_calendar_sha256: str | None = None,
+    frozen_calendar_version: str | None = None,
+    target_close_timestamp_utc: str | None = None,
+    protocol: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     validate_sc003_ledger(ledger)
     observation_day = date.fromisoformat(observation_date)
@@ -197,7 +293,25 @@ def append_sc003_probe(
         raise AlphaContractError("SC003 SC001 target session is missing")
     if sc001_attempt.get("eligible_before_cutoff") is not True:
         raise AlphaContractError("SC003 target requires eligible SC001 source")
-    if target_session >= observation_date:
+    protocol_id = protocol or "AE001-SC003-v1"
+    if protocol_id == SC003_P1_PROTOCOL:
+        if target_session > observation_date:
+            raise AlphaContractError(
+                "SC003-P1 target session cannot follow observation date"
+            )
+        if not cutoff_session_date or cutoff_session_date <= target_session:
+            raise AlphaContractError(
+                "SC003-P1 cutoff session must follow target session"
+            )
+        if not frozen_calendar_sha256 or not frozen_calendar_version:
+            raise AlphaContractError(
+                "SC003-P1 frozen calendar binding is required"
+            )
+        if not target_close_timestamp_utc:
+            raise AlphaContractError(
+                "SC003-P1 target close timestamp is required"
+            )
+    elif target_session >= observation_date:
         raise AlphaContractError(
             "SC003 target session must precede observation date"
         )
@@ -211,7 +325,25 @@ def append_sc003_probe(
     if captured.tzinfo is None:
         raise AlphaContractError("SC003 capture timestamp must be timezone-aware")
     captured = captured.astimezone(UTC)
-    cutoff = preopen_cutoff_utc(observation_date)
+    cutoff_basis_date = (
+        cutoff_session_date
+        if protocol_id == SC003_P1_PROTOCOL
+        else observation_date
+    )
+    cutoff = preopen_cutoff_utc(cutoff_basis_date)
+    if target_close_timestamp_utc is not None:
+        try:
+            target_close = datetime.fromisoformat(
+                target_close_timestamp_utc.replace("Z", "+00:00")
+            ).astimezone(UTC)
+        except ValueError as exc:
+            raise AlphaContractError(
+                "SC003-P1 target close timestamp is invalid"
+            ) from exc
+        if captured < target_close:
+            raise AlphaContractError(
+                "SC003-P1 capture precedes frozen target close"
+            )
 
     source = _source_observation(
         raw,
@@ -237,6 +369,16 @@ def append_sc003_probe(
         "ready_before_preopen_cutoff": ready_before_cutoff,
         "live_capital_allowed": False,
     }
+    if protocol_id == SC003_P1_PROTOCOL:
+        attempt.update(
+            {
+                "protocol": SC003_P1_PROTOCOL,
+                "cutoff_session_date": cutoff_basis_date,
+                "frozen_calendar_sha256": frozen_calendar_sha256,
+                "frozen_calendar_version": frozen_calendar_version,
+                "target_close_timestamp_utc": target_close_timestamp_utc,
+            }
+        )
     attempt["attempt_sha256"] = digest(attempt)
     updated["attempts"].append(attempt)
     updated["attempt_count"] = len(updated["attempts"])
