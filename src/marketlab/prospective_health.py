@@ -52,9 +52,11 @@ def _latest_expected_session(
     eligible = []
     for session in calendar.sessions:
         session_day = date.fromisoformat(session.session_date)
-        if session_day < as_of_date:
-            eligible.append(session.session_date)
-        elif session_day == as_of_date and after_market_close:
+        if (
+            session_day < as_of_date
+            or session_day == as_of_date
+            and after_market_close
+        ):
             eligible.append(session.session_date)
     return max(eligible) if eligible else None
 
