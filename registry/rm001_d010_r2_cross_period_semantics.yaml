@@ -1,0 +1,41 @@
+schema_version: 1
+id: RM001-D010-R2-v1
+name: brsr_cross_period_duplicate_semantics
+status: FROZEN_BEFORE_CONFLICTING_GROUP_ROW_INSPECTION
+created: 2026-10-02
+live_capital_allowed: false
+
+evidence_class: SOURCE_SEMANTICS_NO_RETURN_OUTCOMES
+
+parent:
+  diagnostic_id: RM001-D010-R1-v1
+  workflow_run_id: 37011294647
+  result_sha256: eedc9bba0dfcb15a394af800cdc84f2e20ab48b95632d8941e5af169e1291522
+  status: FAIL_DUPLICATE_SEMANTICS
+  expected_reporting_period_conflict_group_count: 1
+
+archive:
+  year: FY2024-25
+  url: https://nsearchives.nseindia.com/web/mediaattachment/2026-04/BRSR_DUMP_FY24-25_20260414130852.zip
+  sha256: c5209af34ec21dd76f621f50ca6f8f5f5e07d6d09fb3591a9a636a59e4af0b42
+
+period_gates:
+  minimum_distinct_periods: 2
+  period_length_days_min: 330
+  period_length_days_max: 370
+  periods_may_overlap: false
+  filing_may_precede_period_end: false
+  app_id_reuse_across_periods: false
+  timestamp_collision_count_max: 0
+
+promotion:
+  success_status: PASS_CROSS_PERIOD_SEMANTICS
+  authorize: RM001-D012_PERIOD_KEYED_HISTORICAL_ASOF_TIMELINE_DIAGNOSTIC
+  retroactively_pass_d010: false
+  retroactively_pass_r1: false
+  authorize_d011: false
+  direct_rm001_sector_promotion: false
+
+return_labels_may_be_opened: false
+risk_model_fit_allowed: false
+portfolio_fit_allowed: false
