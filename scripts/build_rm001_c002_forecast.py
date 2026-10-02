@@ -21,7 +21,6 @@ from marketlab.rm001 import (
     build_rm001_factor_history,
     build_rm001_risk_state,
 )
-from marketlab.rm001_calibration import calibrate_v1_risk_state
 from marketlab.rm001_c002 import (
     append_forecast_entry,
     build_forecast_artifact,
@@ -29,6 +28,7 @@ from marketlab.rm001_c002 import (
     next_unhandled_target,
     validate_forecast_ledger,
 )
+from marketlab.rm001_calibration import calibrate_v1_risk_state
 
 SUPPORT_LOOKBACK_CALENDAR_DAYS = 420
 MIN_COMPLETED_MARKET_SESSIONS = 200
