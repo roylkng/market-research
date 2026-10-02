@@ -1,0 +1,94 @@
+schema_version: 1
+id: AE001-T012-v1
+name: hashed_postclose_announcement_semantics
+status: FROZEN_BEFORE_RETURN_OUTCOMES
+created: 2026-10-02
+live_capital_allowed: false
+
+source:
+  provider: NSE
+  endpoint: /api/corporate-announcements
+  source_window:
+    start: 2025-09-01
+    end: 2026-09-25
+  d003_report_sha256: 7f402beecaf90f054c93ca2ceeaa01f38fcc5cd8f7f8f6391f60791768f8a91f
+  expected_announcement_panel_sha256: fc3be48ce09905b8d2ebef1ad0e75a7ed22815202abbd7d7b328fe6dfcd3957d
+  text_fields:
+    - desc
+    - attchmntText
+  attachment_body_used: false
+
+decision:
+  timezone: Asia/Kolkata
+  cutoff: "18:30:00"
+  semantic_window:
+    same_local_trading_date_only: true
+    start_exclusive: "15:30:00"
+    end_inclusive: "18:30:00"
+
+semantic_representation:
+  normalization: UNICODE_NFKC_LOWER_ASCII_ALNUM_TOKENS
+  token_regex: "[a-z0-9]+"
+  ngrams:
+    - unigram
+    - adjacent_bigram
+  distinct_ngrams_per_announcement: true
+  hash: SHA256
+  dimensions: 64
+  bucket_bytes: first_8_big_endian
+  sign_rule: byte_8_low_bit_even_positive
+  per_announcement_l2_normalization: true
+  session_aggregation: sum
+  no_event_vector: zeros
+  fitted_vocabulary: false
+  sentiment_dictionary: false
+  llm_used: false
+  manual_direction_labels: false
+
+features:
+  base: CORE27
+  added_feature_prefix: annsem_hash_
+  added_feature_count: 64
+  challenger: CORE91
+  identical_base_challenger_rows: true
+
+model:
+  type: ridge
+  l2: 1.0
+  transform: WITHIN_SESSION_TIE_AWARE_PERCENTILE_V1
+  hyperparameter_search: prohibited
+
+primary:
+  horizon_sessions: 1
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-24]
+  newey_west_lag: 5
+  success_requires_all:
+    - metric: paired_mean_rank_ic_difference
+      operator: ">"
+      value: 0
+      two_sided_p_value_lt: 0.05
+    - metric: paired_top_minus_bottom_spread_difference
+      operator: ">"
+      value: 0
+      two_sided_p_value_lt: 0.05
+
+secondary:
+  horizon_sessions: 5
+  folds:
+    - [2026-04-01, 2026-06-30]
+    - [2026-07-01, 2026-09-18]
+  newey_west_lag: 4
+  rescues_failed_primary: false
+
+excluded_horizons:
+  - 20
+  - 60
+
+promotion:
+  if_supported:
+    - AB001_ORTHOGONALITY
+    - NEW_PROSPECTIVE_TEXT_TRIAL
+  retune_same_trial_if_failed: false
+  live_capital_directly_allowed: false
