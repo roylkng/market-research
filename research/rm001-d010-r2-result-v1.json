@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D010-R2-v1",
+  "evidence_class": "SOURCE_SEMANTICS_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37012161546,
+  "workflow_artifact_id": 11228467356,
+  "workflow_artifact_name": "rm001-d010-r2-37012161546",
+  "result_sha256": "18741e771f314c91e895c4c017e2f079553292b9c30991ffe0a432cf4e5f87d5",
+  "status": "PASS_PERIOD_PARTITION_SEMANTICS",
+  "d010_status_changed": false,
+  "r1_status_changed": false,
+  "d013_authorized": true,
+  "failure_reasons": [],
+  "cross_period_conflict_group_count": 1,
+  "cross_period_filing_record_count": 2,
+  "parseable_period_record_fraction": 1,
+  "explicit_nic_record_fraction": 1,
+  "overlapping_period_pair_count": 0,
+  "deterministic_period_partition_group_count": 1,
+  "deterministic_period_partition_group_fraction": 1,
+  "target_period_group_count": 1,
+  "target_period_record_count": 1,
+  "app_id_identity_conflict_count": 0,
+  "gates": {
+    "all_conflict_filings_have_explicit_nic": true,
+    "all_cross_period_groups_deterministic": true,
+    "all_period_records_parseable": true,
+    "at_least_one_cross_period_group": true,
+    "zero_app_id_identity_conflicts": true,
+    "zero_overlapping_period_pairs": true
+  },
+  "interpretation": {
+    "parent_d010_status_remains": "FAIL_SOURCE_FEASIBILITY",
+    "parent_r1_status_remains": "FAIL_DUPLICATE_SEMANTICS",
+    "annual_dump_contains_clean_multi_period_history": true,
+    "period_partition_semantics_authorized": true,
+    "next_step": "RM001-D013_PERIOD_PARTITIONED_ASOF_TIMELINE_DIAGNOSTIC",
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false
+  },
+  "live_capital_allowed": false
+}
