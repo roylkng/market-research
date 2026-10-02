@@ -1,7 +1,7 @@
 schema_version: 1
 id: PO001-I004-v1
 name: rm001_v3_risk_treatment_integration
-status: FROZEN_BEFORE_MATERIALIZATION
+status: COMPLETE_DEVELOPMENT_NUMERICALLY_UNSTABLE
 created: 2026-10-02
 live_capital_allowed: false
 
@@ -51,3 +51,12 @@ treatment:
 promotion:
   prospective_use_requires_prospective_rm001_v3_state: true
   live_capital_directly_allowed: false
+
+result:
+  path: research/po001-i004-result-v1.json
+  result_sha256: 4e2ea7380d015432b97b46f0ca6bf1d58cd8dddf6655cb260ed0a0645b020740
+  corrected_materialization_run_id: 36969967153
+  numerical_audit_run_id: 36970779566
+  economic_scalar_stability_passed: false
+  exact_weight_interpretation_reproducible: false
+  portfolio_promotion_supported: false
