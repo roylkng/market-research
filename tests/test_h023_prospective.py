@@ -45,6 +45,9 @@ def _source(
     report_date: str,
     broadcast_at_utc: str,
     row_marker: str | None = None,
+    xbrl_marker: str | None = None,
+    revision_status: str | None = None,
+    revision_date: str | None = None,
 ) -> dict:
     master_row_sha256 = canonical_hash(
         {
@@ -55,7 +58,10 @@ def _source(
             "row_marker": row_marker or record_id,
         }
     )
-    xbrl_url = f"https://nsearchives.nseindia.com/corporate/xbrl/{record_id}.xml"
+    xbrl_url = (
+        "https://nsearchives.nseindia.com/corporate/xbrl/"
+        f"{xbrl_marker or record_id}.xml"
+    )
     identity = {
         "source_contract_id": "H023-NSE-SHAREHOLDING-XBRL-V1",
         "symbol": symbol,
@@ -64,7 +70,7 @@ def _source(
         "broadcast_at_utc": broadcast_at_utc,
         "xbrl_url": xbrl_url,
     }
-    return {
+    source = {
         "source_id": canonical_hash(identity),
         "symbol": symbol,
         "record_id": record_id,
@@ -73,6 +79,11 @@ def _source(
         "xbrl_url": xbrl_url,
         "master_row_sha256": master_row_sha256,
     }
+    if revision_status is not None:
+        source["revision_status"] = revision_status
+    if revision_date is not None:
+        source["revision_date"] = revision_date
+    return source
 
 
 def _ready(source: dict, percentage: float) -> dict:
@@ -296,6 +307,95 @@ def test_master_row_hash_drift_does_not_change_stable_source_identity() -> None:
     assert drifted["source_id"] == original["source_id"]
     assert drifted["master_row_sha256"] != original["master_row_sha256"]
     assert _append(source_ledger, new_event_ledger(), [drifted]) == source_ledger
+
+
+def test_formal_revised_filing_may_reuse_record_id_append_only() -> None:
+    original = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-04-21T10:24:45Z",
+        xbrl_marker="original",
+    )
+    ledger = _append(
+        new_source_ledger(),
+        new_event_ledger(),
+        [original],
+        seen="2026-04-21T10:25:00Z",
+    )
+    revised = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-09-17T07:30:28Z",
+        xbrl_marker="revised",
+        revision_status="REVISED",
+        revision_date="2026-09-16",
+    )
+    ledger = _append(
+        ledger,
+        new_event_ledger(),
+        [revised],
+        seen="2026-09-17T07:31:00Z",
+    )
+    assert ledger["record_count"] == 2
+    validate_source_ledger(ledger)
+    assert primary_current_source(
+        ledger,
+        symbol="S000",
+        report_date="2026-03-31",
+    )["source_id"] == original["source_id"]
+
+
+def test_reused_record_id_without_formal_revision_marker_is_rejected() -> None:
+    original = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-04-21T10:24:45Z",
+        xbrl_marker="original",
+    )
+    ledger = _append(new_source_ledger(), new_event_ledger(), [original])
+    drifted = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-09-17T07:30:28Z",
+        xbrl_marker="revised-without-marker",
+    )
+    with pytest.raises(Exception, match="lacks formal NSE revision metadata"):
+        _append(
+            ledger,
+            new_event_ledger(),
+            [drifted],
+            seen="2026-09-17T07:31:00Z",
+        )
+
+
+def test_formal_revision_cannot_move_backward_in_broadcast_time() -> None:
+    original = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-09-17T07:30:28Z",
+        xbrl_marker="later-original",
+    )
+    ledger = _append(
+        new_source_ledger(),
+        new_event_ledger(),
+        [original],
+        seen="2026-09-17T07:31:00Z",
+    )
+    invalid = _source(
+        record_id="210064",
+        report_date="2026-03-31",
+        broadcast_at_utc="2026-09-16T07:30:28Z",
+        xbrl_marker="backdated-revision",
+        revision_status="REVISED",
+        revision_date="2026-09-16",
+    )
+    with pytest.raises(Exception, match="not later than prior version"):
+        _append(
+            ledger,
+            new_event_ledger(),
+            [invalid],
+            seen="2026-09-17T07:32:00Z",
+        )
 
 
 def test_immutable_source_identity_drift_is_rejected() -> None:
