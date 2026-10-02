@@ -33,11 +33,14 @@ economics:
 
 backward_equivalence:
   control_optimizer: PO001-v3-DEVELOPMENT
-  maximum_weight_abs_difference: 1.0e-8
-  maximum_expected_alpha_abs_difference: 1.0e-10
-  maximum_variance_abs_difference: 1.0e-12
-  maximum_cost_abs_difference: 1.0e-10
-  maximum_utility_abs_difference: 1.0e-10
+  amendment: research/PO001_V4_PROTOCOL_AMENDMENT_P1_PARENT_EQUIVALENCE.md
+  maximum_invested_weight_abs_difference: 1.0e-10
+  maximum_name_weight_abs_difference: 5.0e-6
+  maximum_expected_alpha_abs_difference: 1.0e-8
+  maximum_variance_abs_difference: 1.0e-10
+  maximum_cost_abs_difference: 1.0e-8
+  minimum_v4_minus_v3_utility: -1.0e-12
+  maximum_v4_kkt_violation: 1.0e-9
 
 s001_reproducibility:
   source_study: PO001-I004-v1
