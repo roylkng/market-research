@@ -174,6 +174,10 @@ def test_i004_changes_only_risk_state(monkeypatch):
         lambda model: None,
     )
     monkeypatch.setattr(
+        "marketlab.po001_i004.FROZEN_COMMON_IDENTITY_COUNT",
+        500,
+    )
+    monkeypatch.setattr(
         "marketlab.po001_i004._score_model",
         lambda model, rows: [
             {
