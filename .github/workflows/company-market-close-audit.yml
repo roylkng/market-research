@@ -43,19 +43,43 @@ jobs:
             tests/test_intelligence_market_audit_context.py
           python scripts/verify_company_news_ledger.py \
             --ledger research/prospective/company-intelligence-v2/news-ledger.json
-      - name: Resolve session
+      - name: Resolve NSE session
         id: session
         env:
           INPUT_SESSION: ${{ inputs.session_date }}
-          TZ: Asia/Kolkata
+        shell: bash
         run: |
-          if [ -n "$INPUT_SESSION" ]; then
-            SESSION="$INPUT_SESSION"
-          else
-            SESSION="$(date +%F)"
-          fi
+          set -euo pipefail
+          RESULT="$(python - <<'PY'
+          import os
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          from marketlab.calendar_snapshot import load_calendar_snapshot
+
+          calendar = load_calendar_snapshot(
+              "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+          )
+          sessions = {row.session_date for row in calendar.sessions}
+          requested = (os.environ.get("INPUT_SESSION") or "").strip()
+          if requested:
+              if requested not in sessions:
+                  raise SystemExit(
+                      f"manual market-close audit session is not in frozen NSE calendar: {requested}"
+                  )
+              print(f"RUN|{requested}")
+          else:
+              today = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
+              state = "RUN" if today in sessions else "NON_SESSION"
+              print(f"{state}|{today}")
+          PY
+          )"
+          IFS='|' read -r STATE SESSION <<< "$RESULT"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
           echo "session=$SESSION" >> "$GITHUB_OUTPUT"
+          echo "Market-close audit gate: state=$STATE session=$SESSION"
       - name: Build official prospective mover/miss audit
+        if: steps.session.outputs.state == 'RUN'
         shell: bash
         run: |
           set -euo pipefail
@@ -72,10 +96,13 @@ jobs:
         if: always()
         run: git diff --exit-code
       - name: Retain audit evidence
-        if: always()
+        if: always() && steps.session.outputs.state == 'RUN'
         uses: actions/upload-artifact@v4
         with:
           name: market-close-audit-${{ steps.session.outputs.session }}-${{ github.run_id }}
           path: reports/market-close
           if-no-files-found: error
           retention-days: 30
+      - name: Report non-trading day
+        if: steps.session.outputs.state == 'NON_SESSION'
+        run: echo "Market-close audit skipped because ${{ steps.session.outputs.session }} is not a frozen NSE cash-market session"
