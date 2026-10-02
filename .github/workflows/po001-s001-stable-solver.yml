@@ -1,0 +1,129 @@
+name: PO001 S001 deterministic solver stability
+
+on:
+  push:
+    branches:
+      - feat/po001-v4-stable-solver-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replica:
+    if: contains(github.event.head_commit.message, '[po001-s001]')
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2, 3]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify v4 implementation before sealed source access
+        run: |
+          ruff check \
+            src/marketlab/po001_v4.py \
+            src/marketlab/po001_s001.py \
+            scripts/run_po001_s001_replica.py \
+            scripts/evaluate_po001_s001.py \
+            tests/test_po001_v4.py
+          pytest -q \
+            tests/test_po001_v4.py \
+            tests/test_po001_v3.py \
+            tests/test_po001_i004.py
+
+      - name: Download exact pre-result I004 source evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i004-36967854755
+          path: evidence/i004
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36967854755
+
+      - name: Resolve exact sealed source files
+        id: sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t MARKETS < <(find evidence/i004 -type f -path '*/panel/market-panel.json.gz')
+          mapfile -t FEATURES < <(find evidence/i004 -type f -path '*/delivery/delivery-feature-panel.json.gz')
+          if [ "${#MARKETS[@]}" -ne 1 ]; then
+            echo "Expected one market panel, found ${#MARKETS[@]}"
+            printf '%s\n' "${MARKETS[@]}"
+            exit 1
+          fi
+          if [ "${#FEATURES[@]}" -ne 1 ]; then
+            echo "Expected one delivery feature panel, found ${#FEATURES[@]}"
+            printf '%s\n' "${FEATURES[@]}"
+            exit 1
+          fi
+          echo "market=${MARKETS[0]}" >> "$GITHUB_OUTPUT"
+          echo "feature=${FEATURES[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Run frozen S001 replica
+        run: |
+          python scripts/run_po001_s001_replica.py \
+            --market-panel "${{ steps.sources.outputs.market }}" \
+            --feature-panel "${{ steps.sources.outputs.feature }}" \
+            --alpha-model research/po001-i003/inputs/i002-alpha-model-v1.json \
+            --control-risk research/po001-i003/inputs/i002-risk-state-legacy.json.gz \
+            --treatment-risk research/po001-i004/inputs/rm001-v3-p001-risk-state.json.gz \
+            --output "reports/po001-s001/replica-${{ matrix.replica }}"
+
+      - name: Print replica summary
+        run: cat "reports/po001-s001/replica-${{ matrix.replica }}/summary.json"
+
+      - name: Upload replica
+        uses: actions/upload-artifact@v4
+        with:
+          name: po001-s001-replica-${{ matrix.replica }}-${{ github.run_id }}
+          path: "reports/po001-s001/replica-${{ matrix.replica }}"
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    if: contains(github.event.head_commit.message, '[po001-s001]')
+    needs: replica
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download three replica artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: po001-s001-replica-*-${{ github.run_id }}
+          path: evidence/replicas
+
+      - name: Evaluate frozen reproducibility gates
+        run: |
+          python scripts/evaluate_po001_s001.py \
+            --root evidence/replicas \
+            --output reports/po001-s001/result.json
+
+      - name: Print S001 result
+        run: cat reports/po001-s001/result.json
+
+      - name: Upload aggregate result
+        uses: actions/upload-artifact@v4
+        with:
+          name: po001-s001-result-${{ github.run_id }}
+          path: reports/po001-s001/result.json
+          if-no-files-found: error
+          retention-days: 90

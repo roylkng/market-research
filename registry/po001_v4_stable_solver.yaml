@@ -1,0 +1,68 @@
+schema_version: 1
+id: PO001-v4-DEVELOPMENT
+name: deterministic_cash_start_convex_portfolio_solver
+status: NUMERICAL_STABILITY_ESTABLISHED
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_economics: PO001-v3-DEVELOPMENT
+
+domain:
+  current_weights: ZERO_ONLY
+  terminal_liquidation: REQUIRED_TRUE
+  factor_bounds: REQUIRED_EMPTY
+  long_only: true
+
+solver:
+  method: DETERMINISTIC_CYCLIC_COORDINATE_DESCENT_WITH_BUDGET_DUAL_BISECTION
+  identity_order: SYMBOL_THEN_ISIN
+  inner_weight_tolerance: 1.0e-13
+  inner_max_sweeps: 20000
+  outer_budget_tolerance: 1.0e-12
+  outer_max_bisection_iterations: 100
+  canonical_zero_threshold: 5.0e-14
+  canonical_decimal_places: 14
+  kkt_tolerance: 1.0e-9
+
+economics:
+  alpha_changed: false
+  risk_changed: false
+  observable_cost_changed: false
+  impact_model_changed: false
+  participation_changed: false
+
+backward_equivalence:
+  control_optimizer: PO001-v3-DEVELOPMENT
+  amendments:
+    - research/PO001_V4_PROTOCOL_AMENDMENT_P1_PARENT_EQUIVALENCE.md
+    - research/PO001_V4_PROTOCOL_AMENDMENT_P2_UNSTABLE_PARENT_REFERENCE.md
+  parent_weights_are_pass_fail_oracle: false
+  same_economic_inputs_required: true
+  minimum_v4_minus_v3_utility: -1.0e-10
+  maximum_v4_kkt_violation: 1.0e-9
+  exact_v4_reordering_determinism_required: true
+
+s001_reproducibility:
+  source_study: PO001-I004-v1
+  replica_count: 3
+  economic_scalar_range:
+    expected_excess_return: 1.0e-10
+    annualized_volatility: 1.0e-9
+    total_variance_daily: 1.0e-12
+    risk_penalty: 1.0e-11
+    total_transaction_cost_fraction: 1.0e-10
+    objective_utility: 1.0e-10
+  weight_pairwise:
+    maximum_absolute_difference: 1.0e-10
+    maximum_l1_difference: 1.0e-8
+  maximum_kkt_violation: 1.0e-9
+
+promotion:
+  live_capital_directly_allowed: false
+  rm001_v3_revisit_requires_s001_pass: true
+
+validation:
+  s001_result_path: research/po001-s001-result-v1.json
+  s001_result_sha256: 6eacf70acfd65ecc0e2b2767b9a222c80f299c70747f4879624dbf013f055e62
+  exact_cross_run_weights: true
+  maximum_observed_kkt_violation: 2.7370467003962062e-14
