@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D010-PHASE-C-v1",
+  "evidence_class": "SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37010062836,
+  "workflow_artifact_id": 11227343136,
+  "workflow_artifact_name": "rm001-d010-phase-c-37010062836",
+  "result_sha256": "21aff20c7c3300ecf104d049fdbcad3749bb160735f478643a40bab36618a976",
+  "status": "FAIL_SOURCE_FEASIBILITY",
+  "coverage_gates_pass": false,
+  "d011_authorized": false,
+  "equal_required_year_entity_counts": false,
+  "fixed_cap_gate_status": "NO_EQUAL_COUNT_PATTERN",
+  "failure_reasons": [
+    "FY2023-24:maximum_duplicate_identity_rate_1pct"
+  ],
+  "nic_semantics_compatible": true,
+  "years": {
+    "FY2023-24": {
+      "annual_archive_sha256": "f287b4137b662a2f1cdba54f8d3858f84f09f43e1f0702ad5b2299cde5fb16ef",
+      "general_data_row_count": 1204,
+      "unique_entity_count": 1175,
+      "stable_identity_coverage": 1,
+      "cin_coverage": 1,
+      "nse_symbol_coverage": 1,
+      "reporting_year_coverage": 1,
+      "submission_timestamp_coverage": 1,
+      "duplicate_identity_rate": 0.02408637873754153,
+      "explicit_nic_coverage": 0.9991489361702127,
+      "explicit_nic_entity_count": 1174,
+      "multiple_nic_entity_count": 467,
+      "turnover_weight_complete_multi_nic_entity_count": 467,
+      "year_gates_pass": false
+    },
+    "FY2024-25": {
+      "annual_archive_sha256": "c5209af34ec21dd76f621f50ca6f8f5f5e07d6d09fb3591a9a636a59e4af0b42",
+      "general_data_row_count": 1205,
+      "unique_entity_count": 1201,
+      "stable_identity_coverage": 1,
+      "cin_coverage": 1,
+      "nse_symbol_coverage": 1,
+      "reporting_year_coverage": 1,
+      "submission_timestamp_coverage": 1,
+      "duplicate_identity_rate": 0.0033195020746887966,
+      "explicit_nic_coverage": 0.9991673605328892,
+      "explicit_nic_entity_count": 1200,
+      "multiple_nic_entity_count": 470,
+      "turnover_weight_complete_multi_nic_entity_count": 470,
+      "year_gates_pass": true
+    }
+  },
+  "interpretation": {
+    "frozen_duplicate_gate_weakened_after_source_inspection": false,
+    "source_promoted_to_rm001_sector_factor": false,
+    "return_labels_opened": false,
+    "risk_model_fit_performed": false,
+    "portfolio_fit_performed": false,
+    "next_step": "SEPARATE_DUPLICATE_FILING_SEMANTICS_DIAGNOSTIC_ONLY"
+  },
+  "live_capital_allowed": false
+}
