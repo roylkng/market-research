@@ -30,7 +30,7 @@ jobs:
             scripts/run_rm001_d010.py \
             tests/test_rm001_d010.py
           pytest -q tests/test_rm001_d010.py
-          python scripts/validate_hypotheses.py
+          marketlab validate-registry registry/hypotheses.yaml
 
       - name: Run frozen D010 phases A and B
         run: |
