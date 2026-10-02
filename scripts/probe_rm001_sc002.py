@@ -190,6 +190,7 @@ def main() -> int:
         ledger,
         observation_date=observation_date,
         target_session_date=target_session,
+        sc001_attempt_sha256=str(target["attempt_sha256"]),
         captured_at_utc=captured,
         constituent_status=constituent_status,
         constituent_raw_sha256=constituent_sha,
