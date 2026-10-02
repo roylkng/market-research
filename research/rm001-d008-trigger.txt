@@ -10,3 +10,8 @@ D008 is source feasibility only. It must not read return, alpha, risk-fit or
 portfolio outcomes.
 
 Source inspection opened only after full implementation CI success.
+
+Second trigger issued after pre-source gate repair and successful full CI.
+The first [rm001-d008] run failed before source access, so no workbook outcome
+was opened before this trigger. Frozen URLs, parser contract and promotion gates
+remain unchanged.
