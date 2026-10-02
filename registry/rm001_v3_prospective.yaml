@@ -1,0 +1,42 @@
+schema_version: 1
+id: RM001-v3-PROSPECTIVE-v1
+name: prospective_transparent_plus_statistical_risk_state
+status: FROZEN_WAITING_FOR_SIZE_TIMING_GATE
+created: 2026-10-02
+live_capital_allowed: false
+
+parent_model: RM001-v3-DEVELOPMENT
+
+activation:
+  readiness_file: research/prospective/rm001-sc001/readiness-summary.json
+  readiness_field: prospective_size_source_timing_ready
+  required_ready_size_sessions: 3
+  backfill_before_activation: prohibited
+
+timing:
+  target: latest_ready_rm001_sc001_target
+  seal_cutoff_local: "09:05:00"
+  timezone: Asia/Kolkata
+  late_state_backfill: prohibited
+
+support:
+  calendar_lookback_days: 420
+  minimum_completed_market_sessions: 200
+  target_market_source: exact_sc001_bytes
+  target_size_source: exact_rm001_sc001_bytes
+  historical_support_source: official_nse_archives
+
+risk:
+  v2_model: RM001-v2-DEVELOPMENT
+  v3_model: RM001-v3-DEVELOPMENT
+  v3_statistical_window: 120
+  v3_risk_estimation_window: 60
+  v3_component_count: 5
+
+canonical:
+  ledger: research/prospective/rm001-v3/risk-ledger.json
+  state_directory: research/prospective/rm001-v3/states
+
+promotion:
+  portfolio_use_requires_separate_protocol: true
+  live_capital_directly_allowed: false
