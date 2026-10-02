@@ -1,0 +1,111 @@
+name: AE001 T012 register trial
+
+on:
+  push:
+    branches:
+      - feat/ae001-t012-late-futures-20261002
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    if: contains(github.event.head_commit.message, '[ae001-t012-register]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Register T012 before cutoff activation
+        env:
+          PYTHONPATH: src
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from datetime import UTC, datetime
+
+          from marketlab.alpha_trials import (
+              append_trial_event,
+              trial_state,
+              validate_trial_ledger,
+          )
+
+          path = Path("research/ae001/trial-ledger.json")
+          ledger = json.loads(path.read_text(encoding="utf-8"))
+          validate_trial_ledger(ledger)
+
+          try:
+              state = trial_state(ledger, "AE001-T012")
+          except Exception:
+              state = None
+
+          if state is not None:
+              if state["registration"] is None:
+                  raise SystemExit("T012 state exists without registration")
+              print("T012 already registered")
+              raise SystemExit(0)
+
+          payload = {
+              "status": "FROZEN_BEFORE_CUTOFF_ACTIVATION",
+              "name": "late_evening_stock_futures_5d_confirmation",
+              "evidence_class": "PROSPECTIVE_CONFIRMATORY",
+              "predecessor_historical_signal": "AE001-T005",
+              "predecessor_failed_1830_path": "AE001-T006",
+              "predecessor_failed_lagged_path": "AE001-T011",
+              "frozen_protocol": "research/AE001_T012_LATE_FUTURES_CONFIRMATION_V1.md",
+              "model_artifact": "research/prospective/ae001-t006/frozen-models-v1.json",
+              "model_retraining_allowed": False,
+              "cutoff_source": "research/prospective/ae001-sc002/publication-timing-summary.json",
+              "cutoff_rule": "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES",
+              "minimum_timing_ready_sessions": 3,
+              "timing_basis_sessions_may_enter_trial": False,
+              "retrospective_backfill_allowed": False,
+              "primary_horizon_sessions": 5,
+              "primary_minimum_decision_sessions": 60,
+              "primary_minimum_valid_paired_ic_sessions": 50,
+              "primary_requires_both_rank_ic_and_spread_p_lt_0_05": True,
+              "secondary_horizon_sessions": 1,
+              "live_capital_allowed": False,
+          }
+
+          updated = append_trial_event(
+              ledger,
+              event_type="TRIAL_REGISTERED",
+              trial_id="AE001-T012",
+              recorded_at_utc=datetime.now(UTC).isoformat(),
+              payload=payload,
+          )
+          path.write_text(
+              json.dumps(
+                  updated,
+                  indent=2,
+                  sort_keys=True,
+                  ensure_ascii=False,
+                  allow_nan=False,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          print("T012_EVENT_SHA", updated["events"][-1]["event_sha256"])
+          print("LEDGER_SHA", updated["ledger_sha256"])
+          PY
+
+      - name: Commit registration to branch
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ae001/trial-ledger.json
+          if git diff --cached --quiet; then
+            echo "No registration change"
+            exit 0
+          fi
+          git commit -m "research: register frozen AE001 T012 trial [skip ci]"
+          git push origin HEAD:feat/ae001-t012-late-futures-20261002
