@@ -7,9 +7,12 @@ import pytest
 from marketlab.alpha import AlphaContractError
 from marketlab.alpha_prospective_sources import new_source_ledger
 from marketlab.alpha_sc003_preopen import (
+    SC003_P1_PROTOCOL,
     append_sc003_probe,
     latest_completed_sc001_target,
+    latest_sc001_eligible_target,
     new_sc003_ledger,
+    next_frozen_trading_session,
     preopen_readiness_summary,
     target_ready_observed,
     validate_sc003_ledger,
@@ -147,7 +150,7 @@ def test_sc003_ready_after_0830_is_recorded_but_not_preopen_ready():
     assert attempt is not None
     assert attempt["source_status"] == "READY"
     assert attempt["ready_before_preopen_cutoff"] is False
-    assert target_ready_observed(ledger, "2026-10-01") is True
+    assert target_ready_observed(ledger, "2026-10-01") is False
 
 
 def test_sc003_ready_observation_makes_target_idempotent():
@@ -223,4 +226,132 @@ def test_sc003_refuses_observation_before_frozen_start():
             captured_at_utc="2026-10-01T02:00:00+00:00",
             source_url="x",
             raw=None,
+        )
+
+
+
+def test_sc003_p1_frozen_calendar_skips_oct2_holiday():
+    from types import SimpleNamespace
+
+    calendar = SimpleNamespace(
+        sessions=(
+            SimpleNamespace(
+                session_date="2026-10-01",
+                close_timestamp_utc="2026-10-01T10:00:00Z",
+            ),
+            SimpleNamespace(
+                session_date="2026-10-05",
+                close_timestamp_utc="2026-10-05T10:00:00Z",
+            ),
+        )
+    )
+    close_utc, next_session = next_frozen_trading_session(
+        calendar,
+        target_session_date="2026-10-01",
+    )
+    assert close_utc == "2026-10-01T10:00:00Z"
+    assert next_session == "2026-10-05"
+
+
+def test_sc003_p1_allows_target_evening_capture_for_next_trading_morning():
+    target = latest_sc001_eligible_target(_sc001())
+    assert target["session_date"] == "2026-10-01"
+
+    ledger, attempt = append_sc003_probe(
+        new_sc003_ledger(),
+        sc001_attempt=target,
+        observation_date="2026-10-02",
+        captured_at_utc="2026-10-02T09:08:00+00:00",
+        source_url="x",
+        raw=_fo_zip("2026-10-01"),
+        cutoff_session_date="2026-10-05",
+        frozen_calendar_sha256="c" * 64,
+        frozen_calendar_version="NSE-CM-FY27Q2-v1",
+        target_close_timestamp_utc="2026-10-01T10:00:00Z",
+        protocol=SC003_P1_PROTOCOL,
+    )
+    assert attempt is not None
+    assert attempt["protocol"] == SC003_P1_PROTOCOL
+    assert attempt["cutoff_session_date"] == "2026-10-05"
+    assert attempt["ready_before_preopen_cutoff"] is True
+    assert target_ready_observed(ledger, "2026-10-01") is True
+    validate_sc003_ledger(ledger)
+
+
+def test_sc003_p1_late_v1_ready_does_not_block_valid_retry():
+    target = latest_sc001_eligible_target(_sc001())
+    ledger, late = append_sc003_probe(
+        new_sc003_ledger(),
+        sc001_attempt=target,
+        observation_date="2026-10-02",
+        captured_at_utc="2026-10-02T03:01:00+00:00",
+        source_url="x",
+        raw=_fo_zip("2026-10-01"),
+    )
+    assert late is not None
+    assert late["source_status"] == "READY"
+    assert late["ready_before_preopen_cutoff"] is False
+    assert target_ready_observed(ledger, "2026-10-01") is False
+
+    ledger, p1 = append_sc003_probe(
+        ledger,
+        sc001_attempt=target,
+        observation_date="2026-10-02",
+        captured_at_utc="2026-10-02T09:08:00+00:00",
+        source_url="x",
+        raw=_fo_zip("2026-10-01"),
+        cutoff_session_date="2026-10-05",
+        frozen_calendar_sha256="c" * 64,
+        frozen_calendar_version="NSE-CM-FY27Q2-v1",
+        target_close_timestamp_utc="2026-10-01T10:00:00Z",
+        protocol=SC003_P1_PROTOCOL,
+    )
+    assert p1 is not None
+    assert p1["ready_before_preopen_cutoff"] is True
+    assert target_ready_observed(ledger, "2026-10-01") is True
+    summary = preopen_readiness_summary(ledger)
+    assert summary["distinct_ready_before_cutoff_session_count"] == 1
+
+
+def test_sc003_p1_rejects_capture_before_target_close():
+    target = dict(
+        latest_sc001_eligible_target(_sc001()),
+        session_date="2026-10-05",
+    )
+    from marketlab.alpha import digest
+
+    target.pop("attempt_sha256", None)
+    target["attempt_sha256"] = digest(target)
+    with pytest.raises(AlphaContractError, match="precedes frozen target close"):
+        append_sc003_probe(
+            new_sc003_ledger(),
+            sc001_attempt=target,
+            observation_date="2026-10-05",
+            captured_at_utc="2026-10-05T09:59:59+00:00",
+            source_url="x",
+            raw=_fo_zip("2026-10-05"),
+            cutoff_session_date="2026-10-06",
+            frozen_calendar_sha256="c" * 64,
+            frozen_calendar_version="NSE-CM-FY27Q2-v1",
+            target_close_timestamp_utc="2026-10-05T10:00:00Z",
+            protocol=SC003_P1_PROTOCOL,
+        )
+
+
+
+def test_sc003_p1_rejects_backdated_capture_before_amendment_freeze():
+    target = latest_sc001_eligible_target(_sc001())
+    with pytest.raises(AlphaContractError, match="predates frozen amendment"):
+        append_sc003_probe(
+            new_sc003_ledger(),
+            sc001_attempt=target,
+            observation_date="2026-10-02",
+            captured_at_utc="2026-10-02T09:07:13+00:00",
+            source_url="x",
+            raw=_fo_zip("2026-10-01"),
+            cutoff_session_date="2026-10-05",
+            frozen_calendar_sha256="c" * 64,
+            frozen_calendar_version="NSE-CM-FY27Q2-v1",
+            target_close_timestamp_utc="2026-10-01T10:00:00Z",
+            protocol=SC003_P1_PROTOCOL,
         )
