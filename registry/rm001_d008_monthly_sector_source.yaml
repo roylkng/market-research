@@ -1,0 +1,47 @@
+schema_version: 1
+id: RM001-D008-v1
+name: nse_monthly_exchange_report_sector_source_feasibility
+status: FROZEN_BEFORE_SOURCE_SCAN
+created: 2026-10-02
+live_capital_allowed: false
+
+research_class:
+  type: SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES
+  return_labels_allowed: false
+  alpha_outcomes_allowed: false
+  model_fit_allowed: false
+
+sample_sources:
+  - month: 2025-09
+    url: "https://nsearchives.nseindia.com/web/sites/default/files/inline-files/Exchange_Data_CM_Segment_Sept%2725.xlsx"
+  - month: 2025-12
+    url: "https://nsearchives.nseindia.com/web/mediaattachment/2026-01/Exchange_Data_CM_Segment_20260112185218.xlsx"
+  - month: 2026-01
+    url: "https://nsearchives.nseindia.com/web/mediaattachment/2026-02/Exchange_Data_CM_Segment_Jan2026_20260217133015.xlsx"
+  - month: 2026-08
+    url: "https://nsearchives.nseindia.com/web/mediaattachment/2026-09/Exchange_Data_CM_Segment_Aug26_20260911134110.xlsx"
+
+candidate_detection:
+  header_scan_nonempty_rows: 75
+  requires_identity_evidence: true
+  requires_company_descriptor: true
+  classification_tokens:
+    - BASIC INDUSTRY
+    - INDUSTRY
+    - SECTOR
+    - MACRO ECONOMIC SECTOR
+    - INDUSTRY CLASSIFICATION
+
+promotion_gates:
+  minimum_candidate_data_rows: 500
+  minimum_classification_coverage: 0.90
+  stable_semantics_all_four_samples: true
+  no_unexplained_duplicate_identities: true
+  no_fixed_source_cap_evidence: true
+
+direct_promotion:
+  exact_isin_required_all_samples: true
+  one_relevant_equity_identity_per_row_required: true
+
+on_failure:
+  sector_status: DEFERRED_POINT_IN_TIME_COMPANY_CLASSIFICATION_SOURCE_NOT_FROZEN
