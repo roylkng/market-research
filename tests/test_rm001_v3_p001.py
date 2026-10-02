@@ -210,11 +210,22 @@ def test_v3_p001_attributes_exact_same_i002_portfolios():
     assert set(report["sealed_i002_portfolio_risk"]) == {
         "equal_weight_top_decile",
         "positive_alpha_proportional_top_decile",
+    }
+    assert report["control_resolution"]["protocol_amendment"] == (
+        "RM001-v3-P001-P2"
+    )
+    assert report["control_resolution"][
+        "exact_preserved_portfolios_used"
+    ] == [
+        "equal_weight_top_decile",
+        "positive_alpha_proportional_top_decile",
+    ]
+    assert set(report["control_resolution"]["unavailable_portfolios"]) == {
         "risk_aware_zero_cost",
         "full_po001_observable_cost_floor",
     }
     full = report["sealed_i002_portfolio_risk"][
-        "full_po001_observable_cost_floor"
+        "equal_weight_top_decile"
     ]
     assert set(full["statistical_factor_exposures"]) == set(
         STAT_FACTOR_NAMES
