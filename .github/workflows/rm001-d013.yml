@@ -34,7 +34,7 @@ jobs:
             tests/test_rm001_d010_r1.py \
             tests/test_rm001_d010_r2.py \
             tests/test_rm001_d013.py
-          python scripts/validate_hypotheses.py
+          marketlab validate-registry registry/hypotheses.yaml
 
       - name: Run frozen D013 source/timeline diagnostic
         run: |
