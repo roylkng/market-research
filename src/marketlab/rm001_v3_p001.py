@@ -24,8 +24,6 @@ DECISION_SESSION = "2026-08-31"
 PRESERVED_PORTFOLIO_KEYS = (
     "equal_weight_top_decile",
     "positive_alpha_proportional_top_decile",
-    "risk_aware_zero_cost",
-    "full_po001_observable_cost_floor",
 )
 
 
@@ -448,6 +446,20 @@ def run_rm001_v3_p001(
             "v3": _factor_variances(v3_risk_state),
         },
         "sealed_i002_portfolio_risk": portfolio_attribution,
+        "control_resolution": {
+            "protocol_amendment": "RM001-v3-P001-P2",
+            "unavailable_portfolios": [
+                "risk_aware_zero_cost",
+                "full_po001_observable_cost_floor",
+            ],
+            "reason": (
+                "SEALED_I002_COMPACT_OPTIMIZER_SUMMARIES_DID_NOT_PERSIST_"
+                "FULL_TARGET_WEIGHT_VECTORS"
+            ),
+            "exact_preserved_portfolios_used": list(
+                PRESERVED_PORTFOLIO_KEYS
+            ),
+        },
         "interpretation_limits": {
             "return_outcome_opened": False,
             "alpha_model_fit_performed": False,
