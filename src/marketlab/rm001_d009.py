@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import io
-import json
 import re
 import zipfile
 from dataclasses import dataclass
@@ -58,33 +57,33 @@ NESTED_ZIP_SUFFIXES = {".zip", ".xlsx", ".xlsm", ".xltx", ".xltm"}
 
 CONCEPT_PATTERNS = {
     "NIC": (
-        re.compile(r"\bNIC\b", re.I),
-        re.compile(r"NIC\s*CODE", re.I),
-        re.compile(r"NATIONAL\s+INDUSTRIAL\s+CLASSIFICATION", re.I),
-        re.compile(r"NICCODE", re.I),
+        re.compile(r"\bNIC\b", re.IGNORECASE),
+        re.compile(r"NIC\s*CODE", re.IGNORECASE),
+        re.compile(r"NATIONAL\s+INDUSTRIAL\s+CLASSIFICATION", re.IGNORECASE),
+        re.compile(r"NICCODE", re.IGNORECASE),
     ),
     "CIN": (
-        re.compile(r"\bCIN\b", re.I),
-        re.compile(r"CORPORATE\s+IDENTITY\s+NUMBER", re.I),
+        re.compile(r"\bCIN\b", re.IGNORECASE),
+        re.compile(r"CORPORATE\s+IDENTITY\s+NUMBER", re.IGNORECASE),
     ),
-    "ISIN": (re.compile(r"\bISIN\b", re.I),),
+    "ISIN": (re.compile(r"\bISIN\b", re.IGNORECASE),),
     "NSE_SYMBOL": (
-        re.compile(r"NSE\s+SYMBOL", re.I),
-        re.compile(r"TICKER\s+SYMBOL", re.I),
+        re.compile(r"NSE\s+SYMBOL", re.IGNORECASE),
+        re.compile(r"TICKER\s+SYMBOL", re.IGNORECASE),
     ),
     "REPORTING_YEAR": (
-        re.compile(r"FINANCIAL\s+YEAR", re.I),
-        re.compile(r"REPORTING\s+(?:YEAR|PERIOD)", re.I),
-        re.compile(r"FINANCIALYEAR", re.I),
+        re.compile(r"FINANCIAL\s+YEAR", re.IGNORECASE),
+        re.compile(r"REPORTING\s+(?:YEAR|PERIOD)", re.IGNORECASE),
+        re.compile(r"FINANCIALYEAR", re.IGNORECASE),
     ),
     "PRODUCT_SERVICE": (
-        re.compile(r"PRODUCT", re.I),
-        re.compile(r"SERVICE", re.I),
+        re.compile(r"PRODUCT", re.IGNORECASE),
+        re.compile(r"SERVICE", re.IGNORECASE),
     ),
     "TURNOVER_SHARE": (
-        re.compile(r"TURNOVER", re.I),
-        re.compile(r"PERCENTAGE.*TURNOVER", re.I),
-        re.compile(r"PERCENT.*TURNOVER", re.I),
+        re.compile(r"TURNOVER", re.IGNORECASE),
+        re.compile(r"PERCENTAGE.*TURNOVER", re.IGNORECASE),
+        re.compile(r"PERCENT.*TURNOVER", re.IGNORECASE),
     ),
 }
 
@@ -94,7 +93,7 @@ FILE_URL_PATTERN = re.compile(
         |
         /[^"'\s<>]+
     )""",
-    re.X | re.I,
+    re.X | re.IGNORECASE,
 )
 API_PATTERN = re.compile(r"/api/[A-Za-z0-9_./?=&%:+\-]+")
 
