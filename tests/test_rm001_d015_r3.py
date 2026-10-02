@@ -2,8 +2,6 @@ import csv
 import gzip
 import io
 
-import pytest
-
 import marketlab.rm001_d015_r3 as r3
 from marketlab.events import sha256_bytes
 from marketlab.rm001_d015_r3 import build_d015_r3_report
