@@ -11,6 +11,16 @@ from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc
 from marketlab.alpha_t004_readiness import validate_t004_readiness
 from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.rm001_c002 import validate_forecast_ledger, validate_outcome_ledger
+from marketlab.rm001_industry_timing import (
+    START_OBSERVATION_DATE as INDUSTRY_START,
+    industry_readiness_summary,
+    validate_industry_source_ledger,
+)
+from marketlab.rm001_size_timing import (
+    START_OBSERVATION_DATE as SIZE_START,
+    size_timing_summary,
+    validate_size_source_ledger,
+)
 
 HEALTH_ID = "MARKETLAB-PROSPECTIVE-HEALTH-v1"
 C002_START = date(2026, 10, 5)
@@ -166,6 +176,80 @@ def _sc003_state(ledger: dict[str, Any]) -> dict[str, Any]:
         ],
         "additional_ready_sessions_needed": summary[
             "additional_ready_sessions_needed"
+        ],
+    }
+
+
+def _rm001_size_state(
+    ledger: dict[str, Any],
+    *,
+    as_of_date: date,
+) -> dict[str, Any]:
+    validate_size_source_ledger(ledger)
+    summary = size_timing_summary(ledger)
+    if as_of_date < SIZE_START:
+        state = "BEFORE_FROZEN_START"
+    elif summary["prospective_size_source_timing_ready"]:
+        state = "READY_FOR_PROSPECTIVE_SIZE_USE_DESIGN"
+    else:
+        state = "WAITING_FOR_SIZE_TIMING_EVIDENCE"
+    return {
+        "state": state,
+        "start_date": SIZE_START.isoformat(),
+        "ledger_sha256": ledger["ledger_sha256"],
+        "distinct_target_session_count": summary[
+            "distinct_target_session_count"
+        ],
+        "ready_before_cutoff_session_count": summary[
+            "distinct_ready_before_cutoff_session_count"
+        ],
+        "minimum_ready_sessions": summary[
+            "minimum_ready_sessions_for_prospective_size"
+        ],
+        "additional_ready_sessions_needed": summary[
+            "additional_ready_sessions_needed"
+        ],
+        "prospective_size_source_timing_ready": summary[
+            "prospective_size_source_timing_ready"
+        ],
+        "prospective_size_use_enabled": summary[
+            "prospective_size_use_enabled"
+        ],
+    }
+
+
+def _rm001_industry_state(
+    ledger: dict[str, Any],
+    *,
+    as_of_date: date,
+) -> dict[str, Any]:
+    validate_industry_source_ledger(ledger)
+    summary = industry_readiness_summary(ledger)
+    if as_of_date < INDUSTRY_START:
+        state = "BEFORE_FROZEN_START"
+    elif summary["prospective_industry_source_ready"]:
+        state = "READY_FOR_INDUSTRY_FACTOR_DESIGN"
+    else:
+        state = "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
+    return {
+        "state": state,
+        "start_date": INDUSTRY_START.isoformat(),
+        "ledger_sha256": ledger["ledger_sha256"],
+        "ready_before_cutoff_session_count": summary[
+            "ready_before_cutoff_session_count"
+        ],
+        "minimum_ready_sessions": summary[
+            "minimum_ready_sessions_for_factor_design"
+        ],
+        "additional_ready_sessions_needed": summary[
+            "additional_ready_sessions_needed"
+        ],
+        "prospective_industry_source_ready": summary[
+            "prospective_industry_source_ready"
+        ],
+        "industry_factor_enabled": summary["industry_factor_enabled"],
+        "historical_backfill_allowed": summary[
+            "historical_backfill_allowed"
         ],
     }
 
@@ -376,6 +460,8 @@ def build_prospective_health_summary(
     sc001_ledger: dict[str, Any],
     sc002_ledger: dict[str, Any],
     sc003_ledger: dict[str, Any],
+    rm001_sc001_size_ledger: dict[str, Any],
+    rm001_sc002_industry_ledger: dict[str, Any],
     t004_decision_ledger: dict[str, Any],
     t004_outcome_ledger: dict[str, Any],
     t004_readiness: dict[str, Any],
@@ -397,6 +483,14 @@ def build_prospective_health_summary(
     )
     sc002 = _sc002_state(sc002_ledger)
     sc003 = _sc003_state(sc003_ledger)
+    rm001_size = _rm001_size_state(
+        rm001_sc001_size_ledger,
+        as_of_date=day,
+    )
+    rm001_industry = _rm001_industry_state(
+        rm001_sc002_industry_ledger,
+        as_of_date=day,
+    )
 
     validate_t004_readiness(t004_readiness)
     t004_decisions = _count_records(t004_decision_ledger)
@@ -506,6 +600,8 @@ def build_prospective_health_summary(
             "SC001": sc001,
             "SC002": sc002,
             "SC003": sc003,
+            "RM001_SC001_SIZE": rm001_size,
+            "RM001_SC002_INDUSTRY": rm001_industry,
             "T004": t004,
             "T006": t006,
             "RM001_C002": c002,
