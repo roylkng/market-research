@@ -65,6 +65,7 @@ CONCEPT_PATTERNS = {
     "CIN": (
         re.compile(r"\bCIN\b", re.IGNORECASE),
         re.compile(r"CORPORATE\s+IDENTITY\s+NUMBER", re.IGNORECASE),
+        re.compile(r"CORPORATEIDENTITYNUMBER", re.IGNORECASE),
     ),
     "ISIN": (re.compile(r"\bISIN\b", re.IGNORECASE),),
     "NSE_SYMBOL": (
