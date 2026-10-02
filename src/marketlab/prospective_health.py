@@ -5,6 +5,7 @@ from datetime import date
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha_prospective_futures_sources import validate_futures_source_ledger
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc003_ledger
 from marketlab.calendar_snapshot import CalendarSnapshot
@@ -100,6 +101,7 @@ def _sc001_state(
 
 
 def _sc002_state(ledger: dict[str, Any]) -> dict[str, Any]:
+    validate_futures_source_ledger(ledger)
     attempts = ledger.get("attempts")
     if not isinstance(attempts, list):
         raise AlphaContractError("SC002 attempts must be a list")
