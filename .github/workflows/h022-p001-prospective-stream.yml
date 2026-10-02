@@ -29,6 +29,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Refresh latest canonical main before source observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -97,19 +105,41 @@ jobs:
             --scan-manifest "$WORK/output/scan-manifest.json" \
             --summary "$WORK/output/summary.json"
 
-      - name: Refuse to anchor observations on changed rules
+      - name: Reconcile unrelated main movement and fail on H022 drift
         if: steps.state.outputs.status == 'RUN'
         shell: bash
         run: |
           set -euo pipefail
+          START_SHA="$OBSERVATION_BASE_SHA"
           git fetch origin main
-          START_SHA="${GITHUB_SHA}"
           CURRENT_MAIN="$(git rev-parse origin/main)"
+          CRITICAL_PATHS=(
+            ".github/workflows/h022-p001-prospective-stream.yml"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/historical/h022/expanded-e002-v1/report.json"
+            "research/prospective/h022/P001/context"
+            "research/prospective/h022/P001/source-ledger.json"
+            "research/prospective/h022/P001/e002-ledger.json"
+            "research/prospective/h022/P001/signal-ledger.json"
+            "src/marketlab/h022_prospective.py"
+            "src/marketlab/h022_p001_acquisition.py"
+            "src/marketlab/h022_p001_stream.py"
+            "scripts/scan_h022_p001_prospective.py"
+            "scripts/verify_h022_p001_context.py"
+            "scripts/verify_h022_p001_stream.py"
+          )
           if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
-            echo "main moved during H022-P001 source scan; refusing to anchor observations"
-            echo "start=$START_SHA current_main=$CURRENT_MAIN"
-            exit 1
+            if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+              echo "H022-P001 rules or canonical state changed while source observation was in flight"
+              git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+              exit 1
+            fi
+            git rebase origin/main
+            python scripts/verify_h022_p001_context.py \
+              --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+              --context-dir "${{ steps.state.outputs.context_dir }}"
           fi
+          echo "H022_OBSERVATION_BASE_SHA=$START_SHA" >> "$GITHUB_ENV"
 
       - name: Anchor append-only stream and scan proof
         if: steps.state.outputs.status == 'RUN'
@@ -151,7 +181,49 @@ jobs:
           git add "$ROOT/source-ledger.json" "$ROOT/e002-ledger.json" \
             "$ROOT/signal-ledger.json" "$SCAN_PATH" "$SUMMARY_PATH"
           git commit -m "H022: seal P001 prospective source scan ${SCAN_SHA} [skip ci]"
-          git push origin HEAD:main
+
+          CRITICAL_PATHS=(
+            ".github/workflows/h022-p001-prospective-stream.yml"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/historical/h022/expanded-e002-v1/report.json"
+            "research/prospective/h022/P001/context"
+            "research/prospective/h022/P001/source-ledger.json"
+            "research/prospective/h022/P001/e002-ledger.json"
+            "research/prospective/h022/P001/signal-ledger.json"
+            "src/marketlab/h022_prospective.py"
+            "src/marketlab/h022_p001_acquisition.py"
+            "src/marketlab/h022_p001_stream.py"
+            "scripts/scan_h022_p001_prospective.py"
+            "scripts/verify_h022_p001_context.py"
+            "scripts/verify_h022_p001_stream.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            CURRENT_MAIN="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$H022_OBSERVATION_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+              echo "H022-P001 critical state changed upstream before anchor push"
+              git diff --stat "$H022_OBSERVATION_BASE_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+              exit 1
+            fi
+            if test "$(git rev-parse origin/main)" != "$(git rev-parse HEAD^)"; then
+              git rebase origin/main
+              python scripts/verify_h022_p001_stream.py \
+                --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+                --context-dir "${{ steps.state.outputs.context_dir }}" \
+                --source-ledger "$ROOT/source-ledger.json" \
+                --e002-ledger "$ROOT/e002-ledger.json" \
+                --signal-ledger "$ROOT/signal-ledger.json" \
+                --scan-manifest "$SCAN_PATH" \
+                --summary "$SUMMARY_PATH"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+          echo "Unable to anchor H022-P001 source scan after bounded safe retries"
+          exit 1
 
       - name: Upload scan and raw-source evidence
         if: always() && steps.state.outputs.status == 'RUN'
