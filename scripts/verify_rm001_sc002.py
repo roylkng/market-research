@@ -56,9 +56,14 @@ def main() -> int:
                     f"RM001-SC002 source file hash mismatch: {path}"
                 )
 
-        if attempt["status"] != "READY":
+        snapshot_path_text = attempt.get("snapshot_path")
+        if snapshot_path_text is None:
+            if attempt.get("snapshot_sha256") is not None:
+                raise SystemExit(
+                    "RM001-SC002 snapshot SHA exists without snapshot path"
+                )
             continue
-        snapshot_path = Path(str(attempt["snapshot_path"]))
+        snapshot_path = Path(str(snapshot_path_text))
         if not snapshot_path.exists():
             raise SystemExit(
                 f"RM001-SC002 snapshot missing: {snapshot_path}"
@@ -81,7 +86,7 @@ def main() -> int:
             raise SystemExit(
                 "RM001-SC002 mapping SHA mismatch"
             )
-        if snapshot.get("status") != "READY":
+        if attempt["status"] == "READY" and snapshot.get("status") != "READY":
             raise SystemExit(
                 "RM001-SC002 READY ledger row points to non-READY snapshot"
             )
