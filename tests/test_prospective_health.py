@@ -19,8 +19,15 @@ def _rehash(ledger, field="ledger_sha256"):
 
 
 def _calendar():
-    payload = {"CM": []}
-    raw = b'{"CM":[]}'
+    payload = {
+        "CM": [
+            {
+                "tradingDate": "02-Oct-2026",
+                "description": "Mahatma Gandhi Jayanti",
+            }
+        ]
+    }
+    raw = b'{"CM":[{"tradingDate":"02-Oct-2026","description":"Mahatma Gandhi Jayanti"}]}'
     return build_calendar_snapshot(
         payload,
         raw_holiday_bytes=raw,
