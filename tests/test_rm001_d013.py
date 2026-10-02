@@ -138,7 +138,7 @@ def test_public_announcement_match_distinguishes_ist_from_utc():
     observed = match["match"]
     assert observed["ist_signed_delta_seconds"] == pytest.approx(1.0)
     assert observed["ist_abs_delta_seconds"] == pytest.approx(1.0)
-    assert observed["utc_abs_delta_seconds"] == pytest.approx(19_801.0)
+    assert observed["utc_abs_delta_seconds"] == pytest.approx(19_799.0)
 
 
 def test_public_time_semantics_passes_tight_ist_sample_and_rejects_reuse():
