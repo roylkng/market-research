@@ -1,0 +1,40 @@
+schema_version: 1
+id: AE001-H021-EXPECTATIONS-v1
+name: h021_consensus_revision_expectations_feature_family
+status: FROZEN_BEFORE_FIRST_VALID_H021_REVISION_COHORT
+created: 2026-10-03
+live_capital_allowed: false
+
+source:
+  hypothesis: H021
+  protocol: research/H021_PROSPECTIVE_PROTOCOL_V1.md
+  comparison_contract: research/H021_COMPARISON_CONTRACT_V1.md
+  acquisition_contract: research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md
+  universe: research/prospective/universes/FY27-Q2-2026-09-06.json
+  historical_consensus_reconstruction_allowed: false
+
+timing:
+  known_at: current_capture_completed_at_utc
+  ae001_same_day_eod_cutoff: "18:30:00 Asia/Kolkata"
+  h021_execution: next_completed_nse_session_open_after_capture_final
+  unresolved_special_session_policy: fail_closed
+
+features:
+  - h021_primary_eps_revision_30d_pct
+  - h021_primary_eps_revision_rank_pct
+  - h021_revenue_growth_change_pp
+  - h021_profit_growth_change_pp
+  - h021_target_price_revision_pct
+  - h021_min_analyst_count
+  - h021_primary_coverage_flag
+  - h021_primary_signal_available_flag
+
+row_policy:
+  preserve_full_frozen_u001: true
+  identity: symbol_plus_isin
+  missing_primary_signal: preserve_row_with_null_and_reason
+  numeric_reason_encoding: false
+
+outcomes:
+  opened_by_adapter: false
+  model_trial_created: false
