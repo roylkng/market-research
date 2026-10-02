@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D008-v1",
+  "status": "FAIL_SOURCE_FEASIBILITY",
+  "evidence_class": "SOURCE_FEASIBILITY_NO_RETURN_OUTCOMES",
+  "source_scan_run_id": 36993230656,
+  "source_scan_artifact_id": 11220916380,
+  "source_scan_artifact_name": "rm001-d008-36993230656",
+  "source_scan_conclusion": "success",
+  "sample_months": [
+    "2025-09",
+    "2025-12",
+    "2026-01",
+    "2026-08"
+  ],
+  "all_four_have_passing_candidate": false,
+  "classification_semantics_stable": false,
+  "all_four_direct_isin": false,
+  "full_historical_scan_authorized": false,
+  "direct_point_in_time_sector_promotion_authorized": false,
+  "selected_candidates": [
+    null,
+    null,
+    null,
+    null
+  ],
+  "source_reports": [
+    {
+      "month": "2025-09",
+      "source_sha256": "25bd44c79bdf6f5d19eba62e9079c11222404dbe751a893f0afdf5a3412b9408",
+      "result_sha256": "617ef53eee221f7013c6005662750f53485144e9d909d45e6c5a70963e8d0e61",
+      "sheet_names": [
+        "Transaction Data",
+        "Mode of Trading",
+        "Category Data",
+        "Top N Members"
+      ],
+      "candidate_count": 0,
+      "passing_candidate_count": 0
+    },
+    {
+      "month": "2025-12",
+      "source_sha256": "68b6ada96ca94fc9abeeadce26d83ceb1e9749bdd18dcec1fe5cf5bea1d9995c",
+      "result_sha256": "8ddaf12df0f766a0d334acecd595e85bea6fcd1e7dd852a83af1f564dfeb2b55",
+      "sheet_names": [
+        "Transaction Data",
+        "Mode of Trading",
+        "Category Data",
+        "Top N Members"
+      ],
+      "candidate_count": 0,
+      "passing_candidate_count": 0
+    },
+    {
+      "month": "2026-01",
+      "source_sha256": "ae85c1f1f64bdc6066379c6316fe9aa96219d4de22af2e948be8b24a38331464",
+      "result_sha256": "4dc8230d779f45c3089a875e082dc8e2b202734efdaa996f0b272f40ad5efb8d",
+      "sheet_names": [
+        "Transaction Data",
+        "Mode of Trading",
+        "Category Data",
+        "Top N Members"
+      ],
+      "candidate_count": 0,
+      "passing_candidate_count": 0
+    },
+    {
+      "month": "2026-08",
+      "source_sha256": "20f55aa1e82e960becb9738a023648d87a47280b274564fbebd04009238760e3",
+      "result_sha256": "e86f154621dc82e594af80d722c0ca3f9e23e7e72f4fa907899873cfc840a584",
+      "sheet_names": [
+        "Transaction Data",
+        "Mode of Trading",
+        "Category Data",
+        "Top N Members"
+      ],
+      "candidate_count": 0,
+      "passing_candidate_count": 0
+    }
+  ],
+  "summary_sha256": "3d39670b6a5302b797c8d40006a3a42704d642492419c9329702624978697e43",
+  "return_labels_opened": false,
+  "model_fit_performed": false,
+  "sector_factor_status_after_d008": "DEFERRED_POINT_IN_TIME_SOURCE_NOT_FROZEN",
+  "interpretation": "The frozen NSE Capital Market Exchange Monthly Reports do not contain a broad company-level industry or sector classification mapping in any of the four sampled months. No successor full historical scan or direct sector promotion is authorized from this source.",
+  "live_capital_allowed": false
+}

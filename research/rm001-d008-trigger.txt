@@ -1,0 +1,17 @@
+RM001 D008 monthly exchange-report sector-source feasibility.
+
+Frozen protocol:
+- research/RM001_D008_MONTHLY_REPORT_SECTOR_SOURCE_FEASIBILITY_V1.md
+- registry/rm001_d008_monthly_sector_source.yaml
+
+Do not add [rm001-d008] until implementation CI passes.
+
+D008 is source feasibility only. It must not read return, alpha, risk-fit or
+portfolio outcomes.
+
+Source inspection opened only after full implementation CI success.
+
+Second trigger issued after pre-source gate repair and successful full CI.
+The first [rm001-d008] run failed before source access, so no workbook outcome
+was opened before this trigger. Frozen URLs, parser contract and promotion gates
+remain unchanged.
