@@ -1,0 +1,156 @@
+name: RM001 SC002 prospective industry capture
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - AE001 SC001 prospective source timing
+    types:
+      - completed
+  schedule:
+    # UTC -> Asia/Kolkata: 17:02, 17:32, 18:02, 18:17, 18:27.
+    - cron: '32 11 * * 1-5'
+    - cron: '2 12 * * 1-5'
+    - cron: '32 12 * * 1-5'
+    - cron: '47 12 * * 1-5'
+    - cron: '57 12 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rm001-sc002-prospective-industry-capture
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refresh latest canonical main before observation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify RM001-SC002 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001_industry_timing.py \
+            scripts/probe_rm001_sc002.py \
+            scripts/verify_rm001_sc002.py \
+            tests/test_rm001_industry_timing.py
+          pytest -q tests/test_rm001_industry_timing.py
+          marketlab validate-registry registry/hypotheses.yaml
+          python scripts/verify_rm001_sc002.py \
+            --ledger research/prospective/rm001-sc002/source-ledger.json \
+            --summary research/prospective/rm001-sc002/readiness-summary.json
+
+      - name: Resolve frozen start boundary
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          if [[ "$TODAY" < "2026-10-05" ]]; then
+            STATE="BEFORE_START"
+          else
+            STATE="READY"
+          fi
+          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "RM001-SC002 gate: date=$TODAY state=$STATE"
+
+      - name: Probe same-session industry sources
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/probe_rm001_sc002.py \
+            --session-date "${{ steps.gate.outputs.date }}" \
+            --ledger research/prospective/rm001-sc002/source-ledger.json \
+            --summary research/prospective/rm001-sc002/readiness-summary.json \
+            --attempts 4 \
+            --timeout-seconds 30 | tee rm001-sc002-probe.json
+          python scripts/verify_rm001_sc002.py \
+            --ledger research/prospective/rm001-sc002/source-ledger.json \
+            --summary research/prospective/rm001-sc002/readiness-summary.json
+
+      - name: Anchor append-only RM001-SC002 evidence
+        if: steps.gate.outputs.state == 'READY'
+        shell: bash
+        run: |
+          set -euo pipefail
+          LEDGER="research/prospective/rm001-sc002/source-ledger.json"
+          SUMMARY="research/prospective/rm001-sc002/readiness-summary.json"
+          BRANCH="main"
+          START_SHA="$OBSERVATION_BASE_SHA"
+
+          python scripts/verify_rm001_sc002.py \
+            --ledger "$LEDGER" \
+            --summary "$SUMMARY"
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/rm001-sc002
+
+          if git diff --cached --quiet; then
+            echo "No new RM001-SC002 evidence to anchor"
+            exit 0
+          fi
+
+          git commit -m "RM001 SC002: seal prospective industry capture ${{ steps.gate.outputs.date }} [skip ci]"
+
+          CRITICAL_PATHS=(
+            ".github/workflows/rm001-sc002-prospective-industry.yml"
+            "registry/rm001_sc002_industry_capture.yaml"
+            "research/RM001_SC002_PROSPECTIVE_INDUSTRY_CAPTURE_V1.md"
+            "research/prospective/rm001-sc002"
+            "src/marketlab/rm001_industry_timing.py"
+            "scripts/probe_rm001_sc002.py"
+            "scripts/verify_rm001_sc002.py"
+          )
+
+          for ATTEMPT in 1 2 3; do
+            git fetch origin "$BRANCH"
+            CURRENT_MAIN="$(git rev-parse "origin/$BRANCH")"
+            if [ "$START_SHA" != "$CURRENT_MAIN" ]; then
+              if ! git diff --quiet "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"; then
+                echo "RM001-SC002 rules or canonical state changed while observation was in flight"
+                git diff --stat "$START_SHA" "$CURRENT_MAIN" -- "${CRITICAL_PATHS[@]}"
+                exit 1
+              fi
+              git rebase "origin/$BRANCH"
+              python scripts/verify_rm001_sc002.py \
+                --ledger "$LEDGER" \
+                --summary "$SUMMARY"
+            fi
+            if git push origin HEAD:"$BRANCH"; then
+              exit 0
+            fi
+            if [ "$ATTEMPT" -eq 3 ]; then
+              echo "Unable to anchor RM001-SC002 evidence after bounded retries"
+              exit 1
+            fi
+            sleep $((ATTEMPT * 2))
+          done
+
+      - name: Report pre-start state
+        if: steps.gate.outputs.state != 'READY'
+        run: echo "RM001-SC002 has not reached its frozen start boundary"
