@@ -165,8 +165,7 @@ def _header_matches(values: dict[int, str]) -> dict[str, dict[int, str]]:
         column: value
         for column, value in normalized.items()
         if value in IDENTITY_TOKENS
-        or value.endswith(" ISIN")
-        or value.endswith(" SYMBOL")
+        or value.endswith((" ISIN", " SYMBOL"))
     }
     descriptor = {
         column: value
@@ -313,8 +312,11 @@ def analyze_monthly_workbook(
             rows = _worksheet_rows(archive, path, shared)
             candidates = []
             keyword_hits = []
-            nonempty_seen = 0
-            for position, (row_number, values) in enumerate(rows):
+            for nonempty_seen, (row_number, values) in enumerate(
+                rows,
+                start=1,
+            ):
+                position = nonempty_seen - 1
                 matches = _header_matches(values)
                 normalized_values = list(matches["normalized"].values())
                 if any(
@@ -338,7 +340,6 @@ def analyze_monthly_workbook(
                             },
                         }
                     )
-                nonempty_seen += 1
                 if nonempty_seen > HEADER_SCAN_NONEMPTY_ROWS:
                     break
                 if (
