@@ -1,0 +1,73 @@
+name: RM001-v3 P001 P2 attribution replay
+
+on:
+  push:
+    branches:
+      - feat/rm001-v3-p001-materialization-20261002
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    if: contains(github.event.head_commit.message, '[rm001-v3-p001-p2-replay]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify P2 attribution implementation
+        run: |
+          ruff check \
+            src/marketlab/rm001_v3_p001.py \
+            scripts/run_rm001_v3_p001.py \
+            tests/test_rm001_v3_p001.py
+          pytest -q \
+            tests/test_rm001_v3.py \
+            tests/test_rm001_v3_p001.py
+
+      - name: Download exact failed-run P001 evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: rm001-v3-p001-36958406605
+          path: evidence/p001
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36958406605
+
+      - name: Verify exact parent and challenger artifacts exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f evidence/p001/reports/rm001-v3-p001/risk-v2/risk-state.json.gz
+          test -f evidence/p001/reports/rm001-v3-p001/risk-v2/factor-history.json.gz
+          test -f evidence/p001/reports/rm001-v3-p001/risk-v3/risk-state.json.gz
+          test -f research/po001-i003/inputs/i002-integrated-control-v1.json.gz
+
+      - name: Replay only corrected P2 attribution
+        run: |
+          python scripts/run_rm001_v3_p001.py \
+            --v2-risk-state evidence/p001/reports/rm001-v3-p001/risk-v2/risk-state.json.gz \
+            --v2-factor-history evidence/p001/reports/rm001-v3-p001/risk-v2/factor-history.json.gz \
+            --v3-risk-state evidence/p001/reports/rm001-v3-p001/risk-v3/risk-state.json.gz \
+            --i002-control research/po001-i003/inputs/i002-integrated-control-v1.json.gz \
+            --output reports/rm001-v3-p001-p2-replay
+
+      - name: Print corrected result
+        run: cat reports/rm001-v3-p001-p2-replay/summary.json
+
+      - name: Upload corrected P2 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-v3-p001-p2-replay-${{ github.run_id }}
+          path: reports/rm001-v3-p001-p2-replay
+          if-no-files-found: error
+          retention-days: 90
