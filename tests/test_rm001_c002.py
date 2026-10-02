@@ -18,6 +18,7 @@ from marketlab.rm001_c002 import (
     validate_forecast_ledger,
     validate_outcome_ledger,
 )
+from marketlab.rm001_calibration import calibrate_v1_risk_state
 
 
 def _raw_state(count=520):
@@ -88,7 +89,7 @@ def test_c002_probe_library_has_16_fixed_probes():
     probes = build_probe_library_v1(_raw_state())
     assert len(probes) == 16
     assert all(len(members) == 30 for members in probes.values())
-    assert set(name for name in probes if name.startswith("HASH")) == {
+    assert {name for name in probes if name.startswith("HASH")} == {
         f"HASH{index:02d}" for index in range(8)
     }
 
