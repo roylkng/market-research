@@ -3,6 +3,8 @@ from __future__ import annotations
 import math
 from collections import defaultdict
 from datetime import date, datetime, timedelta
+from itertools import pairwise
+import time
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -28,9 +30,12 @@ def parse_reporting_date(value: object) -> str | None:
 
     for fmt in ("%d-%b-%Y", "%d-%m-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(raw, fmt).date().isoformat()
+            parsed = time.strptime(raw, fmt)
         except ValueError:
             continue
+        return (
+            f"{parsed.tm_year:04d}-{parsed.tm_mon:02d}-{parsed.tm_mday:02d}"
+        )
 
     try:
         serial = float(raw)
@@ -144,7 +149,7 @@ def analyze_cross_period_group(group: dict[str, Any]) -> dict[str, Any]:
         periods.append(period)
 
     non_overlapping = True
-    for previous, current in zip(periods, periods[1:]):
+    for previous, current in pairwise(periods):
         if date.fromisoformat(current["financial_year_start"]) <= date.fromisoformat(
             previous["financial_year_end"]
         ):
