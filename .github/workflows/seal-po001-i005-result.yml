@@ -1,0 +1,83 @@
+name: Seal exact PO001 I005 result
+
+on:
+  push:
+    branches:
+      - feat/po001-i005-stable-risk-treatment-20261002
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  seal:
+    if: contains(github.event.head_commit.message, '[seal-i005-result]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download exact I005 workflow result
+        uses: actions/download-artifact@v4
+        with:
+          name: po001-i005-36975475817
+          path: evidence/i005
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 36975475817
+
+      - name: Verify and copy canonical result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          source = Path("evidence/i005/result.json")
+          payload = json.loads(source.read_text(encoding="utf-8"))
+          stored = payload.pop("report_sha256")
+          observed = hashlib.sha256(
+              json.dumps(
+                  payload,
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  ensure_ascii=False,
+                  allow_nan=False,
+              ).encode()
+          ).hexdigest()
+          if observed != stored:
+              raise SystemExit(
+                  f"I005 result hash mismatch: {observed} != {stored}"
+              )
+          if stored != (
+              "7dbdd4c1bc6765d6534476d26e0aa9b010d0c7e65111eaa0e8a7b5f87e3b7914"
+          ):
+              raise SystemExit(f"unexpected I005 report SHA: {stored}")
+          payload["report_sha256"] = stored
+          if payload["status"] != "MATERIAL_RISK_MODEL_PORTFOLIO_EFFECT":
+              raise SystemExit("unexpected I005 status")
+          if payload["realized_outcome_opened"] is not False:
+              raise SystemExit("I005 unexpectedly opens realized outcome")
+
+          destination = Path("research/po001-i005-result-v1.json")
+          destination.write_text(
+              source.read_text(encoding="utf-8"),
+              encoding="utf-8",
+          )
+          print(stored)
+          PY
+
+      - name: Commit exact sealed result
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/po001-i005-result-v1.json
+          if git diff --cached --quiet; then
+            echo "Exact I005 result already sealed"
+            exit 0
+          fi
+          git commit -m "research: seal exact PO001 I005 workflow result [skip ci]"
+          git push origin HEAD:feat/po001-i005-stable-risk-treatment-20261002
