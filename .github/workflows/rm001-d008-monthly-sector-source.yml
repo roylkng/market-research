@@ -30,7 +30,7 @@ jobs:
             scripts/run_rm001_d008.py \
             tests/test_rm001_d008.py
           pytest -q tests/test_rm001_d008.py
-          python scripts/validate_registry.py
+          marketlab validate-registry registry/hypotheses.yaml
 
       - name: Run frozen four-workbook source scan
         run: |
