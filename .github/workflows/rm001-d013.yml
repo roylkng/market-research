@@ -1,0 +1,57 @@
+name: RM001 D013 BRSR as-of timeline
+
+on:
+  push:
+    branches:
+      - feat/rm001-d013-asof-timeline-20261002
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[rm001-d013]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify D013 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/rm001_d013.py \
+            scripts/run_rm001_d013.py \
+            tests/test_rm001_d013.py
+          pytest -q \
+            tests/test_rm001_d010.py \
+            tests/test_rm001_d010_r1.py \
+            tests/test_rm001_d010_r2.py \
+            tests/test_rm001_d013.py
+          python scripts/validate_hypotheses.py
+
+      - name: Run frozen D013 source/timeline diagnostic
+        run: |
+          python scripts/run_rm001_d013.py \
+            --output reports/rm001-d013 \
+            --attempts 4 \
+            --timeout-seconds 60 \
+            --pause-seconds 0.05
+
+      - name: Print compact result
+        run: cat reports/rm001-d013/summary.json
+
+      - name: Upload exact D013 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rm001-d013-${{ github.run_id }}
+          path: reports/rm001-d013
+          if-no-files-found: warn
+          retention-days: 90
