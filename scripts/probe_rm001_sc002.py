@@ -175,16 +175,16 @@ def main() -> int:
             constituent_raw_path=str(constituent_path),
             security_raw_path=str(security_path),
         )
+        snapshot_path = (
+            Path("research/prospective/rm001-sc002/snapshots")
+            / (
+                f"{observation_date}-{target_session}-"
+                f"{snapshot['snapshot_sha256']}.json.gz"
+            )
+        )
         if snapshot["status"] == "READY":
             previous = _previous_ready_snapshot(ledger)
             change = mapping_change_diagnostics(previous, snapshot)
-            snapshot_path = (
-                Path("research/prospective/rm001-sc002/snapshots")
-                / (
-                    f"{observation_date}-{target_session}-"
-                    f"{snapshot['snapshot_sha256']}.json.gz"
-                )
-            )
 
     updated, attempt = append_industry_attempt(
         ledger,
