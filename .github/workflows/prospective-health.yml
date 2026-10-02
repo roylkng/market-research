@@ -2,6 +2,20 @@ name: Prospective experiment health snapshot
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - AE001 SC001 prospective source timing
+      - AE001 SC002 prospective futures source timing
+      - AE001 SC003 previous-session futures pre-open timing
+      - RM001 SC001 previous-session size pre-open timing
+      - RM001 SC002 prospective industry capture
+      - RM001 C002 prospective variance calibration
+      - H024 prospective insider stream
+      - H024 prospective insider outcomes
+    types:
+      - completed
+    branches:
+      - main
   push:
     branches:
       - main
@@ -36,6 +50,9 @@ concurrency:
 
 jobs:
   health:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
