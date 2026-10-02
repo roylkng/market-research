@@ -1,0 +1,63 @@
+name: AE001 RG001 historical regime context
+
+on:
+  push:
+    branches:
+      - feat/ae001-regime-context-20261003
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[rg001-pilot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify RG001 before source access
+        run: |
+          ruff check \
+            src/marketlab/alpha_regime.py \
+            scripts/build_ae001_regime_panel.py \
+            tests/test_alpha_regime.py
+          pytest -q tests/test_alpha_regime.py tests/test_alpha_history.py
+
+      - name: Rebuild official NSE market panel
+        run: |
+          python scripts/build_ae001_historical_panel.py \
+            --start-date 2025-09-01 \
+            --end-date 2026-10-01 \
+            --store .marketlab/rg001 \
+            --output reports/rg001/market \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.05
+
+      - name: Build session-level RG001 context
+        run: |
+          python scripts/build_ae001_regime_panel.py \
+            --market-panel reports/rg001/market/market-panel.json.gz \
+            --output reports/rg001/regime
+
+      - name: Print compact result
+        run: cat reports/rg001/regime/summary.json
+
+      - name: Upload exact RG001 development evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-rg001-${{ github.run_id }}
+          path: |
+            reports/rg001
+            .marketlab/rg001/market-data
+          if-no-files-found: warn
+          retention-days: 90
