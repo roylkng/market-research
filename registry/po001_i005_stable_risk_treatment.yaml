@@ -1,0 +1,41 @@
+schema_version: 1
+id: PO001-I005-v1
+name: stable_rm001_v3_risk_treatment_revisit
+status: FROZEN_BEFORE_ECONOMIC_INSPECTION
+created: 2026-10-02
+live_capital_allowed: false
+
+source:
+  s001_workflow_run_id: 36974074783
+  s001_result_sha256: 6eacf70acfd65ecc0e2b2767b9a222c80f299c70747f4879624dbf013f055e62
+  solver: PO001-v4-DEVELOPMENT
+
+decision:
+  session: 2026-08-31
+  horizon_sessions: 5
+  portfolio_nav_inr: 10000000
+  realized_outcome_opened: false
+
+control_risk:
+  model_id: RM001-v1-DEVELOPMENT
+  state_sha256: b1d6898f1083d752ca7db6dc7509b8ef4a2aef0f1543f24fd8b30f07604d80c1
+
+treatment_risk:
+  model_id: RM001-v3-DEVELOPMENT
+  state_sha256: 32002ec101531c0e28fb551058c79f179fca53aafccf3c36ef07cb0159387441
+
+cross_risk_evaluation:
+  evaluate_both_portfolios_under_both_risk_models: true
+  control_optimality_tolerance: 1.0e-10
+  treatment_optimality_tolerance: 1.0e-10
+
+materiality:
+  weight_l1: 0.05
+  max_name_weight: 0.005
+  expected_5d_excess_return: 0.0001
+  total_transaction_cost_fraction: 0.0001
+  annualized_volatility: 0.005
+
+promotion:
+  live_capital_directly_allowed: false
+  risk_forecast_superiority_claim_allowed: false
