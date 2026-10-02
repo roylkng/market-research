@@ -3,7 +3,6 @@ from datetime import UTC, datetime
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.rm001_calibration import calibrate_v1_risk_state
 from marketlab.rm001_c002 import (
     CALIBRATION_SCALE,
     append_forecast_entry,
