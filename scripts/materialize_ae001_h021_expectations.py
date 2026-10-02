@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import argparse
-import gzip
 import json
 from pathlib import Path
 
+from marketlab.alpha import digest
 from marketlab.alpha_expectations import build_h021_expectations_panel
 from marketlab.calendar_snapshot import load_calendar_snapshot
 from marketlab.h021 import select_prior_snapshot
@@ -127,8 +127,6 @@ def main() -> int:
     panel["comparison_path"] = str(args.comparison)
     unsigned = dict(panel)
     unsigned.pop("panel_sha256", None)
-    from marketlab.alpha import digest
-
     panel["panel_sha256"] = digest(unsigned)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
