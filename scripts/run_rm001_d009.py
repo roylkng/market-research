@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlencode
 
-from marketlab.nse import NSEClient
+from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.rm001_d009 import (
     SAMPLE_SYMBOLS,
     build_d009_report,
@@ -76,7 +76,7 @@ def main() -> int:
                 )
             raw_path.write_bytes(raw)
             observation["raw_path"] = str(raw_path)
-        except Exception as exc:
+        except NSEAcquisitionError as exc:
             observation = {
                 "requested_symbol": symbol,
                 "status": "ACQUISITION_ERROR",
