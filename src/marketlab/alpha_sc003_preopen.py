@@ -17,6 +17,7 @@ IST = ZoneInfo("Asia/Kolkata")
 PREOPEN_CUTOFF = time(8, 30)
 RAW_ROOT_REPO = "research/prospective/ae001-sc003/raw"
 SC003_P1_PROTOCOL = "AE001-SC003-P1"
+SC003_P1_FROZEN_AT_UTC = datetime.fromisoformat("2026-10-02T09:07:14+00:00")
 
 
 def _ledger_hash(ledger: dict[str, Any]) -> str:
@@ -325,6 +326,10 @@ def append_sc003_probe(
     if captured.tzinfo is None:
         raise AlphaContractError("SC003 capture timestamp must be timezone-aware")
     captured = captured.astimezone(UTC)
+    if protocol_id == SC003_P1_PROTOCOL and captured < SC003_P1_FROZEN_AT_UTC:
+        raise AlphaContractError(
+            "SC003-P1 capture predates frozen amendment"
+        )
     cutoff_basis_date = (
         cutoff_session_date
         if protocol_id == SC003_P1_PROTOCOL
