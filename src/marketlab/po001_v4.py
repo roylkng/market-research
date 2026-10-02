@@ -96,7 +96,6 @@ def _solve_at_dual(
     initial: np.ndarray | None = None,
 ) -> tuple[np.ndarray, int]:
     n = len(alpha)
-    factor_count = exposure_matrix.shape[1]
     weights = (
         np.zeros(n, dtype=float)
         if initial is None
@@ -377,12 +376,6 @@ def _kkt_violation(
 
     invested = float(weights.sum())
     budget_slack = budget - invested
-    if budget_dual < -1e-15:
-        budget_violation = abs(budget_dual)
-    elif budget_slack > OUTER_BUDGET_TOLERANCE:
-        budget_violation = abs(budget_dual)
-    else:
-        budget_violation = max(0.0, -budget_slack)
     complementarity = abs(budget_dual * max(0.0, budget_slack))
 
     return {
