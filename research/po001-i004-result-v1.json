@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "study_id": "PO001-I004-v1",
+  "status": "COMPLETE_DEVELOPMENT_NUMERICALLY_UNSTABLE",
+  "evidence_class": "HISTORICAL_OOS_RISK_TREATMENT_INTEGRATION_POST_RESULT_NUMERICAL_AUDIT",
+  "decision_session": "2026-08-31",
+  "horizon_sessions": 5,
+  "portfolio_nav_inr": 10000000,
+  "realized_outcome_opened": false,
+  "live_capital_allowed": false,
+  "corrected_materialization": {
+    "run_id": 36969967153,
+    "artifact_id": 11211053456,
+    "artifact_name": "po001-i004-corrected-replay-36969967153",
+    "purpose": "CORRECTED_EXECUTION_REPLAY_ON_EXACT_PRE_RESULT_SOURCE_EVIDENCE",
+    "report_sha256": "f27f07afb149229dccfbcbb415c9a7d217dbf85ca7af7a1bdccaa9ed55496254",
+    "report_artifact_sha256": "9d51b2c2ae232f46ce3e266931c11977e137cad70bba6747231c8cec2a920c97"
+  },
+  "independent_full_rebuild": {
+    "run_id": 36969593037,
+    "artifact_id": 11211516016,
+    "artifact_name": "po001-i004-36969593037",
+    "source_economics_reproduced": true,
+    "control_exact_holding_gate_passed": false,
+    "failure": "PO001_V3_CONTROL_NUMERICAL_NON_UNIQUENESS"
+  },
+  "numerical_reproducibility_audit": {
+    "protocol": "research/PO001_I004_NUMERICAL_REPRODUCIBILITY_AUDIT_V1.md",
+    "run_id": 36970779566,
+    "summary_artifact_id": 11211797298,
+    "summary_artifact_name": "i004-numerical-reproducibility-summary",
+    "replica_count": 3,
+    "economic_scalar_stability_passed": false,
+    "exact_weight_interpretation_reproducible": false,
+    "interpretation": "ECONOMIC_SCALARS_NUMERICALLY_UNSTABLE",
+    "control": {
+      "artifact_sha256_values": [
+        "0e2a3ce48fc34dc26c439cd4923fbd7cf2858f57d4177fd0cd75f40e18b42068",
+        "500ba925361da95f1b8f8c0f8bd146aa6e626d1402ba04d9910fe38d0de496b0",
+        "500ba925361da95f1b8f8c0f8bd146aa6e626d1402ba04d9910fe38d0de496b0"
+      ],
+      "holding_count_gt_1e12_values": [
+        47,
+        76,
+        76
+      ],
+      "holding_count_gt_1e8_values": [
+        46,
+        54,
+        54
+      ],
+      "max_pairwise_absolute_weight_diff": 0.00040794707762923516,
+      "max_pairwise_l1_weight_diff": 0.0027484215253589764,
+      "expected_5d_excess_return_range": 0.0000013550964858260323,
+      "annualized_volatility_range": 0.00003784793860225899,
+      "total_variance_daily_range": 3.882247975333275e-8,
+      "risk_penalty_range": 9.705619938332917e-7,
+      "total_transaction_cost_fraction_range": 3.555513185884984e-7,
+      "objective_utility_range": 2.8983173402941098e-8,
+      "weight_stability_passed": false
+    },
+    "treatment": {
+      "artifact_sha256_values": [
+        "a294f71fbb2d61fa2c11b87a82b7968e2319c449ceb1e156cee0a3106d43ab24",
+        "42f05ae80208a65e7ff31571da15bb3421c0e90f1b30f8b90aa3145e9cac68db",
+        "42f05ae80208a65e7ff31571da15bb3421c0e90f1b30f8b90aa3145e9cac68db"
+      ],
+      "holding_count_gt_1e12_values": [
+        50,
+        69,
+        69
+      ],
+      "holding_count_gt_1e8_values": [
+        50,
+        58,
+        58
+      ],
+      "max_pairwise_absolute_weight_diff": 0.0029691092014854092,
+      "max_pairwise_l1_weight_diff": 0.010280578961765915,
+      "expected_5d_excess_return_range": 0.000002839027660008972,
+      "annualized_volatility_range": 0.00007031795612766345,
+      "total_variance_daily_range": 7.021382085432371e-8,
+      "risk_penalty_range": 0.0000017553455213580385,
+      "total_transaction_cost_fraction_range": 0.0000012169893382546135,
+      "objective_utility_range": 1.3330719960367998e-7,
+      "weight_stability_passed": false
+    }
+  },
+  "single_replay_diagnostic": {
+    "control": {
+      "holding_count": 47,
+      "expected_5d_excess_return": 0.010268398328395899,
+      "annualized_volatility": 0.12926327992563452,
+      "total_variance_daily": 0.00006630553784576566,
+      "total_transaction_cost_fraction": 0.00268388045086663,
+      "objective_utility": 0.005926879431385127
+    },
+    "treatment": {
+      "holding_count": 50,
+      "expected_5d_excess_return": 0.010265309258423441,
+      "annualized_volatility": 0.12577824509163738,
+      "total_variance_daily": 0.00006277844023147619,
+      "total_transaction_cost_fraction": 0.002685137299496422,
+      "objective_utility": 0.006010710953140114
+    },
+    "treatment_minus_control": {
+      "holding_count": 3,
+      "expected_5d_excess_return": -0.0000030890699724579057,
+      "annualized_volatility": -0.003485034833997147,
+      "total_variance_daily": -0.000003527097614289463,
+      "total_transaction_cost_fraction": 0.0000012568486297916993,
+      "objective_utility": 0.00008383152175498766,
+      "weight_l1_change": 0.10263219724601344,
+      "maximum_absolute_weight_change": 0.01655392224393534
+    },
+    "interpretation_allowed": "DIAGNOSTIC_ONLY_NOT_REPRODUCIBLE_ENOUGH_FOR_PROMOTION"
+  },
+  "conclusion": {
+    "rm001_v3_materially_changes_portfolio_solution_in_at_least_one_valid_solve": true,
+    "i004_supports_rm001_v3_portfolio_promotion": false,
+    "exact_stock_weight_change_claim_allowed": false,
+    "scalar_superiority_claim_allowed": false,
+    "single_replay_utility_improvement_may_be_reported_as_diagnostic_only": true,
+    "reason": "PRE_FROZEN_NUMERICAL_REPRODUCIBILITY_BOUNDS_FAILED_FOR_BOTH_SCALARS_AND_WEIGHTS",
+    "next_research_need": [
+      "OUT_OF_SAMPLE_RISK_FORECAST_CALIBRATION_V1_V2_V3",
+      "SEPARATELY_FROZEN_NUMERICALLY_STABLE_PORTFOLIO_SOLVER_CHALLENGER"
+    ]
+  },
+  "result_sha256": "4e2ea7380d015432b97b46f0ca6bf1d58cd8dddf6655cb260ed0a0645b020740"
+}
