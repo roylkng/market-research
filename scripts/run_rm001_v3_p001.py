@@ -86,6 +86,7 @@ def main() -> int:
         "sealed_i002_portfolio_risk": report[
             "sealed_i002_portfolio_risk"
         ],
+        "control_resolution": report["control_resolution"],
         "interpretation_limits": report["interpretation_limits"],
         "live_capital_allowed": False,
     }
