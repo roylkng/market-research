@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from marketlab.alpha import digest
@@ -287,3 +290,26 @@ def test_i005_sanity_failure_overrides_materiality(monkeypatch):
         treatment_risk_state=treatment_risk,
     )
     assert result["status"] == "IMPLEMENTATION_SANITY_CHECK_FAILED"
+
+
+
+def test_checked_in_i005_result_matches_canonical_report_hash():
+    root = Path(__file__).resolve().parents[1]
+    path = root / "research/po001-i005-result-v1.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    stored = payload.pop("report_sha256")
+    assert stored == (
+        "7dbdd4c1bc6765d6534476d26e0aa9b010d0c7e65111eaa0e8a7b5f87e3b7914"
+    )
+    assert digest(payload) == stored
+    assert payload["status"] == "MATERIAL_RISK_MODEL_PORTFOLIO_EFFECT"
+    assert payload["realized_outcome_opened"] is False
+    assert payload["source"]["s001_report_sha256"] == (
+        "688c028a86e7ed0fb2fc981b014b153601569daa9f33c874f954dbb8980c2bbd"
+    )
+    assert payload["rm001_v1_common_map"][
+        "control_optimality_sanity_passed"
+    ] is True
+    assert payload["rm001_v3_common_map"][
+        "treatment_optimality_sanity_passed"
+    ] is True
