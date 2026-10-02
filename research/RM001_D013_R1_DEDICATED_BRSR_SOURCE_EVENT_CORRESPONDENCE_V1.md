@@ -119,7 +119,7 @@ No endpoint may be manually inserted after source discovery begins.
 
 For each discovered candidate endpoint and each sampled filing, R1 tries these
 parameter variants in this exact order until the endpoint returns a JSON payload
-without HTTP/parser failure:
+containing at least one recursively discovered row object:
 
 1. `index=equities, symbol, from_date, to_date`
 2. `symbol, from_date, to_date`
@@ -134,7 +134,11 @@ Date window:
 Date string format:
 `DD-MM-YYYY`.
 
-All successful exact response bytes and SHA-256 values are retained.
+An HTTP-success JSON response containing zero row objects does not stop the
+variant sequence.
+
+All successful exact response bytes and SHA-256 values are retained, including
+empty responses.
 
 An endpoint is structurally eligible only if at least one successful response
 contains a row object with:
@@ -194,6 +198,18 @@ of:
 
 Generic `date`, `submitted`, `submission` or `tla` fields do NOT count
 as public timestamps by themselves.
+
+If one row exposes multiple explicit public timestamps, use this frozen
+priority:
+
+1. dissemination;
+2. broadcast;
+3. received;
+4. published;
+5. exchange + time.
+
+Timestamp strings without an explicit UTC offset are interpreted as
+Asia/Kolkata, matching the NSE corporate-filings display convention.
 
 ### Filing-resource fields
 
