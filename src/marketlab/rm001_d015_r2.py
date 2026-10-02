@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Any
 
-from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha import digest
 from marketlab.events import sha256_bytes
 from marketlab.rm001_d015 import parse_constituent_csv
 from marketlab.rm001_d015_r1 import parse_security_master_all_series
