@@ -99,7 +99,7 @@ def _next_later_eligible_attempt(
     unique = {}
     for row in rows:
         unique.setdefault(str(row["session_date"]), row)
-    return unique[sorted(unique)[0]] if unique else None
+    return unique[min(unique)] if unique else None
 
 
 def _next_pending_forecast(
