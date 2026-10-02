@@ -34,7 +34,7 @@ jobs:
           pytest -q \
             tests/test_rm001_d009.py \
             tests/test_nse_quote_raw.py
-          python scripts/validate_hypothesis_registry.py registry
+          marketlab validate-registry registry/hypotheses.yaml
 
       - name: Run frozen source-only D009 scan
         run: |
