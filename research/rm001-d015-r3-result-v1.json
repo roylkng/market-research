@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "RM001-D015-R3-v1",
+  "status": "PASS_DOCUMENTED_DUMMY_SEPARATION_SEMANTICS",
+  "evidence_class": "SOURCE_SEMANTICS_NO_RETURN_OUTCOMES",
+  "workflow_run_id": 37043326208,
+  "workflow_artifact_id": 11243940543,
+  "workflow_artifact_name": "rm001-d015-r3-37043326208",
+  "report_sha256": "35d5245283112885670521a4d771fabf33b66b26fc94d8dbfba5dc0ed8e14288",
+  "parent_source": {
+    "raw_sha256": "c469467c0e042e71ce566e8f5df1b9e0c081603ee48919db40d56c4beb44034f",
+    "row_count": 755,
+    "eq_row_count": 745,
+    "non_eq_row_count": 10
+  },
+  "security_source": {
+    "raw_sha256": "0dab1d451f2ab9015671bba26e1bc441d3d5569528e64150b5700a5772fbd786",
+    "parsed_row_count": 37975
+  },
+  "ordinary_eq_correspondence": {
+    "row_count": 740,
+    "matched_count": 740,
+    "match_fraction": 1.0,
+    "missing_count": 0,
+    "ambiguous_count": 0
+  },
+  "dummy_placeholders": {
+    "row_count": 5,
+    "exact_triplet_match_count_total": 0,
+    "same_identity_any_series_match_count_total": 0,
+    "identity_set_matches_r2_missing_exactly": true,
+    "rows": [
+      {
+        "symbol": "DUMMYHEG",
+        "isin": "DUM545A01024",
+        "series": "EQ",
+        "industry": "Capital Goods"
+      },
+      {
+        "symbol": "DUMMYINGL1",
+        "isin": "DU1560A01023",
+        "series": "EQ",
+        "industry": "Healthcare"
+      },
+      {
+        "symbol": "DUMMYINGL2",
+        "isin": "DU2560A01023",
+        "series": "EQ",
+        "industry": "Fast Moving Consumer Goods"
+      },
+      {
+        "symbol": "DUMMYINXGN",
+        "isin": "DUM510W01014",
+        "series": "EQ",
+        "industry": "Construction"
+      },
+      {
+        "symbol": "DUMMYTRVN",
+        "isin": "DUM256C01024",
+        "series": "EQ",
+        "industry": "Capital Goods"
+      }
+    ]
+  },
+  "non_eq_correspondence": {
+    "row_count": 10,
+    "matched_count": 10,
+    "match_fraction": 1.0,
+    "missing_count": 0,
+    "ambiguous_count": 0
+  },
+  "projected_tradable_eq_subset": {
+    "row_count": 740,
+    "unique_identity_count": 740,
+    "duplicate_identity_count": 0,
+    "symbol_conflict_count": 0,
+    "isin_conflict_count": 0,
+    "industry_coverage": 1.0,
+    "isin_coverage": 1.0,
+    "identity_text_complete": true
+  },
+  "prospective_industry_capture_design_authorized": true,
+  "future_dummy_count_frozen": false,
+  "historical_backfill_authorized": false,
+  "rm001_factor_directly_allowed": false,
+  "return_labels_opened": false,
+  "risk_model_fit_performed": false,
+  "portfolio_fit_performed": false,
+  "parents": {
+    "d015_status": "FAIL_PROSPECTIVE_INDUSTRY_SOURCE_FEASIBILITY",
+    "d015_r1_status": "FAIL_EQ_PROJECTION_SEMANTICS",
+    "d015_r2_status": "FAIL_TRIPLET_EQ_PROJECTION_SEMANTICS",
+    "parent_statuses_changed": false
+  },
+  "next_stage": {
+    "id": "RM001-SC002",
+    "purpose": "PROSPECTIVE_NIFTY_TOTAL_MARKET_INDUSTRY_CAPTURE",
+    "historical_backfill_allowed": false,
+    "factor_directly_allowed": false
+  },
+  "live_capital_allowed": false
+}
