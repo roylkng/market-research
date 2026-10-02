@@ -1,0 +1,66 @@
+schema_version: 1
+id: AE001-T012-v1
+name: late_evening_stock_futures_5d_confirmation
+status: FROZEN_WAITING_FOR_SC002_TIMING_FREEZE
+frozen_date: 2026-10-02
+live_capital_allowed: false
+
+predecessors:
+  historical_signal: AE001-T005
+  failed_1830_prospective_path: AE001-T006
+  failed_lagged_path: AE001-T011
+
+models:
+  source_artifact: research/prospective/ae001-t006/frozen-models-v1.json
+  base_model_id: AE001-T006-CORE27-RIDGE-v1
+  augmented_model_id: AE001-T006-FULL37-RIDGE-v1
+  retraining_allowed: false
+
+cutoff:
+  timing_summary: research/prospective/ae001-sc002/publication-timing-summary.json
+  freeze_artifact: research/prospective/ae001-t012/cutoff-freeze.json
+  minimum_ready_sessions: 3
+  rule: LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES
+  manual_override_allowed: false
+  timing_basis_sessions_may_enter_trial: false
+
+sources:
+  cash_delivery:
+    ledger: research/prospective/ae001-sc001/source-ledger.json
+    requirement: eligible_before_cutoff_true
+  futures:
+    ledger: research/prospective/ae001-sc002/source-ledger.json
+    requirement: READY_CAPTURED_BY_T012_FROZEN_CUTOFF
+
+sample:
+  minimum_common_stocks: 100
+  identity: symbol_plus_isin
+  backfill_allowed: false
+
+primary:
+  horizon_sessions: 5
+  minimum_eligible_decision_sessions: 60
+  minimum_valid_paired_ic_sessions: 50
+  inference:
+    method: paired_newey_west
+    lag: 4
+  success_requires_all:
+    - metric: paired_mean_rank_ic_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+    - metric: paired_top_minus_bottom_spread_difference
+      operator: ">"
+      value: 0.0
+      two_sided_p_value_lt: 0.05
+
+secondary:
+  horizon_sessions: 1
+  inference:
+    method: paired_newey_west
+    lag: 5
+  rescues_failed_primary: false
+
+promotion:
+  prospective_claim_allowed_after_primary_gate: true
+  live_capital_directly_allowed: false
