@@ -181,7 +181,9 @@ def _summarize(artifact: dict[str, Any]) -> dict[str, Any]:
     return {
         "optimizer_id": artifact["optimizer_id"],
         "artifact_sha256": artifact["artifact_sha256"],
-        "factor_names": artifact["factor_names"],
+        "factor_names": list(
+            artifact["portfolio_factor_exposures"].keys()
+        ),
         "holding_count": len(active),
         "invested_weight": float(artifact["invested_weight"]),
         "cash_weight": float(artifact["cash_weight"]),
