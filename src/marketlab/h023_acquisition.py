@@ -171,6 +171,34 @@ def _report_date(value: object) -> str | None:
     return canonical if is_standard_quarter_end(canonical) else None
 
 
+def _revision_metadata(row: dict[str, Any]) -> dict[str, str]:
+    status = str(row.get("revisedStatus") or "").strip()
+    revision_date_raw = str(row.get("revisionDate") or "").strip()
+    if status.casefold() != "revised":
+        if revision_date_raw:
+            raise H023AcquisitionError(
+                "NSE revisionDate is present without revisedStatus=Revised"
+            )
+        return {}
+    if not revision_date_raw:
+        raise H023AcquisitionError(
+            "NSE revised filing is missing revisionDate"
+        )
+    try:
+        revision_date = datetime.strptime(
+            revision_date_raw.upper(),
+            REPORT_DATE_FORMAT,
+        ).date().isoformat()
+    except ValueError as exc:
+        raise H023AcquisitionError(
+            f"invalid NSE revisionDate: {revision_date_raw}"
+        ) from exc
+    return {
+        "revision_status": "REVISED",
+        "revision_date": revision_date,
+    }
+
+
 def source_from_master_row(row: dict[str, Any], *, symbol: str) -> dict[str, Any] | None:
     if not isinstance(row, dict):
         raise TypeError("NSE master row must be an object")
@@ -206,6 +234,7 @@ def source_from_master_row(row: dict[str, Any], *, symbol: str) -> dict[str, Any
         "broadcast_at_utc": payload["broadcast_at_utc"],
         "xbrl_url": xbrl_url,
         "master_row_sha256": master_row_sha256,
+        **_revision_metadata(row),
     }
     validate_source(source)
     return source
