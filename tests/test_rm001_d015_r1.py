@@ -4,10 +4,10 @@ import io
 
 import pytest
 
+import marketlab.rm001_d015_r1 as r1
 from marketlab.alpha import AlphaContractError
 from marketlab.events import sha256_bytes
 from marketlab.rm001_d015_r1 import build_d015_r1_report, parse_security_master_all_series
-import marketlab.rm001_d015_r1 as r1
 
 
 def _parent_csv():
