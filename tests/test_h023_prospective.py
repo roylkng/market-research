@@ -416,7 +416,10 @@ def test_immutable_source_identity_drift_is_rejected() -> None:
         "xbrl_url": drifted["xbrl_url"],
     }
     drifted["source_id"] = canonical_hash(identity)
-    with pytest.raises(Exception, match="identity drift"):
+    with pytest.raises(
+        Exception,
+        match="lacks formal NSE revision metadata",
+    ):
         _append(source_ledger, new_event_ledger(), [drifted])
 
 
