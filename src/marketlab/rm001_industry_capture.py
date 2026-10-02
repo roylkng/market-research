@@ -465,6 +465,10 @@ def append_industry_attempt(
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     validate_industry_source_ledger(ledger)
     observation = date.fromisoformat(observation_date)
+    if len(sc001_attempt_sha256) != 64:
+        raise AlphaContractError(
+            "RM001-SC002 requires exact SC001 attempt SHA-256"
+        )
     if observation < START_OBSERVATION_DATE:
         raise AlphaContractError(
             "RM001-SC002 observation precedes frozen start date"
