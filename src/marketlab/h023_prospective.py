@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from marketlab.h023_ownership import previous_quarter_end
@@ -131,6 +131,68 @@ def validate_source(source: dict[str, Any]) -> None:
     if not _is_sha256(source_id) or source_id != canonical_hash(_source_identity_payload(source)):
         raise H023ProspectiveError(f"{source_id}: source identity hash mismatch")
 
+    revision_status = source.get("revision_status")
+    revision_date = source.get("revision_date")
+    if revision_status is None and revision_date is None:
+        return
+    if revision_status != "REVISED":
+        raise H023ProspectiveError(
+            f"{source_id}: revision metadata requires revision_status=REVISED"
+        )
+    if not isinstance(revision_date, str):
+        raise H023ProspectiveError(f"{source_id}: revision date is missing")
+    try:
+        parsed_revision_date = date.fromisoformat(revision_date)
+    except ValueError as exc:
+        raise H023ProspectiveError(
+            f"{source_id}: invalid revision date: {revision_date}"
+        ) from exc
+    broadcast_date = _timestamp(
+        source["broadcast_at_utc"],
+        field=f"{source_id}.broadcast_at_utc",
+    ).date()
+    if parsed_revision_date > broadcast_date:
+        raise H023ProspectiveError(
+            f"{source_id}: revision date is after NSE broadcast"
+        )
+
+
+def _validate_reused_record_id_revision(
+    prior_sources: list[dict[str, Any]],
+    source: dict[str, Any],
+) -> None:
+    """Validate one later formal NSE version that reuses a recordId."""
+
+    if not prior_sources:
+        return
+    symbol = str(source["symbol"])
+    record_id = str(source["record_id"])
+    report_date = str(source["report_date"])
+    for prior in prior_sources:
+        if str(prior["report_date"]) != report_date:
+            raise H023ProspectiveError(
+                f"{symbol}/{record_id}: reused record id changed report date"
+            )
+    if source.get("revision_status") != "REVISED" or not source.get("revision_date"):
+        raise H023ProspectiveError(
+            f"{symbol}/{record_id}: reused record id lacks formal NSE revision metadata"
+        )
+    broadcast = _timestamp(
+        source["broadcast_at_utc"],
+        field=f"{source['source_id']}.broadcast_at_utc",
+    )
+    latest_prior = max(
+        _timestamp(
+            prior["broadcast_at_utc"],
+            field=f"{prior['source_id']}.broadcast_at_utc",
+        )
+        for prior in prior_sources
+    )
+    if broadcast <= latest_prior:
+        raise H023ProspectiveError(
+            f"{symbol}/{record_id}: revised filing is not later than prior version"
+        )
+
 
 def _ledger_hash(ledger: dict[str, Any]) -> str:
     unsigned = dict(ledger)
@@ -204,7 +266,7 @@ def validate_source_ledger(ledger: dict[str, Any]) -> None:
         ledger, version=SOURCE_LEDGER_VERSION, ledger_type="H023_SOURCE_LEDGER"
     )
     seen_ids: set[str] = set()
-    seen_record_keys: dict[tuple[str, str], str] = {}
+    seen_record_sources: dict[tuple[str, str], list[dict[str, Any]]] = {}
     prior_sort: tuple[str, str, str, str] | None = None
     for row in records:
         if not isinstance(row, dict):
@@ -218,12 +280,10 @@ def validate_source_ledger(ledger: dict[str, Any]) -> None:
             raise H023ProspectiveError(f"duplicate H023 source: {source_id}")
         seen_ids.add(source_id)
         key = (str(source["symbol"]), str(source["record_id"]))
-        prior_id = seen_record_keys.get(key)
-        if prior_id is not None and prior_id != source_id:
-            raise H023ProspectiveError(
-                f"{key[0]}/{key[1]}: official source identity drift detected"
-            )
-        seen_record_keys[key] = source_id
+        prior_versions = seen_record_sources.get(key, [])
+        if prior_versions:
+            _validate_reused_record_id_revision(prior_versions, source)
+        seen_record_sources.setdefault(key, []).append(source)
         first_seen = _timestamp(
             row.get("first_seen_at_utc"), field=f"{source_id}.first_seen_at_utc"
         )
@@ -435,12 +495,16 @@ def append_sources(
     existing_by_id = {
         str(row["source"]["source_id"]): row for row in ledger["records"]
     }
-    existing_by_record = {
-        (str(row["source"]["symbol"]), str(row["source"]["record_id"])): str(
-            row["source"]["source_id"]
+    existing_by_record: dict[
+        tuple[str, str], list[dict[str, Any]]
+    ] = {}
+    for row in ledger["records"]:
+        existing_source = row["source"]
+        key = (
+            str(existing_source["symbol"]),
+            str(existing_source["record_id"]),
         )
-        for row in ledger["records"]
-    }
+        existing_by_record.setdefault(key, []).append(existing_source)
     sealed_contexts = [_event_context(record) for record in event_ledger["records"]]
     records = [dict(row) for row in ledger["records"]]
     for source in sources:
@@ -450,11 +514,9 @@ def append_sources(
         if existing is not None:
             continue
         key = (str(source["symbol"]), str(source["record_id"]))
-        prior_id = existing_by_record.get(key)
-        if prior_id is not None and prior_id != source_id:
-            raise H023ProspectiveError(
-                f"{key[0]}/{key[1]}: official source identity drift detected"
-            )
+        prior_versions = existing_by_record.get(key, [])
+        if prior_versions:
+            _validate_reused_record_id_revision(prior_versions, source)
         broadcast = _timestamp(source["broadcast_at_utc"], field=f"{source_id}.broadcast")
         if first_seen < broadcast:
             raise H023ProspectiveError(f"{source_id}: scan first-seen precedes broadcast")
@@ -486,7 +548,7 @@ def append_sources(
         row["source_record_sha256"] = canonical_hash(row)
         records.append(row)
         existing_by_id[source_id] = row
-        existing_by_record[key] = source_id
+        existing_by_record.setdefault(key, []).append(source)
     records.sort(
         key=lambda row: (
             str(row["source"]["broadcast_at_utc"]),
