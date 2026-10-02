@@ -25,13 +25,25 @@ jobs:
 
       - name: Verify frozen D009 implementation before source access
         run: |
-          ruff check             src/marketlab/nse.py             src/marketlab/rm001_d009.py             scripts/run_rm001_d009.py             tests/test_rm001_d009.py
-          pytest -q             tests/test_rm001_d009.py             tests/test_nse.py
+          ruff check \
+            src/marketlab/nse.py \
+            src/marketlab/rm001_d009.py \
+            scripts/run_rm001_d009.py \
+            tests/test_rm001_d009.py \
+            tests/test_nse_quote_raw.py
+          pytest -q \
+            tests/test_rm001_d009.py \
+            tests/test_nse_quote_raw.py
           python scripts/validate_hypothesis_registry.py registry
 
       - name: Run frozen source-only D009 scan
         run: |
-          python scripts/run_rm001_d009.py             --raw-dir reports/rm001-d009/raw             --output reports/rm001-d009/report.json             --attempts 4             --timeout-seconds 20             --pause-seconds 0.15
+          python scripts/run_rm001_d009.py \
+            --raw-dir reports/rm001-d009/raw \
+            --output reports/rm001-d009/report.json \
+            --attempts 4 \
+            --timeout-seconds 20 \
+            --pause-seconds 0.15
 
       - name: Print result
         run: cat reports/rm001-d009/report.json
