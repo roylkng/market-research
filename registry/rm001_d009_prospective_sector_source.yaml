@@ -1,0 +1,46 @@
+schema_version: 1
+id: RM001-D009-v1
+name: prospective_nse_quote_sector_source_feasibility
+status: FROZEN_BEFORE_SOURCE_INSPECTION
+created: 2026-10-02
+live_capital_allowed: false
+
+source:
+  endpoint: https://www.nseindia.com/api/quote-equity
+  method: NSEClient_session_json_with_raw
+  required_object: industryInfo
+
+sample:
+  source_session: 2026-10-01
+  market_raw_sha256: ccc5fb27872716bbcc99d2d87e522ab304f6620e11c3a5045c30e1ff25cbfb73
+  sample_size: 50
+  ranking: SHA256("RM001-D009|SYMBOL|ISIN")
+
+required_identity_fields:
+  - info.symbol
+  - info.isin
+
+required_classification_fields:
+  - industryInfo.macro
+  - industryInfo.sector
+  - industryInfo.industry
+  - industryInfo.basicIndustry
+
+gates:
+  minimum_successful_quote_count: 48
+  exact_identity_match_required_for_every_success: true
+  minimum_complete_four_tier_count: 48
+  minimum_distinct_sector_count: 5
+  minimum_distinct_basic_industry_count: 10
+  conflicting_same_run_classification_allowed: false
+  exact_raw_bytes_required: true
+
+outcomes:
+  return_labels_opened: false
+  model_fit_performed: false
+  portfolio_outcomes_opened: false
+
+promotion:
+  historical_backfill_allowed: false
+  direct_sector_factor_promotion_allowed: false
+  live_capital_directly_allowed: false
