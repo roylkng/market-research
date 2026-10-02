@@ -1,0 +1,53 @@
+schema_version: 1
+id: RM001-D015-R2-v1
+name: nifty_total_market_symbol_isin_series_correspondence
+status: FROZEN_BEFORE_EVIDENCE_ACCESS
+created: 2026-10-02
+live_capital_allowed: false
+
+research_class:
+  type: SOURCE_SEMANTICS_NO_RETURN_OUTCOMES
+  return_labels_allowed: false
+  alpha_outcomes_allowed: false
+  risk_model_fit_allowed: false
+  portfolio_fit_allowed: false
+
+parents:
+  d015:
+    status: FAIL_PROSPECTIVE_INDUSTRY_SOURCE_FEASIBILITY
+    report_sha256: dcee31853fcd2f2a61832af19c61722e13ca7f3776c01bee798e859fe71326b9
+    raw_sha256: c469467c0e042e71ce566e8f5df1b9e0c081603ee48919db40d56c4beb44034f
+  d015_r1:
+    status: FAIL_EQ_PROJECTION_SEMANTICS
+    report_sha256: dc34d7ed90decb4c7c89a74b6c32a574ce25813777d7c240aed15cfce7cad6b1
+    security_raw_sha256: 0dab1d451f2ab9015671bba26e1bc441d3d5569528e64150b5700a5772fbd786
+
+correspondence:
+  key:
+    - symbol
+    - isin
+    - series
+  fallback_allowed: false
+
+projection:
+  rule: SERIES_EXACTLY_EQ
+  alternate_filters_allowed: false
+
+promotion_gates:
+  required_triplet_join_coverage: 1.0
+  missing_triplet_match_count_max: 0
+  ambiguous_triplet_match_count_max: 0
+  required_eq_triplet_confirmation_fraction: 1.0
+  required_non_eq_triplet_confirmation_fraction: 1.0
+  projected_eq_row_count_exact: 745
+  projected_eq_unique_identity_count_exact: 745
+  projected_eq_industry_coverage: 1.0
+  projected_eq_isin_coverage: 1.0
+
+promotion:
+  pass: AUTHORIZE_RM001_SC002_EQ_INDUSTRY_PROSPECTIVE_CAPTURE
+  d015_status_may_change: false
+  d015_r1_status_may_change: false
+  historical_backfill_allowed: false
+  rm001_factor_directly_allowed: false
+  live_capital_directly_allowed: false
