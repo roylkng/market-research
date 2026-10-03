@@ -2,9 +2,25 @@ name: PF001 post-close paper fund
 
 on:
   schedule:
-    # 18:00 IST, Monday-Friday. Exchange holidays fail closed as NO_SESSION.
+    # 18:00 IST, Monday-Friday. Resolver advances the oldest completed
+    # frozen NSE session that both books have not processed yet.
     - cron: '30 12 * * 1-5'
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Company intelligence v2 market-close miss audit
+    types:
+      - completed
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pf001-daily-paper-fund.yml
+      - src/marketlab/pf001_schedule.py
+      - scripts/resolve_pf001_session.py
+      - tests/test_pf001_schedule.py
 
 permissions:
   contents: write
@@ -15,6 +31,9 @@ concurrency:
 
 jobs:
   advance:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -30,13 +49,27 @@ jobs:
       - name: Install
         run: python -m pip install -e '.[dev]'
 
-      - name: Resolve India session date
+      - name: Resolve oldest completed unprocessed NSE session
+        id: session
+        shell: bash
         run: |
-          SESSION_DATE="$(TZ=Asia/Kolkata date +%F)"
-          echo "SESSION_DATE=${SESSION_DATE}" >> "$GITHUB_ENV"
-          echo "RUN_DIR=research/paper-funds/PF001/runs/${SESSION_DATE}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          RESULT="$(python scripts/resolve_pf001_session.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --state research/paper-funds/PF001/development-state.json \
+            --state research/paper-funds/PF001/prospective-validation-state.json)"
+          STATE="$(python -c 'import json,sys; print(json.load(sys.stdin)["state"])' <<< "$RESULT")"
+          SESSION_DATE="$(python -c 'import json,sys; print(json.load(sys.stdin)["session_date"] or "")' <<< "$RESULT")"
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "session_date=$SESSION_DATE" >> "$GITHUB_OUTPUT"
+          echo "SESSION_DATE=$SESSION_DATE" >> "$GITHUB_ENV"
+          if [ -n "$SESSION_DATE" ]; then
+            echo "RUN_DIR=research/paper-funds/PF001/runs/$SESSION_DATE" >> "$GITHUB_ENV"
+          fi
+          echo "PF001 catch-up gate: $RESULT"
 
       - name: Select pending development decisions
+        if: steps.session.outputs.state == 'PENDING'
         run: |
           python scripts/select_pending_pf001_decisions.py \
             --state research/paper-funds/PF001/development-state.json \
@@ -45,6 +78,7 @@ jobs:
             --out /tmp/pf001-development-decisions.json
 
       - name: Select pending validation decisions
+        if: steps.session.outputs.state == 'PENDING'
         run: |
           python scripts/select_pending_pf001_decisions.py \
             --state research/paper-funds/PF001/prospective-validation-state.json \
@@ -53,6 +87,7 @@ jobs:
             --out /tmp/pf001-validation-decisions.json
 
       - name: Build official NSE session inputs
+        if: steps.session.outputs.state == 'PENDING'
         run: |
           rm -rf /tmp/pf001-market
           python scripts/build_pf001_official_session.py \
@@ -83,7 +118,7 @@ jobs:
           fi
 
       - name: Advance development book
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           python scripts/run_pf001.py \
             --session-date "$SESSION_DATE" \
@@ -94,7 +129,7 @@ jobs:
             --out /tmp/pf001-development-state.json
 
       - name: Advance validation book
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           python scripts/run_pf001.py \
             --session-date "$SESSION_DATE" \
@@ -105,7 +140,7 @@ jobs:
             --out /tmp/pf001-validation-state.json
 
       - name: Advance development attribution
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           ATTR_ARGS=()
           if [ -f research/paper-funds/PF001/development-attribution.json ]; then
@@ -121,7 +156,7 @@ jobs:
             --summary-out /tmp/pf001-development-summary.json
 
       - name: Advance validation attribution
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           ATTR_ARGS=()
           if [ -f research/paper-funds/PF001/prospective-validation-attribution.json ]; then
@@ -137,7 +172,7 @@ jobs:
             --summary-out /tmp/pf001-validation-summary.json
 
       - name: Anchor session evidence
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           mkdir -p "$RUN_DIR"
           cp /tmp/pf001-development-state.json research/paper-funds/PF001/development-state.json
@@ -153,7 +188,7 @@ jobs:
           cp /tmp/pf001-validation-summary.json "$RUN_DIR/validation-attribution-summary.json"
 
       - name: Commit immutable ledger update
-        if: steps.market_session.outputs.status == 'OK'
+        if: steps.session.outputs.state == 'PENDING' && steps.market_session.outputs.status == 'OK'
         run: |
           git config user.name 'marketlab-research-bot'
           git config user.email 'marketlab-research-bot@users.noreply.github.com'
@@ -162,7 +197,7 @@ jobs:
           git push origin HEAD:main
 
       - name: Upload retained official source bytes
-        if: always()
+        if: always() && steps.session.outputs.state == 'PENDING'
         uses: actions/upload-artifact@v4
         with:
           name: pf001-official-market-data-${{ github.run_id }}-${{ github.run_attempt }}
@@ -172,3 +207,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 90
+
+      - name: Report caught-up state
+        if: steps.session.outputs.state == 'CAUGHT_UP'
+        run: echo "PF001 is already caught up to every completed frozen NSE session"
