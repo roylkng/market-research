@@ -1,0 +1,67 @@
+name: H005 recover retained research evidence
+
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-recover-evidence.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Recover pinned source snapshots without executing historical code
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h005-recovery/current
+          git archive HEAD | tar -x -C /tmp/h005-recovery/current
+          for ref in f656409d9781ba344f392762b62b9a4bca304540 541e27a1be70d0d9e1681bc409869dbcceb8499b 754fa919fab6268af73c2ea1413a2267536bc3dc ffee676a66ab3e59676ca1e1304c6d596597329e; do
+            git cat-file -e "$ref^{commit}"
+            mkdir -p "/tmp/h005-recovery/$ref"
+            git archive "$ref" | tar -x -C "/tmp/h005-recovery/$ref"
+          done
+          python - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          root = pathlib.Path('/tmp/h005-recovery')
+          profiles = []
+          seen = set()
+          for revision in subprocess.check_output(['git','rev-list','--all'], text=True).splitlines():
+              tree = subprocess.check_output(['git','ls-tree','-r',revision,'research/historical/h004'], text=True)
+              for line in tree.splitlines():
+                  meta, path = line.split('\t', 1)
+                  blob = meta.split()[2]
+                  if not path.endswith('/events.json') or blob in seen:
+                      continue
+                  seen.add(blob)
+                  raw = subprocess.check_output(['git','cat-file','blob',blob])
+                  rows = json.loads(raw)
+                  if not isinstance(rows,list):
+                      continue
+                  positive = sum(bool(r.get('reference_outcome',{}).get('explosive_20d')) for r in rows)
+                  profiles.append({'revision':revision,'path':path,'blob_sha':blob,'sha256':hashlib.sha256(raw).hexdigest(),'rows':len(rows),'reference_positive':positive})
+                  if len(rows)==2182 and positive==77:
+                      dest=root/'recovered-2182-77'
+                      dest.mkdir(exist_ok=True)
+                      (dest/'events.json').write_bytes(raw)
+                      (dest/'source.json').write_text(json.dumps(profiles[-1],indent=2)+'\n')
+          (root/'historical-dataset-inventory.json').write_text(json.dumps(profiles,indent=2)+'\n')
+          files = {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in root.rglob('*') if p.is_file()}
+          manifest={'source_head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),'run_id':os.environ['GITHUB_RUN_ID'],'files':files,'live_capital_allowed':False}
+          (root/'recovery-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(profiles,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h005-recovered-research-evidence
+          path: /tmp/h005-recovery
+          include-hidden-files: true
+          retention-days: 30

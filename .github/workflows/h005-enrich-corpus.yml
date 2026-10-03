@@ -1,0 +1,60 @@
+name: H005 enrich retained corpus
+
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-enrich-corpus.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: h005-original-source-corpus
+          run-id: 34213815242
+          github-token: ${{ github.token }}
+          path: /tmp/h005-corpus
+      - name: Preserve base content inventory
+        run: find /tmp/h005-corpus/raw -type f -printf '%f\n' | sort > /tmp/h005-base-raw.txt
+      - name: Follow listed alternate sources
+        run: python scripts/enrich_h005_corpus.py --root /tmp/h005-corpus
+      - name: Package immutable enrichment delta
+        if: always()
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, shutil
+          root=pathlib.Path('/tmp/h005-corpus')
+          out=pathlib.Path('/tmp/h005-enrichment')
+          (out/'raw').mkdir(parents=True,exist_ok=True)
+          base=set(pathlib.Path('/tmp/h005-base-raw.txt').read_text().splitlines())
+          for src in (root/'raw').glob('*'):
+              if src.name not in base:
+                  shutil.copy2(src,out/'raw'/src.name)
+          for pattern in ('*-v2.json','alternate-manifest.json','enrichment-summary.json'):
+              for src in root.glob(pattern):
+                  shutil.copy2(src,out/src.name)
+          shutil.copy2('scripts/enrich_h005_corpus.py',out/'enrich-source.py')
+          files={str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}
+          manifest={'source_head':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'base_artifact_id':10051043682,'base_artifact_sha256':'7ec5add228f4b402dbce0507c96c4635d3a3a3caf0ef6f7ad1cfab39e1e6205d','files':files,'live_capital_allowed':False}
+          (out/'enrichment-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: h005-enrichment-delta
+          path: /tmp/h005-enrichment
+          retention-days: 30

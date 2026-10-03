@@ -1,0 +1,60 @@
+name: H005 archive client compatibility check
+on:
+  push:
+    branches: [research/h005-result-repricing-ranker-v1-20260908]
+    paths: [.github/workflows/h005-archive-client-check.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - uses: actions/download-artifact@v4
+        with:
+          name: h005-enrichment-delta
+          run-id: 34214649763
+          github-token: ${{ github.token }}
+          path: /tmp/h005-check
+      - name: Fixed public-source client compatibility probe
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib,time
+          from marketlab.nse import NSEClient
+          root=pathlib.Path('/tmp/h005-check')
+          rows=json.loads((root/'content-manifest-v2.json').read_text())
+          sample=[]
+          for kind in ('current-xbrl','exchange-listed-ixbrl'):
+              for status in ('OK','HTTP_403'):
+                  sample.extend(sorted([r for r in rows if r['kind']==kind and r['status']==status],key=lambda r:r['url'])[:5])
+          output=[]
+          client=NSEClient(timeout=12,attempts=1)
+          dest=pathlib.Path('/tmp/h005-client-probe')
+          (dest/'raw').mkdir(parents=True,exist_ok=True)
+          for row in sample:
+              record={'url':row['url'],'collector_status':row['status'],'kind':row['kind']}
+              try:
+                  raw=client.archive_bytes(row['url'])
+                  sha=hashlib.sha256(raw).hexdigest()
+                  (dest/'raw'/sha).write_bytes(raw)
+                  record.update(status='OK',sha256=sha,bytes=len(raw),matches_retained=row.get('sha256')==sha if row['status']=='OK' else None)
+              except Exception as exc:
+                  record.update(status='FAILED',error=str(exc))
+              output.append(record)
+              time.sleep(.2)
+          (dest/'results.json').write_text(json.dumps(output,indent=2)+'\n')
+          print(json.dumps(output,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: h005-archive-client-probe
+          path: /tmp/h005-client-probe
+          retention-days: 30
