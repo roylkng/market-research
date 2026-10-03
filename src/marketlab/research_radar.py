@@ -7,7 +7,7 @@ from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 
-RADAR_ID = "RR001-v1"
+RADAR_ID = "RR001-v2"
 CLASSIFICATION = "RESEARCH_PRIORITY_ONLY_NO_EXPECTED_RETURN"
 SHORTLIST_SIZE = 15
 SECTOR_CAP_PER_SHORTLIST = 2
@@ -275,6 +275,24 @@ def build_research_priority_radar(
             and not isinstance(analyst_count, bool)
             and analyst_count >= 5
         )
+        consensus_eps = _finite_or_none(consensus.get("consensus_eps"))
+        eps_currency = str(consensus.get("eps_currency") or "")
+        forward_eps_yield = (
+            consensus_eps / current_close
+            if reliable_consensus
+            and eps_currency == "INR"
+            and consensus_eps is not None
+            and current_close is not None
+            and current_close > 0
+            else None
+        )
+        forward_pe = (
+            current_close / consensus_eps
+            if forward_eps_yield is not None
+            and consensus_eps is not None
+            and consensus_eps > 0
+            else None
+        )
 
         raw[symbol] = {
             "symbol": symbol,
@@ -303,6 +321,12 @@ def build_research_priority_radar(
             "consensus_target_upside": (
                 target_upside if reliable_consensus else None
             ),
+            "consensus_eps": (
+                consensus_eps if reliable_consensus else None
+            ),
+            "eps_currency": eps_currency or None,
+            "forward_eps_yield": forward_eps_yield,
+            "forward_pe": forward_pe,
             "analyst_count": analyst_count,
             "consensus_primary_reliable": reliable_consensus,
             "consensus_data_state": consensus.get("data_state"),
@@ -326,11 +350,8 @@ def build_research_priority_radar(
     growth_revenue = _rank_percentiles(
         {symbol: raw[symbol]["revenue_growth_forecast_pct"] for symbol in symbols}
     )
-    growth_profit = _rank_percentiles(
-        {symbol: raw[symbol]["profit_growth_estimate_pct"] for symbol in symbols}
-    )
-    target_upside = _rank_percentiles(
-        {symbol: raw[symbol]["consensus_target_upside"] for symbol in symbols}
+    eps_yield = _rank_percentiles(
+        {symbol: raw[symbol]["forward_eps_yield"] for symbol in symbols}
     )
 
     short_score = _score(
@@ -339,11 +360,11 @@ def build_research_priority_radar(
     )
     mid_score = _score(
         symbols,
-        [mid_rel60, growth_revenue, growth_profit, target_upside],
+        [mid_rel60, growth_revenue, eps_yield],
     )
     long_score = _score(
         symbols,
-        [growth_revenue, growth_profit, target_upside],
+        [growth_revenue, eps_yield],
     )
 
     records = []
@@ -360,13 +381,11 @@ def build_research_priority_radar(
                 "mid": {
                     "relative_momentum_60_percentile": mid_rel60[symbol],
                     "revenue_growth_percentile": growth_revenue[symbol],
-                    "profit_growth_percentile": growth_profit[symbol],
-                    "target_upside_percentile": target_upside[symbol],
+                    "forward_eps_yield_percentile": eps_yield[symbol],
                 },
                 "long": {
                     "revenue_growth_percentile": growth_revenue[symbol],
-                    "profit_growth_percentile": growth_profit[symbol],
-                    "target_upside_percentile": target_upside[symbol],
+                    "forward_eps_yield_percentile": eps_yield[symbol],
                 },
             },
             "research_priority_score": {
@@ -403,6 +422,10 @@ def build_research_priority_radar(
                     "profit_growth_estimate_pct"
                 ],
                 "consensus_target_upside": row["consensus_target_upside"],
+                "consensus_eps": row["consensus_eps"],
+                "eps_currency": row["eps_currency"],
+                "forward_eps_yield": row["forward_eps_yield"],
+                "forward_pe": row["forward_pe"],
                 "analyst_count": row["analyst_count"],
                 "h022_context": row["h022_context"],
             }
@@ -443,6 +466,24 @@ def build_research_priority_radar(
         ),
         "h023_event_count": int(h023_event_count),
         "h024_primary_event_count": int(h024_primary_event_count),
+        "consensus_field_coverage": {
+            "revenue_growth_reliable_count": sum(
+                row["revenue_growth_forecast_pct"] is not None
+                for row in raw.values()
+            ),
+            "forward_eps_yield_reliable_count": sum(
+                row["forward_eps_yield"] is not None
+                for row in raw.values()
+            ),
+            "profit_growth_reliable_count": sum(
+                row["profit_growth_estimate_pct"] is not None
+                for row in raw.values()
+            ),
+            "target_upside_reliable_count": sum(
+                row["consensus_target_upside"] is not None
+                for row in raw.values()
+            ),
+        },
         "score_contract": {
             "short": [
                 "EQUAL_WEIGHT_PERCENTILE:20D_STOCK_MINUS_NIFTY500_RETURN",
@@ -452,13 +493,11 @@ def build_research_priority_radar(
             "mid": [
                 "EQUAL_WEIGHT_PERCENTILE:60D_STOCK_MINUS_NIFTY500_RETURN",
                 "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_REVENUE_GROWTH",
-                "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_PROFIT_GROWTH",
-                "EQUAL_WEIGHT_PERCENTILE:CONSENSUS_TARGET_UPSIDE",
+                "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_EPS_YIELD",
             ],
             "long": [
                 "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_REVENUE_GROWTH",
-                "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_PROFIT_GROWTH",
-                "EQUAL_WEIGHT_PERCENTILE:CONSENSUS_TARGET_UPSIDE",
+                "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_EPS_YIELD",
             ],
             "missing_component_policy": "ZERO_CONTRIBUTION_NO_IMPUTATION",
             "consensus_reliability_gate": "ANALYST_COUNT_AT_LEAST_5",
@@ -508,7 +547,7 @@ def render_radar_markdown(report: dict[str, Any]) -> str:
             [
                 f"## {titles[horizon]}",
                 "",
-                "| # | Symbol | Industry | Priority | 20D rel | 60D rel | Rev g. | Profit g. | Target upside |",
+                "| # | Symbol | Industry | Priority | 20D rel | 60D rel | Rev g. | EPS yield | Fwd P/E |",
                 "|---:|---|---|---:|---:|---:|---:|---:|---:|",
             ]
         )
@@ -534,8 +573,12 @@ def render_radar_markdown(report: dict[str, Any]) -> str:
                         pct(row["relative_momentum_20"]),
                         pct(row["relative_momentum_60"]),
                         pp(row["revenue_growth_forecast_pct"]),
-                        pp(row["profit_growth_estimate_pct"]),
-                        pct(row["consensus_target_upside"]),
+                        pct(row["forward_eps_yield"]),
+                        (
+                            "—"
+                            if row["forward_pe"] is None
+                            else f"{float(row['forward_pe']):.1f}x"
+                        ),
                     ]
                 )
                 + " |"
@@ -546,7 +589,8 @@ def render_radar_markdown(report: dict[str, Any]) -> str:
         [
             "## Interpretation",
             "",
-            "- Scores are equal-weight percentile heuristics frozen before this output was opened.",
+            "- V2 scores use only consensus fields with cohort-scale current coverage: revenue growth and annual EPS.",
+            "- Scores are equal-weight percentile heuristics; no weight is fitted to subsequent returns.",
             "- Missing consensus components contribute zero rather than being imputed.",
             "- Analyst count must be at least 5 for consensus-derived components.",
             "- Sector balancing caps each shortlist at two names per frozen constituent industry.",
