@@ -1,0 +1,61 @@
+schema_version: 1
+id: AB001-P004-v1
+name: regime_conditioned_alpha_efficacy_selector
+status: FROZEN_BEFORE_RG001_VALUES_OPENED
+created: 2026-10-03
+live_capital_allowed: false
+
+source_alpha:
+  pilot: AB001-P003-v1
+  workflow_run_id: 36703199954
+  artifact_id: 11090624849
+  report_sha256: 0d833a280dcc741ebba13bfe8b753689b7ff1ad41f0b2c13181fd8b0c37552c6
+  library_sha256: 4e04142bb3b33ca9f1c86de456bed1e5479d7d6c89bd72e59bff14b5c713ec36
+  horizon_sessions: 5
+  alpha_families:
+    - CORE27
+    - FUTURES_DELTA
+
+source_context:
+  panel: AE001-RG001-v1
+  variables:
+    - nifty500_return_20
+    - nifty500_realized_vol_20
+    - breadth_positive_momentum20_fraction
+
+training:
+  maturity_rule: exit_session_lt_decision_session
+  minimum_matured_sessions: 40
+  context_normalization: TRAINING_ONLY_ZSCORE
+  zero_std_policy: MAP_TO_ZERO
+  model: RIDGE_WITH_INTERCEPT
+  ridge_lambda: 1.0
+  hyperparameter_search: prohibited
+
+selector:
+  target: FUTURES_DELTA_RANK_IC_MINUS_CORE27_RANK_IC
+  threshold: 0.0
+  positive_choice: FUTURES_DELTA
+  nonpositive_choice: CORE27
+
+baselines:
+  - ALWAYS_FUTURES_DELTA
+  - STATIC_EQUAL_BLEND
+
+primary_endpoint:
+  metric: paired_daily_mean_rank_ic_delta_vs_always_futures_delta
+  newey_west_lag: 4
+  support_requires:
+    mean_delta_gt: 0.0
+    two_sided_p_lt: 0.05
+
+secondary_endpoints:
+  - top_decile_excess_delta_vs_always_futures_delta
+  - top_minus_bottom_spread_delta_vs_always_futures_delta
+  - rank_ic_delta_vs_static_equal_blend
+  - spread_delta_vs_static_equal_blend
+  - selector_directional_accuracy
+
+secondary_may_rescue_primary: false
+prospective_claim_allowed: false
+live_capital_allowed: false
