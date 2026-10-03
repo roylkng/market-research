@@ -5,8 +5,8 @@ import pytest
 from marketlab.ab001 import build_alpha_library
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.ab001_p004 import (
-    CONTEXT_VARIABLES,
     _fit_context_ridge,
+    CONTEXT_VARIABLES,
     run_ab001_p004,
 )
 
