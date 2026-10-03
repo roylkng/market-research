@@ -63,6 +63,13 @@ def validate_rta001_manifest(manifest: dict[str, Any]) -> None:
             raise AlphaContractError(
                 f"RTA001 {trial_id} references unknown FDR family {family}"
             )
+        if family is not None and not isinstance(
+            trial.get("scientifically_preregistered_before_outcomes"),
+            bool,
+        ):
+            raise AlphaContractError(
+                f"RTA001 {trial_id} must declare scientific preregistration"
+            )
         if (
             family is not None
             and trial.get("result_state") == "COMPLETE"
