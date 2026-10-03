@@ -39,7 +39,8 @@ def _consensus():
             {
                 "symbol": f"S{index:03d}",
                 "isin": f"INE{index:09d}",
-                "consensus_eps": 10.0,
+                "consensus_eps": 10.0 + index / 10.0,
+                "eps_currency": "INR",
                 "revenue_growth_forecast_pct": float(index),
                 "profit_growth_estimate_pct": float(index) / 2.0,
                 "analyst_count": 8,
@@ -110,6 +111,7 @@ def test_rr001_builds_three_non_outcome_research_queues():
         consensus_payload_sha256="a" * 64,
     )
     assert radar["classification"] == "RESEARCH_PRIORITY_ONLY_NO_EXPECTED_RETURN"
+    assert radar["radar_id"] == "RR001-v2"
     assert radar["universe_member_count"] == 100
     assert radar["outcomes_opened"] is False
     assert radar["portfolio_eligibility_allowed"] is False
@@ -137,6 +139,8 @@ def test_rr001_missing_consensus_is_not_imputed_or_promoted():
     assert row["revenue_growth_forecast_pct"] is None
     assert row["profit_growth_estimate_pct"] is None
     assert row["consensus_target_upside"] is None
+    assert row["forward_eps_yield"] is None
+    assert row["forward_pe"] is None
 
 
 def test_rr001_sector_balancing_caps_each_industry_at_two():
