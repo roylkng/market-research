@@ -1,0 +1,54 @@
+name: RTA001 global trial accounting build
+
+on:
+  push:
+    branches:
+      - feat/rta001-global-research-accounting-20261003
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[rta001-build]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify RTA001 implementation
+        run: |
+          ruff check \
+            src/marketlab/rta001.py \
+            scripts/build_rta001_summary.py \
+            tests/test_rta001.py
+          pytest -q tests/test_rta001.py
+
+      - name: Build verified global accounting summary
+        run: |
+          python scripts/build_rta001_summary.py \
+            --manifest research/rta001-trials-v1.json \
+            --output research/rta001-summary-v1.json \
+            --repo-root . | tee /tmp/rta001-summary.log
+          cat research/rta001-summary-v1.json
+
+      - name: Commit deterministic summary
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/rta001-summary-v1.json
+          if git diff --cached --quiet; then
+            echo "RTA001 summary already current"
+            exit 0
+          fi
+          git commit -m "research: materialize verified RTA001 global summary [skip ci]"
+          git push origin HEAD:feat/rta001-global-research-accounting-20261003

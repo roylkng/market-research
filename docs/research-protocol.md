@@ -54,3 +54,42 @@ A result may be marked `PROMISING` only when it:
 ## Live-capital gate
 
 No live-capital deployment is allowed from repository research until a separate live-capital policy is created and explicitly approved. Current status: **disabled**.
+
+## Global research-trial accounting
+
+Per-trial freezing is necessary but not sufficient once the lab runs many
+experiments.
+
+Every outcome-bearing research trial must also be represented in:
+
+`research/rta001-trials-v1.json`
+
+before its result is opened whenever operationally possible.
+
+The global entry records:
+
+- trial identity;
+- scientific category;
+- registration mode;
+- frozen primary endpoint;
+- reported primary support state;
+- scalar primary p-value when valid;
+- multiple-testing family when applicable;
+- result/source provenance.
+
+Rules:
+
+1. Secondary or diagnostic endpoints never replace a failed frozen primary.
+2. A trial discovered to be missing from the global ledger is backfilled as
+   `RETROSPECTIVE_ACCOUNTING_BACKFILL`; omission never removes it from the
+   research budget.
+3. Feature-discovery trials are evaluated under RTA001 family-level
+   multiplicity diagnostics in addition to their original nominal inference.
+4. Combination diagnostics, portfolio integration, source feasibility,
+   risk-model and solver studies remain globally counted but are not silently
+   pooled into the stock-alpha FDR family.
+5. A nominally supported historical result that is not multiplicity-robust is
+   preserved as nominally supported, but promotion language must disclose the
+   global accounting result.
+6. Prospective confirmation remains the preferred route for promotion.
+

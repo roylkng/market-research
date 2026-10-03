@@ -1,0 +1,36 @@
+schema_version: 1
+id: RTA001-v1
+name: global_research_trial_accounting
+status: GOVERNANCE_FOUNDATION
+created: 2026-10-03
+live_capital_allowed: false
+
+categories:
+  - MECHANISM_HYPOTHESIS
+  - ALPHA_FEATURE_DISCOVERY
+  - ALPHA_COMBINATION_DIAGNOSTIC
+  - PORTFOLIO_CONTEXT
+  - PORTFOLIO_INTEGRATION
+  - RISK_MODEL
+  - SOURCE_FEASIBILITY
+  - SOLVER_STABILITY
+
+fdr_families:
+  ALPHA_FEATURE_DISCOVERY_V1:
+    category: ALPHA_FEATURE_DISCOVERY
+    alpha: 0.05
+    methods:
+      - BENJAMINI_HOCHBERG
+      - BENJAMINI_YEKUTIELI
+      - HOLM
+      - BONFERRONI
+    gate_based_failed_trial_accounting_p_value: 1.0
+    pending_trials_enter_adjustment: false
+
+primary_endpoint_policy:
+  secondary_can_rescue_primary: false
+  intersection_union_composite_p: MAX_REQUIRED_COMPONENT_P_VALUES
+  gate_based_no_scalar_p: EXPLICIT_NO_SINGLE_P_VALUE
+
+manifest: research/rta001-trials-v1.json
+summary: research/rta001-summary-v1.json
