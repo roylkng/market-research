@@ -24,6 +24,12 @@ It answers:
 
 Every registered study belongs to exactly one category.
 
+### MECHANISM_HYPOTHESIS
+
+Legacy/frozen mechanism hypotheses such as the H-series. These remain globally
+counted even when their endpoint is not commensurate with the AE001 feature
+discovery family.
+
 ### ALPHA_FEATURE_DISCOVERY
 
 A historical or prospective test whose primary scientific question is whether a
