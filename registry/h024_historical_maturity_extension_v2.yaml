@@ -1,0 +1,59 @@
+schema_version: 1
+id: H024-HISTORICAL-MATURITY-EXTENSION-v2
+name: direct_insider_purchase_sealed_cohort_maturity_extension
+status: FROZEN_BEFORE_ADDITIONAL_OUTCOME_MATERIALIZATION
+created: 2026-10-03
+live_capital_allowed: false
+
+input:
+  event_panel_path: research/historical/h024/challenge-2026-09-15/event-panel.json
+  event_panel_sha256: 65b957a2a66144194690f0298602ca0118eb4af8e725cce5df7549da6b1baec4
+  event_count: 209
+  event_symbol_count: 79
+  rebuild_event_panel: false
+
+reference_v1:
+  summary_path: research/historical/h024/challenge-2026-09-15/outcome-summary.json
+  primary_classification: INSUFFICIENT_COVERAGE
+  complete_60_event_count: 105
+  complete_60_symbol_count: 42
+
+market:
+  cutoff_session: 2026-10-01
+  benchmark: nifty_500
+  equity_source: NSE_CM_UDIFF_FINAL
+  extend_event_discovery: false
+
+outcomes:
+  horizons_sessions: [20, 60, 120]
+  entry_price: sealed_entry_session_open
+  exit_price: horizon_session_close
+  round_trip_cost_stress_pp: 0.50
+
+bootstrap:
+  iterations: 10000
+  seed: 24024
+  cluster: symbol
+
+primary_60d:
+  minimum_complete_events: 100
+  minimum_distinct_symbols: 50
+  minimum_complete_share: 0.80
+  strong:
+    mean_excess_pp_min: 4.0
+    bootstrap_lower_bound_gt: 0.0
+    benchmark_beat_rate_min: 0.55
+    robustness_means_positive: true
+  promising:
+    mean_excess_pp_min: 2.0
+    median_excess_pp_gt: 0.0
+    benchmark_beat_rate_min: 0.55
+    robustness_means_positive: true
+
+prohibited:
+  - event_discovery_change
+  - signal_change
+  - purchase_value_weighting
+  - threshold_change
+  - prospective_claim
+  - live_capital
