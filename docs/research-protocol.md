@@ -93,3 +93,22 @@ Rules:
    global accounting result.
 6. Prospective confirmation remains the preferred route for promotion.
 
+### CI accounting gate
+
+Repository CI fails closed when any of the following occurs:
+
+- a new `research/**/*result*.json` artifact exists without an explicit RTA001
+  trial result path or source-feasibility entry;
+- an `AE001` `TRIAL_REGISTERED` event is absent from the RTA001 trial manifest;
+- a canonical hypothesis in `registry/hypotheses.yaml` is absent from RTA001;
+- RTA001 references a result artifact that no longer exists;
+- the checked-in `research/rta001-summary-v1.json` does not exactly match the
+  current explicit manifest.
+
+The gate detects missing accounting only. It does not infer scientific category,
+primary endpoint, preregistration status, p-value, or FDR family. Those remain
+explicit reviewed research decisions.
+
+This means a new result cannot become invisible simply because its author forgot
+to update the global accounting surface.
+
