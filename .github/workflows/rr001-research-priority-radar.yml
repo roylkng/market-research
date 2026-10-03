@@ -57,24 +57,41 @@ jobs:
             --market-start 2026-06-01 \
             --market-end 2026-10-01 \
             --store .marketlab/rr001 \
-            --output-json research/rr001/radar-2026-10-01-v1.json \
-            --output-md research/rr001/radar-2026-10-01-v1.md \
+            --output-json research/rr001/radar-2026-10-01-v2.json \
+            --output-md research/rr001/radar-2026-10-01-v2.md \
             --attempts 4 \
             --timeout-seconds 30 | tee /tmp/rr001.log
-          cat research/rr001/radar-2026-10-01-v1.md
+          cat research/rr001/radar-2026-10-01-v2.md
+          python - <<'PY'
+          import json
+
+          path = "research/rr001/radar-2026-10-01-v2.json"
+          radar = json.load(open(path))
+          assert radar["radar_id"] == "RR001-v2"
+          coverage = radar["consensus_field_coverage"]
+          assert coverage["revenue_growth_reliable_count"] == 95
+          assert coverage["forward_eps_yield_reliable_count"] == 95
+          assert coverage["profit_growth_reliable_count"] == 0
+          assert coverage["target_upside_reliable_count"] == 0
+          assert radar["score_contract"]["long"] == [
+              "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_REVENUE_GROWTH",
+              "EQUAL_WEIGHT_PERCENTILE:CURRENT_FORWARD_EPS_YIELD",
+          ]
+          print("RR001-v2 coverage and score contract verified")
+          PY
 
       - name: Commit immutable RR001 materialization
         run: |
           set -euo pipefail
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add research/rr001/radar-2026-10-01-v1.json
-          git add research/rr001/radar-2026-10-01-v1.md
+          git add research/rr001/radar-2026-10-01-v2.json
+          git add research/rr001/radar-2026-10-01-v2.md
           if git diff --cached --quiet; then
             echo "RR001 radar already materialized"
             exit 0
           fi
-          git commit -m "RR001: materialize 2026-10-01 research radar [skip ci]"
+          git commit -m "RR001: materialize 2026-10-01 v2 research radar [skip ci]"
           git push origin HEAD:feat/rr001-research-priority-radar-20261003
 
       - name: Retain raw official market evidence
