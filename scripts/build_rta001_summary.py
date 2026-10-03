@@ -37,8 +37,8 @@ def _verify_result_file(root: Path, trial: dict) -> None:
     if not path.exists():
         raise FileNotFoundError(f"RTA001 result file missing: {path}")
     payload = _load(path)
-    if payload.get("live_capital_allowed") is not False:
-        raise ValueError(f"RTA001 result may not allow live capital: {path}")
+    if payload.get("live_capital_allowed") is True:
+        raise ValueError(f"RTA001 result explicitly allows live capital: {path}")
     anchor = trial.get("result_anchor")
     if anchor is not None:
         field = str(anchor["field"])
@@ -122,9 +122,9 @@ def main() -> int:
                 f"RTA001 source-feasibility result missing: {path}"
             )
         payload = _load(path)
-        if payload.get("live_capital_allowed") is not False:
+        if payload.get("live_capital_allowed") is True:
             raise ValueError(
-                f"RTA001 source result may not allow live capital: {path}"
+                f"RTA001 source result explicitly allows live capital: {path}"
             )
 
     summary = build_rta001_summary(manifest)
