@@ -28,6 +28,9 @@ EXPECTED_P003_REPORT_SHA = (
 EXPECTED_P003_LIBRARY_SHA = (
     "4e04142bb3b33ca9f1c86de456bed1e5479d7d6c89bd72e59bff14b5c713ec36"
 )
+EXPECTED_P003_MARKET_SHA = (
+    "9e644012720084a693071a40ce9c592b4586f8c6cee8445fcf7aa599be94b41e"
+)
 
 CONTEXT_VARIABLES = (
     "nifty500_return_20",
@@ -65,6 +68,10 @@ def _verify_sources(
     _verify_hash(regime_panel, field="panel_sha256", label="RG001 panel")
     if regime_panel.get("panel_id") != "AE001-RG001-v1":
         raise AlphaContractError("AB001 P004 unexpected RG001 panel id")
+    if regime_panel.get("market_panel_sha256") != EXPECTED_P003_MARKET_SHA:
+        raise AlphaContractError(
+            "AB001 P004 RG001 market source differs from frozen P003 panel"
+        )
     if regime_panel.get("stock_level_alpha") is not False:
         raise AlphaContractError("AB001 P004 RG001 must not be stock-level alpha")
     if regime_panel.get("outcomes_attached") is not False:
