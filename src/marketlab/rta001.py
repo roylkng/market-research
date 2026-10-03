@@ -9,6 +9,7 @@ from marketlab.alpha import AlphaContractError, digest
 RTA001_ID = "RTA001-v1"
 ALPHA = 0.05
 CATEGORIES = {
+    "MECHANISM_HYPOTHESIS",
     "ALPHA_FEATURE_DISCOVERY",
     "ALPHA_COMBINATION_DIAGNOSTIC",
     "PORTFOLIO_CONTEXT",
