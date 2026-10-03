@@ -94,7 +94,7 @@ def _market():
     # Replace synthetic dates with strictly valid/canonical session-like dates.
     from datetime import date, timedelta
 
-    start = date(2026, 7, 1)
+    start = date(2026, 8, 1)
     for index, session in enumerate(sessions):
         session["session_date"] = (start + timedelta(days=index)).isoformat()
     panel = {"sessions": sessions, "panel_id": "TEST"}
