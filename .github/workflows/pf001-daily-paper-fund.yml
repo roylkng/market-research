@@ -104,6 +104,7 @@ jobs:
 
       - name: Check exchange session
         id: market_session
+        if: steps.session.outputs.state == 'PENDING'
         run: |
           STATUS="$(python - <<'PY'
           import json
