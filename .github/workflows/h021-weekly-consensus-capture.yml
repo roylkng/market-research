@@ -3,9 +3,13 @@ name: H021 weekly consensus capture
 on:
   workflow_dispatch:
   schedule:
-    # 18:15 Asia/Kolkata. The frozen NSE calendar decides whether today is
-    # the final completed cash-market session of the week.
+    # Redundant post-close attempts at 18:15, 18:45 and 19:15 Asia/Kolkata.
+    # The frozen NSE calendar still decides whether today is the final
+    # completed cash-market session of the week. Redundancy protects the
+    # immutable weekly capture from a missed GitHub scheduled event.
     - cron: '45 12 * * 1-5'
+    - cron: '15 13 * * 1-5'
+    - cron: '45 13 * * 1-5'
 
 permissions:
   contents: write
@@ -67,6 +71,14 @@ jobs:
           print(payload['state'])
           PY
           )"
+          if [ "$STATE" = "CAPTURE" ]; then
+            git fetch origin main
+            CAPTURE_PATH="research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.manifest.json"
+            if git cat-file -e "origin/main:${CAPTURE_PATH}" 2>/dev/null; then
+              STATE="ALREADY_CAPTURED"
+              echo "H021 weekly capture already anchored on origin/main: ${CAPTURE_PATH}"
+            fi
+          fi
           echo "capture_date=$CAPTURE_DATE" >> "$GITHUB_OUTPUT"
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
           echo "work_dir=$WORK" >> "$GITHUB_OUTPUT"

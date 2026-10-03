@@ -67,3 +67,16 @@ def test_h021_workflow_artifact_retains_machine_sealed_bytes() -> None:
     assert '"$WORK/sealed-capture.json.gz"' in workflow
     assert '"$WORK/sealed-capture.manifest.json"' in workflow
     assert '"$WORK/sealed-capture.md"' in workflow
+
+
+def test_h021_workflow_has_redundant_idempotent_schedule() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    for cron in (
+        "45 12 * * 1-5",
+        "15 13 * * 1-5",
+        "45 13 * * 1-5",
+    ):
+        assert f"cron: '{cron}'" in workflow
+    assert 'git fetch origin main' in workflow
+    assert 'git cat-file -e "origin/main:${CAPTURE_PATH}"' in workflow
+    assert 'STATE="ALREADY_CAPTURED"' in workflow
