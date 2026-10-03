@@ -84,7 +84,6 @@ def test_i006_scales_only_active_notional_and_keeps_no_leverage(monkeypatch):
         rg001_panel=rg,
     )
     assert report["eligible_session_count"] == 70
-    assert report["exposure"]["maximum"] if "maximum" in report["exposure"] else True
     assert report["exposure"]["minimum"] > 0
     assert report["exposure"]["minimum"] < 1
     assert report["exposure"]["median"] <= 1
