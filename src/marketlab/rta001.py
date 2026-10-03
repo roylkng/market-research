@@ -182,8 +182,8 @@ def _family_analysis(
         and trial.get("fdr_accounting_p_value") is not None
         and (
             not preregistered_only
-            or trial.get("registration_mode")
-            != "RETROSPECTIVE_ACCOUNTING_BACKFILL"
+            or trial.get("scientifically_preregistered_before_outcomes")
+            is True
         )
     ]
     p_rows = [
