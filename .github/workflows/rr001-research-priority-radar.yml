@@ -1,0 +1,90 @@
+name: RR001 research priority radar build
+
+on:
+  push:
+    branches:
+      - feat/rr001-research-priority-radar-20261003
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rr001-research-priority-radar
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[rr001-build]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: feat/rr001-research-priority-radar-20261003
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen RR001 implementation
+        run: |
+          ruff check \
+            src/marketlab/research_radar.py \
+            scripts/build_rr001_research_radar.py \
+            tests/test_research_radar.py
+          pytest -q \
+            tests/test_research_radar.py \
+            tests/test_alpha_market.py \
+            tests/test_h021.py \
+            tests/test_h021_capture.py
+
+      - name: Build official-source RR001 radar
+        run: |
+          rm -rf .marketlab/rr001
+          mkdir -p research/rr001
+          python scripts/build_rr001_research_radar.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --batch-spec research/prospective/h021/capture-batches-v1.json \
+            --consensus-payload research/prospective/h021/captures/2026-09-25-full-u001-v1.json.gz \
+            --consensus-manifest research/prospective/h021/captures/2026-09-25-full-u001-v1.manifest.json \
+            --h022 research/prospective/h022/P001/signal-ledger.json \
+            --h023 research/prospective/h023/event-ledger.json \
+            --h024-summary research/prospective/h024/summary.json \
+            --market-start 2026-06-01 \
+            --market-end 2026-10-01 \
+            --store .marketlab/rr001 \
+            --output-json research/rr001/radar-2026-10-01-v1.json \
+            --output-md research/rr001/radar-2026-10-01-v1.md \
+            --attempts 4 \
+            --timeout-seconds 30 | tee /tmp/rr001.log
+          cat research/rr001/radar-2026-10-01-v1.md
+
+      - name: Commit immutable RR001 materialization
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/rr001/radar-2026-10-01-v1.json
+          git add research/rr001/radar-2026-10-01-v1.md
+          if git diff --cached --quiet; then
+            echo "RR001 radar already materialized"
+            exit 0
+          fi
+          git commit -m "RR001: materialize 2026-10-01 research radar [skip ci]"
+          git push origin HEAD:feat/rr001-research-priority-radar-20261003
+
+      - name: Retain raw official market evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rr001-official-market-evidence-${{ github.run_id }}
+          path: |
+            .marketlab/rr001
+            /tmp/rr001.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 90
