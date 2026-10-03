@@ -7,6 +7,7 @@ from typing import Any
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_prospective_futures_sources import validate_futures_source_ledger
 from marketlab.alpha_prospective_sources import validate_source_ledger
+from marketlab.alpha_preopen_successor import preopen_successor_readiness
 from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc003_ledger
 from marketlab.alpha_t004_readiness import validate_t004_readiness
 from marketlab.calendar_snapshot import CalendarSnapshot
@@ -487,6 +488,10 @@ def build_prospective_health_summary(
     )
     sc002 = _sc002_state(sc002_ledger)
     sc003 = _sc003_state(sc003_ledger)
+    preopen_successor = preopen_successor_readiness(
+        sc003_ledger,
+        calendar=calendar,
+    )
     rm001_size = _rm001_size_state(
         rm001_sc001_size_ledger,
         as_of_date=day,
@@ -604,6 +609,7 @@ def build_prospective_health_summary(
             "SC001": sc001,
             "SC002": sc002,
             "SC003": sc003,
+            "T005_PREOPEN_SUCCESSOR": preopen_successor,
             "RM001_SC001_SIZE": rm001_size,
             "RM001_SC002_INDUSTRY": rm001_industry,
             "T004": t004,
