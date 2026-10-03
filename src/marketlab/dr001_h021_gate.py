@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any
-
 
 GATE_ID = "DR001-H021-TIER-A-GATE-v1"
 EXPECTED_H021_SIGNAL = "28-35 day same-period consensus EPS revision"
@@ -12,12 +10,12 @@ def _is_number(value: object) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def _require_false(payload: dict[str, Any], field: str, label: str) -> None:
+def _require_false(payload: dict, field: str, label: str) -> None:
     if payload.get(field) is not False:
         raise ValueError(f"{label} requires {field}=false")
 
 
-def _validate_dossier_pack(dossiers: dict[str, Any]) -> list[dict[str, Any]]:
+def _validate_dossier_pack(dossiers: dict) -> list[dict]:
     if dossiers.get("schema_version") != 1:
         raise ValueError("dossier pack schema_version must equal 1")
     if dossiers.get("classification") != "POINT_IN_TIME_RESEARCH_DOSSIER_NOT_FORECAST":
@@ -36,7 +34,7 @@ def _validate_dossier_pack(dossiers: dict[str, Any]) -> list[dict[str, Any]]:
     symbols: list[str] = []
     for company in companies:
         if not isinstance(company, dict):
-            raise ValueError("each dossier company must be an object")
+            raise TypeError("each dossier company must be an object")
         symbol = company.get("symbol")
         if not isinstance(symbol, str) or not symbol.strip():
             raise ValueError("each dossier company requires a non-empty symbol")
@@ -46,7 +44,7 @@ def _validate_dossier_pack(dossiers: dict[str, Any]) -> list[dict[str, Any]]:
     return companies
 
 
-def _validate_comparison(comparison: dict[str, Any]) -> list[dict[str, Any]]:
+def _validate_comparison(comparison: dict) -> list[dict]:
     if comparison.get("schema_version") != 1:
         raise ValueError("H021 comparison schema_version must equal 1")
     if comparison.get("hypothesis_id") != "H021":
@@ -63,7 +61,7 @@ def _validate_comparison(comparison: dict[str, Any]) -> list[dict[str, Any]]:
     symbols: list[str] = []
     for row in observations:
         if not isinstance(row, dict):
-            raise ValueError("each revision observation must be an object")
+            raise TypeError("each revision observation must be an object")
         symbol = row.get("symbol")
         if not isinstance(symbol, str) or not symbol.strip():
             raise ValueError("each revision observation requires a symbol")
@@ -82,7 +80,7 @@ def _validate_comparison(comparison: dict[str, Any]) -> list[dict[str, Any]]:
     return observations
 
 
-def _classify(row: dict[str, Any], *, in_primary_top_decile: bool) -> tuple[str, str]:
+def _classify(row: dict, *, in_primary_top_decile: bool) -> tuple[str, str]:
     available = row.get("primary_signal_available")
     reason = row.get("primary_signal_reason")
     revision = row.get("eps_revision_pct")
@@ -110,14 +108,14 @@ def _classify(row: dict[str, Any], *, in_primary_top_decile: bool) -> tuple[str,
 
 
 def build_tier_a_h021_gate(
-    dossiers: dict[str, Any],
-    comparison: dict[str, Any],
+    dossiers: dict,
+    comparison: dict,
     *,
     dossier_path: str,
     comparison_path: str,
     dossier_sha256: str,
     comparison_sha256: str,
-) -> dict[str, Any]:
+) -> dict:
     companies = _validate_dossier_pack(dossiers)
     observations = _validate_comparison(comparison)
 
@@ -128,7 +126,7 @@ def build_tier_a_h021_gate(
         raise ValueError(f"H021 comparison is missing Tier A symbols: {missing}")
 
     top_decile = set(comparison["primary_top_decile_symbols"])
-    output_rows: list[dict[str, Any]] = []
+    output_rows: list[dict] = []
     for company in companies:
         symbol = company["symbol"]
         row = observation_by_symbol[symbol]
