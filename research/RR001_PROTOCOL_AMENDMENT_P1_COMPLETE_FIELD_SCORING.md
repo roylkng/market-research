@@ -114,3 +114,25 @@ rewritten.
 RR001-v2 remains a research-attention queue only.
 
 It is not a buy list, expected-return model, or PF001 eligibility rule.
+
+## Materialized v2 result
+
+The frozen P1 implementation was materialized from official NSE history through
+2026-10-01 and the byte-verified H021 2026-09-25 capture.
+
+Observed coverage:
+
+- reliable forward revenue growth: 95 / 100;
+- reliable INR annual EPS yield: 93 / 100;
+- reliable profit-growth estimate: 0 / 100;
+- reliable consensus target upside: 0 / 100.
+
+Canonical v2 artifact:
+
+`research/rr001/radar-2026-10-01-v2.json`
+
+RR001-v2 radar SHA-256:
+
+`371e978120e9ac2aeba1368cb00e2a82e9be6e42bfad80fde2834d9c433ac31c`
+
+The materialization does not open future-return outcomes.
