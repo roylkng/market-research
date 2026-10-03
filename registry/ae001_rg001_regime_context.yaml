@@ -1,0 +1,45 @@
+schema_version: 1
+id: AE001-RG001-v1
+name: investable_market_regime_context
+status: DEVELOPMENT_CONTEXT_PLANE
+created: 2026-10-03
+live_capital_allowed: false
+
+source:
+  market_panel: AE001-HISTORICAL-MARKET-v1
+  benchmark: nifty_500
+  equity_source: NSE_CM_EQ_UDIFF
+
+universe:
+  identity: symbol_plus_isin
+  contiguous_history_sessions: 61
+  prior_20d_median_turnover_inr_min: 20000000
+
+variables:
+  - nifty500_return_1
+  - nifty500_return_5
+  - nifty500_return_20
+  - nifty500_return_60
+  - nifty500_realized_vol_20
+  - nifty500_realized_vol_60
+  - nifty500_drawdown_from_60d_high
+  - breadth_advancer_fraction_1
+  - breadth_positive_momentum20_fraction
+  - breadth_median_return_1
+  - breadth_return_dispersion_1
+  - breadth_median_turnover_surprise20
+
+semantics:
+  stock_level_alpha: false
+  same_value_for_all_stocks_in_session: true
+  direct_cross_sectional_feature_use: prohibited
+  downstream_use_requires_separate_frozen_design: true
+
+deferred_macro:
+  - rates
+  - inr_fx
+  - crude_oil
+  - credit_spreads
+  - macro_releases
+
+outcomes_attached: false
