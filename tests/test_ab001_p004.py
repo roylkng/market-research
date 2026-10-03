@@ -141,6 +141,21 @@ def _source_payloads(session_count=70):
     return p003, regime
 
 
+
+def _patch_expected_sources(monkeypatch, p003, regime):
+    monkeypatch.setattr(
+        "marketlab.ab001_p004.EXPECTED_P003_REPORT_SHA",
+        p003["report_sha256"],
+    )
+    monkeypatch.setattr(
+        "marketlab.ab001_p004.EXPECTED_P003_LIBRARY_SHA",
+        p003["library"]["library_sha256"],
+    )
+    monkeypatch.setattr(
+        "marketlab.ab001_p004.EXPECTED_P003_MARKET_SHA",
+        regime["market_panel_sha256"],
+    )
+
 def test_context_ridge_learns_relative_efficacy_direction():
     training = []
     for index in range(40):
@@ -171,14 +186,7 @@ def test_context_ridge_learns_relative_efficacy_direction():
 
 def test_p004_walk_forward_selector_uses_only_mature_prior_sessions(monkeypatch):
     p003, regime = _source_payloads()
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_REPORT_SHA",
-        p003["report_sha256"],
-    )
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_LIBRARY_SHA",
-        p003["library"]["library_sha256"],
-    )
+    _patch_expected_sources(monkeypatch, p003, regime)
 
     report = run_ab001_p004(
         p003_report=p003,
@@ -198,14 +206,7 @@ def test_p004_walk_forward_selector_uses_only_mature_prior_sessions(monkeypatch)
 
 def test_p004_current_outcome_cannot_change_current_selector_choice(monkeypatch):
     p003, regime = _source_payloads()
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_REPORT_SHA",
-        p003["report_sha256"],
-    )
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_LIBRARY_SHA",
-        p003["library"]["library_sha256"],
-    )
+    _patch_expected_sources(monkeypatch, p003, regime)
     first = run_ab001_p004(p003_report=p003, regime_panel=regime)
 
     target_session = first["decisions"][-1]["feature_session"]
@@ -229,14 +230,7 @@ def test_p004_current_outcome_cannot_change_current_selector_choice(monkeypatch)
     unsigned_report.pop("report_sha256", None)
     p003["report_sha256"] = digest(unsigned_report)
 
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_REPORT_SHA",
-        p003["report_sha256"],
-    )
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_LIBRARY_SHA",
-        p003["library"]["library_sha256"],
-    )
+    _patch_expected_sources(monkeypatch, p003, regime)
     second = run_ab001_p004(p003_report=p003, regime_panel=regime)
     changed = next(
         row
@@ -251,14 +245,7 @@ def test_p004_current_outcome_cannot_change_current_selector_choice(monkeypatch)
 
 def test_p004_rejects_missing_frozen_context_variable(monkeypatch):
     p003, regime = _source_payloads()
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_REPORT_SHA",
-        p003["report_sha256"],
-    )
-    monkeypatch.setattr(
-        "marketlab.ab001_p004.EXPECTED_P003_LIBRARY_SHA",
-        p003["library"]["library_sha256"],
-    )
+    _patch_expected_sources(monkeypatch, p003, regime)
     regime["variable_names"].remove(CONTEXT_VARIABLES[0])
     unsigned = dict(regime)
     unsigned.pop("panel_sha256", None)
