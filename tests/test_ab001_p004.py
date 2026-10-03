@@ -3,12 +3,12 @@ from datetime import date, timedelta
 import pytest
 
 from marketlab.ab001 import build_alpha_library
-from marketlab.alpha import AlphaContractError, digest
 from marketlab.ab001_p004 import (
-    _fit_context_ridge,
     CONTEXT_VARIABLES,
+    _fit_context_ridge,
     run_ab001_p004,
 )
+from marketlab.alpha import AlphaContractError, digest
 
 
 def _source_payloads(session_count=70):
