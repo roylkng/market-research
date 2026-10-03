@@ -118,6 +118,30 @@ def test_relative_top_decile_cannot_advance_when_revision_is_nonpositive() -> No
     assert rows["DDD"]["valuation_red_team_allowed"] is False
 
 
+def test_ineligible_low_coverage_diagnostic_revision_does_not_advance() -> None:
+    comparison = _comparison()
+    comparison["revision_observations"][-1] = _row(
+        "EEE",
+        4.0,
+        available=False,
+        reason="ANALYST_COVERAGE_LT_5",
+    )
+
+    result = build_tier_a_h021_gate(
+        _dossiers(),
+        comparison,
+        dossier_path="dossiers.json",
+        comparison_path="comparison.json",
+        dossier_sha256="dossier-sha",
+        comparison_sha256="comparison-sha",
+    )
+
+    row = next(row for row in result["companies"] if row["symbol"] == "EEE")
+    assert row["eps_revision_pct"] == 4.0
+    assert row["gate_state"] == "NO_PRIMARY_SIGNAL"
+    assert row["valuation_red_team_allowed"] is False
+
+
 def test_gate_fails_closed_on_missing_tier_a_symbol() -> None:
     comparison = _comparison()
     comparison["revision_observations"] = [
