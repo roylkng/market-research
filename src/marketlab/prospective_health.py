@@ -5,9 +5,9 @@ from datetime import date
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha_preopen_successor import preopen_successor_readiness
 from marketlab.alpha_prospective_futures_sources import validate_futures_source_ledger
 from marketlab.alpha_prospective_sources import validate_source_ledger
-from marketlab.alpha_preopen_successor import preopen_successor_readiness
 from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc003_ledger
 from marketlab.alpha_t004_readiness import validate_t004_readiness
 from marketlab.calendar_snapshot import CalendarSnapshot
