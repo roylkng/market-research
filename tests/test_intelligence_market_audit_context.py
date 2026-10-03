@@ -1,6 +1,14 @@
 from __future__ import annotations
 
-from marketlab.intelligence_market_audit_context import apply_prospective_capture_context
+from datetime import UTC, datetime
+from types import SimpleNamespace
+
+import pytest
+
+from marketlab.intelligence_market_audit_context import (
+    apply_prospective_capture_context,
+    resolve_market_audit_session,
+)
 from marketlab.intelligence_prospective_news import empty_news_ledger, merge_news_ledger
 
 
@@ -92,3 +100,55 @@ def test_degraded_preopen_capture_is_not_scored_as_clean_miss():
         "PREOPEN_CAPTURE_DEGRADED_NOT_DISCOVERED": 1
     }
     assert result["prospective_capture_context"]["healthy_preopen_capture_count"] == 0
+
+
+def _audit_calendar():
+    return SimpleNamespace(
+        sessions=(
+            SimpleNamespace(
+                session_date="2026-10-01",
+                close_timestamp_utc="2026-10-01T10:00:00Z",
+            ),
+            SimpleNamespace(
+                session_date="2026-10-05",
+                close_timestamp_utc="2026-10-05T10:00:00Z",
+            ),
+            SimpleNamespace(
+                session_date="2026-10-06",
+                close_timestamp_utc="2026-10-06T10:00:00Z",
+            ),
+        )
+    )
+
+
+def test_market_audit_resolves_latest_completed_session_on_holiday():
+    resolved = resolve_market_audit_session(
+        _audit_calendar(),
+        now=datetime(2026, 10, 2, 18, 24, tzinfo=UTC),
+    )
+    assert resolved == "2026-10-01"
+
+
+def test_market_audit_does_not_select_next_session_before_its_close():
+    resolved = resolve_market_audit_session(
+        _audit_calendar(),
+        now=datetime(2026, 10, 6, 3, 0, tzinfo=UTC),
+    )
+    assert resolved == "2026-10-05"
+
+
+def test_market_audit_selects_current_session_after_frozen_close():
+    resolved = resolve_market_audit_session(
+        _audit_calendar(),
+        now=datetime(2026, 10, 6, 11, 0, tzinfo=UTC),
+    )
+    assert resolved == "2026-10-06"
+
+
+def test_market_audit_manual_session_must_already_be_completed():
+    with pytest.raises(ValueError, match="not completed yet"):
+        resolve_market_audit_session(
+            _audit_calendar(),
+            now=datetime(2026, 10, 5, 3, 0, tzinfo=UTC),
+            requested_session="2026-10-05",
+        )
