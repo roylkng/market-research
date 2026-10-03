@@ -306,6 +306,7 @@ def build_rta001_summary(
         "schema_version": 1,
         "accounting_id": RTA001_ID,
         "as_of_date": manifest["as_of_date"],
+        "manifest_sha256": digest(manifest),
         "explicit_trial_count": len(trials),
         "source_feasibility_result_artifact_count": len(
             manifest.get("source_feasibility_results", [])
