@@ -5,6 +5,7 @@ from collections import Counter
 from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 
+from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.intelligence_prospective_news import (
     captures_for_audit,
     observations_for_audit,
@@ -13,6 +14,46 @@ from marketlab.intelligence_prospective_news import (
 from marketlab.intelligence_store import ResearchStore, digest, timestamp
 
 IST = ZoneInfo("Asia/Kolkata")
+
+
+def resolve_market_audit_session(
+    calendar: CalendarSnapshot,
+    *,
+    now: datetime,
+    requested_session: str | None = None,
+) -> str:
+    """Resolve only a session whose frozen market close is already in the past."""
+
+    if now.tzinfo is None:
+        raise ValueError("market-audit now must be timezone-aware")
+    now_utc = now.astimezone(ZoneInfo("UTC"))
+    closes = {
+        row.session_date: timestamp(row.close_timestamp_utc)
+        for row in calendar.sessions
+    }
+    if requested_session:
+        close_at = closes.get(requested_session)
+        if close_at is None:
+            raise ValueError(
+                "manual market-close audit session is not in frozen NSE calendar: "
+                f"{requested_session}"
+            )
+        if close_at > now_utc:
+            raise ValueError(
+                "manual market-close audit session is not completed yet: "
+                f"{requested_session}"
+            )
+        return requested_session
+
+    completed = [
+        (close_at, session_date)
+        for session_date, close_at in closes.items()
+        if close_at <= now_utc
+    ]
+    if not completed:
+        raise ValueError("frozen NSE calendar has no completed session at audit time")
+    completed.sort()
+    return completed[-1][1]
 
 
 def inject_news_ledger(store: ResearchStore, ledger: dict, *, as_of: str) -> int:
