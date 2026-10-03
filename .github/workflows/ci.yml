@@ -20,5 +20,8 @@ jobs:
         run: ruff check src tests scripts
       - name: Test
         run: pytest -q
+      - name: Validate global research accounting
+        run: python scripts/validate_rta001_coverage.py --repo-root .
+
       - name: Validate hypothesis registry
         run: marketlab validate-registry registry/hypotheses.yaml
