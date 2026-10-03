@@ -1,0 +1,46 @@
+schema_version: 1
+id: PO001-I006-v1
+name: rg001_active_risk_volatility_scaling
+status: FROZEN_BEFORE_OUTCOME_MATERIALIZATION
+created: 2026-10-03
+live_capital_allowed: false
+
+source:
+  alpha_report_sha256: 0d833a280dcc741ebba13bfe8b753689b7ff1ad41f0b2c13181fd8b0c37552c6
+  alpha_library_sha256: 4e04142bb3b33ca9f1c86de456bed1e5479d7d6c89bd72e59bff14b5c713ec36
+  alpha_id: AB001-P003-FUTURES-DELTA
+  rg001_panel_sha256: 7921fb8db899016f73162d33642b916db71c5b65768d530a47d50c7c06a562f6
+  rg001_variable: nifty500_realized_vol_20
+
+horizon_sessions: 5
+
+control:
+  active_sleeve_weight: 1.0
+  benchmark_sleeve_weight: 0.0
+  stock_selection: equal_weight_top_decile_futures_delta
+
+treatment:
+  trailing_rg001_sessions: 60
+  multiplier: MIN_1_REFERENCE_MEDIAN_VOL20_DIV_CURRENT_VOL20
+  leverage_allowed: false
+  minimum_exposure_floor: none
+  benchmark_residual_weight: ONE_MINUS_MULTIPLIER
+
+primary:
+  utility_gamma: 5.0
+  metric: PAIRED_MEAN_REALIZED_ACTIVE_UTILITY_DELTA
+  newey_west_lag: 4
+  support:
+    mean_delta_gt: 0.0
+    two_sided_p_lt: 0.05
+
+secondary:
+  - paired_mean_5d_excess_return_delta
+  - paired_mean_squared_5d_excess_delta
+  - paired_mean_absolute_5d_excess_delta
+
+cost_model:
+  included_in_primary: false
+  reason: OVERLAPPING_COHORT_ROLLING_IMPLEMENTATION_NOT_CONSTRUCTED
+
+prospective_claim_allowed: false
