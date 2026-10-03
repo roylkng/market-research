@@ -171,6 +171,16 @@ def test_health_surfaces_t006_source_timing_blocker_and_c002_prestart():
         summary["components"]["T006"]["state"]
         == "BLOCKED_BY_SC002_SAME_DAY_FUTURES_TIMING"
     )
+    assert (
+        summary["components"]["T005_PREOPEN_SUCCESSOR"]["state"]
+        == "WAITING_FOR_SC003_TIMING_EVIDENCE"
+    )
+    assert (
+        summary["components"]["T005_PREOPEN_SUCCESSOR"][
+            "additional_ready_sessions_needed"
+        ]
+        == 3
+    )
     assert summary["components"]["T004"]["state"] == "DELIVERY_SOURCE_WARMUP_BLOCKED"
     assert summary["components"]["T004"]["delivery_warmup"][
         "additional_clean_prior_sessions_needed"
