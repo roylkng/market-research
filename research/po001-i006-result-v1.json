@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "study_id": "PO001-I006-v1",
+  "status": "COMPLETE_DEVELOPMENT_PRIMARY_UNSUPPORTED",
+  "evidence_class": "HISTORICAL_KNOWN_OUTCOME_PORTFOLIO_CONTEXT_DIAGNOSTIC",
+  "live_capital_allowed": false,
+  "prospective_claim_allowed": false,
+  "successful_run": {
+    "run_id": 37098258978,
+    "artifact_id": 11265136489,
+    "artifact_name": "po001-i006-37098258978"
+  },
+  "report_sha256": "6909c99294909a037b8c691505b0cbcb5a92d71392c6172c06cdcac62a7e4ebb",
+  "report_artifact_sha256": "d6d5b0f453da215fa80146847e7d2f137cd3d8be7551406bcd902116dea2946a",
+  "horizon_sessions": 5,
+  "source": {
+    "p003_report_sha256": "0d833a280dcc741ebba13bfe8b753689b7ff1ad41f0b2c13181fd8b0c37552c6",
+    "p003_library_sha256": "4e04142bb3b33ca9f1c86de456bed1e5479d7d6c89bd72e59bff14b5c713ec36",
+    "alpha_id": "AB001-P003-FUTURES-DELTA",
+    "rg001_panel_sha256": "7921fb8db899016f73162d33642b916db71c5b65768d530a47d50c7c06a562f6",
+    "rg001_variable": "nifty500_realized_vol_20"
+  },
+  "eligible_session_count": 112,
+  "exposure": {
+    "mean": 0.9328422852593761,
+    "median": 1,
+    "minimum": 0.5250687284051697,
+    "scaled_below_one_session_count": 24,
+    "scaled_below_one_fraction": 0.21428571428571427,
+    "mean_by_current_vol_quartile": {
+      "Q1": 1,
+      "Q2": 1,
+      "Q3": 1,
+      "Q4": 0.7313691410375044
+    }
+  },
+  "primary_endpoint": {
+    "metric": "PAIRED_MEAN_REALIZED_ACTIVE_UTILITY_DELTA",
+    "mean_delta": -0.0003984738571115127,
+    "newey_west_lag": 4,
+    "ci95_low": -0.0010064198368221824,
+    "ci95_high": 0.000209472122599157,
+    "p_value_two_sided": 0.196702901653081,
+    "supported": false
+  },
+  "secondary": {
+    "mean_5d_excess_return_delta": {
+      "mean": -0.00048768887301690194,
+      "p_value_two_sided": 0.17896991231254866
+    },
+    "mean_squared_5d_excess_delta": {
+      "mean": -0.00001784300318107783,
+      "p_value_two_sided": 0.1258195421549156
+    },
+    "mean_absolute_5d_excess_delta": {
+      "mean": -0.0007318619403155123,
+      "p_value_two_sided": 0.06708625847618231
+    }
+  },
+  "control": {
+    "mean_5d_excess_return": 0.00224524158533303,
+    "mean_realized_utility": 0.0015537835274903506,
+    "std_5d_excess_return": 0.011543418115620135,
+    "p10_5d_excess_return": -0.011333428335987116,
+    "worst_5d_excess_return": -0.02144228709006907
+  },
+  "treatment": {
+    "mean_5d_excess_return": 0.001757552712316128,
+    "mean_realized_utility": 0.001155309670378838,
+    "std_5d_excess_return": 0.01083326436725737,
+    "p10_5d_excess_return": -0.011109794082431788,
+    "worst_5d_excess_return": -0.02144228709006907
+  },
+  "conclusion": {
+    "primary_endpoint_supported": false,
+    "volatility_scaler_reduces_dispersion_descriptively": true,
+    "volatility_scaler_improves_realized_utility": false,
+    "mean_excess_return_reduced": true,
+    "retune_same_i006_scaler": false,
+    "promote_rg001_active_risk_scaler_now": false,
+    "p004_alpha_selector_promoted": false,
+    "rg001_remains_valid_descriptive_context": true,
+    "next_research_need": "WAIT_FOR_ORTHOGONAL_PROSPECTIVE_ALPHA_AND_SOURCE_TIMING_GATES; DO_NOT_FORCE_RG001_INTO_ALPHA_OR_PORTFOLIO_RULES"
+  }
+}
