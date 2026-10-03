@@ -6,7 +6,7 @@ from marketlab.research_radar import (
 
 
 def _universe():
-    industries = ["Tech", "Tech", "Auto", "Auto", "Health"]
+    industries = [f"Industry {index}" for index in range(10)]
     members = []
     for index in range(100):
         symbol = f"S{index:03d}"
