@@ -88,8 +88,6 @@ def _classify(row: dict[str, Any], *, in_primary_top_decile: bool) -> tuple[str,
     revision = row.get("eps_revision_pct")
 
     if available is not True:
-        if revision is not None:
-            raise ValueError("ineligible H021 row must not carry eps_revision_pct")
         if not isinstance(reason, str) or not reason:
             raise ValueError("ineligible H021 row requires primary_signal_reason")
         return "NO_PRIMARY_SIGNAL", "REMAIN_WATCH_DATA_INCOMPATIBLE"
