@@ -44,6 +44,7 @@ jobs:
             tests/test_h021_capture_sealing.py \
             tests/test_h021.py \
             tests/test_h021_compare_cli.py \
+            tests/test_dr001_h021_gate.py \
             tests/test_alpha_expectations.py
 
       - name: Resolve India date and weekly session gate
@@ -136,6 +137,21 @@ jobs:
             --current "research/prospective/h021/captures/${CAPTURE_DATE}-full-u001-v1.json.gz" \
             --out "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json"
 
+      - name: Materialize DR001 Tier A H021 revision gate
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          if [[ "$CAPTURE_DATE" < "2026-10-09" ]]; then
+            echo "No DR001 Tier A H021 gate is permitted before 2026-10-09"
+            exit 0
+          fi
+          python scripts/materialize_dr001_h021_gate.py \
+            --dossiers research/company-dossiers/2026-10-03/dr001-tier-a-v1.json \
+            --comparison "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json" \
+            --out "research/prospective/dr001-h021/gates/${CAPTURE_DATE}-tier-a-gate-v1.json"
+
       - name: Materialize AE001 H021 expectations features when comparison exists
         if: steps.gate.outputs.state == 'CAPTURE'
         shell: bash
@@ -170,9 +186,12 @@ jobs:
             "research/H021_COMPARISON_CONTRACT_V1.md"
             "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
             "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
+            "research/DR001_H021_TIER_A_GATE_V1.md"
+            "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
             "research/prospective/ae001-h021"
+            "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
             "scripts/check_h021_weekly_session.py"
@@ -180,6 +199,8 @@ jobs:
             "scripts/seal_h021_capture.py"
             "scripts/compare_h021_captures.py"
             "scripts/materialize_ae001_h021_expectations.py"
+            "scripts/materialize_dr001_h021_gate.py"
+            "src/marketlab/dr001_h021_gate.py"
             "src/marketlab/h021.py"
             "src/marketlab/alpha_expectations.py"
             "src/marketlab/h021_capture.py"
@@ -211,6 +232,7 @@ jobs:
           git add \
             research/prospective/h021/captures \
             research/prospective/ae001-h021 \
+            research/prospective/dr001-h021 \
             "$WORK/session-decision.json" \
             "$WORK/source-evidence.json"
           if [ -d research/prospective/h021/comparisons ]; then
@@ -230,9 +252,12 @@ jobs:
             "research/H021_COMPARISON_CONTRACT_V1.md"
             "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
             "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
+            "research/DR001_H021_TIER_A_GATE_V1.md"
+            "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
             "research/prospective/ae001-h021"
+            "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
             "scripts/check_h021_weekly_session.py"
@@ -240,6 +265,8 @@ jobs:
             "scripts/seal_h021_capture.py"
             "scripts/compare_h021_captures.py"
             "scripts/materialize_ae001_h021_expectations.py"
+            "scripts/materialize_dr001_h021_gate.py"
+            "src/marketlab/dr001_h021_gate.py"
             "src/marketlab/h021.py"
             "src/marketlab/h021_capture.py"
             "src/marketlab/h021_stockanalysis_acquisition.py"
