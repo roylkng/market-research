@@ -55,14 +55,14 @@ def _verify_source_reference(root: Path, trial: dict) -> None:
     source = trial.get("source")
     if not isinstance(source, str) or "#" not in source:
         return
-    raw_path, fragment = source.split("#", 1)
+    raw_path, _ = source.split("#", 1)
     path = root / raw_path
     if not path.exists():
         raise FileNotFoundError(f"RTA001 source ledger missing: {path}")
     payload = _load(path)
     events = payload.get("events")
     if not isinstance(events, list):
-        raise ValueError(
+        raise TypeError(
             f"RTA001 fragmented source is not an event ledger: {path}"
         )
     trial_id = str(trial["trial_id"])
