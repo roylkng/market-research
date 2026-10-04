@@ -1,0 +1,84 @@
+name: NV001 D001 own-history valuation source feasibility
+
+on:
+  push:
+    branches:
+      - research/nv001-normalized-valuation-20261004
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostic:
+    if: contains(github.event.head_commit.message, '[nv001-d001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify frozen NV001 implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/normalized_valuation.py \
+            scripts/run_nv001_d001.py \
+            tests/test_normalized_valuation.py
+          pytest -q \
+            tests/test_normalized_valuation.py \
+            tests/test_marketdata.py \
+            tests/test_alpha_fundamental.py
+
+      - name: Run frozen 100-company valuation source diagnostic
+        run: |
+          python scripts/run_nv001_d001.py \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --raw-dir reports/nv001-d001/raw \
+            --output reports/nv001-d001 \
+            --attempts 4 \
+            --timeout-seconds 20
+
+      - name: Prove outcome-blind valuation diagnostic
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          panel = json.loads(
+              Path("reports/nv001-d001/nv001-d001-panel.json").read_text()
+          )
+          assert panel["return_outcomes_opened"] is False
+          assert panel["model_fitted"] is False
+          assert panel["portfolio_eligibility_allowed"] is False
+          assert panel["live_capital_allowed"] is False
+          assert panel["universe_member_count"] == 100
+          assert panel["record_count"] + panel["failure_count"] == 100
+          print(json.dumps({
+              "panel_sha256": panel["panel_sha256"],
+              "record_count": panel["record_count"],
+              "failure_count": panel["failure_count"],
+              "current_trailing_pe_count": panel["current_trailing_pe_count"],
+              "at_least_3_historical_pe_count": panel["at_least_3_historical_pe_count"],
+              "all_4_historical_pe_count": panel["all_4_historical_pe_count"],
+              "all_4_plus_current_count": panel["all_4_plus_current_count"],
+              "failure_stage_counts": panel["failure_stage_counts"],
+              "failure_reason_counts": panel["failure_reason_counts"],
+              "threshold_passes": panel["threshold_passes"],
+              "feasibility_pass": panel["feasibility_pass"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact NV001 D001 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nv001-d001-${{ github.run_id }}
+          path: reports/nv001-d001
+          if-no-files-found: warn
+          retention-days: 90
