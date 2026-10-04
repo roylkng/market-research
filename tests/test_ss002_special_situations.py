@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
-from marketlab.ss002_special_situations import (\n    approved_attachment_url,\n    classify_special_situation,\n)
+from marketlab.ss002_special_situations import (
+    approved_attachment_url,
+    classify_special_situation,
+)
 
 
 def test_special_situation_taxonomy_is_semantic_not_directional() -> None:
