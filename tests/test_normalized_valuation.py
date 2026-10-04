@@ -185,6 +185,74 @@ def test_parse_annual_eps_uses_annual_duration_not_q4() -> None:
     assert parsed.annual_start == "2024-04-01"
 
 
+def _legacy_annual_xbrl(
+    *,
+    period_end: str = "2024-03-31",
+    q4_eps: float = 19.25,
+    annual_eps: float = 63.39,
+    financial_year_start: str = "2023-04-01",
+) -> bytes:
+    return f"""<?xml version="1.0"?>
+<xbrli:xbrl
+ xmlns:xbrli="http://www.xbrl.org/2003/instance"
+ xmlns:in-capmkt="http://www.sebi.gov.in/xbrl">
+ <xbrli:context id="OneD">
+  <xbrli:entity><xbrli:identifier scheme="test">1</xbrli:identifier></xbrli:entity>
+  <xbrli:period><xbrli:startDate>2024-01-01</xbrli:startDate><xbrli:endDate>{period_end}</xbrli:endDate></xbrli:period>
+ </xbrli:context>
+ <xbrli:context id="FourD">
+  <xbrli:entity><xbrli:identifier scheme="test">1</xbrli:identifier></xbrli:entity>
+  <xbrli:period><xbrli:startDate>2024-01-01</xbrli:startDate><xbrli:endDate>{period_end}</xbrli:endDate></xbrli:period>
+ </xbrli:context>
+ <in-capmkt:Symbol contextRef="OneD">TEST</in-capmkt:Symbol>
+ <in-capmkt:ISIN contextRef="OneD">INE000000001</in-capmkt:ISIN>
+ <in-capmkt:NatureOfReportStandaloneConsolidated contextRef="OneD">Consolidated</in-capmkt:NatureOfReportStandaloneConsolidated>
+ <in-capmkt:DateOfStartOfFinancialYear contextRef="OneD">{financial_year_start}</in-capmkt:DateOfStartOfFinancialYear>
+ <in-capmkt:DateOfEndOfFinancialYear contextRef="OneD">{period_end}</in-capmkt:DateOfEndOfFinancialYear>
+ <in-capmkt:DateOfEndOfReportingPeriod contextRef="OneD">{period_end}</in-capmkt:DateOfEndOfReportingPeriod>
+ <in-capmkt:DateOfEndOfReportingPeriod contextRef="FourD">{period_end}</in-capmkt:DateOfEndOfReportingPeriod>
+ <in-capmkt:BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations contextRef="OneD">{q4_eps}</in-capmkt:BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations>
+ <in-capmkt:BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations contextRef="FourD">{annual_eps}</in-capmkt:BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations>
+</xbrli:xbrl>
+""".encode()
+
+
+def test_legacy_annual_eps_uses_exact_fourd_full_year_context() -> None:
+    candidate = AnnualFilingCandidate(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        period_end="2024-03-31",
+        exchange_published_at_utc="2024-04-20T12:30:00Z",
+        source_url="https://nsearchives.nseindia.com/corporate/xbrl/legacy.xml",
+        source_family="NSE_LEGACY_FINANCIAL_RESULTS",
+        discovery_row_sha256="a" * 64,
+    )
+    parsed = parse_annual_basic_eps(
+        _legacy_annual_xbrl(q4_eps=19.25, annual_eps=63.39),
+        candidate=candidate,
+    )
+
+    assert parsed.basic_eps == pytest.approx(63.39)
+    assert parsed.annual_start == "2023-04-01"
+
+
+def test_legacy_fourd_refuses_incompatible_financial_year_metadata() -> None:
+    candidate = AnnualFilingCandidate(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        period_end="2024-03-31",
+        exchange_published_at_utc="2024-04-20T12:30:00Z",
+        source_url="https://nsearchives.nseindia.com/corporate/xbrl/legacy.xml",
+        source_family="NSE_LEGACY_FINANCIAL_RESULTS",
+        discovery_row_sha256="a" * 64,
+    )
+    with pytest.raises(NV001SourceError, match="financial-year start"):
+        parse_annual_basic_eps(
+            _legacy_annual_xbrl(financial_year_start="2023-01-01"),
+            candidate=candidate,
+        )
+
+
 def _zip_csv(name: str, header: list[str], rows: list[list[object]]) -> bytes:
     stream = io.StringIO()
     writer = csv.writer(stream)
