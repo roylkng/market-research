@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 import io
 import math
-import time
 import zipfile
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
@@ -12,7 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
-from marketlab.alpha import AlphaContractError, digest
+from marketlab.alpha import digest
 from marketlab.events import sha256_bytes
 from marketlab.marketdata import udiff_url
 
