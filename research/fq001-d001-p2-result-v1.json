@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "FQ001-D001-P2-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_AND_METRIC_FEASIBILITY_NO_RETURNS",
+  "successful_run": {
+    "run_id": 37178986667,
+    "artifact_id": 11294162247,
+    "artifact_name": "fq001-d001-37178986667"
+  },
+  "panel_sha256": "12aabded6da20d660966fdd9ab0bfd6487dc612137628c2f0b2bbde3d3135f70",
+  "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+  "universe_member_count": 100,
+  "target_period_end": "2026-03-31",
+  "baseline_period_end": "2025-03-31",
+  "same_basis_pair_count": 88,
+  "complete_core_metric_count": 88,
+  "metric_coverage": {
+    "roce_proxy": 88,
+    "cfo_to_pat": 88,
+    "cfo_minus_ppe_to_pat": 88,
+    "accruals_to_avg_assets": 88,
+    "net_borrowings_to_equity": 88,
+    "ppe_capex_to_revenue": 88
+  },
+  "identity_continuity_counts": {
+    "SAME_ISIN": 86,
+    "SAME_NORMALIZED_SYMBOL": 2
+  },
+  "remaining_failure_count": 12,
+  "remaining_failure_breakdown": {
+    "annual_duration_context_unavailable": 3,
+    "pair_selection_failures": 8,
+    "filing_fetch_failures": 1
+  },
+  "feasibility_thresholds": {
+    "minimum_same_basis_pairs": 70,
+    "minimum_complete_core_metric_rows": 60,
+    "minimum_each_core_metric_coverage": 60
+  },
+  "threshold_passes": {
+    "same_basis_pair_count": true,
+    "complete_core_metric_rows": true,
+    "each_core_metric_coverage": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_quality_score_design": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "SOURCE_FEASIBILITY_PASSED_WITH_88_COMPLETE_ROWS; FREEZE_QUALITY_SCORE_BEFORE_MATERIALIZATION; NO_ALPHA_OR_PORTFOLIO_CLAIM"
+}
