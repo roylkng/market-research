@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "GF001-D001-P1-v1",
+  "status": "PASSED_CURRENT_SCHEMA_FEASIBILITY",
+  "classification": "CURRENT_SHAREHOLDING_XBRL_SCHEMA_AUDIT_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37201420539,
+    "artifact_id": 11303056520,
+    "artifact_name": "gf001-d001-37201420539"
+  },
+  "audit_sha256": "0e1c2242575adbd46ca0ea1c7957b5f6420b9797d77b4ba27cf0ba609ad1b7ea",
+  "source_d002_census_sha256": "214c1172491d58800dcded126303e7a2844967e75da57e0e6f666abc3b311293",
+  "sample_count": 48,
+  "ready_parse_count": 48,
+  "fetch_or_parse_failure_count": 0,
+  "june_2026_ready_count": 42,
+  "september_2026_ready_count": 6,
+  "june_promoter_aggregate_ready_ratio": 1.0,
+  "june_public_aggregate_ready_ratio": 1.0,
+  "june_encumbrance_ready_ratio": 1.0,
+  "aggregate_scale_resolved_ratio": 1.0,
+  "aggregate_scale_semantics_counts": {
+    "FRACTION_0_TO_1": 48
+  },
+  "mutual_fund_aggregate_state_counts": {
+    "CATEGORY_CONTEXT_ABSENT": 21,
+    "READY": 27
+  },
+  "threshold_passes": {
+    "minimum_44_well_formed": true,
+    "june_promoter_aggregate_90pct": true,
+    "june_public_aggregate_90pct": true,
+    "june_encumbrance_flags_90pct": true,
+    "present_mutual_fund_contexts_parseable": true,
+    "september_core_semantics_ready": true,
+    "aggregate_scale_resolved_90pct": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_gf001_d002_parser": true,
+  "frozen_current_semantics": {
+    "promoter_context_id": "ShareholdingOfPromoterAndPromoterGroup_ContextI",
+    "promoter_member": "ShareholdingOfPromoterAndPromoterGroupMember",
+    "public_context_id": "PublicShareholding_ContextI",
+    "public_member": "PublicShareholdingMember",
+    "mutual_fund_context_id": "MutualFundsOrUTI_ContextI",
+    "mutual_fund_member": "MutualFundsOrUTIMember",
+    "aggregate_fact": "ShareholdingAsAPercentageOfTotalNumberOfShares",
+    "promoter_encumbrance_boolean_count": 3
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "CURRENT NSE SHAREHOLDING SCHEMA IS DETERMINISTIC FOR PROMOTER, PUBLIC AND PROMOTER-ENCUMBRANCE CORE SEMANTICS; MF/UTI IS OPTIONAL WHEN CATEGORY CONTEXT IS ABSENT; FULL 2050-SOURCE GF001-D002 COVERAGE MAY NOW BE MEASURED"
+}
