@@ -5,8 +5,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.ss001_size import build_company_size_panel
-from scripts.run_ss001_d003_shard import SHARD_COUNT, shard_for_symbol
+from marketlab.ss001_size import SHARD_COUNT, build_company_size_panel, shard_for_symbol
 
 
 def _load(path: Path) -> dict:
