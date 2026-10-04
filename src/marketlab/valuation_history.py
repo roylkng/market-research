@@ -4,7 +4,6 @@ import math
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
 from zoneinfo import ZoneInfo
 
 from bs4 import BeautifulSoup
