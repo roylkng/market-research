@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "score_id": "FQ001-S001-v1",
+  "status": "MATERIALIZED",
+  "classification": "POINT_IN_TIME_ACCOUNTING_QUALITY_RESEARCH_SCORE_NOT_ALPHA",
+  "source": {
+    "diagnostic_id": "FQ001-D001-P2-v1",
+    "source_panel_sha256": "0112a61cdb928c35ecf0c55a6f8a95ccb3ebc8a137ee3d8f31c1816c89134ee4",
+    "source_run_id": 37183221019,
+    "source_artifact_id": 11295493835
+  },
+  "successful_run": {
+    "run_id": 37183487740,
+    "artifact_id": 11296141382,
+    "artifact_name": "fq001-s001-37183487740"
+  },
+  "score_sha256": "aa0ced48ab2c6342b7ff05bebcbd355754c0dff124b16f1c7cd09e5b89b1d19a",
+  "scored_count": 84,
+  "quality_prerequisite_failed_count": 4,
+  "source_unavailable_count": 12,
+  "top_quality_quartile_cutoff": 60.86309523809524,
+  "top_quality_quartile_count": 22,
+  "top_25": [
+    {"rank": 1, "symbol": "NESTLEIND", "quality_score": 88.98809523809524},
+    {"rank": 2, "symbol": "GVT&D", "quality_score": 87.20238095238095},
+    {"rank": 3, "symbol": "GLENMARK", "quality_score": 81.25},
+    {"rank": 4, "symbol": "HCLTECH", "quality_score": 80.20833333333333},
+    {"rank": 5, "symbol": "APLAPOLLO", "quality_score": 79.91071428571429},
+    {"rank": 6, "symbol": "INFY", "quality_score": 77.23214285714286},
+    {"rank": 7, "symbol": "HEROMOTOCO", "quality_score": 75.44642857142858},
+    {"rank": 8, "symbol": "NYKAA", "quality_score": 71.2797619047619},
+    {"rank": 9, "symbol": "ASIANPAINT", "quality_score": 70.68452380952381},
+    {"rank": 10, "symbol": "TCS", "quality_score": 70.53571428571429},
+    {"rank": 11, "symbol": "POLYCAB", "quality_score": 69.94047619047619},
+    {"rank": 12, "symbol": "TECHM", "quality_score": 69.19642857142858},
+    {"rank": 13, "symbol": "BPCL", "quality_score": 68.1547619047619},
+    {"rank": 14, "symbol": "MARICO", "quality_score": 67.70833333333333},
+    {"rank": 15, "symbol": "LUPIN", "quality_score": 67.55952380952381},
+    {"rank": 16, "symbol": "INDUSTOWER", "quality_score": 67.41071428571428},
+    {"rank": 17, "symbol": "POWERINDIA", "quality_score": 66.96428571428572},
+    {"rank": 18, "symbol": "BHARTIARTL", "quality_score": 66.36904761904762},
+    {"rank": 19, "symbol": "PERSISTENT", "quality_score": 66.07142857142857},
+    {"rank": 20, "symbol": "PIDILITIND", "quality_score": 61.30952380952381},
+    {"rank": 21, "symbol": "HAL", "quality_score": 60.86309523809524},
+    {"rank": 22, "symbol": "MOTHERSON", "quality_score": 60.86309523809524},
+    {"rank": 23, "symbol": "NATIONALUM", "quality_score": 60.56547619047619},
+    {"rank": 24, "symbol": "LTM", "quality_score": 60.416666666666664},
+    {"rank": 25, "symbol": "ONGC", "quality_score": 59.82142857142858}
+  ],
+  "quality_prerequisite_failed": [
+    {"symbol": "GMRAIRPORT", "reason": "EQUITY_NONPOSITIVE"},
+    {"symbol": "IDEA", "reason": "EQUITY_NONPOSITIVE"},
+    {"symbol": "INDIGO", "reason": "PAT_NONPOSITIVE"},
+    {"symbol": "SWIGGY", "reason": "PAT_NONPOSITIVE"}
+  ],
+  "source_unavailable_symbols": [
+    "ABB", "ADANIGREEN", "BOSCHLTD", "CGPOWER", "COALINDIA", "GAIL",
+    "HINDPETRO", "LT", "SIEMENS", "TMCV", "TRENT", "VBL"
+  ],
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "ACCOUNTING_QUALITY_RESEARCH_LENS_ONLY; DO_NOT_BLEND_INTO_RETURN_MODEL_OR_PORTFOLIO_WITHOUT_SEPARATE_FROZEN_TRIAL"
+}
