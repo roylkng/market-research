@@ -141,10 +141,11 @@ def test_xbrl_parser_uses_annual_duration_and_year_end_instant_contexts() -> Non
       <in-capmkt:TotalEquity contextRef="I">95</in-capmkt:TotalEquity>
       <in-capmkt:TotalCurrentLiabilities contextRef="I">50</in-capmkt:TotalCurrentLiabilities>
       <in-capmkt:CashAndCashEquivalents contextRef="I">20</in-capmkt:CashAndCashEquivalents>
+      <in-capmkt:CashAndCashEquivalentsCashFlowStatement contextRef="I">999</in-capmkt:CashAndCashEquivalentsCashFlowStatement>
       <in-capmkt:BorrowingsCurrent contextRef="I">4</in-capmkt:BorrowingsCurrent>
       <in-capmkt:BorrowingsNoncurrent contextRef="I">6</in-capmkt:BorrowingsNoncurrent>
       <in-capmkt:NetCashFlowsFromUsedInOperatingActivities contextRef="FY">35</in-capmkt:NetCashFlowsFromUsedInOperatingActivities>
-      <in-capmkt:PurchaseOfPropertyPlantAndEquipment contextRef="FY">3</in-capmkt:PurchaseOfPropertyPlantAndEquipment>
+      <in-capmkt:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities contextRef="FY">3</in-capmkt:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities>
     </xbrli:xbrl>
     """
     parsed = parse_annual_quality_filing(
@@ -154,6 +155,7 @@ def test_xbrl_parser_uses_annual_duration_and_year_end_instant_contexts() -> Non
 
     assert parsed.facts["revenue"] == 180
     assert parsed.facts["total_assets"] == 160
+    assert parsed.facts["cash_and_cash_equivalents"] == 20
     assert parsed.facts["operating_cash_flow"] == 35
     assert parsed.facts["purchase_ppe"] == 3
 
