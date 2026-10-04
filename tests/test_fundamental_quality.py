@@ -10,6 +10,7 @@ from marketlab.fundamental_quality import (
     CORE_METRICS,
     AnnualQualityFacts,
     build_quality_metrics,
+    issuer_identity_continuity,
     parse_annual_quality_filing,
     quality_record,
     validate_annual_shape,
@@ -160,6 +161,74 @@ def test_xbrl_parser_uses_annual_duration_and_year_end_instant_contexts() -> Non
     assert parsed.facts["purchase_ppe"] == 3
 
 
+
+
+def test_identity_continuity_accepts_same_isin_symbol_rename() -> None:
+    target = _facts(
+        period="2026-03-31",
+        revenue=200.0,
+        pbt=30.0,
+        finance=5.0,
+        pat=24.0,
+        assets=180.0,
+        equity=100.0,
+        current_liabilities=60.0,
+        cash=15.0,
+        borrowings_current=10.0,
+        borrowings_noncurrent=20.0,
+        cfo=30.0,
+        ppe=6.0,
+    )
+    baseline = replace(
+        target,
+        symbol="LTIM",
+        period_end="2025-03-31",
+        financial_year_start="2024-04-01",
+    )
+    assert issuer_identity_continuity(target, baseline) == "SAME_ISIN"
+
+
+def test_identity_continuity_accepts_same_symbol_isin_replacement() -> None:
+    target = _facts(
+        period="2026-03-31",
+        revenue=200.0,
+        pbt=30.0,
+        finance=5.0,
+        pat=24.0,
+        assets=180.0,
+        equity=100.0,
+        current_liabilities=60.0,
+        cash=15.0,
+        borrowings_current=10.0,
+        borrowings_noncurrent=20.0,
+        cfo=30.0,
+        ppe=6.0,
+    )
+    target = replace(target, symbol="COFORGE", isin="INE591G01025")
+    baseline = replace(
+        target,
+        isin="INE591G01017",
+        period_end="2025-03-31",
+        financial_year_start="2024-04-01",
+    )
+    assert issuer_identity_continuity(target, baseline) == "SAME_NORMALIZED_SYMBOL"
+
+
+def test_parser_accepts_symbol_format_change_when_expected_isin_matches() -> None:
+    document = FIXTURE.read_text(encoding="utf-8").replace(
+        "<td>INFY</td>",
+        "<td>INF-Y</td>",
+        1,
+    )
+    parsed = parse_annual_quality_filing(
+        document.encode(),
+        candidate=_candidate(),
+        expected_isin="INE009A01021",
+    )
+    assert parsed.symbol == "INF-Y"
+    assert parsed.isin == "INE009A01021"
+
+
 def test_quality_metrics_match_frozen_formulas() -> None:
     target = _facts(
         period="2026-03-31",
@@ -297,6 +366,9 @@ def test_quality_record_keeps_portfolio_and_live_capital_disabled() -> None:
 
     assert set(record["metrics"]) == set(CORE_METRICS)
     assert record["all_core_metrics_complete"] is True
+    assert record["issuer_identity_continuity"] == "SAME_ISIN"
+    assert record["target_isin"] == "INE009A01021"
+    assert record["baseline_isin"] == "INE009A01021"
     assert record["return_outcomes_opened"] is False
     assert record["model_fitted"] is False
     assert record["portfolio_eligibility_allowed"] is False
