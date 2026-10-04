@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
