@@ -34,7 +34,7 @@ def _revision_sign(value: object, available: object) -> str:
 
 def _index(rows: object, *, field: str, label: str) -> dict[str, dict[str, Any]]:
     if not isinstance(rows, list):
-        raise ValueError(f"{label} must be a list")
+        raise TypeError(f"{label} must be a list")
     result: dict[str, dict[str, Any]] = {}
     for row in rows:
         if not isinstance(row, dict):
@@ -90,7 +90,7 @@ def build_post_h021_evidence_pack(
         routed = gate_rows[symbol]
         dependency = before.get("forward_eps_uplift_vs_fy26_trailing_pct")
         if not isinstance(dependency, (int, float)) or isinstance(dependency, bool):
-            raise ValueError(f"{symbol}: forward earnings dependency must be numeric")
+            raise TypeError(f"{symbol}: forward earnings dependency must be numeric")
 
         rows.append(
             {
