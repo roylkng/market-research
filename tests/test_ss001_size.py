@@ -4,8 +4,8 @@ import pytest
 
 from marketlab.alpha import AlphaContractError
 from marketlab.ss001_size import (
-    build_company_size_panel,
     SHARD_COUNT,
+    build_company_size_panel,
     parse_trade_info_market_cap,
     shard_for_symbol,
     size_band,
