@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_id": "SS002-L001-P1-GPT56SOL-INTERACTIVE-v1",
+  "classification": "EVIDENCE_BOUND_LLM_EXTRACTION_PILOT_NOT_ALPHA",
+  "frozen_at": "2026-10-04",
+  "selection_id": "SS002-L001-P1-SELECTION-v1",
+  "selection_sha256": "c040c519b8d28344a607838d2f025555b92fb9391582855e2dab7323aa805bc0",
+  "selection_document_count": 30,
+  "contract_id": "SS002-L001-v1",
+  "pilot_protocol": "research/SS002_L001_P1_EXTRACTION_PILOT_V1.md",
+  "provider_runtime": "CHATGPT_INTERACTIVE",
+  "model_id": "GPT-5.6 Sol",
+  "model_configuration": {
+    "temperature": "NOT_EXPOSED",
+    "top_p": "NOT_EXPOSED",
+    "maximum_output_tokens": "RUNTIME_MANAGED",
+    "structured_output_mode": "CONTRACT_VALIDATED_JSON",
+    "external_web_access_for_extraction": false,
+    "return_outcomes_available_to_extractor": false
+  },
+  "execution_rule": "ONE_PASS_PER_DOCUMENT_NO_DOCUMENT_SPECIFIC_REPROMPT",
+  "manual_audit_rule": "FIRST_TWO_SELECTED_DOCUMENTS_PER_FAMILY_EXACTLY_10",
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
