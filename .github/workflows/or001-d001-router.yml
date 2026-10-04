@@ -1,0 +1,128 @@
+name: OR001 D001 multi-evidence opportunity router
+
+on:
+  push:
+    branches:
+      - research/ei001-s001-integrated-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  route:
+    if: contains(github.event.head_commit.message, '[or001-d001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate router
+        run: |
+          ruff check \
+            src/marketlab/or001_router.py \
+            scripts/materialize_or001_d001.py \
+            tests/test_or001_router.py
+          pytest -q tests/test_or001_router.py tests/test_ei001_inflection.py
+
+      - name: Download SS001 D001
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/ss001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+
+      - name: Download EI001 S001
+        uses: actions/download-artifact@v4
+        with:
+          name: ei001-s001-37227037059
+          path: reports/ei001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37227037059
+
+      - name: Download HA001 D001
+        uses: actions/download-artifact@v4
+        with:
+          name: ha001-d001-37218405833
+          path: reports/ha001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37218405833
+
+      - name: Download GF001 D002
+        uses: actions/download-artifact@v4
+        with:
+          name: gf001-d002-37202941712
+          path: reports/gf001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37202941712
+
+      - name: Download SS002 P2
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d001-p2-37203696204
+          path: reports/ss002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37203696204
+
+      - name: Materialize frozen opportunity router
+        run: |
+          python scripts/materialize_or001_d001.py \
+            --ss001 reports/ss001/ss001-d001-census.json \
+            --ei001 reports/ei001/ei001-s001-router.json \
+            --ha001 reports/ha001/ha001-d001-panel.json \
+            --gf001 reports/gf001/gf001-d002-panel.json \
+            --ss002 reports/ss002/ss002-d001-census.json \
+            --output reports/or001
+
+      - name: Prove research-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/or001/or001-d001-router.json").read_text())
+          assert p["router_id"]=="OR001-D001-v1"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "router_sha256":p["router_sha256"],
+            "priority_counts":p["priority_counts"],
+            "route_combination_counts":p["route_combination_counts"],
+            "multi_evidence_count":p["multi_evidence_count"],
+            "outside_u001_multi_evidence_count":p["outside_u001_multi_evidence_count"],
+            "governance_caution_counts":p["governance_caution_counts"],
+            "top_50_multi_evidence":[{
+              "symbol":r["symbol"],
+              "company_name":r["company_name"],
+              "in_existing_u001":r["in_existing_u001"],
+              "independent_route_count":r["independent_route_count"],
+              "opportunity_routes":r["opportunity_routes"],
+              "earnings_inflection_flags":r["earnings_inflection_flags"],
+              "asset_anomaly_flags":r["asset_anomaly_flags"],
+              "special_situation_categories":r["special_situation_categories"],
+              "governance_caution_flags":r["governance_caution_flags"],
+              "liquidity_band":r["liquidity_band"],
+              "median_daily_turnover_inr":r["median_daily_turnover_inr"],
+            } for r in p["multi_evidence_queue"][:50]],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Upload exact OR001 output
+        uses: actions/upload-artifact@v4
+        with:
+          name: or001-d001-${{ github.run_id }}
+          path: reports/or001
+          if-no-files-found: error
+          retention-days: 90
