@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import Counter, defaultdict
 from typing import Any
@@ -11,6 +12,17 @@ PANEL_ID = "SS001-D003-v1"
 EXPECTED_D001_ID = "SS001-D001-v1"
 EXPECTED_D001_SHA = "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7"
 EXPECTED_IDENTITY_COUNT = 2319
+SHARD_COUNT = 6
+
+
+def shard_for_symbol(symbol: str, *, shard_count: int = SHARD_COUNT) -> int:
+    if shard_count <= 0:
+        raise ValueError("shard_count must be positive")
+    cleaned = symbol.strip().upper()
+    if not cleaned:
+        raise ValueError("symbol is required")
+    digest_bytes = hashlib.sha256(cleaned.encode("utf-8")).digest()
+    return int.from_bytes(digest_bytes, "big") % shard_count
 
 
 class SS001SizeError(ValueError):
