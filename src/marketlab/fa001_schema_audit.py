@@ -171,7 +171,7 @@ def _parse_exchange_time(value: object) -> str | None:
     if not raw:
         return None
     try:
-        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(raw)
         if parsed.tzinfo is not None:
             return parsed.astimezone(UTC).isoformat()
     except ValueError:
