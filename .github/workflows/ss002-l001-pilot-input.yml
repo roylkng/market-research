@@ -1,0 +1,74 @@
+name: SS002 L001 P1 pilot input materialization
+
+on:
+  push:
+    branches:
+      - research/ss002-l001-pilot-sample-20261004
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  materialize:
+    if: contains(github.event.head_commit.message, '[ss002-l001-pilot-input]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen pilot selector
+        run: |
+          ruff check \
+            src/marketlab/ss002_l001_pilot.py \
+            scripts/materialize_ss002_l001_pilot.py \
+            tests/test_ss002_l001_pilot.py
+          pytest -q \
+            tests/test_ss002_l001_pilot.py \
+            tests/test_ss002_llm_contract.py \
+            tests/test_ss002_llm_runtime.py
+      - name: Download exact passed P2 census
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d001-p2-37203696204
+          path: reports/p2
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37203696204
+      - name: Download exact passed D003 corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d003-37213853198
+          path: reports/d003
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213853198
+      - name: Verify frozen upstream
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p2=json.loads(Path("reports/p2/ss002-d001-census.json").read_text())
+          d3=json.loads(Path("reports/d003/ss002-d003-text-corpus.json").read_text())
+          assert p2["census_sha256"]=="ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071"
+          assert d3["corpus_sha256"]=="92d785de20af9bcca370c13a9d410fe98f0728518527285fa15d1490dadd32ce"
+          assert d3["promotion_allowed_to_l001"] is True
+          assert d3["llm_inference_executed"] is False
+          PY
+      - name: Materialize frozen pilot sample and prompts
+        run: |
+          python scripts/materialize_ss002_l001_pilot.py \
+            --p2-census reports/p2/ss002-d001-census.json \
+            --d003-root reports/d003 \
+            --output reports/l001-pilot-input
+      - name: Upload immutable pilot input
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-l001-pilot-input-${{ github.run_id }}
+          path: reports/l001-pilot-input
+          if-no-files-found: error
+          retention-days: 90
