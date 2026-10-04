@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS002-D001-P1-v1",
+  "status": "FAILED_ATTACHMENT_READINESS_GATE",
+  "classification": "CURRENT_ACTIONABLE_SPECIAL_SITUATION_CENSUS_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37201373926,
+    "artifact_id": 11302573796,
+    "artifact_name": "ss002-p1-37201373926"
+  },
+  "census_sha256": "2d0f39e218cdb1784d390a45685f0e787cff9edb4443a2c395d8806219213e2c",
+  "event_count": 6435,
+  "current_actionable_primary_event_count": 1666,
+  "current_actionable_primary_symbol_count": 540,
+  "current_actionable_primary_attachment_ready_count": 1659,
+  "actionability_state_counts": {
+    "CURRENT_ACTIONABLE_PRIMARY": 1666,
+    "CURRENT_CONTEXT_ONLY": 3739,
+    "HISTORICAL_OR_NONCURRENT": 1030
+  },
+  "category_counts": {
+    "ASSET_SALE_DIVESTMENT": 49,
+    "BUYBACK": 211,
+    "CAPITAL_REDUCTION": 1,
+    "DELISTING": 21,
+    "INSOLVENCY_RESOLUTION": 662,
+    "LIVE_OPEN_OFFER_CONTROL": 103,
+    "OFFER_FOR_SALE": 27,
+    "PREFERENTIAL_WARRANT": 471,
+    "RIGHTS_ISSUE": 203,
+    "SAST_DISCLOSURE": 4198,
+    "SCHEME_REORGANISATION": 611,
+    "TENDER_OFFER": 25
+  },
+  "threshold_passes": {
+    "exact_input_census_hash": true,
+    "all_6435_events_reclassified_once": true,
+    "all_legacy_open_offer_events_accounted": true,
+    "current_primary_exact_mapping_only": true,
+    "all_current_primary_have_official_attachment": false
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_attachment_acquisition": false,
+  "source_only_diagnosis": {
+    "missing_attachment_current_primary_count": 7,
+    "all_missing_attachment_rows_are_exchange_news_verification_requests": true,
+    "all_seven_symbols_have_separate_attached_issuer_clarification_responses_in_the_frozen_source_corpus": true
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
