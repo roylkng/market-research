@@ -8,7 +8,7 @@ from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.events import sha256_bytes
-from marketlab.fa001_schema_audit import FilingCandidate, QUARTER_ALIASES
+from marketlab.fa001_schema_audit import QUARTER_ALIASES, FilingCandidate
 
 AUDIT_ID = "EI001-D001-v1"
 CURRENT_END = "2026-06-30"
