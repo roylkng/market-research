@@ -119,9 +119,18 @@ def test_separate_sources_produce_comparable_pair() -> None:
         source_url="https://nsearchives.nseindia.com/corporate/xbrl/prior.xml",
         discovery_row_sha256="b"*64,
     )
-    prior_xml=_xml().replace(b"2026-04-01",b"2025-04-01").replace(
-        b"2026-06-30",b"2025-06-30"
-    )
+    prior_xml=b'''<?xml version="1.0"?>
+<xbrli:xbrl
+ xmlns:xbrli="http://www.xbrl.org/2003/instance"
+ xmlns:in-capmkt="http://www.sebi.gov.in/xbrl">
+ <xbrli:context id="Q1PY">
+  <xbrli:entity><xbrli:identifier scheme="x">1</xbrli:identifier></xbrli:entity>
+  <xbrli:period><xbrli:startDate>2025-04-01</xbrli:startDate><xbrli:endDate>2025-06-30</xbrli:endDate></xbrli:period>
+ </xbrli:context>
+ <in-capmkt:RevenueFromOperations contextRef="Q1PY" unitRef="INR">100</in-capmkt:RevenueFromOperations>
+ <in-capmkt:ProfitLossForPeriod contextRef="Q1PY" unitRef="INR">10</in-capmkt:ProfitLossForPeriod>
+ <in-capmkt:ProfitBeforeTax contextRef="Q1PY" unitRef="INR">14</in-capmkt:ProfitBeforeTax>
+</xbrli:xbrl>'''
     prior=parse_single_quarter_source(
         prior_xml,
         candidate=prior_candidate,
