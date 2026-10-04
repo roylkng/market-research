@@ -173,7 +173,7 @@ def _parse_exchange_time(value: object) -> str | None:
     try:
         parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
         if parsed.tzinfo is not None:
-            return parsed.astimezone(UTC).isoformat().replace("+00:00", "Z")
+            return parsed.astimezone(UTC).isoformat()
     except ValueError:
         pass
     for fmt in (
@@ -186,7 +186,7 @@ def _parse_exchange_time(value: object) -> str | None:
     ):
         try:
             parsed = datetime.strptime(f"{raw} +0530", f"{fmt} %z")
-            return parsed.astimezone(UTC).isoformat().replace("+00:00", "Z")
+            return parsed.astimezone(UTC).isoformat()
         except ValueError:
             continue
     return None
