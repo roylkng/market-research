@@ -34,3 +34,22 @@ def test_frozen_window_is_calendar_based() -> None:
     start = date(2026, 4, 1)
     end = date(2026, 10, 4)
     assert (end - start).days + 1 == 187
+
+
+def test_routine_sast_disclosure_is_not_open_offer_control() -> None:
+    row = {
+        "desc": "Disclosure under Regulation 29(2)",
+        "attchmntText": (
+            "Disclosure under SEBI Substantial Acquisition of Shares "
+            "and Takeovers Regulations, 2011"
+        ),
+    }
+    assert classify_special_situation(row) == []
+
+
+def test_explicit_open_offer_remains_control_candidate() -> None:
+    row = {
+        "desc": "Open Offer",
+        "attchmntText": "Public announcement for open offer and change of control",
+    }
+    assert classify_special_situation(row) == ["OPEN_OFFER_CONTROL"]
