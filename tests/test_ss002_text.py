@@ -181,3 +181,32 @@ def test_sealed_failure_has_deterministic_manifest() -> None:
     )
     encoded = json.dumps(row, sort_keys=True)
     assert "segment_manifest_sha256" in encoded
+
+
+
+def test_malformed_pdf_page_tree_fails_closed(monkeypatch) -> None:
+    from pypdf.errors import PdfReadError
+
+    class BrokenPages:
+        def __iter__(self):
+            raise PdfReadError("Invalid object in /Pages")
+
+        def __len__(self):
+            raise PdfReadError("Invalid object in /Pages")
+
+    class BrokenReader:
+        def __init__(self, *args, **kwargs):
+            self.pages = BrokenPages()
+
+    monkeypatch.setattr("marketlab.ss002_text.PdfReader", BrokenReader)
+    raw = b"%PDF-1.7\nsynthetic"
+    doc = hashlib.sha256(raw).hexdigest()
+    row = extract_document_text(
+        document_id=doc,
+        raw=raw,
+        d002_family="PDF",
+        source_url="https://nsearchives.nseindia.com/broken.pdf",
+    )
+    assert row["extraction_state"] == "PARSE_FAILED"
+    assert row["segments"] == []
+    assert "PDF_PAGE_TREE_FAILED" in row["details"]["error"]
