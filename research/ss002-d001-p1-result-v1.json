@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS002-D001-P1-v1",
+  "status": "FAILED_SOURCE_FEASIBILITY",
+  "classification": "CURRENT_SPECIAL_SITUATION_EVENT_CENSUS_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37202892541,
+    "artifact_id": 11302814312,
+    "artifact_name": "ss002-d001-p1-37202892541"
+  },
+  "census_sha256": "628f01c89f8d42785a0d2b488d3340441f24d918eeeca4d11ec5e1f100f759db",
+  "source_row_count": 104005,
+  "candidate_event_count": 2272,
+  "distinct_candidate_symbol_count": 655,
+  "mapped_candidate_event_count": 1666,
+  "mapped_candidate_event_ratio": 0.733274647887324,
+  "mapped_candidate_symbol_count": 540,
+  "unmapped_candidate_symbol_count": 115,
+  "category_counts": {
+    "ASSET_SALE_DIVESTMENT": 49,
+    "BUYBACK": 211,
+    "CAPITAL_REDUCTION": 1,
+    "DELISTING": 21,
+    "INSOLVENCY_RESOLUTION": 662,
+    "OFFER_FOR_SALE": 27,
+    "OPEN_OFFER_CONTROL": 103,
+    "PREFERENTIAL_WARRANT": 471,
+    "RIGHTS_ISSUE": 203,
+    "SCHEME_REORGANISATION": 611,
+    "TENDER_OFFER": 25
+  },
+  "threshold_passes": {
+    "complete_daily_source_coverage": true,
+    "canonical_identity_unique_across_days": true,
+    "exact_current_symbol_mapping_only": true,
+    "minimum_current_identity_mapping_ratio": false
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_attachment_acquisition": false,
+  "source_only_diagnosis": {
+    "taxonomy_precision_improved": true,
+    "d001_candidate_count": 6435,
+    "p1_candidate_count": 2272,
+    "remaining_unmapped_events_are_materially_genuine_legacy_or_noncurrent_special_situations": true,
+    "examples_include": [
+      "CIRP and resolution-process announcements for non-current securities",
+      "compulsory delisting notices",
+      "restructuring/scheme announcements for securities no longer in the current EQ master"
+    ],
+    "conclusion": "CURRENT-IDENTITY MAPPING RATIO IS NOT A VALID COMPLETENESS TEST FOR A SPECIAL-SITUATION ARCHIVE; P2 MUST PARTITION CURRENT-INVESTABLE AND ARCHIVAL EVENTS WITHOUT DROPPING EITHER POPULATION"
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}

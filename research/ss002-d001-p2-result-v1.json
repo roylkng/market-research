@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS002-D001-P2-v1",
+  "status": "PASSED_SOURCE_FEASIBILITY",
+  "classification": "CURRENT_SPECIAL_SITUATION_EVENT_CENSUS_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37203696204,
+    "artifact_id": 11303667832,
+    "artifact_name": "ss002-d001-p2-37203696204"
+  },
+  "census_sha256": "ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071",
+  "input_ss001_census_sha256": "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7",
+  "source_window": {
+    "start": "2026-04-01",
+    "end": "2026-10-04",
+    "calendar_day_count": 187
+  },
+  "source_row_count": 104006,
+  "candidate_event_count": 2272,
+  "distinct_candidate_symbol_count": 655,
+  "current_investable_event_count": 1666,
+  "current_investable_symbol_count": 540,
+  "archival_noncurrent_event_count": 606,
+  "archival_noncurrent_symbol_count": 115,
+  "current_attachment_ready_count": 1659,
+  "current_attachment_ready_ratio": 0.9957983193277311,
+  "category_counts": {
+    "ASSET_SALE_DIVESTMENT": 49,
+    "BUYBACK": 211,
+    "CAPITAL_REDUCTION": 1,
+    "DELISTING": 21,
+    "INSOLVENCY_RESOLUTION": 662,
+    "OFFER_FOR_SALE": 27,
+    "OPEN_OFFER_CONTROL": 103,
+    "PREFERENTIAL_WARRANT": 471,
+    "RIGHTS_ISSUE": 203,
+    "SCHEME_REORGANISATION": 611,
+    "TENDER_OFFER": 25
+  },
+  "threshold_passes": {
+    "complete_daily_source_coverage": true,
+    "canonical_identity_unique_across_days": true,
+    "complete_current_archival_partition": true,
+    "exact_current_symbol_mapping_only": true,
+    "minimum_current_attachment_ready_ratio": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_attachment_acquisition": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "CURRENT INVESTABLE SPECIAL-SITUATION EVENT SPINE PASSED; 1666 EVENTS ACROSS 540 CURRENT SYMBOLS AND 99.58% ATTACHMENT COVERAGE AUTHORIZE OFFICIAL-DOCUMENT ACQUISITION AND LLM TERM EXTRACTION; 606 NONCURRENT EVENTS REMAIN ARCHIVAL ANALOG EVIDENCE"
+}

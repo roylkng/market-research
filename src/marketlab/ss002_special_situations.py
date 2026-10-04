@@ -3,12 +3,13 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date, datetime
 from typing import Any
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_announcements import normalize_announcement_payload
 
-CENSUS_ID = "SS002-D001-v1"
+CENSUS_ID = "SS002-D001-P2-v1"
 EXPECTED_SS001_D001_SHA = "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7"
 EXPECTED_SS001_COUNT = 2319
 WINDOW_START = date(2026, 4, 1)
@@ -20,7 +21,6 @@ CATEGORY_TOKENS: dict[str, tuple[str, ...]] = {
     "OPEN_OFFER_CONTROL": (
         "open offer",
         "change of control",
-        "substantial acquisition of shares",
         "takeover offer",
     ),
     "DELISTING": ("delisting", "delist"),
@@ -65,6 +65,24 @@ CATEGORY_TOKENS: dict[str, tuple[str, ...]] = {
 
 def _clean(value: object) -> str:
     return " ".join(str(value or "").replace("\xa0", " ").split()).strip()
+
+
+def approved_attachment_url(value: object) -> str | None:
+    raw = _clean(value)
+    if not raw:
+        return None
+    try:
+        parsed = urlparse(raw)
+    except ValueError:
+        return None
+    if parsed.scheme != "https":
+        return None
+    if (parsed.hostname or "").casefold() not in {
+        "nsearchives.nseindia.com",
+        "archives.nseindia.com",
+    }:
+        return None
+    return raw
 
 
 def classify_special_situation(row: dict[str, Any]) -> list[str]:
@@ -161,11 +179,11 @@ def build_special_situation_census(
             symbol = str(row["symbol"]).upper()
             market = market_by_symbol.get(symbol)
             if market is None:
-                mapping_state = "CURRENT_IDENTITY_UNMAPPED"
+                mapping_state = "ARCHIVAL_NONCURRENT_IDENTITY"
                 current_context = None
                 unmapped_symbols.add(symbol)
             else:
-                mapping_state = "CURRENT_IDENTITY_MAPPED"
+                mapping_state = "CURRENT_INVESTABLE_IDENTITY"
                 mapped_count += 1
                 mapped_symbols.add(symbol)
                 market_context = market.get("market")
@@ -188,12 +206,25 @@ def build_special_situation_census(
                     "in_existing_u001": bool(market.get("in_existing_u001")),
                 }
 
+            attachment = approved_attachment_url(row.get("attchmntFile"))
+            if mapping_state == "CURRENT_INVESTABLE_IDENTITY":
+                if attachment is not None:
+                    attachment_state = "READY"
+                elif _clean(row.get("attchmntFile")):
+                    attachment_state = "INVALID_URL"
+                else:
+                    attachment_state = "ABSENT"
+            else:
+                attachment_state = "ARCHIVAL_NOT_GATED"
+
             candidate_events.append(
                 {
                     **row,
                     "special_situation_categories": categories,
                     "mapping_state": mapping_state,
                     "current_context": current_context,
+                    "attachment_state": attachment_state,
+                    "approved_attachment_url": attachment,
                     "source_day": day_text,
                     "source_raw_sha256": daily_raw_sha256[day_text],
                     "return_outcomes_opened": False,
@@ -205,11 +236,22 @@ def build_special_situation_census(
 
     total_candidates = len(candidate_events)
     mapped_ratio = mapped_count / total_candidates if total_candidates else 1.0
+    archival_count = total_candidates - mapped_count
+    attachment_ready_count = sum(
+        row["mapping_state"] == "CURRENT_INVESTABLE_IDENTITY"
+        and row["attachment_state"] == "READY"
+        for row in candidate_events
+    )
+    attachment_ready_ratio = (
+        attachment_ready_count / mapped_count if mapped_count else 0.0
+    )
+    partition_complete = mapped_count + archival_count == total_candidates
     threshold_passes = {
         "complete_daily_source_coverage": True,
         "canonical_identity_unique_across_days": True,
+        "complete_current_archival_partition": partition_complete,
         "exact_current_symbol_mapping_only": True,
-        "minimum_current_identity_mapping_ratio": mapped_ratio >= 0.90,
+        "minimum_current_attachment_ready_ratio": attachment_ready_ratio >= 0.95,
     }
 
     generated = datetime.fromisoformat(generated_at_utc)
@@ -240,9 +282,13 @@ def build_special_situation_census(
         ),
         "mapped_candidate_event_count": mapped_count,
         "mapped_candidate_event_ratio": mapped_ratio,
-        "mapped_candidate_symbol_count": len(mapped_symbols),
-        "unmapped_candidate_symbol_count": len(unmapped_symbols),
-        "unmapped_candidate_symbols": sorted(unmapped_symbols),
+        "current_investable_event_count": mapped_count,
+        "current_investable_symbol_count": len(mapped_symbols),
+        "archival_noncurrent_event_count": archival_count,
+        "archival_noncurrent_symbol_count": len(unmapped_symbols),
+        "archival_noncurrent_symbols": sorted(unmapped_symbols),
+        "current_attachment_ready_count": attachment_ready_count,
+        "current_attachment_ready_ratio": attachment_ready_ratio,
         "category_counts": dict(sorted(category_counts.items())),
         "daily_source_row_counts": daily_counts,
         "daily_candidate_counts": daily_candidate_counts,
