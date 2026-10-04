@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from marketlab.gf001_governance import (
     parse_current_governance_xbrl,
 )
@@ -77,10 +79,10 @@ def test_current_governance_parser_extracts_exact_core_semantics() -> None:
         source_url="https://nsearchives.nseindia.com/test.xml",
     )
     assert result["parser_status"] == "CORE_READY"
-    assert result["promoter_percentage"] == 55.0
-    assert result["public_percentage"] == 45.0
+    assert result["promoter_percentage"] == pytest.approx(55.0)
+    assert result["public_percentage"] == pytest.approx(45.0)
     assert result["mutual_fund_state"] == "READY"
-    assert result["mutual_fund_percentage"] == 12.0
+    assert result["mutual_fund_percentage"] == pytest.approx(12.0)
     assert result["promoter_encumbrance"]["pledge"] is True
     assert result["promoter_encumbrance"]["non_disposal_undertaking"] is False
     assert result["promoter_encumbrance"]["other_encumbrance"] is False
