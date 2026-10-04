@@ -289,6 +289,33 @@ def _zip_segments(raw: bytes, *, document_id: str) -> tuple[list[dict], dict]:
     }
 
 
+
+def _segment_manifest_payload(row: dict[str, Any]) -> dict[str, Any]:
+    segments = row.get("segments")
+    if not isinstance(segments, list):
+        raise AlphaContractError("SS002 D003 extraction row requires segments list")
+    return {
+        "document_id": row.get("document_id"),
+        "source_url": row.get("source_url"),
+        "d002_family": row.get("d002_family"),
+        "extraction_state": row.get("extraction_state"),
+        "details": row.get("details") or {},
+        "segments": [
+            {
+                key: value
+                for key, value in segment.items()
+                if key != "text"
+            }
+            for segment in segments
+        ],
+    }
+
+
+def seal_extraction_row(row: dict[str, Any]) -> dict[str, Any]:
+    sealed = dict(row)
+    sealed["segment_manifest_sha256"] = digest(_segment_manifest_payload(sealed))
+    return sealed
+
 def extract_document_text(
     *,
     document_id: str,
@@ -333,23 +360,27 @@ def extract_document_text(
                 locator_base={},
             )
         else:
-            return {
+            return seal_extraction_row(
+                {
+                    "document_id": document_id,
+                    "source_url": source_url,
+                    "d002_family": d002_family,
+                    "extraction_state": "UNSUPPORTED_FAMILY",
+                    "details": {},
+                    "segments": [],
+                }
+            )
+    except SS002TextError as exc:
+        return seal_extraction_row(
+            {
                 "document_id": document_id,
                 "source_url": source_url,
                 "d002_family": d002_family,
-                "extraction_state": "UNSUPPORTED_FAMILY",
-                "details": {},
+                "extraction_state": "PARSE_FAILED",
+                "details": {"error": str(exc)},
                 "segments": [],
             }
-    except SS002TextError as exc:
-        return {
-            "document_id": document_id,
-            "source_url": source_url,
-            "d002_family": d002_family,
-            "extraction_state": "PARSE_FAILED",
-            "details": {"error": str(exc)},
-            "segments": [],
-        }
+        )
 
     segment_ids = [segment["segment_id"] for segment in segments]
     if len(segment_ids) != len(set(segment_ids)):
@@ -363,23 +394,7 @@ def extract_document_text(
         "details": details,
         "segments": segments,
     }
-    manifest = {
-        "document_id": document_id,
-        "source_url": source_url,
-        "d002_family": d002_family,
-        "extraction_state": state,
-        "details": details,
-        "segments": [
-            {
-                key: value
-                for key, value in segment.items()
-                if key != "text"
-            }
-            for segment in segments
-        ],
-    }
-    base["segment_manifest_sha256"] = digest(manifest)
-    return base
+    return seal_extraction_row(base)
 
 
 def _validate_d002_manifest(corpus: dict[str, Any]) -> list[dict[str, Any]]:
@@ -490,6 +505,19 @@ def build_text_corpus(
         segments = row.get("segments")
         if not isinstance(segments, list):
             raise AlphaContractError("SS002 D003 segments must be a list")
+        expected_manifest_sha = seal_extraction_row(
+            {
+                key: value
+                for key, value in row.items()
+                if key != "segment_manifest_sha256"
+            }
+        )["segment_manifest_sha256"]
+        if row.get("segment_manifest_sha256") != expected_manifest_sha:
+            raise AlphaContractError("SS002 D003 segment manifest SHA mismatch")
+        if state == "READY" and not segments:
+            raise AlphaContractError("SS002 D003 READY document requires text segments")
+        if state != "READY" and segments:
+            raise AlphaContractError("SS002 D003 non-READY document cannot carry text segments")
         for segment in segments:
             seg_id = str(segment.get("segment_id") or "")
             text = segment.get("text")
