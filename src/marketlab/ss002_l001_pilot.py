@@ -38,29 +38,50 @@ def _validate_inputs(p2: dict[str, Any], d3: dict[str, Any]) -> None:
                 raise AlphaContractError(f"SS002 L001 pilot requires {label} {field}=false")
 
 
-def _document_index(d3: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    docs=d3.get("documents")
-    if not isinstance(docs,list):
-        raise AlphaContractError("SS002 L001 pilot D3 documents unavailable")
+def _document_index(
+    d3: dict[str, Any],
+    document_records: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    manifest_rows=d3.get("documents")
+    if not isinstance(manifest_rows,list):
+        raise AlphaContractError("SS002 L001 pilot D3 document manifest unavailable")
+    manifest_ids={
+        str(row.get("document_id") or "")
+        for row in manifest_rows
+        if isinstance(row,dict)
+    }
+    if len(manifest_ids)!=d3.get("document_count"):
+        raise AlphaContractError("SS002 L001 pilot D3 document manifest accounting mismatch")
     by_url={}
-    for row in docs:
+    seen_ids=set()
+    for row in document_records:
         if not isinstance(row,dict):
             raise TypeError("SS002 L001 pilot D3 document row must be object")
+        document_id=str(row.get("document_id") or "")
+        if not document_id or document_id not in manifest_ids or document_id in seen_ids:
+            raise AlphaContractError("SS002 L001 pilot document record identity mismatch")
+        seen_ids.add(document_id)
         if row.get("extraction_state")!="READY":
             continue
         url=str(row.get("source_url") or "")
         if not url or url in by_url:
             raise AlphaContractError("SS002 L001 pilot D3 READY URLs must be unique")
         by_url[url]=row
+    if seen_ids!=manifest_ids:
+        raise AlphaContractError("SS002 L001 pilot document records do not cover D3 manifest")
     return by_url
 
 
-def select_pilot(p2: dict[str, Any], d3: dict[str, Any]) -> dict[str, Any]:
+def select_pilot(
+    p2: dict[str, Any],
+    d3: dict[str, Any],
+    document_records: list[dict[str, Any]],
+) -> dict[str, Any]:
     _validate_inputs(p2,d3)
     events=p2.get("events")
     if not isinstance(events,list):
         raise AlphaContractError("SS002 L001 pilot P2 events unavailable")
-    docs=_document_index(d3)
+    docs=_document_index(d3,document_records)
 
     selected=[]
     family_counts=Counter()
