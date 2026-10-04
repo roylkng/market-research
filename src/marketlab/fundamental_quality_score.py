@@ -78,6 +78,8 @@ def build_quality_score(panel: dict[str, Any]) -> dict[str, Any]:
     failures = panel.get("failures")
     if not isinstance(records, list) or not isinstance(failures, list):
         raise AlphaContractError("FQ001 S001 source panel rows unavailable")
+    if len(records) != 88 or len(failures) != 12:
+        raise AlphaContractError("FQ001 S001 requires frozen P2 88/12 source accounting")
     if len(records) + len(failures) != 100:
         raise AlphaContractError("FQ001 S001 requires complete 100-name accounting")
 
