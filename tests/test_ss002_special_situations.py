@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
-from marketlab.ss002_special_situations import classify_special_situation
+from marketlab.ss002_special_situations import (
+    approved_attachment_url,
+    classify_special_situation,
+)
 
 
 def test_special_situation_taxonomy_is_semantic_not_directional() -> None:
@@ -34,3 +37,33 @@ def test_frozen_window_is_calendar_based() -> None:
     start = date(2026, 4, 1)
     end = date(2026, 10, 4)
     assert (end - start).days + 1 == 187
+
+
+def test_routine_sast_disclosure_is_not_open_offer_control() -> None:
+    row = {
+        "desc": "Disclosure under Regulation 29(2)",
+        "attchmntText": (
+            "Disclosure under SEBI Substantial Acquisition of Shares "
+            "and Takeovers Regulations, 2011"
+        ),
+    }
+    assert classify_special_situation(row) == []
+
+
+def test_explicit_open_offer_remains_control_candidate() -> None:
+    row = {
+        "desc": "Open Offer",
+        "attchmntText": "Public announcement for open offer and change of control",
+    }
+    assert classify_special_situation(row) == ["OPEN_OFFER_CONTROL"]
+
+
+def test_attachment_url_requires_official_nse_archive_https() -> None:
+    assert approved_attachment_url(
+        "https://nsearchives.nseindia.com/corporate/test.pdf"
+    ) == "https://nsearchives.nseindia.com/corporate/test.pdf"
+    assert approved_attachment_url(
+        "https://archives.nseindia.com/corporate/test.pdf"
+    ) == "https://archives.nseindia.com/corporate/test.pdf"
+    assert approved_attachment_url("http://nsearchives.nseindia.com/test.pdf") is None
+    assert approved_attachment_url("https://example.com/test.pdf") is None
