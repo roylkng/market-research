@@ -179,8 +179,8 @@ def main() -> int:
             continue
 
         annual_rows = []
+        annual_failures = []
         eps_by_period = {}
-        fatal = None
 
         for candidate in candidates:
             try:
@@ -198,13 +198,16 @@ def main() -> int:
                 if eps.raw_sha256 != filing_sha:
                     raise NV001SourceError("annual filing raw SHA mismatch")
             except (NSEAcquisitionError, NV001SourceError) as exc:
-                fatal = _failure(
-                    symbol=symbol,
-                    stage=f"ANNUAL_EPS_{candidate.period_end}",
-                    reason=str(exc),
+                annual_failures.append(
+                    {
+                        "period_end": candidate.period_end,
+                        "stage": "ANNUAL_EPS",
+                        "reason": str(exc),
+                    }
                 )
-                break
+                continue
 
+            eps_by_period[candidate.period_end] = eps
             anchor = None
             for day in candidate_price_dates(candidate):
                 source_family, source_url = price_source(day)
@@ -225,15 +228,19 @@ def main() -> int:
                 break
 
             if anchor is None:
-                fatal = _failure(
-                    symbol=symbol,
-                    stage=f"PRICE_ANCHOR_{candidate.period_end}",
-                    reason="no exact official post-filing price anchor within 10 calendar days",
+                annual_failures.append(
+                    {
+                        "period_end": candidate.period_end,
+                        "stage": "PRICE_ANCHOR",
+                        "reason": (
+                            "no exact official post-filing price anchor "
+                            "within 10 calendar days"
+                        ),
+                    }
                 )
-                break
+                continue
 
             pe = trailing_pe(anchor.close_price, eps.basic_eps)
-            eps_by_period[candidate.period_end] = eps
             annual_rows.append(
                 {
                     "period_end": candidate.period_end,
@@ -260,37 +267,24 @@ def main() -> int:
                 }
             )
 
-        if fatal is not None:
-            failures.append(fatal)
-            continue
-
-        if len(annual_rows) != len(ANNUAL_PERIODS):
-            failures.append(
-                _failure(
-                    symbol=symbol,
-                    stage="ANNUAL_COVERAGE",
-                    reason="four annual valuation observations were not materialized",
-                )
-            )
-            continue
-
-        fy26 = eps_by_period["2026-03-31"]
+        fy26 = eps_by_period.get("2026-03-31")
         current_anchor = None
-        try:
-            current_anchor = parse_price_close(
-                current_raw,
-                source_family="NSE_UDIFF_BHAVCOPY",
-                session_date=current_day,
-                symbol=symbol,
-                expected_isin=member.isin,
-                source_url=current_url,
-            )
-        except NV001SourceError:
-            current_anchor = None
+        if fy26 is not None:
+            try:
+                current_anchor = parse_price_close(
+                    current_raw,
+                    source_family="NSE_UDIFF_BHAVCOPY",
+                    session_date=current_day,
+                    symbol=symbol,
+                    expected_isin=member.isin,
+                    source_url=current_url,
+                )
+            except NV001SourceError:
+                current_anchor = None
 
         current_pe = (
             trailing_pe(current_anchor.close_price, fy26.basic_eps)
-            if current_anchor is not None
+            if current_anchor is not None and fy26 is not None
             else None
         )
 
@@ -302,7 +296,14 @@ def main() -> int:
             "accounting_basis": basis,
             "integrated_discovery_raw_sha256": integrated_sha,
             "legacy_discovery_raw_sha256": legacy_sha,
-            "annual_observations": annual_rows,
+            "annual_observations": sorted(
+                annual_rows,
+                key=lambda row: row["period_end"],
+            ),
+            "annual_failures": sorted(
+                annual_failures,
+                key=lambda row: (row["period_end"], row["stage"]),
+            ),
             "historical_pe_count": len(annual_rows),
             "current_session": CURRENT_SESSION,
             "current_price_source_url": current_url,
