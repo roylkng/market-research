@@ -212,7 +212,7 @@ def build_special_situation_census(
         "minimum_current_identity_mapping_ratio": mapped_ratio >= 0.90,
     }
 
-    generated = datetime.fromisoformat(generated_at_utc.replace("Z", "+00:00"))
+    generated = datetime.fromisoformat(generated_at_utc)
     if generated.tzinfo is None:
         raise AlphaContractError("SS002 D001 generated_at_utc must include timezone")
 
