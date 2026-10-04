@@ -1,6 +1,6 @@
-# FQ001-D001 P2 ISIN continuity amendment v1
+# FQ001-D001 P2 Issuer Identity Continuity Amendment v1
 
-Status: **FROZEN BEFORE P2 RERUN**  
+Status: **FROZEN BEFORE CORRECTED P2 RERUN**  
 Frozen: 2026-10-04  
 Return outcomes opened: no  
 Portfolio eligibility: disabled  
@@ -8,43 +8,71 @@ Live capital: disabled
 
 ## Purpose
 
-P1 passed the original source-feasibility thresholds with 83/100 complete rows.
-Two remaining exclusions were not source failures: their FY25 filings carry the
-pre-split ISIN while the frozen 2026 universe carries the post-split ISIN.
+P1 passed the original FQ001 source-feasibility thresholds with 83/100 complete rows.
+Some remaining exclusions are issuer-identity transitions rather than missing accounting
+data. P2 permits only deterministic continuity rules that can be verified from exact ISIN
+or official NSE ISIN-change evidence.
 
-P2 permits only explicitly verified official-NSE stock-split ISIN transitions.
-It does not relax symbol, period, source, or filing-basis identity.
+No return outcomes are opened and no economic metric or feasibility threshold changes.
 
-## Frozen bridge file
+## Rule A: same-ISIN continuity
+
+A historical filing may use a changed or reformatted symbol when:
+
+- target filing ISIN equals the frozen U001 ISIN; and
+- baseline filing ISIN equals the target filing ISIN.
+
+This admits ticker renames such as LTM/LTIM and punctuation changes such as
+BAJAJ-AUTO/BAJAJAUTO without fuzzy name matching.
+
+## Rule B: official NSE ISIN bridge
+
+When baseline and target ISIN differ, continuity is allowed only through:
 
 `research/fq001/fq001-isin-bridges-v1.json`
 
-Exactly two transitions are admitted:
+A bridge is valid only when all are true:
+
+1. bridge symbol equals the frozen U001 symbol;
+2. baseline filing ISIN equals bridge old ISIN;
+3. target filing ISIN equals both bridge new ISIN and frozen U001 ISIN;
+4. bridge effective date is strictly after baseline filing publication;
+5. bridge effective date is on or before target filing publication;
+6. corporate action is a frozen share sub-division;
+7. evidence URL is an official `nsearchives.nseindia.com` source.
+
+The frozen bridge file contains exactly:
 
 - COFORGE: INE591G01017 -> INE591G01025, effective 2025-06-04;
 - ADANIPOWER: INE814H01011 -> INE814H01029, effective 2025-09-22.
 
-Both are official NSE-listed sub-division events.
+No same-symbol ISIN change is accepted without an explicit frozen bridge.
 
-## Frozen validation rule
+## Audit output
 
-A baseline ISIN mismatch may be accepted only when all are true:
+Every successful FQ001 record retains:
 
-1. target filing symbol equals frozen U001 symbol;
-2. target filing ISIN equals frozen U001 ISIN;
-3. baseline filing ISIN exactly equals a frozen bridge old ISIN;
-4. bridge new ISIN exactly equals both target and U001 ISIN;
-5. bridge symbol exactly equals the company symbol;
-6. bridge effective date is strictly after baseline filing publication;
-7. bridge effective date is on or before target filing publication;
-8. bridge source is an official NSE archive URL.
+- target and baseline reported symbols;
+- target and baseline ISINs;
+- continuity state:
+  - `SAME_ISIN`, or
+  - `VERIFIED_NSE_ISIN_BRIDGE`;
+- source record hashes.
 
-No fuzzy company-name match, ticker-only override, manually inferred continuity,
-or bridge discovered after score/return outcomes may be used.
+## Unchanged rules
 
-## Deliberately unchanged
+P2 does not change:
 
-P2 does not change the six metrics, annual period pair, source-feasibility
-thresholds, denominator rules, or any portfolio state.
+- the frozen 100-name U001 universe;
+- FY26/FY25 annual period pair;
+- accounting-basis selection;
+- six quality metrics;
+- missing-value policy;
+- 70 same-basis-pair threshold;
+- 60 complete-row threshold;
+- 60 per-metric coverage threshold;
+- scoring rules;
+- PF001 or live-capital state.
 
-All other P1 failures remain fail-closed.
+Non-March financial-year cases, archive failures and missing same-basis filing pairs
+remain fail-closed unless addressed by a separately frozen source amendment.
