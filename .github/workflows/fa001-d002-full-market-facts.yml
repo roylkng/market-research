@@ -1,0 +1,163 @@
+name: FA001 D002 full-market financial fact plane
+
+on:
+  push:
+    branches:
+      - research/fa001-d002-full-market-facts-20261004
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  shard:
+    if: contains(github.event.head_commit.message, '[fa001-d002]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen implementation
+        run: |
+          ruff check \
+            src/marketlab/fa001_facts.py \
+            scripts/run_fa001_d002_shard.py \
+            scripts/merge_fa001_d002.py \
+            tests/test_fa001_facts.py
+          pytest -q \
+            tests/test_fa001_facts.py \
+            tests/test_fa001_schema_audit.py
+
+      - name: Download exact SS001 D001 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/ss001-d001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+
+      - name: Run frozen shard
+        run: |
+          python scripts/run_fa001_d002_shard.py \
+            --d001-root reports/ss001-d001-source \
+            --shard-index ${{ matrix.shard }} \
+            --shard-count 6 \
+            --raw-dir reports/fa001-d002/raw \
+            --output reports/fa001-d002/shard \
+            --attempts 4 \
+            --timeout-seconds 25 \
+            --pause-seconds 0.02
+
+      - name: Upload compact shard facts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fa001-d002-shard-${{ matrix.shard }}-panel
+          path: reports/fa001-d002/shard
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload raw source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fa001-d002-shard-${{ matrix.shard }}-raw
+          path: reports/fa001-d002/raw
+          if-no-files-found: warn
+          retention-days: 90
+
+  merge:
+    if: contains(github.event.head_commit.message, '[fa001-d002]')
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download exact SS001 D001 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/ss001-d001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+
+      - name: Download compact shard panels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fa001-d002-shard-*-panel
+          path: reports/fa001-d002-shards
+          merge-multiple: true
+
+      - name: Merge exact six-shard fact plane
+        run: |
+          python scripts/merge_fa001_d002.py \
+            --d001-census reports/ss001-d001-source/ss001-d001-census.json \
+            --shards-dir reports/fa001-d002-shards \
+            --output reports/fa001-d002-merged
+
+      - name: Prove source-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p=json.loads(
+              Path("reports/fa001-d002-merged/fa001-d002-panel.json").read_text()
+          )
+          assert p["panel_id"]=="FA001-D002-v1"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+              "panel_sha256":p["panel_sha256"],
+              "annual_source_count":p["annual_source_count"],
+              "annual_source_ratio":p["annual_source_ratio"],
+              "quarter_source_count":p["quarter_source_count"],
+              "quarter_source_ratio":p["quarter_source_ratio"],
+              "annual_core_assets_ready_count":p["annual_core_assets_ready_count"],
+              "annual_core_assets_ready_ratio":p["annual_core_assets_ready_ratio"],
+              "borrowings_ready_count":p["borrowings_ready_count"],
+              "borrowings_ready_ratio":p["borrowings_ready_ratio"],
+              "investments_ready_count":p["investments_ready_count"],
+              "investments_ready_ratio":p["investments_ready_ratio"],
+              "quarter_revenue_pat_ready_count":p["quarter_revenue_pat_ready_count"],
+              "quarter_revenue_pat_ready_ratio":p["quarter_revenue_pat_ready_ratio"],
+              "annual_source_state_counts":p["annual_source_state_counts"],
+              "quarter_source_state_counts":p["quarter_source_state_counts"],
+              "threshold_passes":p["threshold_passes"],
+              "feasibility_pass":p["feasibility_pass"],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Upload merged fact plane
+        uses: actions/upload-artifact@v4
+        with:
+          name: fa001-d002-merged-${{ github.run_id }}
+          path: reports/fa001-d002-merged
+          if-no-files-found: error
+          retention-days: 90
