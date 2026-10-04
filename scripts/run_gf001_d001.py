@@ -74,7 +74,7 @@ def main() -> int:
         expected_date = str(sample_row["source_report_date"])
         d002_row = by_symbol.get(symbol)
         if not isinstance(d002_row, dict):
-            raise RuntimeError(f"{symbol}: absent from D002 census")
+            raise TypeError(f"{symbol}: absent from D002 census")
         latest = d002_row.get("latest")
         if (
             d002_row.get("source_state") != "READY"
