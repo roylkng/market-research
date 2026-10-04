@@ -183,6 +183,20 @@ class NSEClient:
             self.QUOTE_ENDPOINT.name,
         ), raw
 
+    def quote_equity_trade_info_with_raw(
+        self,
+        symbol: str,
+    ) -> tuple[dict[str, Any], bytes]:
+        """Fetch exact NSE equity trade-info JSON bytes for one symbol."""
+        payload, raw = self._json_get_with_raw(
+            self.QUOTE_ENDPOINT,
+            params={"symbol": symbol, "section": "trade_info"},
+        )
+        return self._require_mapping(
+            payload,
+            self.QUOTE_ENDPOINT.name,
+        ), raw
+
     def integrated_filings(
         self,
         *,
