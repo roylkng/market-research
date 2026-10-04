@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "GF001-D001-v1",
+  "status": "FAILED_SCHEMA_FEASIBILITY",
+  "classification": "CURRENT_SHAREHOLDING_XBRL_SCHEMA_AUDIT_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37200707788,
+    "artifact_id": 11302609539,
+    "artifact_name": "gf001-d001-37200707788"
+  },
+  "audit_sha256": "7f1a5052f51b48052c0b32fe3c27fc3be58c64f1a30521f92e3be1c52d28fdf8",
+  "sample_count": 48,
+  "ready_parse_count": 48,
+  "fetch_or_parse_failure_count": 0,
+  "june_2026_ready_count": 42,
+  "september_2026_ready_count": 6,
+  "june_promoter_aggregate_ready_ratio": 0.0,
+  "june_public_aggregate_ready_ratio": 0.0,
+  "june_mutual_fund_aggregate_ready_ratio": 0.0,
+  "aggregate_scale_semantics_counts": {"UNRESOLVED": 48},
+  "threshold_passes": {
+    "minimum_44_well_formed": true,
+    "june_promoter_aggregate_90pct": false,
+    "june_public_aggregate_90pct": false,
+    "june_mutual_fund_aggregate_90pct": false,
+    "september_no_unresolvable_core_break": false
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_gf001_d002_parser": false,
+  "source_only_diagnosis": {
+    "promoter_context_observed_in_all_48": "ShareholdingOfPromoterAndPromoterGroup_ContextI",
+    "public_context_observed_in_all_48": "PublicShareholding_ContextI",
+    "mutual_fund_context_observed_in_27_of_48": "MutualFundsOrUTI_ContextI",
+    "root_cause": "D001 incorrectly required aggregate category contexts to be non-dimensional; current NSE taxonomy represents aggregate categories using CategoryOfShareholdersAxis explicit members",
+    "encumbrance_flags_observed_in_all_48": true
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
