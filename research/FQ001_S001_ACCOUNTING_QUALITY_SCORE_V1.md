@@ -16,10 +16,10 @@ This is not an alpha model and is not fitted to stock returns.
 Authoritative source input:
 
 - diagnostic: `FQ001-D001-P2-v1`;
-- workflow run: `37178986667`;
-- artifact ID: `11294162247`;
+- workflow run: `37183221019`;
+- artifact ID: `11295493835`;
 - source panel SHA-256:
-  `12aabded6da20d660966fdd9ab0bfd6487dc612137628c2f0b2bbde3d3135f70`;
+  `0112a61cdb928c35ecf0c55a6f8a95ccb3ebc8a137ee3d8f31c1816c89134ee4`;
 - frozen U001 universe SHA-256:
   `cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb`;
 - complete six-metric source rows: 88.
