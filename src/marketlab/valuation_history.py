@@ -360,6 +360,68 @@ def parse_quarterly_valuation_filing(
     )
 
 
+def _published_date(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value)
+    except ValueError as exc:
+        raise AlphaContractError(f"VQ001 invalid filing timestamp: {value}") from exc
+    if parsed.tzinfo is None:
+        raise AlphaContractError("VQ001 filing timestamp must include timezone")
+    return parsed.astimezone(UTC)
+
+
+def validate_snapshot_issuer_identity(
+    *,
+    frozen_symbol: str,
+    frozen_isin: str | None,
+    target: QuarterlyValuationFacts,
+    components: list[QuarterlyValuationFacts],
+    bridge_index: dict[str, dict[str, str]],
+    as_of_date: str,
+) -> str:
+    if not frozen_isin:
+        raise AlphaContractError("VQ001 frozen universe ISIN is required")
+    if not target.isin:
+        raise AlphaContractError("VQ001 target filing ISIN is required")
+
+    bridge = bridge_index.get(frozen_symbol.upper())
+    target_time = _published_date(target.published_at_utc)
+    as_of = datetime.fromisoformat(as_of_date).replace(tzinfo=UTC)
+
+    if target.isin == frozen_isin:
+        target_state = "TARGET_MATCHES_FROZEN_ISIN"
+    elif (
+        bridge is not None
+        and target.isin == bridge["old_isin"]
+        and frozen_isin == bridge["new_isin"]
+    ):
+        effective = datetime.fromisoformat(bridge["effective_date"]).replace(tzinfo=UTC)
+        if not target_time < effective <= as_of:
+            raise AlphaContractError(
+                "VQ001 target-to-frozen ISIN bridge date is inconsistent"
+            )
+        target_state = "TARGET_PRECEDES_VERIFIED_NSE_ISIN_BRIDGE"
+    else:
+        raise AlphaContractError("VQ001 target filing cannot be linked to frozen issuer")
+
+    for component in components:
+        if not component.isin:
+            raise AlphaContractError("VQ001 component filing ISIN is required")
+        if component.isin == target.isin:
+            continue
+        if bridge is None:
+            raise AlphaContractError("VQ001 component has unverified ISIN transition")
+        if component.isin != bridge["old_isin"] or target.isin != bridge["new_isin"]:
+            raise AlphaContractError("VQ001 component ISINs do not match frozen bridge")
+        component_time = _published_date(component.published_at_utc)
+        effective = datetime.fromisoformat(bridge["effective_date"]).replace(tzinfo=UTC)
+        if not component_time < effective <= target_time:
+            raise AlphaContractError(
+                "VQ001 component-to-target ISIN bridge date is inconsistent"
+            )
+
+    return target_state
+
 def publication_market_date(published_at_utc: str) -> str:
     try:
         parsed = datetime.fromisoformat(published_at_utc)
