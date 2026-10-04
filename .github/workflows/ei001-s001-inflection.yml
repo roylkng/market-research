@@ -1,0 +1,81 @@
+name: EI001 S001 earnings inflection router
+
+on:
+  push:
+    branches:
+      - research/ei001-s001-inflection-router-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  route:
+    if: contains(github.event.head_commit.message, '[ei001-s001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen router
+        run: |
+          ruff check \
+            src/marketlab/ei001_inflection.py \
+            scripts/materialize_ei001_s001.py \
+            tests/test_ei001_inflection.py
+          pytest -q tests/test_ei001_inflection.py
+      - name: Download exact passed EI001 D002 panel
+        uses: actions/download-artifact@v4
+        with:
+          name: ei001-d002-37217767159
+          path: reports/ei001-d002-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37217767159
+      - name: Verify frozen source
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/ei001-d002-source/ei001-d002-panel.json").read_text())
+          assert p["panel_id"]=="EI001-D002-v1"
+          assert p["panel_sha256"]=="14fdc99444ff8c1c62cbef58db91e51cb4cb6730c1259bccb98df979366272cd"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          PY
+      - name: Materialize frozen inflection router
+        run: |
+          python scripts/materialize_ei001_s001.py \
+            --panel reports/ei001-d002-source/ei001-d002-panel.json \
+            --output reports/ei001-s001
+      - name: Prove research-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/ei001-s001/ei001-s001-router.json").read_text())
+          assert p["router_id"]=="EI001-S001-v1"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "router_sha256":p["router_sha256"],
+            "pair_ready_count":p["pair_ready_count"],
+            "any_opportunity_flag_count":p["any_opportunity_flag_count"],
+            "opportunity_flag_counts":p["opportunity_flag_counts"],
+            "caution_flag_counts":p["caution_flag_counts"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact S001 output
+        uses: actions/upload-artifact@v4
+        with:
+          name: ei001-s001-${{ github.run_id }}
+          path: reports/ei001-s001
+          if-no-files-found: error
+          retention-days: 90
