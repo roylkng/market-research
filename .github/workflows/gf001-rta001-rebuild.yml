@@ -1,0 +1,46 @@
+name: GF001 RTA001 accounting rebuild
+
+on:
+  push:
+    branches:
+      - research/gf001-governance-schema-20261004
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[gf001-rta001]')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Rebuild deterministic RTA001 summary
+        run: |
+          python scripts/build_rta001_summary.py \
+            --manifest research/rta001-trials-v1.json \
+            --output research/rta001-summary-v1.json \
+            --repo-root .
+
+      - name: Commit rebuilt summary
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/rta001-summary-v1.json
+          if git diff --cached --quiet; then
+            echo "RTA001 summary already current"
+            exit 0
+          fi
+          git commit -m "RTA001: rebuild accounting summary for GF001 [skip ci]"
+          git push origin HEAD:research/gf001-governance-schema-20261004
