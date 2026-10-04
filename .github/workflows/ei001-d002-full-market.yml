@@ -1,0 +1,148 @@
+name: EI001 D002 full-market comparative fact plane
+
+on:
+  push:
+    branches:
+      - research/ei001-full-market-comparative-20261004
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate:
+    if: contains(github.event.head_commit.message, '[ei001-d002]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate implementation
+        run: |
+          ruff check \
+            src/marketlab/ei001_full_market.py \
+            scripts/run_ei001_d002_shard.py \
+            scripts/merge_ei001_d002.py \
+            tests/test_ei001_full_market.py
+          pytest -q \
+            tests/test_ei001_full_market.py \
+            tests/test_ei001_context_audit.py
+
+  shard:
+    needs: validate
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [0,1,2,3,4,5]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download exact FA001 D002 panel
+        uses: actions/download-artifact@v4
+        with:
+          name: fa001-d002-merged-37213394690
+          path: reports/fa001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213394690
+      - name: Verify frozen FA001 source
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/fa001-source/fa001-d002-panel.json").read_text())
+          assert p["panel_id"]=="FA001-D002-v1"
+          assert p["panel_sha256"]=="cb8a408b6904799750a5aa08210f909ae8b285005273b5588fb1f8b7a6019124"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          PY
+      - name: Run frozen comparative shard
+        run: |
+          python scripts/run_ei001_d002_shard.py \
+            --fa-panel reports/fa001-source/fa001-d002-panel.json \
+            --shard-index "${{ matrix.shard }}" \
+            --shard-count 6 \
+            --raw-dir "reports/ei001-d002-shard-${{ matrix.shard }}/raw" \
+            --output "reports/ei001-d002-shard-${{ matrix.shard }}" \
+            --attempts 4 \
+            --timeout-seconds 25 \
+            --pause-seconds 0.01
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: ei001-d002-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: reports/ei001-d002-shard-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 90
+
+  merge:
+    needs: shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download FA001 panel
+        uses: actions/download-artifact@v4
+        with:
+          name: fa001-d002-merged-37213394690
+          path: reports/fa001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213394690
+      - name: Download all EI001 shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ei001-d002-shard-*-${{ github.run_id }}
+          path: reports/ei001-shards
+          merge-multiple: true
+      - name: Merge comparative plane
+        run: |
+          python scripts/merge_ei001_d002.py \
+            --fa-panel reports/fa001-source/fa001-d002-panel.json \
+            --shards-root reports/ei001-shards \
+            --output reports/ei001-d002
+      - name: Prove source-only comparative panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/ei001-d002/ei001-d002-panel.json").read_text())
+          assert p["panel_id"]=="EI001-D002-v1"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "panel_sha256":p["panel_sha256"],
+            "current_q1_ready_count":p["current_q1_ready_count"],
+            "prior_q1_candidate_count":p["prior_q1_candidate_count"],
+            "comparable_family_counts":p["comparable_family_counts"],
+            "comparable_revenue_pat_count":p["comparable_revenue_pat_count"],
+            "comparable_revenue_pat_pbt_count":p["comparable_revenue_pat_pbt_count"],
+            "source_state_counts":p["source_state_counts"],
+            "threshold_passes":p["threshold_passes"],
+            "feasibility_pass":p["feasibility_pass"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload merged EI001 D002
+        uses: actions/upload-artifact@v4
+        with:
+          name: ei001-d002-${{ github.run_id }}
+          path: reports/ei001-d002
+          if-no-files-found: error
+          retention-days: 90
