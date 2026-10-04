@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "FQ001-D001-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "evidence_class": "HISTORICAL_SOURCE_AND_METRIC_FEASIBILITY_NO_RETURNS",
+  "successful_run": {
+    "run_id": 37178238198,
+    "artifact_id": 11293924321,
+    "artifact_name": "fq001-d001-37178238198"
+  },
+  "panel_sha256": "487218c747f0a17eed29d0024fd42214ec2b44eb908288b1eb6f92313d58786b",
+  "universe_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb",
+  "universe_member_count": 100,
+  "target_period_end": "2026-03-31",
+  "baseline_period_end": "2025-03-31",
+  "same_basis_pair_count": 49,
+  "complete_core_metric_count": 0,
+  "metric_coverage": {
+    "roce_proxy": 49,
+    "cfo_to_pat": 49,
+    "cfo_minus_ppe_to_pat": 0,
+    "accruals_to_avg_assets": 49,
+    "net_borrowings_to_equity": 49,
+    "ppe_capex_to_revenue": 0
+  },
+  "feasibility_thresholds": {
+    "minimum_same_basis_pairs": 70,
+    "minimum_complete_core_metric_rows": 60,
+    "minimum_each_core_metric_coverage": 60
+  },
+  "threshold_passes": {
+    "same_basis_pair_count": false,
+    "complete_core_metric_rows": false,
+    "each_core_metric_coverage": false
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_quality_score_design": false,
+  "primary_failure_diagnosis": [
+    "balance-sheet cash and cash-flow-statement cash concepts were incorrectly treated as interchangeable aliases",
+    "NSE PPE-purchase taxonomy concept was not included, causing zero PPE-derived metric coverage"
+  ],
+  "secondary_fail_closed_observations": {
+    "annual_duration_context_unavailable": 3,
+    "pair_selection_failures": 8,
+    "filing_fetch_failures": 1,
+    "parsed_symbol_mismatches": 3,
+    "baseline_isin_mismatches": 2
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FAILED_SOURCE_FEASIBILITY; PRESERVE_RESULT; P1_MAY_REPAIR_ONLY_EXPLICIT_XBRL_SEMANTICS_WITH_FROZEN_THRESHOLDS_UNCHANGED"
+}
