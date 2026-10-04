@@ -2,7 +2,7 @@
 
 Status: **POINT-IN-TIME RESEARCH OVERLAY**  
 Source score: `FQ001-S001-v1`  
-Source score SHA-256: `1e965f6e171ce50cbd91ded2d22792b420941a89dbebb3c623c1885dbb1c2b96`  
+Source score SHA-256: `aa0ced48ab2c6342b7ff05bebcbd355754c0dff124b16f1c7cd09e5b89b1d19a`  
 Portfolio eligibility: disabled  
 Live capital: disabled
 
