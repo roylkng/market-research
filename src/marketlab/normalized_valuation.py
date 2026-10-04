@@ -15,7 +15,7 @@ from marketlab.alpha import digest
 from marketlab.events import sha256_bytes
 from marketlab.marketdata import udiff_url
 
-DIAGNOSTIC_ID = "NV001-D001-v1"
+DIAGNOSTIC_ID = "NV001-D001-P1-v1"
 ANNUAL_PERIODS = (
     "2023-03-31",
     "2024-03-31",
@@ -332,6 +332,23 @@ def _unique_text(
     return next(iter(values)) if values else None
 
 
+def _context_text(
+    facts: dict[str, list[tuple[str, str]]],
+    concept: str,
+    context_id: str,
+) -> str | None:
+    values = {
+        value
+        for fact_context, value in facts.get(concept.casefold(), [])
+        if fact_context == context_id and value
+    }
+    if len(values) > 1:
+        raise NV001SourceError(
+            f"conflicting XBRL values for {concept} in context {context_id}"
+        )
+    return next(iter(values)) if values else None
+
+
 def _parse_number(value: object) -> float | None:
     raw = _normalise(value).replace(",", "").replace("₹", "")
     if not raw or raw.casefold() in {"na", "n/a", "-", "--", "null"}:
@@ -375,22 +392,69 @@ def parse_annual_basic_eps(
     if basis is None or basis.casefold() != candidate.accounting_basis.casefold():
         raise NV001SourceError("annual filing accounting basis mismatch")
 
-    annual_contexts: set[str] = set()
-    starts: set[str] = set()
-    end = date.fromisoformat(candidate.period_end)
-    for context_id, context in contexts.items():
-        if context.dimensional or context.end_date != candidate.period_end:
-            continue
-        if context.start_date is None:
-            continue
-        start = date.fromisoformat(context.start_date)
-        days = (end - start).days + 1
-        if 350 <= days <= 380:
-            annual_contexts.add(context_id)
-            starts.add(context.start_date)
-    if not annual_contexts or len(starts) != 1:
-        raise NV001SourceError("annual EPS duration context is unavailable or ambiguous")
-    annual_start = next(iter(starts))
+    if candidate.source_family == "NSE_LEGACY_FINANCIAL_RESULTS":
+        legacy_context = contexts.get("FourD")
+        if (
+            legacy_context is None
+            or legacy_context.dimensional
+            or legacy_context.end_date != candidate.period_end
+        ):
+            raise NV001SourceError(
+                "legacy annual EPS FourD context is unavailable or incompatible"
+            )
+
+        reporting_end = _parse_period(
+            _context_text(
+                facts,
+                "DateOfEndOfReportingPeriod",
+                "FourD",
+            )
+        )
+        financial_year_start = _parse_period(
+            _unique_text(facts, "DateOfStartOfFinancialYear")
+        )
+        financial_year_end = _parse_period(
+            _unique_text(facts, "DateOfEndOfFinancialYear")
+        )
+        period_end = date.fromisoformat(candidate.period_end)
+        expected_start = date(
+            period_end.year - 1,
+            4,
+            1,
+        ).isoformat()
+        if reporting_end != candidate.period_end:
+            raise NV001SourceError(
+                "legacy FourD reporting-period end does not match selected year"
+            )
+        if financial_year_start != expected_start:
+            raise NV001SourceError(
+                "legacy filing financial-year start does not match April 1"
+            )
+        if financial_year_end != candidate.period_end:
+            raise NV001SourceError(
+                "legacy filing financial-year end does not match selected year"
+            )
+        annual_contexts = {"FourD"}
+        annual_start = financial_year_start
+    else:
+        annual_contexts: set[str] = set()
+        starts: set[str] = set()
+        end = date.fromisoformat(candidate.period_end)
+        for context_id, context in contexts.items():
+            if context.dimensional or context.end_date != candidate.period_end:
+                continue
+            if context.start_date is None:
+                continue
+            start = date.fromisoformat(context.start_date)
+            days = (end - start).days + 1
+            if 350 <= days <= 380:
+                annual_contexts.add(context_id)
+                starts.add(context.start_date)
+        if not annual_contexts or len(starts) != 1:
+            raise NV001SourceError(
+                "annual EPS duration context is unavailable or ambiguous"
+            )
+        annual_start = next(iter(starts))
 
     eps_value = None
     for concept in EPS_CONCEPTS:
