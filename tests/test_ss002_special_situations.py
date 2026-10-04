@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from marketlab.ss002_special_situations import classify_special_situation
+from marketlab.ss002_special_situations import (\n    approved_attachment_url,\n    classify_special_situation,\n)
 
 
 def test_special_situation_taxonomy_is_semantic_not_directional() -> None:
@@ -53,3 +53,14 @@ def test_explicit_open_offer_remains_control_candidate() -> None:
         "attchmntText": "Public announcement for open offer and change of control",
     }
     assert classify_special_situation(row) == ["OPEN_OFFER_CONTROL"]
+
+
+def test_attachment_url_requires_official_nse_archive_https() -> None:
+    assert approved_attachment_url(
+        "https://nsearchives.nseindia.com/corporate/test.pdf"
+    ) == "https://nsearchives.nseindia.com/corporate/test.pdf"
+    assert approved_attachment_url(
+        "https://archives.nseindia.com/corporate/test.pdf"
+    ) == "https://archives.nseindia.com/corporate/test.pdf"
+    assert approved_attachment_url("http://nsearchives.nseindia.com/test.pdf") is None
+    assert approved_attachment_url("https://example.com/test.pdf") is None
