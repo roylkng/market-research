@@ -120,15 +120,107 @@ def _identity_symbol(value: object) -> str:
     return "".join(character for character in _normalise(value).upper() if character.isalnum())
 
 
+def validate_isin_bridge_payload(payload: object) -> dict[str, dict[str, str]]:
+    if not isinstance(payload, dict):
+        raise AlphaContractError("FQ001 ISIN bridge payload must be an object")
+    if payload.get("schema_version") != 1:
+        raise AlphaContractError("FQ001 ISIN bridge schema_version must equal 1")
+    if payload.get("bridge_id") != "FQ001-ISIN-BRIDGES-v1":
+        raise AlphaContractError("unexpected FQ001 ISIN bridge id")
+    for field in (
+        "return_outcomes_opened",
+        "portfolio_eligibility_allowed",
+        "live_capital_allowed",
+    ):
+        if payload.get(field) is not False:
+            raise AlphaContractError(f"FQ001 ISIN bridge requires {field}=false")
+
+    bridges = payload.get("bridges")
+    if not isinstance(bridges, list):
+        raise AlphaContractError("FQ001 ISIN bridges must be a list")
+
+    result: dict[str, dict[str, str]] = {}
+    for row in bridges:
+        if not isinstance(row, dict):
+            raise AlphaContractError("FQ001 ISIN bridge row must be an object")
+        symbol = _normalise(row.get("symbol")).upper()
+        old_isin = _normalise(row.get("old_isin")).upper()
+        new_isin = _normalise(row.get("new_isin")).upper()
+        effective_date = _normalise(row.get("effective_date"))
+        action = _normalise(row.get("corporate_action"))
+        source_url = _normalise(row.get("source_url"))
+        if not symbol or not old_isin or not new_isin:
+            raise AlphaContractError("FQ001 ISIN bridge identity fields are required")
+        if old_isin == new_isin:
+            raise AlphaContractError("FQ001 ISIN bridge must change ISIN")
+        try:
+            date.fromisoformat(effective_date)
+        except ValueError as exc:
+            raise AlphaContractError(
+                f"FQ001 invalid ISIN bridge effective date: {effective_date}"
+            ) from exc
+        if not action.startswith("SUB_DIVISION_"):
+            raise AlphaContractError("FQ001 ISIN bridge action must be a frozen sub-division")
+        if not source_url.startswith("https://nsearchives.nseindia.com/"):
+            raise AlphaContractError("FQ001 ISIN bridge source must be official NSE archive")
+        if symbol in result:
+            raise AlphaContractError(f"duplicate FQ001 ISIN bridge symbol: {symbol}")
+        result[symbol] = {
+            "symbol": symbol,
+            "old_isin": old_isin,
+            "new_isin": new_isin,
+            "effective_date": effective_date,
+            "corporate_action": action,
+            "source_url": source_url,
+        }
+    return result
+
+
+def _publication_date(value: str) -> date:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise AlphaContractError(f"FQ001 invalid publication timestamp: {value}") from exc
+    if parsed.tzinfo is None:
+        raise AlphaContractError(f"FQ001 publication timestamp lacks timezone: {value}")
+    return parsed.astimezone(UTC).date()
+
+
 def issuer_identity_continuity(
     target: AnnualQualityFacts,
     baseline: AnnualQualityFacts,
+    *,
+    frozen_symbol: str,
+    frozen_isin: str | None,
+    baseline_published_at_utc: str,
+    target_published_at_utc: str,
+    isin_bridge_index: dict[str, dict[str, str]],
 ) -> str:
-    if target.isin and baseline.isin and target.isin == baseline.isin:
+    wanted_symbol = _normalise(frozen_symbol).upper()
+    if not target.isin or not baseline.isin:
+        raise AlphaContractError("FQ001 issuer continuity requires explicit filing ISINs")
+    if frozen_isin and target.isin != frozen_isin:
+        raise AlphaContractError("FQ001 target filing ISIN differs from frozen universe")
+
+    target_symbol_matches = _identity_symbol(target.symbol) == _identity_symbol(wanted_symbol)
+    if not target_symbol_matches and target.isin != frozen_isin:
+        raise AlphaContractError("FQ001 target filing issuer identity mismatch")
+
+    if baseline.isin == target.isin:
         return "SAME_ISIN"
-    if _identity_symbol(target.symbol) == _identity_symbol(baseline.symbol):
-        return "SAME_NORMALIZED_SYMBOL"
-    raise AlphaContractError("FQ001 target/baseline issuer identity discontinuity")
+
+    bridge = isin_bridge_index.get(wanted_symbol)
+    if bridge is None:
+        raise AlphaContractError("FQ001 unverified historical ISIN transition")
+    if baseline.isin != bridge["old_isin"] or target.isin != bridge["new_isin"]:
+        raise AlphaContractError("FQ001 filing ISINs do not match frozen bridge")
+
+    effective = date.fromisoformat(bridge["effective_date"])
+    baseline_published = _publication_date(baseline_published_at_utc)
+    target_published = _publication_date(target_published_at_utc)
+    if not baseline_published < effective <= target_published:
+        raise AlphaContractError("FQ001 ISIN bridge effective date is outside filing window")
+    return "VERIFIED_NSE_ISIN_BRIDGE"
 
 
 def _parse_number(value: object) -> float | None:
@@ -454,7 +546,6 @@ def parse_annual_quality_filing(
     raw: bytes,
     *,
     candidate: FilingCandidate,
-    expected_isin: str | None = None,
 ) -> AnnualQualityFacts:
     try:
         document = raw.decode("utf-8")
@@ -476,14 +567,6 @@ def parse_annual_quality_filing(
             raw_sha256=raw_sha,
         )
 
-    symbol_matches = _identity_symbol(parsed.symbol) == _identity_symbol(candidate.symbol)
-    isin_matches = (
-        expected_isin is not None
-        and parsed.isin is not None
-        and parsed.isin == expected_isin
-    )
-    if not symbol_matches and not isin_matches:
-        raise AlphaContractError("FQ001 parsed filing issuer identity mismatch")
     if parsed.period_end != candidate.period_end:
         raise AlphaContractError(
             f"FQ001 parsed annual period mismatch: {parsed.period_end} != {candidate.period_end}"
@@ -508,7 +591,6 @@ def build_quality_metrics(
     target: AnnualQualityFacts,
     baseline: AnnualQualityFacts,
 ) -> dict[str, float | None]:
-    issuer_identity_continuity(target, baseline)
     if target.accounting_basis.casefold() != baseline.accounting_basis.casefold():
         raise AlphaContractError("FQ001 target/baseline accounting basis mismatch")
     if target.period_end != TARGET_PERIOD_END or baseline.period_end != BASELINE_PERIOD_END:
@@ -575,8 +657,8 @@ def quality_record(
     target: AnnualQualityFacts,
     baseline: AnnualQualityFacts,
     discovery_raw_sha256: str,
+    identity_continuity: str,
 ) -> dict:
-    identity_continuity = issuer_identity_continuity(target, baseline)
     metrics = build_quality_metrics(target=target, baseline=baseline)
     complete_count = sum(metrics[name] is not None for name in CORE_METRICS)
     record = {
