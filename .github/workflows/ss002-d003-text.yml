@@ -1,0 +1,89 @@
+name: SS002 D003 deterministic text corpus
+
+on:
+  push:
+    branches:
+      - research/ss002-text-extraction-20261004
+
+permissions:
+  contents: read
+
+jobs:
+  text:
+    if: contains(github.event.head_commit.message, '[ss002-d003]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate deterministic D003 implementation
+        run: |
+          ruff check \
+            src/marketlab/ss002_text.py \
+            scripts/run_ss002_d003.py \
+            tests/test_ss002_text.py
+          pytest -q \
+            tests/test_ss002_text.py \
+            tests/test_ss002_attachments.py \
+            tests/test_ss002_llm_contract.py
+      - name: Verify compact D002 manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("research/ss002/ss002-d002-corpus-manifest-v1.json").read_text())
+          assert p["corpus_id"]=="SS002-D002-v1"
+          assert p["corpus_sha256"]=="eab922954ef20a12a7635107722b4e800b59cfa56ff0659da42afb3fc22218f9"
+          assert p["unique_document_id_count"]==1539
+          assert p["return_outcomes_opened"] is False
+          PY
+      - name: Build deterministic text corpus
+        run: |
+          python scripts/run_ss002_d003.py \
+            --d002-manifest research/ss002/ss002-d002-corpus-manifest-v1.json \
+            --output reports/ss002-d003 \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.01
+      - name: Prove no LLM inference and frozen gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/ss002-d003/ss002-d003-text-corpus.json").read_text())
+          assert p["corpus_id"]=="SS002-D003-v1"
+          assert p["document_count"]==1539
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["llm_inference_executed"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "corpus_sha256":p["corpus_sha256"],
+            "hash_reproduced_count":p["hash_reproduced_count"],
+            "hash_reproduced_ratio":p["hash_reproduced_ratio"],
+            "text_ready_document_count":p["text_ready_document_count"],
+            "text_ready_ratio_of_reproduced":p["text_ready_ratio_of_reproduced"],
+            "pdf_reproduced_count":p["pdf_reproduced_count"],
+            "pdf_text_ready_count":p["pdf_text_ready_count"],
+            "pdf_text_ready_ratio":p["pdf_text_ready_ratio"],
+            "segment_count":p["segment_count"],
+            "total_text_char_count":p["total_text_char_count"],
+            "extraction_state_counts":p["extraction_state_counts"],
+            "document_family_counts":p["document_family_counts"],
+            "threshold_passes":p["threshold_passes"],
+            "feasibility_pass":p["feasibility_pass"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact D003 text corpus
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-d003-${{ github.run_id }}
+          path: reports/ss002-d003
+          if-no-files-found: warn
+          retention-days: 90
