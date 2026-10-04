@@ -45,6 +45,7 @@ jobs:
             tests/test_h021.py \
             tests/test_h021_compare_cli.py \
             tests/test_dr001_h021_gate.py \
+            tests/test_dr001_post_h021.py \
             tests/test_alpha_expectations.py
 
       - name: Resolve India date and weekly session gate
@@ -152,6 +153,22 @@ jobs:
             --comparison "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json" \
             --out "research/prospective/dr001-h021/gates/${CAPTURE_DATE}-tier-a-gate-v1.json"
 
+      - name: Materialize DR001 post-H021 evidence pack
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          if [[ "$CAPTURE_DATE" < "2026-10-09" ]]; then
+            echo "No DR001 post-H021 evidence pack is permitted before 2026-10-09"
+            exit 0
+          fi
+          python scripts/materialize_dr001_post_h021_pack.py \
+            --pre-evidence research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json \
+            --comparison "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json" \
+            --gate "research/prospective/dr001-h021/gates/${CAPTURE_DATE}-tier-a-gate-v1.json" \
+            --out "research/prospective/dr001-h021/evidence-packs/${CAPTURE_DATE}-tier-a-evidence-v1.json"
+
       - name: Materialize AE001 H021 expectations features when comparison exists
         if: steps.gate.outputs.state == 'CAPTURE'
         shell: bash
@@ -187,6 +204,8 @@ jobs:
             "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
             "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
             "research/DR001_H021_TIER_A_GATE_V1.md"
+            "research/DR001_POST_H021_EVIDENCE_PACK_V1.md"
+            "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
@@ -200,7 +219,9 @@ jobs:
             "scripts/compare_h021_captures.py"
             "scripts/materialize_ae001_h021_expectations.py"
             "scripts/materialize_dr001_h021_gate.py"
+            "scripts/materialize_dr001_post_h021_pack.py"
             "src/marketlab/dr001_h021_gate.py"
+            "src/marketlab/dr001_post_h021.py"
             "src/marketlab/h021.py"
             "src/marketlab/alpha_expectations.py"
             "src/marketlab/h021_capture.py"
@@ -253,6 +274,8 @@ jobs:
             "research/H021_WEEKLY_ACQUISITION_CONTRACT_V1.md"
             "research/AE001_H021_EXPECTATIONS_FEATURE_FAMILY_V1.md"
             "research/DR001_H021_TIER_A_GATE_V1.md"
+            "research/DR001_POST_H021_EVIDENCE_PACK_V1.md"
+            "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
@@ -266,7 +289,9 @@ jobs:
             "scripts/compare_h021_captures.py"
             "scripts/materialize_ae001_h021_expectations.py"
             "scripts/materialize_dr001_h021_gate.py"
+            "scripts/materialize_dr001_post_h021_pack.py"
             "src/marketlab/dr001_h021_gate.py"
+            "src/marketlab/dr001_post_h021.py"
             "src/marketlab/h021.py"
             "src/marketlab/h021_capture.py"
             "src/marketlab/h021_stockanalysis_acquisition.py"
