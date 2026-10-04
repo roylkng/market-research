@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_announcements import normalize_announcement_payload
 
-CENSUS_ID = "SS002-D001-v1"
+CENSUS_ID = "SS002-D001-P1-v1"
 EXPECTED_SS001_D001_SHA = "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7"
 EXPECTED_SS001_COUNT = 2319
 WINDOW_START = date(2026, 4, 1)
@@ -20,7 +20,6 @@ CATEGORY_TOKENS: dict[str, tuple[str, ...]] = {
     "OPEN_OFFER_CONTROL": (
         "open offer",
         "change of control",
-        "substantial acquisition of shares",
         "takeover offer",
     ),
     "DELISTING": ("delisting", "delist"),
