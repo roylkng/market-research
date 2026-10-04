@@ -3,18 +3,39 @@ from __future__ import annotations
 import math
 import re
 import xml.etree.ElementTree as ET
-from collections import Counter, defaultdict
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.events import sha256_bytes
 
-AUDIT_ID = "GF001-D001-v1"
+AUDIT_ID = "GF001-D001-P1-v1"
 EXPECTED_D002_ID = "SS001-D002-v1"
 EXPECTED_D002_SHA = "214c1172491d58800dcded126303e7a2844967e75da57e0e6f666abc3b311293"
 EXPECTED_SAMPLE_ID = "GF001-D001-CURRENT-SCHEMA-SAMPLE-v1"
 SHARE_PCT_CONCEPT = "ShareholdingAsAPercentageOfTotalNumberOfShares"
+
+AGGREGATE_CONTEXTS = {
+    "PROMOTER_GROUP": (
+        "ShareholdingOfPromoterAndPromoterGroup_ContextI",
+        "ShareholdingOfPromoterAndPromoterGroupMember",
+    ),
+    "PUBLIC": (
+        "PublicShareholding_ContextI",
+        "PublicShareholdingMember",
+    ),
+    "MUTUAL_FUND_UTI": (
+        "MutualFundsOrUTI_ContextI",
+        "MutualFundsOrUTIMember",
+    ),
+}
+
+ENCUMBRANCE_CONCEPTS = (
+    "WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup",
+    "WhetherAnySharesHeldByPromotersAreEncumberedUnderNonDisposalUndertakingForPromoterAndPromoterGroup",
+    "WhetherAnySharesHeldByPromotersAreEncumberedOtherThanByWayOfPledgeOrNDUForPromoterAndPromoterGroup",
+)
 
 KEYWORDS = (
     "promoter",
@@ -46,7 +67,8 @@ class ContextInfo:
     instant: str | None
     start_date: str | None
     end_date: str | None
-    dimensional: bool
+    explicit_members: tuple[tuple[str, str], ...]
+    has_typed_member: bool
 
 
 def _local_name(tag: str) -> str:
@@ -57,12 +79,13 @@ def _local_name(tag: str) -> str:
     return tag
 
 
+def _qname_local(value: object) -> str:
+    raw = str(value or "").strip()
+    return raw.rsplit(":", 1)[-1] if raw else ""
+
+
 def _clean(value: object) -> str:
     return " ".join(str(value or "").replace("\xa0", " ").split()).strip()
-
-
-def _norm(value: object) -> str:
-    return re.sub(r"[^a-z0-9]+", "", _clean(value).casefold())
 
 
 def _number(value: object) -> float | None:
@@ -87,7 +110,8 @@ def _contexts(root: ET.Element) -> dict[str, ContextInfo]:
         instant = None
         start = None
         end = None
-        dimensional = False
+        explicit_members: list[tuple[str, str]] = []
+        has_typed_member = False
         for child in element.iter():
             local = _local_name(child.tag)
             value = _clean(child.text)
@@ -97,8 +121,15 @@ def _contexts(root: ET.Element) -> dict[str, ContextInfo]:
                 start = value or None
             elif local == "endDate":
                 end = value or None
-            elif local in {"explicitMember", "typedMember"}:
-                dimensional = True
+            elif local == "explicitMember":
+                explicit_members.append(
+                    (
+                        _qname_local(child.attrib.get("dimension")),
+                        _qname_local(child.text),
+                    )
+                )
+            elif local == "typedMember":
+                has_typed_member = True
         if context_id in result:
             raise GF001SchemaError(f"duplicate XBRL context id: {context_id}")
         result[context_id] = ContextInfo(
@@ -106,21 +137,18 @@ def _contexts(root: ET.Element) -> dict[str, ContextInfo]:
             instant=instant,
             start_date=start,
             end_date=end,
-            dimensional=dimensional,
+            explicit_members=tuple(sorted(explicit_members)),
+            has_typed_member=has_typed_member,
         )
     return result
 
 
-def _family_for_context(context: ContextInfo) -> str | None:
-    if context.dimensional:
-        return None
-    key = _norm(context.context_id)
-    if "promoterandpromotergroup" in key:
-        return "PROMOTER_GROUP"
-    if "publicshareholder" in key:
-        return "PUBLIC"
-    if "mutualfundsoruti" in key:
-        return "MUTUAL_FUND_UTI"
+def _aggregate_family(context: ContextInfo) -> str | None:
+    for family, (context_id, member) in AGGREGATE_CONTEXTS.items():
+        if context.context_id != context_id or context.has_typed_member:
+            continue
+        if context.explicit_members == (("CategoryOfShareholdersAxis", member),):
+            return family
     return None
 
 
@@ -131,11 +159,32 @@ def _keyword_hit(local_name: str, context_ref: str) -> bool:
 
 def _infer_scale(promoter: float, public: float) -> str:
     total = promoter + public
-    if 0.80 <= total <= 1.05:
+    if 0 <= promoter <= 1 and 0 <= public <= 1 and 0.95 <= total <= 1.05:
         return "FRACTION_0_TO_1"
-    if 80.0 <= total <= 105.0:
+    if 0 <= promoter <= 100 and 0 <= public <= 100 and 95 <= total <= 105:
         return "PERCENTAGE_POINTS_0_TO_100"
     return "UNRESOLVED"
+
+
+def _boolean_fact(
+    facts: list[dict[str, Any]],
+    *,
+    concept: str,
+    context_ref: str,
+) -> bool | None:
+    matches = [
+        row
+        for row in facts
+        if row["concept"] == concept and row["context_ref"] == context_ref
+    ]
+    if len(matches) != 1:
+        return None
+    raw = str(matches[0]["raw_value"]).strip().casefold()
+    if raw == "true":
+        return True
+    if raw == "false":
+        return False
+    return None
 
 
 def audit_shareholding_xbrl(
@@ -151,8 +200,11 @@ def audit_shareholding_xbrl(
         raise GF001SchemaError(f"invalid shareholding XML: {exc}") from exc
 
     contexts = _contexts(root)
-    aggregate_candidates: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    aggregate_candidates: dict[str, list[dict[str, Any]]] = {
+        family: [] for family in AGGREGATE_CONTEXTS
+    }
     keyword_facts: list[dict[str, Any]] = []
+    all_facts: list[dict[str, Any]] = []
     concept_counts: Counter[str] = Counter()
     context_counts: Counter[str] = Counter()
     fact_count = 0
@@ -174,40 +226,44 @@ def audit_shareholding_xbrl(
         ).strip() or None
         raw_value = _clean(element.text)
         numeric = _number(raw_value)
+        fact = {
+            "concept": local,
+            "context_ref": context_ref,
+            "unit_ref": unit_ref,
+            "raw_value": raw_value,
+            "numeric_value": numeric,
+        }
+        all_facts.append(fact)
         concept_counts[local] += 1
         context_counts[context_ref] += 1
 
         context = contexts.get(context_ref)
-        family = _family_for_context(context) if context is not None else None
+        family = _aggregate_family(context) if context is not None else None
         if local == SHARE_PCT_CONCEPT and family is not None:
-            aggregate_candidates[family].append(
-                {
-                    "concept": local,
-                    "context_ref": context_ref,
-                    "unit_ref": unit_ref,
-                    "raw_value": raw_value,
-                    "numeric_value": numeric,
-                }
-            )
+            aggregate_candidates[family].append(fact)
 
         if _keyword_hit(local, context_ref):
             keyword_facts.append(
                 {
-                    "concept": local,
-                    "context_ref": context_ref,
-                    "unit_ref": unit_ref,
-                    "numeric_value": numeric,
+                    **fact,
                     "raw_value": raw_value[:200],
                 }
             )
 
     aggregates: dict[str, dict[str, Any] | None] = {}
-    for family in ("PROMOTER_GROUP", "PUBLIC", "MUTUAL_FUND_UTI"):
-        rows = aggregate_candidates.get(family, [])
+    aggregate_states: dict[str, str] = {}
+    for family, (context_id, _) in AGGREGATE_CONTEXTS.items():
+        rows = aggregate_candidates[family]
+        context_present = context_id in contexts
         if len(rows) == 1 and rows[0]["numeric_value"] is not None:
             aggregates[family] = rows[0]
+            aggregate_states[family] = "READY"
+        elif not context_present:
+            aggregates[family] = None
+            aggregate_states[family] = "CATEGORY_CONTEXT_ABSENT"
         else:
             aggregates[family] = None
+            aggregate_states[family] = "AMBIGUOUS_OR_INVALID"
 
     scale = "UNRESOLVED"
     promoter = aggregates["PROMOTER_GROUP"]
@@ -218,6 +274,16 @@ def audit_shareholding_xbrl(
             float(public["numeric_value"]),
         )
 
+    encumbrance_flags = {
+        concept: _boolean_fact(
+            all_facts,
+            concept=concept,
+            context_ref="MainI",
+        )
+        for concept in ENCUMBRANCE_CONCEPTS
+    }
+    encumbrance_ready = all(value is not None for value in encumbrance_flags.values())
+
     return {
         "symbol": symbol,
         "report_date": report_date,
@@ -227,10 +293,14 @@ def audit_shareholding_xbrl(
         "context_count": len(contexts),
         "fact_count": fact_count,
         "aggregate_families": aggregates,
+        "aggregate_states": aggregate_states,
         "aggregate_scale_semantics": scale,
         "promoter_aggregate_ready": promoter is not None,
         "public_aggregate_ready": public is not None,
         "mutual_fund_aggregate_ready": aggregates["MUTUAL_FUND_UTI"] is not None,
+        "mutual_fund_aggregate_state": aggregate_states["MUTUAL_FUND_UTI"],
+        "promoter_encumbrance_flags": encumbrance_flags,
+        "promoter_encumbrance_ready": encumbrance_ready,
         "keyword_fact_count": len(keyword_facts),
         "keyword_facts": keyword_facts,
         "concept_counts": dict(sorted(concept_counts.items())),
@@ -330,19 +400,40 @@ def build_schema_audit(
 
     june_promoter = ratio(june, "promoter_aggregate_ready")
     june_public = ratio(june, "public_aggregate_ready")
-    june_mf = ratio(june, "mutual_fund_aggregate_ready")
-    sept_break = any(
-        not (
+    june_encumbrance = ratio(june, "promoter_encumbrance_ready")
+    resolved_scale_ratio = ratio(
+        [
+            {
+                "resolved": row.get("aggregate_scale_semantics") != "UNRESOLVED",
+            }
+            for row in parsed
+        ],
+        "resolved",
+    )
+
+    present_mf = [
+        row for row in parsed
+        if row.get("mutual_fund_aggregate_state") != "CATEGORY_CONTEXT_ABSENT"
+    ]
+    mf_present_parseable = bool(present_mf) and all(
+        row.get("mutual_fund_aggregate_state") == "READY" for row in present_mf
+    )
+
+    sept_core_ready = (
+        len(sept) == 6
+        and all(
             row.get("promoter_aggregate_ready")
             and row.get("public_aggregate_ready")
-            and row.get("mutual_fund_aggregate_ready")
+            and row.get("promoter_encumbrance_ready")
+            and row.get("aggregate_scale_semantics") != "UNRESOLVED"
+            for row in sept
         )
-        for row in sept
     )
 
     concept_file_counts: Counter[str] = Counter()
     context_file_counts: Counter[str] = Counter()
     scale_counts: Counter[str] = Counter()
+    mf_state_counts: Counter[str] = Counter()
     keyword_concept_counts: Counter[str] = Counter()
     keyword_context_counts: Counter[str] = Counter()
 
@@ -350,6 +441,7 @@ def build_schema_audit(
         concept_file_counts.update(row["concept_counts"].keys())
         context_file_counts.update(row["context_counts"].keys())
         scale_counts[row["aggregate_scale_semantics"]] += 1
+        mf_state_counts[row["mutual_fund_aggregate_state"]] += 1
         keyword_concept_counts.update(
             {item["concept"] for item in row["keyword_facts"]}
         )
@@ -361,8 +453,10 @@ def build_schema_audit(
         "minimum_44_well_formed": len(parsed) >= 44,
         "june_promoter_aggregate_90pct": june_promoter >= 0.90,
         "june_public_aggregate_90pct": june_public >= 0.90,
-        "june_mutual_fund_aggregate_90pct": june_mf >= 0.90,
-        "september_no_unresolvable_core_break": len(sept) == 6 and not sept_break,
+        "june_encumbrance_flags_90pct": june_encumbrance >= 0.90,
+        "present_mutual_fund_contexts_parseable": mf_present_parseable,
+        "september_core_semantics_ready": sept_core_ready,
+        "aggregate_scale_resolved_90pct": resolved_scale_ratio >= 0.90,
     }
 
     output = {
@@ -380,7 +474,9 @@ def build_schema_audit(
         "september_2026_ready_count": len(sept),
         "june_promoter_aggregate_ready_ratio": june_promoter,
         "june_public_aggregate_ready_ratio": june_public,
-        "june_mutual_fund_aggregate_ready_ratio": june_mf,
+        "june_encumbrance_ready_ratio": june_encumbrance,
+        "mutual_fund_aggregate_state_counts": dict(sorted(mf_state_counts.items())),
+        "aggregate_scale_resolved_ratio": resolved_scale_ratio,
         "aggregate_scale_semantics_counts": dict(sorted(scale_counts.items())),
         "concept_file_counts": dict(sorted(concept_file_counts.items())),
         "context_file_counts": dict(sorted(context_file_counts.items())),
