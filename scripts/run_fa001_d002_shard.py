@@ -10,8 +10,8 @@ from urllib.parse import urlparse
 from marketlab.events import sha256_bytes
 from marketlab.fa001_facts import (
     EXPECTED_SS001_CENSUS_SHA,
-    FA001FactError,
     SHARD_COUNT,
+    FA001FactError,
     deterministic_shard,
     parse_filing_facts,
     validate_d001_census,
