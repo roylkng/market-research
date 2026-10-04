@@ -15,7 +15,7 @@ from marketlab.fa001_schema_audit import (
 )
 
 
-def _discovery_row(period: str, basis: str, url: str, published: str) -> dict:
+def _discovery_row(period: str, basis: str, published: str, url: str) -> dict:
     return {
         "type": "Integrated Filing- Financials",
         "symbol": "TEST",
