@@ -53,6 +53,7 @@ class NSEClient:
     NIFTY200_CONSTITUENT_CSV = (
         "https://archives.nseindia.com/content/indices/ind_nifty200list.csv"
     )
+    ALL_EQUITY_CSV = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
     ALLOWED_ARCHIVE_HOSTS = frozenset({"nsearchives.nseindia.com", "archives.nseindia.com"})
 
     def __init__(self, *, timeout: float = 12.0, attempts: int = 3) -> None:
@@ -149,6 +150,10 @@ class NSEClient:
             raise NSEAcquisitionError("NSE Nifty 200 constituent CSV returned empty bytes")
         return response.content
 
+    def all_equity_csv(self) -> bytes:
+        """Fetch the official NSE listed-equity security master."""
+        return self.archive_bytes(self.ALL_EQUITY_CSV)
+
     def daily_reports_with_raw(
         self,
         key: str,
@@ -187,6 +192,24 @@ class NSEClient:
         page: int = 1,
         size: int = 20,
     ) -> JSONPayload:
+        payload, _ = self.integrated_filings_with_raw(
+            symbol=symbol,
+            from_date=from_date,
+            to_date=to_date,
+            page=page,
+            size=size,
+        )
+        return payload
+
+    def integrated_filings_with_raw(
+        self,
+        *,
+        symbol: str | None = None,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        page: int = 1,
+        size: int = 20,
+    ) -> tuple[JSONPayload, bytes]:
         params: dict[str, Any] = {
             "type": "Integrated Filing- Financials",
             "page": page,
@@ -198,7 +221,7 @@ class NSEClient:
             params["from_date"] = from_date
         if to_date:
             params["to_date"] = to_date
-        return self._json_get(self.INTEGRATED_FILING_ENDPOINT, params=params)
+        return self._json_get_with_raw(self.INTEGRATED_FILING_ENDPOINT, params=params)
 
     def integrated_financial_filings_with_raw(
         self, symbol: str, *, period: str = "Quarterly"
