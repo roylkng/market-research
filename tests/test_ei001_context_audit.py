@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from marketlab.ei001_context_audit import (
     build_context_audit,
+    build_p1_context_audit,
+    build_source_pair_comparable,
     parse_comparative_quarter,
+    parse_single_quarter_source,
 )
 from marketlab.fa001_schema_audit import FilingCandidate
 
@@ -100,3 +103,60 @@ def test_audit_gates_are_based_only_on_ready_comparables() -> None:
     assert audit["feasibility_pass"] is True
     assert audit["comparable_revenue_pat_count"]==48
     assert audit["portfolio_eligibility_allowed"] is False
+
+
+def test_separate_sources_produce_comparable_pair() -> None:
+    current=parse_single_quarter_source(
+        _xml(),
+        candidate=_candidate(),
+        expected_period_end="2026-06-30",
+    )
+    prior_candidate=FilingCandidate(
+        symbol="TEST",
+        accounting_basis="Consolidated",
+        period_end="2025-06-30",
+        exchange_published_at_utc="2025-07-30T12:00:00+00:00",
+        source_url="https://nsearchives.nseindia.com/corporate/xbrl/prior.xml",
+        discovery_row_sha256="b"*64,
+    )
+    prior_xml=_xml().replace(b"2026-04-01",b"2025-04-01").replace(
+        b"2026-06-30",b"2025-06-30"
+    )
+    prior=parse_single_quarter_source(
+        prior_xml,
+        candidate=prior_candidate,
+        expected_period_end="2025-06-30",
+    )
+    comparable=build_source_pair_comparable(current=current,prior=prior)
+    assert comparable["revenue"]["status"]=="COMPARABLE_READY"
+    assert comparable["pat"]["status"]=="COMPARABLE_READY"
+
+
+def test_p1_audit_passes_with_frozen_pair_gates() -> None:
+    observations=[]
+    for idx in range(48):
+        comparable={
+            family:{
+                "status":"COMPARABLE_READY",
+                "unit_match":True,
+            }
+            for family in (
+                "revenue","pat","pbt","finance_costs","depreciation","basic_eps"
+            )
+        }
+        observations.append({
+            "symbol":f"S{idx:02d}",
+            "status":"PAIR_READY",
+            "reason":None,
+            "current_source_available":True,
+            "prior_candidate_available":True,
+            "comparable":comparable,
+        })
+    audit=build_p1_context_audit(
+        sample=_sample(),
+        observations=observations,
+        captured_at_utc="2026-10-04T16:20:00Z",
+    )
+    assert audit["feasibility_pass"] is True
+    assert audit["pair_ready_count"]==48
+    assert audit["comparable_revenue_pat_pbt_count"]==48
