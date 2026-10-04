@@ -3,8 +3,8 @@ from __future__ import annotations
 import csv
 import io
 import math
-import zipfile
 import xml.etree.ElementTree as ET
+import zipfile
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -100,7 +100,7 @@ def _parse_exchange_time(value: object) -> datetime:
     if not raw:
         raise NV001SourceError("filing publication timestamp is missing")
     try:
-        parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(raw)
         if parsed.tzinfo is not None:
             return parsed.astimezone(UTC)
     except ValueError:
@@ -542,9 +542,7 @@ def parse_price_close(
 
 
 def publication_date_ist(candidate: AnnualFilingCandidate) -> date:
-    published = datetime.fromisoformat(
-        candidate.exchange_published_at_utc.replace("Z", "+00:00")
-    )
+    published = datetime.fromisoformat(candidate.exchange_published_at_utc)
     return published.astimezone(IST).date()
 
 
