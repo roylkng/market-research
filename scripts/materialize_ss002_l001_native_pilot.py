@@ -71,25 +71,25 @@ DECISIONS = {
 
 CAVEATS = {
     "TIPSMUSIC": [
-        "The selected text clearly identifies a post-buyback advertisement and closure context, "
+        ("The selected text clearly identifies a post-buyback advertisement and closure context, "
         "but the newspaper pages containing detailed economics are not cleanly extractable; "
-        "price and size remain UNKNOWN."
+        "price and size remain UNKNOWN.")
     ],
     "LUPIN": [
         "Buyback is by a step-down subsidiary, not a buyback of Lupin Limited equity shares."
     ],
     "DGCONTENT": [
-        "Buyback proposal concerns the listed company's material unlisted wholly owned subsidiary, "
-        "not DGCONTENT equity shares."
+        ("Buyback proposal concerns the listed company's material unlisted wholly owned subsidiary, "
+        "not DGCONTENT equity shares.")
     ],
     "PREMEXPLN": [
-        "The document states an offer price of INR 698 per share plus applicable interest of "
+        ("The document states an offer price of INR 698 per share plus applicable interest of "
         "INR 7.65, aggregating to INR 705.65 payable per share; L001 records the stated offer "
-        "price separately and does not arithmetically redefine it."
+        "price separately and does not arithmetically redefine it.")
     ],
     "PERSISTENT": [
-        "The listed company is the acquirer in a takeover of Nagarro SE; this is not an open "
-        "offer for PERSISTENT shares."
+        ("The listed company is the acquirer in a takeover of Nagarro SE; this is not an open "
+        "offer for PERSISTENT shares.")
     ],
     "TRU": [
         "This document is a procedural Securities Appellate Tribunal update concerning the open offer."
@@ -98,19 +98,19 @@ CAVEATS = {
         "Tender offer concerns Shriram Finance debt notes, not its listed equity shares."
     ],
     "TMCV": [
-        "Tender offer is an acquisition of Iveco Group common shares by a Tata Motors acquisition "
-        "vehicle, not a tender for TMCV shares."
+        ("Tender offer is an acquisition of Iveco Group common shares by a Tata Motors acquisition "
+        "vehicle, not a tender for TMCV shares.")
     ],
     "SAMMAANCAP": [
         "Tender offer concerns Sammaan Capital senior secured social bonds, not its listed equity shares."
     ],
     "IZMO": [
-        "This is a proposed delisting from the Calcutta Stock Exchange only; the supplied document "
-        "does not state that NSE/BSE listing will cease."
+        ("This is a proposed delisting from the Calcutta Stock Exchange only; the supplied document "
+        "does not state that NSE/BSE listing will cease.")
     ],
     "MCLEODRUSS": [
-        "This delisting is from the Calcutta Stock Exchange only; the document explicitly states "
-        "the equity shares continue to be listed and traded on BSE and NSE."
+        ("This delisting is from the Calcutta Stock Exchange only; the document explicitly states "
+        "the equity shares continue to be listed and traded on BSE and NSE.")
     ],
     "JAYBARMARU": [
         "Voluntary delisting concerns the Calcutta Stock Exchange only."
@@ -125,16 +125,16 @@ CAVEATS = {
         "The seller is the listed company's wholly owned subsidiary, not the listed company directly."
     ],
     "HSCL": [
-        "The divestment is by a subsidiary in a step-down subsidiary; the document states neither "
-        "entity is a material subsidiary of the listed company."
+        ("The divestment is by a subsidiary in a step-down subsidiary; the document states neither "
+        "entity is a material subsidiary of the listed company.")
     ],
     "ABREL": [
-        "The selected filing is a personnel-cessation update caused by an earlier business sale; "
-        "it is not the primary sale-terms document."
+        ("The selected filing is a personnel-cessation update caused by an earlier business sale; "
+        "it is not the primary sale-terms document.")
     ],
     "VIJAYA": [
-        "The upstream keyword category is asset sale/divestment, but the listed company is acquiring "
-        "a diagnostic business undertaking."
+        ("The upstream keyword category is asset sale/divestment, but the listed company is acquiring "
+        "a diagnostic business undertaking.")
     ],
 }
 
@@ -295,8 +295,8 @@ def _material_facts(symbol: str, segment_ids: list[str]) -> list[tuple]:
             (
                 "conditions_approvals",
                 "voting_or_tender_thresholds",
-                "Minimum acceptance level 95% of Common Shares, automatically reduced to 80% "
-                "if Shareholders adopt the Back-End Resolution at the EGM",
+                ("Minimum acceptance level 95% of Common Shares, automatically reduced to 80% "
+                "if Shareholders adopt the Back-End Resolution at the EGM"),
                 None,
                 page2,
             ),
