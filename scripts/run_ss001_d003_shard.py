@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import time
 from datetime import UTC, datetime
@@ -9,9 +8,12 @@ from pathlib import Path
 
 from marketlab.events import sha256_bytes
 from marketlab.nse import NSEAcquisitionError, NSEClient
-from marketlab.ss001_size import SS001SizeError, parse_trade_info_market_cap
-
-SHARD_COUNT = 6
+from marketlab.ss001_size import (
+    SHARD_COUNT,
+    SS001SizeError,
+    parse_trade_info_market_cap,
+    shard_for_symbol,
+)
 
 
 def _load(path: Path) -> dict:
@@ -19,13 +21,6 @@ def _load(path: Path) -> dict:
     if not isinstance(payload, dict):
         raise TypeError(f"JSON payload must be an object: {path}")
     return payload
-
-
-def shard_for_symbol(symbol: str, *, shard_count: int = SHARD_COUNT) -> int:
-    if shard_count <= 0:
-        raise ValueError("shard_count must be positive")
-    digest = hashlib.sha256(symbol.strip().upper().encode("utf-8")).digest()
-    return int.from_bytes(digest, "big") % shard_count
 
 
 def _retain(root: Path, raw: bytes) -> tuple[str, str]:
