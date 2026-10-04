@@ -1,0 +1,60 @@
+name: FQ001 S001 accounting quality score
+
+on:
+  push:
+    branches:
+      - research/fq001-quality-source-feasibility-20261004
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  score:
+    if: contains(github.event.head_commit.message, '[fq001-s001]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen S001 implementation
+        run: |
+          ruff check src/marketlab/fundamental_quality_score.py scripts/materialize_fq001_quality_score.py tests/test_fundamental_quality_score.py
+          pytest -q tests/test_fundamental_quality_score.py
+      - name: Download exact corrected P2 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: fq001-d001-37183221019
+          path: /tmp/fq001-source
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: roylkng/market-research
+          run-id: 37183221019
+      - name: Materialize frozen S001 score
+        run: |
+          python scripts/materialize_fq001_quality_score.py             --panel /tmp/fq001-source/fq001-d001-panel.json             --out reports/fq001-s001/fq001-s001.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/fq001-s001/fq001-s001.json").read_text())
+          assert p["source_panel_sha256"] == "0112a61cdb928c35ecf0c55a6f8a95ccb3ebc8a137ee3d8f31c1816c89134ee4"
+          assert p["score_sha256"] == "aa0ced48ab2c6342b7ff05bebcbd355754c0dff124b16f1c7cd09e5b89b1d19a"
+          assert p["scored_count"] == 84
+          assert p["return_outcomes_opened"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+              "score_sha256": p["score_sha256"],
+              "scored_count": p["scored_count"],
+              "top_quality_quartile_cutoff": p["top_quality_quartile_cutoff"],
+              "top_quality_quartile_count": p["top_quality_quartile_count"],
+          }, indent=2))
+          PY
+      - name: Upload S001 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fq001-s001-${{ github.run_id }}
+          path: reports/fq001-s001
+          retention-days: 90
