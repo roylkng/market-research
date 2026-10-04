@@ -1,5 +1,6 @@
 from marketlab.ha001_assets import derive_asset_anomalies
 
+
 def _f(v):
     return {"status":"READY","unit_ref":"INR","value":v}
 
