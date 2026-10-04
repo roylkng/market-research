@@ -12,7 +12,7 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_fundamental import FilingCandidate, FundamentalPair
 from marketlab.events import sha256_bytes
 
-FQ001_D001_ID = "FQ001-D001-P1-v1"
+FQ001_D001_ID = "FQ001-D001-P2-v1"
 TARGET_PERIOD_END = "2026-03-31"
 BASELINE_PERIOD_END = "2025-03-31"
 PARSER_HTML = "fq001-indas-html-v1"
@@ -114,6 +114,21 @@ class _XbrlContext:
 
 def _normalise(value: object) -> str:
     return " ".join(str(value or "").replace("\xa0", " ").split()).strip()
+
+
+def _identity_symbol(value: object) -> str:
+    return "".join(character for character in _normalise(value).upper() if character.isalnum())
+
+
+def issuer_identity_continuity(
+    target: AnnualQualityFacts,
+    baseline: AnnualQualityFacts,
+) -> str:
+    if target.isin and baseline.isin and target.isin == baseline.isin:
+        return "SAME_ISIN"
+    if _identity_symbol(target.symbol) == _identity_symbol(baseline.symbol):
+        return "SAME_NORMALIZED_SYMBOL"
+    raise AlphaContractError("FQ001 target/baseline issuer identity discontinuity")
 
 
 def _parse_number(value: object) -> float | None:
@@ -439,6 +454,7 @@ def parse_annual_quality_filing(
     raw: bytes,
     *,
     candidate: FilingCandidate,
+    expected_isin: str | None = None,
 ) -> AnnualQualityFacts:
     try:
         document = raw.decode("utf-8")
@@ -460,8 +476,14 @@ def parse_annual_quality_filing(
             raw_sha256=raw_sha,
         )
 
-    if parsed.symbol.upper() != candidate.symbol.upper():
-        raise AlphaContractError("FQ001 parsed filing symbol mismatch")
+    symbol_matches = _identity_symbol(parsed.symbol) == _identity_symbol(candidate.symbol)
+    isin_matches = (
+        expected_isin is not None
+        and parsed.isin is not None
+        and parsed.isin == expected_isin
+    )
+    if not symbol_matches and not isin_matches:
+        raise AlphaContractError("FQ001 parsed filing issuer identity mismatch")
     if parsed.period_end != candidate.period_end:
         raise AlphaContractError(
             f"FQ001 parsed annual period mismatch: {parsed.period_end} != {candidate.period_end}"
@@ -486,8 +508,7 @@ def build_quality_metrics(
     target: AnnualQualityFacts,
     baseline: AnnualQualityFacts,
 ) -> dict[str, float | None]:
-    if target.symbol.upper() != baseline.symbol.upper():
-        raise AlphaContractError("FQ001 target/baseline symbol mismatch")
+    issuer_identity_continuity(target, baseline)
     if target.accounting_basis.casefold() != baseline.accounting_basis.casefold():
         raise AlphaContractError("FQ001 target/baseline accounting basis mismatch")
     if target.period_end != TARGET_PERIOD_END or baseline.period_end != BASELINE_PERIOD_END:
@@ -555,6 +576,7 @@ def quality_record(
     baseline: AnnualQualityFacts,
     discovery_raw_sha256: str,
 ) -> dict:
+    identity_continuity = issuer_identity_continuity(target, baseline)
     metrics = build_quality_metrics(target=target, baseline=baseline)
     complete_count = sum(metrics[name] is not None for name in CORE_METRICS)
     record = {
@@ -573,6 +595,11 @@ def quality_record(
         "discovery_raw_sha256": discovery_raw_sha256,
         "target_parser_version": target.parser_version,
         "baseline_parser_version": baseline.parser_version,
+        "target_reported_symbol": target.symbol,
+        "baseline_reported_symbol": baseline.symbol,
+        "target_isin": target.isin,
+        "baseline_isin": baseline.isin,
+        "issuer_identity_continuity": identity_continuity,
         "target_facts": target.facts,
         "baseline_facts": baseline.facts,
         "metrics": metrics,
