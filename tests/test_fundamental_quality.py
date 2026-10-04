@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+from marketlab.alpha import AlphaContractError
 from marketlab.alpha_fundamental import FilingCandidate, FundamentalPair
 from marketlab.fundamental_quality import (
     CORE_METRICS,
