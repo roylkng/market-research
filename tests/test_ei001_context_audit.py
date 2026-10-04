@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import pytest
-
-from marketlab.fa001_schema_audit import FilingCandidate
 from marketlab.ei001_context_audit import (
     build_context_audit,
     parse_comparative_quarter,
 )
+from marketlab.fa001_schema_audit import FilingCandidate
 
 
 def _candidate() -> FilingCandidate:
