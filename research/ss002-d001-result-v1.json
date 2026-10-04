@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS002-D001-v1",
+  "status": "FAILED_CURRENT_IDENTITY_MAPPING_GATE",
+  "classification": "CURRENT_SPECIAL_SITUATION_EVENT_CENSUS_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37200055447,
+    "artifact_id": 11302657330,
+    "artifact_name": "ss002-d001-37200055447"
+  },
+  "census_sha256": "0e831d4ce29d03e6916d4e244d177f2ee1451ce98d35c0a37e50e0e79b12fa54",
+  "source_row_count": 104001,
+  "candidate_event_count": 6435,
+  "distinct_candidate_symbol_count": 2239,
+  "mapped_candidate_event_count": 5405,
+  "mapped_candidate_event_ratio": 0.83993783993784,
+  "mapped_candidate_symbol_count": 1957,
+  "unmapped_candidate_symbol_count": 282,
+  "category_counts": {
+    "ASSET_SALE_DIVESTMENT": 49,
+    "BUYBACK": 211,
+    "CAPITAL_REDUCTION": 1,
+    "DELISTING": 21,
+    "INSOLVENCY_RESOLUTION": 662,
+    "OFFER_FOR_SALE": 27,
+    "OPEN_OFFER_CONTROL": 4268,
+    "PREFERENTIAL_WARRANT": 471,
+    "RIGHTS_ISSUE": 203,
+    "SCHEME_REORGANISATION": 611,
+    "TENDER_OFFER": 25
+  },
+  "threshold_passes": {
+    "complete_daily_source_coverage": true,
+    "canonical_identity_unique_across_days": true,
+    "exact_current_symbol_mapping_only": true,
+    "minimum_current_identity_mapping_ratio": false
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_attachment_acquisition": false,
+  "source_only_diagnosis": {
+    "unmapped_insolvency_event_count": 424,
+    "unmapped_delisting_event_count": 12,
+    "legacy_open_offer_control_events_with_only_substantial_acquisition_token": 4165,
+    "legacy_open_offer_control_events_with_live_offer_or_control_token": 103,
+    "interpretation": "CURRENT_IDENTITY_MAPPING_IS_NOT_A VALID DENOMINATOR FOR HISTORICAL_OR_DELISTED_DISTRESS EVENTS; OPEN_OFFER_CONTROL TAXONOMY CONFLATED GENERIC SAST DISCLOSURES WITH LIVE OFFER/CONTROL EVENTS"
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
