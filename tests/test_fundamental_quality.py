@@ -14,6 +14,7 @@ from marketlab.fundamental_quality import (
     parse_annual_quality_filing,
     quality_record,
     validate_annual_shape,
+    validate_isin_bridge_payload,
 )
 
 FIXTURE = (
@@ -163,6 +164,28 @@ def test_xbrl_parser_uses_annual_duration_and_year_end_instant_contexts() -> Non
 
 
 
+def _bridge_index() -> dict[str, dict[str, str]]:
+    return validate_isin_bridge_payload(
+        {
+            "schema_version": 1,
+            "bridge_id": "FQ001-ISIN-BRIDGES-v1",
+            "bridges": [
+                {
+                    "symbol": "COFORGE",
+                    "old_isin": "INE591G01017",
+                    "new_isin": "INE591G01025",
+                    "effective_date": "2025-06-04",
+                    "corporate_action": "SUB_DIVISION_1_TO_5",
+                    "source_url": "https://nsearchives.nseindia.com/content/circulars/CML68318.pdf",
+                }
+            ],
+            "return_outcomes_opened": False,
+            "portfolio_eligibility_allowed": False,
+            "live_capital_allowed": False,
+        }
+    )
+
+
 def test_identity_continuity_accepts_same_isin_symbol_rename() -> None:
     target = _facts(
         period="2026-03-31",
@@ -185,10 +208,21 @@ def test_identity_continuity_accepts_same_isin_symbol_rename() -> None:
         period_end="2025-03-31",
         financial_year_start="2024-04-01",
     )
-    assert issuer_identity_continuity(target, baseline) == "SAME_ISIN"
+    assert (
+        issuer_identity_continuity(
+            target,
+            baseline,
+            frozen_symbol="LTM",
+            frozen_isin="INE009A01021",
+            baseline_published_at_utc="2025-05-01T12:00:00Z",
+            target_published_at_utc="2026-05-01T12:00:00Z",
+            isin_bridge_index={},
+        )
+        == "SAME_ISIN"
+    )
 
 
-def test_identity_continuity_accepts_same_symbol_isin_replacement() -> None:
+def test_identity_continuity_requires_frozen_bridge_for_isin_replacement() -> None:
     target = _facts(
         period="2026-03-31",
         revenue=200.0,
@@ -211,10 +245,33 @@ def test_identity_continuity_accepts_same_symbol_isin_replacement() -> None:
         period_end="2025-03-31",
         financial_year_start="2024-04-01",
     )
-    assert issuer_identity_continuity(target, baseline) == "SAME_NORMALIZED_SYMBOL"
+
+    assert (
+        issuer_identity_continuity(
+            target,
+            baseline,
+            frozen_symbol="COFORGE",
+            frozen_isin="INE591G01025",
+            baseline_published_at_utc="2025-05-05T14:07:42Z",
+            target_published_at_utc="2026-05-05T16:27:07Z",
+            isin_bridge_index=_bridge_index(),
+        )
+        == "VERIFIED_NSE_ISIN_BRIDGE"
+    )
+
+    with pytest.raises(AlphaContractError, match="unverified"):
+        issuer_identity_continuity(
+            target,
+            baseline,
+            frozen_symbol="COFORGE",
+            frozen_isin="INE591G01025",
+            baseline_published_at_utc="2025-05-05T14:07:42Z",
+            target_published_at_utc="2026-05-05T16:27:07Z",
+            isin_bridge_index={},
+        )
 
 
-def test_parser_accepts_symbol_format_change_when_expected_isin_matches() -> None:
+def test_parser_preserves_symbol_format_for_later_identity_validation() -> None:
     document = FIXTURE.read_text(encoding="utf-8").replace(
         "<td>INFY</td>",
         "<td>INF-Y</td>",
@@ -223,7 +280,6 @@ def test_parser_accepts_symbol_format_change_when_expected_isin_matches() -> Non
     parsed = parse_annual_quality_filing(
         document.encode(),
         candidate=_candidate(),
-        expected_isin="INE009A01021",
     )
     assert parsed.symbol == "INF-Y"
     assert parsed.isin == "INE009A01021"
@@ -362,6 +418,7 @@ def test_quality_record_keeps_portfolio_and_live_capital_disabled() -> None:
         target=target,
         baseline=baseline,
         discovery_raw_sha256="d" * 64,
+        identity_continuity="SAME_ISIN",
     )
 
     assert set(record["metrics"]) == set(CORE_METRICS)
