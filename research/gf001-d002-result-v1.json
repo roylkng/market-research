@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "GF001-D002-v1",
+  "status": "PASSED_FULL_MARKET_GOVERNANCE_SOURCE_COVERAGE",
+  "classification": "FULL_MARKET_GOVERNANCE_OWNERSHIP_FACTS_NOT_SCORE",
+  "successful_run": {
+    "run_id": 37202941712,
+    "artifact_id": 11303742567,
+    "artifact_name": "gf001-d002-37202941712"
+  },
+  "panel_sha256": "dd338cd91f44396278300e27e8cdac1506dae11b63dd31ce827505fe62e8abe7",
+  "source_d002_census_sha256": "214c1172491d58800dcded126303e7a2844967e75da57e0e6f666abc3b311293",
+  "identity_count": 2319,
+  "ready_latest_source_count": 2050,
+  "latest_core_ready_count": 1999,
+  "latest_core_ready_ratio": 0.9751219512195122,
+  "adjacent_source_count": 2032,
+  "adjacent_core_ready_count": 1976,
+  "adjacent_core_ready_ratio": 0.9724409448818898,
+  "mutual_fund_state_counts": {
+    "CATEGORY_CONTEXT_ABSENT": 613,
+    "READY": 1386
+  },
+  "promoter_encumbrance_true_counts": {
+    "pledge": 352,
+    "non_disposal_undertaking": 32,
+    "other_encumbrance": 18
+  },
+  "latest_failure_reason_counts": {
+    "H023AcquisitionError: source request failed: https://nsearchives.nseindia.com/corporate/xbrl/-: HTTP 404": 3,
+    "PROMOTER_CATEGORY_CONTEXT_ABSENT": 46,
+    "PROMOTER_PUBLIC_SUM_OUTSIDE_FROZEN_TOLERANCE": 2
+  },
+  "prior_failure_reason_counts": {
+    "H023AcquisitionError: source request failed: https://nsearchives.nseindia.com/corporate/xbrl/-: HTTP 404": 2,
+    "PROMOTER_CATEGORY_CONTEXT_ABSENT": 48,
+    "PROMOTER_PUBLIC_SUM_OUTSIDE_FROZEN_TOLERANCE": 3
+  },
+  "threshold_passes": {
+    "complete_identity_accounting": true,
+    "minimum_latest_core_ready_90pct": true,
+    "minimum_adjacent_core_ready_80pct": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_governance_event_layer": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FULL_MARKET CURRENT GOVERNANCE FACT PLANE PASSED; PROMOTER/PUBLIC/ENCUMBRANCE AND OWNERSHIP-DELTA EVIDENCE IS BROAD ENOUGH FOR SS001 DEEP RESEARCH AND A SEPARATELY FROZEN GOVERNANCE-EVENT LAYER"
+}
