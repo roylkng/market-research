@@ -1,0 +1,111 @@
+name: NV001 S001 normalized valuation score
+
+on:
+  push:
+    branches:
+      - research/nv001-normalized-valuation-20261004
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  score:
+    if: contains(github.event.head_commit.message, '[nv001-s001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen score implementation
+        run: |
+          ruff check \
+            src/marketlab/normalized_valuation_score.py \
+            scripts/materialize_nv001_valuation_score.py \
+            tests/test_normalized_valuation_score.py
+          pytest -q \
+            tests/test_normalized_valuation_score.py \
+            tests/test_normalized_valuation.py
+
+      - name: Download exact successful NV001 P1 source artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nv001-d001-37193347012
+          path: reports/nv001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37193347012
+
+      - name: Verify exact frozen source panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("reports/nv001-source/nv001-d001-panel.json")
+          panel = json.loads(path.read_text())
+          assert panel["diagnostic_id"] == "NV001-D001-P1-v1"
+          assert panel["panel_sha256"] == (
+              "3dbe5b914a532bb028ad38c6b6eec9762ef47f31ccc85289d1d1f9b69b251400"
+          )
+          assert panel["all_4_plus_current_count"] == 69
+          assert panel["return_outcomes_opened"] is False
+          assert panel["model_fitted"] is False
+          PY
+
+      - name: Materialize frozen NV001 S001 score
+        run: |
+          mkdir -p reports/nv001-s001
+          python scripts/materialize_nv001_valuation_score.py \
+            --panel reports/nv001-source/nv001-d001-panel.json \
+            --out reports/nv001-s001/nv001-s001-score.json
+
+      - name: Prove research-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          score = json.loads(
+              Path("reports/nv001-s001/nv001-s001-score.json").read_text()
+          )
+          assert score["score_id"] == "NV001-S001-v1"
+          assert score["scored_count"] == 69
+          assert score["return_outcomes_opened"] is False
+          assert score["model_fitted"] is False
+          assert score["portfolio_eligibility_allowed"] is False
+          assert score["live_capital_allowed"] is False
+          print(json.dumps({
+              "score_sha256": score["score_sha256"],
+              "scored_count": score["scored_count"],
+              "top_valuation_quartile_cutoff": score["top_valuation_quartile_cutoff"],
+              "top_valuation_quartile_count": score["top_valuation_quartile_count"],
+              "top_25": [
+                  {
+                      "rank": row["valuation_rank"],
+                      "symbol": row["symbol"],
+                      "score": row["normalized_valuation_score"],
+                      "current_to_history_median": row["current_to_history_median"],
+                      "current_trailing_pe": row["current_trailing_pe"],
+                      "historical_median_pe": row["historical_median_pe"],
+                  }
+                  for row in score["rows"][:25]
+              ],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact S001 output
+        uses: actions/upload-artifact@v4
+        with:
+          name: nv001-s001-${{ github.run_id }}
+          path: reports/nv001-s001
+          if-no-files-found: error
+          retention-days: 90
