@@ -10,7 +10,7 @@ from marketlab.alpha import AlphaContractError
 from marketlab.alpha_market import parse_udiff_eq_panel
 from marketlab.events import sha256_bytes
 from marketlab.marketdata import udiff_url
-from marketlab.nse import NSEAcquisitionError, NSEClient
+from marketlab.nse import NSEClient
 from marketlab.ss001_census import (
     ACTION_END,
     ACTION_START,
