@@ -4,7 +4,6 @@ import pytest
 
 from marketlab.dr001_post_h021 import build_post_h021_evidence_pack
 
-
 SYMBOLS = ["COFORGE", "AUROPHARMA", "MOTHERSON", "HINDALCO", "PERSISTENT"]
 
 
