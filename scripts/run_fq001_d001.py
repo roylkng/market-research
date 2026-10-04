@@ -13,10 +13,12 @@ from marketlab.fundamental_quality import (
     CORE_METRICS,
     FACT_FIELDS,
     FQ001_D001_ID,
+    issuer_identity_continuity,
     parse_annual_quality_filing,
     quality_record,
     select_annual_quality_pair,
     validate_annual_shape,
+    validate_isin_bridge_payload,
 )
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.universe import load_universe_snapshot
@@ -78,6 +80,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--universe", type=Path, required=True)
     parser.add_argument("--raw-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--isin-bridges", type=Path, required=True)
     parser.add_argument("--timeout-seconds", type=float, default=20.0)
     parser.add_argument("--attempts", type=int, default=4)
     return parser.parse_args()
@@ -90,6 +93,11 @@ def main() -> int:
         raise AlphaContractError("FQ001 D001 universe SHA mismatch")
     if len(universe.members) != 100:
         raise AlphaContractError("FQ001 D001 requires frozen 100-member U001")
+
+    bridge_raw = args.isin_bridges.read_bytes()
+    bridge_payload = json.loads(bridge_raw.decode("utf-8"))
+    isin_bridge_index = validate_isin_bridge_payload(bridge_payload)
+    bridge_sha256 = sha256_bytes(bridge_raw)
 
     client = NSEClient(timeout=args.timeout_seconds, attempts=args.attempts)
     generated_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
@@ -163,20 +171,22 @@ def main() -> int:
             target = parse_annual_quality_filing(
                 target_raw,
                 candidate=pair.target,
-                expected_isin=member.isin,
             )
             baseline = parse_annual_quality_filing(
                 baseline_raw,
                 candidate=pair.baseline,
-                expected_isin=target.isin,
             )
             validate_annual_shape(target)
             validate_annual_shape(baseline)
-
-            if member.isin and target.isin and member.isin != target.isin:
-                raise AlphaContractError(
-                    "FQ001 target filing ISIN differs from frozen universe"
-                )
+            identity_state = issuer_identity_continuity(
+                target,
+                baseline,
+                frozen_symbol=symbol,
+                frozen_isin=member.isin,
+                baseline_published_at_utc=pair.baseline.exchange_published_at_utc,
+                target_published_at_utc=pair.target.exchange_published_at_utc,
+                isin_bridge_index=isin_bridge_index,
+            )
             if target.raw_sha256 != target_sha:
                 raise AlphaContractError("FQ001 target raw SHA mismatch")
             if baseline.raw_sha256 != baseline_sha:
@@ -188,6 +198,7 @@ def main() -> int:
                     target=target,
                     baseline=baseline,
                     discovery_raw_sha256=discovery_sha,
+                    identity_continuity=identity_state,
                 )
             )
         except AlphaContractError as exc:
@@ -255,6 +266,8 @@ def main() -> int:
         "basis_counts": dict(sorted(basis_counts.items())),
         "parser_pair_counts": dict(sorted(parser_pair_counts.items())),
         "identity_continuity_counts": dict(sorted(identity_continuity_counts.items())),
+        "isin_bridge_path": str(args.isin_bridges),
+        "isin_bridge_sha256": bridge_sha256,
         "failure_count": len(failures),
         "failure_stage_counts": dict(sorted(failure_stage_counts.items())),
         "failure_reason_counts": dict(sorted(failure_reason_counts.items())),
