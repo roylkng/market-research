@@ -82,7 +82,7 @@ jobs:
           audit = json.loads(
               Path("reports/gf001-d001/gf001-d001-schema-audit.json").read_text()
           )
-          assert audit["audit_id"] == "GF001-D001-v1"
+          assert audit["audit_id"] == "GF001-D001-P1-v1"
           assert audit["sample_count"] == 48
           assert audit["return_outcomes_opened"] is False
           assert audit["model_fitted"] is False
@@ -96,7 +96,9 @@ jobs:
               "september_2026_ready_count": audit["september_2026_ready_count"],
               "june_promoter_aggregate_ready_ratio": audit["june_promoter_aggregate_ready_ratio"],
               "june_public_aggregate_ready_ratio": audit["june_public_aggregate_ready_ratio"],
-              "june_mutual_fund_aggregate_ready_ratio": audit["june_mutual_fund_aggregate_ready_ratio"],
+              "june_encumbrance_ready_ratio": audit["june_encumbrance_ready_ratio"],
+              "mutual_fund_aggregate_state_counts": audit["mutual_fund_aggregate_state_counts"],
+              "aggregate_scale_resolved_ratio": audit["aggregate_scale_resolved_ratio"],
               "aggregate_scale_semantics_counts": audit["aggregate_scale_semantics_counts"],
               "threshold_passes": audit["threshold_passes"],
               "feasibility_pass": audit["feasibility_pass"],
