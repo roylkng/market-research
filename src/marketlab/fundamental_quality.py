@@ -4,8 +4,7 @@ import math
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from datetime import date, datetime
-from pathlib import Path
+from datetime import UTC, date, datetime
 
 from bs4 import BeautifulSoup
 
@@ -142,7 +141,7 @@ def _parse_date(value: object) -> str | None:
         return None
     for fmt in ("%Y-%m-%d", "%d-%m-%Y", "%d-%b-%Y", "%d-%B-%Y"):
         try:
-            return datetime.strptime(raw, fmt).date().isoformat()
+            return datetime.strptime(raw, fmt).replace(tzinfo=UTC).date().isoformat()
         except ValueError:
             continue
     return None
