@@ -12,49 +12,78 @@ def _xml(
     *,
     promoter: str = "0.60",
     public: str = "0.40",
-    mutual_fund: str = "0.08",
-    dimensional_promoter: bool = False,
+    mutual_fund: str | None = "0.08",
+    wrong_promoter_member: bool = False,
+    pledged: str = "false",
 ) -> bytes:
-    dimension = (
-        """
-        <xbrldi:explicitMember dimension="in-shp:TestAxis">in-shp:Member</xbrldi:explicitMember>
-        """
-        if dimensional_promoter
-        else ""
+    promoter_member = (
+        "WrongPromoterMember"
+        if wrong_promoter_member
+        else "ShareholdingOfPromoterAndPromoterGroupMember"
     )
+    mutual_context = ""
+    mutual_fact = ""
+    if mutual_fund is not None:
+        mutual_context = """
+ <xbrli:context id="MutualFundsOrUTI_ContextI">
+  <xbrli:entity>
+   <xbrli:identifier scheme="test">1</xbrli:identifier>
+   <xbrli:segment>
+    <xbrldi:explicitMember dimension="in-shp:CategoryOfShareholdersAxis">in-shp:MutualFundsOrUTIMember</xbrldi:explicitMember>
+   </xbrli:segment>
+  </xbrli:entity>
+  <xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>
+ </xbrli:context>
+"""
+        mutual_fact = f"""
+ <in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares
+  contextRef="MutualFundsOrUTI_ContextI" unitRef="pure">{mutual_fund}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
+"""
+
     return f"""<?xml version="1.0"?>
 <xbrli:xbrl
  xmlns:xbrli="http://www.xbrl.org/2003/instance"
  xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
  xmlns:in-shp="http://www.sebi.gov.in/xbrl/shareholding">
- <xbrli:context id="PromoterAndPromoterGroup_ContextI">
+ <xbrli:context id="MainI">
+  <xbrli:entity><xbrli:identifier scheme="test">1</xbrli:identifier></xbrli:entity>
+  <xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>
+ </xbrli:context>
+ <xbrli:context id="ShareholdingOfPromoterAndPromoterGroup_ContextI">
   <xbrli:entity>
    <xbrli:identifier scheme="test">1</xbrli:identifier>
-   <xbrli:segment>{dimension}</xbrli:segment>
+   <xbrli:segment>
+    <xbrldi:explicitMember dimension="in-shp:CategoryOfShareholdersAxis">in-shp:{promoter_member}</xbrldi:explicitMember>
+   </xbrli:segment>
   </xbrli:entity>
   <xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>
  </xbrli:context>
- <xbrli:context id="PublicShareholder_ContextI">
-  <xbrli:entity><xbrli:identifier scheme="test">1</xbrli:identifier></xbrli:entity>
+ <xbrli:context id="PublicShareholding_ContextI">
+  <xbrli:entity>
+   <xbrli:identifier scheme="test">1</xbrli:identifier>
+   <xbrli:segment>
+    <xbrldi:explicitMember dimension="in-shp:CategoryOfShareholdersAxis">in-shp:PublicShareholdingMember</xbrldi:explicitMember>
+   </xbrli:segment>
+  </xbrli:entity>
   <xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>
  </xbrli:context>
- <xbrli:context id="MutualFundsOrUTI_ContextI">
-  <xbrli:entity><xbrli:identifier scheme="test">1</xbrli:identifier></xbrli:entity>
-  <xbrli:period><xbrli:instant>2026-06-30</xbrli:instant></xbrli:period>
- </xbrli:context>
+{mutual_context}
  <in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares
-  contextRef="PromoterAndPromoterGroup_ContextI" unitRef="pure">{promoter}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
+  contextRef="ShareholdingOfPromoterAndPromoterGroup_ContextI" unitRef="pure">{promoter}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
  <in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares
-  contextRef="PublicShareholder_ContextI" unitRef="pure">{public}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
- <in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares
-  contextRef="MutualFundsOrUTI_ContextI" unitRef="pure">{mutual_fund}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
- <in-shp:NumberOfSharesPledgedOrOtherwiseEncumbered
-  contextRef="PromoterAndPromoterGroup_ContextI" unitRef="shares">100</in-shp:NumberOfSharesPledgedOrOtherwiseEncumbered>
+  contextRef="PublicShareholding_ContextI" unitRef="pure">{public}</in-shp:ShareholdingAsAPercentageOfTotalNumberOfShares>
+{mutual_fact}
+ <in-shp:WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup
+  contextRef="MainI">{pledged}</in-shp:WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup>
+ <in-shp:WhetherAnySharesHeldByPromotersAreEncumberedUnderNonDisposalUndertakingForPromoterAndPromoterGroup
+  contextRef="MainI">false</in-shp:WhetherAnySharesHeldByPromotersAreEncumberedUnderNonDisposalUndertakingForPromoterAndPromoterGroup>
+ <in-shp:WhetherAnySharesHeldByPromotersAreEncumberedOtherThanByWayOfPledgeOrNDUForPromoterAndPromoterGroup
+  contextRef="MainI">false</in-shp:WhetherAnySharesHeldByPromotersAreEncumberedOtherThanByWayOfPledgeOrNDUForPromoterAndPromoterGroup>
 </xbrli:xbrl>
 """.encode()
 
 
-def test_current_fraction_schema_finds_three_aggregate_families() -> None:
+def test_current_fraction_schema_finds_exact_dimensional_aggregates() -> None:
     result = audit_shareholding_xbrl(
         _xml(),
         symbol="TEST",
@@ -69,9 +98,10 @@ def test_current_fraction_schema_finds_three_aggregate_families() -> None:
     assert result["aggregate_families"]["PROMOTER_GROUP"]["numeric_value"] == pytest.approx(
         0.60
     )
-    assert any(
-        row["concept"] == "NumberOfSharesPledgedOrOtherwiseEncumbered"
-        for row in result["keyword_facts"]
+    assert result["promoter_encumbrance_ready"] is True
+    assert all(
+        value is False
+        for value in result["promoter_encumbrance_flags"].values()
     )
 
 
@@ -85,15 +115,41 @@ def test_percentage_point_schema_is_detected_without_assuming_scale() -> None:
     assert result["aggregate_scale_semantics"] == "PERCENTAGE_POINTS_0_TO_100"
 
 
-def test_dimensional_context_cannot_impersonate_aggregate_promoter_context() -> None:
+def test_wrong_dimension_member_cannot_impersonate_promoter_aggregate() -> None:
     result = audit_shareholding_xbrl(
-        _xml(dimensional_promoter=True),
+        _xml(wrong_promoter_member=True),
         symbol="TEST",
         report_date="2026-06-30",
         source_url="https://nsearchives.nseindia.com/test.xml",
     )
     assert result["promoter_aggregate_ready"] is False
     assert result["public_aggregate_ready"] is True
+    assert result["aggregate_scale_semantics"] == "UNRESOLVED"
+
+
+def test_absent_mutual_fund_context_is_not_imputed_to_zero() -> None:
+    result = audit_shareholding_xbrl(
+        _xml(mutual_fund=None),
+        symbol="TEST",
+        report_date="2026-06-30",
+        source_url="https://nsearchives.nseindia.com/test.xml",
+    )
+    assert result["mutual_fund_aggregate_ready"] is False
+    assert result["mutual_fund_aggregate_state"] == "CATEGORY_CONTEXT_ABSENT"
+    assert result["aggregate_families"]["MUTUAL_FUND_UTI"] is None
+
+
+def test_promoter_pledge_boolean_is_retained_as_source_fact() -> None:
+    result = audit_shareholding_xbrl(
+        _xml(pledged="true"),
+        symbol="TEST",
+        report_date="2026-06-30",
+        source_url="https://nsearchives.nseindia.com/test.xml",
+    )
+    assert result["promoter_encumbrance_ready"] is True
+    assert result["promoter_encumbrance_flags"][
+        "WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup"
+    ] is True
 
 
 def test_malformed_xml_fails_closed() -> None:
