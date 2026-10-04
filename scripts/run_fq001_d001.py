@@ -163,10 +163,12 @@ def main() -> int:
             target = parse_annual_quality_filing(
                 target_raw,
                 candidate=pair.target,
+                expected_isin=member.isin,
             )
             baseline = parse_annual_quality_filing(
                 baseline_raw,
                 candidate=pair.baseline,
+                expected_isin=target.isin,
             )
             validate_annual_shape(target)
             validate_annual_shape(baseline)
@@ -174,10 +176,6 @@ def main() -> int:
             if member.isin and target.isin and member.isin != target.isin:
                 raise AlphaContractError(
                     "FQ001 target filing ISIN differs from frozen universe"
-                )
-            if member.isin and baseline.isin and member.isin != baseline.isin:
-                raise AlphaContractError(
-                    "FQ001 baseline filing ISIN differs from frozen universe"
                 )
             if target.raw_sha256 != target_sha:
                 raise AlphaContractError("FQ001 target raw SHA mismatch")
@@ -223,6 +221,9 @@ def main() -> int:
         f"{record['target_parser_version']}|{record['baseline_parser_version']}"
         for record in records
     )
+    identity_continuity_counts = Counter(
+        record["issuer_identity_continuity"] for record in records
+    )
     failure_stage_counts = Counter(row["stage"] for row in failures)
     failure_reason_counts = Counter(row["reason"] for row in failures)
 
@@ -253,6 +254,7 @@ def main() -> int:
         "baseline_fact_coverage": baseline_fact_coverage,
         "basis_counts": dict(sorted(basis_counts.items())),
         "parser_pair_counts": dict(sorted(parser_pair_counts.items())),
+        "identity_continuity_counts": dict(sorted(identity_continuity_counts.items())),
         "failure_count": len(failures),
         "failure_stage_counts": dict(sorted(failure_stage_counts.items())),
         "failure_reason_counts": dict(sorted(failure_reason_counts.items())),
