@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import hashlib
 import io
-import json
 import re
 import unicodedata
+import xml.etree.ElementTree as ET
 import zipfile
 from collections import Counter, defaultdict
 from pathlib import PurePosixPath
 from typing import Any
-import xml.etree.ElementTree as ET
 
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
+from pypdf.errors import PdfReadError
 
 from marketlab.alpha import AlphaContractError, digest
 
@@ -97,7 +97,7 @@ def _text_chunks(text: str) -> list[str]:
 def _pdf_segments(raw: bytes, *, document_id: str, prefix: str) -> tuple[list[dict], dict]:
     try:
         reader = PdfReader(io.BytesIO(raw), strict=False)
-    except Exception as exc:  # pypdf exposes multiple parser exception classes
+    except (PdfReadError, OSError, TypeError, ValueError) as exc:
         raise SS002TextError(f"PDF_PARSE_FAILED: {type(exc).__name__}: {exc}") from exc
 
     segments = []
@@ -106,7 +106,7 @@ def _pdf_segments(raw: bytes, *, document_id: str, prefix: str) -> tuple[list[di
     for index, page in enumerate(reader.pages, start=1):
         try:
             text = page.extract_text() or ""
-        except Exception:
+        except (PdfReadError, KeyError, TypeError, ValueError):
             failed_pages += 1
             continue
         segment = _segment(
