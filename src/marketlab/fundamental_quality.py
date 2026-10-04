@@ -12,11 +12,11 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_fundamental import FilingCandidate, FundamentalPair
 from marketlab.events import sha256_bytes
 
-FQ001_D001_ID = "FQ001-D001-v1"
+FQ001_D001_ID = "FQ001-D001-P1-v1"
 TARGET_PERIOD_END = "2026-03-31"
 BASELINE_PERIOD_END = "2025-03-31"
 PARSER_HTML = "fq001-indas-html-v1"
-PARSER_XBRL = "fq001-indas-xbrl-v1"
+PARSER_XBRL = "fq001-indas-xbrl-v2"
 
 CORE_METRICS = (
     "roce_proxy",
@@ -65,10 +65,7 @@ XBRL_ALIASES = {
     "total_assets": ("TotalAssets", "Assets"),
     "total_equity": ("TotalEquity", "Equity"),
     "current_liabilities": ("TotalCurrentLiabilities", "CurrentLiabilities"),
-    "cash_and_cash_equivalents": (
-        "CashAndCashEquivalents",
-        "CashAndCashEquivalentsCashFlowStatement",
-    ),
+    "cash_and_cash_equivalents": ("CashAndCashEquivalents",),
     "borrowings_current": ("BorrowingsCurrent", "CurrentBorrowings"),
     "borrowings_noncurrent": (
         "BorrowingsNoncurrent",
@@ -81,6 +78,7 @@ XBRL_ALIASES = {
         "CashFlowsFromUsedInOperatingActivities",
     ),
     "purchase_ppe": (
+        "PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
         "PurchaseOfPropertyPlantAndEquipment",
         "PaymentsToAcquirePropertyPlantAndEquipment",
     ),
