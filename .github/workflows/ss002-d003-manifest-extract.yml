@@ -1,0 +1,53 @@
+name: SS002 D002 compact corpus manifest extraction
+
+on:
+  push:
+    branches:
+      - research/ss002-text-extraction-20261004
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  extract:
+    if: contains(github.event.head_commit.message, '[ss002-d003-manifest]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download exact D002 corpus artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d002-37206243434
+          path: reports/ss002-d002-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37206243434
+      - name: Verify and retain compact corpus manifest
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          src=Path("reports/ss002-d002-source/ss002-d002-corpus.json")
+          p=json.loads(src.read_text())
+          assert p["corpus_id"]=="SS002-D002-v1"
+          assert p["corpus_sha256"]=="eab922954ef20a12a7635107722b4e800b59cfa56ff0659da42afb3fc22218f9"
+          assert p["unique_document_id_count"]==1539
+          assert p["ready_url_count"]==1658
+          assert p["return_outcomes_opened"] is False
+          dst=Path("research/ss002/ss002-d002-corpus-manifest-v1.json")
+          dst.parent.mkdir(parents=True,exist_ok=True)
+          dst.write_text(json.dumps(p,indent=2,sort_keys=True,ensure_ascii=False,allow_nan=False)+"\n")
+          print(dst, dst.stat().st_size)
+          PY
+      - name: Commit compact manifest
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ss002/ss002-d002-corpus-manifest-v1.json
+          git commit -m "SS002: retain compact D002 corpus manifest [skip ci]"
+          git push origin HEAD:research/ss002-text-extraction-20261004
