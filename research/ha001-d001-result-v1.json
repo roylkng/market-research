@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HA001-D001-v1",
+  "status": "PASSED_FULL_MARKET_ASSET_ANOMALY_ROUTING",
+  "classification": "FULL_MARKET_ASSET_ANOMALY_ROUTING_NOT_VALUATION",
+  "successful_run": {
+    "run_id": 37218405833,
+    "artifact_id": 11309024280,
+    "artifact_name": "ha001-d001-37218405833"
+  },
+  "panel_sha256": "81651ebbac5a3102bb2dda9f2931dc10157583bfe2753cc610585811204f5bb3",
+  "source_fa001_panel_sha256": "cb8a408b6904799750a5aa08210f909ae8b285005273b5588fb1f8b7a6019124",
+  "identity_count": 2319,
+  "net_financial_assets_to_equity_ready_count": 1761,
+  "investments_to_assets_ready_count": 1829,
+  "cwip_to_ppe_ready_count": 1815,
+  "opportunity_flag_counts": {
+    "LIQUID_ASSET_HEAVY": 125,
+    "INVESTMENT_HOLDING_HEAVY": 237,
+    "INVESTMENT_PROPERTY_MATERIAL": 78,
+    "CWIP_CAPACITY_INFLECTION": 286
+  },
+  "caution_flag_counts": {
+    "INTANGIBLE_HEAVY_CAUTION": 98,
+    "WORKING_CAPITAL_HEAVY_CAUTION": 594
+  },
+  "any_opportunity_flag_count": 575,
+  "threshold_passes": {
+    "complete_identity_accounting": true,
+    "minimum_nfa_equity_coverage_60pct": true,
+    "minimum_investments_assets_coverage_60pct": true,
+    "minimum_cwip_ppe_coverage_50pct": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_deep_research_routing": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "ASSET-ANOMALY ROUTING PASSED; 575 COMPANIES HAVE AT LEAST ONE FROZEN ASSET/CAPACITY FLAG, BUT NO FLAG IS AN UNDERVALUATION CLAIM AND BUSINESS-MODEL CONTEXT REMAINS REQUIRED"
+}
