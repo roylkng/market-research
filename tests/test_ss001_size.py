@@ -5,7 +5,9 @@ import pytest
 from marketlab.alpha import AlphaContractError
 from marketlab.ss001_size import (
     build_company_size_panel,
+    SHARD_COUNT,
     parse_trade_info_market_cap,
+    shard_for_symbol,
     size_band,
 )
 
@@ -117,3 +119,14 @@ def test_panel_fails_closed_on_wrong_source_hash() -> None:
             acquired_rows=[],
             captured_at_utc="2026-10-04T12:00:00Z",
         )
+
+
+def test_frozen_shard_assignment_is_complete_and_deterministic() -> None:
+    symbols=[f"S{idx:04d}" for idx in range(2319)]
+    assignments=[shard_for_symbol(symbol) for symbol in symbols]
+    assert SHARD_COUNT==6
+    assert all(0 <= value < SHARD_COUNT for value in assignments)
+    assert assignments == [shard_for_symbol(symbol.lower()) for symbol in symbols]
+    counts={shard:assignments.count(shard) for shard in range(SHARD_COUNT)}
+    assert sum(counts.values())==2319
+    assert all(count > 300 for count in counts.values())
