@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS001-D001-v1",
+  "status": "COMPLETE_SOURCE_FEASIBILITY",
+  "classification": "FULL_MARKET_SOURCE_CENSUS_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37197575401,
+    "artifact_id": 11301695772,
+    "artifact_name": "ss001-d001-37197575401"
+  },
+  "census_sha256": "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7",
+  "universe_raw_sha256": "95f0d731f5858f71e876c45377dcefa79bc7a8db1e8161d0c92320252af4aa8f",
+  "as_of_completed_session": "2026-10-01",
+  "eq_identity_count": 2319,
+  "current_udiff_identity_count": 2313,
+  "current_udiff_coverage_ratio": 0.9974126778783958,
+  "at_least_15_of_20_session_count": 2247,
+  "at_least_15_of_20_session_coverage_ratio": 0.9689521345407504,
+  "integrated_financial_coverage_count": 2093,
+  "integrated_financial_coverage_ratio": 0.902544200086244,
+  "integrated_filing_row_count": 9606,
+  "corporate_action_row_count": 2082,
+  "existing_u001_overlap_count": 100,
+  "outside_existing_u001_count": 2219,
+  "observed_special_action_symbol_counts": {
+    "rights": 30,
+    "scheme_or_reorganisation": 13,
+    "buyback": 28,
+    "split_or_consolidation": 41,
+    "bonus": 37,
+    "delisting": 0,
+    "any_of_above": 142,
+    "any_of_above_outside_existing_u001": 133
+  },
+  "liquidity_distribution": {
+    "definition": "median daily traded value across frozen 20-session window; counts are current EQ identities",
+    "at_least_15_sessions_count": 2247,
+    "median_turnover_ge_20_lakh_inr": 1750,
+    "median_turnover_ge_50_lakh_inr": 1578,
+    "median_turnover_ge_1_crore_inr": 1480,
+    "median_turnover_ge_2_crore_inr": 1318,
+    "median_turnover_ge_5_crore_inr": 1035,
+    "median_turnover_ge_10_crore_inr": 827,
+    "outside_u001_and_median_turnover_ge_1_crore_inr": 1380
+  },
+  "threshold_passes": {
+    "minimum_eq_identity_count": true,
+    "minimum_current_udiff_coverage": true,
+    "minimum_15_of_20_session_coverage": true,
+    "minimum_integrated_financial_coverage": true,
+    "all_corporate_action_chunks_acquired": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_next_source_layers": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FULL_MARKET_SOURCE_SPINE_PASSED; 2219 CURRENT EQ NAMES ARE OUTSIDE THE ORIGINAL U001; OWNERSHIP_GOVERNANCE_AND_SMALL_SUM_INVESTABILITY_LAYERS MAY NOW BE FROZEN"
+}
