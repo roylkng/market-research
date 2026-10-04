@@ -178,7 +178,7 @@ def validate_isin_bridge_payload(payload: object) -> dict[str, dict[str, str]]:
 
 def _publication_date(value: str) -> date:
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AlphaContractError(f"FQ001 invalid publication timestamp: {value}") from exc
     if parsed.tzinfo is None:
