@@ -100,10 +100,17 @@ def _pdf_segments(raw: bytes, *, document_id: str, prefix: str) -> tuple[list[di
     except (PdfReadError, OSError, TypeError, ValueError) as exc:
         raise SS002TextError(f"PDF_PARSE_FAILED: {type(exc).__name__}: {exc}") from exc
 
+    try:
+        pages = list(reader.pages)
+    except (PdfReadError, KeyError, TypeError, ValueError) as exc:
+        raise SS002TextError(
+            f"PDF_PAGE_TREE_FAILED: {type(exc).__name__}: {exc}"
+        ) from exc
+
     segments = []
     empty_pages = 0
     failed_pages = 0
-    for index, page in enumerate(reader.pages, start=1):
+    for index, page in enumerate(pages, start=1):
         try:
             text = page.extract_text() or ""
         except (PdfReadError, KeyError, TypeError, ValueError):
@@ -120,7 +127,7 @@ def _pdf_segments(raw: bytes, *, document_id: str, prefix: str) -> tuple[list[di
         else:
             segments.append(segment)
     return segments, {
-        "page_count": len(reader.pages),
+        "page_count": len(pages),
         "text_page_count": len(segments),
         "empty_page_count": empty_pages,
         "failed_page_count": failed_pages,
