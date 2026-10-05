@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter, defaultdict
+from datetime import date
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -315,18 +316,51 @@ def _has(index: dict[str, dict[str, list[dict[str, Any]]]], symbol: str, name: s
     return bool(index.get(symbol, {}).get(name))
 
 
-def _values_conflict(values: list[dict[str, Any]]) -> bool:
+_TIME_ORDERED_STATE_FACTS = frozenset(
+    {
+        "winston_project_status_text",
+        "wwil_acquisition_stage_text",
+        "financing_stage_text",
+    }
+)
+
+
+def _canonical_fact_value(row: dict[str, Any]) -> str:
+    return json.dumps(
+        {"value": row["value"], "unit": row["unit"]},
+        sort_keys=True,
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+
+
+def _values_conflict(name: str, values: list[dict[str, Any]]) -> bool:
     if len(values) <= 1:
         return False
-    canonical = {
-        json.dumps(
-            {"value": row["value"], "unit": row["unit"]},
-            sort_keys=True,
-            ensure_ascii=False,
-            allow_nan=False,
-        )
-        for row in values
-    }
+
+    if name in _TIME_ORDERED_STATE_FACTS:
+        dated: list[tuple[str, dict[str, Any]]] = []
+        for row in values:
+            value = row.get("effective_or_reporting_date")
+            if not isinstance(value, str):
+                return True
+            try:
+                year, month, day = (int(part) for part in value.split("-"))
+                if len(value) != 10:
+                    return True
+                date(year, month, day)
+            except (ValueError, TypeError):
+                return True
+            dated.append((value, row))
+        latest = max(value for value, _ in dated)
+        latest_values = {
+            _canonical_fact_value(row)
+            for value, row in dated
+            if value == latest
+        }
+        return len(latest_values) > 1
+
+    canonical = {_canonical_fact_value(row) for row in values}
     return len(canonical) > 1
 
 
@@ -383,7 +417,9 @@ def build_d002b_synthesis(
     conflicts_by_symbol: dict[str, list[str]] = {}
     for symbol, facts in index.items():
         conflicts_by_symbol[symbol] = sorted(
-            name for name, values in facts.items() if _values_conflict(values)
+            name
+            for name, values in facts.items()
+            if _values_conflict(name, values)
         )
 
     companies: dict[str, Any] = {}
