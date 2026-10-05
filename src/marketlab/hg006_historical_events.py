@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from datetime import UTC, date, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_announcements import normalize_announcement_payload
@@ -12,6 +13,7 @@ from marketlab.ss002_special_situations import (
 )
 
 CENSUS_ID = "HG006-D001-v1"
+IST = ZoneInfo("Asia/Kolkata")
 SOURCE_START = date(2023, 1, 1)
 INITIATION_END = date(2025, 12, 31)
 SOURCE_END = date(2026, 9, 30)
@@ -50,7 +52,7 @@ def _published_day(row: dict[str, Any]) -> date:
         ) from exc
     if value.tzinfo is None:
         raise AlphaContractError("HG006 D001 announcement timestamp lacks timezone")
-    return value.astimezone(UTC).date()
+    return value.astimezone(IST).date()
 
 
 def build_historical_event_census(
