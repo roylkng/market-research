@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "context_id": "HG005-D001-v1",
+  "status": "PASSED_MECHANICAL_MARKET_DENOMINATOR_CONTEXT",
+  "classification": "MECHANICAL_MARKET_DENOMINATOR_AND_PAYOFF_CONTEXT_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37303366312,
+    "artifact_id": 11343026198,
+    "artifact_name": "hg005-d001-37303366312"
+  },
+  "context_sha256": "f8cb5079e266f451013d964b67b38dd833c7212bdffa4ffe23bd4fcef28fa48b",
+  "price_session": "2026-10-01",
+  "symbol_count": 5,
+  "symbols": ["ANANTRAJ", "DEVX", "INOXGREEN", "NPST", "SAMBHV"],
+  "lane_state_counts": {
+    "DENOMINATOR_READY": 2,
+    "VALUATION_INPUT_REQUIRED": 5
+  },
+  "key_mechanical_context": {
+    "ANANTRAJ": {
+      "close_price_inr": 577.85,
+      "reported_fd_market_cap_inr_crore": 20795.48840005,
+      "current_trailing_pe": 36.54965211891208,
+      "net_financial_assets_to_reported_fd_market_cap": 0.022913143025717748,
+      "lanes": {
+        "DEMERGER_ENTITLEMENT": {
+          "state": "VALUATION_INPUT_REQUIRED",
+          "exchange_ratio_text": "One fully paid Ashok Cloud equity share of face value INR 2 for every one fully paid Anant Raj equity share of face value INR 2 held by an eligible Anant Raj shareholder.",
+          "remaining_source_inputs": [
+            "SEPARATED_BUSINESS_EARNINGS",
+            "SEPARATED_BUSINESS_VALUATION_REFERENCE",
+            "TRANSACTION_EFFECTIVE_DATE"
+          ]
+        }
+      }
+    },
+    "DEVX": {
+      "close_price_inr": 36.28,
+      "reported_fd_market_cap_inr_crore": 355.41805398,
+      "current_trailing_pe": 32.68468468468468,
+      "net_financial_assets_to_reported_fd_market_cap": -0.23803686687441244,
+      "lanes": {
+        "DILUTION_FINANCING": {
+          "state": "DENOMINATOR_READY",
+          "event_security_count": 7777770,
+          "event_security_count_to_base_fd_shares": 0.08623998565655125,
+          "issue_price_per_security_inr": 45.0,
+          "issue_price_to_current_price_minus_one": 0.24035281146637266,
+          "gross_issue_consideration_inr_crore": 34.999965,
+          "gross_issue_consideration_to_reported_fd_market_cap": 0.09847548431506946,
+          "share_adjustment_state": "ALREADY_REFLECTED_IN_LATEST_SHAREHOLDING"
+        },
+        "CAPITAL_DEPLOYMENT_MONITOR": {
+          "state": "VALUATION_INPUT_REQUIRED",
+          "remaining_source_inputs": ["OTHER_EXPLICIT_SOURCE_REQUIRED"]
+        }
+      }
+    },
+    "INOXGREEN": {
+      "close_price_inr": 159.0,
+      "reported_fd_market_cap_inr_crore": 6422.9586735,
+      "current_trailing_pe": 58.029197080291965,
+      "net_financial_assets_to_reported_fd_market_cap": 0.08546839983027021,
+      "lanes": {
+        "ACQUISITION_ECONOMICS": {
+          "state": "VALUATION_INPUT_REQUIRED",
+          "stated_consideration_inr_crore": 550.0,
+          "consideration_to_reported_fd_market_cap": 0.08563031897888483,
+          "consideration_to_annual_total_equity": 0.3206791401134621,
+          "target_operating_metric_text": "O&M portfolio approximately 4.5 GW; O&M turnover INR 579.77 crore FY2025-26, INR 597.09 crore FY2024-25 and INR 499.59 crore FY2023-24.",
+          "remaining_source_inputs": [
+            "ACQUISITION_FUNDING_STRUCTURE",
+            "FINAL_PURCHASE_PRICE_OR_ADJUSTMENTS",
+            "TARGET_NORMALIZED_EARNINGS_OR_CASH_FLOW"
+          ]
+        },
+        "DEMERGER_ENTITLEMENT": {
+          "state": "VALUATION_INPUT_REQUIRED",
+          "remaining_source_inputs": [
+            "SEPARATED_BUSINESS_EARNINGS",
+            "SEPARATED_BUSINESS_VALUATION_REFERENCE",
+            "TRANSACTION_EFFECTIVE_DATE"
+          ]
+        }
+      }
+    },
+    "NPST": {
+      "close_price_inr": 1766.5,
+      "reported_fd_market_cap_inr_crore": 3685.537275,
+      "current_trailing_pe": 85.83576287657921,
+      "net_financial_assets_to_reported_fd_market_cap": 0.0739702191724543,
+      "lanes": {
+        "CAPITAL_DEPLOYMENT_MONITOR": {
+          "state": "VALUATION_INPUT_REQUIRED",
+          "stated_raise_inr_crore": 300.0,
+          "stated_raise_to_reported_fd_market_cap": 0.08139925813123136,
+          "remaining_source_inputs": ["CURRENT_CAPITAL_DEPLOYMENT_UPDATE"]
+        }
+      }
+    },
+    "SAMBHV": {
+      "close_price_inr": 161.45,
+      "reported_fd_market_cap_inr_crore": 4757.470221205,
+      "current_trailing_pe": 31.97029702970297,
+      "net_financial_assets_to_reported_fd_market_cap": -0.04400363854447325,
+      "lanes": {
+        "DILUTION_FINANCING": {
+          "state": "DENOMINATOR_READY",
+          "event_security_count": 8695400,
+          "event_security_count_to_base_fd_shares": 0.029508799103831678,
+          "issue_price_per_security_inr": 115.0,
+          "issue_price_to_current_price_minus_one": -0.2877051718798389,
+          "event_adjusted_fd_shares": 303366829,
+          "gross_issue_consideration_inr_crore": 99.9971,
+          "gross_issue_consideration_to_reported_fd_market_cap": 0.02101896498569615,
+          "share_adjustment_state": "PRO_FORMA_PENDING_POST_REPORT_APPROVAL"
+        }
+      }
+    }
+  },
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FIVE PAYOFF-READY HG004 NAMES NOW HAVE DETERMINISTIC OCTOBER-1 MARKET DENOMINATORS; DEVX AND SAMBHV DILUTION LANES ARE MECHANICALLY COMPLETE, WHILE ANANTRAJ, INOXGREEN AND NPST STILL REQUIRE BUSINESS-VALUATION OR CURRENT-DEPLOYMENT SOURCE INPUTS BEFORE FAMILY-SPECIFIC PAYOFF MODELS MAY BE COMPLETED"
+}
