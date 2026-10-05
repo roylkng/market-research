@@ -161,15 +161,22 @@
     {
       "source_id": "NPST_Q1FY27_MONITORING",
       "symbol": "NPST",
-      "mode": "DIRECT_URL",
-      "url": "https://nsearchives.nseindia.com/corporate/NPST_11082026195649_SE_Intimation_Monitoring_agency_report_30062026.pdf",
+      "mode": "NSE_ANNOUNCEMENT_DISCOVERY",
       "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
       "required_fact_groups": [
         "CURRENT_CAPITAL_DEPLOYMENT",
         "OBJECT_WISE_UTILIZATION",
         "UNUTILIZED_PROCEEDS",
         "OVERSEAS_DEPLOYMENT"
-      ]
+      ],
+      "discovery": {
+        "from_date": "11-08-2026",
+        "to_date": "11-08-2026",
+        "desc_tokens": [
+          "monitoring",
+          "agency"
+        ]
+      }
     },
     {
       "source_id": "NPST_Q1FY27_INVESTOR_PRESENTATION",
