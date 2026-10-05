@@ -10,6 +10,7 @@ def _row(symbol: str, seq: str, day: str, desc: str, text: str, url: str = "") -
         "symbol": symbol,
         "seq_id": seq,
         "exchdisstime": f"{day} 10:00:00",
+        "an_dt": f"{day} 10:00:00",
         "desc": desc,
         "attchmntText": text,
         "attchmntFile": url,
@@ -128,7 +129,8 @@ def test_canonical_day_uses_nse_ist_calendar_not_utc_calendar() -> None:
             {
                 "symbol": "AAA",
                 "seq_id": "late-utc",
-                "exchdisstime": "2025-12-29T20:00:00+00:00",
+                "exchdisstime": "31-Dec-2025 10:00:00",
+                "an_dt": "2025-12-29T20:00:00+00:00",
                 "desc": "Buyback",
                 "attchmntText": "Board considers buyback",
                 "attchmntFile": "https://nsearchives.nseindia.com/corporate/a.pdf",
