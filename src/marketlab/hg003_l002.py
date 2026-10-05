@@ -243,9 +243,11 @@ def build_company_event_synthesis(
         for cluster, members in sorted(cluster_members.items()):
             ordered = sorted(
                 members,
-                key=lambda row: (
-                    str(row["selected_exchange_published_at_utc"] or ""),
-                    str(row["thread_id"]),
+                key=lambda row: str(row["thread_id"]),
+            )
+            ordered.sort(
+                key=lambda row: str(
+                    row["selected_exchange_published_at_utc"] or ""
                 ),
                 reverse=True,
             )
