@@ -364,7 +364,7 @@ def main():
     prompts = selection.get("prompts")
     if not isinstance(prompts, list) or len(prompts) != 19:
         raise ValueError("HG004 L001 requires exactly 19 prompt envelopes")
-    if set(str(row.get("document_id")) for row in prompts) != set(SPECS):
+    if {str(row.get("document_id")) for row in prompts} != set(SPECS):
         raise ValueError(
             "HG004 L001 document set differs from frozen 19-document set"
         )
