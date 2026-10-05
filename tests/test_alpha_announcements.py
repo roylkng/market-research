@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import pytest
 
 from marketlab.alpha_announcements import (
+    HISTORICAL_DAILY_AN_DT_AUTHORITY,
     SYMBOL_SAMPLE,
     AnnouncementAuditError,
     build_d003_audit,
@@ -173,3 +174,33 @@ def test_d003_fails_when_full_market_misses_symbol_scoped_row():
         report["symbol_reconciliation"]["INFY"]["missing_from_whole_market_count"]
         == 1
     )
+
+def test_historical_timestamp_authority_uses_an_dt_without_changing_default() -> None:
+    row = {
+        "symbol": "AHLUCONT",
+        "seq_id": "152114",
+        "an_dt": "14-Feb-2023 13:05:54",
+        "sort_date": "2023-02-14 13:05:54",
+        "exchdisstime": "02-Mar-2023 20:33:52",
+        "desc": "Financial Result Updates",
+        "attchmntText": "Financial results update",
+        "attchmntFile": "https://nsearchives.nseindia.com/corporate/a.pdf",
+    }
+    day = datetime(2023, 2, 14, tzinfo=UTC).date()
+
+    with pytest.raises(AnnouncementAuditError, match="timestamp outside requested window"):
+        normalize_announcement_payload(
+            [row],
+            requested_start=day,
+            requested_end=day,
+        )
+
+    rows = normalize_announcement_payload(
+        [row],
+        requested_start=day,
+        requested_end=day,
+        timestamp_authority=HISTORICAL_DAILY_AN_DT_AUTHORITY,
+    )
+    assert len(rows) == 1
+    assert rows[0]["exchange_published_at_utc"].startswith("2023-02-14T07:35:54")
+
