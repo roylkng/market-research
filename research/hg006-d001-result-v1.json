@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-D001-v1",
+  "status": "PASSED_HISTORICAL_SOURCE_FEASIBILITY",
+  "classification": "HISTORICAL_DISCRETE_EVENT_BASE_RATE_SOURCE_CENSUS_NOT_PROBABILITY",
+  "successful_run": {
+    "run_id": 37347148756,
+    "artifact_id": 11361421023,
+    "artifact_name": "hg006-d001-p4-37347148756"
+  },
+  "census_sha256": "a267dab9cd646ffdc5230f1899a16a4138733413a3f05f438edf639f18ad41a5",
+  "acquisition_topology": "P1_FOUR_PARALLEL_CALENDAR_SHARDS",
+  "source_semantics_amendment": "HG006-D001-P4-v1",
+  "calendar_day_semantics": "NSE_ASIA_KOLKATA",
+  "historical_timestamp_authority": "an_dt",
+  "historical_duplicate_policy": "COLLAPSE_EXACT_CANONICAL_WITHIN_DAY",
+  "source_window": {
+    "start": "2023-01-01",
+    "end": "2026-09-30",
+    "calendar_day_count": 1369
+  },
+  "initiation_window": {
+    "start": "2023-01-01",
+    "end": "2025-12-31"
+  },
+  "right_censoring_cutoff": "2026-09-30",
+  "raw_source_row_count": 663521,
+  "canonical_source_row_count": 663498,
+  "historical_canonical_duplicate_collapse_count": 23,
+  "retained_event_count": 9733,
+  "retained_symbol_count": 1371,
+  "historical_chronology_count": 1607,
+  "historical_chronology_counts_by_family": {
+    "BUYBACK": 105,
+    "CAPITAL_REDUCTION": 11,
+    "DELISTING": 89,
+    "OFFER_FOR_SALE": 54,
+    "OPEN_OFFER_CONTROL": 74,
+    "PREFERENTIAL_WARRANT": 460,
+    "RIGHTS_ISSUE": 210,
+    "SCHEME_REORGANISATION": 583,
+    "TENDER_OFFER": 21
+  },
+  "historical_attachment_ready_chronology_count": 1582,
+  "historical_attachment_ready_chronology_ratio": 0.984443061605476,
+  "threshold_passes": {
+    "complete_daily_source_coverage": true,
+    "canonical_identity_unique_across_days": true,
+    "retained_rows_use_frozen_discrete_families": true,
+    "minimum_scheme_chronologies_30": true,
+    "minimum_preferential_chronologies_30": true,
+    "minimum_total_historical_chronologies_150": true,
+    "minimum_chronology_attachment_coverage_90pct": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_historical_stage_extraction": true,
+  "completion_probabilities_assigned": false,
+  "expected_returns_calculated": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "HISTORICAL DISCRETE-EVENT SOURCE CENSUS PASSED; 1607 SYMBOL-FAMILY CHRONOLOGIES WITH 98.44% ATTACHMENT COVERAGE AUTHORIZE EVIDENCE-BOUND HISTORICAL STAGE EXTRACTION AND EPISODE THREADING; NO COMPLETION PROBABILITY HAS YET BEEN ASSIGNED"
+}
