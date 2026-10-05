@@ -78,6 +78,7 @@ jobs:
               ).read_text()
           )
           assert p["corpus_id"] == "HG006-D001A-P1-v1"
+          assert p["corpus_sha256"] == "3d47f24a5cbd4f551eae577ad0ed32fde7f5f15567ce775f60c0bb51ee9989dd"
           assert p["feasibility_pass"] is True
           assert p["selected_chronology_count"] == 1043
           assert p["historical_terminal_labels_opened"] is False
