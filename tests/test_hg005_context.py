@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import pytest
-
 from marketlab.alpha import AlphaContractError
+
+import pytest
 from marketlab.hg005_context import (
     EXPECTED_FA001_SHA,
     EXPECTED_GF001_SHA,
