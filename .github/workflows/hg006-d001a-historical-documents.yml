@@ -1,0 +1,190 @@
+name: HG006 D001A historical priority-family document corpus
+
+on:
+  push:
+    branches:
+      - research/hg006-historical-document-corpus-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate:
+    if: contains(github.event.head_commit.message, '[hg006-d001a]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/hg006_documents.py \
+            scripts/run_hg006_d001a_shard.py \
+            scripts/combine_hg006_d001a_shards.py \
+            tests/test_hg006_documents.py
+          pytest -q \
+            tests/test_hg006_documents.py \
+            tests/test_hg006_historical_events.py \
+            tests/test_hg006_stage_contract.py \
+            tests/test_hg006_episode_threading.py \
+            tests/test_hg006_base_rates.py
+
+  acquire:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download exact passed HG006 D001 source census
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-d001-p4-37347148756
+          path: reports/hg006-d001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37347148756
+
+      - name: Verify frozen D001 source
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(
+              Path("reports/hg006-d001-source/hg006-d001-census.json").read_text()
+          )
+          assert p["census_id"] == "HG006-D001-v1"
+          assert p["census_sha256"] == (
+              "a267dab9cd646ffdc5230f1899a16a4138733413a3f05f438edf639f18ad41a5"
+          )
+          assert p["retained_event_count"] == 9733
+          assert p["historical_chronology_count"] == 1607
+          assert p["completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          PY
+
+      - name: Acquire deterministic historical document shard
+        run: |
+          python scripts/run_hg006_d001a_shard.py \
+            --census reports/hg006-d001-source/hg006-d001-census.json \
+            --shard-id ${{ matrix.shard }} \
+            --raw-dir reports/hg006-d001a/raw-${{ matrix.shard }} \
+            --output reports/hg006-d001a/shard-${{ matrix.shard }} \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.01
+
+      - name: Upload shard metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001a-meta-${{ matrix.shard }}-${{ github.run_id }}
+          path: reports/hg006-d001a/shard-${{ matrix.shard }}/shard-evidence.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Upload content-addressed raw shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001a-raw-${{ matrix.shard }}-${{ github.run_id }}
+          path: reports/hg006-d001a/raw-${{ matrix.shard }}
+          if-no-files-found: warn
+          retention-days: 90
+          compression-level: 0
+
+  combine:
+    needs: acquire
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Download exact passed HG006 D001 source census
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-d001-p4-37347148756
+          path: reports/hg006-d001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37347148756
+
+      - name: Download only D001A metadata shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hg006-d001a-meta-*-${{ github.run_id }}
+          path: reports/hg006-d001a/meta
+          merge-multiple: false
+
+      - name: Combine frozen priority-family corpus
+        run: |
+          python scripts/combine_hg006_d001a_shards.py \
+            --census reports/hg006-d001-source/hg006-d001-census.json \
+            --shards-root reports/hg006-d001a/meta \
+            --output reports/hg006-d001a/combined
+
+      - name: Prove source-only historical corpus
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(
+              Path(
+                  "reports/hg006-d001a/combined/hg006-d001a-corpus.json"
+              ).read_text()
+          )
+          assert p["corpus_id"] == "HG006-D001A-P1-v1"
+          assert p["selected_chronology_count"] == 1043
+          assert p["historical_terminal_labels_opened"] is False
+          assert p["completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+              "corpus_sha256": p["corpus_sha256"],
+              "selected_event_count": p["selected_event_count"],
+              "attachment_ready_event_count": p["attachment_ready_event_count"],
+              "unique_approved_url_count": p["unique_approved_url_count"],
+              "ready_url_count": p["ready_url_count"],
+              "ready_url_ratio": p["ready_url_ratio"],
+              "ready_event_count": p["ready_event_count"],
+              "ready_event_ratio": p["ready_event_ratio"],
+              "attachment_ready_chronology_count": p["attachment_ready_chronology_count"],
+              "chronology_with_successful_document_count": p["chronology_with_successful_document_count"],
+              "chronology_success_ratio": p["chronology_success_ratio"],
+              "unique_document_id_count": p["unique_document_id_count"],
+              "document_family_counts": p["document_family_counts"],
+              "chronology_state_counts": p["chronology_state_counts"],
+              "fetch_failure_count": p["fetch_failure_count"],
+              "threshold_passes": p["threshold_passes"],
+              "feasibility_pass": p["feasibility_pass"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload combined corpus metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001a-combined-${{ github.run_id }}
+          path: reports/hg006-d001a/combined
+          if-no-files-found: error
+          retention-days: 90
