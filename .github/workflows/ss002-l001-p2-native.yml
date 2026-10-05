@@ -1,0 +1,85 @@
+name: SS002 L001 P2 GPT56Sol native pilot
+
+on:
+  push:
+    branches:
+      - research/ss002-l001-p2-expanded-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  pilot:
+    if: contains(github.event.head_commit.message, '[ss002-l001-p2-native]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate native materializer
+        run: |
+          ruff check scripts/materialize_ss002_l001_p2_native.py
+          pytest -q tests/test_ss002_llm_contract.py tests/test_ss002_l001_p2.py
+      - name: Download exact P2 selection
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-l001-p2-selection-37261077921
+          path: reports/selection
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37261077921
+      - name: Verify exact P2 selection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/selection/ss002-l001-p2-selection.json").read_text())
+          assert p["selection_id"]=="SS002-L001-P2-SELECTION-v1"
+          assert p["selection_sha256"]=="bb18dede6c56e07d8beff78852f8e089ac3d7bd124fb76c6cc0d22e9fecec7ce"
+          assert p["selected_document_count"]==25
+          assert p["return_outcomes_opened"] is False
+          PY
+      - name: Materialize sealed GPT-5.6 Sol native outputs
+        run: |
+          mkdir -p reports/native
+          python scripts/materialize_ss002_l001_p2_native.py \
+            --selection reports/selection/ss002-l001-p2-selection.json \
+            --output reports/native
+      - name: Prove frozen pilot gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path("reports/native/summary.json").read_text())
+          a=json.loads(Path("reports/native/ss002-l001-p2-manual-audit.json").read_text())
+          assert s["pilot_id"]=="SS002-L001-P2-v1"
+          assert s["selected_document_count"]==25
+          assert s["validated_output_count"]==25
+          assert all(s["mechanical_gates"].values())
+          assert s["manual_audit_pass"] is True
+          assert s["promotion_allowed"] is True
+          assert a["audited_document_count"]==10
+          assert a["state_counts"]["UNSUPPORTED"]==0
+          assert a["state_counts"]["AMBIGUITY_NOT_RETAINED"]==0
+          print(json.dumps({
+            "result_sha256":s["result_sha256"],
+            "run_sha256":s["run_sha256"],
+            "manual_audit_sha256":s["manual_audit_sha256"],
+            "model_config_sha256":s["model_config_sha256"],
+            "mechanical_gates":s["mechanical_gates"],
+            "manual_audit":a["state_counts"],
+            "promotion_allowed":s["promotion_allowed"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact P2 native outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-l001-p2-native-${{ github.run_id }}
+          path: reports/native
+          if-no-files-found: error
+          retention-days: 90
