@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from marketlab.alpha import AlphaContractError
-from marketlab.hg006_stage_contract import extraction_template,validate_extraction
+from marketlab.hg006_stage_contract import extraction_template, validate_extraction
 
 
 def _output():
