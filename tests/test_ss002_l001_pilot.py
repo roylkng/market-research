@@ -36,9 +36,6 @@ def _fixtures():
             records.append({
                 "document_id":doc,
                 "source_url":url,
-                "event_ids":[event_id],
-                "symbols":[sym],
-                "categories":[family],
                 "extraction_state":"READY",
                 "segment_manifest_sha256":"a"*64,
                 "segments":segs,
@@ -46,7 +43,11 @@ def _fixtures():
             manifests.append({
                 "document_id":doc,
                 "source_url":url,
+                "event_ids":[event_id],
+                "symbols":[sym],
+                "categories":[family],
                 "extraction_state":"READY",
+                "segment_manifest_sha256":"a"*64,
             })
     p2={
         "census_id":"SS002-D001-P2-v1",
@@ -97,3 +98,5 @@ def test_prompt_envelopes_are_hash_bound() -> None:
         row["prompt_envelope"]["request"]["document_id"]==row["document_id"]
         for row in result["rows"]
     )
+    assert all(row["prompt_envelope"]["request"]["event_ids"] for row in result["rows"])
+    assert all(row["prompt_envelope"]["request"]["symbols"] for row in result["rows"])
