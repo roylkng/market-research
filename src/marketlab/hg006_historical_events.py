@@ -7,7 +7,9 @@ from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_announcements import (
+    HISTORICAL_COLLAPSE_EXACT_CANONICAL,
     HISTORICAL_DAILY_AN_DT_AUTHORITY,
+    announcement_rows,
     normalize_announcement_payload,
 )
 from marketlab.ss002_special_situations import (
@@ -81,7 +83,9 @@ def build_historical_event_census(
         raise AlphaContractError("HG006 D001 generated_at_utc must include timezone")
 
     all_announcement_ids: set[str] = set()
+    raw_source_row_count = 0
     source_row_count = 0
+    historical_canonical_duplicate_collapse_count = 0
     retained_events: list[dict[str, Any]] = []
     category_event_counts: Counter[str] = Counter()
     daily_source_counts: dict[str, int] = {}
@@ -91,14 +95,20 @@ def build_historical_event_census(
 
     for day_text in expected_days:
         day = date.fromisoformat(day_text)
+        raw_day_rows = announcement_rows(daily_payloads[day_text])
         rows = normalize_announcement_payload(
             daily_payloads[day_text],
             requested_start=day,
             requested_end=day,
             timestamp_authority=HISTORICAL_DAILY_AN_DT_AUTHORITY,
+            duplicate_policy=HISTORICAL_COLLAPSE_EXACT_CANONICAL,
+        )
+        raw_source_row_count += len(raw_day_rows)
+        source_row_count += len(rows)
+        historical_canonical_duplicate_collapse_count += (
+            len(raw_day_rows) - len(rows)
         )
         daily_source_counts[day_text] = len(rows)
-        source_row_count += len(rows)
         retained_for_day = 0
 
         for row in rows:
@@ -234,8 +244,9 @@ def build_historical_event_census(
         "census_id": CENSUS_ID,
         "classification": "HISTORICAL_DISCRETE_EVENT_BASE_RATE_SOURCE_CENSUS_NOT_PROBABILITY",
         "calendar_day_semantics": "NSE_ASIA_KOLKATA",
-        "source_semantics_amendment": "HG006-D001-P3-v1",
+        "source_semantics_amendment": "HG006-D001-P4-v1",
         "historical_timestamp_authority": "an_dt",
+        "historical_duplicate_policy": "COLLAPSE_EXACT_CANONICAL_WITHIN_DAY",
         "generated_at_utc": generated.astimezone(UTC).isoformat().replace(
             "+00:00", "Z"
         ),
@@ -250,7 +261,11 @@ def build_historical_event_census(
         },
         "right_censoring_cutoff": source_end.isoformat(),
         "frozen_families": sorted(DISCRETE_FAMILIES),
+        "raw_source_row_count": raw_source_row_count,
         "source_row_count": source_row_count,
+        "historical_canonical_duplicate_collapse_count": (
+            historical_canonical_duplicate_collapse_count
+        ),
         "retained_event_count": len(retained_events),
         "retained_symbol_count": len(
             {str(row["symbol"]) for row in retained_events}
