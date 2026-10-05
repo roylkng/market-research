@@ -121,3 +121,35 @@ def test_excluded_family_does_not_enter_census() -> None:
     )
     assert result["retained_event_count"] == 0
     assert result["historical_chronology_count"] == 0
+
+def test_canonical_day_uses_nse_ist_calendar_not_utc_calendar() -> None:
+    payloads = {
+        "2025-12-30": [
+            {
+                "symbol": "AAA",
+                "seq_id": "late-utc",
+                "exchdisstime": "2025-12-29T20:00:00+00:00",
+                "desc": "Buyback",
+                "attchmntText": "Board considers buyback",
+                "attchmntFile": "https://nsearchives.nseindia.com/corporate/a.pdf",
+            }
+        ],
+        "2025-12-31": [],
+    }
+    hashes = {key: f"sha-{key}" for key in payloads}
+
+    result = build_historical_event_census(
+        daily_payloads=payloads,
+        daily_raw_sha256=hashes,
+        generated_at_utc="2026-10-05T00:00:00Z",
+        source_start=date(2025, 12, 30),
+        initiation_end=date(2025, 12, 30),
+        source_end=date(2025, 12, 31),
+    )
+
+    assert result["retained_event_count"] == 1
+    assert result["events"][0]["source_day"] == "2025-12-30"
+    assert result["events"][0]["exchange_published_at_utc"].startswith(
+        "2025-12-29T20:00:00"
+    )
+
