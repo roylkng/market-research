@@ -169,7 +169,6 @@ def _is_demerger(extraction: dict[str, Any]) -> bool:
 
 def _synthesize_symbol(symbol: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
     docs = [str(row["document_id"]) for row in rows]
-    extractions = [row["validated_extraction"] for row in rows]
     lanes: list[dict[str, Any]] = []
 
     # Acquisition/CIRP economics.
