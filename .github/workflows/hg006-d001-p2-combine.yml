@@ -51,7 +51,9 @@ jobs:
           from pathlib import Path
           p=json.loads(Path("reports/hg006-d001/hg006-d001-census.json").read_text())
           assert p["census_id"]=="HG006-D001-v1"
-          assert p["calendar_day_semantics"]=="NSE_ASIA_KOLKATA"\n          assert p["historical_timestamp_authority"]=="an_dt"\n          assert p["historical_duplicate_policy"]=="COLLAPSE_EXACT_CANONICAL_WITHIN_DAY"
+          assert p["calendar_day_semantics"]=="NSE_ASIA_KOLKATA"
+          assert p["historical_timestamp_authority"]=="an_dt"
+          assert p["historical_duplicate_policy"]=="COLLAPSE_EXACT_CANONICAL_WITHIN_DAY"
           assert p["source_semantics_amendment"]=="HG006-D001-P4-v1"
           assert p["acquisition_topology"]=="P1_FOUR_PARALLEL_CALENDAR_SHARDS"
           assert len(p["acquisition_shards"])==4
