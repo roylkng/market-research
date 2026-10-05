@@ -1,0 +1,63 @@
+name: HG005 D003 payoff sensitivity materialization
+on:
+  push:
+    branches:
+      - research/hg005-d003-payoff-frameworks-20261005
+permissions:
+  actions: read
+  contents: read
+jobs:
+  build:
+    if: contains(github.event.head_commit.message, '[hg005-d003]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate D003
+        run: |
+          ruff check src/marketlab/hg005_d003.py scripts/materialize_hg005_d003.py tests/test_hg005_d003.py
+          pytest -q tests/test_hg005_d003.py
+      - name: Download exact D002B P1 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hg005-d002b-37319444854
+          path: reports/hg005-d002b-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37319444854
+      - name: Materialize D003
+        run: |
+          mkdir -p reports/hg005-d003
+          python scripts/materialize_hg005_d003.py \
+            --market-context research/hg005-d001-result-v1.json \
+            --d002b-synthesis reports/hg005-d002b-source/hg005-d002b-synthesis.json \
+            --out reports/hg005-d003/hg005-d003-framework.json
+      - name: Verify research boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/hg005-d003/hg005-d003-framework.json").read_text())
+          assert p["framework_id"]=="HG005-D003-v1"
+          assert p["completion_probabilities_assigned"] is False
+          assert p["expected_returns_calculated"] is False
+          assert p["return_outcomes_opened"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "framework_sha256":p["framework_sha256"],
+            "companies":p["companies"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload D003
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg005-d003-${{ github.run_id }}
+          path: reports/hg005-d003
+          if-no-files-found: error
+          retention-days: 90
