@@ -229,6 +229,8 @@ def build_historical_event_census(
         "schema_version": 1,
         "census_id": CENSUS_ID,
         "classification": "HISTORICAL_DISCRETE_EVENT_BASE_RATE_SOURCE_CENSUS_NOT_PROBABILITY",
+        "calendar_day_semantics": "NSE_ASIA_KOLKATA",
+        "source_semantics_amendment": "HG006-D001-P2-v1",
         "generated_at_utc": generated.astimezone(UTC).isoformat().replace(
             "+00:00", "Z"
         ),
