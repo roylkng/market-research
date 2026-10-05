@@ -13,7 +13,6 @@ from marketlab.hg005_context import (
     parse_shareholding_counts,
 )
 
-
 SYMBOLS = ["ANANTRAJ", "DEVX", "INOXGREEN", "NPST", "SAMBHV"]
 
 
