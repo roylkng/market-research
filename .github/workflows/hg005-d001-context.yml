@@ -1,0 +1,140 @@
+name: HG005 D001 market denominators
+
+on:
+  push:
+    branches:
+      - research/hg005-market-denominators-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  context:
+    if: contains(github.event.head_commit.message, '[hg005-d001]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen HG005 implementation
+        run: |
+          ruff check \
+            src/marketlab/hg005_context.py \
+            scripts/materialize_hg005_context.py \
+            tests/test_hg005_context.py
+          pytest -q \
+            tests/test_hg005_context.py \
+            tests/test_hg004_l002.py \
+            tests/test_gf001_governance.py
+
+      - name: Download HG004 L002
+        uses: actions/download-artifact@v4
+        with:
+          name: hg004-l002-37297528769
+          path: reports/hg004-l002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37297528769
+
+      - name: Download HG004 L001
+        uses: actions/download-artifact@v4
+        with:
+          name: hg004-l001-37296227681
+          path: reports/hg004-l001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37296227681
+
+      - name: Download SS001 D001
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/ss001-d001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+
+      - name: Download GF001 D002
+        uses: actions/download-artifact@v4
+        with:
+          name: gf001-d002-37202941712
+          path: reports/gf001-d002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37202941712
+
+      - name: Download FA001 D002
+        uses: actions/download-artifact@v4
+        with:
+          name: fa001-d002-merged-37213394690
+          path: reports/fa001-d002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213394690
+
+      - name: Materialize frozen HG005 context
+        run: |
+          python scripts/materialize_hg005_context.py \
+            --hg004-l002 reports/hg004-l002/hg004-l002-synthesis.json \
+            --hg004-l001 reports/hg004-l001/hg004-l001-native-run.json \
+            --ss001 reports/ss001-d001/ss001-d001-census.json \
+            --gf001 reports/gf001-d002/gf001-d002-panel.json \
+            --gf001-artifact-root reports/gf001-d002 \
+            --fa001 reports/fa001-d002/fa001-d002-panel.json \
+            --out reports/hg005-d001
+
+      - name: Prove research-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = json.loads(Path("reports/hg005-d001/hg005-d001-context.json").read_text())
+          assert p["context_id"] == "HG005-D001-v1"
+          assert p["symbol_count"] == 5
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "context_sha256": p["context_sha256"],
+            "symbols": p["symbols"],
+            "lane_state_counts": p["lane_state_counts"],
+            "rows": [
+              {
+                "symbol": row["symbol"],
+                "close_price_inr": row["market_and_financial_context"]["close_price_inr"],
+                "reported_fd_market_cap_inr_crore": row["market_and_financial_context"]["reported_fd_market_cap_inr_crore"],
+                "current_trailing_pe": row["market_and_financial_context"]["current_trailing_pe"],
+                "net_financial_assets_to_reported_fd_market_cap": row["market_and_financial_context"]["net_financial_assets_to_reported_fd_market_cap"],
+                "lane_states": [
+                  {
+                    "family": lane["economic_family"],
+                    "post_d001_state": lane["post_d001_state"],
+                    "metrics": lane["mechanical_metrics"],
+                    "remaining_source_inputs": lane["remaining_source_inputs"],
+                  }
+                  for lane in row["payoff_lanes"]
+                ],
+              }
+              for row in p["rows"]
+            ],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact HG005 D001 output
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg005-d001-${{ github.run_id }}
+          path: reports/hg005-d001
+          if-no-files-found: error
+          retention-days: 90
