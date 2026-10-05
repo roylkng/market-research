@@ -132,9 +132,12 @@ def build_hidden_gem_router(
             delta = gf_row.get("ownership_delta_pp")
             if isinstance(delta, dict):
                 promoter_delta = delta.get("promoter_percentage_points")
-                if isinstance(promoter_delta, (int, float)) and not isinstance(promoter_delta, bool):
-                    if float(promoter_delta) <= -2.0:
-                        governance_cautions.append("PROMOTER_REDUCTION_2PP")
+                if (
+                    isinstance(promoter_delta, (int, float))
+                    and not isinstance(promoter_delta, bool)
+                    and float(promoter_delta) <= -2.0
+                ):
+                    governance_cautions.append("PROMOTER_REDUCTION_2PP")
 
         asset_cautions = ha_row.get("caution_flags")
         if not isinstance(asset_cautions, list):
