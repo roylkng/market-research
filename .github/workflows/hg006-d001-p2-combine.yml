@@ -1,4 +1,4 @@
-name: HG006 D001 P3 combine existing source shards
+name: HG006 D001 P4 combine existing source shards
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   combine:
-    if: contains(github.event.head_commit.message, '[hg006-d001-p3-combine]')
+    if: contains(github.event.head_commit.message, '[hg006-d001-p4-combine]')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Validate P3 historical timestamp repair
+      - name: Validate P4 historical duplicate normalization
         run: |
           ruff check \
             src/marketlab/hg006_historical_events.py \
@@ -39,20 +39,20 @@ jobs:
           github-token: ${{ github.token }}
           repository: roylkng/market-research
           run-id: 37340989709
-      - name: Combine frozen shards under P3 historical timestamp semantics
+      - name: Combine frozen shards under P4 source normalization
         run: |
           python scripts/combine_hg006_d001_shards.py \
             --shards-root reports/hg006-shards \
             --output reports/hg006-d001
-      - name: Prove source-only P3 census
+      - name: Prove source-only P4 census
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           p=json.loads(Path("reports/hg006-d001/hg006-d001-census.json").read_text())
           assert p["census_id"]=="HG006-D001-v1"
-          assert p["calendar_day_semantics"]=="NSE_ASIA_KOLKATA"\n          assert p["historical_timestamp_authority"]=="an_dt"
-          assert p["source_semantics_amendment"]=="HG006-D001-P3-v1"
+          assert p["calendar_day_semantics"]=="NSE_ASIA_KOLKATA"\n          assert p["historical_timestamp_authority"]=="an_dt"\n          assert p["historical_duplicate_policy"]=="COLLAPSE_EXACT_CANONICAL_WITHIN_DAY"
+          assert p["source_semantics_amendment"]=="HG006-D001-P4-v1"
           assert p["acquisition_topology"]=="P1_FOUR_PARALLEL_CALENDAR_SHARDS"
           assert len(p["acquisition_shards"])==4
           assert p["completion_probabilities_assigned"] is False
@@ -76,7 +76,7 @@ jobs:
       - name: Upload corrected combined census
         uses: actions/upload-artifact@v4
         with:
-          name: hg006-d001-p3-${{ github.run_id }}
+          name: hg006-d001-p4-${{ github.run_id }}
           path: reports/hg006-d001
           if-no-files-found: error
           retention-days: 90
