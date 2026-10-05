@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
+from marketlab.alpha import AlphaContractError
 from marketlab.events import sha256_bytes
 from marketlab.hg004_terms import select_hg004_detailed_terms
-
 
 SYMBOLS = [
     "ANANTRAJ",
@@ -242,9 +244,5 @@ def test_changed_frozen_company_set_fails_closed() -> None:
     hg003["rows"] = [
         row for row in hg003["rows"] if row["symbol"] != "ANANTRAJ"
     ]
-    try:
+    with pytest.raises(AlphaContractError, match="frozen 11-symbol set"):
         select_hg004_detailed_terms(hg003, p2, d3, records)
-    except Exception as exc:
-        assert "frozen 11-symbol set" in str(exc)
-    else:
-        raise AssertionError("changed frozen company set must fail closed")
