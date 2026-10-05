@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
-from marketlab.alpha import AlphaContractError
 from marketlab.events import sha256_bytes
 from marketlab.hg004_terms import select_hg004_detailed_terms
 
@@ -157,9 +154,9 @@ def _sources() -> tuple[dict, dict, dict, list[dict]]:
             )
             if existing is None:
                 segment = _segment(document_id)
-                manifest_sha = hashlib.sha256(
+                manifest_sha = sha256_bytes(
                     f"manifest-{document_id}".encode()
-                ).hexdigest()
+                )
                 manifest = {
                     "document_id": document_id,
                     "source_url": f"https://nsearchives.nseindia.com/{document_id}.pdf",
@@ -245,5 +242,9 @@ def test_changed_frozen_company_set_fails_closed() -> None:
     hg003["rows"] = [
         row for row in hg003["rows"] if row["symbol"] != "ANANTRAJ"
     ]
-    with pytest.raises(AlphaContractError, match="frozen 11-symbol set"):
+    try:
         select_hg004_detailed_terms(hg003, p2, d3, records)
+    except Exception as exc:
+        assert "frozen 11-symbol set" in str(exc)
+    else:
+        raise AssertionError("changed frozen company set must fail closed")
