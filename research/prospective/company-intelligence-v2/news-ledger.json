@@ -4461,9 +4461,122 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-05T18:46:20.601293+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "captured_at": "2026-10-05T18:53:33.488664+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "43913a4ef72663e2d3fbb0c3b9c686ed8c3d23e5df6ee6b756f8a5c954559ceb",
+      "identity_session": "2026-10-05",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "e7b236ce5af3497440cc3b6edb3f909712df8a757e9b3832ba286e58fa57dbe1",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-10-05T18:52:58.994141+00:00"
     }
   ],
-  "ledger_sha256": "f88ce5fb6149f9fd06fc1e643886aada9e85c77a2c31308b5e148dbe8ee9dfc1",
+  "ledger_sha256": "f2f846f8cfe6e24ccb8d67dd6bfc1ed7dd2152d9d84068125d4defec93500ae3",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -415015,6 +415128,178 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "76cbf70a9a581a3080e97a5528ea75ca6ecb262b98bb69925aa2a5b345534117",
+      "topics": []
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "fbc71d5fa55649ff53175b81e2a2231d90b5ca2b0523bc51d17929cb11420218",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "07ea8b71d549b7123b9b1b79f0995a27f09bac4afc71a4bc4fdd6a20aca3bcd9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:52:00 +0000",
+        "value": "2026-10-05T18:52:00+00:00"
+      },
+      "resource_key": "prn:302898789",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "625ee6bc3bc15f88a0d121d2091ab0e6226541a00b4f4aebc129085fd98927cc",
+      "topics": []
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "9d6d46f36805dcb73a9822a813bd6e5e8d0ed1aa225c7721ed6f9804c8852d95",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0ae3e53d46981c5a24fdde0d3db2c8a4e303ef2dcad49c4ae7cc2184d102dbe4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:51:00 +0000",
+        "value": "2026-10-05T18:51:00+00:00"
+      },
+      "resource_key": "prn:302898597",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "3f8bef2d37882364913d7484adf955e455fffeb04b366faadd000a1f11c53b98",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "1257fad5dcae8a6e22ebf39048d69b8b4f26415ed69013b9d375e129d8c52278",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4cd5189cec4895193f7684e64dd51b9fff1b07d8dfbb62c0fc63c2ca863a0a44",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:46:00 +0000",
+        "value": "2026-10-05T18:46:00+00:00"
+      },
+      "resource_key": "prn:302898783",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "b9a8f886700f8be19e41e778e39c3f5a272865eff9eded8b8a37d02545192744",
+      "topics": []
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "da2592687acbbd440afa582aeda91b1e5c4b98a64352ddd7b01c24803de9cf54",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "50c53a50bfdd8e70dd175957e5b47c58f5239b146ec6550adeadbe4cf3248253",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:45:00 +0000",
+        "value": "2026-10-05T18:45:00+00:00"
+      },
+      "resource_key": "prn:302898780",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "3212264084c3db8ed6bba6678f4f90a0eace6831e1692fb4fa94a1b203e4da24",
+      "topics": []
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "66038e684ec4eeb83e111d748abc5a9373db79152a277e3ade4bdf226b4a5ce1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5c96cfbc0fd1ec46951afe37254f1ce51eec0dc4f54f67b27fe76e61166873eb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:52:00 +0000",
+        "value": "2026-10-05T18:52:00+00:00"
+      },
+      "resource_key": "prn:302898403",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "bc8f4a8690ca1a668065ea957aefabcbeeb87546cfb5884f5059822d15c13f86",
+      "topics": []
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "d6c8b8cdcdc3625355ede5edaaa5b3f05be5962ef8c9bb2352152a2aa6ae2d63",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d5127357b1ece43c1368d1841bcf5205a9fcf6e1517d6c8de17dce148b0d4bea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:52:00 +0000",
+        "value": "2026-10-05T18:52:00+00:00"
+      },
+      "resource_key": "prn:302898603",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "9f70f22cea5588465c96a6fce09e7bb45f82f89553498c2d1a19edeeba9fde8f",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "f2d6d5fe153667f0469b1bb2f5778d9eefb51f2307e794e4a645c37afc368310",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T18:53:17.843682+00:00",
+      "item_id": "cc8237421ea38ea4300fea0ee1a9f59f8368753f2d1c9c45ae4702e150d3ae9f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fa632a1945a6b13f523d97607d8f1cc5adf08ddb55268846b62344aaf2c61ba8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 5 Oct 2026 18:44:00 +0000",
+        "value": "2026-10-05T18:44:00+00:00"
+      },
+      "resource_key": "prn:302898778",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "9ece64bf1b716433433b6958a821b53295f15b2d180d8ada2541e0ed62e70b76",
       "topics": []
     }
   ],
