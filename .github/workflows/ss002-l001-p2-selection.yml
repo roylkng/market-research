@@ -62,7 +62,7 @@ jobs:
           from pathlib import Path
           h=json.loads(Path("reports/hg002/hg002-d001-cohort.json").read_text())
           p=json.loads(Path("reports/p2/ss002-d001-census.json").read_text())
-          d=json.loads(Path("reports/d3/ss002-d003-corpus.json").read_text())
+          d=json.loads(Path("reports/d3/ss002-d003-text-corpus.json").read_text())
           assert h["cohort_sha256"]=="3937b8cb83ef819ff956af4afebb80cd81d8ef233c1e4dd5b6d3688541a48db1"
           assert p["census_sha256"]=="ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071"
           assert d["corpus_sha256"]=="92d785de20af9bcca370c13a9d410fe98f0728518527285fa15d1490dadd32ce"
@@ -73,7 +73,7 @@ jobs:
           python scripts/materialize_ss002_l001_p2.py \
             --hg002 reports/hg002/hg002-d001-cohort.json \
             --p2-census reports/p2/ss002-d001-census.json \
-            --d3-corpus reports/d3/ss002-d003-corpus.json \
+            --d3-corpus reports/d3/ss002-d003-text-corpus.json \
             --documents-dir reports/d3/documents \
             --output reports/l001-p2
       - name: Prove outcome-blind pilot selection
