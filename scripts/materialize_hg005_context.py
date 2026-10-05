@@ -33,11 +33,11 @@ def _shareholding_raw(
     for symbol in sorted(EXPECTED_SYMBOLS):
         row = by_symbol.get(symbol)
         if not isinstance(row, dict):
-            raise ValueError(f"{symbol}: GF001 row unavailable")
+            raise TypeError(f"{symbol}: GF001 row unavailable")
 
         latest = row.get("latest")
         if not isinstance(latest, dict):
-            raise ValueError(f"{symbol}: latest GF001 row unavailable")
+            raise TypeError(f"{symbol}: latest GF001 row unavailable")
         latest_sha = str(latest.get("raw_sha256") or "")
         if not latest_sha:
             raise ValueError(f"{symbol}: latest GF001 raw SHA unavailable")
