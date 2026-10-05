@@ -7,42 +7,82 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
-  census:
-    if: contains(github.event.head_commit.message, '[hg006-d001]')
+  shard:
+    if: contains(github.event.head_commit.message, '[hg006-d001-sharded]')
+    strategy:
+      fail-fast: false
+      matrix:
+        shard_id: [H2023, H2024, H2025, H2026]
     runs-on: ubuntu-latest
-    timeout-minutes: 180
-
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install
         run: python -m pip install -e '.[dev]'
-
-      - name: Validate frozen HG006 implementation before source access
+      - name: Validate frozen implementation before source access
         run: |
           ruff check \
             src/marketlab/hg006_historical_events.py \
-            scripts/run_hg006_d001.py \
-            tests/test_hg006_historical_events.py
+            src/marketlab/hg006_stage_contract.py \
+            src/marketlab/hg006_episode_threading.py \
+            src/marketlab/hg006_base_rates.py \
+            scripts/run_hg006_d001_shard.py \
+            scripts/combine_hg006_d001_shards.py \
+            tests/test_hg006_historical_events.py \
+            tests/test_hg006_stage_contract.py \
+            tests/test_hg006_episode_threading.py \
+            tests/test_hg006_base_rates.py
           pytest -q \
             tests/test_hg006_historical_events.py \
+            tests/test_hg006_stage_contract.py \
+            tests/test_hg006_episode_threading.py \
+            tests/test_hg006_base_rates.py \
             tests/test_ss002_special_situations.py \
             tests/test_alpha_announcements.py
-
-      - name: Run frozen historical event source census
+      - name: Acquire frozen historical source shard
         run: |
-          python scripts/run_hg006_d001.py \
-            --raw-dir reports/hg006-d001/raw \
-            --output reports/hg006-d001 \
+          python scripts/run_hg006_d001_shard.py \
+            --shard-id "${{ matrix.shard_id }}" \
+            --output "reports/hg006-shard-${{ matrix.shard_id }}" \
             --attempts 4 \
             --timeout-seconds 25 \
             --pause-seconds 0.03
+      - name: Upload exact shard evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001-shard-${{ matrix.shard_id }}-${{ github.run_id }}
+          path: reports/hg006-shard-${{ matrix.shard_id }}
+          if-no-files-found: error
+          retention-days: 90
 
+  combine:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download exact four source shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hg006-d001-shard-*-${{ github.run_id }}
+          path: reports/hg006-shards
+          merge-multiple: false
+      - name: Combine and validate frozen historical census
+        run: |
+          python scripts/combine_hg006_d001_shards.py \
+            --shards-root reports/hg006-shards \
+            --output reports/hg006-d001
       - name: Prove source-only base-rate census
         run: |
           python - <<'PY'
@@ -50,6 +90,8 @@ jobs:
           from pathlib import Path
           p=json.loads(Path("reports/hg006-d001/hg006-d001-census.json").read_text())
           assert p["census_id"]=="HG006-D001-v1"
+          assert p["acquisition_topology"]=="P1_FOUR_PARALLEL_CALENDAR_SHARDS"
+          assert len(p["acquisition_shards"])==4
           assert p["completion_probabilities_assigned"] is False
           assert p["expected_returns_calculated"] is False
           assert p["return_outcomes_opened"] is False
@@ -68,12 +110,10 @@ jobs:
             "feasibility_pass":p["feasibility_pass"],
           },indent=2,sort_keys=True))
           PY
-
-      - name: Upload exact HG006 source evidence
-        if: always()
+      - name: Upload combined census
         uses: actions/upload-artifact@v4
         with:
           name: hg006-d001-${{ github.run_id }}
           path: reports/hg006-d001
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
