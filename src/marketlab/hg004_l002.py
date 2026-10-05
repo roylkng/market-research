@@ -244,10 +244,12 @@ def _synthesize_symbol(symbol: str, rows: list[dict[str, Any]]) -> dict[str, Any
         ]
         if explicit_price is None:
             missing.append("FINAL_PURCHASE_PRICE_OR_ADJUSTMENTS")
-        elif isinstance(explicit_price, (int, float)):
+        elif isinstance(explicit_price, (int, float)) and any(
+            "subject" in _texts(row["validated_extraction"])
+            for row in acquisition_docs
+        ):
             # The Inox term is a maximum price subject to adjustments.
-            if any("subject" in _texts(row["validated_extraction"]) for row in acquisition_docs):
-                missing.append("FINAL_PURCHASE_PRICE_OR_ADJUSTMENTS")
+            missing.append("FINAL_PURCHASE_PRICE_OR_ADJUSTMENTS")
         lanes.append(
             _lane(
                 state=state,
