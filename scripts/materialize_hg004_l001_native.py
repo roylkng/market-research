@@ -242,7 +242,7 @@ SPECS = {
             F("parties", "issuer_name", "Fineotex Chemical Limited", "TEXT", ["0001"]),
             F("consideration", "total_consideration", "Original issue size INR 280.350 crore, revised to INR 91.963 crore due to undersubscription; actual net proceeds INR 91.963 crore.", "TEXT", ["0004"]),
             F("business_economics", "dilution_or_new_share_count_description", "26,26,600 convertible warrants were allotted; 13,75,000 were exercised and 12,51,600 remaining warrants were forfeited together with INR 32,47,90,200 subscription amount.", "TEXT", ["0004"]),
-            F("business_economics", "stated_use_of_proceeds", "Monitoring agency reported no material deviation; proceeds related to expansion of business and general corporate purposes.", "TEXT", ["0003", "0008"]),
+            F("business_economics", "stated_use_of_proceeds", "Monitoring agency reported no material deviation; proceeds related to working capital, expansion of business and general corporate purposes.", "TEXT", ["0003", "0005", "0007"]),
         ],
         "caveats": ["This is a final monitoring report for the May 2024 preferential issue and not a fresh 2026 financing event."],
         "audit": "Confirmed revised issue size/net proceeds, warrant exercise/forfeiture and monitoring status for the separate May 2024 Fineotex issue.",
