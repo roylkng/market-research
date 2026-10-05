@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import hashlib
 
+import pytest
+
+from marketlab.alpha import AlphaContractError
 from marketlab.ss002_l001_p2 import (
     FAMILIES,
     PER_FAMILY,
@@ -131,7 +134,5 @@ def test_family_set_is_bound_to_hg002() -> None:
     p2, d3, docs = _p2_and_d3()
     hg = _hg002()
     hg["l001_p1_unvalidated_family_counts"]["RIGHTS_ISSUE"] = 3
-    import pytest
-    from marketlab.alpha import AlphaContractError
     with pytest.raises(AlphaContractError, match="family set changed"):
         select_expanded_pilot(hg, p2, d3, docs)
