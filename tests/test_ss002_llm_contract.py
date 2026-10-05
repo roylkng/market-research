@@ -156,6 +156,43 @@ def test_forbidden_investment_prediction_field_is_rejected_anywhere() -> None:
         )
 
 
+def test_prompt_requires_nonempty_event_and_symbol_identity() -> None:
+    segments = _segments()
+    with pytest.raises(AlphaContractError, match="non-empty event IDs"):
+        build_prompt_envelope(
+            document_id="doc1",
+            source_url="https://nsearchives.nseindia.com/test.pdf",
+            event_ids=[],
+            symbols=["TEST"],
+            category_hints=["BUYBACK"],
+            segments=segments,
+            segment_manifest_sha256="c" * 64,
+        )
+    with pytest.raises(AlphaContractError, match="non-empty symbols"):
+        build_prompt_envelope(
+            document_id="doc1",
+            source_url="https://nsearchives.nseindia.com/test.pdf",
+            event_ids=["event1"],
+            symbols=[],
+            category_hints=["BUYBACK"],
+            segments=segments,
+            segment_manifest_sha256="c" * 64,
+        )
+
+
+def test_validator_refuses_empty_allowed_identity_sets() -> None:
+    output = _valid_output()
+    with pytest.raises(AlphaContractError, match="allowed event IDs must be non-empty"):
+        validate_extraction(
+            output,
+            input_document_id="doc1",
+            allowed_event_ids=set(),
+            allowed_symbols={"TEST"},
+            allowed_segment_ids={"page:1", "page:2"},
+            expected_segment_manifest_sha256="c" * 64,
+        )
+
+
 def test_prompt_rejects_tampered_segment_hash() -> None:
     segments = copy.deepcopy(_segments())
     segments[0]["text_sha256"] = "0" * 64
