@@ -43,7 +43,7 @@ def _expected_days(start: date, end: date) -> list[str]:
 def _published_day(row: dict[str, Any]) -> date:
     raw = str(row.get("exchange_published_at_utc") or "")
     try:
-        value = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        value = datetime.fromisoformat(raw)
     except ValueError as exc:
         raise AlphaContractError(
             f"HG006 D001 invalid canonical announcement timestamp: {raw}"
@@ -71,7 +71,7 @@ def build_historical_event_census(
     if sorted(daily_raw_sha256) != expected_days:
         raise AlphaContractError("HG006 D001 daily raw hash coverage is incomplete")
 
-    generated = datetime.fromisoformat(generated_at_utc.replace("Z", "+00:00"))
+    generated = datetime.fromisoformat(generated_at_utc)
     if generated.tzinfo is None:
         raise AlphaContractError("HG006 D001 generated_at_utc must include timezone")
 
