@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "manifest_id": "HG005-D002-SOURCE-MANIFEST-v1",
+  "frozen_at": "2026-10-05",
+  "source_hierarchy": [
+    "OFFICIAL_EXCHANGE_OR_REGULATOR",
+    "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+    "OFFICIAL_TARGET_COMPANY",
+    "REGULATED_CREDIT_RATING_OR_LENDER"
+  ],
+  "allowed_direct_hosts": [
+    "nsearchives.nseindia.com",
+    "archives.nseindia.com",
+    "npst-web.s3.us-west-2.amazonaws.com"
+  ],
+  "symbols": [
+    "ANANTRAJ",
+    "DEVX",
+    "INOXGREEN",
+    "NPST",
+    "SAMBHV"
+  ],
+  "sources": [
+    {
+      "source_id": "ANANTRAJ_Q3FY26_PRESENTATION",
+      "symbol": "ANANTRAJ",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/ANANTRAJ_22012026181129_Investor_Presentation_21012026.pdf",
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "DEMERGED_BUSINESS_REVENUE",
+        "DATA_CENTER_CAPACITY",
+        "DATA_CENTER_EXPANSION",
+        "FUNDING_CONTEXT"
+      ]
+    },
+    {
+      "source_id": "ANANTRAJ_SCHEME_BOARD_OUTCOME",
+      "symbol": "ANANTRAJ",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/ANANTRAJ_21072026184608_Outcome_21072026.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "DEMERGER_RATIO",
+        "DEMERGED_BUSINESS_REVENUE",
+        "TRANSFERRED_ASSETS_LIABILITIES",
+        "SCHEME_STAGE"
+      ]
+    },
+    {
+      "source_id": "ANANTRAJ_DEMERGER_COMMITTEE_OUTCOME",
+      "symbol": "ANANTRAJ",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/ANANTRAJ_11052026190401_Outcome_11052026.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "DEMERGER_RATIONALE",
+        "SCHEME_STAGE"
+      ]
+    },
+    {
+      "source_id": "DEVX_FY26_PRESENTATION",
+      "symbol": "DEVX",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/DEVACCE_20052026134050_SE_Investors_Presentation.pdf",
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "WINSTON_PROJECT_STATUS",
+        "CONTRACTED_SPACE",
+        "OPERATIONAL_CAPACITY",
+        "CAPITAL_DEPLOYMENT_OPERATING_CONTEXT"
+      ]
+    },
+    {
+      "source_id": "DEVX_WINSTON_POSTAL_BALLOT",
+      "symbol": "DEVX",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/DEVACCE_24032026164552_SE_Outcome_of_Postal_Ballot_Notice.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "WINSTON_LEASE_TERMS",
+        "SECURITY_DEPOSIT",
+        "PROJECT_APPROVAL"
+      ]
+    },
+    {
+      "source_id": "DEVX_PREF_MONITORING_Q1FY27",
+      "symbol": "DEVX",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/DEVACCE_12082026185604_SE_Monitoring_Agency_Report_Preferential.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "CASH_RECEIVED",
+        "USE_OF_PROCEEDS",
+        "SECURITY_DEPOSIT_UTILIZATION",
+        "UNUTILIZED_PROCEEDS"
+      ]
+    },
+    {
+      "source_id": "INOXGREEN_WWIL_SUCCESSFUL_BIDDER",
+      "symbol": "INOXGREEN",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/IGESL_19022026083536_IGESL_Reg30_WWIL_dsc.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "WWIL_BUSINESS_SCOPE",
+        "WWIL_OAM_CAPACITY",
+        "ACQUISITION_STAGE"
+      ]
+    },
+    {
+      "source_id": "INOXGREEN_WWIL_NCLT_APPROVAL",
+      "symbol": "INOXGREEN",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/IGESL_28072026203453_IGESL_Reg30_WWILf.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "ACQUISITION_STAGE",
+        "RESOLUTION_PLAN_DATE",
+        "CONDITIONS"
+      ]
+    },
+    {
+      "source_id": "INOXGREEN_WWIL_PLAN_UPDATE",
+      "symbol": "INOXGREEN",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/IGESL_03082026201643_IGESL_Reg30_WWIL_CTC2026_dsc.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "PURCHASE_CONSIDERATION",
+        "PURCHASE_ADJUSTMENTS",
+        "WWIL_OAM_REVENUE",
+        "ACQUISITION_STRUCTURE",
+        "ACQUISITION_STAGE"
+      ]
+    },
+    {
+      "source_id": "INOXGREEN_FY26_GROUP_PRESENTATION",
+      "symbol": "INOXGREEN",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/INOXWIND_29052026162253_IWL_IP_29052026.pdf",
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "INOXGREEN_OAM_ECONOMICS",
+        "OAM_MARGIN_CONTEXT",
+        "FUNDING_CAPACITY_CONTEXT"
+      ]
+    },
+    {
+      "source_id": "INOXGREEN_Q1FY27_INTEGRATED",
+      "symbol": "INOXGREEN",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_184022_07082026205518_iXBRL_WEB.html",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "CURRENT_BALANCE_SHEET_CONTEXT",
+        "CURRENT_OAM_EARNINGS",
+        "FUNDING_CAPACITY_CONTEXT"
+      ]
+    },
+    {
+      "source_id": "NPST_Q1FY27_MONITORING",
+      "symbol": "NPST",
+      "mode": "NSE_ANNOUNCEMENT_DISCOVERY",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "CURRENT_CAPITAL_DEPLOYMENT",
+        "OBJECT_WISE_UTILIZATION",
+        "UNUTILIZED_PROCEEDS",
+        "OVERSEAS_DEPLOYMENT"
+      ],
+      "discovery": {
+        "from_date": "11-08-2026",
+        "to_date": "11-08-2026",
+        "desc_tokens": [
+          "monitoring",
+          "agency"
+        ]
+      }
+    },
+    {
+      "source_id": "NPST_Q1FY27_INVESTOR_PRESENTATION",
+      "symbol": "NPST",
+      "mode": "NSE_ANNOUNCEMENT_DISCOVERY",
+      "discovery": {
+        "from_date": "11-08-2026",
+        "to_date": "11-08-2026",
+        "desc_tokens": [
+          "investor",
+          "presentation"
+        ]
+      },
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "CURRENT_OPERATING_CONSEQUENCE",
+        "PRODUCT_DEVELOPMENT",
+        "GLOBAL_EXPANSION",
+        "ACQUISITION_UPDATE"
+      ]
+    },
+    {
+      "source_id": "NPST_Q1FY27_CALL_TRANSCRIPT",
+      "symbol": "NPST",
+      "mode": "NSE_ANNOUNCEMENT_DISCOVERY",
+      "discovery": {
+        "from_date": "14-08-2026",
+        "to_date": "14-08-2026",
+        "desc_tokens": [
+          "transcript"
+        ]
+      },
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "CAPITAL_DEPLOYMENT_OPERATING_LINK",
+        "ACQUISITION_UPDATE",
+        "MANAGEMENT_DEPLOYMENT_COMMENTARY"
+      ]
+    },
+    {
+      "source_id": "SAMBHV_WARRANT_BOARD_OUTCOME",
+      "symbol": "SAMBHV",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/SAMBHAV2024_15072026141602_Outcome_15July.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "WARRANT_TERMS",
+        "FINANCING_STAGE"
+      ]
+    },
+    {
+      "source_id": "SAMBHV_WARRANT_EGM_NOTICE",
+      "symbol": "SAMBHV",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/SAMBHAV2024_17072026003153_EGM_Upload.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "USE_OF_PROCEEDS",
+        "PROJECT_ALLOCATION",
+        "CAPEX_TIMELINE",
+        "WORKING_CAPITAL_ALLOCATION",
+        "SUBSIDIARY_INVESTMENT"
+      ]
+    },
+    {
+      "source_id": "SAMBHV_EGM_PROCEEDINGS",
+      "symbol": "SAMBHV",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/SAMBHAV2024_10082026200321_EGMProceeding.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "SHAREHOLDER_APPROVAL",
+        "FINANCING_STAGE"
+      ]
+    },
+    {
+      "source_id": "SAMBHV_SEPT_CLARIFICATION",
+      "symbol": "SAMBHV",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/SAMBHAV2024_17092026174453_Regulation30_DSC__1_.pdf",
+      "source_type": "OFFICIAL_EXCHANGE_OR_REGULATOR",
+      "required_fact_groups": [
+        "CONTROL_DILUTION_CONTEXT",
+        "ISSUE_PRICE_CONFIRMATION",
+        "FINANCING_STAGE"
+      ]
+    },
+    {
+      "source_id": "SAMBHV_FY26_PRESENTATION",
+      "symbol": "SAMBHV",
+      "mode": "DIRECT_URL",
+      "url": "https://nsearchives.nseindia.com/corporate/SAMBHAV2024_10052026144234_Sambhv_Q4FY26.pdf",
+      "source_type": "COMPANY_DOCUMENT_FILED_TO_EXCHANGE",
+      "required_fact_groups": [
+        "CAPACITY_BASELINE",
+        "CAPACITY_EXPANSION_PLAN",
+        "CAPEX_OPERATING_CONTEXT"
+      ]
+    }
+  ],
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
