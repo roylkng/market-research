@@ -1,0 +1,116 @@
+name: SS002 L001 P2 expanded-family selection
+
+on:
+  push:
+    branches:
+      - research/ss002-l001-p2-expanded-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  select:
+    if: contains(github.event.head_commit.message, '[ss002-l001-p2-select]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen P2 selection implementation
+        run: |
+          ruff check \
+            src/marketlab/ss002_l001_p2.py \
+            scripts/materialize_ss002_l001_p2.py \
+            tests/test_ss002_l001_p2.py
+          pytest -q \
+            tests/test_ss002_l001_p2.py \
+            tests/test_ss002_l001_pilot.py \
+            tests/test_ss002_llm_contract.py
+      - name: Download exact HG002 cohort
+        uses: actions/download-artifact@v4
+        with:
+          name: hg002-d001-37260536415
+          path: reports/hg002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37260536415
+      - name: Download exact SS002 P2 event census
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d001-p2-37203696204
+          path: reports/p2
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37203696204
+      - name: Download exact SS002 D3 text corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d003-37213853198
+          path: reports/d3
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213853198
+      - name: Verify frozen sources
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          h=json.loads(Path("reports/hg002/hg002-d001-cohort.json").read_text())
+          p=json.loads(Path("reports/p2/ss002-d001-census.json").read_text())
+          d=json.loads(Path("reports/d3/ss002-d003-corpus.json").read_text())
+          assert h["cohort_sha256"]=="3937b8cb83ef819ff956af4afebb80cd81d8ef233c1e4dd5b6d3688541a48db1"
+          assert p["census_sha256"]=="ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071"
+          assert d["corpus_sha256"]=="92d785de20af9bcca370c13a9d410fe98f0728518527285fa15d1490dadd32ce"
+          PY
+      - name: Materialize expanded-family pilot selection
+        run: |
+          mkdir -p reports/l001-p2
+          python scripts/materialize_ss002_l001_p2.py \
+            --hg002 reports/hg002/hg002-d001-cohort.json \
+            --p2-census reports/p2/ss002-d001-census.json \
+            --d3-corpus reports/d3/ss002-d003-corpus.json \
+            --documents-dir reports/d3/documents \
+            --output reports/l001-p2
+      - name: Prove outcome-blind pilot selection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/l001-p2/ss002-l001-p2-selection.json").read_text())
+          assert p["selection_id"]=="SS002-L001-P2-SELECTION-v1"
+          assert p["families"]==[
+            "SCHEME_REORGANISATION",
+            "PREFERENTIAL_WARRANT",
+            "INSOLVENCY_RESOLUTION",
+            "RIGHTS_ISSUE",
+            "OFFER_FOR_SALE",
+          ]
+          assert p["return_outcomes_opened"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "selection_sha256":p["selection_sha256"],
+            "selected_document_count":p["selected_document_count"],
+            "family_counts":p["family_counts"],
+            "selected":[
+              {
+                "family":r["pilot_family"],
+                "symbol":r["symbol"],
+                "document_id":r["document_id"],
+              }
+              for r in p["rows"]
+            ],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact P2 pilot selection
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-l001-p2-selection-${{ github.run_id }}
+          path: reports/l001-p2
+          if-no-files-found: error
+          retention-days: 90
