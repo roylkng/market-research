@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import hashlib
 
+import pytest
+
+from marketlab.alpha import AlphaContractError
 from marketlab.hg004_terms import select_hg004_detailed_terms
 
 
@@ -236,3 +239,12 @@ def test_completed_and_indirect_clusters_do_not_enter_hg004() -> None:
     clusters = set(result["cluster_event_counts"])
     assert "INOXGREEN::SCHEME_REORGANISATION" not in clusters
     assert "TREL::FUND_RAISE_OTHER" not in clusters
+
+
+def test_changed_frozen_company_set_fails_closed() -> None:
+    hg003, p2, d3, records = _sources()
+    hg003["rows"] = [
+        row for row in hg003["rows"] if row["symbol"] != "ANANTRAJ"
+    ]
+    with pytest.raises(AlphaContractError, match="frozen 11-symbol set"):
+        select_hg004_detailed_terms(hg003, p2, d3, records)
