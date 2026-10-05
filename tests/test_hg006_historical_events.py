@@ -155,3 +155,34 @@ def test_canonical_day_uses_nse_ist_calendar_not_utc_calendar() -> None:
         "2025-12-29T20:00:00"
     )
 
+def test_historical_census_reports_collapsed_raw_duplicate_count() -> None:
+    row = _row(
+        "AAA",
+        "dup-1",
+        "30-Dec-2025",
+        "Buyback",
+        "Board considers buyback",
+        "https://nsearchives.nseindia.com/corporate/a.pdf",
+    )
+    duplicate = dict(row)
+    duplicate["exchdisstime"] = "31-Dec-2025 09:00:00"
+    payloads = {
+        "2025-12-30": [row, duplicate],
+        "2025-12-31": [],
+    }
+    hashes = {key: f"sha-{key}" for key in payloads}
+
+    result = build_historical_event_census(
+        daily_payloads=payloads,
+        daily_raw_sha256=hashes,
+        generated_at_utc="2026-10-05T00:00:00Z",
+        source_start=date(2025, 12, 30),
+        initiation_end=date(2025, 12, 30),
+        source_end=date(2025, 12, 31),
+    )
+
+    assert result["raw_source_row_count"] == 2
+    assert result["source_row_count"] == 1
+    assert result["historical_canonical_duplicate_collapse_count"] == 1
+    assert result["retained_event_count"] == 1
+
