@@ -45,12 +45,15 @@ def _document_index(
     manifest_rows=d3.get("documents")
     if not isinstance(manifest_rows,list):
         raise AlphaContractError("SS002 L001 pilot D3 document manifest unavailable")
-    manifest_ids={
-        str(row.get("document_id") or "")
-        for row in manifest_rows
-        if isinstance(row,dict)
-    }
-    if len(manifest_ids)!=d3.get("document_count"):
+    manifest_by_id={}
+    for row in manifest_rows:
+        if not isinstance(row,dict):
+            raise TypeError("SS002 L001 pilot D3 manifest rows must be objects")
+        document_id=str(row.get("document_id") or "")
+        if not document_id or document_id in manifest_by_id:
+            raise AlphaContractError("SS002 L001 pilot D3 manifest identities must be unique")
+        manifest_by_id[document_id]=row
+    if len(manifest_by_id)!=d3.get("document_count"):
         raise AlphaContractError("SS002 L001 pilot D3 document manifest accounting mismatch")
     by_url={}
     seen_ids=set()
@@ -58,16 +61,36 @@ def _document_index(
         if not isinstance(row,dict):
             raise TypeError("SS002 L001 pilot D3 document row must be object")
         document_id=str(row.get("document_id") or "")
-        if not document_id or document_id not in manifest_ids or document_id in seen_ids:
+        manifest=manifest_by_id.get(document_id)
+        if not document_id or manifest is None or document_id in seen_ids:
             raise AlphaContractError("SS002 L001 pilot document record identity mismatch")
         seen_ids.add(document_id)
         if row.get("extraction_state")!="READY":
             continue
         url=str(row.get("source_url") or "")
-        if not url or url in by_url:
-            raise AlphaContractError("SS002 L001 pilot D3 READY URLs must be unique")
-        by_url[url]=row
-    if seen_ids!=manifest_ids:
+        manifest_url=str(manifest.get("source_url") or "")
+        if not url or url!=manifest_url or url in by_url:
+            raise AlphaContractError("SS002 L001 pilot D3 READY URL/manifest mismatch")
+        event_ids=manifest.get("event_ids")
+        symbols=manifest.get("symbols")
+        categories=manifest.get("categories")
+        if (
+            not isinstance(event_ids,list) or not event_ids
+            or not isinstance(symbols,list) or not symbols
+            or not isinstance(categories,list)
+        ):
+            raise AlphaContractError("SS002 L001 pilot D3 manifest identity links unavailable")
+        manifest_sha=str(manifest.get("segment_manifest_sha256") or "")
+        record_sha=str(row.get("segment_manifest_sha256") or "")
+        if not manifest_sha or manifest_sha!=record_sha:
+            raise AlphaContractError("SS002 L001 pilot segment manifest mismatch")
+        by_url[url]={
+            **row,
+            "event_ids":[str(value) for value in event_ids],
+            "symbols":[str(value) for value in symbols],
+            "categories":[str(value) for value in categories],
+        }
+    if seen_ids!=set(manifest_by_id):
         raise AlphaContractError("SS002 L001 pilot document records do not cover D3 manifest")
     return by_url
 
