@@ -6,7 +6,10 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.alpha_announcements import normalize_announcement_payload
+from marketlab.alpha_announcements import (
+    HISTORICAL_DAILY_AN_DT_AUTHORITY,
+    normalize_announcement_payload,
+)
 from marketlab.ss002_special_situations import (
     approved_attachment_url,
     classify_special_situation,
@@ -92,6 +95,7 @@ def build_historical_event_census(
             daily_payloads[day_text],
             requested_start=day,
             requested_end=day,
+            timestamp_authority=HISTORICAL_DAILY_AN_DT_AUTHORITY,
         )
         daily_source_counts[day_text] = len(rows)
         source_row_count += len(rows)
@@ -230,7 +234,8 @@ def build_historical_event_census(
         "census_id": CENSUS_ID,
         "classification": "HISTORICAL_DISCRETE_EVENT_BASE_RATE_SOURCE_CENSUS_NOT_PROBABILITY",
         "calendar_day_semantics": "NSE_ASIA_KOLKATA",
-        "source_semantics_amendment": "HG006-D001-P2-v1",
+        "source_semantics_amendment": "HG006-D001-P3-v1",
+        "historical_timestamp_authority": "an_dt",
         "generated_at_utc": generated.astimezone(UTC).isoformat().replace(
             "+00:00", "Z"
         ),
