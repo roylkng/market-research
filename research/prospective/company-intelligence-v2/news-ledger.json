@@ -4574,9 +4574,122 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-05T18:52:58.994141+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "captured_at": "2026-10-05T20:57:40.949804+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 2,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "43913a4ef72663e2d3fbb0c3b9c686ed8c3d23e5df6ee6b756f8a5c954559ceb",
+      "identity_session": "2026-10-05",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "409c4418b927dd150e5496b618223f1f8a58de18a1009cbad206b59860e1884c",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 2,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "started_at": "2026-10-05T20:57:06.384550+00:00"
     }
   ],
-  "ledger_sha256": "f2f846f8cfe6e24ccb8d67dd6bfc1ed7dd2152d9d84068125d4defec93500ae3",
+  "ledger_sha256": "6bba76a6971feb242ca5da6897e417959c5f493dd33b78dd87312a46edeb3f73",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -415300,6 +415413,181 @@
       "source_class": "ISSUER_DISTRIBUTION",
       "source_id": "prn-global-rss",
       "title_sha256": "9ece64bf1b716433433b6958a821b53295f15b2d180d8ada2541e0ed62e70b76",
+      "topics": []
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:19.626939+00:00",
+      "item_id": "3cef02315f1c93284e13eda7733f019a7e7c4024df3a52417a1df365750a72ab",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8513a7ff85e156ec2b1eb23a6d990f8b4c7b366ef0a7cc306c9e3c72eeeb6219",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "02:00 IST",
+        "value": null
+      },
+      "resource_key": "prn:302898893",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "291a0d88206bc64fa2c11e940b7159ab1de6df74754a03fd2fd5f3b5ca094ae7",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:19.626939+00:00",
+      "item_id": "913818e08a90812d5ab85e98d4d5431c68cafa7980c07d3d872de5ff5a29bc7e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9cbe8022346d050cfdc58b4bd771e85246afe1c83b61526dee14dbc0f2ca010b",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "00:30 IST",
+        "value": null
+      },
+      "resource_key": "prn:302898705",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "659d62c8fe7b75099f3b087d30509118fc6145c64a22b86820ea5640e2135fb1",
+      "topics": []
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "PTC Industries Limited has informed the Exchange about Submission of Special Purpose Condensed Interim Consolidated Financial Information |SUBJECT: General Updates",
+      "event_context_sha256": "5546e35d5479c6795cf3dafa6b8b06fac9e47fd4dd9b5fe12cc2f66bfdc61e47",
+      "first_seen_at": "2026-10-05T20:57:25.936804+00:00",
+      "item_id": "9390708f90e1636a280d21165743d9c167ecc70ca3c56f420cab7d567b9c44de",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PTCIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "96901e292b9255cda7c2feccd898c8f18eb9ff4566da8e8985889c0c24691f09",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "06-Oct-2026 00:25:53",
+        "value": "2026-10-05T18:55:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PTCINDUSTRIES_06102026002539_Exchange_outcome_BM_6102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "4747fd95dfa55c1aa840c77b8f893c1b3fad331e1bd93a4f722ef8bb2b7bfbcd",
+      "topics": []
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:33.714066+00:00",
+      "item_id": "1335ae9472baeb7f56895134127b69d7a2b377bb1eddde934bbdd46b04ea25d1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "40e3f8fe202558186a77acb15b9c728c7108e4b5f2180db3556f797b4f1d76ec",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 06 Oct 2026 01:54:07 +0530",
+        "value": "2026-10-05T20:24:07+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/san-diego-sues-applovin-over-explicit-ads-shown-to-kids-devices-11791231847677.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "d3221db24ce7bc76c1d3617ed1ed5a8e89e7853a4c61988a4bd53ccb7e15f019",
+      "topics": []
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:35.071027+00:00",
+      "item_id": "6110944b7c400ec042003d1f56c795d01cb0998f64af28ecbd9fbd7113390f07",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6b5ba68540fc2c74db9631019ffe512177cde52003a889053b0791229576a8cb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 06 Oct 2026 00:28:07 +0530",
+        "value": "2026-10-05T18:58:07+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/treasuries-slump-pushes-long-end-yields-to-fresh-24-year-highs-11791226688187.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "1faf9985a2cb3ba6fb943b034cff8c576fc611863810b0e54e8263444db8eafb",
+      "topics": []
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:35.071027+00:00",
+      "item_id": "5de6581b234c01cdad528f4813b19ad50bddb852bfb1d68ae0d3eab9de356253",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "717fb1cc0d80e9e346d2d9e87c50d6a51b9ba41e789637a9a79865f48f0a88d9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 06 Oct 2026 01:32:28 +0530",
+        "value": "2026-10-05T20:02:28+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/nasdaq-notches-record-high-close-as-investors-focus-on-earnings-11791230548797.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "a2e7202248930beaac182cefcde650b2d95a65afca6d78caf5ace9ff3b66f897",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f95fdc7bdccd64f9f3ef0b2ccbc35321e856b9b7b3897bd30d0dece9829bb403",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-05T20:57:35.071027+00:00",
+      "item_id": "087cd2bed589d1e6eb428555e3181e81a48f9d50b81e84212519cd305ea93479",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7c7878cdbfe2fa98692b7b96128becd9a64ed7d42fdc8e69661c752fea91b5a0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 06 Oct 2026 01:13:02 +0530",
+        "value": "2026-10-05T19:43:02+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/dollar-extends-relentless-rally-even-as-cracks-start-to-emerge-11791229382934.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "5be074620abba5738db694630b089fed0cd60f66a0c302b8e028c02b3846c979",
       "topics": []
     }
   ],
