@@ -1,9 +1,8 @@
 {
   "after_market_close": true,
   "as_of_date": "2026-10-05",
-  "blocker_count": 4,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T004_DELIVERY_WARMUP",
     "T006_SOURCE_TIMING"
@@ -51,18 +50,18 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 2,
+      "eligible_session_count": 3,
       "expected_latest_session": "2026-10-05",
-      "latest_eligible_session": "2026-10-01",
-      "ledger_sha256": "e64e954b1c4600c773da60e32cc92567b90d9a1562d427838dea775fff8ee569",
-      "state": "STALE"
+      "latest_eligible_session": "2026-10-05",
+      "ledger_sha256": "45e252cf3f4c0ac257d95c0dee79fb3b0105495cb0e8c0ab4777d19c05eea4ae",
+      "state": "HEALTHY"
     },
     "SC002": {
-      "attempt_count": 38,
+      "attempt_count": 39,
       "eligible_before_1830_session_count": 0,
       "late_ready_session_count": 2,
       "latest_ready_session": "2026-10-01",
-      "ledger_sha256": "1163d1cbe7d3bdfbf1fd28bcfe8ccd5ea068b69649f1c6f90190f2abd5f94416",
+      "ledger_sha256": "df6d53f5f7f128591ef54f5b4dcd3dd19cb20128e3eaf9ad7e399e150fd95658",
       "ready_session_count": 2,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
@@ -142,8 +141,8 @@
           "2026-10-06",
           "2026-10-07"
         ],
-        "no_observation_session_count": 3,
-        "observed_not_ready_session_count": 0,
+        "no_observation_session_count": 2,
+        "observed_not_ready_session_count": 1,
         "ready_after_cutoff_session_count": 2,
         "required_session_count": 5,
         "session_classifications": [
@@ -160,8 +159,8 @@
             "session_date": "2026-10-01"
           },
           {
-            "attempt_count": 0,
-            "classification": "NO_OBSERVATION",
+            "attempt_count": 1,
+            "classification": "OBSERVED_NOT_READY",
             "earliest_ready_capture_utc": null,
             "session_date": "2026-10-05"
           },
@@ -178,7 +177,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "1163d1cbe7d3bdfbf1fd28bcfe8ccd5ea068b69649f1c6f90190f2abd5f94416",
+        "source_ledger_sha256": "df6d53f5f7f128591ef54f5b4dcd3dd19cb20128e3eaf9ad7e399e150fd95658",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -189,5 +188,5 @@
   "latest_expected_market_session": "2026-10-05",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "ca72968f586553a068ac9b916da91a3e5809753283d0779f663de2c6987401fc"
+  "summary_sha256": "1685093264a8420ff11e17f8ed989a08cc89a9ac922bba9346c99d526e0078ec"
 }
