@@ -99,8 +99,19 @@ Every published completion estimate must include uncertainty.
 
 For descriptive resolved-case fractions, use Wilson 95% intervals.
 
-For cumulative-incidence estimates, retain event counts and an appropriate
-nonparametric 95% confidence interval implementation.
+For cumulative-incidence estimates, use the Aalen-Johansen competing-risk estimator.
+
+Uncertainty for Aalen-Johansen cumulative incidence is estimated with an episode-level
+nonparametric bootstrap:
+
+- 2,000 bootstrap resamples;
+- resample whole transaction episodes with replacement inside the exact family/stage
+  risk set;
+- deterministic RNG seed: 606001;
+- percentile 95% interval using the 2.5th and 97.5th percentiles;
+- censoring times and terminal causes travel with the resampled episode.
+
+No parametric survival distribution is fitted.
 
 The point estimate may not be surfaced without its interval and support count.
 
