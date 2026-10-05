@@ -36,6 +36,19 @@ Exactly five payoff-model-ready symbols:
 
 No additional company may enter D001-v1.
 
+Supporting transaction-stage/detail authority may use exactly:
+
+- HG004-L001-GPT56SOL-NATIVE-v1;
+- workflow run: `37296227681`;
+- artifact ID: `11338148751`;
+- run SHA-256:
+  `a402b39a8890cd2fac3218bb94673f8b9c00b1f325315f9ec93863c22d9a1d12`;
+- 19 outputs that passed full evidence validation and manual audit.
+
+HG004-L001 may supply only explicit stage/date/consideration facts that belong to an
+HG004-L002 evidence document for the same company. L001 cannot introduce a new lane or
+company; L002 remains authoritative for readiness.
+
 ### Current market price
 
 Use exactly the frozen SS001-D001 October 1, 2026 official NSE market context:
