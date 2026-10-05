@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import pytest
 
 from marketlab.alpha_announcements import (
+    HISTORICAL_COLLAPSE_EXACT_CANONICAL,
     HISTORICAL_DAILY_AN_DT_AUTHORITY,
     SYMBOL_SAMPLE,
     AnnouncementAuditError,
@@ -203,4 +204,29 @@ def test_historical_timestamp_authority_uses_an_dt_without_changing_default() ->
     )
     assert len(rows) == 1
     assert rows[0]["exchange_published_at_utc"].startswith("2023-02-14T07:35:54")
+
+def test_historical_duplicate_policy_collapses_only_exact_canonical_repeat() -> None:
+    row = {
+        "symbol": "PIXTRANS",
+        "seq_id": "105579745",
+        "an_dt": "07-Aug-2023 14:50:17",
+        "exchdisstime": "07-Aug-2023 20:39:02",
+        "desc": "Loss of Share Certificates",
+        "attchmntText": "Pix Transmissions Limited has informed the Exchange about Loss of Share Certificates",
+        "attchmntFile": "https://nsearchives.nseindia.com/corporate/a.pdf",
+    }
+    duplicate = dict(row)
+    duplicate["exchdisstime"] = "07-Aug-2023 14:50:32"
+    day = datetime(2023, 8, 7, tzinfo=UTC).date()
+
+    rows = normalize_announcement_payload(
+        [row, duplicate],
+        requested_start=day,
+        requested_end=day,
+        timestamp_authority=HISTORICAL_DAILY_AN_DT_AUTHORITY,
+        duplicate_policy=HISTORICAL_COLLAPSE_EXACT_CANONICAL,
+    )
+
+    assert len(rows) == 1
+    assert rows[0]["seq_id"] == "105579745"
 
