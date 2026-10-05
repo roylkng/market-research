@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "run_id": "HG004-L001-GPT56SOL-NATIVE-v1",
+  "status": "PASSED_DETAILED_TERM_EXTRACTION",
+  "classification": "HG004_DETAILED_LLM_TERM_EXTRACTION_NOT_ALPHA",
+  "successful_run": {
+    "workflow_run_id": 37296227681,
+    "artifact_id": 11338148751,
+    "artifact_name": "hg004-l001-37296227681"
+  },
+  "selection_sha256": "9b82b337b02d5aa2c58164bf888f76ce50fcd34680077f87f13b0ff5cfc7c102",
+  "model_id": "GPT-5.6 Sol",
+  "provider_runtime": "CHATGPT_NATIVE_INTERACTIVE",
+  "model_config_sha256": "c33c62c68fcd5a81061a4cea6c389f6afd2fc483bf02cc24e13502dfad66b707",
+  "run_sha256": "a402b39a8890cd2fac3218bb94673f8b9c00b1f325315f9ec93863c22d9a1d12",
+  "manual_audit_sha256": "a241c334e28d447e34acb332ef89c605a977eb2812ac62de0e6a06fe2aefd6dc",
+  "result_sha256": "d96e7a865fb27eb7dd4f32ff49f0c3ad58bed127003759e3ec0fffa2e312cc2a",
+  "validated_output_count": 19,
+  "economic_relevance_counts": {
+    "DIRECT_LISTED_SECURITY": 16,
+    "LISTED_COMPANY_AS_ACQUIRER_OR_INVESTOR": 3
+  },
+  "transaction_family_counts": {
+    "ACQUISITION_INVESTMENT": 3,
+    "FUND_RAISE_OTHER": 6,
+    "INSOLVENCY_RESOLUTION": 3,
+    "PREFERENTIAL_WARRANT": 7,
+    "RIGHTS_ISSUE": 1,
+    "SCHEME_REORGANISATION": 7
+  },
+  "transaction_stage_counts": {
+    "ALLOTMENT_COMPLETED": 1,
+    "BOARD_APPROVED": 7,
+    "PROCEDURAL_UPDATE": 6,
+    "PROPOSAL": 1,
+    "REGULATORY_OR_COURT_APPROVED": 4
+  },
+  "mechanical_gates": {
+    "exact_19_outputs": true,
+    "all_outputs_validate": true,
+    "zero_invalid_evidence_references": true,
+    "zero_new_event_or_symbol_ids": true,
+    "zero_forbidden_investment_fields": true,
+    "all_relevance_non_unknown": true,
+    "all_family_non_unknown": true,
+    "all_stage_non_unknown_or_audit_accepted": true
+  },
+  "manual_audit": {
+    "audited_document_count": 19,
+    "unsupported_material_fact_count": 0,
+    "material_explicit_term_missed_count": 0,
+    "unretained_material_contradiction_count": 0,
+    "manual_audit_pass": true
+  },
+  "promotion_allowed_to_l002": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "ALL 19 FROZEN HG004 DOCUMENTS PASSED EVIDENCE-BOUND DETAILED TERM EXTRACTION AND FULL MANUAL AUDIT; DETERMINISTIC COMPANY/THREAD TERM SYNTHESIS MAY NOW PROCEED WITHOUT ESTABLISHING ALPHA OR PORTFOLIO ELIGIBILITY"
+}
