@@ -15,7 +15,6 @@ from marketlab.hg005_d002a import (
     validate_source_manifest,
 )
 
-
 MANIFEST = (
     Path(__file__).resolve().parents[1]
     / "research"
