@@ -131,9 +131,13 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
     negative: list[str] = []
     if revenue_growth is not None and revenue_growth <= -0.10:
         negative.append("REVENUE_CONTRACTION_10")
-    if pat_prior is not None and pat_prior > 0 and pat_cur is not None:
-        if pat_cur <= 0 or (pat_growth is not None and pat_growth <= -0.25):
-            negative.append("PROFIT_BREAKDOWN")
+    if (
+        pat_prior is not None
+        and pat_prior > 0
+        and pat_cur is not None
+        and (pat_cur <= 0 or (pat_growth is not None and pat_growth <= -0.25))
+    ):
+        negative.append("PROFIT_BREAKDOWN")
     if (
         pbt_prior is not None
         and pbt_prior > 0
