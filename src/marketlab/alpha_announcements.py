@@ -61,6 +61,8 @@ def announcement_rows(payload: Any) -> list[dict[str, Any]]:
 
 DEFAULT_TIMESTAMP_AUTHORITY = "DEFAULT_CURRENT"
 HISTORICAL_DAILY_AN_DT_AUTHORITY = "HISTORICAL_DAILY_AN_DT"
+DUPLICATE_POLICY_FAIL = "FAIL"
+HISTORICAL_COLLAPSE_EXACT_CANONICAL = "COLLAPSE_EXACT_CANONICAL"
 
 
 def official_timestamp(
@@ -140,6 +142,7 @@ def normalize_announcement_payload(
     requested_start: date,
     requested_end: date,
     timestamp_authority: str = DEFAULT_TIMESTAMP_AUTHORITY,
+    duplicate_policy: str = DUPLICATE_POLICY_FAIL,
 ) -> list[dict[str, Any]]:
     if requested_start > requested_end:
         raise AnnouncementAuditError(
@@ -162,8 +165,21 @@ def normalize_announcement_payload(
             )
         identity = row["announcement_id"]
         if identity in seen_ids:
+            if duplicate_policy == HISTORICAL_COLLAPSE_EXACT_CANONICAL:
+                continue
+            if duplicate_policy != DUPLICATE_POLICY_FAIL:
+                raise AnnouncementAuditError(
+                    f"unsupported announcement duplicate policy: {duplicate_policy}"
+                )
             raise AnnouncementAuditError(
                 f"duplicate canonical announcement identity: {identity}"
+            )
+        if duplicate_policy not in {
+            DUPLICATE_POLICY_FAIL,
+            HISTORICAL_COLLAPSE_EXACT_CANONICAL,
+        }:
+            raise AnnouncementAuditError(
+                f"unsupported announcement duplicate policy: {duplicate_policy}"
             )
         seen_ids.add(identity)
         seq_key = (row["symbol"], row["seq_id"])
