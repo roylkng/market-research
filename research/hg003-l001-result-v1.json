@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "run_id": "HG003-L001-GPT56SOL-NATIVE-v1",
+  "status": "PASSED_FULL_COHORT_RELEVANCE_STAGE_GATE",
+  "classification": "HG002_COHORT_LLM_RELEVANCE_STAGE_GATE_NOT_ALPHA",
+  "successful_run": {
+    "workflow_run_id": 37275845301,
+    "artifact_id": 11330650650,
+    "artifact_name": "hg003-l001-37275845301"
+  },
+  "selection_sha256": "ebc543464475ff9e409b1795c02272a818a3062cef8ad2bafcfafb5fcc30b536",
+  "model_id": "GPT-5.6 Sol",
+  "provider_runtime": "CHATGPT_NATIVE_INTERACTIVE",
+  "model_config_sha256": "133b5705036d1782f671d6a171fe5f24298939cf6d84314875c2e8452e7169dc",
+  "run_sha256": "ce03af24e2bfa807f619a0db4db562d35cc96748cb0c5f75a1e1d7338c66809a",
+  "manual_audit_sha256": "1493bf20aa10cb741369247287cda9cc5325d3a238dac58b97ba8887b680a18b",
+  "result_sha256": "c8a41e7484a9ef0497ba3a764d8b801aecdda0d01362ec7fe3f3378564f6f693",
+  "validated_output_count": 34,
+  "economic_relevance_counts": {
+    "DIRECT_LISTED_SECURITY": 27,
+    "LISTED_COMPANY_AS_ACQUIRER_OR_INVESTOR": 3,
+    "OTHER_CORPORATE_CONTEXT": 2,
+    "SUBSIDIARY_OR_INVESTEE_ONLY": 2
+  },
+  "transaction_stage_counts": {
+    "ALLOTMENT_COMPLETED": 7,
+    "BOARD_APPROVED": 4,
+    "CANCELLED_OR_WITHDRAWN": 1,
+    "OFFER_OPEN": 2,
+    "PROCEDURAL_UPDATE": 6,
+    "PROPOSAL": 2,
+    "REGULATORY_OR_COURT_APPROVED": 3,
+    "TRANSACTION_COMPLETED": 9
+  },
+  "corrected_family_counts": {
+    "ACQUISITION_INVESTMENT": 3,
+    "BUYBACK": 6,
+    "FUND_RAISE_OTHER": 2,
+    "INSOLVENCY_RESOLUTION": 2,
+    "OTHER": 1,
+    "PREFERENTIAL_WARRANT": 8,
+    "RIGHTS_ISSUE": 2,
+    "SCHEME_REORGANISATION": 13,
+    "TENDER_OFFER": 6
+  },
+  "mechanical_gates": {
+    "exact_34_outputs": true,
+    "all_outputs_validate": true,
+    "zero_invalid_evidence_references": true,
+    "zero_new_event_or_symbol_ids": true,
+    "zero_forbidden_investment_fields": true,
+    "all_relevance_non_unknown": true,
+    "all_family_non_unknown": true,
+    "stage_non_unknown_at_least_90pct": true,
+    "hindcopper_remains_unresolved": true
+  },
+  "manual_audit": {
+    "audited_thread_count": 12,
+    "supported_count": 12,
+    "unsupported_count": 0,
+    "material_classification_missed_count": 0,
+    "ambiguity_not_retained_count": 0,
+    "manual_audit_pass": true
+  },
+  "promotion_allowed_to_l002": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FULL 34-THREAD HG002 COHORT PASSED EVIDENCE-BOUND GPT-5.6 SOL RELEVANCE/STAGE VALIDATION; L002 COMPANY-LEVEL EVENT THREAD SYNTHESIS MAY NOW PROCEED WITHOUT ESTABLISHING ALPHA OR PORTFOLIO ELIGIBILITY"
+}
