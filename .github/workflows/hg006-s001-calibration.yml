@@ -1,0 +1,76 @@
+name: HG006 S001 historical calibration cohort
+
+on:
+  push:
+    branches:
+      - research/hg006-calibration-cohort-20261005
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  select:
+    if: contains(github.event.head_commit.message, '[hg006-s001]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen selector
+        run: |
+          ruff check \
+            src/marketlab/hg006_calibration.py \
+            scripts/materialize_hg006_s001.py \
+            tests/test_hg006_calibration.py
+          pytest -q tests/test_hg006_calibration.py tests/test_hg006_historical_events.py
+      - name: Download exact passed HG006 D001 census
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-d001-p4-37347148756
+          path: reports/hg006-d001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37347148756
+      - name: Materialize frozen calibration cohort
+        run: |
+          python scripts/materialize_hg006_s001.py \
+            --census reports/hg006-d001-source/hg006-d001-census.json \
+            --out reports/hg006-s001/hg006-s001-selection.json
+      - name: Prove outcome-blind selection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/hg006-s001/hg006-s001-selection.json").read_text())
+          assert p["selection_id"]=="HG006-S001-v1"
+          assert p["selected_chronology_count"]==300
+          assert p["selected_chronology_counts_by_family"]=={
+              "PREFERENTIAL_WARRANT":150,
+              "SCHEME_REORGANISATION":150,
+          }
+          assert p["historical_terminal_labels_opened"] is False
+          assert p["completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          print(json.dumps({
+              "selection_sha256":p["selection_sha256"],
+              "selected_chronology_count":p["selected_chronology_count"],
+              "selected_chronology_counts_by_family":p[
+                  "selected_chronology_counts_by_family"
+              ],
+              "selected_attachment_ready_counts_by_family":p[
+                  "selected_attachment_ready_counts_by_family"
+              ],
+              "selected_event_link_count":p["selected_event_link_count"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload selection
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-s001-${{ github.run_id }}
+          path: reports/hg006-s001
+          if-no-files-found: error
+          retention-days: 90
