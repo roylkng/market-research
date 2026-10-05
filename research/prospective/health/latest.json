@@ -1,8 +1,9 @@
 {
   "after_market_close": true,
-  "as_of_date": "2026-10-05",
-  "blocker_count": 3,
+  "as_of_date": "2026-10-06",
+  "blocker_count": 4,
   "blockers": [
+    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T004_DELIVERY_WARMUP",
     "T006_SOURCE_TIMING"
@@ -28,13 +29,13 @@
       "state": "PROSPECTIVE_ACCUMULATION"
     },
     "RM001_SC001_SIZE": {
-      "additional_ready_sessions_needed": 2,
-      "distinct_target_session_count": 1,
-      "ledger_sha256": "c2b48501560584c8210593c70b44a20df8894bafa2261a361e84d3477edadaf1",
+      "additional_ready_sessions_needed": 1,
+      "distinct_target_session_count": 2,
+      "ledger_sha256": "508fd38720eb97a3dcbcee52e8fa0f15f76c0c0229fafe3566d20cf3fa12f6ec",
       "minimum_ready_sessions": 3,
       "prospective_size_source_timing_ready": false,
       "prospective_size_use_enabled": false,
-      "ready_before_cutoff_session_count": 1,
+      "ready_before_cutoff_session_count": 2,
       "start_date": "2026-10-02",
       "state": "WAITING_FOR_SIZE_TIMING_EVIDENCE"
     },
@@ -51,10 +52,10 @@
     },
     "SC001": {
       "eligible_session_count": 3,
-      "expected_latest_session": "2026-10-05",
+      "expected_latest_session": "2026-10-06",
       "latest_eligible_session": "2026-10-05",
       "ledger_sha256": "45e252cf3f4c0ac257d95c0dee79fb3b0105495cb0e8c0ab4777d19c05eea4ae",
-      "state": "HEALTHY"
+      "state": "STALE"
     },
     "SC002": {
       "attempt_count": 39,
@@ -186,8 +187,8 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-10-05",
+  "latest_expected_market_session": "2026-10-06",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "dfcb12153d320595fa7c45b37c54e99ef3b0ebf8d52c9e4adc975916f959c359"
+  "summary_sha256": "b160c75b7676128af4805cf620eb3e0aeccbd603bb758155f2da1b04a7a71010"
 }
