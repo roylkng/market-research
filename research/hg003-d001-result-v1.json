@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "selection_id": "HG003-D001-v1",
+  "status": "MATERIALIZED",
+  "classification": "HG002_COHORT_SPECIAL_SITUATION_THREAD_SELECTION_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37267831741,
+    "artifact_id": 11327057449,
+    "artifact_name": "hg003-d001-37267831741"
+  },
+  "selection_sha256": "ebc543464475ff9e409b1795c02272a818a3062cef8ad2bafcfafb5fcc30b536",
+  "source_hg002_cohort_sha256": "3937b8cb83ef819ff956af4afebb80cd81d8ef233c1e4dd5b6d3688541a48db1",
+  "source_p2_census_sha256": "ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071",
+  "source_d3_corpus_sha256": "92d785de20af9bcca370c13a9d410fe98f0728518527285fa15d1490dadd32ce",
+  "symbol_count": 28,
+  "thread_count": 35,
+  "selection_state_counts": {
+    "TEXT_READY": 34,
+    "TEXT_UNAVAILABLE": 1
+  },
+  "unresolved_thread_ids": [
+    "HINDCOPPER::OFFER_FOR_SALE"
+  ],
+  "threshold_passes": {
+    "all_ready_prompts_materialized": true,
+    "exact_hg002_symbol_count": true,
+    "exact_single_unresolved_thread": true,
+    "exact_text_ready_thread_count": true,
+    "exact_thread_accounting": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_cohort_l001": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "COHORT-WIDE SPECIAL-SITUATION THREAD GATE PASSED; 34 THREADS ARE READY FOR EVIDENCE-BOUND L001 RELEVANCE/STAGE EXTRACTION AND HINDCOPPER OFS REMAINS EXPLICITLY IMAGE-DOCUMENT PENDING"
+}
