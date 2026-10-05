@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG005-D002B-P1-v1",
+  "status": "PASSED_EVIDENCE_BOUND_PAYOFF_FACT_EXTRACTION_AND_SYNTHESIS",
+  "classification": "HG005_PAYOFF_ENRICHMENT_LLM_FACT_RUN_NOT_ALPHA",
+  "successful_run": {
+    "workflow_run_id": 37319444854,
+    "artifact_id": 11348743107,
+    "artifact_name": "hg005-d002b-37319444854"
+  },
+  "source_corpus_sha256": "52405e676c1b76687bb4ea31cc27e1dc18ddc1ffe1d62c4ca5b306098270f135",
+  "result_sha256": "7129a3eb75852372c724c63c74fa3efa3fde27ea9a2aa953830322229b0c9065",
+  "synthesis_sha256": "beee365eb088e22b52e1827e0c1d6e2b68e842d36015c8ac988b8f5380f07287",
+  "validated_output_count": 19,
+  "explicit_fact_count": 47,
+  "manual_audit": {
+    "audited_source_count": 19,
+    "unsupported_material_fact_count": 0,
+    "material_payoff_fact_missed_count": 0,
+    "manual_audit_pass": true,
+    "audit_sha256": "ecc15fb0dcfaddf042c6be4581d81e8f6749fe8949aa2587945d72cfb48e8294"
+  },
+  "lane_state_counts": {
+    "SOURCE_PARTIAL": 2,
+    "SOURCE_READY": 5
+  },
+  "source_ready_lanes": [
+    "ANANTRAJ::DEMERGER_ENTITLEMENT",
+    "DEVX::DILUTION_FINANCING",
+    "DEVX::CAPITAL_DEPLOYMENT_MONITOR",
+    "NPST::CAPITAL_DEPLOYMENT_MONITOR",
+    "SAMBHV::DILUTION_FINANCING"
+  ],
+  "source_partial_lanes": [
+    "INOXGREEN::ACQUISITION_ECONOMICS",
+    "INOXGREEN::DEMERGER_ENTITLEMENT"
+  ],
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FIVE PAYOFF LANES HAVE EXPLICIT SOURCE ECONOMICS SUFFICIENT FOR D003 SCENARIO FRAMEWORKS; INOXGREEN REMAINS PARTIAL AND MAY NOT RECEIVE ASSUMED FUNDING OR TARGET EARNINGS"
+}
