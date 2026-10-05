@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -126,8 +127,6 @@ def _evidence_row(source: dict, *, ready: bool = True) -> dict:
             "error": "test failure",
         }
     text = f"{source['source_id']} explicit source text"
-    import hashlib
-
     return {
         "source_id": source["source_id"],
         "symbol": source["symbol"],
@@ -184,7 +183,7 @@ def test_corpus_passes_with_one_nonmandatory_source_failure() -> None:
 
 def test_mandatory_source_failure_blocks_promotion() -> None:
     manifest = _manifest_for_corpus()
-    failed = sorted(MANDATORY_SOURCE_IDS)[0]
+    failed = min(MANDATORY_SOURCE_IDS)
     evidence = [
         _evidence_row(source, ready=source["source_id"] != failed)
         for source in manifest["sources"]
