@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import hashlib
-
 import pytest
 
 from marketlab.alpha import AlphaContractError
+from marketlab.events import sha256_bytes
 from marketlab.hg004_terms import select_hg004_detailed_terms
 
 
@@ -30,7 +29,7 @@ def _segment(document_id: str) -> dict:
         "kind": "PDF_PAGE",
         "locator": {"page_number": 1},
         "text": text,
-        "text_sha256": hashlib.sha256(text.encode()).hexdigest(),
+        "text_sha256": sha256_bytes(text.encode()),
         "utf8_byte_count": len(text.encode()),
         "char_count": len(text),
     }
