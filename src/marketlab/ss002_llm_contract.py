@@ -220,6 +220,12 @@ def build_prompt_envelope(
 ) -> dict[str, Any]:
     if not document_id or not source_url:
         raise AlphaContractError("SS002 L001 prompt requires document identity")
+    if not event_ids or not all(isinstance(value, str) and value for value in event_ids):
+        raise AlphaContractError("SS002 L001 prompt requires non-empty event IDs")
+    if not symbols or not all(isinstance(value, str) and value for value in symbols):
+        raise AlphaContractError("SS002 L001 prompt requires non-empty symbols")
+    if len(event_ids) != len(set(event_ids)) or len(symbols) != len(set(symbols)):
+        raise AlphaContractError("SS002 L001 prompt identities must be unique")
     segment_ids = []
     for row in segments:
         if not isinstance(row, dict):
@@ -335,6 +341,10 @@ def validate_extraction(
     if output.get("document_id") != input_document_id:
         raise AlphaContractError("SS002 L001 output document_id mismatch")
 
+    if not allowed_event_ids:
+        raise AlphaContractError("SS002 L001 allowed event IDs must be non-empty")
+    if not allowed_symbols:
+        raise AlphaContractError("SS002 L001 allowed symbols must be non-empty")
     event_ids = output.get("event_ids")
     symbols = output.get("symbols")
     if not isinstance(event_ids, list) or set(event_ids) != allowed_event_ids:
