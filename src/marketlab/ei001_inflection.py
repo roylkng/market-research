@@ -10,6 +10,7 @@ ROUTER_ID = "EI001-S001-v1"
 EXPECTED_PANEL_ID = "EI001-D002-v1"
 EXPECTED_PANEL_SHA = "14fdc99444ff8c1c62cbef58db91e51cb4cb6730c1259bccb98df979366272cd"
 EXPECTED_IDENTITY_COUNT = 2319
+EPSILON = 1e-12
 
 CORE_POSITIVE_FLAGS = (
     "REVENUE_GROWTH_15",
@@ -82,7 +83,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
     )
 
     positive: list[str] = []
-    if revenue_growth is not None and revenue_growth >= 0.15:
+    if revenue_growth is not None and revenue_growth >= 0.15 - EPSILON:
         positive.append("REVENUE_GROWTH_15")
     if (
         pat_prior is not None
@@ -90,7 +91,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         and pat_cur is not None
         and pat_cur > 0
         and pat_growth is not None
-        and pat_growth >= 0.25
+        and pat_growth >= 0.25 - EPSILON
     ):
         positive.append("PAT_GROWTH_25")
     if (
@@ -99,7 +100,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         and pbt_cur is not None
         and pbt_cur > 0
         and margin_delta_pp is not None
-        and margin_delta_pp >= 2.0
+        and margin_delta_pp >= 2.0 - EPSILON
     ):
         positive.append("PBT_MARGIN_EXPANSION_200BPS")
     if pat_prior is not None and pat_prior < 0 and pat_cur is not None and pat_cur > 0:
@@ -110,7 +111,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         and eps_cur is not None
         and eps_cur > 0
         and eps_growth is not None
-        and eps_growth >= 0.25
+        and eps_growth >= 0.25 - EPSILON
     ):
         positive.append("EPS_GROWTH_25")
     finance_relief = (
@@ -119,7 +120,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         and fin_cur is not None
         and fin_cur >= 0
         and finance_growth is not None
-        and finance_growth <= -0.15
+        and finance_growth <= -0.15 + EPSILON
         and revenue_prior is not None
         and revenue_prior > 0
         and revenue_cur is not None
@@ -129,13 +130,13 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         positive.append(SUPPORT_FLAG)
 
     negative: list[str] = []
-    if revenue_growth is not None and revenue_growth <= -0.10:
+    if revenue_growth is not None and revenue_growth <= -0.10 + EPSILON:
         negative.append("REVENUE_CONTRACTION_10")
     if (
         pat_prior is not None
         and pat_prior > 0
         and pat_cur is not None
-        and (pat_cur <= 0 or (pat_growth is not None and pat_growth <= -0.25))
+        and (pat_cur <= 0 or (pat_growth is not None and pat_growth <= -0.25 + EPSILON))
     ):
         negative.append("PROFIT_BREAKDOWN")
     if (
@@ -144,7 +145,7 @@ def evaluate_inflection_row(row: dict[str, Any]) -> dict[str, Any]:
         and pbt_cur is not None
         and pbt_cur > 0
         and margin_delta_pp is not None
-        and margin_delta_pp <= -2.0
+        and margin_delta_pp <= -2.0 + EPSILON
     ):
         negative.append("PBT_MARGIN_COMPRESSION_200BPS")
 
