@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter, defaultdict
+from datetime import date
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -347,7 +348,7 @@ def _values_conflict(name: str, values: list[dict[str, Any]]) -> bool:
                 year, month, day = (int(part) for part in value.split("-"))
                 if len(value) != 10:
                     return True
-                __import__("datetime").date(year, month, day)
+                date(year, month, day)
             except (ValueError, TypeError):
                 return True
             dated.append((value, row))
