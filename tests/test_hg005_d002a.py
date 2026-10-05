@@ -7,7 +7,6 @@ from pathlib import Path
 import pytest
 
 from marketlab.alpha import AlphaContractError
-
 from marketlab.hg005_d002a import (
     MANDATORY_SOURCE_IDS,
     build_source_corpus,
