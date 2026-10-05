@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+
 from collections import Counter, defaultdict
 from typing import Any
 
@@ -51,7 +53,8 @@ def validate_d001_census(census: dict[str, Any]) -> tuple[list[dict[str, Any]], 
 def url_shard_id(source_url: str) -> str:
     if not source_url:
         raise AlphaContractError("HG006 S001 source URL required for sharding")
-    value = int(digest({"source_url": source_url})[:16], 16) % SHARD_COUNT
+    url_sha = hashlib.sha256(source_url.encode("utf-8")).hexdigest()
+    value = int(url_sha[:16], 16) % SHARD_COUNT
     return f"S{value:02d}"
 
 
@@ -315,6 +318,7 @@ def combine_historical_evidence(
                 "families": set(),
                 "extraction_state": row.get("extraction_state"),
                 "segment_manifest_sha256": row.get("segment_manifest_sha256"),
+                "segment_content_sha256": row.get("segment_content_sha256"),
                 "segment_count": row.get("segment_count"),
                 "text_artifact_paths": set(),
             },
@@ -323,10 +327,12 @@ def combine_historical_evidence(
             raise AlphaContractError("HG006 S001 document family conflict")
         if (
             doc["extraction_state"] != row.get("extraction_state")
-            or doc["segment_manifest_sha256"] != row.get("segment_manifest_sha256")
+            or doc["segment_content_sha256"] != row.get("segment_content_sha256")
             or doc["segment_count"] != row.get("segment_count")
         ):
             raise AlphaContractError("HG006 S001 duplicate document extraction conflict")
+        if str(url) < min(doc["source_urls"] or {str(url)}):
+            doc["segment_manifest_sha256"] = row.get("segment_manifest_sha256")
         doc["source_urls"].add(url)
         doc["event_ids"].update(request["event_ids"])
         doc["chronology_ids"].update(request["chronology_ids"])
