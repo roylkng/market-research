@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "context_id": "HG005-D003-v1",
+  "status": "PASSED_FAMILY_SPECIFIC_BREAK_EVEN_AND_PAYOFF_SENSITIVITY",
+  "classification": "FAMILY_SPECIFIC_BREAK_EVEN_AND_PAYOFF_SENSITIVITY_NOT_EXPECTED_RETURN",
+  "successful_run": {
+    "workflow_run_id": 37320818318,
+    "artifact_id": 11349965702,
+    "artifact_name": "hg005-d003-37320818318"
+  },
+  "framework_sha256": "0c57f570371bb751ede73f46331a4418c20ca1a71b1725b0fe975c9b716a8886",
+  "source_market_context_sha256": "f8cb5079e266f451013d964b67b38dd833c7212bdffa4ffe23bd4fcef28fa48b",
+  "source_d002b_synthesis_sha256": "beee365eb088e22b52e1827e0c1d6e2b68e842d36015c8ac988b8f5380f07287",
+  "key_hurdles": {
+    "ANANTRAJ": {
+      "state": "SENSITIVITY_READY_GROSS_EV_ONLY",
+      "gross_value_at_15x_fy26_revenue_to_current_market_cap": 0.10523917293496883,
+      "gross_value_at_75cr_per_operating_mw_to_current_market_cap": 0.10098344215829771,
+      "equity_bridge_state": "BLOCKED_TRANSFERRED_NET_DEBT_AND_LIABILITIES_UNQUANTIFIED"
+    },
+    "DEVX": {
+      "state": "REVERSE_HURDLE_READY",
+      "fifty_pct_uplift_at_15x_required_incremental_annual_ebitda_inr_crore": 11.847268466000001,
+      "fifty_pct_uplift_at_15x_required_annual_ebitda_per_sqft_inr": 263.2726325777778,
+      "winston_area_sqft": 450000,
+      "explicit_winston_guidance_state": "NO_EXPLICIT_REVENUE_OR_EBITDA_GUIDANCE"
+    },
+    "NPST": {
+      "state": "REVERSE_HURDLE_READY",
+      "fifty_pct_uplift_at_30x_required_incremental_annual_ebitda_inr_crore": 61.42562125,
+      "fifty_pct_uplift_at_30x_quarterly_equivalent_vs_observed_q1_ebitda": 0.8172647851250665,
+      "q1fy27_ebitda_inr_crore": 18.79,
+      "unutilized_proceeds_inr_crore": 264.36
+    },
+    "SAMBHV": {
+      "state": "SENSITIVITY_READY",
+      "phase1_capacity_addition_mmtpa": 0.36,
+      "phase1_capex_inr_crore": 810.0,
+      "illustrative_strong_cell": {
+        "utilization_pct": 85.0,
+        "ebitda_per_tonne_inr": 9000.0,
+        "ev_ebitda_multiple": 12.0,
+        "conservative_net_equity_value_to_market_cap": 0.5243963459571802
+      },
+      "illustrative_mid_cell": {
+        "utilization_pct": 100.0,
+        "ebitda_per_tonne_inr": 7000.0,
+        "ev_ebitda_multiple": 10.0,
+        "conservative_net_equity_value_to_market_cap": 0.35943472486242517
+      }
+    },
+    "INOXGREEN": {
+      "state": "PAYOFF_FRAMEWORK_BLOCKED_SOURCE_PARTIAL"
+    }
+  },
+  "completion_probabilities_assigned": false,
+  "expected_returns_calculated": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "D003 MAKES THE PAYOFF HURDLES EXPLICIT WITHOUT ASSIGNING COMPLETION PROBABILITIES; DEVX HAS THE LOWEST ABSOLUTE EBITDA HURDLE DUE TO SMALL MARKET CAP, SAMBHV CAN REACH 50PCT ONLY IN STRONGER OPERATING/MULTIPLE CELLS, NPST REQUIRES MATERIAL EBITDA SCALE-UP, ANANTRAJ CURRENT OPERATING DEMERGED ECONOMICS ALONE ARE TOO SMALL FOR A 50PCT PAYOFF, AND INOXGREEN REMAINS BLOCKED"
+}
