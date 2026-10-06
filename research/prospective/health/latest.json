@@ -43,7 +43,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "efc9411ef4575bd0d9979cb913b596df7ffebe27105319618d3cc8b94e037dd5",
+      "ledger_sha256": "987478bfbf30beadbbb88d05c458b6fa72f7ce064085b0822eaa18c491055846",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -54,16 +54,16 @@
       "eligible_session_count": 3,
       "expected_latest_session": "2026-10-06",
       "latest_eligible_session": "2026-10-05",
-      "ledger_sha256": "45e252cf3f4c0ac257d95c0dee79fb3b0105495cb0e8c0ab4777d19c05eea4ae",
+      "ledger_sha256": "88da5d11dafcc28b8caf8e270e8451a67b8540efca6c1a8683dc9c91b0cf1cf1",
       "state": "STALE"
     },
     "SC002": {
-      "attempt_count": 49,
+      "attempt_count": 50,
       "eligible_before_1830_session_count": 0,
-      "late_ready_session_count": 2,
-      "latest_ready_session": "2026-10-01",
-      "ledger_sha256": "7b25e211a90c1a91001a913bec8a1638e8c0114b8472645cbc665255216a5dad",
-      "ready_session_count": 2,
+      "late_ready_session_count": 3,
+      "latest_ready_session": "2026-10-06",
+      "ledger_sha256": "f277625ba929c452ce0127bad4b24be1195a6a2c14db6dc26ac462086ebef509",
+      "ready_session_count": 3,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
@@ -144,8 +144,8 @@
           "2026-10-07"
         ],
         "no_observation_session_count": 1,
-        "observed_not_ready_session_count": 2,
-        "ready_after_cutoff_session_count": 2,
+        "observed_not_ready_session_count": 1,
+        "ready_after_cutoff_session_count": 3,
         "required_session_count": 5,
         "session_classifications": [
           {
@@ -167,9 +167,9 @@
             "session_date": "2026-10-05"
           },
           {
-            "attempt_count": 10,
-            "classification": "OBSERVED_NOT_READY",
-            "earliest_ready_capture_utc": null,
+            "attempt_count": 11,
+            "classification": "READY_AFTER_CUTOFF",
+            "earliest_ready_capture_utc": "2026-10-06T17:09:17.420825+00:00",
             "session_date": "2026-10-06"
           },
           {
@@ -179,7 +179,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "7b25e211a90c1a91001a913bec8a1638e8c0114b8472645cbc665255216a5dad",
+        "source_ledger_sha256": "f277625ba929c452ce0127bad4b24be1195a6a2c14db6dc26ac462086ebef509",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -190,5 +190,5 @@
   "latest_expected_market_session": "2026-10-06",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "0824e893018b0f30204c7bcba60ec16a038d310c71edd8dd7b1bee7947091e5b"
+  "summary_sha256": "1e07647f152065e0522580c537f35b5b765778bc2fad85d7ac611c62969772c6"
 }
