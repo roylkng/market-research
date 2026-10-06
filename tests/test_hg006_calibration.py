@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
 import marketlab.hg006_calibration as h
+from marketlab.alpha import AlphaContractError
 
 
 def _census(n=180):
