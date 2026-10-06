@@ -150,7 +150,7 @@ def _iso_timestamp(value: object) -> str:
     if not isinstance(value, str) or not value:
         raise AlphaContractError("HG006 S002 event timestamp unavailable")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AlphaContractError(
             f"HG006 S002 invalid event timestamp: {value}"
