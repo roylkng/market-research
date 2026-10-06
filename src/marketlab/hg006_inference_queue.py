@@ -58,7 +58,7 @@ def _sha256_bytes(raw: bytes) -> str:
 def request_id_for(chronology_id: str, document_id: str) -> str:
     if not chronology_id or len(document_id) != 64:
         raise AlphaContractError("HG006 L001 queue request identity is invalid")
-    raw = f"{QUEUE_ID}|{chronology_id}|{document_id}".encode("utf-8")
+    raw = f"{QUEUE_ID}|{chronology_id}|{document_id}".encode()
     return _sha256_bytes(raw)
 
 
