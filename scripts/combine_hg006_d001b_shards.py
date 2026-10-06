@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import UTC,datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.hg006_text import SHARD_COUNT,build_selected_text_corpus
+from marketlab.hg006_text import SHARD_COUNT, build_selected_text_corpus
 
 
 def _load(path:Path)->dict:
