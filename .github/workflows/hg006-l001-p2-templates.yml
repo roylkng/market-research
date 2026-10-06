@@ -1,0 +1,79 @@
+name: HG006 L001 P2 full-run shard templates
+
+on:
+  push:
+    branches:
+      - research/hg006-l001-full-execution-20261006
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  templates:
+    if: contains(github.event.head_commit.message, '[hg006-p2-templates]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate full-run machinery
+        run: |
+          ruff check \
+            src/marketlab/hg006_full_inference.py \
+            scripts/materialize_hg006_l001_p2_templates.py \
+            scripts/ingest_hg006_l001_p2_shard.py \
+            scripts/combine_hg006_l001_p2_shards.py \
+            tests/test_hg006_full_inference.py
+          pytest -q \
+            tests/test_hg006_full_inference.py \
+            tests/test_hg006_inference_queue.py \
+            tests/test_hg006_stage_contract.py
+      - name: Download frozen full queue
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p1-queue-37416900979
+          path: reports/queue
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37416900979
+      - name: Download passed P0 native run
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p0-native-37421844965
+          path: reports/p0
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37421844965
+      - name: Materialize exact 16 shard templates
+        run: |
+          mkdir -p reports/templates
+          python scripts/materialize_hg006_l001_p2_templates.py \
+            --queue reports/queue/hg006-l001-p1-queue.json \
+            --p0-run reports/p0/hg006-l001-p0-native-run.json \
+            --output reports/templates
+      - name: Verify full pending/reuse accounting
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/templates/index.json").read_text())
+          assert p["execution_id"]=="HG006-L001-P2-v1"
+          assert p["request_count"]==1448
+          assert p["p0_reuse_count"]==20
+          assert p["pending_native_count"]==1428
+          assert p["shard_count"]==16
+          assert p["historical_terminal_labels_opened"] is False
+          print(json.dumps(p,indent=2,sort_keys=True))
+          PY
+      - name: Upload exact shard templates
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-l001-p2-templates-${{ github.run_id }}
+          path: reports/templates
+          if-no-files-found: error
+          retention-days: 90
