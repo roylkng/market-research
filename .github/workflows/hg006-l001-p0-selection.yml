@@ -1,0 +1,64 @@
+name: HG006 L001 P0 native pilot selection
+
+on:
+  push:
+    branches:
+      - research/hg006-l001-native-pilot-20261006
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  select:
+    if: contains(github.event.head_commit.message, '[hg006-l001-p0-select]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate selector
+        run: |
+          ruff check \
+            src/marketlab/hg006_native_pilot.py \
+            scripts/materialize_hg006_l001_p0_selection.py \
+            tests/test_hg006_native_pilot.py
+          pytest -q \
+            tests/test_hg006_native_pilot.py \
+            tests/test_hg006_inference_queue.py
+      - name: Download exact frozen inference queue
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p1-queue-37416900979
+          path: reports/queue
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37416900979
+      - name: Verify queue
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          q=json.loads(Path("reports/queue/hg006-l001-p1-queue.json").read_text())
+          assert q["queue_id"]=="HG006-L001-P1-v1"
+          assert q["queue_sha256"]=="6732f5741ec6d9a2e1926a94d234c642871d454f0354d60dfa87cec3807ce934"
+          assert q["model_config_sha256"]=="043ec1f2d38aec7e72b24cfcbe864aebd83cda8b717d3c8c0fac2ecb3cafa51d"
+          assert q["historical_terminal_labels_opened"] is False
+          PY
+      - name: Materialize deterministic 20-request pilot
+        run: |
+          mkdir -p reports/p0
+          python scripts/materialize_hg006_l001_p0_selection.py \
+            --queue reports/queue/hg006-l001-p1-queue.json \
+            --out reports/p0/hg006-l001-p0-selection.json
+      - name: Upload exact P0 selection
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-l001-p0-selection-${{ github.run_id }}
+          path: reports/p0
+          if-no-files-found: error
+          retention-days: 90
