@@ -17,7 +17,7 @@ def selection_key(chronology_id:str)->str:
     if not chronology_id:
         raise AlphaContractError("HG006 S001 chronology_id required")
     return hashlib.sha256(
-        f"{SELECTION_ID}|{chronology_id}".encode("utf-8")
+        f"{SELECTION_ID}|{chronology_id}".encode()
     ).hexdigest()
 
 
