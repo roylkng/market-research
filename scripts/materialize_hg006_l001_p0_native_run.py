@@ -308,7 +308,7 @@ def _extract(row: dict[str, Any]) -> dict[str, Any]:
 
     elif symbol == "ZOTA":
         p1 = _page(row, 1)
-        terms = _contains(row, "687,000", "303")
+        terms = _contains(row, "6,87,000", "warrants")
         _stage(output, "ALLOTMENT_COMPLETED", p1)
         _terminal(output, "EXPLICIT_COMPLETION_LANGUAGE", p1)
         _anchor(output, "SECURITY_TYPE", "Fully Convertible Warrants", terms)
