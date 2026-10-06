@@ -46,10 +46,10 @@ def _sha(raw: bytes) -> str:
 def _request(row: dict[str, Any]) -> dict[str, Any]:
     prompt = row.get("prompt_envelope")
     if not isinstance(prompt, dict):
-        raise ValueError("P0 row prompt envelope unavailable")
+        raise TypeError("P0 row prompt envelope unavailable")
     request = prompt.get("request")
     if not isinstance(request, dict):
-        raise ValueError("P0 row request unavailable")
+        raise TypeError("P0 row request unavailable")
     return request
 
 
@@ -83,7 +83,7 @@ def _contains(row: dict[str, Any], *needles: str) -> str:
             matches.append(str(segment["segment_id"]))
     if not matches:
         raise ValueError(f"{row.get('symbol')}: no selected segment contains {needles}")
-    return sorted(matches)[0]
+    return min(matches)
 
 
 def _stage(output: dict[str, Any], stage: str, evidence: str) -> None:
