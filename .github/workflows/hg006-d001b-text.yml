@@ -1,0 +1,141 @@
+name: HG006 D001B selected calibration text corpus
+
+on:
+  push:
+    branches:
+      - research/hg006-d001b-selected-text-20261006
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    if: contains(github.event.head_commit.message, '[hg006-d001b]')
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen D001B implementation
+        run: |
+          ruff check \
+            src/marketlab/hg006_text.py \
+            scripts/run_hg006_d001b_shard.py \
+            scripts/combine_hg006_d001b_shards.py \
+            tests/test_hg006_text.py
+          pytest -q tests/test_hg006_text.py tests/test_ss002_text.py
+      - name: Download exact frozen S001 cohort
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-s001-37412353114
+          path: reports/s001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37412353114
+      - name: Download exact historical document corpus manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-d001a-combined-37354593321
+          path: reports/d001a
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37354593321
+      - name: Extract selected historical text shard
+        run: |
+          python scripts/run_hg006_d001b_shard.py \
+            --selection reports/s001/hg006-s001-selection.json \
+            --source-corpus reports/d001a/hg006-d001a-corpus.json \
+            --shard-id ${{ matrix.shard }} \
+            --output reports/d001b/shard-${{ matrix.shard }} \
+            --attempts 4 \
+            --timeout-seconds 30 \
+            --pause-seconds 0.01
+      - name: Upload text shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001b-text-${{ matrix.shard }}-${{ github.run_id }}
+          path: reports/d001b/shard-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 90
+
+  combine:
+    if: contains(github.event.head_commit.message, '[hg006-d001b]')
+    needs: extract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download exact frozen S001 cohort
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-s001-37412353114
+          path: reports/s001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37412353114
+      - name: Download exact historical document corpus manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-d001a-combined-37354593321
+          path: reports/d001a
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37354593321
+      - name: Download all current-run text shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hg006-d001b-text-*-${{ github.run_id }}
+          path: reports/d001b-shards
+          merge-multiple: false
+      - name: Combine selected text corpus
+        run: |
+          python scripts/combine_hg006_d001b_shards.py \
+            --selection reports/s001/hg006-s001-selection.json \
+            --source-corpus reports/d001a/hg006-d001a-corpus.json \
+            --shards-root reports/d001b-shards \
+            --output reports/d001b-combined
+      - name: Prove label-blind text corpus
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/d001b-combined/hg006-d001b-text-corpus.json").read_text())
+          assert p["corpus_id"]=="HG006-D001B-v1"
+          assert p["selected_chronology_count"]==300
+          assert p["historical_terminal_labels_opened"] is False
+          assert p["completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          print(json.dumps({
+            "corpus_sha256":p["corpus_sha256"],
+            "selected_document_count":p["selected_document_count"],
+            "hash_reproduced_document_count":p["hash_reproduced_document_count"],
+            "hash_reproduced_ratio":p["hash_reproduced_ratio"],
+            "text_ready_document_count":p["text_ready_document_count"],
+            "text_ready_ratio_of_reproduced":p["text_ready_ratio_of_reproduced"],
+            "chronology_with_text_ready_document_count":p["chronology_with_text_ready_document_count"],
+            "chronology_text_ready_ratio":p["chronology_text_ready_ratio"],
+            "segment_count":p["segment_count"],
+            "threshold_passes":p["threshold_passes"],
+            "feasibility_pass":p["feasibility_pass"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload combined D001B result
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-d001b-combined-${{ github.run_id }}
+          path: reports/d001b-combined
+          if-no-files-found: error
+          retention-days: 90
