@@ -68,7 +68,7 @@ jobs:
           assert queue["request_count"] == 1448
           assert queue["model_config_sha256"] == "043ec1f2d38aec7e72b24cfcbe864aebd83cda8b717d3c8c0fac2ecb3cafa51d"
           assert p0["run_sha256"] == "0b606aa4b3c27545d150dd046d3c0f2c5fb68d3380f310095be82754bfca1a79"
-          assert p0["validated_response_count"] == 00
+          assert p0["validated_response_count"] == 20
           assert queue["historical_terminal_labels_opened"] is False
           assert p0["historical_terminal_labels_opened"] is False
           PY
@@ -105,7 +105,7 @@ jobs:
           assert p["shard_id"] == 2
           assert p["request_count"] == 92
           assert p["status_counts"] == {"VALIDATED": 92}
-          assert sum(row["source"] == "P0_VALIDATED_REUSE" for row in p["rows"]) == 2
+          assert sum(row["source"] == "P0_VALIDATED_REUSE" for row in p["rows"]) == 0
           assert sum(row["source"] == "FRESH_NATIVE_OUTPUT" for row in p["rows"]) == 92
           assert all(row["status"] == "VALIDATED" for row in p["rows"])
           assert p["historical_terminal_labels_opened"] is False
@@ -113,6 +113,9 @@ jobs:
           assert p["return_outcomes_opened"] is False
           assert p["portfolio_eligibility_allowed"] is False
           assert p["live_capital_allowed"] is False
+
+          families=Counter(row["family"] for row in p["rows"])
+          assert families == {"PREFERENTIAL_WARRANT": 47, "SCHEME_REORGANISATION": 45}
 
           stages=Counter()
           terminals=Counter()
@@ -130,6 +133,7 @@ jobs:
               "status_counts": p["status_counts"],
               "p0_reuse_count": 0,
               "fresh_validated_count": 92,
+              "family_counts": dict(sorted(families.items())),
               "stage_counts": dict(sorted(stages.items())),
               "terminal_counts": dict(sorted(terminals.items())),
               "family_semantic_conflict_count": conflicts,
