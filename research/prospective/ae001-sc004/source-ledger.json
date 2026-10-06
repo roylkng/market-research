@@ -1,5 +1,5 @@
 {
-  "attempt_count": 32,
+  "attempt_count": 33,
   "attempts": [
     {
       "attempt_sha256": "c1966d316b52aae74aee7fe4eb92d4cdfe5ca2b3707f34dbc819d54c7b3403e3",
@@ -1663,10 +1663,78 @@
         "source_url": "https://nsearchives.nseindia.com/archives/slbs/open_pos/slb_openpos_06102026.csv",
         "status": "READY"
       }
+    },
+    {
+      "attempt_sha256": "9f0b039ab01add4d5b20c0d598008d8dba4b087a63b478cf0ac7a5f8daa952ba",
+      "captured_at_utc": "2026-10-06T18:29:42.606028+00:00",
+      "captured_before_or_at_cutoff": false,
+      "current_market": {
+        "eq_row_count": 2679,
+        "raw_repo_path": "research/prospective/ae001-sc004/raw/2026-10-06/current-market-2026-10-06-f444e5ba9821fe09ac3bff69f53144369ce536be6481acc78ab00d175ae55b56.zip",
+        "raw_sha256": "f444e5ba9821fe09ac3bff69f53144369ce536be6481acc78ab00d175ae55b56",
+        "role": "PUBLICATION_SESSION",
+        "session_date": "2026-10-06",
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261006_F_0000.csv.zip",
+        "status": "READY"
+      },
+      "decision_cutoff_utc": "2026-10-06T13:00:00+00:00",
+      "eligible_before_cutoff": false,
+      "live_capital_allowed": false,
+      "model_fit_performed": false,
+      "previous_completed_session": "2026-10-05",
+      "previous_market": {
+        "eq_row_count": 2678,
+        "raw_repo_path": "research/prospective/ae001-sc004/raw/2026-10-06/previous-market-2026-10-05-43913a4ef72663e2d3fbb0c3b9c686ed8c3d23e5df6ee6b756f8a5c954559ceb.zip",
+        "raw_sha256": "43913a4ef72663e2d3fbb0c3b9c686ed8c3d23e5df6ee6b756f8a5c954559ceb",
+        "role": "PREVIOUS_COMPLETED_SESSION",
+        "session_date": "2026-10-05",
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261005_F_0000.csv.zip",
+        "status": "READY"
+      },
+      "publication_session": "2026-10-06",
+      "return_labels_opened": false,
+      "seq": 33,
+      "short_selling": {
+        "duplicate_symbol_row_count": 0,
+        "identity_gate_pass": true,
+        "identity_mapping_fraction": 1.0,
+        "publication_continuity_row_count": 97,
+        "publication_isin_continuity_fraction": 1.0,
+        "raw_repo_path": "research/prospective/ae001-sc004/raw/2026-10-06/short-c94fad89643774bd1e980a8a958105b2e6d09e93de34a080f572928b3e02833c.csv.gz",
+        "raw_sha256": "c94fad89643774bd1e980a8a958105b2e6d09e93de34a080f572928b3e02833c",
+        "schema": [
+          "Security Name",
+          "Symbol Name",
+          "Trade Date",
+          "Quantity"
+        ],
+        "source_row_count": 97,
+        "source_url": "https://nsearchives.nseindia.com/archives/equities/shortSelling/shortselling_06102026.csv",
+        "status": "READY",
+        "trade_date_mapped_row_count": 97
+      },
+      "slb_open_positions": {
+        "duplicate_symbol_row_count": 345,
+        "duplicate_symbol_series_row_count": 0,
+        "identity_gate_pass": true,
+        "identity_mapping_fraction": 0.9879336349924586,
+        "mapped_row_count": 655,
+        "raw_repo_path": "research/prospective/ae001-sc004/raw/2026-10-06/slb-aec1119b9cea55f4fd62f278c4988a85105a30540fe74c36b3cc6e0754915e1d.csv.gz",
+        "raw_sha256": "aec1119b9cea55f4fd62f278c4988a85105a30540fe74c36b3cc6e0754915e1d",
+        "schema": [
+          "Sr no",
+          "Security",
+          "Series",
+          "Outstanding Quantity at the end of the day"
+        ],
+        "source_row_count": 663,
+        "source_url": "https://nsearchives.nseindia.com/archives/slbs/open_pos/slb_openpos_06102026.csv",
+        "status": "READY"
+      }
     }
   ],
   "ledger_id": "AE001-SC004-SOURCE-LEDGER-v1",
-  "ledger_sha256": "c9125de616b81e8846aab82a25bb354cd23fc0a11ceee9bab20c80855ea94832",
+  "ledger_sha256": "882ae4601a5e9a05be11bd51bc24a1851282e13a8ec2ae6ac7c6eebe1ba042c9",
   "live_capital_allowed": false,
   "schema_version": 1
 }
