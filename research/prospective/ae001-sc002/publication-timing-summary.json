@@ -1,14 +1,14 @@
 {
-  "additional_distinct_ready_sessions_needed": 1,
+  "additional_distinct_ready_sessions_needed": 0,
   "analysis_id": "AE001-SC002-PUBLICATION-TIMING-v1",
-  "candidate_cutoff_basis_session": null,
-  "candidate_cutoff_ist": null,
-  "candidate_cutoff_session_offset_days": null,
+  "candidate_cutoff_basis_session": "2026-10-01",
+  "candidate_cutoff_ist": "23:30:00",
+  "candidate_cutoff_session_offset_days": 0,
   "candidate_rule": "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES",
-  "distinct_ready_session_count": 2,
+  "distinct_ready_session_count": 3,
   "latest_first_ready_at_ist": "2026-10-01T22:50:52.481590+05:30",
   "live_capital_allowed": false,
-  "median_first_ready_local_seconds": 79209.8681585,
+  "median_first_ready_local_seconds": 81557.420825,
   "minimum_distinct_ready_sessions": 3,
   "observations": [
     {
@@ -30,14 +30,24 @@
       "futures_raw_sha256": "d44a052b79a3961910f74783960ebbd5043696dbed39e7fb86ec84929fd60338",
       "local_seconds_after_session_midnight": 82252.48159,
       "session_date": "2026-10-01"
+    },
+    {
+      "attempt_seq": 50,
+      "attempt_sha256": "57367dc2d514e5a7cc68081165ffe1be6dcae3d283c66d85985818a36c51cbeb",
+      "captured_at_ist": "2026-10-06T22:39:17.420825+05:30",
+      "captured_at_utc": "2026-10-06T17:09:17.420825+00:00",
+      "eligible_before_1830": false,
+      "futures_raw_sha256": "f0dcc4b7506c723a3a7496c9fbb288f8b4a66b6a68a3c02364bbcd462eb33950",
+      "local_seconds_after_session_midnight": 81557.420825,
+      "session_date": "2026-10-06"
     }
   ],
   "rounding_minutes": 15,
   "safety_buffer_minutes": 30,
   "schema_version": 1,
-  "source_ledger_sha256": "7b25e211a90c1a91001a913bec8a1638e8c0114b8472645cbc665255216a5dad",
-  "state": "INSUFFICIENT_EVIDENCE",
+  "source_ledger_sha256": "f277625ba929c452ce0127bad4b24be1195a6a2c14db6dc26ac462086ebef509",
+  "state": "SOURCE_TIMING_READY_FOR_SUCCESSOR_DESIGN",
   "successor_trial_cutoff_frozen": false,
-  "summary_sha256": "fe395ce5011967c87e06818564aca09acfdc19b977740defc3a2b51beb9dc925",
+  "summary_sha256": "20d96ac8959311c2cdf6d179117154f3765f7c453cb794151563c8bf3e949e22",
   "uses_stock_return_or_alpha_outcomes": false
 }
