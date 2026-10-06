@@ -1,6 +1,6 @@
 {
   "after_market_close": true,
-  "as_of_date": "2026-10-06",
+  "as_of_date": "2026-10-07",
   "blocker_count": 4,
   "blockers": [
     "SC001_STALE",
@@ -52,17 +52,17 @@
     },
     "SC001": {
       "eligible_session_count": 3,
-      "expected_latest_session": "2026-10-06",
+      "expected_latest_session": "2026-10-07",
       "latest_eligible_session": "2026-10-05",
-      "ledger_sha256": "a3b800967a5e3a86d74246a0da439985082c5fb5089a51d0bee767bfed67f124",
+      "ledger_sha256": "cf31377cb85e6353ab9ac66aa41557d72604b162310e08ed9c91eed390d5ec22",
       "state": "STALE"
     },
     "SC002": {
-      "attempt_count": 50,
+      "attempt_count": 51,
       "eligible_before_1830_session_count": 0,
       "late_ready_session_count": 3,
       "latest_ready_session": "2026-10-06",
-      "ledger_sha256": "f277625ba929c452ce0127bad4b24be1195a6a2c14db6dc26ac462086ebef509",
+      "ledger_sha256": "f414a76c6849808cbe0af126ecc3d548f70c2f76e1bc1197ec6f604c9e787f22",
       "ready_session_count": 3,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
@@ -143,8 +143,8 @@
           "2026-10-06",
           "2026-10-07"
         ],
-        "no_observation_session_count": 1,
-        "observed_not_ready_session_count": 1,
+        "no_observation_session_count": 0,
+        "observed_not_ready_session_count": 2,
         "ready_after_cutoff_session_count": 3,
         "required_session_count": 5,
         "session_classifications": [
@@ -173,13 +173,13 @@
             "session_date": "2026-10-06"
           },
           {
-            "attempt_count": 0,
-            "classification": "NO_OBSERVATION",
+            "attempt_count": 1,
+            "classification": "OBSERVED_NOT_READY",
             "earliest_ready_capture_utc": null,
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "f277625ba929c452ce0127bad4b24be1195a6a2c14db6dc26ac462086ebef509",
+        "source_ledger_sha256": "f414a76c6849808cbe0af126ecc3d548f70c2f76e1bc1197ec6f604c9e787f22",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -187,8 +187,8 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-10-06",
+  "latest_expected_market_session": "2026-10-07",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "17f8af3f9d482c205a6fc8ff8373fb9a061c4c17ccc503b9dea0712573159a13"
+  "summary_sha256": "4f869cc5bd06729bba4dbcf61b98777d4e4c86b906e9d725ca7caaf6e9c84757"
 }
