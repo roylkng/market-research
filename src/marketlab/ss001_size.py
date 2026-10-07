@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import Counter, defaultdict
 from typing import Any
@@ -11,10 +12,18 @@ PANEL_ID = "SS001-D003-v1"
 EXPECTED_D001_ID = "SS001-D001-v1"
 EXPECTED_D001_SHA = "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7"
 EXPECTED_IDENTITY_COUNT = 2319
+SHARD_COUNT = 12
 
 
 class SS001SizeError(ValueError):
     """Raised when official NSE company-size evidence is ambiguous."""
+
+
+def shard_for_symbol(symbol: str) -> int:
+    value = symbol.strip().upper()
+    if not value:
+        raise AlphaContractError("SS001 D003 shard requires symbol")
+    return int(hashlib.sha256(value.encode()).hexdigest()[:8], 16) % SHARD_COUNT
 
 
 def _finite_number(value: object) -> float | None:
