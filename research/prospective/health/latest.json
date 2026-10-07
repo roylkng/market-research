@@ -54,16 +54,16 @@
       "eligible_session_count": 3,
       "expected_latest_session": "2026-10-07",
       "latest_eligible_session": "2026-10-05",
-      "ledger_sha256": "1111c80fa7ad7102f26939ea3e2d05340bc6c4858dd7bbe0c33457f9dc30d7a9",
+      "ledger_sha256": "c9e9bab416a5e0cb4624ed848a0defeebfd487eeefd8c2c4eaf22f84e06019a5",
       "state": "STALE"
     },
     "SC002": {
-      "attempt_count": 59,
+      "attempt_count": 60,
       "eligible_before_1830_session_count": 0,
-      "late_ready_session_count": 3,
-      "latest_ready_session": "2026-10-06",
-      "ledger_sha256": "5ec66c3b77a60dd02a7b828cf2081f9f9af68fe5cdcb53fc7717da30f14f8601",
-      "ready_session_count": 3,
+      "late_ready_session_count": 4,
+      "latest_ready_session": "2026-10-07",
+      "ledger_sha256": "22951b73da4939e00fbc2d78c095b7249712dd92dd92324bef466d9e72aec175",
+      "ready_session_count": 4,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
@@ -144,8 +144,8 @@
           "2026-10-07"
         ],
         "no_observation_session_count": 0,
-        "observed_not_ready_session_count": 2,
-        "ready_after_cutoff_session_count": 3,
+        "observed_not_ready_session_count": 1,
+        "ready_after_cutoff_session_count": 4,
         "required_session_count": 5,
         "session_classifications": [
           {
@@ -173,13 +173,13 @@
             "session_date": "2026-10-06"
           },
           {
-            "attempt_count": 9,
-            "classification": "OBSERVED_NOT_READY",
-            "earliest_ready_capture_utc": null,
+            "attempt_count": 10,
+            "classification": "READY_AFTER_CUTOFF",
+            "earliest_ready_capture_utc": "2026-10-07T17:46:31.786820+00:00",
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "5ec66c3b77a60dd02a7b828cf2081f9f9af68fe5cdcb53fc7717da30f14f8601",
+        "source_ledger_sha256": "22951b73da4939e00fbc2d78c095b7249712dd92dd92324bef466d9e72aec175",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -190,5 +190,5 @@
   "latest_expected_market_session": "2026-10-07",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "76ad391771b26202c6fdfd7f215d4eb07bf379a5ea36fe5b73a1a4ea78dd4c91"
+  "summary_sha256": "dd095bd6fb2099c3302cccbb49c34a93a7520d2545306a13628ae71029d8049b"
 }
