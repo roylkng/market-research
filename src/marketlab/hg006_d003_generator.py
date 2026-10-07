@@ -214,7 +214,7 @@ def _source_metadata(
             if not document_id or not timestamp or not isinstance(event_ids, list):
                 raise AlphaContractError("HG006 D003 retained document identity incomplete")
             try:
-                datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+                datetime.fromisoformat(timestamp)
             except ValueError as exc:
                 raise AlphaContractError(
                     "HG006 D003 chronology timestamp must be ISO datetime"
