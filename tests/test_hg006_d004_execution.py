@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from marketlab.hg006_base_rates import SurvivalEpisode
 from marketlab.hg006_d004_execution import (
     TRACK_SPECS,
     _stage_surface,
     _supported_horizons,
     build_d004_base_rates,
 )
-from marketlab.hg006_base_rates import SurvivalEpisode
 
 
 def _row(index: int, family: str, *, conflict: bool = True) -> dict:
