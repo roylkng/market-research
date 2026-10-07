@@ -1,0 +1,114 @@
+name: HG006 L001 P3 full-priority queue
+
+on:
+  push:
+    branches:
+      - research/hg006-l001-p3-full-priority-queue-20261008
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  queue:
+    if: contains(github.event.head_commit.message, '[hg006-l001-p3]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen P3 queue implementation
+        run: |
+          ruff check \
+            src/marketlab/hg006_p3_inference.py \
+            scripts/materialize_hg006_l001_p3_queue.py \
+            tests/test_hg006_p3_inference.py
+          pytest -q \
+            tests/test_hg006_p3_inference.py \
+            tests/test_hg006_inference_queue.py \
+            tests/test_hg006_stage_contract.py
+
+      - name: Download exact S003 full-priority evidence pack
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-p2-full-priority-37665220935
+          path: reports/s003
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37665220935
+
+      - name: Download exact original P1 queue
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p1-queue-37416900979
+          path: reports/prior-queue
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37416900979
+
+      - name: Download exact passed P2 ingestion
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p2-full-37638982587
+          path: reports/prior-ingestion
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37638982587
+
+      - name: Materialize frozen P3 extension queue
+        run: |
+          python scripts/materialize_hg006_l001_p3_queue.py \
+            --s003-pack reports/s003/hg006-s003-pack.json \
+            --prior-queue reports/prior-queue/hg006-l001-p1-queue.json \
+            --prior-ingestion reports/prior-ingestion/full/hg006-l001-p2-full-ingestion.json \
+            --output reports/p3
+
+      - name: Prove exact P3 boundary before model output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p=json.loads(Path("reports/p3/hg006-l001-p3-queue.json").read_text())
+          assert p["queue_id"]=="HG006-L001-P3-v1"
+          assert p["chronology_count"]==1043
+          assert p["evidence_ready_chronology_count"]==1032
+          assert len(p["text_unavailable_chronology_ids"])==11
+          assert p["request_count"]==4822
+          assert p["execution_state_counts"]=={
+              "FRESH_MODEL_REQUIRED":3379,
+              "P2_VALIDATED_REUSE":1443,
+          }
+          assert p["prior_pair_overlap_count"]==1448
+          assert p["changed_prior_prompt_count"]==5
+          assert sum(p["fresh_request_counts_by_shard"].values())==3379
+          assert p["expanded_population_terminal_labels_opened"] is False
+          assert p["expanded_population_completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+              "queue_sha256":p["queue_sha256"],
+              "request_count":p["request_count"],
+              "execution_state_counts":p["execution_state_counts"],
+              "changed_prior_prompt_count":p["changed_prior_prompt_count"],
+              "fresh_request_counts_by_shard":p["fresh_request_counts_by_shard"],
+              "request_counts_by_family":p["request_counts_by_family"],
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Upload exact P3 queue
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-l001-p3-queue-${{ github.run_id }}
+          path: reports/p3
+          if-no-files-found: error
+          retention-days: 90
