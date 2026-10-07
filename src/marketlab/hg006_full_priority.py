@@ -627,12 +627,12 @@ def build_full_stage_evidence_pack(
 
 
 __all__ = [
+    "EVIDENCE_PACK_ID",
     "SHARD_COUNT",
     "TEXT_CORPUS_ID",
-    "EVIDENCE_PACK_ID",
-    "shard_for_document_id",
-    "full_document_requests",
-    "build_full_text_corpus",
     "build_full_stage_evidence_pack",
+    "build_full_text_corpus",
     "extract_verified_document",
+    "full_document_requests",
+    "shard_for_document_id",
 ]
