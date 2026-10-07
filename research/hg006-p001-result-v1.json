@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-P001-v1",
+  "status": "PASSED_CONSERVATIVE_CURRENT_TRANSACTION_MAPPING",
+  "classification": "CURRENT_TRANSACTION_HISTORICAL_BASE_RATE_MAPPING_NOT_EXPECTED_RETURN",
+  "successful_run": {
+    "run_id": 37660259741,
+    "artifact_id": 11500023982,
+    "artifact_name": "hg006-p001-37660259741"
+  },
+  "mapping_sha256": "a1ffa592726a4995bab90b192316919de428a3b0f78a788165cf634b4db83ba6",
+  "current_evidence_cutoff": "2026-10-04",
+  "case_count": 6,
+  "mapping_state_counts": {
+    "CURRENT_TERMINAL_COMPLETED": 1,
+    "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT": 4,
+    "NO_PUBLISHABLE_EXACT_STAGE_BASE_RATE": 1
+  },
+  "current_company_probability_surfaces_published": 0,
+  "current_terminal_state_count": 1,
+  "current_case_summary": [
+    {
+      "symbol": "ANANTRAJ",
+      "economic_lane": "DEMERGER_ENTITLEMENT",
+      "historical_family": "SCHEME_REORGANISATION",
+      "historical_track": "transaction_completion",
+      "current_stage": "BOARD_APPROVED",
+      "current_stage_observed_date": "2026-07-21",
+      "elapsed_days": 75,
+      "mapping_state": "NO_PUBLISHABLE_EXACT_STAGE_BASE_RATE",
+      "probability_surface": null
+    },
+    {
+      "symbol": "DEVX",
+      "economic_lane": "DILUTION_FINANCING",
+      "historical_family": "PREFERENTIAL_WARRANT",
+      "historical_track": "issuance_completion",
+      "current_stage": "ALLOTMENT_COMPLETED",
+      "current_stage_observed_date": "2026-06-16",
+      "elapsed_days": 110,
+      "mapping_state": "CURRENT_TERMINAL_COMPLETED",
+      "probability_surface": null
+    },
+    {
+      "symbol": "DEVX",
+      "economic_lane": "DILUTION_FINANCING",
+      "historical_family": "PREFERENTIAL_WARRANT",
+      "historical_track": "full_economic_exercise",
+      "current_stage": "ALLOTMENT_COMPLETED",
+      "current_stage_observed_date": "2026-06-16",
+      "elapsed_days": 110,
+      "mapping_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "survivor_conditioned_counts": {
+        "support_count": 34,
+        "completed_count": 0,
+        "failed_count": 0,
+        "right_censored_count": 34,
+        "terminal_count": 0
+      },
+      "probability_surface": null
+    },
+    {
+      "symbol": "INOXGREEN",
+      "economic_lane": "DEMERGER_ENTITLEMENT",
+      "historical_family": "SCHEME_REORGANISATION",
+      "historical_track": "transaction_completion",
+      "current_stage": "REGULATORY_OR_COURT_APPROVED",
+      "current_stage_observed_date": "2026-04-28",
+      "elapsed_days": 159,
+      "mapping_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "survivor_conditioned_counts": {
+        "support_count": 57,
+        "completed_count": 1,
+        "failed_count": 0,
+        "right_censored_count": 56,
+        "terminal_count": 1
+      },
+      "probability_surface": null
+    },
+    {
+      "symbol": "SAMBHV",
+      "economic_lane": "DILUTION_FINANCING",
+      "historical_family": "PREFERENTIAL_WARRANT",
+      "historical_track": "issuance_completion",
+      "current_stage": "BOARD_APPROVED",
+      "current_stage_observed_date": "2026-07-15",
+      "elapsed_days": 81,
+      "mapping_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "survivor_conditioned_counts": {
+        "support_count": 20,
+        "completed_count": 1,
+        "failed_count": 0,
+        "right_censored_count": 19,
+        "terminal_count": 1
+      },
+      "probability_surface": null
+    },
+    {
+      "symbol": "SAMBHV",
+      "economic_lane": "DILUTION_FINANCING",
+      "historical_family": "PREFERENTIAL_WARRANT",
+      "historical_track": "full_economic_exercise",
+      "current_stage": "BOARD_APPROVED",
+      "current_stage_observed_date": "2026-07-15",
+      "elapsed_days": 81,
+      "mapping_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "survivor_conditioned_counts": {
+        "support_count": 44,
+        "completed_count": 0,
+        "failed_count": 0,
+        "right_censored_count": 44,
+        "terminal_count": 0
+      },
+      "probability_surface": null
+    }
+  ],
+  "promotion_allowed_to_probability_weighted_payoff": true,
+  "expected_returns_calculated": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "P001 PASSED BY REFUSING UNSUPPORTED CURRENT PROBABILITIES. NO SURVIVOR-CONDITIONED CURRENT PROBABILITY SURFACE CLEARED THE FROZEN 30-SUPPORT/10-FUTURE-TERMINAL GATE. DEVX WARRANT ISSUANCE IS ALREADY EXPLICITLY COMPLETED, BUT FULL EXERCISE AND OPERATING/CAPITAL-DEPLOYMENT PAYOFF REMAIN UNRESOLVED. HISTORICAL SUPPORT MUST BE EXPANDED RATHER THAN RELAXING THE GATE."
+}
