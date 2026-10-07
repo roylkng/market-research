@@ -90,12 +90,17 @@ RIGHT_CENSORED is never counted as failure.
 
 ## Conflict rule
 
-An episode is `UNRESOLVED_SOURCE_CONFLICT` when either:
+An episode is `UNRESOLVED_SOURCE_CONFLICT` when any of the following holds:
 
 1. any contributing extraction has
-   `CONFLICTING_TERMINAL_LANGUAGE`; or
+   `CONFLICTING_TERMINAL_LANGUAGE`;
 2. deterministic completion evidence and deterministic failure evidence are both
-   present within the same sealed episode.
+   present within the same sealed episode;
+3. any contributing extraction carries a non-null `family_semantic_conflict`.
+
+The third rule prevents a source that the evidence-bound LLM explicitly identified as
+economically inconsistent with the frozen family from entering that family's base-rate
+denominator.
 
 Chronological order does not automatically resolve the conflict. A separately frozen
 lineage rule would be required to treat a failed proposal followed by a later
