@@ -62,7 +62,7 @@ jobs:
           assert queue["request_count"] == 1448
           assert queue["model_config_sha256"] == "043ec1f2d38aec7e72b24cfcbe864aebd83cda8b717d3c8c0fac2ecb3cafa51d"
           assert p0["run_sha256"] == "0b606aa4b3c27545d150dd046d3c0f2c5fb68d3380f310095be82754bfca1a79"
-          assert p0["validated_response_count"] == 00
+          assert p0["validated_response_count"] == 20
           assert queue["historical_terminal_labels_opened"] is False
           assert p0["historical_terminal_labels_opened"] is False
           PY
