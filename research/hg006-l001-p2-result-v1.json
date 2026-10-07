@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-L001-P2-v1",
+  "status": "PASSED_FULL_NATIVE_HISTORICAL_LLM_INGESTION",
+  "classification": "FULL_NATIVE_HISTORICAL_LLM_RESPONSE_INGESTION_NOT_LABELS",
+  "successful_run": {
+    "run_id": 37638982587,
+    "artifact_id": 11491395735,
+    "artifact_name": "hg006-l001-p2-full-37638982587"
+  },
+  "ingestion_sha256": "2188bf803f2088cd10f26892f92f1a82fc810543ad9679c4fc20534e2a3e59e6",
+  "source_queue_sha256": "6732f5741ec6d9a2e1926a94d234c642871d454f0354d60dfa87cec3807ce934",
+  "model_config_sha256": "043ec1f2d38aec7e72b24cfcbe864aebd83cda8b717d3c8c0fac2ecb3cafa51d",
+  "p0_run_sha256": "0b606aa4b3c27545d150dd046d3c0f2c5fb68d3380f310095be82754bfca1a79",
+  "request_count": 1448,
+  "status_counts": {
+    "VALIDATED": 1448
+  },
+  "validated_request_count": 1448,
+  "validated_request_ratio": 1,
+  "evidence_ready_chronology_count": 298,
+  "validated_chronology_count": 298,
+  "validated_chronology_ratio": 1,
+  "threshold_passes": {
+    "complete_1448_request_accounting": true,
+    "complete_16_shard_accounting": true,
+    "minimum_95pct_request_validation": true,
+    "minimum_95pct_chronology_validation_coverage": true,
+    "p0_audit_sample_preserved": true
+  },
+  "full_ingestion_pass": true,
+  "promotion_allowed_to_d003_threading": true,
+  "historical_terminal_labels_opened": false,
+  "completion_probabilities_assigned": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "ALL 1448 FROZEN HISTORICAL LLM REQUESTS VALIDATED ACROSS ALL 298 EVIDENCE-READY CHRONOLOGIES WITH EXACT P0 AUDIT PRESERVATION; D003 EPISODE THREADING IS AUTHORIZED BEFORE TERMINAL LABELS ARE OPENED"
+}
