@@ -87,7 +87,7 @@ def _utc_day(timestamp: object) -> date:
     if not isinstance(timestamp, str) or not timestamp:
         raise AlphaContractError("HG006 P001 event timestamp unavailable")
     try:
-        parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(timestamp)
     except ValueError as exc:
         raise AlphaContractError("HG006 P001 event timestamp invalid") from exc
     if parsed.tzinfo is None:
@@ -337,9 +337,11 @@ def _terminal_current_state(case: dict[str, Any]) -> str | None:
         ):
             return "CURRENT_SOURCE_CONFLICT"
         return "CURRENT_TERMINAL_FAILED_OR_WITHDRAWN"
-    if case["historical_family"] == "SCHEME_REORGANISATION":
-        if "TRANSACTION_COMPLETED" in stages:
-            return "CURRENT_TERMINAL_COMPLETED"
+    if (
+        case["historical_family"] == "SCHEME_REORGANISATION"
+        and "TRANSACTION_COMPLETED" in stages
+    ):
+        return "CURRENT_TERMINAL_COMPLETED"
     if (
         case["historical_family"] == "PREFERENTIAL_WARRANT"
         and track == "issuance_completion"
