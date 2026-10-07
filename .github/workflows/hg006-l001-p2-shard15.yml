@@ -91,10 +91,10 @@ jobs:
           p=json.loads(Path("reports/hg006-p2-shard15/hg006-l001-p2-shard-15.json").read_text())
           assert p["execution_id"] == "HG006-L001-P2-v1"
           assert p["shard_id"] == 15
-          assert p["request_count"] == 87
+          assert p["request_count"] == 91
           assert p["status_counts"] == {"VALIDATED": 91}
-          assert sum(row["source"] == "P0_VALIDATED_REUSE" for row in p["rows"]) == 0
-          assert sum(row["source"] == "FRESH_NATIVE_OUTPUT" for row in p["rows"]) == 95
+          assert sum(row["source"] == "P0_VALIDATED_REUSE" for row in p["rows"]) == 4
+          assert sum(row["source"] == "FRESH_NATIVE_OUTPUT" for row in p["rows"]) == 87
           assert p["historical_terminal_labels_opened"] is False
           assert p["completion_probabilities_assigned"] is False
           assert p["return_outcomes_opened"] is False
@@ -102,8 +102,8 @@ jobs:
               "bundle_sha256":p["bundle_sha256"],
               "request_count":p["request_count"],
               "status_counts":p["status_counts"],
-              "p0_reuse_count":0,
-              "fresh_validated_count":95
+              "p0_reuse_count":4,
+              "fresh_validated_count":87
           },indent=2,sort_keys=True))
           PY
       - name: Upload exact shard 15 evidence
