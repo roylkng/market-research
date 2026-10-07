@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-D004-P1-v1",
+  "status": "PASSED_HISTORICAL_STAGE_CONDITIONED_BASE_RATES",
+  "classification": "HISTORICAL_STAGE_CONDITIONED_BASE_RATES_NOT_CURRENT_PROBABILITIES",
+  "successful_run": {
+    "run_id": 37657805872,
+    "artifact_id": 11498384831,
+    "artifact_name": "hg006-d004-37657805872"
+  },
+  "base_rate_panel_sha256": "08eddc18599b7dcd86c4a688ef46fc6161a1a52cb49b72cf6695ffbc43ce3084",
+  "source_label_panel_sha256": "545532620b409135bd867f633de708cfd441e2c532a5b790afeacef9c7de9874",
+  "observation_cutoff": "2026-09-30",
+  "family_surfaces": [
+    {
+      "family": "PREFERENTIAL_WARRANT",
+      "track": "full_economic_exercise",
+      "source_episode_count": 151,
+      "conflict_excluded_count": 26,
+      "support_count": 125,
+      "completed_count": 55,
+      "failed_count": 5,
+      "right_censored_count": 65,
+      "resolved_completion_fraction": 0.9166666666666666,
+      "resolved_completion_wilson95": {
+        "lower": 0.8193105798166558,
+        "upper": 0.9638795433982692
+      },
+      "completion_cif_90d": 0.44,
+      "completion_ci95_90d": {
+        "lower": 0.352,
+        "upper": 0.528
+      },
+      "failure_cif_90d": 0.04
+    },
+    {
+      "family": "PREFERENTIAL_WARRANT",
+      "track": "issuance_completion",
+      "source_episode_count": 151,
+      "conflict_excluded_count": 26,
+      "support_count": 125,
+      "completed_count": 93,
+      "failed_count": 5,
+      "right_censored_count": 27,
+      "resolved_completion_fraction": 0.9489795918367347,
+      "resolved_completion_wilson95": {
+        "lower": 0.8860754835396585,
+        "upper": 0.9780126885959752
+      },
+      "completion_cif_90d": 0.7446153846153846,
+      "completion_ci95_90d": {
+        "lower": 0.6646272180451128,
+        "upper": 0.8184127272727272
+      },
+      "failure_cif_90d": 0.04
+    },
+    {
+      "family": "SCHEME_REORGANISATION",
+      "track": "transaction_completion",
+      "source_episode_count": 182,
+      "conflict_excluded_count": 3,
+      "support_count": 179,
+      "completed_count": 36,
+      "failed_count": 3,
+      "right_censored_count": 140,
+      "resolved_completion_fraction": 0.9230769230769231,
+      "resolved_completion_wilson95": {
+        "lower": 0.7967892883204503,
+        "upper": 0.9734926046962203
+      },
+      "completion_cif_90d": 0.1790087238902496,
+      "completion_ci95_90d": {
+        "lower": 0.12327830036769599,
+        "upper": 0.24030730924144625
+      },
+      "completion_cif_180d": 0.1917905341186895,
+      "completion_ci95_180d": {
+        "lower": 0.13563764939682194,
+        "upper": 0.25438900629142647
+      },
+      "completion_cif_730d": 0.21507868922897266,
+      "completion_ci95_730d": {
+        "lower": 0.15483603488345538,
+        "upper": 0.2844834872300338
+      },
+      "failure_cif_90d": 0.01675977653631285
+    }
+  ],
+  "publishable_stage_surfaces": [
+    {
+      "family": "PREFERENTIAL_WARRANT",
+      "track": "issuance_completion",
+      "stage": "BOARD_APPROVED",
+      "support_count": 68,
+      "terminal_count": 48,
+      "completed_count": 48,
+      "failed_count": 0,
+      "right_censored_count": 20,
+      "completion_cif_90d": 0.7066176470588235,
+      "completion_ci95_90d": {
+        "lower": 0.5914976335361731,
+        "upper": 0.8112745098039216
+      }
+    },
+    {
+      "family": "PREFERENTIAL_WARRANT",
+      "track": "full_economic_exercise",
+      "stage": "BOARD_APPROVED",
+      "support_count": 68,
+      "terminal_count": 21,
+      "completed_count": 21,
+      "failed_count": 0,
+      "right_censored_count": 47,
+      "completion_cif_90d": 0.3088235294117647,
+      "completion_ci95_90d": {
+        "lower": 0.20588235294117646,
+        "upper": 0.4264705882352941
+      }
+    },
+    {
+      "family": "PREFERENTIAL_WARRANT",
+      "track": "full_economic_exercise",
+      "stage": "ALLOTMENT_COMPLETED",
+      "support_count": 93,
+      "terminal_count": 55,
+      "completed_count": 55,
+      "failed_count": 0,
+      "right_censored_count": 38,
+      "completion_cif_90d": 0.5913978494623656,
+      "completion_ci95_90d": {
+        "lower": 0.4838709677419355,
+        "upper": 0.6881720430107527
+      }
+    },
+    {
+      "family": "SCHEME_REORGANISATION",
+      "track": "transaction_completion",
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "support_count": 87,
+      "terminal_count": 22,
+      "completed_count": 22,
+      "failed_count": 0,
+      "right_censored_count": 65,
+      "completion_cif_90d": 0.24297984279918863,
+      "completion_ci95_90d": {
+        "lower": 0.16091954022988506,
+        "upper": 0.33442987949124703
+      },
+      "completion_cif_180d": 0.25626089818867653,
+      "completion_ci95_180d": {
+        "lower": 0.1723735781994959,
+        "upper": 0.34898667061042954
+      }
+    }
+  ],
+  "threshold_passes": {
+    "conflicts_excluded_not_failed": true,
+    "exact_333_episode_source": true,
+    "no_current_probability_assigned": true,
+    "return_outcomes_remain_closed": true,
+    "warrant_tracks_distinct": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_current_probability_mapping": true,
+  "historical_base_rates_opened": true,
+  "current_company_probabilities_assigned": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FROZEN COMPETING-RISK BASE RATES PASSED. WARRANT ISSUANCE AND FULL EXERCISE ARE MATERIALLY DIFFERENT OUTCOME TRACKS; SCHEME RESOLVED-CASE SUCCESS IS HIGH BUT TIME-HORIZON COMPLETION REMAINS LOW BECAUSE MOST EPISODES ARE RIGHT-CENSORED. CURRENT-CASE PROBABILITY MAPPING IS NOW AUTHORIZED UNDER A SEPARATELY FROZEN RULE."
+}
