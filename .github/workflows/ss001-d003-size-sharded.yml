@@ -1,0 +1,131 @@
+name: SS001 D003 sharded current company-size source
+
+on:
+  push:
+    branches:
+      - research/ss001-d003-size-sharded-20261007
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  validate:
+    if: contains(github.event.head_commit.message, '[ss001-d003-sharded]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate implementation before source access
+        run: |
+          ruff check \
+            src/marketlab/ss001_size.py \
+            src/marketlab/nse.py \
+            scripts/run_ss001_d003_shard.py \
+            scripts/combine_ss001_d003_shards.py \
+            tests/test_ss001_size.py \
+            tests/test_nse_quote_raw.py
+          pytest -q tests/test_ss001_size.py tests/test_nse_quote_raw.py
+
+  shard:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download exact SS001 D001 census
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+      - name: Acquire assigned company-size rows
+        run: |
+          python scripts/run_ss001_d003_shard.py \
+            --d001-census reports/source/ss001-d001-census.json \
+            --shard-id ${{ matrix.shard }} \
+            --raw-dir reports/shard-${{ matrix.shard }}/raw \
+            --output reports/shard-${{ matrix.shard }} \
+            --attempts 3 \
+            --timeout-seconds 20 \
+            --pause-seconds 0.02
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ss001-d003-size-shard-${{ matrix.shard }}-${{ github.run_id }}
+          path: reports/shard-${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 30
+
+  combine:
+    needs: shard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Download exact SS001 D001 census
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d001-37197575401
+          path: reports/source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37197575401
+      - name: Download current-run shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ss001-d003-size-shard-*-${{ github.run_id }}
+          path: reports/shards
+      - name: Build size panel
+        run: |
+          python scripts/combine_ss001_d003_shards.py \
+            --d001-census reports/source/ss001-d001-census.json \
+            --shards-root reports/shards \
+            --output reports/final
+      - name: Prove outcome-blind size panel
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/final/ss001-d003-size-panel.json").read_text())
+          assert p["panel_id"]=="SS001-D003-v1"
+          assert p["identity_count"]==2319
+          assert p["return_outcomes_opened"] is False
+          assert p["model_fitted"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "panel_sha256":p["panel_sha256"],
+            "ready_market_cap_count":p["ready_market_cap_count"],
+            "ready_market_cap_ratio":p["ready_market_cap_ratio"],
+            "outside_u001_ready_market_cap_ratio":p["outside_u001_ready_market_cap_ratio"],
+            "size_band_counts":p["size_band_counts"],
+            "outside_u001_size_band_counts":p["outside_u001_size_band_counts"],
+            "threshold_passes":p["threshold_passes"],
+            "feasibility_pass":p["feasibility_pass"],
+          },indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ss001-d003-sharded-${{ github.run_id }}
+          path: reports/final
+          if-no-files-found: error
+          retention-days: 90
