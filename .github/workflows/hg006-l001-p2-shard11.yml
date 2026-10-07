@@ -1,0 +1,115 @@
+name: HG006 L001 P2 shard 11 native ingestion
+
+on:
+  push:
+    branches:
+      - research/hg006-l001-p2-shard11-20261007
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  shard11:
+    if: contains(github.event.head_commit.message, '[hg006-p2-shard11]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen P2 infrastructure
+        run: |
+          ruff check \
+            src/marketlab/hg006_native_materializer.py \
+            src/marketlab/hg006_full_inference.py \
+            scripts/materialize_hg006_l001_p2_native.py \
+            scripts/ingest_hg006_l001_p2_shard.py \
+            tests/test_hg006_native_materializer.py \
+            tests/test_hg006_full_inference.py
+          pytest -q \
+            tests/test_hg006_native_materializer.py \
+            tests/test_hg006_full_inference.py \
+            tests/test_hg006_inference_queue.py \
+            tests/test_hg006_stage_contract.py
+      - name: Download exact frozen HG006 queue
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p1-queue-37416900979
+          path: reports/hg006-queue
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37416900979
+      - name: Download exact passed P0 native run
+        uses: actions/download-artifact@v4
+        with:
+          name: hg006-l001-p0-native-37421844965
+          path: reports/hg006-p0
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37421844965
+      - name: Verify frozen authorities
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          queue=json.loads(Path("reports/hg006-queue/hg006-l001-p1-queue.json").read_text())
+          p0=json.loads(Path("reports/hg006-p0/hg006-l001-p0-native-run.json").read_text())
+          assert queue["queue_sha256"] == "6732f5741ec6d9a2e1926a94d234c642871d454f0354d60dfa87cec3807ce934"
+          assert queue["request_count"] == 1448
+          assert queue["model_config_sha256"] == "043ec1f2d38aec7e72b24cfcbe864aebd83cda8b717d3c8c0fac2ecb3cafa51d"
+          assert p0["run_sha256"] == "0b606aa4b3c27545d150dd046d3c0f2c5fb68d3380f310095be82754bfca1a79"
+          assert p0["validated_response_count"] == 20
+          assert queue["historical_terminal_labels_opened"] is False
+          assert p0["historical_terminal_labels_opened"] is False
+          PY
+      - name: Materialize exact shard 11 native bundle
+        run: |
+          mkdir -p reports/hg006-p2-shard11
+          python scripts/materialize_hg006_l001_p2_native.py \
+            --queue reports/hg006-queue/hg006-l001-p1-queue.json \
+            --p0-run reports/hg006-p0/hg006-l001-p0-native-run.json \
+            --decisions research/hg006/native-decisions/shard-11/decisions.json \
+            --shard-id 11 \
+            --out reports/hg006-p2-shard11/native-bundle.json
+      - name: Ingest through frozen HG006 validator
+        run: |
+          python scripts/ingest_hg006_l001_p2_shard.py \
+            --queue reports/hg006-queue/hg006-l001-p1-queue.json \
+            --p0-run reports/hg006-p0/hg006-l001-p0-native-run.json \
+            --native-bundle reports/hg006-p2-shard11/native-bundle.json \
+            --shard-id 11 \
+            --out reports/hg006-p2-shard11/hg006-l001-p2-shard-11.json
+      - name: Prove complete validated shard
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/hg006-p2-shard11/hg006-l001-p2-shard-11.json").read_text())
+          assert p["execution_id"] == "HG006-L001-P2-v1"
+          assert p["shard_id"] == 11
+          assert p["request_count"] == 99
+          assert p["status_counts"] == {"VALIDATED": 99}
+          assert sum(row["source"] == "P0_VALIDATED_REUSE" for row in p["rows"]) == 0
+          assert sum(row["source"] == "FRESH_NATIVE_OUTPUT" for row in p["rows"]) == 99
+          assert p["historical_terminal_labels_opened"] is False
+          assert p["completion_probabilities_assigned"] is False
+          assert p["return_outcomes_opened"] is False
+          print(json.dumps({
+              "bundle_sha256":p["bundle_sha256"],
+              "request_count":p["request_count"],
+              "status_counts":p["status_counts"],
+              "p0_reuse_count":0,
+              "fresh_validated_count":99
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact shard 11 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg006-l001-p2-shard-11-${{ github.run_id }}
+          path: reports/hg006-p2-shard11
+          if-no-files-found: error
+          retention-days: 90
