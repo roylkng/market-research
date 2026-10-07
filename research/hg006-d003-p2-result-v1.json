@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-D003-P2-v1",
+  "status": "PASSED_DETERMINISTIC_EPISODE_THREADING",
+  "classification": "DETERMINISTIC_HISTORICAL_TRANSACTION_THREADING_NOT_OUTCOMES",
+  "successful_run": {
+    "run_id": 37652989339,
+    "artifact_id": 11496927493,
+    "artifact_name": "hg006-d003-p1-37652989339"
+  },
+  "threading_sha256": "4d4a58bf7179305ee134a098bd063436bef060077b785056e499d9c885a8d250",
+  "source_ingestion_sha256": "2188bf803f2088cd10f26892f92f1a82fc810543ad9679c4fc20534e2a3e59e6",
+  "source_s002_pack_sha256": "e99f270bf48b76bb72f3e2734abddd34bcc580cb1583086cc73e50759e23766e",
+  "source_event_count": 1564,
+  "episode_count": 333,
+  "episode_assigned_event_count": 392,
+  "thread_ambiguous_event_count": 1172,
+  "episode_counts_by_family": {
+    "PREFERENTIAL_WARRANT": 151,
+    "SCHEME_REORGANISATION": 182
+  },
+  "threshold_passes": {
+    "complete_1564_event_accounting": true,
+    "no_cross_symbol_family_chronology": true,
+    "assigned_episodes_have_strong_anchor": true,
+    "assigned_episodes_have_no_hard_identity_conflict": true,
+    "frozen_d003_validator_accepts_manifest": true,
+    "minimum_30_episodes_each_priority_family": true,
+    "grouping_ignores_stage_terminal_and_market_outcomes": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_d002_terminal_labeling": true,
+  "historical_terminal_labels_opened": false,
+  "completion_probabilities_assigned": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "333 HISTORICAL TRANSACTION EPISODES WERE SEALED FROM 392 EVENTS USING ONLY EXACT STRONG ANCHORS; 1172 EVENTS REMAIN THREAD_AMBIGUOUS AND ARE EXCLUDED RATHER THAN GUESSED; TERMINAL LABELING IS NOW AUTHORIZED ONLY ON THE SEALED EPISODES"
+}
