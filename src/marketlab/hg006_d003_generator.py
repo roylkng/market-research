@@ -108,13 +108,36 @@ def _extractions(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for row in rows:
         if not isinstance(row, dict) or row.get("status") != "VALIDATED":
             raise AlphaContractError("HG006 D003 requires VALIDATED P2 rows")
+
+        chronology_id = str(row.get("chronology_id") or "")
+        envelope_document_id = str(row.get("document_id") or "")
+        envelope_symbol = str(row.get("symbol") or "")
+        envelope_family = str(row.get("family") or "")
+        if (
+            not chronology_id
+            or not envelope_document_id
+            or not envelope_symbol
+            or not envelope_family
+        ):
+            raise AlphaContractError("HG006 D003 ingestion envelope identity incomplete")
+
         response = row.get("validated_response")
         if not isinstance(response, dict):
             raise AlphaContractError("HG006 D003 validated response unavailable")
         extraction = response.get("validated_extraction")
         if not isinstance(extraction, dict):
             raise AlphaContractError("HG006 D003 validated extraction unavailable")
-        result.append(extraction)
+
+        if str(extraction.get("document_id") or "") != envelope_document_id:
+            raise AlphaContractError("HG006 D003 document identity envelope mismatch")
+        if str(extraction.get("symbol") or "") != envelope_symbol:
+            raise AlphaContractError("HG006 D003 symbol identity envelope mismatch")
+        if str(extraction.get("family") or "") != envelope_family:
+            raise AlphaContractError("HG006 D003 family identity envelope mismatch")
+
+        trusted = dict(extraction)
+        trusted["chronology_id"] = chronology_id
+        result.append(trusted)
     return result
 
 
