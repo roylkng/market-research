@@ -79,7 +79,6 @@ def _inputs(*, conflict: bool = False) -> tuple[dict, dict]:
             ]
 
         extraction = {
-            "chronology_id": chronology["chronology_id"],
             "document_id": document_id,
             "event_ids": event_ids,
             "symbol": chronology["symbol"],
@@ -89,6 +88,10 @@ def _inputs(*, conflict: bool = False) -> tuple[dict, dict]:
         rows.append(
             {
                 "status": "VALIDATED",
+                "chronology_id": chronology["chronology_id"],
+                "document_id": document_id,
+                "symbol": chronology["symbol"],
+                "family": family,
                 "validated_response": {
                     "validated_extraction": extraction,
                 },
@@ -179,3 +182,19 @@ def test_timestamps_are_retained_but_not_used_as_link_tokens() -> None:
         row["token_type"] not in {"TIMESTAMP", "TIME_GAP"}
         for row in episode["strong_anchor_support"]
     )
+
+
+
+def test_ingestion_envelope_identity_mismatch_fails_closed() -> None:
+    ingestion, evidence = _inputs()
+    ingestion["rows"][0]["symbol"] = "WRONG"
+
+    import pytest
+
+    from marketlab.alpha import AlphaContractError
+
+    with pytest.raises(AlphaContractError, match="symbol identity envelope mismatch"):
+        build_deterministic_episode_threading(
+            ingestion=ingestion,
+            evidence_pack=evidence,
+        )
