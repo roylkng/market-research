@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "HG006-D002-P1-v1",
+  "status": "PASSED_HISTORICAL_TERMINAL_LABELING",
+  "classification": "HISTORICAL_DISCRETE_EVENT_TERMINAL_LABELS_NOT_PROBABILITIES",
+  "successful_run": {
+    "run_id": 37654933457,
+    "artifact_id": 11497928291,
+    "artifact_name": "hg006-d002-p1-37654933457"
+  },
+  "label_panel_sha256": "545532620b409135bd867f633de708cfd441e2c532a5b790afeacef9c7de9874",
+  "source_threading_sha256": "4d4a58bf7179305ee134a098bd063436bef060077b785056e499d9c885a8d250",
+  "source_ingestion_sha256": "2188bf803f2088cd10f26892f92f1a82fc810543ad9679c4fc20534e2a3e59e6",
+  "source_s002_pack_sha256": "e99f270bf48b76bb72f3e2734abddd34bcc580cb1583086cc73e50759e23766e",
+  "observation_cutoff": "2026-09-30",
+  "episode_count": 333,
+  "primary_state_counts_by_family": {
+    "PREFERENTIAL_WARRANT": {
+      "COMPLETED": 93,
+      "FAILED_OR_WITHDRAWN": 5,
+      "RIGHT_CENSORED": 27,
+      "UNRESOLVED_SOURCE_CONFLICT": 26
+    },
+    "SCHEME_REORGANISATION": {
+      "COMPLETED": 36,
+      "FAILED_OR_WITHDRAWN": 3,
+      "RIGHT_CENSORED": 140,
+      "UNRESOLVED_SOURCE_CONFLICT": 3
+    }
+  },
+  "warrant_full_exercise_state_counts": {
+    "COMPLETED": 55,
+    "FAILED_OR_WITHDRAWN": 5,
+    "RIGHT_CENSORED": 65,
+    "UNRESOLVED_SOURCE_CONFLICT": 26
+  },
+  "threshold_passes": {
+    "complete_333_episode_accounting": true,
+    "unique_episode_identity": true,
+    "all_terminal_dates_within_risk_interval": true,
+    "warrant_primary_secondary_tracks_distinct": true,
+    "return_outcomes_remain_closed": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_d004_base_rates": true,
+  "historical_terminal_labels_opened": true,
+  "completion_probabilities_assigned": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "HISTORICAL EPISODE TERMINAL STATES ARE NOW OPEN UNDER THE FROZEN FAMILY ONTOLOGY; RIGHT-CENSORED EPISODES ARE NOT FAILURES AND SOURCE-CONFLICT EPISODES ARE EXCLUDED; D004 COMPETING-RISK ESTIMATION IS AUTHORIZED"
+}
