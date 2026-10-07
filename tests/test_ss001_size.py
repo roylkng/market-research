@@ -6,6 +6,7 @@ from marketlab.alpha import AlphaContractError
 from marketlab.ss001_size import (
     build_company_size_panel,
     parse_trade_info_market_cap,
+    shard_for_symbol,
     size_band,
 )
 
@@ -117,3 +118,9 @@ def test_panel_fails_closed_on_wrong_source_hash() -> None:
             acquired_rows=[],
             captured_at_utc="2026-10-04T12:00:00Z",
         )
+
+
+def test_shard_assignment_is_symbol_identity_only() -> None:
+    observed = shard_for_symbol("RELIANCE")
+    assert 0 <= observed < 12
+    assert observed == shard_for_symbol(" reliance ")
