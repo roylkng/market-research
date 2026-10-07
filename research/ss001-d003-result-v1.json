@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS001-D003-v1",
+  "status": "FAILED_SOURCE_FEASIBILITY",
+  "classification": "CURRENT_COMPANY_SIZE_CONTEXT_NOT_ALPHA",
+  "successful_execution_run": {
+    "run_id": 37666785113,
+    "artifact_id": 11502989298,
+    "artifact_name": "ss001-d003-sharded-37666785113"
+  },
+  "panel_sha256": "88a6df80896b61f181440d1ff918b5bdcd1ac8bfc33711d5c57200ffd3822ab6",
+  "source_d001_census_sha256": "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7",
+  "identity_count": 2319,
+  "ready_market_cap_count": 0,
+  "ready_market_cap_ratio": 0.0,
+  "outside_u001_identity_count": 2219,
+  "outside_u001_ready_market_cap_count": 0,
+  "outside_u001_ready_market_cap_ratio": 0.0,
+  "size_band_counts": {
+    "SIZE_UNAVAILABLE": 2319
+  },
+  "source_failure_summary": {
+    "failure_count": 2319,
+    "dominant_error": "HTTP_403_FORBIDDEN",
+    "source_endpoint": "https://www.nseindia.com/api/quote-equity?symbol=<SYMBOL>&section=trade_info",
+    "diagnosis": "DETERMINISTIC_SHARDING_SOLVED_RUNTIME_DURATION_BUT_DID_NOT_SOLVE_SOURCE_ACCESS; NSE REJECTED THE TRADE_INFO ENDPOINT FOR EVERY FROZEN SYMBOL"
+  },
+  "threshold_passes": {
+    "complete_identity_accounting": true,
+    "minimum_total_market_cap_coverage_90pct": false,
+    "minimum_outside_u001_market_cap_coverage_90pct": false,
+    "ready_ffmc_within_total_cap_tolerance": true
+  },
+  "feasibility_pass": false,
+  "promotion_allowed_to_size_aware_research_routing": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "PRESERVE_FAILED_OFFICIAL_QUOTE_SOURCE_PATH; DO_NOT LOWER COVERAGE GATES; ANY REPLACEMENT COMPANY_SIZE SOURCE REQUIRES A SEPARATELY FROZEN PROTOCOL"
+}
