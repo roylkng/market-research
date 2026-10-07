@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from marketlab.hg006_base_rates import SurvivalEpisode
 from marketlab.hg006_p001_current_mapping import (
     _survivor_condition,
     build_p001_current_mapping,
 )
-from marketlab.hg006_base_rates import SurvivalEpisode
 
 
 def _sources(stage: str = "BOARD_APPROVED", family_match: bool = True):
