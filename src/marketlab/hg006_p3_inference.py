@@ -25,6 +25,7 @@ EXPECTED_REQUEST_COUNT = 4822
 EXPECTED_REUSE_COUNT = 1443
 EXPECTED_FRESH_COUNT = 3379
 EXPECTED_PRIOR_REQUEST_COUNT = 1448
+EXPECTED_CHANGED_PRIOR_COUNT = 5
 SHARD_COUNT = 16
 
 
@@ -421,7 +422,7 @@ def build_p3_extension_queue(
         raise AlphaContractError("HG006 P3 TEXT_UNAVAILABLE count mismatch")
     if prior_pair_count != EXPECTED_PRIOR_REQUEST_COUNT:
         raise AlphaContractError("HG006 P3 prior pair overlap count mismatch")
-    if changed_prior_count != 5:
+    if changed_prior_count != EXPECTED_CHANGED_PRIOR_COUNT:
         raise AlphaContractError("HG006 P3 changed prior prompt count mismatch")
     if state_counts["P2_VALIDATED_REUSE"] != EXPECTED_REUSE_COUNT:
         raise AlphaContractError("HG006 P3 exact reuse count mismatch")
