@@ -190,6 +190,7 @@ def test_p3_reuses_only_exact_prior_prompt(monkeypatch) -> None:
     monkeypatch.setattr(p3, "EXPECTED_REUSE_COUNT", 1)
     monkeypatch.setattr(p3, "EXPECTED_FRESH_COUNT", 1)
     monkeypatch.setattr(p3, "EXPECTED_PRIOR_REQUEST_COUNT", 2)
+    monkeypatch.setattr(p3, "EXPECTED_CHANGED_PRIOR_COUNT", 1)
 
     pack, prior_queue, prior_ingestion = _fixtures()
     queue = p3.build_p3_extension_queue(
