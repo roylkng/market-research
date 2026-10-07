@@ -228,7 +228,7 @@ def _terminal_evidence(extraction: dict[str, Any]) -> list[str]:
     evidence = extraction.get("terminal_evidence_segment_ids")
     if not isinstance(evidence, list):
         raise AlphaContractError("HG006 D002 P1 terminal evidence unavailable")
-    return sorted(set(str(value) for value in evidence))
+    return sorted({str(value) for value in evidence})
 
 
 def _signal(
