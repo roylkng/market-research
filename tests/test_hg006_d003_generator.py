@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
+from marketlab.alpha import AlphaContractError
 from marketlab.hg006_d003_generator import (
     EXPECTED_EVENT_COUNT,
     build_deterministic_episode_threading,
@@ -188,10 +191,6 @@ def test_timestamps_are_retained_but_not_used_as_link_tokens() -> None:
 def test_ingestion_envelope_identity_mismatch_fails_closed() -> None:
     ingestion, evidence = _inputs()
     ingestion["rows"][0]["symbol"] = "WRONG"
-
-    import pytest
-
-    from marketlab.alpha import AlphaContractError
 
     with pytest.raises(AlphaContractError, match="symbol identity envelope mismatch"):
         build_deterministic_episode_threading(
