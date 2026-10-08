@@ -1,0 +1,97 @@
+name: SS001 D007 L001 P0 issuer-relevance prompt queue
+
+on:
+  push:
+    branches:
+      - research/ss001-d007-l001-p0-relevance-pilot-20261008
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  prompts:
+    if: contains(github.event.head_commit.message, '[ss001-l001-p0]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify frozen L001 selection and integrity rules
+        run: |
+          ruff check \
+            src/marketlab/ss001_l001_relevance_queue.py \
+            scripts/materialize_ss001_l001_p0.py \
+            tests/test_ss001_l001_relevance_queue.py
+          pytest -q \
+            tests/test_ss001_l001_relevance_queue.py \
+            tests/test_ss001_share_document_binding.py \
+            tests/test_ss002_llm_contract.py
+
+      - name: Download exact passed Q002 pilot
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-q002-37825546492
+          path: reports/ss001-q002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37825546492
+
+      - name: Download exact D003 source text and segment metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d003-37213853198
+          path: reports/ss002-d003
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213853198
+
+      - name: Materialize full-document issuer relevance prompts
+        run: |
+          python scripts/materialize_ss001_l001_p0.py \
+            --q002-pilot reports/ss001-q002/ss001-d007-q002-bound-pilot.json \
+            --d003-manifest reports/ss002-d003/ss002-d003-text-corpus.json \
+            --d003-documents reports/ss002-d003/documents \
+            --output reports/ss001-l001-p0
+
+      - name: Verify source-only output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("reports/ss001-l001-p0")
+          q = json.loads((root / "ss001-d007-l001-p0-queue.json").read_text())
+          assert q["queue_id"] == "SS001-D007-L001-P0-v1"
+          assert q["issuer_count"] == 12
+          assert q["selected_document_count"] == 12
+          assert q["feasibility_pass"] is True
+          assert len(list((root / "prompts").glob("*.json"))) == 12
+          assert q["model_inference_executed"] is False
+          assert q["share_action_clearance_proven"] is False
+          assert q["market_capitalization_calculated"] is False
+          assert q["return_outcomes_opened"] is False
+          assert q["portfolio_eligibility_allowed"] is False
+          assert q["live_capital_allowed"] is False
+          print(json.dumps({
+              "queue_sha256": q["queue_sha256"],
+              "issuer_count": q["issuer_count"],
+              "selected_document_count": q["selected_document_count"],
+              "selection_state_counts": q["selection_state_counts"],
+              "threshold_passes": q["threshold_passes"],
+              "feasibility_pass": q["feasibility_pass"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload immutable issuer relevance prompts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-l001-p0-${{ github.run_id }}
+          path: reports/ss001-l001-p0
+          if-no-files-found: warn
+          retention-days: 90
