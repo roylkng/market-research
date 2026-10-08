@@ -1,0 +1,96 @@
+name: SS001 D007 L001 P1 GPT-6 native extraction seal
+
+on:
+  push:
+    branches:
+      - research/ss001-d007-l001-native-integrated-20261008
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  seal:
+    if: contains(github.event.head_commit.message, '[ss001-l001-p1]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate model-authored source evidence and fail-closed contract
+        run: |
+          ruff check \
+            scripts/materialize_ss001_l001_p1_native.py \
+            tests/test_ss001_l001_p1_native.py \
+            src/marketlab/ss001_l001_relevance_queue.py \
+            tests/test_ss001_l001_relevance_queue.py
+          pytest -q \
+            tests/test_ss001_l001_p1_native.py \
+            tests/test_ss001_l001_relevance_queue.py \
+            tests/test_ss002_llm_contract.py
+
+      - name: Download exact first-12 source prompt queue
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-l001-p0-37826755723
+          path: reports/p0-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37826755723
+
+      - name: Verify frozen source queue before native response sealing
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("reports/p0-source/ss001-d007-l001-p0-queue.json").read_text())
+          assert p["queue_id"] == "SS001-D007-L001-P0-v1"
+          assert p["queue_sha256"] == "cbd36ef8c868a8a54610f0fb3e7f30e8a4746c897333140e3f1d9521b1c7622a"
+          assert p["selected_document_count"] == 12
+          assert p["model_inference_executed"] is False
+          assert p["market_capitalization_calculated"] is False
+          PY
+
+      - name: Seal 12 GPT-6 native evidence-bound extractions
+        run: |
+          python scripts/materialize_ss001_l001_p1_native.py \
+            --p0-queue reports/p0-source/ss001-d007-l001-p0-queue.json \
+            --native-assertions research/ss001/ss001-d007-l001-p1-gpt6-native-assertions-v1.json \
+            --output reports/ss001-l001-p1
+
+      - name: Verify zero share-count certification
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("reports/ss001-l001-p1/ss001-d007-l001-p1-native.json").read_text())
+          assert p["pilot_id"] == "SS001-D007-L001-P1-GPT6-NATIVE-v1"
+          assert p["validated_response_count"] == 12
+          assert p["mechanical_pass"] is True
+          assert p["independent_human_audit_completed"] is False
+          assert p["share_action_clearance_proven"] is False
+          assert p["market_capitalization_calculated"] is False
+          assert p["return_outcomes_opened"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "run_sha256": p["run_sha256"],
+            "validated_response_count": p["validated_response_count"],
+            "explicit_fact_count": p["explicit_fact_count"],
+            "economic_relevance_counts": p["economic_relevance_counts"],
+            "transaction_family_counts": p["transaction_family_counts"],
+            "mechanical_pass": p["mechanical_pass"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload immutable native extraction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-l001-p1-${{ github.run_id }}
+          path: reports/ss001-l001-p1
+          if-no-files-found: warn
+          retention-days: 90
