@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS001-D006-v1",
+  "status": "PASSED_DATED_SHARE_CHANGE_REVIEW_SOURCE_FEASIBILITY",
+  "classification": "DATED_SHARE_CHANGE_REVIEW_QUEUE_NOT_CLEARANCE",
+  "successful_run": {
+    "run_id": 37817153370,
+    "artifact_id": 11566934481,
+    "artifact_name": "ss001-d006-37817153370"
+  },
+  "audit_sha256": "b2aef97d107a1494adafa70d18321ee2e484d7b4796fe6ed7a7b0f5336f2f479",
+  "price_session": "2026-10-01",
+  "publication_cutoff_utc": "2026-10-01T13:00:00Z",
+  "source_sha256": {
+    "d001": "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7",
+    "d005": "b5fe97c3a9e83e8acbfce9cddf4eed476d60c29ca5125caa400368b4f5c7e984",
+    "p2": "ad2722cf2d3605614ae892636f35e44759ec42e5951b4680f0ed270bd1b51071"
+  },
+  "identity_count": 2319,
+  "d005_time_and_price_ready_count": 1960,
+  "raw_corporate_action_source": {
+    "chunk_count": 7,
+    "eq_row_count": 1932,
+    "raw_row_count": 2082
+  },
+  "p2_current_event_count": 1666,
+  "review_state_counts": {
+    "ANNOUNCEMENT_REVIEW_REQUIRED": 296,
+    "BOTH_SOURCES_REVIEW_REQUIRED": 24,
+    "CORPORATE_ACTION_REVIEW_REQUIRED": 11,
+    "D005_SOURCE_NOT_READY": 359,
+    "NO_OBSERVED_TRIGGER_STILL_UNVERIFIED": 1629
+  },
+  "threshold_passes": {
+    "all_1666_current_p2_events_accounted": true,
+    "all_7_corporate_action_chunks_verified": true,
+    "complete_2319_source_accounting": true,
+    "every_eq_corporate_action_date_parsed": true,
+    "exact_1960_ready_source_accounting": true,
+    "no_automatic_clearance_or_capitalization": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_d007_document_adjudication": true,
+  "share_action_clearance_proven": false,
+  "market_capitalization_calculated": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "D006 produced a source-complete high-recall review queue. 331 TIME_AND_PRICE_READY symbols have dated possible share-change triggers; remaining 1629 lack observed triggers but are not certified unchanged. No current capitalizations authorized."
+}
