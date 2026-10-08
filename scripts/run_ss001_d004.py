@@ -42,7 +42,13 @@ def main() -> int:
         symbol = str(row["symbol"]).upper()
         latest = row.get("latest")
         if not isinstance(latest, dict):
-            raise TypeError("READY GF001 row missing latest source")
+            parsed.append({
+                "symbol": symbol,
+                "status": "RAW_UNAVAILABLE",
+                "error": "LATEST_RAW_SOURCE_NOT_READY",
+                "raw_sha256": None,
+            })
+            continue
         sha = latest.get("raw_sha256")
         if not isinstance(sha, str) or len(sha) != 64:
             parsed.append({
