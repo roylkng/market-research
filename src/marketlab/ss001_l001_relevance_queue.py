@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import hashlib
 from collections import Counter
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.ss002_llm_contract import build_prompt_envelope
