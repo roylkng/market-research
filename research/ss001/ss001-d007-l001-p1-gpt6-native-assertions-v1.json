@@ -1,0 +1,825 @@
+{
+  "schema_version": 1,
+  "assertion_set_id": "SS001-D007-L001-P1-GPT6-NATIVE-ASSERTIONS-v1",
+  "classification": "MODEL_AUTHORED_SOURCE_EVIDENCE_EXTRACTIONS_NOT_CAPITALIZATION",
+  "source_queue_sha256": "cbd36ef8c868a8a54610f0fb3e7f30e8a4746c897333140e3f1d9521b1c7622a",
+  "model_id": "GPT-6",
+  "provider_runtime": "CHATGPT_NATIVE_INTERACTIVE",
+  "native_sampling_controls": "NOT_EXPOSED_BY_NATIVE_RUNTIME",
+  "responses": [
+    {
+      "rank": 1,
+      "symbol": "JAYKAY",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "RIGHTS_ISSUE"
+      ],
+      "stage": "BOARD_APPROVED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Jaykay Enterprises Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-13",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "board_approval_date",
+          "value": "2026-07-13",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Up to INR 155 crore rights issue of partly-paid equity shares to eligible existing shareholders; issue price, ratio, number and record date delegated to Rights Issue Committee",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "conditions_precedent",
+          "value": "Receipt of necessary approvals and compliance with applicable statutory regulations",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Issue share number, price, entitlement ratio, payment schedule and record date are not fixed in this filing.",
+        "Whether the proposed rights issue was allotted before the later valuation cutoff is not established."
+      ],
+      "extraction_caveats": [
+        "Board approval is a proposal, not evidence of issued-share quantity changing."
+      ]
+    },
+    {
+      "rank": 2,
+      "symbol": "INDIAGLYCO",
+      "relevance": "PROCEDURAL_OR_NEWSPAPER_UPDATE",
+      "families": [
+        "SCHEME_REORGANISATION"
+      ],
+      "stage": "PROCEDURAL_UPDATE",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "India Glycols Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "parties",
+          "field": "other_named_counterparties",
+          "value": "Ennature Biopharma Limited (Resulting Company 1); IGL Spirits Limited (Resulting Company 2)",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-03",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "court_or_regulatory_order_date",
+          "value": "2026-07-02",
+          "unit": "ISO_DATE",
+          "page": 2
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "regulatory_bodies",
+          "value": "National Company Law Tribunal, Allahabad Bench, Prayagraj",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "conditions_precedent",
+          "value": "NCLT matter heard and order reserved; final pronouncement awaited",
+          "unit": null,
+          "page": 3
+        }
+      ],
+      "contradictions_within_document": [
+        "NCLT hearing records a disputed income-tax demand chronology: a payment alleged in 2023 against a demand raised in 2026 (segments on pages 2–3)."
+      ],
+      "unresolved_questions": [
+        "NCLT final sanction, scheme effectiveness, record date and share entitlements are not established in this document."
+      ],
+      "extraction_caveats": [
+        "This filing reports a procedural order reservation, not sanction or completion of the demerger."
+      ]
+    },
+    {
+      "rank": 3,
+      "symbol": "HEGAM",
+      "relevance": "PROCEDURAL_OR_NEWSPAPER_UPDATE",
+      "families": [
+        "SCHEME_REORGANISATION"
+      ],
+      "stage": "PROCEDURAL_UPDATE",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "HEG Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "parties",
+          "field": "other_named_counterparties",
+          "value": "HEG Graphite Limited (Resulting Company); Bhilwara Energy Limited (Transferor Company)",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-02",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "regulatory_bodies",
+          "value": "National Company Law Tribunal, Indore Bench",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "conditions_precedent",
+          "value": "NCLT reserved its order at the July 2, 2026 hearing; pronouncement awaited",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Final NCLT order, effective date and share exchange entitlements are not supplied."
+      ],
+      "extraction_caveats": [
+        "Official document names HEG and HEG Limited while frozen NSE queue symbol is HEGAM. Preserve frozen event/symbol identity; resolve corporate-action lineage separately."
+      ]
+    },
+    {
+      "rank": 4,
+      "symbol": "IITL",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Industrial Investment Trust Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-08-05",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "board_approval_date",
+          "value": "2026-08-05",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_price_per_share",
+          "value": 150,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "maximum_securities",
+          "value": 1666667,
+          "unit": "EQUITY_SHARES",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_size_percentage",
+          "value": 7.39,
+          "unit": "PERCENT_OF_EQUITY_SHARES",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 10,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "consideration",
+          "field": "total_consideration",
+          "value": 250000050,
+          "unit": "INR_MAX_BUYBACK_CONSIDERATION",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-08-18",
+          "unit": "ISO_DATE",
+          "page": 2
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Promoters and promoter group intend not to tender; eligible non-promoter shareholders participate proportionately",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Actual number accepted and cancelled, tender acceptance ratio and final post-buyback share count not known."
+      ],
+      "extraction_caveats": [
+        "Maximum authorized tender buyback is not evidence it was completed or any shares were cancelled."
+      ]
+    },
+    {
+      "rank": 5,
+      "symbol": "ORBTEXP",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Orbit Exports Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-07",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "board_approval_date",
+          "value": "2026-07-07",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_price_per_share",
+          "value": 250,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "maximum_securities",
+          "value": 1104000,
+          "unit": "EQUITY_SHARES",
+          "page": 3
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_size_percentage",
+          "value": 4.16,
+          "unit": "PERCENT_OF_EQUITY_SHARES",
+          "page": 3
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 10,
+          "unit": "INR_PER_SHARE",
+          "page": 3
+        },
+        {
+          "family": "consideration",
+          "field": "total_consideration",
+          "value": 276000000,
+          "unit": "INR_MAX_BUYBACK_CONSIDERATION",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-07-15",
+          "unit": "ISO_DATE",
+          "page": 2
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Promoter group has stated intention not to participate in proposed buyback",
+          "unit": null,
+          "page": 2
+        }
+      ],
+      "unresolved_questions": [
+        "Actual tender acceptance, final extinguishment of shares and post-buyback equity base are unconfirmed."
+      ],
+      "extraction_caveats": [
+        "Board-approved buyback size is an upper limit; this document does not prove completion."
+      ]
+    },
+    {
+      "rank": 6,
+      "symbol": "PVRINOX",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "PVR INOX Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-08-31",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "board_approval_date",
+          "value": "2026-08-31",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_price_per_share",
+          "value": 1450,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "maximum_securities",
+          "value": 2068965,
+          "unit": "EQUITY_SHARES",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_size_percentage",
+          "value": 2.11,
+          "unit": "PERCENT_OF_EQUITY_SHARES",
+          "page": 3
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 10,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "consideration",
+          "field": "total_consideration",
+          "value": 3000000000,
+          "unit": "INR_MAX_BUYBACK_CONSIDERATION",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-09-04",
+          "unit": "ISO_DATE",
+          "page": 2
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Promoters and promoter group intend to participate in proposed tender buyback",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Post-buyback share count, number accepted and shares extinguished remain undetermined."
+      ],
+      "extraction_caveats": [
+        "Board resolution and record-date notice are not a completion certificate."
+      ]
+    },
+    {
+      "rank": 7,
+      "symbol": "GANDHITUBE",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Gandhi Special Tubes Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-08-14",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "board_approval_date",
+          "value": "2026-05-25",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "shareholder_approval_date",
+          "value": "2026-08-14",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-08-21",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "offer_price_per_share",
+          "value": 900,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "maximum_securities",
+          "value": 868100,
+          "unit": "EQUITY_SHARES",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 5,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "consideration",
+          "field": "total_consideration",
+          "value": 781290000,
+          "unit": "INR_MAX_BUYBACK_CONSIDERATION",
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Actual accepted number/cancellation and resulting equity capital remain unconfirmed."
+      ],
+      "extraction_caveats": [
+        "OCR imperfect for the numeral 868100; corroborated by the explicit English words in the same source segment.",
+        "Record-date announcement is not a completion notice."
+      ]
+    },
+    {
+      "rank": 8,
+      "symbol": "RATNAVEER",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "RIGHTS_ISSUE"
+      ],
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Ratnaveer Precision Engineering Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-17",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "court_or_regulatory_order_date",
+          "value": "2026-07-16",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 10,
+          "unit": "INR_PER_SHARE",
+          "page": 1
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Proposed rights equity issue up to INR 330 crore; number, price, ratio and record date are placeholders in in-principle approval letters",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "regulatory_bodies",
+          "value": "NSE and BSE gave in-principle exchange approval for proposed rights issue",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "conditions_precedent",
+          "value": "Statutory approvals, post-allotment listing application and further compliance remain required",
+          "unit": null,
+          "page": 2
+        }
+      ],
+      "unresolved_questions": [
+        "Rights issue price, quantity, entitlement ratio and record date are not fixed (shown as placeholders).",
+        "Whether any shares were allotted is not shown."
+      ],
+      "extraction_caveats": [
+        "REGULATORY_OR_COURT_APPROVED here means limited NSE/BSE in-principle clearance, NOT final securities issuance or completed listing.",
+        "Exchange disclaimer expressly rejects treating this as endorsement or final offer approval."
+      ]
+    },
+    {
+      "rank": 9,
+      "symbol": "TEAMLEASE",
+      "relevance": "PROCEDURAL_OR_NEWSPAPER_UPDATE",
+      "families": [
+        "BUYBACK"
+      ],
+      "stage": "PROCEDURAL_UPDATE",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "TeamLease Services Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-08",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "maximum_securities",
+          "value": 1487500,
+          "unit": "EQUITY_SHARES",
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "No reliable buyback price, record date, tender outcomes or cancellation evidence in usable text.",
+        "Kannada-language newspaper/advertisement text in pages 2-4 is encoding-damaged; cannot safely interpret material terms."
+      ],
+      "extraction_caveats": [
+        "This document relates to advertising/despatch of a buyback letter of offer, not issuer share count certification.",
+        "Most pages' extracted text contains replacement characters and mojibake; do not infer absent terms."
+      ]
+    },
+    {
+      "rank": 10,
+      "symbol": "TRIVENI",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "SCHEME_REORGANISATION"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Triveni Engineering & Industries Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "parties",
+          "field": "other_named_counterparties",
+          "value": "Sir Shadi Lal Enterprises Limited (amalgamating); Triveni Power Transmission Limited (resulting)",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-11",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-07-22",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "effective_date",
+          "value": "2026-05-19",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "ratios_entitlement",
+          "field": "exchange_ratio_text",
+          "value": "One share of Triveni Power Transmission Limited for every three shares of Triveni Engineering & Industries Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "business_economics",
+          "field": "asset_or_business_description",
+          "value": "Power transmission undertaking transferred/vested in resulting Triveni Power Transmission Limited under effective scheme",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Resulting-company listing/trading and issuer post-scheme share-class continuity are not proven from this letter."
+      ],
+      "extraction_caveats": [
+        "Scheme became effective May 19, 2026; demerger appointed date separately stated as April 1, 2026. These are different legal dates.",
+        "A demerger entitlement is not automatically a reduction of the demerged listed company's share count."
+      ]
+    },
+    {
+      "rank": 11,
+      "symbol": "DUCON",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "RIGHTS_ISSUE"
+      ],
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Ducon Infratechnologies Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-08-07",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "court_or_regulatory_order_date",
+          "value": "2026-08-06",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "security_economics",
+          "field": "face_value_per_share",
+          "value": 1,
+          "unit": "INR_PER_SHARE",
+          "page": 4
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "regulatory_bodies",
+          "value": "NSE and BSE supplied in-principle approvals for proposed issuer rights equity issue",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "conditions_approvals",
+          "field": "conditions_precedent",
+          "value": "Listing remains subject to post-issue requirements and statutory/legal formalities",
+          "unit": null,
+          "page": 3
+        }
+      ],
+      "unresolved_questions": [
+        "Issue price, issued-share quantity, entitlement ratio and final record date are not reliably specified.",
+        "NSE letter's monetary amount text is extraction-damaged; avoid treating it as a precise offer cap."
+      ],
+      "extraction_caveats": [
+        "Exchange in-principle approval is not proof that equity was issued or listed."
+      ]
+    },
+    {
+      "rank": 12,
+      "symbol": "INOXGREEN",
+      "relevance": "DIRECT_LISTED_SECURITY",
+      "families": [
+        "SCHEME_REORGANISATION"
+      ],
+      "stage": "RECORD_DATE_FIXED",
+      "facts": [
+        {
+          "family": "parties",
+          "field": "issuer_name",
+          "value": "Inox Green Energy Services Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "parties",
+          "field": "other_named_counterparties",
+          "value": "Inox Renewable Solutions Limited (resulting company)",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "announcement_date",
+          "value": "2026-07-22",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "dates",
+          "field": "record_date",
+          "value": "2026-08-01",
+          "unit": "ISO_DATE",
+          "page": 1
+        },
+        {
+          "family": "ratios_entitlement",
+          "field": "exchange_ratio_text",
+          "value": "122 equity shares of Inox Renewable Solutions Limited for every 1,000 equity shares of Inox Green Energy Services Limited",
+          "unit": null,
+          "page": 1
+        },
+        {
+          "family": "business_economics",
+          "field": "dilution_or_new_share_count_description",
+          "value": "Resulting-company share entitlement under effective demerger scheme; the demerged issuer confirms no outstanding warrants as of this filing",
+          "unit": null,
+          "page": 1
+        }
+      ],
+      "unresolved_questions": [
+        "Exact scheme effective date and security-class changes at issuer level are not specified in this document.",
+        "No positive evidence of uninterrupted issuer share count through the valuation cutoff."
+      ],
+      "extraction_caveats": [
+        "Scheme described as already effective, but this record-date notice alone does not certify current issuer capitalization."
+      ]
+    }
+  ],
+  "independent_human_audit_completed": false,
+  "share_action_clearance_proven": false,
+  "market_capitalization_calculated": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
