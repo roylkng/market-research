@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS001-D004-v1",
+  "status": "PASSED_SHARE_COUNT_SOURCE_FEASIBILITY",
+  "classification": "FULL_MARKET_SHARE_COUNT_SOURCE_FEASIBILITY_NOT_MARKET_CAP",
+  "successful_run": {
+    "run_id": 37719724682,
+    "artifact_id": 11525307261,
+    "artifact_name": "ss001-d004-37719724682"
+  },
+  "panel_sha256": "ab782411fef19afd80cdde3da1cba402eff70778ce0aaa0bd3e3afd571ee7428",
+  "source_gf001_panel_sha256": "dd338cd91f44396278300e27e8cdac1506dae11b63dd31ce827505fe62e8abe7",
+  "identity_count": 2319,
+  "latest_source_count": 2050,
+  "share_count_ready_count": 1993,
+  "share_count_ready_ratio": 0.9721951219512195,
+  "capitalization_source_eligible_count": 1965,
+  "capitalization_source_eligible_ratio": 0.9585365853658536,
+  "status_counts": {
+    "RAW_UNAVAILABLE": 3,
+    "SHARE_COUNT_NOT_READY": 54,
+    "SHARE_COUNT_READY": 1993,
+    "SOURCE_UNAVAILABLE": 269
+  },
+  "failure_reason_counts": {
+    "LATEST_RAW_SOURCE_NOT_READY": 3,
+    "incomplete category count/fraction: EmployeeBenefitsTrusts_ContextI": 8,
+    "required aggregate context absent: ShareholdingOfPromoterAndPromoterGroup_ContextI": 46
+  },
+  "threshold_passes": {
+    "all_2050_latest_sources_accounted": true,
+    "all_2319_identities_accounted": true,
+    "at_least_85pct_capitalization_eligible": true,
+    "at_least_90pct_share_counts": true,
+    "every_ready_count_sha_verified": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_point_in_time_market_cap_design": true,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "GF001 OFFICIAL SHAREHOLDING XBRL RECONCILED 1993 SHARE COUNTS; 1965 ELIGIBLE FOR FUTURE AS-OF MARKET-CAP SOURCE DESIGN, NOT CURRENT CAPITALIZATION VALUES. D003 HTTP403 FAILURE REMAINS PRESERVED."
+}
