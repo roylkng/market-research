@@ -1,14 +1,14 @@
 {
   "additional_distinct_ready_sessions_needed": 0,
   "analysis_id": "AE001-SC002-PUBLICATION-TIMING-v1",
-  "candidate_cutoff_basis_session": "2026-10-07",
+  "candidate_cutoff_basis_session": "2026-10-08",
   "candidate_cutoff_ist": "00:00:00",
   "candidate_cutoff_session_offset_days": 1,
   "candidate_rule": "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES",
-  "distinct_ready_session_count": 4,
-  "latest_first_ready_at_ist": "2026-10-07T23:16:31.786820+05:30",
+  "distinct_ready_session_count": 5,
+  "latest_first_ready_at_ist": "2026-10-08T23:20:22.317769+05:30",
   "live_capital_allowed": false,
-  "median_first_ready_local_seconds": 81904.9512075,
+  "median_first_ready_local_seconds": 82252.48159,
   "minimum_distinct_ready_sessions": 3,
   "observations": [
     {
@@ -50,14 +50,24 @@
       "futures_raw_sha256": "676932c7a62c953cd1a82c277a4bb040ace5cd593c661dac4b9030a49c1801df",
       "local_seconds_after_session_midnight": 83791.78682,
       "session_date": "2026-10-07"
+    },
+    {
+      "attempt_seq": 71,
+      "attempt_sha256": "2aec85addce00252dd262a0797b3acbd303f4d41c45b5d10d8ca85f4ba9b4b49",
+      "captured_at_ist": "2026-10-08T23:20:22.317769+05:30",
+      "captured_at_utc": "2026-10-08T17:50:22.317769+00:00",
+      "eligible_before_1830": false,
+      "futures_raw_sha256": "7223a223f12a5789a33e3018eeeb9f8dc7b5122129902eed23b329241b6bad7d",
+      "local_seconds_after_session_midnight": 84022.317769,
+      "session_date": "2026-10-08"
     }
   ],
   "rounding_minutes": 15,
   "safety_buffer_minutes": 30,
   "schema_version": 1,
-  "source_ledger_sha256": "b9328bdef545e2be495db56b46fcb13c1b38fb6d2962a76cd62d4a05c1896791",
+  "source_ledger_sha256": "9b851bee958828c8a8cee35a381e854cc0bb33fdebe0465f126f8e70c46c0806",
   "state": "SOURCE_TIMING_READY_FOR_SUCCESSOR_DESIGN",
   "successor_trial_cutoff_frozen": false,
-  "summary_sha256": "dd35979669c602978aa1d021a20a41ac182bd78dcf8c0639704da02327180c8e",
+  "summary_sha256": "53c42a1b6afc36dbb07f53f7b42556339cf5eaf6e60a11c68c152d758a64c71e",
   "uses_stock_return_or_alpha_outcomes": false
 }
