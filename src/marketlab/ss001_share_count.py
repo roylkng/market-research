@@ -194,13 +194,11 @@ def build_share_count_panel(
     for symbol, source in sorted(source_index.items()):
         is_source_ready = symbol in ready_source_symbols
         latest = source.get("latest") if is_source_ready else None
-        if is_source_ready and not isinstance(latest, dict):
-            raise AlphaContractError(f"D004 latest source missing for {symbol}")
         parsed = extracted_index.get(symbol)
         status = parsed.get("status") if parsed else "SOURCE_UNAVAILABLE"
         status_counts[str(status)] += 1
         if status == "SHARE_COUNT_READY":
-            if not is_source_ready or not parsed:
+            if not is_source_ready or not isinstance(latest, dict) or not parsed:
                 raise AlphaContractError("D004 READY count without approved source")
             if parsed.get("raw_sha256") != latest.get("raw_sha256"):
                 raise AlphaContractError(f"D004 source hash mismatch for {symbol}")
