@@ -61,7 +61,7 @@ def _date(value: object) -> date | None:
         return None
     for fmt in ("%d-%b-%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(value, fmt).date()
+            return datetime.strptime(value, fmt).replace(tzinfo=UTC).date()
         except ValueError:
             pass
     return None
