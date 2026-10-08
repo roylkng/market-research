@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "diagnostic_id": "SS001-D005-v1",
+  "status": "PASSED_ASOF_SOURCE_READINESS",
+  "classification": "ASOF_SOURCE_JOIN_READINESS_NOT_MARKET_CAP",
+  "successful_run": {
+    "run_id": 37815803355,
+    "artifact_id": 11567141610,
+    "artifact_name": "ss001-d005-37815803355"
+  },
+  "audit_sha256": "b5fe97c3a9e83e8acbfce9cddf4eed476d60c29ca5125caa400368b4f5c7e984",
+  "price_session": "2026-10-01",
+  "publication_cutoff_utc": "2026-10-01T13:00:00Z",
+  "source_sha256": {
+    "market": "0cfdc8658873a09f0cfa547467108888523eee88951050acfd2df8bd131829b7",
+    "shareholding": "214c1172491d58800dcded126303e7a2844967e75da57e0e6f666abc3b311293",
+    "share_count": "ab782411fef19afd80cdde3da1cba402eff70778ce0aaa0bd3e3afd571ee7428"
+  },
+  "identity_count": 2319,
+  "d004_capitalization_source_eligible_count": 1965,
+  "time_and_price_ready_count": 1960,
+  "time_and_price_ready_ratio": 0.9974554707379135,
+  "source_id_conflict_count": 0,
+  "readiness_state_counts": {
+    "CAPITALIZATION_SHARE_SOURCE_NOT_READY": 354,
+    "SHAREHOLDING_NOT_PUBLIC_AT_PRICE_CUTOFF": 5,
+    "TIME_AND_PRICE_READY": 1960
+  },
+  "share_action_clearance_state_counts_in_ready": {
+    "KNOWN_CORPORATE_ACTION_REVIEW_REQUIRED": 105,
+    "NO_FLAG_IN_D001_STILL_UNVERIFIED": 1855
+  },
+  "threshold_passes": {
+    "complete_2319_identity_accounting": true,
+    "exact_1965_eligible_share_count_accounting": true,
+    "at_least_85pct_asof_price_readiness": true,
+    "zero_source_id_conflicts": true,
+    "no_current_market_cap_outputs": true
+  },
+  "feasibility_pass": true,
+  "promotion_allowed_to_d006_share_change_review": true,
+  "market_capitalization_calculated": false,
+  "return_outcomes_opened": false,
+  "model_fitted": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "EXACT TIMELY SOURCE JOIN PASSED FOR 1960 NAMES. SHARE-CHANGE CLEARANCE AND SECURITY-CLASS CONTINUITY REMAIN UNPROVEN FOR ALL; ZERO MARKET-CAP OUTPUTS AUTHORIZED."
+}
