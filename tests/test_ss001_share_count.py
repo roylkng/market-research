@@ -141,3 +141,35 @@ def test_missing_source_entry_fails_accounting() -> None:
             extracted_rows=[],
             captured_at_utc="2026-10-08T02:30:00Z",
         )
+
+def test_missing_latest_raw_is_explicit_not_implicitly_ready() -> None:
+    source = _gf001_source()
+    source["rows"][10]["latest"] = None
+    extracted = []
+    for index in range(2050):
+        if index == 10:
+            extracted.append({
+                "symbol": f"S{index:04d}",
+                "status": "RAW_UNAVAILABLE",
+                "raw_sha256": None,
+                "error": "LATEST_RAW_SOURCE_NOT_READY",
+            })
+        else:
+            extracted.append({
+                "symbol": f"S{index:04d}",
+                "status": "SHARE_COUNT_READY",
+                "reported_share_count": 100_000,
+                "aggregate_fraction_sum": 1.0,
+                "partly_paid_flag": "FALSE",
+                "capitalization_source_eligible": True,
+                "raw_sha256": f"{index:064x}",
+                "error": None,
+            })
+    result = build_share_count_panel(
+        gf001_panel=source,
+        extracted_rows=extracted,
+        captured_at_utc="2026-10-08T03:00:00Z",
+    )
+    assert result["share_count_ready_count"] == 2049
+    assert result["status_counts"]["RAW_UNAVAILABLE"] == 1
+    assert result["feasibility_pass"] is True
