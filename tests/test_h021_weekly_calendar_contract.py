@@ -127,5 +127,5 @@ def test_post_close_gate_rejects_naive_clock() -> None:
         post_close_weekly_session_decision(
             "2026-10-09",
             _frozen_calendar(),
-            observed_at_utc=datetime(2026, 10, 9, 13, 0),
+            observed_at_utc=datetime(2026, 10, 9, 13, 0, tzinfo=UTC).replace(tzinfo=None),
         )
