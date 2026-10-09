@@ -90,8 +90,11 @@ def build_p006_casebook(
     p005 = _unique_index(p005_gate.get("cases"), "symbol", "P005")
     market = _unique_index(hg001_router.get("rows"), "symbol", "HG001")
     assets = _unique_index(ha001_panel.get("rows"), "symbol", "HA001")
-    doc_catalog = _unique_index(p003_corpus.get("documents"), "document_id", "P003")
-    # P003 may have explicitly unfetched documents with null IDs; index only READY entries.
+    doc_catalog_rows = p003_corpus.get("documents")
+    if not isinstance(doc_catalog_rows, list):
+        raise TypeError("P003 document catalog must be a list")
+    # The catalog may contain failed URLs with null IDs, or distinct URLs with
+    # identical document bytes. Bind by both document SHA and official source URL.
     if set(p004) != EXPECTED_SYMBOLS or set(p005) != EXPECTED_SYMBOLS:
         raise AlphaContractError("P006 must retain exactly the frozen eight symbols")
     if set(p003_documents) != {p004[symbol]["document_id"] for symbol in p004}:
@@ -108,7 +111,16 @@ def build_p006_casebook(
             raise AlphaContractError(f"{symbol}: source, lane or issuer context mismatch")
         extracted = upstream.get("validated_extraction")
         source = p003_documents[document_id]
-        catalog = doc_catalog.get(document_id)
+        catalog = next(
+            (
+                row for row in doc_catalog_rows
+                if isinstance(row, dict)
+                and row.get("document_id") == document_id
+                and row.get("source_url") == source.get("source_url")
+                and row.get("extraction_state") == "READY"
+            ),
+            None,
+        )
         if not isinstance(extracted, dict) or not isinstance(source, dict) or catalog is None:
             raise AlphaContractError(f"{symbol}: validated extraction or source unavailable")
         if extracted.get("document_id") != document_id or source.get("document_id") != document_id:
