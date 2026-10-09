@@ -48,3 +48,27 @@ silently substituted for the passed GPT-5.6 Sol native pilot.
 
 Even after 1,240 schema-valid responses, issuer chronology must undergo semantic
 auditing. No stock selection or live-capital decision is authorized by this result.
+
+
+## Provider-free real-artifact revalidation (2026-10-09)
+
+The new default manual preflight path was independently exercised on the **actual**
+frozen source artifact, with no provider variables or API secret.
+
+- execution run: `37916267130`;
+- successful artifact ID: `11609788569`;
+- output: `source-preflight.json`;
+- source-preflight SHA-256:
+  `ce2d7c89e4d5dcb73639bda6afa8d0d4bcd188e16f579134bc1385703d656bdd`;
+- source queue SHA-256 unchanged:
+  `59929004bcc5a5eae4491cadc237aa1bb26b822102d56b5b50cf61fb6b667618`;
+- 1,240 / 1,240 source request identities validated across 16 frozen shards;
+- `model_configured=false`;
+- `model_inference_executed=false`;
+- `share_action_clearance_proven=false`;
+- `market_capitalization_calculated=false`;
+- `portfolio_eligibility_allowed=false`;
+- `live_capital_allowed=false`.
+
+This verifies the deployed source-only transport. It does **not** execute any
+inference or replace the independent semantic audit required after inference.
