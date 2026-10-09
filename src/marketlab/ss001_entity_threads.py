@@ -138,6 +138,8 @@ def _validate_documents(raw_documents: object) -> dict[str, set[str]]:
     observed: dict[str, set[str]] = {}
     for document in documents:
         row = _dict(document, "document")
+        if set(row) != {"document_id", "source_url", "published_on", "segment_ids"}:
+            raise AlphaContractError("E001 unexpected source document fields")
         doc_id = row.get("document_id")
         if not isinstance(doc_id, str) or not _HEX64.fullmatch(doc_id):
             raise AlphaContractError("E001 invalid document SHA identity")
@@ -170,6 +172,8 @@ def _validate_entities(raw_entities: object) -> None:
     listed_count = 0
     for item in entities:
         row = _dict(item, "entity")
+        if set(row) != {"entity_id", "legal_name", "is_listed_issuer"}:
+            raise AlphaContractError("E001 unexpected entity fields")
         entity_id = row.get("entity_id")
         if not isinstance(entity_id, str) or not entity_id:
             raise AlphaContractError("E001 entity_id must be nonempty")
@@ -253,6 +257,12 @@ def _validate_fact(
 
 def validate_entity_thread_pilot(payload: dict[str, Any]) -> dict[str, Any]:
     pack = _dict(payload, "pack")
+    required_top_keys = {
+        "schema_version", "pilot_id", "issuer_symbol", "source_cutoff_date",
+        "source_memo_path", "entities", "documents", "threads", *CLOSED_FIELDS,
+    }
+    if set(pack) != required_top_keys or pack.get("schema_version") != 1:
+        raise AlphaContractError("E001 top-level schema differs from frozen contract")
     if pack.get("pilot_id") != PILOT_ID:
         raise AlphaContractError("E001 pilot identity mismatch")
     if pack.get("issuer_symbol") != LISTED_ISSUER:
@@ -272,6 +282,12 @@ def validate_entity_thread_pilot(payload: dict[str, Any]) -> dict[str, Any]:
     total_facts = 0
     for raw_thread in threads:
         thread = _dict(raw_thread, "thread")
+        if set(thread) != {
+            "thread_id", "economic_family", "transaction_stage",
+            "subject_entity_id", "security_issuer_entity_id", "issuer_security_effect",
+            "facts", "unresolved_questions",
+        }:
+            raise AlphaContractError("E001 thread schema differs from contract")
         thread_id, subject = thread.get("thread_id"), thread.get("subject_entity_id")
         if thread_id in seen or thread_id not in EXPECTED_THREADS:
             raise AlphaContractError("E001 thread must have unique frozen ID")
