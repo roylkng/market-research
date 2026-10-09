@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 from marketlab.h021_stockanalysis_acquisition import (
+    BEFORE_POST_CLOSE_WINDOW,
     CAPTURE,
     NO_SESSION,
     NOT_FINAL_SESSION,
+    post_close_weekly_session_decision,
     weekly_session_decision,
 )
 
@@ -80,3 +83,49 @@ def test_h021_workflow_has_redundant_idempotent_schedule() -> None:
     assert 'git fetch origin main' in workflow
     assert 'git cat-file -e "origin/main:${CAPTURE_PATH}"' in workflow
     assert 'STATE="ALREADY_CAPTURED"' in workflow
+
+
+def test_delayed_thursday_cron_cannot_capture_friday_before_market_close() -> None:
+    decision = post_close_weekly_session_decision(
+        "2026-10-09",
+        _frozen_calendar(),
+        observed_at_utc=datetime(2026, 10, 8, 19, 0, tzinfo=UTC),
+    )
+    assert decision.state == BEFORE_POST_CLOSE_WINDOW
+    assert decision.final_session_date == "2026-10-09"
+
+
+def test_actual_friday_post_close_window_may_capture() -> None:
+    decision = post_close_weekly_session_decision(
+        "2026-10-09",
+        _frozen_calendar(),
+        observed_at_utc=datetime(2026, 10, 9, 13, 0, tzinfo=UTC),
+    )
+    assert decision.state == CAPTURE
+
+
+def test_thursday_after_close_is_not_last_session() -> None:
+    decision = post_close_weekly_session_decision(
+        "2026-10-08",
+        _frozen_calendar(),
+        observed_at_utc=datetime(2026, 10, 8, 13, 0, tzinfo=UTC),
+    )
+    assert decision.state == NOT_FINAL_SESSION
+
+
+def test_capture_date_cannot_differ_from_real_india_date() -> None:
+    with pytest.raises(ValueError, match="current India date"):
+        post_close_weekly_session_decision(
+            "2026-10-09",
+            _frozen_calendar(),
+            observed_at_utc=datetime(2026, 10, 8, 12, 50, tzinfo=UTC),
+        )
+
+
+def test_post_close_gate_rejects_naive_clock() -> None:
+    with pytest.raises(ValueError, match="timezone-aware"):
+        post_close_weekly_session_decision(
+            "2026-10-09",
+            _frozen_calendar(),
+            observed_at_utc=datetime(2026, 10, 9, 13, 0, tzinfo=UTC).replace(tzinfo=None),
+        )
