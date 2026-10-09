@@ -4,8 +4,8 @@ import hashlib
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
 from marketlab import ss001_d007_a002 as a002
+from marketlab.alpha import AlphaContractError
 
 
 def _page(doc: str, symbol: str, index: int, text: str) -> dict:
