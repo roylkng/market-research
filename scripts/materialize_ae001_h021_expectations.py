@@ -8,7 +8,7 @@ from marketlab.alpha import digest
 from marketlab.alpha_expectations import build_h021_expectations_panel
 from marketlab.calendar_snapshot import load_calendar_snapshot
 from marketlab.h021 import select_prior_snapshot
-from marketlab.h021_capture import verify_capture_bundle
+from marketlab.h021_legacy_adapter import load_h021_capture_compatible
 
 
 def _read_json(path: Path) -> dict:
@@ -18,31 +18,17 @@ def _read_json(path: Path) -> dict:
     return payload
 
 
-def _manifest_path(capture_path: Path) -> Path:
-    name = capture_path.name
-    if not name.endswith(".json.gz"):
-        raise ValueError(f"H021 capture must end in .json.gz: {capture_path}")
-    return capture_path.with_name(
-        f"{name[:-len('.json.gz')]}.manifest.json"
-    )
-
-
 def _load_capture(
     path: Path,
     *,
     universe: dict,
     batch_spec: dict,
 ) -> tuple[dict, dict]:
-    manifest_path = _manifest_path(path)
-    manifest = _read_json(manifest_path)
-    payload_gzip = path.read_bytes()
-    snapshot = verify_capture_bundle(
-        payload_gzip,
-        manifest,
-        universe,
-        batch_spec,
+    return load_h021_capture_compatible(
+        path,
+        universe=universe,
+        batch_spec=batch_spec,
     )
-    return snapshot, manifest
 
 
 def _candidate_paths(capture_dir: Path, current_path: Path) -> list[Path]:
