@@ -16,8 +16,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install
-        run: python -m pip install -e '.[dev]'
+      - name: Install with pinned PDF renderer
+        run: |
+          python -m pip install -e '.[dev]'
+          python -m pip install pypdfium2==4.30.0 Pillow==11.3.0
       - name: Validate frozen P009 without external source access
         run: |
           ruff check src/marketlab/ss002_p009_visual_review.py scripts/run_ss002_p009.py tests/test_ss002_p009_visual_review.py
@@ -43,7 +45,6 @@ jobs:
           PY
       - name: Render and SHA-verify every original PDF page
         run: |
-          command -v pdftoppm
           python scripts/run_ss002_p009.py \
             --p008-review reports/p008/ss002-p008-review.json \
             --out reports/p009 \
