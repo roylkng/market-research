@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Any
 from urllib.parse import urlparse
 
@@ -33,16 +34,26 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _atomic_new_json(path: Path, payload: dict[str, Any]) -> None:
+    """Write an append-only receipt, even with concurrent workers."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists():
-        raise FileExistsError(f"R001 refuses overwriting existing evidence: {path}")
-    temp = path.with_name(path.name + ".tmp")
-    temp.write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False, allow_nan=False)
-        + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temp, path)
+    with NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent,
+        prefix=f".{path.name}.", suffix=".tmp", delete=False,
+    ) as handle:
+        temp = Path(handle.name)
+        handle.write(
+            json.dumps(
+                payload, indent=2, sort_keys=True,
+                ensure_ascii=False, allow_nan=False,
+            ) + "\n"
+        )
+        handle.flush()
+        os.fsync(handle.fileno())
+    try:
+        # Atomic hard link with EEXIST semantics: never replace a committed receipt.
+        os.link(temp, path)
+    finally:
+        temp.unlink(missing_ok=True)
 
 
 def _pin_run_configuration(output_dir: Path, config: dict[str, Any]) -> str:
@@ -177,6 +188,19 @@ def execute_shard(
                     or record.get("runtime_model_config_sha256") != config_sha
                 ):
                     raise AlphaContractError("R001 previously recorded attempt has mismatched identity")
+                checksum = record.get("receipt_sha256")
+                if digest({key: value for key, value in record.items()
+                           if key != "receipt_sha256"}) != checksum:
+                    raise AlphaContractError("R001 previous receipt SHA mismatch")
+                if record.get("status") == "VALIDATED":
+                    sealed = record.get("sealed")
+                    if not isinstance(sealed, dict):
+                        raise AlphaContractError("R001 validated receipt is missing sealed output")
+                    reproduced = validate_and_seal_response(
+                        row, config, sealed.get("raw_model_response_text")
+                    )
+                    if sealed != reproduced:
+                        raise AlphaContractError("R001 cached validated output was modified")
             if any(record.get("status") == "VALIDATED" for record in records):
                 existing_validated += 1
                 continue
