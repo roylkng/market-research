@@ -288,7 +288,7 @@ def build_p2_queue(
         manifest = manifest_by_document.get(document_id)
         if manifest is None:
             raise AlphaContractError("P2 queue selected document missing from D003 manifest")
-        payload, segments = _verified_document(
+        _payload, segments = _verified_document(
             document_id=document_id,
             manifest=manifest,
             read_document=read_document,
