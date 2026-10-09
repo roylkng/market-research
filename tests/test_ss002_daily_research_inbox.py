@@ -6,8 +6,8 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
 from marketlab import ss002_daily_research_inbox as inbox
+from marketlab.alpha import AlphaContractError, digest
 
 IST = ZoneInfo("Asia/Kolkata")
 DAYS = ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"]
