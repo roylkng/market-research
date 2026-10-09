@@ -76,8 +76,15 @@ def build_analyst_composition_audit(comparison: dict[str, Any]) -> dict[str, Any
             if reason != "ELIGIBLE" or not _valid_revision(revision):
                 raise ValueError(f"{symbol}: eligible primary signal is invalid")
             eligible_count += 1
-        elif reason == "ELIGIBLE" or revision is not None:
-            raise ValueError(f"{symbol}: ineligible primary signal cannot have revision")
+        else:
+            if reason == "ELIGIBLE":
+                raise ValueError(f"{symbol}: ineligible row cannot use ELIGIBLE reason")
+            # The frozen H021 comparison may retain a raw arithmetic EPS change
+            # for coverage-ineligible rows; it is NEVER a primary trade signal.
+            if revision is not None and not (
+                reason == "ANALYST_COVERAGE_LT_5" and _valid_revision(revision)
+            ):
+                raise ValueError(f"{symbol}: ineligible revision is incompatible")
         if symbol in top_set and not available:
             raise ValueError(f"{symbol}: top-decile symbol is ineligible")
 
