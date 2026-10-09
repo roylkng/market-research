@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 
@@ -73,11 +74,7 @@ def _provider_response(
     row: dict[str, Any],
 ) -> str:
     endpoint = config["api_endpoint"]
-    parsed_loopback = (
-        endpoint.startswith("http://localhost")
-        or endpoint.startswith("http://127.0.0.1")
-        or endpoint.startswith("http://[::1]")
-    )
+    parsed_loopback = urlparse(endpoint).hostname in {"localhost", "127.0.0.1", "::1"}
     token = os.environ.get(config["auth_env"])
     if not token and not parsed_loopback:
         raise ProviderTransportError("remote endpoint requires configured API secret")
