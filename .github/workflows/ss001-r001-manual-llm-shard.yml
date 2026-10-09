@@ -106,6 +106,17 @@ jobs:
               raise SystemExit("R001 max_requests must be 1..78")
           if prior and (not prior.isdecimal() or len(prior) > 20):
               raise SystemExit("R001 previous_run_id must be a numeric GitHub run ID")
+          if mode == "preflight":
+              if prior:
+                  raise SystemExit("Source-only preflight must not restore model receipts")
+              print(json.dumps({
+                  "mode": "preflight",
+                  "source_only": True,
+                  "model_configuration_required": False,
+                  "max_new_calls": 0,
+                  "model_inference_executed": False,
+              }, sort_keys=True))
+              raise SystemExit(0)
 
           model_id = os.environ.get("R001_MODEL_ID", "").strip()
           endpoint = os.environ.get("R001_API_ENDPOINT", "").strip()
@@ -170,11 +181,18 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/run_ss001_l001_batch.py \
-            --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
-            --config reports/ss001-r001-config.json \
-            --output-dir reports/ss001-r001 \
-            --dry-run
+          if [[ "$R001_MODE" == "preflight" ]]; then
+            python scripts/run_ss001_l001_batch.py \
+              --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
+              --output-dir reports/ss001-r001 \
+              --source-preflight
+          else
+            python scripts/run_ss001_l001_batch.py \
+              --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
+              --config reports/ss001-r001-config.json \
+              --output-dir reports/ss001-r001 \
+              --dry-run
+          fi
 
       - name: Execute explicitly authorized shard budget
         if: ${{ inputs.mode == 'infer' }}

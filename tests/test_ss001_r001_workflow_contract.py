@@ -45,6 +45,9 @@ def test_hosted_llm_transport_has_manual_cost_budget() -> None:
         setup["run"]
     )
     assert 'urlparse(endpoint).scheme != "https"' in setup["run"]
+    assert 'if mode == "preflight":' in setup["run"]
+    assert '"model_configuration_required": False' in setup["run"]
+    assert 'raise SystemExit(0)' in setup["run"]
 
     inputs = _workflow().get("on", _workflow().get(True))[
         "workflow_dispatch"
@@ -72,6 +75,8 @@ def test_model_calls_are_guarded_and_frozen_queue_is_pinned() -> None:
         "Verify frozen queue and existing receipts without model calls"
     ))
     assert "--dry-run" in preflight["run"]
+    assert "--source-preflight" in preflight["run"]
+    assert 'R001_MODE" == "preflight"' in preflight["run"]
 
 
 def test_receipt_resumption_is_explicit_and_credentials_stay_in_secrets() -> None:

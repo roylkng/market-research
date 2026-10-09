@@ -228,6 +228,33 @@ def validate_queue(queue: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
+def build_source_preflight(queue: dict[str, Any]) -> dict[str, Any]:
+    """Verify all frozen source requests without a model or API credential."""
+    rows = validate_queue(queue)
+    counts = Counter(row["shard_id"] for row in rows)
+    output = {
+        "schema_version": 1,
+        "transport_id": TRANSPORT_ID,
+        "source_queue_id": SOURCE_QUEUE_ID,
+        "source_queue_sha256": SOURCE_QUEUE_SHA,
+        "request_count": len(rows),
+        "shard_count": SHARD_COUNT,
+        "shard_request_counts": {
+            str(key): counts[key] for key in sorted(counts)
+        },
+        "status": "SOURCE_PREFLIGHT_PASS_NO_MODEL_CONFIG",
+        "model_configured": False,
+        "model_inference_executed": False,
+        "share_action_clearance_proven": False,
+        "market_capitalization_calculated": False,
+        "return_outcomes_opened": False,
+        "portfolio_eligibility_allowed": False,
+        "live_capital_allowed": False,
+    }
+    output["source_preflight_sha256"] = digest(output)
+    return output
+
+
 def build_preflight(queue: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     config_sha = validate_config(config)
     rows = validate_queue(queue)

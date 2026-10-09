@@ -25,9 +25,14 @@ The source queue remains exactly:
 The earlier GPT-5.6 Sol native P1/P2-P0 pilots are not relabeled as API
 inference. An API endpoint/model is a distinct runtime cohort.
 
-## Required repository configuration
+## Repository configuration required for inference only
 
-In the GitHub repository's **Settings > Secrets and variables > Actions**:
+The default `preflight` mode verifies all 1,240 frozen source requests with
+**no model identifier, endpoint or API secret** and makes zero model calls.
+It emits `source-preflight.json` without pinning a model runtime.
+
+Before switching to `infer`, configure the following in GitHub's
+**Settings > Secrets and variables > Actions**:
 
 Repository variables:
 
@@ -56,9 +61,10 @@ A ChatGPT subscription is not an API key. Provider API calls can incur charges.
 
 1. Open **Actions > SS001 R001 manual evidence-bound LLM shard > Run workflow**.
 2. First choose `preflight` (default). This verifies the exact frozen
-   source queue and pins the model configuration **without any inference call**.
-3. Review the preflight artifact and configuration SHA. The selected model
-   must support OpenAI-compatible Chat Completions and JSON object responses.
+   source queue **without any model configuration or inference call**.
+3. Review `source-preflight.json`. For subsequent `infer` runs, configure
+   a model that supports OpenAI-compatible Chat Completions and JSON objects.
+   The first `infer` run pins the runtime model configuration SHA.
 4. To make paid model calls, explicitly choose `infer`, choose a frozen
    `shard_id` (0 through 15), and set `max_requests` (1 through 78).
    Default is **5** new attempts per run, not the full 1,240.

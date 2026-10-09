@@ -16,6 +16,7 @@ from marketlab.ss001_l001_batch import (
     TRANSPORT_ID,
     build_collection_status,
     build_preflight,
+    build_source_preflight,
     validate_and_seal_response,
     validate_config,
     validate_queue,
@@ -316,10 +317,11 @@ def collect_verified(
 def main() -> None:
     parser = argparse.ArgumentParser(description="SS001 L001 exact-page batch transport")
     parser.add_argument("--queue", required=True, type=Path)
-    parser.add_argument("--config", required=True, type=Path)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--dry-run", action="store_true")
+    mode.add_argument("--source-preflight", action="store_true")
     mode.add_argument("--run-shard", type=int)
     mode.add_argument("--collect", action="store_true")
     parser.add_argument("--max-requests", type=int)
@@ -327,6 +329,19 @@ def main() -> None:
     args = parser.parse_args()
 
     queue = _load_json(args.queue)
+    if args.source_preflight:
+        preflight = build_source_preflight(queue)
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        path = args.output_dir / "source-preflight.json"
+        if path.exists() and _load_json(path) != preflight:
+            raise AlphaContractError("R001 source-only preflight changed")
+        if not path.exists():
+            _atomic_new_json(path, preflight)
+        print(json.dumps(preflight, sort_keys=True))
+        return
+
+    if args.config is None:
+        parser.error("--config is required for model-pinned dry-run, inference or collect")
     config = _load_json(args.config)
     if args.dry_run:
         preflight = build_preflight(queue, config)
