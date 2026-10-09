@@ -56,3 +56,24 @@ any subsequent scheduled capture is treated as successfully anchored.
 
 The repair does not permit backdating observations, inventing today's result or
 promoting an equity to portfolio eligibility.
+
+## Delayed-cron operational timing repair
+
+Three GitHub-scheduled attempts initiated at approximately 19:00–19:27 UTC
+on 2026-10-08, which was **00:30–00:57 IST on October 9**. Date-only
+session eligibility classified that pre-market Friday as the final completed
+NSE session. This violated the existing frozen post-close acquisition intent.
+
+The operational gate now additionally requires:
+
+- an aware wall-clock timestamp whose India date equals the target date;
+- on a frozen final weekly NSE session, India time **at least 18:15**;
+- otherwise emit `BEFORE_POST_CLOSE_WINDOW`, without acquiring/sealing data.
+
+The 18:15 boundary is the first pre-existing scheduled post-close attempt, not
+a return-optimized timestamp. An overnight-delayed Thursday cron cannot create
+Friday evidence before Friday's trading session closes.
+
+The recorded failed source attempts are preserved and **not reclassified as
+valid post-close observations**. The actual next eligible post-close acquisition
+must obtain new source bytes and its true timestamp; no backdating is permitted.
