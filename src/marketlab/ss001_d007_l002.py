@@ -91,7 +91,12 @@ def _p1_index(p1: dict[str, Any], queue: dict[str, Any]) -> dict[str, dict[str, 
             extraction.get("symbols") or []
         ):
             raise AlphaContractError("L002 P1 extraction identity mismatch")
-        _closed(extraction, "P1 validated extraction")
+        for field in ("return_outcomes_opened", "portfolio_eligibility_allowed", "live_capital_allowed"):
+            if extraction.get(field) is not False:
+                raise AlphaContractError(f"L002 P1 validated extraction requires {field}=false")
+        for field in ("share_action_clearance_proven", "market_capitalization_calculated"):
+            if field in extraction and extraction[field] is not False:
+                raise AlphaContractError(f"L002 P1 extraction may not assert {field}")
         stripped = {
             k: v for k, v in extraction.items()
             if k not in {
