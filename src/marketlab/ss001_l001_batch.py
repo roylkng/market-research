@@ -33,6 +33,8 @@ CONFIG_KEYS = {
     "max_completion_tokens",
     "timeout_seconds",
     "auth_env",
+    "token_parameter",
+    "json_object_mode",
 }
 
 RUN_PROHIBITIONS = (
@@ -89,6 +91,11 @@ def validate_config(config: dict[str, Any]) -> str:
         or parsed.fragment
     ):
         raise AlphaContractError("R001 endpoint must be HTTPS or HTTP loopback without credentials")
+    token_parameter = config.get("token_parameter")
+    if token_parameter not in {"max_tokens", "max_completion_tokens"}:
+        raise AlphaContractError("R001 token_parameter must be an approved name")
+    if not isinstance(config.get("json_object_mode"), bool):
+        raise AlphaContractError("R001 json_object_mode must be boolean")
     auth_env = config.get("auth_env")
     if not isinstance(auth_env, str) or not auth_env.isidentifier():
         raise AlphaContractError("R001 auth_env must be a valid environment variable name")
@@ -339,6 +346,12 @@ def build_collection_status(
         extraction = record.get("validated_extraction")
         if not isinstance(extraction, dict) or extraction.get("document_id") != source["document_id"]:
             raise AlphaContractError("R001 validated response is not bound to source")
+        raw_content = record.get("raw_model_response_text")
+        if not isinstance(raw_content, str):
+            raise AlphaContractError("R001 collected response lacks raw model text")
+        reconstructed = validate_and_seal_response(source, config, raw_content)
+        if record != reconstructed:
+            raise AlphaContractError("R001 collected response does not reproduce sealed record")
     count = len(validated_rows)
     status = (
         "COMPLETE_VALIDATED_PENDING_SEMANTIC_AUDIT"
