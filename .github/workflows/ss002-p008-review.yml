@@ -1,0 +1,82 @@
+name: SS002 P008 original-page review packet
+on:
+  push:
+    branches:
+      - research/ss002-p008-independent-review-20261010
+permissions:
+  actions: read
+  contents: read
+jobs:
+  review_packet:
+    if: contains(github.event.head_commit.message, '[ss002-p008]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate frozen review packet rules
+        run: |
+          ruff check src/marketlab/ss002_p008_source_review.py scripts/materialize_ss002_p008.py tests/test_ss002_p008_source_review.py
+          pytest -q tests/test_ss002_p008_source_review.py tests/test_ss002_p006_casebook.py
+      - name: Fetch exact original document text corpus P003
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-p003-37982329060
+          path: reports/p003
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37982329060
+      - name: Fetch exact P006 claims and issuer contexts
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-p006-37997329162
+          path: reports/p006
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37997329162
+      - name: Materialize source-page review packet
+        run: |
+          python scripts/materialize_ss002_p008.py \
+            --p003-corpus reports/p003/ss002-p003-corpus.json \
+            --p003-documents reports/p003/documents \
+            --p006-casebook reports/p006/ss002-p006-casebook.json \
+            --out reports/p008/ss002-p008-review.json
+      - name: Confirm no semantic or investment approval
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/p008/ss002-p008-review.json").read_text())
+          assert p["pack_id"]=="SS002-P008-v1"
+          assert p["case_count"]==4
+          assert p["claim_count"]==35
+          assert p["empty_page_count"]==2
+          assert p["independent_semantic_audit_complete"] is False
+          assert p["underwriting_ready_count"]==0
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "pack_sha256":p["pack_sha256"],
+            "case_symbols":p["case_symbols"],
+            "case_count":p["case_count"],
+            "claim_count":p["claim_count"],
+            "extracted_page_segment_count":p["extracted_page_segment_count"],
+            "empty_page_count":p["empty_page_count"],
+            "missing_visual_pages_by_symbol":{
+              c["symbol"]:c["original_pages_requiring_visual_review"]
+              for c in p["cases"]
+            }
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload exact P008 independent review inputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-p008-${{ github.run_id }}
+          path: reports/p008
+          if-no-files-found: warn
+          retention-days: 90
