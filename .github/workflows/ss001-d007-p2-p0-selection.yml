@@ -1,0 +1,60 @@
+name: SS001 D007 L001 P2 P0 page pilot selection
+on:
+  push:
+    branches:
+      - research/ss001-d007-l001-p2-p0-page-pilot-20261009
+permissions:
+  actions: read
+  contents: read
+jobs:
+  select:
+    if: contains(github.event.head_commit.message, '[ss001-d007-p2-p0-select]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate selector
+        run: |
+          ruff check             src/marketlab/ss001_d007_page_pilot.py             scripts/materialize_ss001_d007_l001_p2_p0_selection.py             tests/test_ss001_d007_page_pilot.py
+          pytest -q tests/test_ss001_d007_page_pilot.py
+      - name: Download exact P2 queue
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-l001-p2-queue-37884584355
+          path: reports/p2-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37884584355
+      - name: Materialize frozen 24-page sample
+        run: |
+          mkdir -p reports/p0
+          python scripts/materialize_ss001_d007_l001_p2_p0_selection.py             --queue reports/p2-source/ss001-d007-l001-p2-queue.json             --output reports/p0/ss001-d007-l001-p2-p0-selection.json
+      - name: Verify selection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("reports/p0/ss001-d007-l001-p2-p0-selection.json").read_text())
+          assert p["selection_id"]=="SS001-D007-L001-P2-P0-SELECTION-v1"
+          assert p["selected_request_count"]==24
+          assert all(v==2 for v in p["issuer_counts"].values())
+          assert p["model_inference_executed"] is False
+          assert p["share_action_clearance_proven"] is False
+          print(json.dumps({
+            "selection_sha256":p["selection_sha256"],
+            "selected_request_count":p["selected_request_count"],
+            "issuer_counts":p["issuer_counts"],
+          },indent=2,sort_keys=True))
+          PY
+      - name: Upload frozen selection
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-d007-l001-p2-p0-${{ github.run_id }}
+          path: reports/p0
+          if-no-files-found: error
+          retention-days: 90
