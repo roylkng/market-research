@@ -1,0 +1,49 @@
+name: H021 October 9 one-time recovery dispatch
+
+# Triggered only when this file first reaches main. Subsequent H021
+# evidence commits do not match this file path.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/h021-oct09-once-dispatch.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Confirm actual India post-close source window
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%Y-%m-%d)"
+          CLOCK="$(TZ=Asia/Kolkata date +%H%M)"
+          echo "India date=$TODAY time=$CLOCK"
+          if [[ "$TODAY" != "2026-10-09" ]]; then
+            echo "Refusing to misdate the October 9 prospective cohort"
+            exit 1
+          fi
+          if [[ "$CLOCK" -lt "1815" ]]; then
+            echo "Refusing to dispatch before the India post-close window"
+            exit 1
+          fi
+
+      - name: Dispatch the existing frozen H021 capture workflow
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: roylkng/market-research
+        run: |
+          set -euo pipefail
+          if gh api             "repos/roylkng/market-research/contents/research/prospective/h021/captures/2026-10-09-full-u001-v1.manifest.json?ref=main"             >/dev/null 2>&1; then
+            echo "Valid October 9 capture anchor already exists; no new dispatch"
+            exit 0
+          fi
+          gh workflow run h021-weekly-consensus-capture.yml             --repo roylkng/market-research             --ref main
+          echo "Requested fresh October 9 post-close H021 capture"
