@@ -6,8 +6,8 @@ from datetime import UTC, datetime
 
 import pytest
 
-from marketlab.alpha import AlphaContractError, digest
 from marketlab import ss002_daily_documents as p003
+from marketlab.alpha import AlphaContractError, digest
 
 NOW = "2026-10-10T01:00:00Z"
 SAMPLE_URL = "https://nsearchives.nseindia.com/corporate/test.html"
@@ -82,7 +82,7 @@ def test_source_identities_and_absent_files_are_preserved(
     requests, event_states = p003.prepare_document_requests(source)
     assert len(requests) == 2
     assert len(event_states) == 4
-    assert set(row["announcement_id"] for row in event_states) == {
+    assert {row["announcement_id"] for row in event_states} == {
         "E1", "E2", "E3", "E4"
     }
     assert sum(row["source_document_state"] == "DOCUMENT_INTAKE_READY" for row in event_states) == 2
@@ -180,7 +180,7 @@ def test_invalid_duplicate_canonical_document_reuse_fails(
     source = _inbox(monkeypatch)
     requests, _ = p003.prepare_document_requests(source)
     raw = b"<html><body>Source A</body></html>"
-    first, extracted = p003.extract_official_attachment(
+    _, extracted = p003.extract_official_attachment(
         requests[0], raw=raw, fetched_at_utc=NOW
     )
     assert extracted is not None
