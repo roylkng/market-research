@@ -1,0 +1,101 @@
+name: SS001 D007 L002 issuer evidence snapshot
+
+on:
+  push:
+    branches:
+      - research/ss001-d007-l002-issuer-evidence-20261009
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  assemble:
+    if: contains(github.event.head_commit.message, '[ss001-l002]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate issuer evidence source logic
+        run: |
+          ruff check src/marketlab/ss001_d007_l002.py \
+            scripts/materialize_ss001_d007_l002.py \
+            tests/test_ss001_d007_l002.py
+          pytest -q tests/test_ss001_d007_l002.py tests/test_ss001_l001_batch.py
+
+      - name: Download exact frozen 1,240-page queue
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-l001-p2-queue-37884584355
+          path: reports/ss001-queue
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37884584355
+
+      - name: Download exact audited P1 native outputs
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-l001-p1-37883572697
+          path: reports/p1-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37883572697
+
+      - name: Assemble source-only 12-issuer ledger with future pages pending
+        run: |
+          python scripts/materialize_ss001_d007_l002.py \
+            --queue reports/ss001-queue/ss001-d007-l001-p2-queue.json \
+            --p1-run reports/p1-source/ss001-d007-l001-p1-native-run.json \
+            --output reports/ss001-l002/issuer-evidence-ledger.json
+
+      - name: Verify frozen source identity and no capitalization
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("reports/ss001-l002/issuer-evidence-ledger.json").read_text())
+          assert p["ledger_id"] == "SS001-D007-L002-v1"
+          assert p["source_queue_sha256"] == "59929004bcc5a5eae4491cadc237aa1bb26b822102d56b5b50cf61fb6b667618"
+          assert p["source_p1_run_sha256"] == "1a3a2f73eaed8ba09c84ab7c8d60699fa895f39d25d5797bd16138b09fd620cb"
+          assert p["issuer_count"] == 12
+          assert p["document_count"] == 82
+          assert p["prior_native_document_count"] == 12
+          assert p["fresh_document_count"] == 70
+          assert p["fresh_remaining_response_count"] == 1240
+          assert p["fresh_validated_response_count"] == 0
+          assert p["corporate_action_row_count"] == 12
+          assert p["status"] == "PARTIAL_EVIDENCE_PENDING_MODEL_OUTPUT"
+          assert p["semantic_audit_complete"] is False
+          for flag in ("share_action_clearance_proven", "market_capitalization_calculated",
+                       "return_outcomes_opened", "portfolio_eligibility_allowed", "live_capital_allowed"):
+              assert p[flag] is False
+          print(json.dumps({
+              "ledger_sha256": p["ledger_sha256"],
+              "issuer_count": p["issuer_count"],
+              "documents": p["document_count"],
+              "pending_fresh_pages": p["fresh_remaining_response_count"],
+              "prior_native_outputs": p["prior_native_document_count"],
+              "flags_by_issuer": [
+                  {"symbol": r["symbol"], "flags": r["review_flags"],
+                   "fresh_pending": r["missing_fresh_page_count"],
+                   "documents": r["document_count"]}
+                  for r in p["issuer_rows"]
+              ],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload frozen issuer evidence ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-l002-${{ github.run_id }}
+          path: reports/ss001-l002
+          if-no-files-found: error
+          retention-days: 90
