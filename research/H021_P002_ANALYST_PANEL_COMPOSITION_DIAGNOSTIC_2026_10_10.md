@@ -66,6 +66,12 @@ any of these signals as false or genuine solely from count drift.
 ## Scientific consequence
 
 The 97 primary eligible rows and 10 top-decile symbols **remain unchanged**.
+The other three frozen names (ADANIENT, BOSCHLTD and TRENT) are excluded by
+analyst-coverage rules. Their original comparison rows still contain raw
+arithmetic EPS changes, including TRENT +3.02%. Those numbers do **not**
+become eligible signals or enter top-decile ranks. A downstream consumer that
+sorts every numeric EPS change without checking primary_signal_available
+would violate the frozen H021 experiment.
 In particular the five DR001 Tier-A companies do not become eligible by
 discretionary exception.
 
