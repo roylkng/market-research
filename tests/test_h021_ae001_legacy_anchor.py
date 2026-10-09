@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 
 import pytest
 
-from scripts.materialize_ae001_h021_expectations import _load_capture
+_SPEC = importlib.util.spec_from_file_location(
+    "ae001_h021_cli", Path("scripts/materialize_ae001_h021_expectations.py")
+)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+_load_capture = _MODULE._load_capture
 
 CAPTURE_DIR = Path("research/prospective/h021/captures")
 UNIVERSE_PATH = Path("research/prospective/universes/FY27-Q2-2026-09-06.json")
