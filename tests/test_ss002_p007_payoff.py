@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import csv
 import io
-import math
 import zipfile
 
 import pytest
