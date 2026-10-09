@@ -1,0 +1,95 @@
+name: SS001 D007 L001 P1 native extraction
+
+on:
+  push:
+    branches:
+      - research/ss001-d007-l001-p1-native-extraction-20261009
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  extract:
+    if: contains(github.event.head_commit.message, '[ss001-d007-l001-p1]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen P1 implementation
+        run: |
+          ruff check             scripts/materialize_ss001_d007_l001_p1_native.py             src/marketlab/ss002_llm_contract.py
+          pytest -q             tests/test_ss002_llm_contract.py             tests/test_ss001_l001_relevance_queue.py
+
+      - name: Download exact passed P0 prompt queue
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-l001-p0-37826755723
+          path: reports/ss001-l001-p0-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37826755723
+
+      - name: Verify frozen queue
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path(
+              "reports/ss001-l001-p0-source/"
+              "ss001-d007-l001-p0-queue.json"
+          )
+          queue = json.loads(path.read_text())
+          assert queue["queue_id"] == "SS001-D007-L001-P0-v1"
+          assert queue["queue_sha256"] == (
+              "cbd36ef8c868a8a54610f0fb3e7f30e8a4746c897333140e3f1d9521b1c7622a"
+          )
+          assert queue["selected_document_count"] == 12
+          assert queue["model_inference_executed"] is False
+          assert queue["return_outcomes_opened"] is False
+          PY
+
+      - name: Materialize native GPT-5.6 Sol P1 responses
+        run: |
+          python scripts/materialize_ss001_d007_l001_p1_native.py             --queue reports/ss001-l001-p0-source/ss001-d007-l001-p0-queue.json             --output reports/ss001-d007-l001-p1
+
+      - name: Prove frozen pilot gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          s = json.loads(
+              Path("reports/ss001-d007-l001-p1/summary.json").read_text()
+          )
+          assert s["pilot_id"] == "SS001-D007-L001-P1-v1"
+          assert s["selected_request_count"] == 12
+          assert s["validated_response_count"] == 12
+          assert all(s["mechanical_gates"].values())
+          assert s["manual_audit_pass"] is True
+          assert s["promotion_allowed_to_issuer_chronology_review"] is True
+          assert s["share_action_clearance_proven"] is False
+          assert s["market_capitalization_calculated"] is False
+          assert s["return_outcomes_opened"] is False
+          assert s["portfolio_eligibility_allowed"] is False
+          assert s["live_capital_allowed"] is False
+          print(json.dumps(s, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact P1 output
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-d007-l001-p1-${{ github.run_id }}
+          path: reports/ss001-d007-l001-p1
+          if-no-files-found: error
+          retention-days: 90
