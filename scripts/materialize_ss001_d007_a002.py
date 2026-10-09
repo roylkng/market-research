@@ -7,6 +7,7 @@ from pathlib import Path
 from marketlab.ss001_d007_a002 import (
     build_a002_review_packet,
     build_a002_selection,
+    read_r001_validated_receipts,
 )
 
 
@@ -27,21 +28,29 @@ def main() -> None:
     parser.add_argument("--selection", type=Path)
     parser.add_argument("--config", type=Path)
     parser.add_argument("--receipts", type=Path)
+    parser.add_argument("--r001-root", type=Path)
     args = parser.parse_args()
 
     queue = _load(args.queue)
     if args.mode == "selection":
         output = build_a002_selection(queue)
     else:
-        if args.selection is None or args.config is None or args.receipts is None:
-            parser.error("packet mode requires --selection --config --receipts")
-        receipts = json.loads(args.receipts.read_text(encoding="utf-8"))
-        if not isinstance(receipts, list):
-            raise TypeError("receipts must be a list of validated R001 records")
+        if args.selection is None or args.config is None:
+            parser.error("packet mode requires --selection and --config")
+        if bool(args.receipts) == bool(args.r001_root):
+            parser.error("packet mode requires exactly one of --receipts or --r001-root")
+        config = _load(args.config)
+        if args.r001_root is not None:
+            receipts = read_r001_validated_receipts(queue, config, args.r001_root)
+        else:
+            assert args.receipts is not None
+            receipts = json.loads(args.receipts.read_text(encoding="utf-8"))
+            if not isinstance(receipts, list):
+                raise TypeError("receipts must be a list of validated R001 records")
         output = build_a002_review_packet(
             queue,
             _load(args.selection),
-            _load(args.config),
+            config,
             receipts,
         )
 
