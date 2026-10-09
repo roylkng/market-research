@@ -51,6 +51,7 @@ def _walk_keys(value: Any) -> list[str]:
 
 
 def build_visual_prompt(request: dict[str, Any]) -> dict[str, Any]:
+    request = {key: value for key, value in request.items() if key != "prompt_sha256"}
     system = (
         "Transcribe only what you can directly see in this exact source-page image. "
         "Keep original-language wording and distinguish faithful translation from "
