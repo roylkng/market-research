@@ -20,7 +20,9 @@ def main() -> None:
     if not isinstance(calendar, dict):
         raise TypeError("calendar must contain a JSON object")
 
-    decision = post_close_weekly_session_decision(\n        args.capture_date, calendar, observed_at_utc=datetime.now(UTC)\n    )
+    decision = post_close_weekly_session_decision(
+        args.capture_date, calendar, observed_at_utc=datetime.now(UTC)
+    )
     payload = asdict(decision)
     rendered = json.dumps(payload, indent=2, sort_keys=True) + "\n"
     if args.out is not None:
