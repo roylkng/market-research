@@ -64,7 +64,7 @@ def _fixtures() -> tuple[dict, dict, dict, list[dict]]:
             "d003_segment_count": 1,
             "source_url": f"https://nsearchives.nseindia.com/{doc_id}.pdf",
         })
-        p1_rows[doc_id] = {"validated_extraction": _extraction(sym, doc_id)}
+        p1_rows[doc_id] = {"validated_extraction": _extraction(sym, doc_id), "prompt_sha256": "p1-prompt-sha"}
     fresh = []
     requests = []
     for i in range(70):
@@ -87,6 +87,7 @@ def _fixtures() -> tuple[dict, dict, dict, list[dict]]:
             "segment_order": 1,
             "segment_id": f"{doc_id}:page:1",
             "request_id": f"req-{i}",
+            "prompt_sha256": "fresh-prompt-sha",
         })
     queue["reused_documents"] = reused
     queue["fresh_documents"] = fresh
@@ -165,7 +166,7 @@ def test_partial_api_page_preserves_distinct_model_cohort(
     result = build_issuer_evidence(
         queue,
         p1,
-        runtime_config={"dummy": True},
+        runtime_config={"model_id": "TEST_MODEL", "provider_runtime": "OPENAI_COMPATIBLE_CHAT"},
         validated_r001_rows=[sealed],
     )
     assert result["fresh_validated_response_count"] == 1
