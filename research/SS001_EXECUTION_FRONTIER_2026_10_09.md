@@ -70,8 +70,9 @@ GPT-5.6 Sol pilot remains a distinct model cohort.
    cohort fixed, until the frozen queue is covered. Failed outputs require explicit
    separate retry decisions.
 3. Construct the A002 independent semantic-review packet using
-   `scripts/materialize_ss001_d007_a002.py --mode packet`
-   from actual validated receipts. Review the 229 preselected pages against original
+   `scripts/materialize_ss001_d007_a002.py --mode packet` with the preserved
+   `--selection`, `--config` and original `--r001-root` append-only receipts
+   from the same runtime cohort. The CLI verifies original receipt hashes. Review the 229 preselected pages against original
    NSE text; record unsupported facts, legal stage misreads and entity errors.
 4. If semantic quality is inadequate, preserve failure and register a **new**
    extraction protocol/model cohort before retries. Do not silently edit the frozen
