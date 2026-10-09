@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "pilot_id": "SS002-P004-NATIVE-8DOC-v1",
+  "status": "STRUCTURALLY_VALIDATED_PENDING_INDEPENDENT_SEMANTIC_AUDIT",
+  "classification": "NATIVE_LLM_DOCUMENT_INTERPRETATION_PILOT_NOT_ALPHA",
+  "successful_run": {
+    "run_id": 37985254672,
+    "artifact_id": 11642638177,
+    "artifact_name": "ss002-p004-37985254672"
+  },
+  "pilot_sha256": "03d8ae16dd642e8e107b62bdb03eb9dc7e178d0327d742586bc35b65de943ff3",
+  "source_p003_corpus_sha256": "7abbe52043b7ef3de89cb617d4fba2b181c3d8c4978df7a29ea557eab54469f7",
+  "runtime": "CHATGPT_NATIVE_INTERACTIVE_MANUAL_TRANSCRIPTION",
+  "model_id": "GPT-6",
+  "prompt_provenance_limitation": "canonical validation envelope reconstructed; cannot prove the hidden interactive prompt matches an isolated API run",
+  "selected_document_count": 8,
+  "structurally_validated_document_count": 8,
+  "independently_semantically_audited_document_count": 0,
+  "explicit_fact_count": 52,
+  "economic_relevance_counts": {
+    "DIRECT_LISTED_SECURITY": 4,
+    "LISTED_COMPANY_AS_ACQUIRER_OR_INVESTOR": 2,
+    "PROCEDURAL_OR_NEWSPAPER_UPDATE": 1,
+    "UNKNOWN": 1
+  },
+  "transaction_stage_counts": {
+    "PROCEDURAL_UPDATE": 2,
+    "PUBLIC_ANNOUNCEMENT": 1,
+    "RECORD_DATE_FIXED": 1,
+    "REGULATORY_OR_COURT_APPROVED": 1,
+    "TRANSACTION_COMPLETED": 2,
+    "UNKNOWN": 1
+  },
+  "cases": [
+    {
+      "symbol": "VRLLOG",
+      "document_id": "f4aa6bc559658aae64da1540b6683e5d46ed3c68a0be1d11948cb1fb0d4b6a24",
+      "economic_relevance": "DIRECT_LISTED_SECURITY",
+      "transaction_families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "transaction_stage": "PUBLIC_ANNOUNCEMENT",
+      "case_assessment": "Direct tender-offer buyback with explicit offer price ₹320 and maximum 87.5 lakh shares, but acceptance and completion remain unknown.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 7
+    },
+    {
+      "symbol": "PVRINOX",
+      "document_id": "fa31ca687e2b419813879d464990117b5f8917abd1006c5dec7ecae1a8da1058",
+      "economic_relevance": "DIRECT_LISTED_SECURITY",
+      "transaction_families": [
+        "BUYBACK",
+        "TENDER_OFFER"
+      ],
+      "transaction_stage": "TRANSACTION_COMPLETED",
+      "case_assessment": "Completed buyback share extinguishment, not a newly announced buyback arbitrage spread.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 7
+    },
+    {
+      "symbol": "OLAELEC",
+      "document_id": "f8a46405d8b7c10bc12f47c945b5cc96956600273fc5868edbd004baa4808b92",
+      "economic_relevance": "DIRECT_LISTED_SECURITY",
+      "transaction_families": [
+        "RIGHTS_ISSUE"
+      ],
+      "transaction_stage": "RECORD_DATE_FIXED",
+      "case_assessment": "Direct dilutive rights issue with explicit ₹27 price, 2-for-25 entitlement and future call obligation; must model both existing and rights shares.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 12
+    },
+    {
+      "symbol": "SAMBHV",
+      "document_id": "432611a5ca2aafd37ae11b6435ff8eda8c6652d5be2f2888fed47cbee92d41b1",
+      "economic_relevance": "PROCEDURAL_OR_NEWSPAPER_UPDATE",
+      "transaction_families": [
+        "PREFERENTIAL_WARRANT"
+      ],
+      "transaction_stage": "PROCEDURAL_UPDATE",
+      "case_assessment": "Governance/proceeds-monitoring update for a pre-existing preferential issue; not a new financing catalyst.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 4
+    },
+    {
+      "symbol": "INOXGREEN",
+      "document_id": "541277b2c8a6d732bc77e62c6b637c98b92a5044dddeac09e34038d8d4d5d451",
+      "economic_relevance": "LISTED_COMPANY_AS_ACQUIRER_OR_INVESTOR",
+      "transaction_families": [
+        "INSOLVENCY_RESOLUTION",
+        "ACQUISITION_INVESTMENT",
+        "ASSET_SALE_DIVESTMENT"
+      ],
+      "transaction_stage": "REGULATORY_OR_COURT_APPROVED",
+      "case_assessment": "Substantive acquisition opportunity: Inox Green-backed subsidiary has paid ₹550 crore for WWIL O&M undertaking, but BTA conditions, business cash flows and eventual financing dilution are unresolved.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 11
+    },
+    {
+      "symbol": "KOTHARIPET",
+      "document_id": "17ff4dbc9d62243ffb7ccc3ca78a903eecb3991bf091e27030f384fe725bf891",
+      "economic_relevance": "DIRECT_LISTED_SECURITY",
+      "transaction_families": [
+        "SCHEME_REORGANISATION"
+      ],
+      "transaction_stage": "PROCEDURAL_UPDATE",
+      "case_assessment": "Potential merger catalyst still at procedural first-motion stage; a scheme valuation and approval chain are needed before underwriting.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 5
+    },
+    {
+      "symbol": "PREMEXPLN",
+      "document_id": "6e9ef61a11d6a47a771e6d9ec255507cd14104016a5baa682317bef3c206baf5",
+      "economic_relevance": "UNKNOWN",
+      "transaction_families": [
+        "UNKNOWN"
+      ],
+      "transaction_stage": "UNKNOWN",
+      "case_assessment": "Unresolved newspaper attachment: insufficient issuer-specific extractable evidence to verify a transaction.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 0
+    },
+    {
+      "symbol": "TVSSRICHAK",
+      "document_id": "f619d7a5473c6e34268f2aaf1440b7276ec807789c04fa6a8481ba4ab3d10659",
+      "economic_relevance": "LISTED_COMPANY_AS_ACQUIRER_OR_INVESTOR",
+      "transaction_families": [
+        "CAPITAL_REDUCTION"
+      ],
+      "transaction_stage": "TRANSACTION_COMPLETED",
+      "case_assessment": "Listed issuer monetized a 7.58% stake in a private promoter-group company for ₹34.44 crore; the capital reduction concerns the investee, not the NSE-listed share capital.",
+      "semantic_audit_status": "PENDING_INDEPENDENT_SOURCE_REVIEW",
+      "explicit_fact_count": 6
+    }
+  ],
+  "return_outcomes_opened": false,
+  "market_capitalization_calculated": false,
+  "share_action_clearance_proven": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "FIRST RECENT 8-DOCUMENT GPT-6 NATIVE TRANSCRIPTION PASSED SOURCE-BINDING AND L001 STRUCTURAL VALIDATION; INDEPENDENT DOCUMENT-PAGE SEMANTIC REVIEW AND EVENT-THREAD VALUATION ARE STILL BLOCKED"
+}
