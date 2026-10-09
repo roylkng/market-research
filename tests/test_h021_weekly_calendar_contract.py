@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,7 @@ from marketlab.h021_stockanalysis_acquisition import (
     NOT_FINAL_SESSION,
     weekly_session_decision,
 )
+from scripts.check_h021_weekly_session import enforce_completed_session
 
 CALENDAR_PATH = Path(
     "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
@@ -80,3 +82,28 @@ def test_h021_workflow_has_redundant_idempotent_schedule() -> None:
     assert 'git fetch origin main' in workflow
     assert 'git cat-file -e "origin/main:${CAPTURE_PATH}"' in workflow
     assert 'STATE="ALREADY_CAPTURED"' in workflow
+
+
+def test_h021_weekly_capture_requires_the_final_session_close() -> None:
+    calendar = _frozen_calendar()
+    decision = weekly_session_decision("2026-10-09", calendar)
+    assert decision.state == CAPTURE
+
+    # An Oct-08 cron delayed to 00:30 IST on Oct-09 is pre-close.
+    premature = enforce_completed_session(
+        decision, calendar,
+        as_of_utc=datetime(2026, 10, 8, 19, 0, tzinfo=UTC),
+    )
+    assert premature.state == "SESSION_NOT_CLOSED"
+
+    after_close = enforce_completed_session(
+        decision, calendar,
+        as_of_utc=datetime(2026, 10, 9, 12, 45, tzinfo=UTC),
+    )
+    assert after_close.state == CAPTURE
+
+    with pytest.raises(ValueError, match="current India date"):
+        enforce_completed_session(
+            decision, calendar,
+            as_of_utc=datetime(2026, 10, 9, 19, 0, tzinfo=UTC),
+        )
