@@ -1,0 +1,127 @@
+name: SS001 D007 L001 P2 chronology queue
+
+on:
+  push:
+    branches:
+      - research/ss001-d007-l001-p2-chronology-queue-20261009
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  queue:
+    if: contains(github.event.head_commit.message, '[ss001-d007-l001-p2-queue]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate frozen queue implementation
+        run: |
+          ruff check \
+            src/marketlab/ss001_d007_chronology_queue.py \
+            scripts/materialize_ss001_d007_l001_p2_queue.py \
+            tests/test_ss001_d007_chronology_queue.py
+          pytest -q \
+            tests/test_ss001_d007_chronology_queue.py \
+            tests/test_ss001_l001_relevance_queue.py \
+            tests/test_ss002_llm_contract.py
+
+      - name: Download exact Q002 binding artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-q002-37825546492
+          path: reports/q002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37825546492
+
+      - name: Download exact D003 text corpus
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-d003-37213853198
+          path: reports/d003
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37213853198
+
+      - name: Download exact passed P1 extraction
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-l001-p1-37883572697
+          path: reports/p1
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37883572697
+
+      - name: Verify exact frozen sources
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          q = json.loads(Path("reports/q002/ss001-d007-q002-bound-pilot.json").read_text())
+          d = json.loads(Path("reports/d003/ss002-d003-text-corpus.json").read_text())
+          p = json.loads(Path("reports/p1/ss001-d007-l001-p1-native-run.json").read_text())
+
+          assert q["binding_sha256"] == "c3c28d55b98a08c91e99b76d5ae2732f2ca24406fa12752be2f0e75fa0624f36"
+          assert d["corpus_sha256"] == "92d785de20af9bcca370c13a9d410fe98f0728518527285fa15d1490dadd32ce"
+          assert p["run_sha256"] == "1a3a2f73eaed8ba09c84ab7c8d60699fa895f39d25d5797bd16138b09fd620cb"
+          assert p["validated_response_count"] == 12
+          assert q["share_action_clearance_proven"] is False
+          assert p["share_action_clearance_proven"] is False
+          PY
+
+      - name: Materialize complete 12-issuer chronology queue
+        run: |
+          mkdir -p reports/p2
+          python scripts/materialize_ss001_d007_l001_p2_queue.py \
+            --q002 reports/q002/ss001-d007-q002-bound-pilot.json \
+            --d003 reports/d003/ss002-d003-text-corpus.json \
+            --p1-run reports/p1/ss001-d007-l001-p1-native-run.json \
+            --documents-dir reports/d003/documents \
+            --output reports/p2/ss001-d007-l001-p2-queue.json
+
+      - name: Prove frozen queue gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          q = json.loads(Path("reports/p2/ss001-d007-l001-p2-queue.json").read_text())
+          assert q["queue_id"] == "SS001-D007-L001-P2-v1"
+          assert q["issuer_count"] == 12
+          assert q["announcement_reference_count"] == 95
+          assert q["corporate_action_row_count"] == 12
+          assert q["distinct_document_count"] == 82
+          assert q["p1_reuse_document_count"] == 12
+          assert q["fresh_document_count"] == 70
+          assert q["fresh_request_count"] == 1240
+          assert q["shard_count"] == 16
+          assert all(q["threshold_passes"].values())
+          assert q["feasibility_pass"] is True
+          assert q["model_inference_executed"] is False
+          assert q["share_action_clearance_proven"] is False
+          assert q["market_capitalization_calculated"] is False
+          print(json.dumps({
+              "queue_sha256": q["queue_sha256"],
+              "fresh_request_count": q["fresh_request_count"],
+              "shard_request_counts": q["shard_request_counts"],
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload exact P2 queue
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-d007-l001-p2-queue-${{ github.run_id }}
+          path: reports/p2
+          if-no-files-found: error
+          retention-days: 90
