@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass
-from datetime import date
+from datetime import UTC, date, datetime, time
+from zoneinfo import ZoneInfo
 
 from marketlab.h021_stockanalysis_parser import (
     ForecastEpsError,
@@ -16,6 +17,9 @@ from marketlab.h021_stockanalysis_parser import (
 CAPTURE = "CAPTURE"
 NO_SESSION = "NO_SESSION"
 NOT_FINAL_SESSION = "NOT_FINAL_SESSION"
+BEFORE_POST_CLOSE_WINDOW = "BEFORE_POST_CLOSE_WINDOW"
+CAPTURE_EARLIEST_IST = time(18, 15)
+IST = ZoneInfo("Asia/Kolkata")
 
 
 @dataclass(frozen=True)
@@ -115,6 +119,35 @@ def weekly_session_decision(capture_date_ist: str, calendar: dict) -> WeeklySess
         final_session_date=capture_date_ist,
         reason="requested India date is the final frozen NSE session of its week",
     )
+
+
+def post_close_weekly_session_decision(
+    capture_date_ist: str,
+    calendar: dict,
+    *,
+    observed_at_utc: datetime,
+) -> WeeklySessionDecision:
+    """Fail closed when delayed cron starts before the target NSE session closes."""
+    if not isinstance(observed_at_utc, datetime) or observed_at_utc.tzinfo is None:
+        raise ValueError("H021 observed_at_utc must be timezone-aware")
+    observed_ist = observed_at_utc.astimezone(UTC).astimezone(IST)
+    if observed_ist.date().isoformat() != capture_date_ist:
+        raise ValueError("H021 capture date must equal current India date")
+
+    decision = weekly_session_decision(capture_date_ist, calendar)
+    if decision.state != CAPTURE:
+        return decision
+    if observed_ist.time().replace(tzinfo=None) < CAPTURE_EARLIEST_IST:
+        return WeeklySessionDecision(
+            state=BEFORE_POST_CLOSE_WINDOW,
+            capture_date_ist=capture_date_ist,
+            final_session_date=decision.final_session_date,
+            reason=(
+                "final NSE session is not yet past the frozen 18:15 IST "
+                "post-close acquisition window"
+            ),
+        )
+    return decision
 
 
 def anchor_targets(anchor: dict) -> dict[str, AnchorTarget]:
