@@ -14,12 +14,13 @@ from marketlab.ss001_l001_batch import (
     SOURCE_QUEUE_ID,
     TRANSPORT_ID,
     build_preflight,
+    build_source_preflight,
     validate_and_seal_response,
     validate_config,
     validate_request,
 )
 from marketlab.ss002_llm_contract import build_prompt_envelope, extraction_template
-from scripts.run_ss001_l001_batch import collect_verified, execute_shard
+from scripts.run_ss001_l001_batch import collect_verified, execute_shard, main
 
 
 def _config() -> dict:
@@ -292,3 +293,51 @@ def test_mutated_cached_success_is_rejected_before_resume(
             shard_id=0, max_requests=1,
             transport=lambda row, _c: _raw_response(row),
         )
+
+
+def test_source_only_preflight_requires_no_model_configuration(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queue = _queue(monkeypatch)
+    source = build_source_preflight(queue)
+    assert source["status"] == "SOURCE_PREFLIGHT_PASS_NO_MODEL_CONFIG"
+    assert source["request_count"] == 1240
+    assert source["shard_count"] == 16
+    assert source["model_configured"] is False
+    assert source["model_inference_executed"] is False
+    assert source["market_capitalization_calculated"] is False
+
+    path = tmp_path / "queue.json"
+    path.write_text(json.dumps(queue), encoding="utf-8")
+    output = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["run_ss001_l001_batch.py", "--queue", str(path),
+         "--output-dir", str(output), "--source-preflight"],
+    )
+    main()
+    stored = json.loads((output / "source-preflight.json").read_text())
+    assert stored == source
+    assert not (output / "run-config.json").exists()
+
+    # Source-only mode is deterministic and safely idempotent.
+    main()
+    assert json.loads((output / "source-preflight.json").read_text()) == source
+
+
+def test_inference_modes_still_require_pinned_config(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queue = _queue(monkeypatch)
+    path = tmp_path / "queue.json"
+    path.write_text(json.dumps(queue), encoding="utf-8")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["run_ss001_l001_batch.py", "--queue", str(path),
+         "--output-dir", str(tmp_path / "out"), "--dry-run"],
+    )
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
