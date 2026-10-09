@@ -1,0 +1,102 @@
+name: SS002 P003 daily NSE document text intake
+
+on:
+  push:
+    branches:
+      - research/ss002-p003-daily-document-corpus-20261010
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  document-intake:
+    if: contains(github.event.head_commit.message, '[ss002-p003]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate P003 before reading official attachments
+        run: |
+          ruff check src/marketlab/ss002_daily_documents.py scripts/run_ss002_p003.py tests/test_ss002_daily_documents.py
+          pytest -q tests/test_ss002_daily_documents.py tests/test_ss002_text.py tests/test_ss002_daily_research_inbox.py
+
+      - name: Download exact frozen SS002 P002 source inbox
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-p002-37980956560
+          path: reports/ss002-p002
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37980956560
+
+      - name: Prove source inbox identity before document acquisition
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.ss002_daily_documents import prepare_document_requests
+          path = Path("reports/ss002-p002/ss002-p002-inbox.json")
+          inbox = json.loads(path.read_text())
+          requests, events = prepare_document_requests(inbox)
+          assert len(events) == 54
+          assert sum(event["source_document_state"] == "DOCUMENT_INTAKE_READY" for event in events) == 36
+          assert len(requests) == 36
+          PY
+
+      - name: Download only approved official NSE docs and segment text
+        run: |
+          python scripts/run_ss002_p003.py \
+            --p002-inbox reports/ss002-p002/ss002-p002-inbox.json \
+            --out reports/ss002-p003 \
+            --timeout-seconds 30 \
+            --attempts 4 \
+            --pause-seconds 0.05
+
+      - name: Validate full event preservation and research-only state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("reports/ss002-p003/ss002-p003-corpus.json")
+          p=json.loads(path.read_text())
+          assert p["corpus_id"] == "SS002-P003-v1"
+          assert p["source_event_count"] == 54
+          assert p["current_document_event_count"] == 36
+          assert p["approved_unique_url_count"] == 36
+          assert p["model_inference_executed"] is False
+          assert p["economic_relevance_verified"] is False
+          assert p["return_outcomes_opened"] is False
+          assert p["market_capitalization_calculated"] is False
+          assert p["share_action_clearance_proven"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          print(json.dumps({
+            "corpus_sha256":p["corpus_sha256"],
+            "source_event_count":p["source_event_count"],
+            "approved_unique_url_count":p["approved_unique_url_count"],
+            "fetched_url_count":p["fetched_url_count"],
+            "fetched_url_ratio":p["fetched_url_ratio"],
+            "text_ready_url_count":p["text_ready_url_count"],
+            "text_ready_ratio_of_fetched":p["text_ready_ratio_of_fetched"],
+            "unique_document_id_count":p["unique_document_id_count"],
+            "extraction_state_counts":p["extraction_state_counts"],
+            "threshold_passes":p["threshold_passes"],
+            "feasibility_pass":p["feasibility_pass"]
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Upload exact official bytes and page evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-p003-${{ github.run_id }}
+          path: reports/ss002-p003
+          if-no-files-found: warn
+          retention-days: 90
