@@ -69,7 +69,7 @@ def _check_comparison(comparison: dict[str, Any]) -> tuple[list[dict], list[dict
     by_symbol = {}
     for row in observations:
         if not isinstance(row, dict) or not isinstance(row.get("symbol"), str):
-            raise ValueError("invalid H021 symbol record")
+            raise TypeError("invalid H021 symbol record")
         symbol = row["symbol"]
         if not symbol or symbol in by_symbol:
             raise ValueError("duplicate or empty H021 symbol")
@@ -99,7 +99,7 @@ def _check_comparison(comparison: dict[str, Any]) -> tuple[list[dict], list[dict
         if row["symbol"] not in selected and row.get("eps_revision_pct") >= selected_min:
             raise ValueError("frozen top decile missing eligible higher/tied revision")
     ineligible = [row for row in observations if not row["primary_signal_available"]]
-    if set(row["symbol"] for row in ineligible) != {
+    if {row["symbol"] for row in ineligible} != {
         "ADANIENT", "BOSCHLTD", "TRENT"
     }:
         raise ValueError("first cohort ineligible identities changed")
