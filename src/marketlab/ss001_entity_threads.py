@@ -304,12 +304,16 @@ def validate_entity_thread_pilot(payload: dict[str, Any]) -> dict[str, Any]:
         securities_issuer = thread.get("security_issuer_entity_id")
         if securities_issuer is not None and securities_issuer not in EXPECTED_ENTITIES:
             raise AlphaContractError("E001 unknown security issuer")
-        if effect == "OTHER_ENTITY_SHARES":
-            if securities_issuer in {None, LISTED_ISSUER} or securities_issuer != subject:
-                raise AlphaContractError("E001 other-entity shares misattributed to listed issuer")
-        if effect == "DIRECT_ISSUER_CHANGE_REQUIRES_CAPITAL_RECONCILIATION":
-            if securities_issuer != LISTED_ISSUER:
-                raise AlphaContractError("E001 direct share-change issuer is incorrect")
+        if effect == "OTHER_ENTITY_SHARES" and (
+            securities_issuer in {None, LISTED_ISSUER}
+            or securities_issuer != subject
+        ):
+            raise AlphaContractError("E001 other-entity shares misattributed to listed issuer")
+        if (
+            effect == "DIRECT_ISSUER_CHANGE_REQUIRES_CAPITAL_RECONCILIATION"
+            and securities_issuer != LISTED_ISSUER
+        ):
+            raise AlphaContractError("E001 direct share-change issuer is incorrect")
         if securities_issuer is None and effect in {
             "OTHER_ENTITY_SHARES", "DIRECT_ISSUER_CHANGE_REQUIRES_CAPITAL_RECONCILIATION"
         }:
@@ -328,14 +332,22 @@ def validate_entity_thread_pilot(payload: dict[str, Any]) -> dict[str, Any]:
                 raise AlphaContractError("E001 duplicate thread fact field")
             fact_index[field] = (value, unit)
         total_facts += len(facts)
-        if thread.get("transaction_stage") == "SECURITIES_ALLOTTED_BY_SUBJECT_ENTITY":
-            if securities_issuer != subject or not any(
-                unit == "SHARES" for _, unit in fact_index.values()
-            ):
-                raise AlphaContractError("E001 allotment must identify actual security issuer")
-        if thread.get("transaction_stage") == "EXECUTED_AND_CLOSED":
-            if "closing_date" not in fact_index or fact_index["closing_date"][1] != "ISO_DATE":
-                raise AlphaContractError("E001 executed stage needs disclosed closing date")
+        if (
+            thread.get("transaction_stage") == "SECURITIES_ALLOTTED_BY_SUBJECT_ENTITY"
+            and (
+                securities_issuer != subject
+                or not any(unit == "SHARES" for _, unit in fact_index.values())
+            )
+        ):
+            raise AlphaContractError("E001 allotment must identify actual security issuer")
+        if (
+            thread.get("transaction_stage") == "EXECUTED_AND_CLOSED"
+            and (
+                "closing_date" not in fact_index
+                or fact_index["closing_date"][1] != "ISO_DATE"
+            )
+        ):
+            raise AlphaContractError("E001 executed stage needs disclosed closing date")
         questions = _list(thread.get("unresolved_questions"), "unresolved_questions")
         if not questions or not all(isinstance(q, str) and q.strip() for q in questions):
             raise AlphaContractError("E001 case must retain material unresolved questions")
