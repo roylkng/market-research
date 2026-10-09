@@ -801,6 +801,7 @@ def _extract(row: dict[str, Any]) -> dict[str, Any]:
         )
         _set_fact(
             output,
+            "parties",
             "target_name",
             "Inox Renewable Solutions Limited",
             None,
