@@ -114,9 +114,11 @@ def _strict_legacy(
     ):
         if key in snapshot and snapshot[key] != expected[key]:
             raise ValueError(f"H021 legacy snapshot {key} mismatch")
-        if key in ("hypothesis_id", "capture_date_ist", "captured_at_utc"):
-            if snapshot.get(key) != expected[key]:
-                raise ValueError(f"H021 legacy required snapshot {key} mismatch")
+        if (
+            key in ("hypothesis_id", "capture_date_ist", "captured_at_utc")
+            and snapshot.get(key) != expected[key]
+        ):
+            raise ValueError(f"H021 legacy required snapshot {key} mismatch")
 
     # The v1 writer may omit selected manifest-owned source identity fields.
     # Restore only those already authenticated by exact, pinned bytes.
@@ -151,7 +153,7 @@ def _strict_legacy(
 
     batches = batch_spec.get("batches")
     if not isinstance(batches, list):
-        raise ValueError("H021 legacy frozen batch definitions missing")
+        raise TypeError("H021 legacy frozen batch definitions missing")
     for symbol, observation in observed.items():
         member = by_symbol[symbol]
         if observation.get("isin") != member.get("isin"):
@@ -170,7 +172,7 @@ def _strict_legacy(
         if observation.get("batch_id") not in (None, valid_batches[0]):
             raise ValueError(f"H021 legacy {symbol} batch mismatch")
 
-    captured = datetime.fromisoformat(snapshot["captured_at_utc"].replace("Z", "+00:00"))
+    captured = datetime.fromisoformat(snapshot["captured_at_utc"])
     if captured.tzinfo is None or captured.date() != date.fromisoformat(LEGACY_CAPTURE_DATE):
         raise ValueError("H021 legacy capture timestamp/date mismatch")
     return snapshot
