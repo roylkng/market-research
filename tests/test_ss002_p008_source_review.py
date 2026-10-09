@@ -14,7 +14,6 @@ from marketlab.ss002_p008_source_review import (
     build_p008_source_review,
 )
 
-
 ACTIVE = ("INOXGREEN", "KOTHARIPET", "OLAELEC", "VRLLOG")
 CLAIM_COUNTS = (11, 5, 12, 7)
 
