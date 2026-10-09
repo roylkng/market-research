@@ -34,7 +34,7 @@ def deterministic_gzip(data: bytes) -> bytes:
 
 def classify_capture_lag(day: date, *, observed_at_utc: str) -> str:
     try:
-        stamp = datetime.fromisoformat(observed_at_utc.replace("Z", "+00:00"))
+        stamp = datetime.fromisoformat(observed_at_utc)
     except ValueError as exc:
         raise AlphaContractError("P001 invalid acquisition timestamp") from exc
     if stamp.tzinfo is None:
