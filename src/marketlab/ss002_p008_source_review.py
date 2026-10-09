@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-from collections import Counter
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
