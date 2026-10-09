@@ -456,10 +456,10 @@ def main() -> int:
                 "unsupported_explicit_claim_count": 0,
                 "material_fact_or_relevance_missed": False,
                 "unretained_material_contradiction_count": 0,
-                "notes": (
-                    SPARSE[int(row["global_request_index"])]
-                    if int(row["global_request_index"]) in SPARSE
-                    else "Reviewed against the exact single supplied D003 page; extracted material transaction facts supported by that page only."
+                "notes": SPARSE.get(
+                    int(row["global_request_index"]),
+                    "Reviewed against the exact single supplied D003 page; "
+                    "extracted material transaction facts supported by that page only.",
                 ),
             }
         )
