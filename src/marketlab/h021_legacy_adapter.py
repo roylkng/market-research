@@ -156,7 +156,8 @@ def _strict_legacy(
         raise TypeError("H021 legacy frozen batch definitions missing")
     for symbol, observation in observed.items():
         member = by_symbol[symbol]
-        if observation.get("isin") != member.get("isin"):
+        source_isin = observation.get("isin")
+        if source_isin is not None and source_isin != member.get("isin"):
             raise ValueError(f"H021 legacy {symbol} ISIN mismatch")
         rank = member.get("rank")
         if observation.get("universe_rank") not in (None, rank):
