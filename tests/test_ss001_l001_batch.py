@@ -124,12 +124,19 @@ def _queue(monkeypatch: pytest.MonkeyPatch) -> dict:
         "portfolio_eligibility_allowed": False,
         "live_capital_allowed": False,
         "requests": rows,
+        "shard_request_counts": {
+            shard: sum(row["shard_id"] == shard for row in rows)
+            for shard in range(SHARD_COUNT)
+        },
     }
+    # Reproduce the frozen producer's integer-key SHA and the loaded
+    # JSON artifact's string-key representation.
     sha = digest(queue)
     queue["queue_sha256"] = sha
+    wire_queue = json.loads(json.dumps(queue))
     monkeypatch.setattr("marketlab.ss001_l001_batch.SOURCE_QUEUE_SHA", sha)
     monkeypatch.setattr("scripts.run_ss001_l001_batch.SOURCE_QUEUE_SHA", sha)
-    return queue
+    return wire_queue
 
 
 def test_response_is_bound_to_exact_page_and_separate_runtime() -> None:
