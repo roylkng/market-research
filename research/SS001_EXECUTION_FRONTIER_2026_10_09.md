@@ -32,8 +32,8 @@ portfolio approval, or claim that the investment objective has been achieved.
 - selected pages: **229 / 1,240**;
 - document coverage: **70 / 70** fresh documents;
 - issuer coverage: **12 / 12**;
-- capital-language selected: 62 documents;
-- multi-entity-language selected: 32 documents;
+- capital-language selected: 62 pages;
+- multi-entity-language selected: 32 pages;
 - model inference executed: **false**;
 - independent semantic audit complete: **false**.
 
