@@ -99,8 +99,8 @@ structure permitted by the resolution plan.
   `268bedb3a32eaa48ef5726b26a9b88f7daff3be91d6b26ee75568439f4437e43`.
 - Supporting segments:
   `268bedb3a32eaa48ef5726b26a9b88f7daff3be91d6b26ee75568439f4437e43:pdf:page:0001`;
-  `...:pdf:page:0003`;
-  `...:pdf:page:0004`.
+  `268bedb3a32eaa48ef5726b26a9b88f7daff3be91d6b26ee75568439f4437e43:pdf:page:0003`;
+  `268bedb3a32eaa48ef5726b26a9b88f7daff3be91d6b26ee75568439f4437e43:pdf:page:0004`.
 
 ## Why this is a useful research candidate, but not yet a hidden gem
 
