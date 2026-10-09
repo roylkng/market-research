@@ -121,7 +121,7 @@ dates, and issuer/other-entity shares are not interchangeable.
 
 ## INOXGREEN P0 scope
 
-Only two separately evidenced economic threads:
+Exactly three legally/economically separated evidence threads:
 
 1. IRSL share entitlement and IRSL's subsequent allotment of 48,982,030
    IRSL shares to eligible INOXGREEN holders. The beneficiary being an
@@ -129,8 +129,10 @@ Only two separately evidenced economic threads:
 2. WWIL O&M business acquisition proposed by INOXGREEN/group, subject to
    NCLT scheme implementation and agreements: up to ₹550 crore proposed cash
    consideration, ~4.5 GW service portfolio, provisional FY26 turnover
-   ₹579.77 crore. INEL's distinct ~600 MW IPP interest is another economic
-   asset and not automatically an INOXGREEN O&M asset.
+   ₹579.77 crore.
+3. INEL's distinct ~600 MW IPP interest under the WWIL resolution plan.
+   It is another group entity's prospective asset and not automatically
+   an INOXGREEN O&M asset.
 
 No other securities or company economics are inferred.
 
