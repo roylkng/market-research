@@ -182,7 +182,20 @@ def validate_queue(queue: dict[str, Any]) -> list[dict[str, Any]]:
         raise AlphaContractError("R001 frozen queue ID mismatch")
     if queue.get("queue_sha256") != SOURCE_QUEUE_SHA:
         raise AlphaContractError("R001 frozen queue SHA mismatch")
-    if digest({key: value for key, value in queue.items() if key != "queue_sha256"}) != SOURCE_QUEUE_SHA:
+    # The frozen P2 writer hashed integer shard-count dictionary keys before
+    # serializing JSON. On reload JSON keys become strings and sort differently.
+    # Restore this one known field to its exact pre-serialization key type only
+    # for SHA verification; never alter the source artifact or other fields.
+    original = {key: value for key, value in queue.items() if key != "queue_sha256"}
+    counts = original.get("shard_request_counts")
+    if (
+        not isinstance(counts, dict)
+        or set(counts) != {str(i) for i in range(SHARD_COUNT)}
+        or any(isinstance(v, bool) or not isinstance(v, int) for v in counts.values())
+    ):
+        raise AlphaContractError("R001 frozen shard-count header is malformed")
+    original["shard_request_counts"] = {int(k): v for k, v in counts.items()}
+    if digest(original) != SOURCE_QUEUE_SHA:
         raise AlphaContractError("R001 queue contents do not reproduce frozen SHA")
     if queue.get("source_p1_run_sha256") != (
         "1a3a2f73eaed8ba09c84ab7c8d60699fa895f39d25d5797bd16138b09fd620cb"
@@ -198,6 +211,9 @@ def validate_queue(queue: dict[str, Any]) -> list[dict[str, Any]]:
     rows = queue.get("requests")
     if not isinstance(rows, list) or len(rows) != SOURCE_REQUEST_COUNT:
         raise AlphaContractError("R001 frozen queue requests unavailable")
+    observed_counts = Counter(row.get("shard_id") for row in rows if isinstance(row, dict))
+    if counts != {str(i): observed_counts[i] for i in range(SHARD_COUNT)}:
+        raise AlphaContractError("R001 stored shard counts disagree with frozen requests")
     ids: set[str] = set()
     for index, row in enumerate(rows, start=1):
         validate_request(row)
