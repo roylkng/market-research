@@ -4,8 +4,7 @@ import argparse
 import hashlib
 import io
 import json
-import shutil
-import subprocess
+import pypdfium2 as pdfium
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -41,41 +40,36 @@ def _retain_original(root: Path, raw: bytes, expected_sha: str) -> Path:
 
 
 def _render_page(
-    source_pdf: Path, *,
+    pdf: pdfium.PdfDocument, *,
     symbol: str,
     page_number: int,
     out_dir: Path,
 ) -> dict:
     stem = out_dir / "visual" / symbol / f"page-{page_number:04d}"
     stem.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(
-        [
-            "pdftoppm",
-            "-f", str(page_number),
-            "-l", str(page_number),
-            "-singlefile",
-            "-jpeg",
-            "-jpegopt", "quality=85",
-            "-r", "110",
-            str(source_pdf),
-            str(stem),
-        ],
-        check=True,
-        timeout=90,
-        capture_output=True,
-    )
     image_path = stem.with_suffix(".jpg")
+    page = pdf[page_number - 1]
+    try:
+        image = page.render(scale=110 / 72).to_pil()
+        try:
+            image.convert("RGB").save(
+                image_path, format="JPEG", quality=85, optimize=True
+            )
+        finally:
+            image.close()
+    finally:
+        page.close()
     if not image_path.is_file():
         raise AlphaContractError("P009 page renderer produced no image")
     raw = image_path.read_bytes()
-    if not raw.startswith(b"\xff\xd8\xff") or not raw.endswith(b"\xff\xd9"):
+    if not raw.startswith(b"\\xff\\xd8\\xff") or not raw.endswith(b"\\xff\\xd9"):
         raise AlphaContractError("P009 rendered page is not a complete JPEG")
     return {
         "page_number": page_number,
         "relative_image_path": str(image_path.relative_to(out_dir)),
         "image_sha256": _sha(raw),
         "image_bytes": len(raw),
-        "render_method": "pdftoppm-110dpi-jpeg85",
+        "render_method": "pypdfium2-4.30.0-110dpi-jpeg85",
         "independent_semantic_review_complete": False,
     }
 
@@ -87,9 +81,6 @@ def main() -> None:
     parser.add_argument("--timeout-seconds", type=float, default=30.0)
     parser.add_argument("--attempts", type=int, default=4)
     args = parser.parse_args()
-
-    if shutil.which("pdftoppm") is None:
-        raise RuntimeError("P009 requires Poppler pdftoppm for original page rendering")
 
     packet = build_p009_legibility_packet(_load(args.p008_review))
     args.out.mkdir(parents=True, exist_ok=True)
@@ -114,16 +105,22 @@ def main() -> None:
             raise AlphaContractError(f"{symbol}: original PDF page count mismatch")
 
         page_images = []
-        for page in case["pages"]:
-            rendered = _render_page(
-                source_path,
-                symbol=symbol,
-                page_number=page["page_number"],
-                out_dir=args.out,
-            )
-            rendered["legibility_status"] = page["legibility_status"]
-            rendered["source_segment_id"] = page["source_segment_id"]
-            page_images.append(rendered)
+        document = pdfium.PdfDocument(str(source_path))
+        try:
+            if len(document) != observed_pages:
+                raise AlphaContractError(f"{symbol}: rendering PDF page count mismatch")
+            for page in case["pages"]:
+                rendered = _render_page(
+                    document,
+                    symbol=symbol,
+                    page_number=page["page_number"],
+                    out_dir=args.out,
+                )
+                rendered["legibility_status"] = page["legibility_status"]
+                rendered["source_segment_id"] = page["source_segment_id"]
+                page_images.append(rendered)
+        finally:
+            document.close()
         case_manifests.append(
             {
                 "symbol": symbol,
