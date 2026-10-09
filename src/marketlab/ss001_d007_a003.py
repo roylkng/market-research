@@ -122,7 +122,7 @@ def _review_time(value: object) -> str:
     if not isinstance(value, str):
         raise AlphaContractError("A003 review timestamp must be a string")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AlphaContractError("A003 review timestamp is invalid") from exc
     if parsed.tzinfo is None:
