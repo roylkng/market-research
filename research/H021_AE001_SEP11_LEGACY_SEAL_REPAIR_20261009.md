@@ -30,7 +30,9 @@ The AE001 reader accepts exactly one historical v1 bundle:
   `bd87a3bb942a60e7f625293577487b8850b67530b3126bea5bb7d9d9e999d434`.
 
 For this one bundle, verify both source bytes and lengths, exact snapshot/manifest
-identity, immutable source version, frozen U001 symbol/ISIN/batch/rank membership,
+identity, immutable source version, frozen U001 symbol membership and
+symbol-to-ISIN identity binding (v1 observation ISINs may be absent; an explicitly
+conflicting ISIN is rejected), batch/rank membership,
 all 100 rows, prospective `outcomes_opened=false`, and matching publication date.
 
 The original v1 JSON serialization is retained; it is not falsely described as
