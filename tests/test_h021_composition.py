@@ -58,6 +58,11 @@ def test_october_9_immutable_composition_and_frozen_primary_cohort() -> None:
     assert indexed["DMART"]["analyst_count_change_ratio"] == pytest.approx(-19 / 31)
     assert indexed["DMART"]["primary_top_decile"] is True
     assert indexed["GAIL"]["analyst_count_delta"] == -12
+    # Ineligible raw arithmetic may exist, but it does not become a signal.
+    for ineligible in ("ADANIENT", "BOSCHLTD", "TRENT"):
+        assert indexed[ineligible]["primary_signal_available"] is False
+        assert indexed[ineligible]["primary_top_decile"] is False
+    assert indexed["TRENT"]["eps_revision_pct"] == pytest.approx(3.0183077684314608)
     assert result["coverage_churn_changes_primary_rank_or_selection"] is False
     assert result["contains_return_or_price_outcomes"] is False
     assert result["promotes_research_or_portfolio_gate"] is False
