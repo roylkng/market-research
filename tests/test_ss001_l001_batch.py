@@ -13,7 +13,6 @@ from marketlab.ss001_l001_batch import (
     SOURCE_MODEL_CONFIG_SHA,
     SOURCE_QUEUE_ID,
     TRANSPORT_ID,
-    build_collection_status,
     build_preflight,
     validate_and_seal_response,
     validate_config,
