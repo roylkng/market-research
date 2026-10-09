@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections import Counter, defaultdict
+from pathlib import Path
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -9,6 +11,7 @@ from marketlab.ss001_l001_batch import (
     SOURCE_QUEUE_SHA,
     SOURCE_REQUEST_COUNT,
     build_collection_status,
+    validate_config,
     validate_queue,
 )
 
@@ -192,6 +195,56 @@ def build_a002_selection(queue: dict[str, Any]) -> dict[str, Any]:
     }
     result["selection_sha256"] = digest(result)
     return result
+
+
+def read_r001_validated_receipts(
+    queue: dict[str, Any],
+    config: dict[str, Any],
+    root: Path,
+) -> list[dict[str, Any]]:
+    """Read immutable R001 attempt receipts, refusing ambiguous accepted outputs."""
+    requests = validate_queue(queue)
+    config_sha = validate_config(config)
+    config_path = root / "run-config.json"
+    if not config_path.is_file():
+        raise AlphaContractError("A002 pinned R001 run-config receipt is missing")
+    pinned = json.loads(config_path.read_text(encoding="utf-8"))
+    if not isinstance(pinned, dict):
+        raise TypeError("A002 pinned run-config must be an object")
+    if (
+        pinned.get("runtime_model_config_sha256") != config_sha
+        or pinned.get("model_config") != config
+    ):
+        raise AlphaContractError("A002 R001 configuration differs from pinned receipt")
+
+    collected: list[dict[str, Any]] = []
+    for row in requests:
+        path = (
+            root / "requests" / f"shard-{int(row['shard_id']):02d}"
+            / str(row["request_id"])
+        )
+        accepted = []
+        for receipt_path in sorted(path.glob("attempt-[0-9][0-9][0-9].json")):
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if not isinstance(receipt, dict):
+                raise TypeError("A002 attempt receipt must be an object")
+            raw = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+            if receipt.get("receipt_sha256") != digest(raw):
+                raise AlphaContractError("A002 R001 attempt receipt SHA mismatch")
+            if (
+                receipt.get("request_id") != row["request_id"]
+                or receipt.get("runtime_model_config_sha256") != config_sha
+            ):
+                raise AlphaContractError("A002 R001 attempt receipt identity mismatch")
+            if receipt.get("status") == "VALIDATED":
+                accepted.append(receipt.get("sealed"))
+        if len(accepted) > 1:
+            raise AlphaContractError("A002 multiple accepted R001 attempts for one request")
+        if accepted:
+            if not isinstance(accepted[0], dict):
+                raise TypeError("A002 accepted R001 response must be an object")
+            collected.append(accepted[0])
+    return collected
 
 
 def build_a002_review_packet(
