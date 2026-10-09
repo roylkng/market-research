@@ -174,7 +174,7 @@ def build_daily_capture(
         "eq_master_identity_count_at_capture": len(security_master),
         "announcement_count": len(rows),
         "candidate_event_count": len(candidates),
-        "candidate_current_eq_symbol_count": sum(
+        "candidate_current_eq_event_count": sum(
             row["mapping_state"] == "SYMBOL_IN_EQ_MASTER_AT_CAPTURE" for row in candidates
         ),
         "category_hint_counts": dict(sorted(category_counts.items())),
