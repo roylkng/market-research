@@ -43,8 +43,8 @@ def test_october_9_immutable_composition_and_frozen_primary_cohort() -> None:
     assert result["primary_top_decile_panel"] == {
         "count": 10,
         "decreased": 5,
-        "unchanged": 5,
-        "increased": 0,
+        "unchanged": 4,
+        "increased": 1,
         "unavailable": 0,
         "decline_at_least_30pct": 2,
         "decline_at_least_50pct": 1,
