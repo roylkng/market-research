@@ -265,3 +265,30 @@ def test_collection_rejects_mutated_sealed_fact() -> None:
     # Demonstrate a recomputation of the sealed response rejects a mutated claim.
     original = validate_and_seal_response(row, _config(), changed["raw_model_response_text"])
     assert original != changed
+
+def test_mutated_cached_success_is_rejected_before_resume(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    queue = _queue(monkeypatch)
+    config = _config()
+    execute_shard(
+        queue=queue, config=config, output_dir=tmp_path,
+        shard_id=0, max_requests=1,
+        transport=lambda row, _c: _raw_response(row),
+    )
+    path = (
+        tmp_path / "requests" / "shard-00"
+        / queue["requests"][0]["request_id"] / "attempt-001.json"
+    )
+    receipt = json.loads(path.read_text(encoding="utf-8"))
+    receipt["sealed"]["validated_extraction"]["facts"]["security_economics"][
+        "offer_price_per_share"
+    ]["value"] = 900
+    path.write_text(json.dumps(receipt), encoding="utf-8")
+    with pytest.raises(AlphaContractError, match="previous receipt SHA mismatch"):
+        execute_shard(
+            queue=queue, config=config, output_dir=tmp_path,
+            shard_id=0, max_requests=1,
+            transport=lambda row, _c: _raw_response(row),
+        )
