@@ -168,6 +168,8 @@ def build_p008_source_review(
             "portfolio_eligibility_allowed": False,
             "live_capital_allowed": False,
         })
+    if total_claims != 35:
+        raise AlphaContractError(f"P008 expected 35 active-case claims, found {total_claims}")
     out = {
         "schema_version": 1,
         "pack_id": PACK_ID,
