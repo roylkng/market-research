@@ -80,7 +80,10 @@ For each preselected request attach:
 - `PENDING_INDEPENDENT_REVIEW` / `MISSING_INFERENCE` status.
 
 A missing model output stays explicitly missing. No empty or guessed extraction
-is treated as a reviewed result.
+is treated as a reviewed result. The packet builder can ingest R001's original
+`run-config.json` and append-only `requests/shard-XX/<request-id>/attempt-NNN.json`
+receipt tree directly. Every accepted receipt must reproduce its SHA and the pinned
+model configuration; duplicate accepted attempts fail closed.
 
 ## Independent audit rule
 
