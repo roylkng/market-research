@@ -4,8 +4,6 @@ import csv
 import io
 import zipfile
 
-import pytest
-
 from marketlab.alpha import AlphaContractError
 from marketlab.ss002_p007_payoff import (
     P006_SHA,
@@ -13,6 +11,8 @@ from marketlab.ss002_p007_payoff import (
     rights_theoretical_surface,
     tender_payoff_surface,
 )
+
+import pytest
 
 
 SYMBOLS = (
