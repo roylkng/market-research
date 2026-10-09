@@ -4,10 +4,10 @@ import argparse
 import hashlib
 import io
 import json
-import pypdfium2 as pdfium
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pypdfium2 as pdfium
 from pypdf import PdfReader
 
 from marketlab.alpha import AlphaContractError, digest
@@ -52,9 +52,13 @@ def _render_page(
     try:
         image = page.render(scale=110 / 72).to_pil()
         try:
-            image.convert("RGB").save(
-                image_path, format="JPEG", quality=85, optimize=True
-            )
+            rgb_image = image.convert("RGB")
+            try:
+                rgb_image.save(
+                    image_path, format="JPEG", quality=85, optimize=True
+                )
+            finally:
+                rgb_image.close()
         finally:
             image.close()
     finally:
@@ -62,7 +66,7 @@ def _render_page(
     if not image_path.is_file():
         raise AlphaContractError("P009 page renderer produced no image")
     raw = image_path.read_bytes()
-    if not raw.startswith(b"\\xff\\xd8\\xff") or not raw.endswith(b"\\xff\\xd9"):
+    if raw[:3] != bytes((255, 216, 255)) or raw[-2:] != bytes((255, 217)):
         raise AlphaContractError("P009 rendered page is not a complete JPEG")
     return {
         "page_number": page_number,
