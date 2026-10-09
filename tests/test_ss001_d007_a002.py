@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import hashlib
+import json
 
 import pytest
 
 from marketlab import ss001_d007_a002 as a002
-from marketlab.alpha import AlphaContractError
+from marketlab.alpha import AlphaContractError, digest
 
 
 def _page(doc: str, symbol: str, index: int, text: str) -> dict:
@@ -146,3 +147,70 @@ def test_review_packet_never_auto_approves_missing_model_outputs(monkeypatch) ->
     assert all(row["independent_review_status"] == "NOT_STARTED" for row in packet["rows"])
     assert packet["independent_semantic_audit_complete"] is False
     assert packet["market_capitalization_calculated"] is False
+
+
+def test_reads_pinned_r001_receipts_without_manual_json_assembly(
+    monkeypatch, tmp_path
+) -> None:
+    row = _page("D1", "ABC", 1, "A share consideration.")
+    row["shard_id"] = 3
+    monkeypatch.setattr(a002, "validate_queue", lambda _: [row])
+    monkeypatch.setattr(a002, "validate_config", lambda _: "cfg-sha")
+    config = {"runtime": "test"}
+    (tmp_path / "run-config.json").write_text(
+        json.dumps({
+            "runtime_model_config_sha256": "cfg-sha",
+            "model_config": config,
+        }),
+        encoding="utf-8",
+    )
+    dest = tmp_path / "requests" / "shard-03" / row["request_id"]
+    dest.mkdir(parents=True)
+    attempt = {
+        "request_id": row["request_id"],
+        "runtime_model_config_sha256": "cfg-sha",
+        "status": "VALIDATED",
+        "sealed": {"request_id": row["request_id"], "status": "VALIDATED_PENDING_SEMANTIC_AUDIT"},
+    }
+    attempt["receipt_sha256"] = digest(attempt)
+    path = dest / "attempt-001.json"
+    path.write_text(json.dumps(attempt), encoding="utf-8")
+
+    collected = a002.read_r001_validated_receipts({}, config, tmp_path)
+    assert len(collected) == 1
+    assert collected[0]["request_id"] == row["request_id"]
+
+    attempt["receipt_sha256"] = "bad"
+    path.write_text(json.dumps(attempt), encoding="utf-8")
+    with pytest.raises(AlphaContractError, match="attempt receipt SHA mismatch"):
+        a002.read_r001_validated_receipts({}, config, tmp_path)
+
+
+def test_rejects_duplicate_accepted_r001_receipts(monkeypatch, tmp_path) -> None:
+    row = _page("D2", "ABC", 2, "Initial notice.")
+    row["shard_id"] = 0
+    monkeypatch.setattr(a002, "validate_queue", lambda _: [row])
+    monkeypatch.setattr(a002, "validate_config", lambda _: "cfg-sha")
+    config = {"runtime": "test"}
+    (tmp_path / "run-config.json").write_text(
+        json.dumps({
+            "runtime_model_config_sha256": "cfg-sha",
+            "model_config": config,
+        }),
+        encoding="utf-8",
+    )
+    dest = tmp_path / "requests" / "shard-00" / row["request_id"]
+    dest.mkdir(parents=True)
+    attempt = {
+        "request_id": row["request_id"],
+        "runtime_model_config_sha256": "cfg-sha",
+        "status": "VALIDATED",
+        "sealed": {"request_id": row["request_id"]},
+    }
+    attempt["receipt_sha256"] = digest(attempt)
+    for i in (1, 2):
+        (dest / f"attempt-{i:03d}.json").write_text(
+            json.dumps(attempt), encoding="utf-8"
+        )
+    with pytest.raises(AlphaContractError, match="multiple accepted"):
+        a002.read_r001_validated_receipts({}, config, tmp_path)
