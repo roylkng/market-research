@@ -147,6 +147,7 @@ def _page_record(
     request_id: str | None,
     segment_id: str | None,
     model_cohort: str,
+    prompt_sha256: str | None,
 ) -> dict[str, Any]:
     if not isinstance(extraction, dict):
         raise TypeError("L002 validated extraction must be an object")
@@ -154,6 +155,7 @@ def _page_record(
         "request_id": request_id,
         "segment_id": segment_id,
         "model_cohort": model_cohort,
+        "prompt_sha256": prompt_sha256,
         "economic_relevance": extraction.get("economic_relevance"),
         "transaction_families": extraction.get("transaction_families"),
         "transaction_stage": extraction.get("transaction_stage"),
@@ -234,6 +236,7 @@ def build_issuer_evidence(
                     request_id=None,
                     segment_id=None,
                     model_cohort="P1_NATIVE_GPT56SOL",
+                    prompt_sha256=p1[document_id]["prompt_sha256"],
                 )
             )
             if raw_requests:
@@ -256,6 +259,7 @@ def build_issuer_evidence(
                         request_id=request["request_id"],
                         segment_id=request["segment_id"],
                         model_cohort="R001_API_" + str(runtime_sha),
+                        prompt_sha256=request["prompt_sha256"],
                     )
                 )
         else:
@@ -270,6 +274,9 @@ def build_issuer_evidence(
                 "source_event_ids": desc["q002_event_ids"],
                 "source_category_hints": desc["d003_categories"],
                 "source_segment_manifest_sha256": desc["d003_segment_manifest_sha256"],
+                "p1_prompt_sha256": desc.get("p1_prompt_sha256"),
+                "p1_model_config_sha256": desc.get("p1_model_config_sha256"),
+                "p1_raw_response_sha256": desc.get("p1_raw_model_response_sha256"),
                 "expected_page_count": desc["d003_segment_count"],
                 "validated_extraction_count": len(pages),
                 "missing_fresh_page_count": len(missing_request_ids),
@@ -362,6 +369,8 @@ def build_issuer_evidence(
         "source_queue_sha256": SOURCE_QUEUE_SHA,
         "source_p1_run_sha256": P1_RUN_SHA,
         "runtime_model_config_sha256": runtime_sha,
+        "runtime_model_id": runtime_config["model_id"] if runtime_config else None,
+        "runtime_provider": runtime_config["provider_runtime"] if runtime_config else None,
         "runtime_source_model_equivalence_claimed": False,
         "issuer_count": len(issuer_rows),
         "document_count": EXPECTED_DOCUMENTS,
