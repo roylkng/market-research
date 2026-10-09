@@ -192,9 +192,7 @@ def build_issuer_evidence(
         raise AlphaContractError("L002 R001 extractions require a pinned runtime configuration")
     runtime_sha = validate_config(runtime_config) if runtime_config else None
     if r001:
-        status = build_collection_status(queue, runtime_config, r001)
-    else:
-        status = None
+        build_collection_status(queue, runtime_config, r001)
 
     by_request = {r["request_id"]: r for r in r001}
     by_document: dict[str, list[dict[str, Any]]] = defaultdict(list)
