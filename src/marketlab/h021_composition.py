@@ -62,7 +62,7 @@ def build_analyst_composition_audit(comparison: dict[str, Any]) -> dict[str, Any
     eligible_count = 0
     for observation in observations:
         if not isinstance(observation, dict):
-            raise ValueError("revision observation must be an object")
+            raise TypeError("revision observation must be an object")
         symbol = observation.get("symbol")
         if not isinstance(symbol, str) or not symbol or symbol in seen_symbols:
             raise ValueError("missing or duplicate H021 symbol")
