@@ -100,7 +100,7 @@ def _validate_sources(
 
 def _source_day_of(event: dict[str, Any]) -> str:
     try:
-        stamp = datetime.fromisoformat(str(event["exchange_published_at_utc"]).replace("Z", "+00:00"))
+        stamp = datetime.fromisoformat(str(event["exchange_published_at_utc"]))
     except (KeyError, ValueError) as exc:
         raise AlphaContractError("P002 invalid announcement timestamp") from exc
     if stamp.tzinfo is None:
