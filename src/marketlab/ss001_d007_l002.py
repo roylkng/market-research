@@ -170,6 +170,8 @@ def build_issuer_evidence(
     fresh_requests = validate_queue(queue)
     if tuple(queue.get("issuer_symbols") or ()) != EXPECTED_ISSUERS:
         raise AlphaContractError("L002 frozen issuer order changed")
+    if queue.get("announcement_reference_count") != 95:
+        raise AlphaContractError("L002 frozen announcement reference count mismatch")
     if queue.get("distinct_document_count") != EXPECTED_DOCUMENTS:
         raise AlphaContractError("L002 total document count mismatch")
     if queue.get("p1_reuse_document_count") != EXPECTED_REUSED:
@@ -220,7 +222,7 @@ def build_issuer_evidence(
             key=lambda row: row["segment_order"],
         )
         pages: list[dict[str, Any]] = []
-        missing_count = 0
+        missing_request_ids: list[str] = []
         if desc["execution_state"] == "P1_REUSE":
             extraction = p1[document_id]["validated_extraction"]
             pages.append(
@@ -241,7 +243,7 @@ def build_issuer_evidence(
                     raise AlphaContractError("L002 page symbol differs from document")
                 sealed = by_request.get(request["request_id"])
                 if sealed is None:
-                    missing_count += 1
+                    missing_request_ids.append(request["request_id"])
                     continue
                 if sealed["document_id"] != document_id:
                     raise AlphaContractError("L002 page document binding mismatch")
@@ -267,7 +269,8 @@ def build_issuer_evidence(
                 "source_segment_manifest_sha256": desc["d003_segment_manifest_sha256"],
                 "expected_page_count": desc["d003_segment_count"],
                 "validated_extraction_count": len(pages),
-                "missing_fresh_page_count": missing_count,
+                "missing_fresh_page_count": len(missing_request_ids),
+                "missing_request_ids": missing_request_ids,
                 "extractions": pages,
             }
         )
