@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "intent_id": "H021-P003-2026-10-09-FIRST-COHORT-v1",
+  "classification": "PRE_ENTRY_OUTCOME_BLIND_H021_RESEARCH_ONLY_NOT_PORTFOLIO",
+  "source": {
+    "comparison_path": "research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json",
+    "comparison_git_blob_sha": "99c94c9d98284076bf1a7c34ee43e602b741b15b",
+    "calendar_path": "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json",
+    "calendar_git_blob_sha": "9ac614820a67b0f7b20d8170d15b84df3c996b62",
+    "calendar_payload_sha256": "2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce",
+    "calendar_version": "NSE-CM-FY27Q2-v1",
+    "primary_signal": "28-35 day same-period consensus EPS revision",
+    "prior_capture_date_ist": "2026-09-11",
+    "current_capture_date_ist": "2026-10-09",
+    "capture_interval_days": 28
+  },
+  "universe_symbol_count": 100,
+  "primary_signal_eligible_count": 97,
+  "excluded_symbol_count": 3,
+  "primary_top_decile_count": 10,
+  "primary_top_decile_cutoff_eps_revision_pct": 0.7856341189674598,
+  "selected_observations": [
+    {
+      "symbol": "VEDL",
+      "eps_revision_pct": 15.609903381642521,
+      "analyst_count_prior": 7,
+      "analyst_count_current": 7,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "ETERNAL",
+      "eps_revision_pct": 7.741935483870965,
+      "analyst_count_prior": 30,
+      "analyst_count_current": 30,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "DMART",
+      "eps_revision_pct": 5.922383667463693,
+      "analyst_count_prior": 31,
+      "analyst_count_current": 12,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "IDEA",
+      "eps_revision_pct": 4.6242774566473965,
+      "analyst_count_prior": 21,
+      "analyst_count_current": 21,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "ADANIENSOL",
+      "eps_revision_pct": 1.8898664059954218,
+      "analyst_count_prior": 6,
+      "analyst_count_current": 6,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "JSWSTEEL",
+      "eps_revision_pct": 1.3875285667646065,
+      "analyst_count_prior": 35,
+      "analyst_count_current": 34,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "COALINDIA",
+      "eps_revision_pct": 1.384839650145775,
+      "analyst_count_prior": 24,
+      "analyst_count_current": 21,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "INFY",
+      "eps_revision_pct": 1.1627906976744207,
+      "analyst_count_prior": 42,
+      "analyst_count_current": 48,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "GAIL",
+      "eps_revision_pct": 0.8789722785666143,
+      "analyst_count_prior": 31,
+      "analyst_count_current": 19,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    },
+    {
+      "symbol": "POWERGRID",
+      "eps_revision_pct": 0.7856341189674598,
+      "analyst_count_prior": 12,
+      "analyst_count_current": 9,
+      "entry_price": null,
+      "entry_execution_status": "UNOBSERVED_NEXT_OPEN",
+      "capital_allocation": null
+    }
+  ],
+  "ineligible_symbols": [
+    {
+      "symbol": "ADANIENT",
+      "reason": "ANALYST_COVERAGE_LT_5"
+    },
+    {
+      "symbol": "BOSCHLTD",
+      "reason": "ANALYST_COVERAGE_LT_5"
+    },
+    {
+      "symbol": "TRENT",
+      "reason": "ANALYST_COVERAGE_LT_5"
+    }
+  ],
+  "entry_plan": {
+    "session_date_ist": "2026-10-12",
+    "calendar_open_timestamp_utc": "2026-10-12T03:45:00Z",
+    "price_proxy": "NEXT_COMPLETED_SESSION_FIRST_EXECUTABLE_OPEN",
+    "status": "RESEARCH_INTENT_ONLY_NO_MARKET_FILL_OBSERVED",
+    "nontrading_or_no_executable_open_policy": "EXPLICIT_MISSED_OBSERVATION_NO_HINDSIGHT_FILL"
+  },
+  "outcome_plan": {
+    "primary_horizon_completed_sessions": 60,
+    "secondary_horizon_completed_sessions": 20,
+    "benchmark_family": "NIFTY_500",
+    "benchmark_price_series": "PENDING_INDEPENDENT_SOURCE_AND_BASIS_VALIDATION",
+    "entry_and_exit_prices_observed": false,
+    "return_outcomes_opened": false,
+    "require_corporate_action_adjustment": true,
+    "missing_market_prices_policy": "RETAIN_MISSING_NEVER_FILL",
+    "sixty_session_exit_date_verified": false,
+    "sixty_session_calendar_extension_required": true
+  },
+  "frozen_primary_selection_unchanged": true,
+  "no_position_orders_created": true,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false
+}
