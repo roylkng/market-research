@@ -1,0 +1,76 @@
+name: SS002 P005 deterministic underwriting readiness
+
+on:
+  push:
+    branches:
+      - research/ss002-p005-underwriting-readiness-20261010
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    if: contains(github.event.head_commit.message, '[ss002-p005]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Unit tests before data materialization
+        run: |
+          ruff check \
+            src/marketlab/ss002_p005_readiness.py \
+            scripts/materialize_ss002_p005.py \
+            tests/test_ss002_p005_readiness.py
+          pytest -q tests/test_ss002_p005_readiness.py
+      - name: Build P005 research-only case queue
+        run: |
+          python scripts/materialize_ss002_p005.py \
+            --p004-result research/ss002-p004-native-result-v1.json \
+            --out research/ss002-p005-result-v1.json
+      - name: Register P005 with outcome-blind research accounting
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("research/rta001-trials-v1.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          entry = {
+              "trial_id": "SS002-P005",
+              "category": "PORTFOLIO_CONTEXT",
+              "registration_mode": "OUTCOME_BLIND_RESEARCH_ROUTING",
+              "result_path": "research/ss002-p005-result-v1.json",
+              "result_state": "COMPLETE",
+              "reported_primary_supported": None,
+              "primary_endpoint": "FAMILY_SPECIFIC_UNDERWRITING_EVIDENCE_GAPS_NO_PORTFOLIO_ELIGIBILITY",
+              "p_value_status": "NO_RETURN_OUTCOME",
+              "nominal_primary_p_value": None,
+              "fdr_accounting_p_value": None,
+              "fdr_family": None,
+              "scientifically_preregistered_before_outcomes": True,
+          }
+          if not any(row["trial_id"] == entry["trial_id"] for row in payload["trials"]):
+              payload["trials"].append(entry)
+          payload["trials"].sort(key=lambda row: row["trial_id"])
+          path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          PY
+          python scripts/build_rta001_summary.py \
+            --manifest research/rta001-trials-v1.json \
+            --output research/rta001-summary-v1.json \
+            --repo-root .
+          python scripts/validate_rta001_coverage.py --repo-root .
+      - name: Commit exact P005 result and matching accounting
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/ss002-p005-result-v1.json research/rta001-trials-v1.json research/rta001-summary-v1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "SS002: seal P005 post-model underwriting queue [skip ci]"
+          git push origin HEAD:research/ss002-p005-underwriting-readiness-20261010
