@@ -145,6 +145,7 @@ def extract_official_attachment(
     raw: bytes | None,
     fetched_at_utc: str,
     error: str | None = None,
+    canonical_extraction: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     source_url = request["source_url"]
     if approved_attachment_url(source_url) is None:
@@ -198,12 +199,29 @@ def extract_official_attachment(
             None,
         )
     family = detect_document_family(raw, source_url)
-    extracted = extract_document_text(
-        document_id=document_id,
-        raw=raw,
-        d002_family=family,
-        source_url=source_url,
-    )
+    if canonical_extraction is not None:
+        if (
+            canonical_extraction.get("document_id") != document_id
+            or canonical_extraction.get("d002_family") != family
+        ):
+            raise AlphaContractError("SS002 P003 reused text has different document bytes or family")
+        expected = seal_extraction_row(
+            {
+                key: value
+                for key, value in canonical_extraction.items()
+                if key != "segment_manifest_sha256"
+            }
+        )
+        if expected["segment_manifest_sha256"] != canonical_extraction.get("segment_manifest_sha256"):
+            raise AlphaContractError("SS002 P003 reused text manifest SHA mismatch")
+        extracted = canonical_extraction
+    else:
+        extracted = extract_document_text(
+            document_id=document_id,
+            raw=raw,
+            d002_family=family,
+            source_url=source_url,
+        )
     return (
         {
             **common,
@@ -215,6 +233,7 @@ def extract_official_attachment(
             "extraction_state": extracted["extraction_state"],
             "text_segment_count": len(extracted["segments"]),
             "segment_manifest_sha256": extracted["segment_manifest_sha256"],
+            "segment_source_url": extracted["source_url"],
             "error": None,
         },
         extracted,
