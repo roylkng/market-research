@@ -1,0 +1,214 @@
+name: SS001 R001 manual evidence-bound LLM shard
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preflight validates frozen queue; infer makes paid model calls"
+        required: true
+        type: choice
+        default: preflight
+        options:
+          - preflight
+          - infer
+      shard_id:
+        description: "One frozen shard (0-15); dry-run checks all shards"
+        required: true
+        type: choice
+        default: "0"
+        options:
+          - "0"
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+          - "6"
+          - "7"
+          - "8"
+          - "9"
+          - "10"
+          - "11"
+          - "12"
+          - "13"
+          - "14"
+          - "15"
+      max_requests:
+        description: "Maximum new model calls (1-78); default 5; ignored in preflight"
+        required: true
+        type: string
+        default: "5"
+      previous_run_id:
+        description: "Optional prior successful/partial R001 run ID for same model cohort"
+        required: false
+        type: string
+        default: ""
+      retry_failed:
+        description: "Explicitly append new attempts for failed page requests"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ss001-r001-manual-shard-${{ inputs.shard_id }}
+  cancel-in-progress: false
+
+jobs:
+  evidence-bound-shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      R001_MODE: ${{ inputs.mode }}
+      R001_SHARD_ID: ${{ inputs.shard_id }}
+      R001_MAX_REQUESTS: ${{ inputs.max_requests }}
+      R001_PREVIOUS_RUN_ID: ${{ inputs.previous_run_id }}
+      R001_MODEL_ID: ${{ vars.SS001_R001_MODEL_ID }}
+      R001_API_ENDPOINT: ${{ vars.SS001_R001_API_ENDPOINT }}
+      R001_TOKEN_PARAMETER: ${{ vars.SS001_R001_TOKEN_PARAMETER }}
+      MARKETLAB_LLM_API_KEY: ${{ secrets.MARKETLAB_LLM_API_KEY }}
+      PYTHONDONTWRITEBYTECODE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install validated research runtime
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate manual dispatch and pin provider configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          from marketlab.ss001_l001_batch import validate_config
+
+          mode = os.environ["R001_MODE"]
+          if mode not in {"preflight", "infer"}:
+              raise SystemExit("unsupported R001 execution mode")
+          shard = int(os.environ["R001_SHARD_ID"])
+          count = int(os.environ["R001_MAX_REQUESTS"])
+          prior = os.environ.get("R001_PREVIOUS_RUN_ID", "")
+          if shard not in range(16):
+              raise SystemExit("R001 shard must be 0..15")
+          if not 1 <= count <= 78:
+              raise SystemExit("R001 max_requests must be 1..78")
+          if prior and (not prior.isdecimal() or len(prior) > 20):
+              raise SystemExit("R001 previous_run_id must be a numeric GitHub run ID")
+
+          model_id = os.environ.get("R001_MODEL_ID", "").strip()
+          endpoint = os.environ.get("R001_API_ENDPOINT", "").strip()
+          if not model_id or not endpoint:
+              raise SystemExit("Configure SS001_R001_MODEL_ID and SS001_R001_API_ENDPOINT repository variables")
+          if urlparse(endpoint).scheme != "https":
+              raise SystemExit("Hosted R001 workflow requires HTTPS model endpoint; use local CLI for loopback")
+          token_parameter = os.environ.get("R001_TOKEN_PARAMETER", "").strip() or "max_completion_tokens"
+          config = {
+              "schema_version": 1,
+              "provider_runtime": "OPENAI_COMPATIBLE_CHAT",
+              "model_id": model_id,
+              "api_endpoint": endpoint,
+              "temperature": None,
+              "top_p": None,
+              "max_completion_tokens": 4096,
+              "timeout_seconds": 120,
+              "auth_env": "MARKETLAB_LLM_API_KEY",
+              "token_parameter": token_parameter,
+              "json_object_mode": True,
+          }
+          config_sha = validate_config(config)
+          if mode == "infer" and not os.environ.get("MARKETLAB_LLM_API_KEY"):
+              raise SystemExit("Inference requires configured MARKETLAB_LLM_API_KEY secret")
+
+          Path("reports/ss001-r001").mkdir(parents=True, exist_ok=True)
+          Path("reports/ss001-r001-config.json").write_text(
+              json.dumps(config, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps({
+              "mode": mode,
+              "shard_id": shard,
+              "max_new_calls": count if mode == "infer" else 0,
+              "resume_previous_run": bool(prior),
+              "runtime_model_id": model_id,
+              "runtime_config_sha256": config_sha,
+              "model_inference_executed": False,
+          }, sort_keys=True))
+          PY
+
+      - name: Download exact frozen 1,240-page queue
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-d007-l001-p2-queue-37884584355
+          path: reports/ss001-r001-source
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37884584355
+
+      - name: Restore prior append-only receipts when explicitly supplied
+        if: ${{ inputs.previous_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ss001-r001-${{ inputs.previous_run_id }}
+          path: reports/ss001-r001
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: ${{ inputs.previous_run_id }}
+
+      - name: Verify frozen queue and existing receipts without model calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_ss001_l001_batch.py \
+            --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
+            --config reports/ss001-r001-config.json \
+            --output-dir reports/ss001-r001 \
+            --dry-run
+
+      - name: Execute explicitly authorized shard budget
+        if: ${{ inputs.mode == 'infer' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FLAGS=()
+          if [[ "${{ inputs.retry_failed }}" == "true" ]]; then
+            FLAGS+=(--retry-failed)
+          fi
+          python scripts/run_ss001_l001_batch.py \
+            --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
+            --config reports/ss001-r001-config.json \
+            --output-dir reports/ss001-r001 \
+            --run-shard "$R001_SHARD_ID" \
+            --max-requests "$R001_MAX_REQUESTS" \
+            "${FLAGS[@]}"
+
+      - name: Reconstruct validated incremental collection
+        if: ${{ inputs.mode == 'infer' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_ss001_l001_batch.py \
+            --queue reports/ss001-r001-source/ss001-d007-l001-p2-queue.json \
+            --config reports/ss001-r001-config.json \
+            --output-dir reports/ss001-r001 \
+            --collect
+
+      - name: Publish resumable receipts and source-only status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss001-r001-${{ github.run_id }}
+          path: reports/ss001-r001
+          if-no-files-found: warn
+          retention-days: 30
