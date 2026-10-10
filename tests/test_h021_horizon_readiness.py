@@ -80,7 +80,7 @@ def test_does_not_accept_different_holding_rule_or_capital_elevation() -> None:
 def test_cannot_query_arbitrary_unregistered_horizon() -> None:
     intent, snapshot = _inputs()
     result = first_cohort_horizon_readiness(intent, snapshot)
-    with pytest.raises(ValueError, match="horizon not declared"):
+    with pytest.raises(TypeError, match="horizon not declared"):
         require_horizon_calendar_ready(result, 90)
 
 
