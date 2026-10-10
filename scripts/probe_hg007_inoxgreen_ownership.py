@@ -93,6 +93,7 @@ def acquire_source(*, timeout: float = 18.0) -> tuple[dict, dict[str, bytes]]:
         "captured_at_utc": as_of,
         "raw_sha256": _hash(raw_master), "raw_byte_count": len(raw_master),
     }
+    envelope = None
     try:
         envelope = json.loads(raw_master)
         master_receipt["original_json_envelope_type"] = type(envelope).__name__
@@ -110,6 +111,17 @@ def acquire_source(*, timeout: float = 18.0) -> tuple[dict, dict[str, bytes]]:
             raw_master, captured_at_utc=as_of
         )
     except (ValueError, TypeError) as exc:
+        # The actual Oct 10 official endpoint returned exactly this empty
+        # object. It is a source-response state, NOT "no filing exists".
+        if envelope == {"data": [], "msg": "no data found"}:
+            return _receipt(
+                "NSE_MASTER_EXPLICITLY_EMPTY_FOR_THIS_ISSUER_REQUEST",
+                reason=(
+                    "NSE returned data=[] and msg=no data found at capture; "
+                    "other official venues and dates not ruled out"
+                ),
+                master=master_receipt,
+            ), {"master.json": raw_master}
         return _receipt(
             "NSE_MASTER_SOURCE_SCHEMA_UNVERIFIED",
             reason=f"{type(exc).__name__}: {str(exc)[:300]}",
