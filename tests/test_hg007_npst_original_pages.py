@@ -86,7 +86,7 @@ def test_original_receipt_or_pdf_byte_mutation_rejected(tmp_path: Path) -> None:
             dest.write_bytes(original.read_bytes())
     receipt = tmp_path / ROOT / "2026-08-11-investor-presentation" / "original-receipt-v1.json"
     receipt.write_bytes(receipt.read_bytes() + b"\n")
-    with pytest.raises(ValueError, match="Git blob"):
+    with pytest.raises(ValueError, match="original immutable BSE source receipt changed"):
         build_npst_original_page_evidence(tmp_path)
     receipt.write_bytes(
         (ROOT / "2026-08-11-investor-presentation" / "original-receipt-v1.json").read_bytes()
