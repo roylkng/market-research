@@ -1,0 +1,140 @@
+name: HG007 original INOXGREEN QIP September PDF custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/probe_hg007_qip_nse_original.py
+      - .github/workflows/hg007-inoxgreen-qip-original.yml
+  schedule:
+    # Bounded Oct 10-20 retry if original NSE archive is temporarily inaccessible.
+    - cron: '35 4 10-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-inoxgreen-sept-qip-original-source
+  cancel-in-progress: false
+
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test original PDF source evidence boundaries
+        run: |
+          ruff check scripts/probe_hg007_qip_nse_original.py tests/test_hg007_qip_original_source.py
+          pytest -q tests/test_hg007_qip_original_source.py
+      - name: Gate only exact source and not already-anchored original
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          SOURCE="research/hg007/inoxgreen-sep2026-qip"
+          RECEIPT="$SOURCE/original-receipt-v1.json"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch || ( "$TODAY" > "2026-10-09" && "$TODAY" < "2026-10-21" ) ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$RECEIPT" 2>/dev/null; then
+              STATE=ALREADY_CAPTURED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Original QIP collection gate=$STATE"
+      - name: Fetch exact NSE September QIP PDF without access bypass
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-qip-original-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "QIP_RUN_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_qip_nse_original.py \
+            --out-dir "$OUT" --attempts 2 --sleep-seconds 2
+          test -s "$OUT/capture-receipt-v1.json"
+      - name: Anchor original bytes only if precise issuer and all numbers pass
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$QIP_RUN_OUT/capture-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          record=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert record['source_page_text_provenance'] is None or record['source_page_text_provenance']['current_fully_diluted_shares_verified'] is False
+          assert record['portfolio_eligibility_allowed'] is False
+          print(record['state'])
+          PY
+          )"
+          if [[ "$STATE" != ORIGINAL_NSE_QIP_PDF_CAPTURED_TEXT_IDENTITY_PASSED ]]; then
+            echo "Original NSE QIP source unavailable or invalid; state=$STATE; do not promote PDF"
+            exit 0
+          fi
+          DIR="research/hg007/inoxgreen-sep2026-qip"
+          TARGET="$DIR/original-receipt-v1.json"
+          mkdir -p "$DIR/raw/sha256"
+          cp "$QIP_RUN_OUT/capture-receipt-v1.json" "$TARGET"
+          cp "$QIP_RUN_OUT"/raw/sha256/*.pdf "$DIR/raw/sha256/"
+          python - "$TARGET" "$DIR/raw/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.probe_hg007_qip_nse_original import verify_qip_original
+          receipt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          digest=receipt['source_original_pdf_sha256']
+          raw=(Path(sys.argv[2])/f"{digest}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==digest
+          assert verify_qip_original(raw)==receipt['source_page_text_provenance']
+          assert receipt['current_fully_diluted_share_count_verified'] is False
+          print("Original September NSE PDF captured with SHA",digest)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: retain official Sep 29 INOXGREEN QIP original bytes [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original source already anchored: do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/probe_hg007_qip_nse_original.py \
+              .github/workflows/hg007-inoxgreen-qip-original.yml \
+              research/hg007/inoxgreen-sep2026-qip; then
+              echo "Source protocol modified during acquisition; refuse source promotion"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve every attempt including blocked HTTP
+        if: always() && steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-inoxgreen-sept-qip-exchange-source
+          path: ${{ env.QIP_RUN_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
