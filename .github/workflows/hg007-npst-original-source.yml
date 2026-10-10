@@ -1,0 +1,164 @@
+name: HG007 NPST original Q1 FY27 financial and proceeds files
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_npst_originals.py
+      - .github/workflows/hg007-npst-original-source.yml
+  schedule:
+    # bounded October checks; later manual reruns still possible.
+    - cron: '25 4 11-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-npst-three-original-bse-reports
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test original-source identity and no-substitution gates
+        run: |
+          ruff check scripts/acquire_hg007_npst_originals.py tests/test_hg007_npst_originals.py
+          pytest -q tests/test_hg007_npst_originals.py
+      - name: Fetch missing original investor, June Reg32 and March monitoring filings
+        id: originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          ROOT="research/hg007/npst-aug2026-originals"
+          ATTEMPT_ROOT="/tmp/hg007-npst-originals-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$ATTEMPT_ROOT"
+          echo "NPST_SOURCE_ATTEMPTS=$ATTEMPT_ROOT" >> "$GITHUB_ENV"
+          if [[ "$GITHUB_EVENT_NAME" != workflow_dispatch && ( "$TODAY" < "2026-10-11" || "$TODAY" > "2026-10-20" ) ]]; then
+            echo "Initial bounded collection window completed"
+            echo "collected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          COLLECTED=false
+          while IFS= read -r KEY; do
+            [[ -n "$KEY" ]] || continue
+            TARGET="$ROOT/$KEY/original-receipt-v1.json"
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "$KEY already source-anchored; no overwrite"
+              continue
+            fi
+            OUT="$ATTEMPT_ROOT/$KEY"
+            python scripts/acquire_hg007_npst_originals.py \
+              --source-id "$KEY" --out-dir "$OUT" \
+              --attempts 2 --sleep-seconds 2
+            STATUS="$(python - "$OUT/original-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          p=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert p["company_expected_returns_calculated"] is False
+          assert p["portfolio_eligibility_allowed"] is False
+          assert p["live_capital_allowed"] is False
+          if p["status"] == "ORIGINAL_PDF_BYTE_AND_PAGE_STRUCTURE_CAPTURED" and p["original_issuer_and_period_identity_gate_passed"] is True:
+              print("READY_SOURCE_ONLY")
+          else:
+              print("BLOCKED_OR_TEXT_UNCONFIRMED")
+          PY
+            )"
+            if [[ "$STATUS" != READY_SOURCE_ONLY ]]; then
+              echo "$KEY source not issuer-and-period confirmed; preserve independent attempt only"
+              continue
+            fi
+            SRC="$OUT/raw/sha256"
+            test "$(find "$SRC" -name '*.pdf' | wc -l)" -eq 1
+            DST="$ROOT/$KEY"
+            mkdir -p "$DST/raw/sha256"
+            cp "$OUT/original-receipt-v1.json" "$DST/original-receipt-v1.json"
+            cp "$SRC"/*.pdf "$DST/raw/sha256/"
+            python - "$DST" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_npst_originals import FILINGS,_pdf_page_evidence
+          d=Path(sys.argv[1])
+          p=json.loads((d/"original-receipt-v1.json").read_text(encoding='utf-8'))
+          assert p["source_kind"] in FILINGS
+          assert p["original_issuer_and_period_identity_gate_passed"] is True
+          assert p["original_bse_url"] == FILINGS[p["source_kind"]]["url"]
+          raw=(d/"raw"/"sha256"/f"{p['original_raw_sha256']}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==p["original_raw_sha256"]
+          assert _pdf_page_evidence(raw)==p["original_pdf_page_evidence"]
+          print("Verified exact original",p["source_kind"],p["original_raw_sha256"])
+          PY
+            COLLECTED=true
+          done < <(python - <<'PY'
+          from scripts.acquire_hg007_npst_originals import FILINGS
+          for name in FILINGS:
+              print(name)
+          PY
+          )
+          echo "collected=$COLLECTED" >> "$GITHUB_OUTPUT"
+
+      - name: Source-only append to main without changing study contracts
+        if: steps.originals.outputs.collected == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/hg007/npst-aug2026-originals"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git diff --cached --quiet && exit 0
+          git commit -m "HG007: retain exact BSE NPST Q1 and March provenance, no economics [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              .github/workflows/hg007-npst-original-source.yml \
+              scripts/acquire_hg007_npst_originals.py \
+              research/hg005-d003-result-v1.json; then
+              echo "Original source/protocol changed while collecting; refuse commit"
+              exit 1
+            fi
+            for KEY in \
+              2026-08-11-investor-presentation \
+              2026-08-11-june-reg32-use-of-funds \
+              2026-08-11-march-monitoring-agency; do
+              TARGET="$DEST/$KEY/original-receipt-v1.json"
+              if git cat-file -e "HEAD:$TARGET" && git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+                echo "Original filing already anchored by another run; refuse overwrite"
+                exit 1
+              fi
+            done
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((2 * RETRY))"
+          done
+          echo "Original NPST acquisition source could not be committed safely"
+          exit 1
+
+      - name: Retain blocked and acquired exact original attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-npst-three-bse-original-attempts
+          path: /tmp/hg007-npst-originals-*
+          if-no-files-found: ignore
+          retention-days: 90
