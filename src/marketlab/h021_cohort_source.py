@@ -8,7 +8,6 @@ its entry; shared P008 daily UDiFF bytes supply observations after entry.
 from __future__ import annotations
 
 import hashlib
-import json
 import math
 from datetime import UTC, date, datetime
 from typing import Any
