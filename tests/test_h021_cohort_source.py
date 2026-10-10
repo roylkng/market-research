@@ -220,3 +220,28 @@ def test_materialized_cohort_source_is_immutable(tmp_path:Path) -> None:
     target.write_text(json.dumps(observed))
     with pytest.raises(ValueError,match="altered"):
         materialize_all(intents,prices,out)
+
+
+
+def test_zero_eligible_future_cohort_does_not_fabricate_positions(tmp_path:Path) -> None:
+    _p003,universe,_calendar=load_frozen_sources()
+    empty=_future_intent(universe)
+    empty["selected_count"]=0
+    empty["eligible_count"]=0
+    empty["selected_observations"]=[]
+    empty["packet_sha256"]=_canonical_hash(
+        {k:v for k,v in empty.items() if k!="packet_sha256"}
+    )
+    intent_root=tmp_path/"intents"
+    daily_root=tmp_path/"daily"
+    result_root=tmp_path/"cohorts"
+    intent_root.mkdir()
+    daily_root.mkdir()
+    (intent_root/"2026-10-16-primary-entry-intent-v2.json").write_text(
+        json.dumps(empty)
+    )
+    response=materialize_all(intent_root,daily_root,result_root)
+    assert response["zero_eligible_cohorts_with_no_source_positions"]==1
+    assert response["new_cohort_source_packets"]==0
+    assert response["outcomes_opened"] is False
+    assert not result_root.exists()
