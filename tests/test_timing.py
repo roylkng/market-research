@@ -128,3 +128,39 @@ def test_breakout_diagnostic_is_not_authorized_trade() -> None:
     assert result["portfolio_eligibility_allowed"] is False
     assert result["live_capital_allowed"] is False
     assert result["probability_calibrated"] is False
+
+
+def test_offline_cli_is_source_hashed_and_disables_capital(tmp_path) -> None:
+    import json
+    import subprocess
+    import sys
+
+    stock = _frame(np.linspace(100.0, 135.0, 260))
+    bench = _frame(np.linspace(100.0, 118.0, 260))
+    stock_csv = tmp_path / "stock.csv"
+    bench_csv = tmp_path / "benchmark.csv"
+    output = tmp_path / "timing.json"
+    for frame, path in ((stock, stock_csv), (bench, bench_csv)):
+        table = frame.copy()
+        table.insert(0, "date", [value.date().isoformat() for value in frame.index])
+        table.to_csv(path, index=False)
+    subprocess.run(
+        [
+            sys.executable, "scripts/evaluate_h020_offline.py",
+            "--stock-csv", str(stock_csv),
+            "--benchmark-csv", str(bench_csv),
+            "--as-of-session", stock.index[-1].date().isoformat(),
+            "--symbol", "DEVELOPMENT",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["id"] == "H020-TIMING-READONLY-v1"
+    assert len(payload["stock_source_sha256"]) == 64
+    assert payload["result"]["action"]
+    assert payload["return_outcomes_opened"] is False
+    assert payload["portfolio_eligibility_allowed"] is False
+    assert payload["adjusted_price_and_corporate_actions_independently_verified"] is False
