@@ -9,17 +9,17 @@ from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError
 from marketlab.nse import NSEAcquisitionError, NSEClient
-from marketlab.ss002_p001_source_gaps import (
-    MAX_AUTOMATED_ATTEMPTS_PER_DAY,
-    append_source_failure,
-    build_source_failure,
-    source_attempts_for_day,
-)
 from marketlab.ss002_daily_capture import (
     FIRST_SOURCE_DATE,
     build_daily_capture,
     deterministic_gzip,
     raw_sha256,
+)
+from marketlab.ss002_p001_source_gaps import (
+    MAX_AUTOMATED_ATTEMPTS_PER_DAY,
+    append_source_failure,
+    build_source_failure,
+    source_attempts_for_day,
 )
 
 LOCAL_TZ = ZoneInfo("Asia/Kolkata")
