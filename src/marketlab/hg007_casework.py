@@ -149,7 +149,7 @@ def build_casework_board(sources: dict[str, dict], receipts: dict[str, dict]) ->
     for state, field in ROLE_FIELDS.items():
         values = thread.get(field)
         if not isinstance(values, list):
-            raise ValueError(f"HG003 stage list is missing: {state}")
+            raise TypeError(f"HG003 stage list is missing: {state}")
         for symbol in values:
             if symbol in role:
                 raise ValueError(f"HG003 assigned multiple special-situation states: {symbol}")
