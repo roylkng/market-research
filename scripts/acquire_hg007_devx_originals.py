@@ -68,9 +68,11 @@ def validate_original(kind: str, raw: bytes) -> dict[str, Any]:
         pages = _pdf_pages(raw)
         cover = _normal(" ".join(pages[:2]))
         source = _normal("\n".join(pages))
-        for token in ("dev accelerator", "devx", "20th may, 2026"):
+        for token in ("dev accelerator", "devx"):
             if token not in cover:
                 raise ValueError(f"original NSE PDF cover issuer/date mismatch: {token}")
+        if "20th may, 2026" not in cover and "may 20, 2026" not in cover:
+            raise ValueError("original NSE PDF cover issuer/date mismatch: 20 May 2026")
         for token in (
             "standalone financial metrics",
             "cash ebit",
