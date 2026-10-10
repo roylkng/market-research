@@ -1,0 +1,132 @@
+name: SS002 P015 original Polycab NCLAT stay source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/probe_ss002_polycab_original_stay.py
+      - tests/test_ss002_polycab_stay_source.py
+      - .github/workflows/ss002-p015-polycab-original-stay.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ss002-p015-polycab-exact-nclat-document
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate dated original source identity and no-alpha flags
+        run: |
+          ruff check scripts/probe_ss002_polycab_original_stay.py tests/test_ss002_polycab_stay_source.py
+          pytest -q tests/test_ss002_polycab_stay_source.py tests/test_ss002_daily_capture.py
+      - name: Gate immutable original document existence
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/ss002-p015-polycab/official-original-receipt-v1.json"
+          git fetch origin main
+          if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+            echo "capture=no" >> "$GITHUB_OUTPUT"
+            echo "Exact original court PDF already archived"
+          else
+            echo "capture=yes" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Acquire exact approved NSE NCLAT source
+        if: steps.gate.outputs.capture == 'yes'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/ss002-polycab-nclat-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "NCLAT_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_ss002_polycab_original_stay.py \
+            --repo-root . --out-dir "$OUT" --attempts 2 --pause-seconds 2
+          test -s "$OUT/source-receipt-v1.json"
+      - name: Archive source only if exact 4-page NCLAT stay identity validated
+        if: steps.gate.outputs.capture == 'yes'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(python - "$NCLAT_SOURCE_OUT/source-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          obj=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert obj["issuer_currently_in_unstayed_cirp_proven"] is False
+          assert obj["live_capital_allowed"] is False
+          print(obj["source_capture_state"])
+          PY
+          )"
+          if [[ "$STATUS" != ORIGINAL_NSE_PDF_TEXT_IDENTITY_VALIDATED ]]; then
+            echo "Exact Polycab court source remains unavailable ($STATUS)"
+            exit 0
+          fi
+          DEST="research/ss002-p015-polycab"
+          TARGET="$DEST/official-original-receipt-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$NCLAT_SOURCE_OUT/source-receipt-v1.json" "$TARGET"
+          cp "$NCLAT_SOURCE_OUT"/raw/sha256/*.pdf "$DEST/raw/sha256/"
+          python - "$TARGET" "$DEST/raw/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.probe_ss002_polycab_original_stay import _pdf_identity
+          obj=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          sha=obj["original_document_sha256"]
+          raw=(Path(sys.argv[2])/f"{sha}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==sha
+          assert _pdf_identity(raw)==obj["original_pdf_text_identity"]
+          assert obj["issuer_currently_in_unstayed_cirp_proven"] is False
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "SS002: source-bind original Oct9 Polycab NCLAT stay, not issuer insolvency [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original source already archived; refuse duplicate"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/probe_ss002_polycab_original_stay.py \
+              research/prospective/ss002-p001/2026-10-09-v1.json \
+              .github/workflows/ss002-p015-polycab-original-stay.yml; then
+              echo "Original NSE event/source selection changed during acquisition"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$(git rev-parse HEAD^)"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor exact official NSE source after bounded Git retries"
+          exit 1
+      - name: Retain independently timestamped source result even on failure
+        if: always() && steps.gate.outputs.capture == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-polycab-original-nclat-order-source
+          path: ${{ env.NCLAT_SOURCE_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
