@@ -1,0 +1,100 @@
+name: HG007 WWIL source-bound management future EBITDA hurdle
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_wwil_synergy_hurdle.py
+      - scripts/review_hg007_wwil_original_synergy.py
+      - tests/test_hg007_wwil_synergy_hurdle.py
+      - .github/workflows/hg007-wwil-synergy-hurdle.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_wwil_synergy_hurdle.py
+      - scripts/review_hg007_wwil_original_synergy.py
+      - tests/test_hg007_wwil_synergy_hurdle.py
+      - .github/workflows/hg007-wwil-synergy-hurdle.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-source-bound-wwil-future-ebitda-hurdle
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify actual source and no-forecast expected return guards
+        run: |
+          ruff check src/marketlab/hg007_wwil_synergy_hurdle.py scripts/review_hg007_wwil_original_synergy.py tests/test_hg007_wwil_synergy_hurdle.py
+          pytest -q tests/test_hg007_wwil_synergy_hurdle.py
+      - name: Reproduce exact original management claim and stress table
+        run: |
+          python scripts/review_hg007_wwil_original_synergy.py \
+            --repo-root . \
+            --out /tmp/hg007-wwil-postsynergy-hurdle-v1.json
+          test -s /tmp/hg007-wwil-postsynergy-hurdle-v1.json
+      - name: Freeze immutable original-source review result on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/hg007/wwil-oct7-press/source-bound-post-synergy-hurdle-v1.json"
+          if [[ -f "$DEST" ]]; then
+            python scripts/review_hg007_wwil_original_synergy.py \
+              --out "$DEST" --verify-existing
+            echo "Existing original-source result reproduced"
+            exit 0
+          fi
+          mkdir -p "$(dirname "$DEST")"
+          cp /tmp/hg007-wwil-postsynergy-hurdle-v1.json "$DEST"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$DEST"
+          git commit -m "HG007: retain management 2x synergy hurdle with BSE page sources no stock alpha [skip ci]"
+          BASE="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            REMOTE="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$DEST" 2>/dev/null; then
+              echo "Original hurdle already anchored, do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE" "$REMOTE" -- \
+              research/hg007/wwil-oct7-press/raw \
+              research/hg007/wwil-oct7-press/original-source-receipt-v1.json \
+              src/marketlab/hg007_wwil_synergy_hurdle.py \
+              scripts/review_hg007_wwil_original_synergy.py; then
+              echo "Underlying original source or evaluation code changed"
+              exit 1
+            fi
+            if [[ "$REMOTE" != "$BASE" ]]; then
+              git rebase origin/main
+              BASE="$REMOTE"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain reviewed original-page arithmetic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-wwil-management-post-synergy-hurdle-only
+          path: /tmp/hg007-wwil-postsynergy-hurdle-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
