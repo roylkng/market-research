@@ -1,0 +1,104 @@
+name: HG007 QIP corrected historical market denominator
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_qip_capitalization.py
+      - scripts/reconcile_hg007_post_qip_capitalization.py
+      - tests/test_hg007_qip_capitalization.py
+      - research/hg007/inoxgreen-sep2026-qip/**
+      - .github/workflows/hg007-post-qip-capitalization.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_qip_capitalization.py
+      - scripts/reconcile_hg007_post_qip_capitalization.py
+      - tests/test_hg007_qip_capitalization.py
+      - .github/workflows/hg007-post-qip-capitalization.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-qip-dated-capitalization-v1
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Replay exact source provenance and all denominator tests
+        run: |
+          ruff check src/marketlab/hg007_qip_capitalization.py scripts/reconcile_hg007_post_qip_capitalization.py tests/test_hg007_qip_capitalization.py
+          pytest -q tests/test_hg007_qip_capitalization.py
+      - name: Generate dated original NSE QIP denominator correction
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/reconcile_hg007_post_qip_capitalization.py \
+            --repo-root . \
+            --out /tmp/hg007-inoxgreen-post-qip-v1.json
+          test -s /tmp/hg007-inoxgreen-post-qip-v1.json
+      - name: Anchor immutable historical correction only on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/inoxgreen-sep2026-qip/post-qip-market-cap-audit-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/reconcile_hg007_post_qip_capitalization.py \
+              --out "$TARGET" --verify-existing
+            echo "Existing original source correction unchanged"
+            exit 0
+          fi
+          cp /tmp/hg007-inoxgreen-post-qip-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor post QIP issued-share market-cap correction no FD approval [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "QIP original capital-base correction already anchored; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/inoxgreen-sep2026-qip/raw \
+              research/hg007/inoxgreen-sep2026-qip/original-receipt-v1.json \
+              research/hg005-d001-result-v1.json \
+              research/ss002-p007-result-v1.json \
+              src/marketlab/hg007_qip_capitalization.py; then
+              echo "Original source/denominator changed while correction prepared"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Immutable correction could not be anchored after bounded attempts"
+          exit 1
+      - name: Retain independent source correction result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-inoxgreen-qip-capitalization-correction-v1
+          path: /tmp/hg007-inoxgreen-post-qip-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
