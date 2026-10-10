@@ -76,7 +76,7 @@ def test_future_filing_is_not_retroactively_available() -> None:
 
 def test_latest_official_revision_is_selected_but_ties_are_blocked() -> None:
     original=json.loads(_master())
-    revised=json.loads(_master(broadcast="10-Oct-2026 16:00:28",record=1002))
+    revised=json.loads(_master(broadcast="10-Oct-2026 20:00:28",record=1002))
     source, summary=m.select_official_asof_master(
         json.dumps(original+revised).encode(),
         captured_at_utc="2026-10-10T12:00:00Z",
