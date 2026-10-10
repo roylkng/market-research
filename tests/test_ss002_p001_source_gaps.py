@@ -175,3 +175,23 @@ def test_real_runner_equity_master_outage_remains_a_gap(
     assert record["source_failure_reason"] == "OFFICIAL_NSE_HTTP_REJECTED"
     assert record["announcement_count"] is None
     assert not (root / "2026-10-09-v1.json").exists()
+
+
+
+def test_main_push_source_window_is_not_limited_to_oct5_oct8() -> None:
+    workflow = Path(
+        ".github/workflows/ss002-p001-daily-special-situations.yml"
+    ).read_text(encoding="utf-8")
+    # Original feature-only bootstrap is historical and must not constrain
+    # the Oct 9 source recovery run triggered by a merged main push.
+    assert (
+        'if [[ "$RUN_EVENT" == "push" && "$GITHUB_REF_NAME" == '
+        '"feat/ss002-p001-daily-special-situations-20261009" ]]; then'
+    ) in workflow
+    assert "ARGS+=(--start-date 2026-10-05 --end-date 2026-10-08)" in workflow
+    assert (
+        'if [[ -n "$INPUT_START_DATE" ]]; then '
+        'ARGS+=(--start-date "$INPUT_START_DATE"); fi'
+    ) in workflow
+    assert 'github.ref == \'refs/heads/main\'' in workflow
+    assert "src/marketlab/ss002_p001_source_gaps.py" in workflow
