@@ -44,7 +44,7 @@ def _utc(value: str) -> datetime:
     if not isinstance(value, str):
         raise TypeError("capture timestamp must be a string")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise ValueError("invalid capture timestamp") from exc
     if parsed.tzinfo is None:
