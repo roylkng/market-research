@@ -1,0 +1,143 @@
+name: HG007 INOXGREEN independent official shareholding source
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_shp_source.py
+      - scripts/acquire_hg007_inoxgreen_shp.py
+      - tests/test_hg007_shp_source.py
+      - .github/workflows/hg007-inoxgreen-shp.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_shp_source.py
+      - scripts/acquire_hg007_inoxgreen_shp.py
+      - tests/test_hg007_shp_source.py
+      - .github/workflows/hg007-inoxgreen-shp.yml
+  workflow_dispatch:
+  schedule:
+    # October 2026 check for a September Reg31 source; gated in job.
+    - cron: '15 5 11-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-inoxgreen-post-qip-original-shareholding
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test strict source chronology and data-integrity boundaries
+        run: |
+          ruff check src/marketlab/hg007_shp_source.py scripts/acquire_hg007_inoxgreen_shp.py tests/test_hg007_shp_source.py
+          pytest -q tests/test_hg007_shp_source.py
+      - name: Only acquire official exchange bytes from authorized source window
+        id: gate
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          ACTION=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-10" && "$TODAY" < "2026-10-21" ]]; then
+            ACTION=CAPTURE
+          fi
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "NSE official source acquisition gate: $ACTION"
+      - name: Acquire original NSE issuer master and latest as-of published XBRL
+        if: steps.gate.outputs.action == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-shp-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "HG007_SHP_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_inoxgreen_shp.py --out-dir "$OUT"
+          test -s "$OUT/receipt-v1.json"
+      - name: Preserve original source bytes and date-stamped immutable receipt
+        if: steps.gate.outputs.action == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_STATE="$(python - "$HG007_SHP_OUT/receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          value=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert value["live_capital_allowed"] is False
+          assert value["current_fd_shares_verified"] is False
+          print(value["status"])
+          PY
+          )"
+          if [[ "$CAPTURE_STATE" == MASTER_UNAVAILABLE_OR_MALFORMED ]]; then
+            echo "NSE original source unavailable; preserve attempt artifact only"
+            exit 0
+          fi
+          DEST="research/hg007/inoxgreen-reg31-source"
+          ATTEMPT="$DEST/attempts/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/source"
+          cp "$HG007_SHP_OUT/receipt-v1.json" "$ATTEMPT"
+          for FILE in "$HG007_SHP_OUT"/source/*; do
+            [[ -f "$FILE" ]] || continue
+            TARGET="$DEST/source/$(basename "$FILE")"
+            if [[ -f "$TARGET" ]]; then
+              cmp -- "$FILE" "$TARGET"
+            else
+              cp "$FILE" "$TARGET"
+            fi
+            SOURCE_SHA="$(basename "$TARGET" | cut -d- -f2 | cut -d. -f1)"
+            [[ "$(sha256sum "$TARGET" | cut -d' ' -f1)" == "$SOURCE_SHA" ]]
+          done
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: retain INOXGREEN original NSE Reg31 source $GITHUB_RUN_ID [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              scripts/acquire_hg007_inoxgreen_shp.py \
+              src/marketlab/hg007_shp_source.py \
+              src/marketlab/h023_acquisition.py \
+              src/marketlab/hg005_context.py \
+              src/marketlab/gf001_governance.py \
+              research/hg007/inoxgreen-sep2026-qip/original-receipt-v1.json; then
+              echo "Source provenance or parser changed during capture"
+              exit 1
+            fi
+            if git cat-file -e "origin/main:$ATTEMPT" 2>/dev/null; then
+              echo "Immutable attempt already anchored; refuse overwrite"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Source receipt not committed; evidence remains independent CI artifact"
+          exit 1
+      - name: Retain time-stamped source evidence even if NSE blocks requests
+        if: always() && steps.gate.outputs.action == 'CAPTURE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-ino-qtly-reg31-source-attempt
+          path: ${{ env.HG007_SHP_OUT }}
+          retention-days: 90
+          if-no-files-found: ignore
