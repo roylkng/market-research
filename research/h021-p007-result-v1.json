@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "audit_id": "H021-P007-2026-10-09-EPS-SIGN-SEMANTICS-v1",
+  "classification": "IMMUTABLE_FIRST_COHORT_EPS_SIGN_AUDIT_NO_ALPHA_OR_RETURNS",
+  "computed_from": "original SHA-verified H021 Sep11 and Oct9 captures",
+  "ci_evidence_run_id": 38009494428,
+  "eligible_eps_observations": 97,
+  "prior_eps_negative_count": 3,
+  "direction_inversion_count": 3,
+  "direction_inversion_top_decile_count": 1,
+  "original_top_decile_inverted_symbols": [
+    "IDEA"
+  ],
+  "negative_prior_eps_cases": [
+    {
+      "symbol": "HINDPETRO",
+      "eps_currency": "INR",
+      "prior_eps": -30.52,
+      "current_eps": -28.35,
+      "original_ratio_revision_pct": -7.110091743119263,
+      "absolute_eps_change": 2.169999999999998,
+      "economic_direction": "LOSS_IMPROVING",
+      "in_original_primary_top_decile": false
+    },
+    {
+      "symbol": "IDEA",
+      "eps_currency": "INR",
+      "prior_eps": -1.73,
+      "current_eps": -1.81,
+      "original_ratio_revision_pct": 4.6242774566473965,
+      "absolute_eps_change": -0.08000000000000007,
+      "economic_direction": "LOSS_WORSENING",
+      "in_original_primary_top_decile": true
+    },
+    {
+      "symbol": "SWIGGY",
+      "eps_currency": "INR",
+      "prior_eps": -10.78,
+      "current_eps": -10.83,
+      "original_ratio_revision_pct": 0.4638218923933346,
+      "absolute_eps_change": -0.05000000000000071,
+      "economic_direction": "LOSS_WORSENING",
+      "in_original_primary_top_decile": false
+    }
+  ],
+  "predefined_primary_selection_changed": false,
+  "return_outcomes_opened": false,
+  "portfolio_eligibility_allowed": false,
+  "live_capital_allowed": false,
+  "interpretation": "Negative prior EPS reverses the sign of H021's percentage ratio relative to the absolute EPS change. The frozen cohort is not retroactively modified."
+}
