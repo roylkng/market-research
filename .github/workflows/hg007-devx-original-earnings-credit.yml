@@ -1,0 +1,140 @@
+name: HG007 DEVX original FY26 earnings and Oct8 credit source custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_devx_originals.py
+      - .github/workflows/hg007-devx-original-earnings-credit.yml
+  schedule:
+    - cron: '10 5 10-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-devx-original-lease-and-credit-source
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test exact source provenance and false alpha guards
+        run: |
+          ruff check scripts/acquire_hg007_devx_originals.py tests/test_hg007_devx_originals.py
+          pytest -q tests/test_hg007_devx_originals.py
+      - name: Gate only exact retrospective originals not yet anchored
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATUS=SKIP
+          TARGET="research/hg007/devx-originals/source-bundle-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || [[ "$TODAY" > "2026-10-09" && "$TODAY" < "2026-10-21" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATUS=ALREADY_ANCHORED
+            else
+              STATUS=ACQUIRE
+            fi
+          fi
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "source status gate=$STATUS"
+      - name: Fetch original NSE FY26 investor PDF and Acuite Oct8 rating HTML
+        if: steps.gate.outputs.status == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-devx-source-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "DEVX_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_devx_originals.py \
+            --out-dir "$OUT" --attempts 2 --sleep-seconds 3
+          test -s "$OUT/bundle-attempt.json"
+      - name: Anchor original source bytes only if both official sources validate
+        if: steps.gate.outputs.status == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(python - "$DEVX_SOURCE_OUT/bundle-attempt.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          report=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if report["live_capital_allowed"] is not False:
+              raise SystemExit("source attempted to promote live capital")
+          print("BOTH_READY" if report["both_independent_originals_available"] else "SOURCE_GAP")
+          PY
+          )"
+          if [[ "$STATUS" != BOTH_READY ]]; then
+            echo "Independent source acquisition incomplete; retaining CI artifact only"
+            exit 0
+          fi
+          DEST="research/hg007/devx-originals"
+          TARGET="$DEST/source-bundle-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$DEVX_SOURCE_OUT/bundle-attempt.json" "$TARGET"
+          cp "$DEVX_SOURCE_OUT"/raw/sha256/* "$DEST/raw/sha256/"
+          python - "$DEST" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_devx_originals import validate_original
+          directory=Path(sys.argv[1])
+          record=json.loads((directory/"source-bundle-v1.json").read_text(encoding="utf-8"))
+          for kind, ext in (("nse_pdf",".pdf"),("acuite_html",".html")):
+              receipt=record["source_receipts"][kind]
+              original=(directory/"raw"/"sha256"/f"{receipt['raw_sha256']}{ext}").read_bytes()
+              assert hashlib.sha256(original).hexdigest()==receipt["raw_sha256"]
+              assert validate_original(kind,original)==receipt["structural_evidence"]
+          assert record["portfolio_eligibility_allowed"] is False
+          print("Both primary sources retained and fully SHA-checked")
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor original DevX FY26 NSE and Acuite Oct8 source bytes [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original DEVX source bundle already retained, refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/acquire_hg007_devx_originals.py \
+              .github/workflows/hg007-devx-original-earnings-credit.yml; then
+              echo "Original-source protocol changed during fetch"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Originals retained only in independent run artifact due to Git race"
+          exit 1
+      - name: Retain all original source attempts including access denials
+        if: always() && steps.gate.outputs.status == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-devx-original-nse-and-credit-sources
+          path: ${{ env.DEVX_SOURCE_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
