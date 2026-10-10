@@ -1,0 +1,119 @@
+name: HG007 render original WWIL filing pages for visual audit
+
+on:
+  pull_request:
+    paths:
+      - scripts/render_hg007_wwil_original_pages.py
+      - tests/test_hg007_wwil_original_visuals.py
+      - .github/workflows/hg007-wwil-original-page-renders.yml
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/render_hg007_wwil_original_pages.py
+      - tests/test_hg007_wwil_original_visuals.py
+      - .github/workflows/hg007-wwil-original-page-renders.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-wwil-original-visual-review-source
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: |
+          python -m pip install -e '.[dev]'
+          if ! command -v pdftoppm >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y poppler-utils
+          fi
+      - name: Validate pinned original PDF and render hash invariants
+        run: |
+          ruff check scripts/render_hg007_wwil_original_pages.py tests/test_hg007_wwil_original_visuals.py
+          pytest -q tests/test_hg007_wwil_original_visuals.py
+      - name: Produce six original source PDF page visuals
+        run: |
+          python scripts/render_hg007_wwil_original_pages.py \
+            --repo-root . \
+            --out-dir /tmp/hg007-wwil-original-page-renders \
+            --max-dimension 1600
+          test "$(find /tmp/hg007-wwil-original-page-renders -maxdepth 1 -name '*.png' | wc -l)" -eq 6
+      - name: Preserve source-derived visual review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-original-wwil-six-page-images-not-semantic-approval
+          path: /tmp/hg007-wwil-original-page-renders
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Seal render images to Git after successful main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR="research/hg007/wwil-bse-original/page-render-images"
+          if [[ -d "$DIR" ]]; then
+            python - "$DIR" <<'PY'
+          import sys
+          from pathlib import Path
+          from scripts.render_hg007_wwil_original_pages import validate_original_render
+          validate_original_render(Path(sys.argv[1]))
+          print("Previous original source render already validated")
+          PY
+            exit 0
+          fi
+          mkdir -p "$DIR"
+          cp /tmp/hg007-wwil-original-page-renders/*.png "$DIR/"
+          cp /tmp/hg007-wwil-original-page-renders/source-render-manifest-v1.json "$DIR/"
+          python - "$DIR" <<'PY'
+          import sys
+          from pathlib import Path
+          from scripts.render_hg007_wwil_original_pages import validate_original_render
+          packet=validate_original_render(Path(sys.argv[1]))
+          assert packet["page_by_page_visual_semantic_audit_completed"] is False
+          print("Pinned original BSE PDF page visuals: count", len(packet["pages"]))
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: preserve six original BSE WWIL PDF page renders for review [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$DIR/source-render-manifest-v1.json" 2>/dev/null; then
+              echo "Original page images already anchored; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/wwil-bse-original/original-raw \
+              research/hg007/wwil-bse-original/original-page-text-v1.json \
+              research/hg007/wwil-bse-original/reconciled-issuer-terms-v1.json \
+              scripts/render_hg007_wwil_original_pages.py \
+              src/marketlab/hg007_original_pages.py; then
+              echo "Underlying original PDF or fixed page content changed"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Could not anchor source-derived six page renders"
+          exit 1
