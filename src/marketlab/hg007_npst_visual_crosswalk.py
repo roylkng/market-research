@@ -13,8 +13,7 @@ import math
 from pathlib import Path
 from typing import Any
 
-from marketlab.hg007_npst_june_facts import P019_BLOB
-from marketlab.hg007_npst_june_facts import DOCUMENTS
+from marketlab.hg007_npst_june_facts import DOCUMENTS, P019_BLOB
 
 REPORT_ID = "HG007-P022-NPST-VISUAL-CROSSWALK-AND-EARNINGS-QUALITY-v1"
 P020_PATH = Path(
