@@ -1,0 +1,100 @@
+name: HG007 DEVX source-pinned lease cash and credit underwriting gate
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_devx_lease_economics.py
+      - scripts/build_hg007_devx_lease_bridge.py
+      - tests/test_hg007_devx_lease_economics.py
+      - .github/workflows/hg007-devx-lease-cash-bridge.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_devx_lease_economics.py
+      - scripts/build_hg007_devx_lease_bridge.py
+      - tests/test_hg007_devx_lease_economics.py
+      - .github/workflows/hg007-devx-lease-cash-bridge.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-devx-original-lease-and-credit-economics-v1
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Audit original NSE and Acuite financial numbers
+        run: |
+          ruff check src/marketlab/hg007_devx_lease_economics.py scripts/build_hg007_devx_lease_bridge.py tests/test_hg007_devx_lease_economics.py
+          pytest -q tests/test_hg007_devx_lease_economics.py
+      - name: Generate original-only cash EBIT/rent/NCD research boundary
+        run: |
+          python scripts/build_hg007_devx_lease_bridge.py \
+            --repo-root . \
+            --out /tmp/hg007-devx-lease-and-credit-v1.json
+          test -s /tmp/hg007-devx-lease-and-credit-v1.json
+      - name: Permanently anchor source-only report once on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/devx-originals/lease-cash-credit-gate-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_devx_lease_bridge.py \
+              --out "$TARGET" --verify-existing
+            echo "DEVX original source and lease/credit evidence already reproduced"
+            exit 0
+          fi
+          cp /tmp/hg007-devx-lease-and-credit-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor FY26 lease cash/credit source economics, no valuation [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEXT_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Do not overwrite previously reviewed lease/credit report"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEXT_MAIN" -- \
+              research/hg007/devx-originals/raw \
+              research/hg007/devx-originals/source-bundle-v1.json \
+              research/hg005-d003-result-v1.json \
+              research/hg005-d001-result-v1.json \
+              src/marketlab/hg007_devx_lease_economics.py; then
+              echo "Original cash/rent/credit source changed before audit anchoring"
+              exit 1
+            fi
+            if [[ "$NEXT_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEXT_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve all original analysis and CI provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-devx-source-exact-lease-and-credit-quality-audit
+          path: /tmp/hg007-devx-lease-and-credit-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
