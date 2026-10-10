@@ -182,7 +182,7 @@ def main() -> None:
     args = parser.parse_args()
     if args.attempts < 1 or args.sleep_seconds < 0:
         parser.error("bounded attempts >=1 and sleep >=0 required")
-    close = datetime.fromisoformat(ENTRY_CLOSE_UTC.replace("Z", "+00:00"))
+    close = datetime.fromisoformat(ENTRY_CLOSE_UTC)
     if datetime.now(UTC) < close:
         raise RuntimeError("cannot acquire entry-session source before completed NSE session")
 
