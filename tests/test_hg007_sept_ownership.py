@@ -184,7 +184,7 @@ def test_nse_source_acquisition_does_not_follow_unapproved_redirect(
     snap,master,xml=collector._acquire(timeout=5)
     assert snap["current_state"]=="OFFICIAL_MASTER_UNAVAILABLE"
     assert master is None and xml is None
-    assert "source URL changed" in snap["source_error_or_block_reason"]
+    assert "response URL changed" in snap["source_error_or_block_reason"]
 
 
 def test_no_unverified_4_9m_pledge_can_be_promoted() -> None:
