@@ -13,7 +13,6 @@ from datetime import UTC, date, datetime
 from typing import Any
 
 from marketlab.h021 import PRIMARY_MIN_ANALYST_COUNT
-from marketlab.h021_first_entry_intent import git_blob_sha
 
 RULE_ID = "H021-P005-GENERIC-ENTRY-INTENT-v1"
 EXPECTED_PRIMARY_SIGNAL = "28-35 day same-period consensus EPS revision"
