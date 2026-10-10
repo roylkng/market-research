@@ -320,3 +320,34 @@ def test_wrapped_original_nse_records_reach_only_official_xbrl(
     assert len(calls) == 1
     assert calls[0]["url"] == EXCHANGE_ARCHIVE
     assert calls[0]["attempts"] == 1
+
+
+
+def test_exact_official_empty_master_message_does_not_imply_no_filing(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from marketlab.hg007_ownership_source import NSE_MASTER_URL
+
+    original = b'{"data":[],"msg":"no data found"}'
+
+    class SourceResponse:
+        url = NSE_MASTER_URL
+        history = ()
+        status_code = 200
+        content = original
+
+    monkeypatch.setattr(collector, "master_session", lambda timeout: object())
+    monkeypatch.setattr(collector, "fetch_master", lambda _session, **kw: SourceResponse())
+    receipt, raw = collector.acquire_source(timeout=8)
+    assert receipt["state"] == (
+        "NSE_MASTER_EXPLICITLY_EMPTY_FOR_THIS_ISSUER_REQUEST"
+    )
+    assert receipt["latest_original_master_record"] is None
+    assert receipt["dated_original_xbrl_result"] is None
+    assert receipt["master_source_receipt"]["raw_byte_count"] == 33
+    assert receipt["current_pledged_promoter_share_quantity_confirmed"] is False
+    assert receipt["portfolio_eligibility_allowed"] is False
+    assert receipt["live_capital_allowed"] is False
+    assert raw == {"master.json": original}
+    collector.retain_original(tmp_path, receipt, raw)
+    assert list((tmp_path / "raw" / "sha256").glob("*.json"))
