@@ -91,8 +91,10 @@ def _verify_p005_intent(intent: dict[str, Any]) -> tuple[str, str, dict[str, str
     if _timestamp(intent.get("prepared_at_utc")) >= _timestamp(plan.get("open_timestamp_utc")):
         raise ValueError("P005 intent prepared after proposed next-session open")
     rows = intent.get("selected_observations")
-    if not isinstance(rows,list) or not 1 <= len(rows) <= 100:
-        raise ValueError("future H021 selected set missing")
+    if not isinstance(rows,list) or not 0 <= len(rows) <= 100:
+        raise ValueError("future H021 selected set invalid")
+    if not rows and intent.get("eligible_count") != 0:
+        raise ValueError("empty future H021 cohort requires zero eligible source rows")
     if len(rows) != intent.get("selected_count"):
         raise ValueError("future H021 selected count changed")
     ids:dict[str,str]={}
