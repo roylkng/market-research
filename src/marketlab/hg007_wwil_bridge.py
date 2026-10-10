@@ -118,6 +118,10 @@ def build_conditional_funding_bridge(
         "inox_green_total_reported_funding_inr_crore": parent_equity + parent_deposit,
         "authum_external_reported_funding_inr_crore": third_party_deposit,
         "preconversion_issuer_subsidiary_equity_ownership_fraction": 1.0,
+        "hypothetical_conversion_share_issuance_basis": (
+            "AT_PAR_EQUAL_RUPEE_TO_PAID_UP_CAPITAL_FOR_ILLUSTRATION_ONLY"
+        ),
+        "actual_conversion_prices_and_security_classes_verified": False,
         "hypothetical_post_both_conversions_equity_denominator_inr_crore": (
             conditional_total_equity
         ),
@@ -148,12 +152,12 @@ def build_conditional_funding_bridge(
             "by Inox Green (250 equity subscription and 200 intercompany "
             "deposit), plus 100 crore Authum intercompany deposit. "
             "If the stated 50 and 100 crore deposits are eventually converted "
-            "to subsidiary equity at the represented capital basis, Inox "
+            "to ordinary subsidiary equity at par (an unverified assumption), Inox "
             "Green's illustrative subsidiary equity interest is about 75%, "
             "not a verified currently effective equity percentage. "
             "Intragroup loan interest is not an independent consolidated "
             "enterprise-value gain. Legal closing, target normalized earnings, "
             "liabilities, completion conditions, ownership dilution and "
-            "market valuation remain unverified."
+            "actual conversion pricing/security class and market valuation remain unverified."
         ),
     }
