@@ -1,0 +1,106 @@
+name: HG007 original WWIL filing page text custody
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_original_pages.py
+      - scripts/extract_hg007_wwil_original_pages.py
+      - tests/test_hg007_original_pages.py
+      - research/hg007/wwil-bse-original/**
+      - .github/workflows/hg007-original-pdf-pages.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_original_pages.py
+      - scripts/extract_hg007_wwil_original_pages.py
+      - tests/test_hg007_original_pages.py
+      - .github/workflows/hg007-original-pdf-pages.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-wwil-source-pages-v1
+  cancel-in-progress: false
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test pinned original PDF byte and page contracts
+        run: |
+          ruff check src/marketlab/hg007_original_pages.py scripts/extract_hg007_wwil_original_pages.py tests/test_hg007_original_pages.py
+          pytest -q tests/test_hg007_original_pages.py
+      - name: Extract and expose each page for independent source review
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/extract_hg007_wwil_original_pages.py \
+            --repo-root . \
+            --out /tmp/hg007-original-page-text-v1.json \
+            --print-pages
+          test -s /tmp/hg007-original-page-text-v1.json
+      - name: Anchor append-only original text source after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/wwil-bse-original/original-page-text-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/extract_hg007_wwil_original_pages.py \
+              --out "$TARGET" --verify-existing
+            echo "Original PDF page evidence already frozen and reproduced"
+            exit 0
+          fi
+          cp /tmp/hg007-original-page-text-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor original Oct 7 WWIL PDF page text with hashes [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original page-text packet already exists; do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/wwil-bse-original/original-raw \
+              research/hg007/wwil-bse-original/official-source-receipt-v1.json \
+              research/ss002-p004-native-eight-document-decisions-v1.json \
+              scripts/extract_hg007_wwil_original_pages.py \
+              src/marketlab/hg007_original_pages.py \
+              src/marketlab/ss002_text.py; then
+              echo "Pinned PDF source or extractor changed during run"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original page text not anchored after bounded Git retries"
+          exit 1
+      - name: Retain original page-text source packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-wwil-original-bse-page-text-v1
+          path: /tmp/hg007-original-page-text-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
