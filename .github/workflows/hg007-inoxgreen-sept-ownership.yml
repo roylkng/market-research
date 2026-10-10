@@ -1,0 +1,152 @@
+name: HG007 official INOXGREEN September shareholding XBRL
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg007-inoxgreen-sept-ownership.yml
+      - src/marketlab/hg007_sept_ownership.py
+      - scripts/acquire_hg007_sept_ownership.py
+  schedule:
+    # Retry during October until the official 30 Sep filing is available.
+    - cron: '30 13 10-31 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-inoxgreen-official-sept-ownership-v1
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Assert official as-of source integrity
+        run: |
+          ruff check src/marketlab/hg007_sept_ownership.py \
+            scripts/acquire_hg007_sept_ownership.py \
+            tests/test_hg007_sept_ownership.py
+          pytest -q tests/test_hg007_sept_ownership.py
+      - name: Check official source date and prior immutable result
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          TARGET="research/hg007/inoxgreen-sep2026-ownership/sept-2026-source-observation-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-09" && "$TODAY" < "2026-11-01" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_ANCHORED
+            else
+              STATE=CHECK_NSE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "capture gate=$STATE"
+      - name: Fetch only original NSE as-of shareholding master and exact selected XBRL
+        if: steps.gate.outputs.state == 'CHECK_NSE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-sept-ownership-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "HG007_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_sept_ownership.py \
+            --out-dir "$OUT" --timeout 25
+          test -s "$OUT/sept-2026-source-observation-v1.json"
+      - name: Anchor exact original source, never secondary ownership tables
+        if: steps.gate.outputs.state == 'CHECK_NSE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$HG007_SOURCE_OUT/sept-2026-source-observation-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.hg007_sept_ownership import validate_ownership_snapshot
+          report=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_ownership_snapshot(report)
+          print(report['current_state'])
+          PY
+          )"
+          if [[ "$STATE" != SEPT_OFFICIAL_XBRL_SHARE_COUNTS_AND_GOVERNANCE_CORE_READY ]]; then
+            echo "Official September source still blocked/incomplete: $STATE"
+            echo "Retain run artifact; never infer Sep pledge or FD from a vendor."
+            exit 0
+          fi
+          DEST="research/hg007/inoxgreen-sep2026-ownership"
+          TARGET="$DEST/sept-2026-source-observation-v1.json"
+          mkdir -p "$DEST"
+          cp "$HG007_SOURCE_OUT/sept-2026-source-observation-v1.json" "$TARGET"
+          cp -r "$HG007_SOURCE_OUT/raw" "$DEST/"
+          python - "$TARGET" "$DEST" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from marketlab.hg007_sept_ownership import validate_ownership_snapshot
+          report=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_ownership_snapshot(report)
+          folder=Path(sys.argv[2])
+          m=report['original_official_master_receipt']['master_original_sha256']
+          x=report['original_official_xbrl_sha256']
+          original_master=(folder/'raw'/'master'/'sha256'/f"{m}.json").read_bytes()
+          original_xml=(folder/'raw'/'xbrl'/'sha256'/f"{x}.xml").read_bytes()
+          assert hashlib.sha256(original_master).hexdigest()==m
+          assert hashlib.sha256(original_xml).hexdigest()==x
+          assert report['share_counts_as_of_report_date']['fully_paid_shares']==419602518
+          assert report['secondary_vendor_reported_4900000_pledged_shares_adopted'] is False
+          assert report['as_of_2026_10_10_fully_diluted_shares_independently_proven'] is False
+          print("Official September shareholding XBRL captured with SHA",x)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor official September INOXGREEN ownership XBRL, no current FD claim [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Immutable official September source already anchored"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/inoxgreen-sep2026-ownership \
+              research/hg007/inoxgreen-sep2026-qip \
+              src/marketlab/hg007_sept_ownership.py \
+              scripts/acquire_hg007_sept_ownership.py \
+              .github/workflows/hg007-inoxgreen-sept-ownership.yml; then
+              echo "Source identity or collector changed during acquisition"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain blocked/missing official source evidence too
+        if: always() && steps.gate.outputs.state == 'CHECK_NSE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-inoxgreen-sept-2026-official-shareholding-attempt
+          path: ${{ env.HG007_SOURCE_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
