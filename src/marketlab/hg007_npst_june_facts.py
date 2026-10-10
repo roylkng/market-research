@@ -322,6 +322,9 @@ def build_npst_financial_and_funding_ledger(
             "ebitda_margin_on_total_income_pct": float(
                 quarterly_ebitda_table / quarterly_total_income * 100
             ),
+            "ebitda_calculation_includes_other_income_in_total_income": True,
+            "other_income_recurring_quality_independently_proven": False,
+            "reported_ebitda_is_normalized_core_operating_ebitda_proven": False,
             "table_ebitda_reconciles_total_income_less_expenditure": True,
             "net_profit_reconciles_pbt_less_tax": True,
             "summary_graphic_and_tables_disagree_by_inr_crore": 0.01,
