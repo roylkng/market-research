@@ -82,19 +82,40 @@ def acquire_source(*, timeout: float = 18.0) -> tuple[dict, dict[str, bytes]]:
             raise ValueError("NSE master redirected away from approved exact endpoint")
         raw_master = response.content
         as_of = _now()
-        latest = select_latest_dated_master_source(
-            raw_master, captured_at_utc=as_of
-        )
     except (requests.RequestException, H023AcquisitionError, ValueError, TypeError) as exc:
         return _receipt(
             "NSE_MASTER_SOURCE_UNAVAILABLE",
             reason=f"{type(exc).__name__}: {str(exc)[:300]}",
         ), {}
+
     master_receipt = {
         "url": response.url, "http_status": response.status_code,
         "captured_at_utc": as_of,
         "raw_sha256": _hash(raw_master), "raw_byte_count": len(raw_master),
     }
+    try:
+        envelope = json.loads(raw_master)
+        master_receipt["original_json_envelope_type"] = type(envelope).__name__
+        if isinstance(envelope, dict):
+            master_receipt["original_json_top_level_keys"] = sorted(
+                str(k)[:90] for k in envelope
+            )
+            master_receipt["original_json_data_field_type"] = type(
+                envelope.get("data")
+            ).__name__
+            master_receipt["original_json_records_field_type"] = type(
+                envelope.get("records")
+            ).__name__
+        latest = select_latest_dated_master_source(
+            raw_master, captured_at_utc=as_of
+        )
+    except (ValueError, TypeError) as exc:
+        return _receipt(
+            "NSE_MASTER_SOURCE_SCHEMA_UNVERIFIED",
+            reason=f"{type(exc).__name__}: {str(exc)[:300]}",
+            master=master_receipt,
+        ), {"master.json": raw_master}
+
     if not latest["source_is_post_qip_as_of_report_date"]:
         return _receipt(
             "ONLY_PRE_QIP_SHAREHOLDING_SOURCE",
