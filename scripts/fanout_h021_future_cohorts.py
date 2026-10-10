@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 from marketlab.h021_cohort_source import (
+    _verify_p005_intent,
     build_future_cohort_source,
     validate_future_cohort_source,
 )
@@ -45,6 +46,7 @@ def materialize_all(
     made=0
     existing=0
     eligible_days=0
+    zero_signal_cohorts=0
     for intent_file in intents:
         intent=_json(intent_file)
         source=intent.get("source") or {}
@@ -57,6 +59,10 @@ def materialize_all(
         first_date=planned.get("session_date_ist")
         if not isinstance(first_date,str):
             raise TypeError("P005 planned entry date missing")
+        _verify_p005_intent(intent)
+        if intent.get("selected_count") == 0:
+            zero_signal_cohorts+=1
+            continue
         for daily_path in daily_files:
             day=daily_path.name[:-len("-v1.json")]
             if day<first_date:
@@ -93,6 +99,7 @@ def materialize_all(
         "frozen_future_intent_count":len(intents),
         "sealed_daily_source_count":len(daily_files),
         "eligible_cohort_day_pairs":eligible_days,
+        "zero_eligible_cohorts_with_no_source_positions":zero_signal_cohorts,
         "new_cohort_source_packets":made,
         "existing_verified_packets":existing,
         "outcomes_opened":False,
