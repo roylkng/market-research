@@ -20,6 +20,9 @@ jobs:
         run: ruff check src tests scripts
       - name: Test
         run: pytest -q
+      - name: Verify frozen H021 EPS sign semantics and report denominator anomalies
+        run: python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+
       - name: Validate global research accounting
         run: python scripts/validate_rta001_coverage.py --repo-root .
 
