@@ -15,7 +15,7 @@ from marketlab.h021_cohort_source import (
     validate_future_cohort_source,
 )
 from marketlab.h021_daily_prices import build_daily_source_observation
-from marketlab.h021_entry_observation import _canonical_hash, EXPECTED_SELECTION
+from marketlab.h021_entry_observation import EXPECTED_SELECTION, _canonical_hash
 from marketlab.h021_future_intent import (
     EXPECTED_CALENDAR_GIT_BLOB,
     EXPECTED_UNIVERSE_GIT_BLOB,
