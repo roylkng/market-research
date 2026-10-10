@@ -30,6 +30,18 @@ def main() -> None:
         "sign_inversions": result["direction_inversion_count"],
         "inversions_in_original_top_decile": result["direction_inversion_top_decile_count"],
         "top_decile_inverted_symbols": result["top_decile_inverted_symbols"],
+        "negative_prior_cases": [
+            {
+                "symbol": row["symbol"],
+                "currency": row["eps_currency"],
+                "prior_eps": row["prior_eps"],
+                "current_eps": row["current_eps"],
+                "original_ratio_revision_pct": row["original_ratio_revision_pct"],
+                "absolute_eps_change": row["absolute_eps_change"],
+                "selected_in_original_top_decile": row["selected_by_original_h021_top_decile"],
+            }
+            for row in result["audited_rows"] if row["negative_prior_eps"]
+        ],
         "selection_unchanged": not result["h021_primary_selection_revised"],
         "return_outcomes_opened": False,
         "live_capital_allowed": False,
