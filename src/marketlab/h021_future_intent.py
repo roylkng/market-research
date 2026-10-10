@@ -109,6 +109,22 @@ def build_future_h021_intent(
         raise ValueError("capture day not a completed NSE calendar session")
     if not future_sessions:
         raise ValueError("no verified next NSE session; require official calendar extension")
+    # A holiday flagged as a possible special trading session must not be
+    # discarded simply because it falls outside the weekday session list.
+    # That would select an incorrect next-open date before price observation.
+    unresolved_dates = calendar.get("unresolved_special_dates")
+    if not isinstance(unresolved_dates, list):
+        raise TypeError("frozen NSE calendar unresolved special dates missing")
+    next_regular_date = date.fromisoformat(future_sessions[0]["session_date"])
+    for raw_day in unresolved_dates:
+        if not isinstance(raw_day, str):
+            raise TypeError("unresolved special date must be ISO string")
+        special_date = date.fromisoformat(raw_day)
+        if current_date < special_date < next_regular_date:
+            raise ValueError(
+                "unresolved NSE special session before next regular open; "
+                "cannot freeze a guessed entry date"
+            )
     current_close = _utc(current_sessions[0]["close_timestamp_utc"], "market close")
     next_open = _utc(future_sessions[0]["open_timestamp_utc"], "next session open")
     captured_at = _utc(manifest.get("captured_at_utc"), "source capture")
