@@ -215,3 +215,108 @@ def test_403_does_not_trigger_fallback_or_fake_secondary_record(
     assert raw == {}
     assert receipt["live_capital_allowed"] is False
 
+
+
+
+def test_explicit_original_nse_data_envelope_accepted_not_error_envelope() -> None:
+    underlying = json.loads(_master())
+    for key in ("data", "records"):
+        wrapped = json.dumps({key: underlying, "total": len(underlying)}).encode()
+        selected = select_latest_dated_master_source(
+            wrapped, captured_at_utc=CAPTURE
+        )
+        assert selected["selected_source"]["report_date"] == "2026-09-29"
+        assert selected["source_is_post_qip_as_of_report_date"] is True
+
+    error_wrapped = json.dumps({
+        "data": underlying, "status": "error", "message": "API unavailable"
+    }).encode()
+    with pytest.raises(ValueError, match="structured error"):
+        select_latest_dated_master_source(
+            error_wrapped, captured_at_utc=CAPTURE
+        )
+    wrong = json.dumps({"data": {"error": "blocked"}}).encode()
+    with pytest.raises(TypeError, match="data/records list"):
+        select_latest_dated_master_source(
+            wrong, captured_at_utc=CAPTURE
+        )
+
+
+def test_actual_unknown_original_master_envelope_keeps_source_bytes_and_sha(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from marketlab.hg007_ownership_source import NSE_MASTER_URL
+
+    original = json.dumps({"status": "no data", "message": "not an array"}).encode()
+
+    class SourceResponse:
+        url = NSE_MASTER_URL
+        history = []
+        status_code = 200
+        content = original
+
+    monkeypatch.setattr(collector, "master_session", lambda timeout: object())
+    monkeypatch.setattr(collector, "fetch_master", lambda _session, **kw: SourceResponse())
+
+    receipt, raw = collector.acquire_source(timeout=8.0)
+    assert receipt["state"] == "NSE_MASTER_SOURCE_SCHEMA_UNVERIFIED"
+    assert receipt["master_source_receipt"]["http_status"] == 200
+    assert receipt["master_source_receipt"]["original_json_envelope_type"] == "dict"
+    assert receipt["master_source_receipt"]["original_json_top_level_keys"] == [
+        "message", "status"
+    ]
+    assert receipt["master_source_receipt"]["raw_sha256"] == hashlib.sha256(
+        original
+    ).hexdigest()
+    assert raw == {"master.json": original}
+    assert receipt["live_capital_allowed"] is False
+    assert receipt["dated_original_xbrl_result"] is None
+    collector.retain_original(tmp_path, receipt, raw)
+    actual = tmp_path / "raw" / "sha256" / (
+        hashlib.sha256(original).hexdigest() + ".json"
+    )
+    assert actual.read_bytes() == original
+
+
+def test_wrapped_original_nse_records_reach_only_official_xbrl(
+    monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from marketlab.hg007_ownership_source import NSE_MASTER_URL
+
+    rows = json.dumps({"data": json.loads(_master())}).encode()
+
+    class Master:
+        url = NSE_MASTER_URL
+        status_code = 200
+        content = rows
+        history = []
+
+    class Archive:
+        url = EXCHANGE_ARCHIVE
+        status_code = 200
+        content = _xbrl()
+        history = []
+
+    calls = []
+
+    def fake_xbrl(_session: object, **kwargs: object) -> Archive:
+        calls.append(kwargs)
+        return Archive()
+
+    monkeypatch.setattr(collector, "master_session", lambda timeout: object())
+    monkeypatch.setattr(collector, "fetch_master", lambda _session, **kw: Master())
+    monkeypatch.setattr(collector, "xbrl_session", lambda: object())
+    monkeypatch.setattr(collector, "fetch_xbrl", fake_xbrl)
+    receipt, raw = collector.acquire_source(timeout=8.0)
+    assert receipt["state"] == "ORIGINAL_POST_QIP_MASTER_XBRL_RETAINED"
+    assert receipt["dated_original_xbrl_result"]["source_status"] == (
+        "POST_QIP_XBRL_SHARE_COUNT_AND_GOVERNANCE_RECONCILED"
+    )
+    assert receipt["dated_original_xbrl_result"][
+        "official_reported_promoter_pledge_boolean"
+    ] is True
+    assert receipt["current_pledged_promoter_share_quantity_confirmed"] is False
+    assert raw == {"master.json": rows, "original-xbrl.xml": _xbrl()}
+    assert len(calls) == 1
+    assert calls[0]["url"] == EXCHANGE_ARCHIVE
+    assert calls[0]["attempts"] == 1
