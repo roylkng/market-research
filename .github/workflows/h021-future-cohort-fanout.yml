@@ -1,0 +1,104 @@
+name: H021 future cohort official source fanout
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - H021 daily official source path
+    types:
+      - completed
+    branches:
+      - main
+  schedule:
+    # Catch-up safety net: 20:15 IST on weekdays.
+    - cron: '45 14 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-future-cohort-source-fanout
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify future cohort source invariants
+        run: |
+          ruff check src/marketlab/h021_cohort_source.py scripts/fanout_h021_future_cohorts.py tests/test_h021_cohort_source.py
+          pytest -q tests/test_h021_cohort_source.py tests/test_h021_future_intent.py tests/test_h021_daily_prices.py
+      - name: Fan out original source to every due frozen cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/fanout_h021_future_cohorts.py \
+            --intent-dir research/prospective/h021/intents \
+            --daily-dir research/prospective/h021/daily-prices \
+            --output-dir research/prospective/h021/future-cohorts/source-packets \
+            | tee /tmp/h021-cohort-fanout.json
+      - name: Commit only new immutable source-only packets
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/h021/future-cohorts/source-packets"
+          if [[ ! -d "$DEST" ]]; then
+            echo "No valid future H021 P005 cohorts/source days yet"
+            exit 0
+          fi
+          git add "$DEST"
+          if git diff --cached --quiet; then
+            echo "All cohort packets already verified and anchored"
+            exit 0
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git commit -m "H021: fan out original NSE source to sealed future cohorts [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              .github/workflows/h021-future-cohort-fanout.yml \
+              scripts/fanout_h021_future_cohorts.py \
+              src/marketlab/h021_cohort_source.py \
+              src/marketlab/h021_daily_prices.py \
+              src/marketlab/h021_future_intent.py \
+              src/marketlab/pf001_marketdata.py \
+              research/prospective/h021/intents \
+              research/prospective/h021/daily-prices; then
+              echo "Original H021 source or cohort rule changed while fanout was active"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((ATTEMPT*2))
+          done
+          echo "Unable to anchor H021 source fanout after bounded retries"
+          exit 1
+      - name: Retain independent workflow result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-cohort-source-fanout
+          path: /tmp/h021-cohort-fanout.json
+          if-no-files-found: ignore
+          retention-days: 90
