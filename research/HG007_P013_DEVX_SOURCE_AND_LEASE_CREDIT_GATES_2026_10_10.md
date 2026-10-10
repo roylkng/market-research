@@ -42,7 +42,7 @@ https://connect.acuite.in/fcompany-details/DEV_ACCELERATOR_LIMITED/8th_Oct_26
 Key creditor-reported points:
 
 - Rating **ACUITE BBB / Stable**, reaffirmed on INR 100 crore listed NCDs.
-- Two INR 100 crore NCD tranches shown in the annexure with August 4
+- Two NCD tranches of INR 25 crore and INR 75 crore (INR 100 crore total) shown in the annexure with August 4
   2026 issuance, **11.75% annual coupon** and August 4 2029 maturity.
 - INR 100 crore NCD issue completed in August 2026, a further
   INR 50 crore proposed, NOT issued as of review.
