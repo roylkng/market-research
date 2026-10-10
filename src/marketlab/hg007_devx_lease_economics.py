@@ -50,7 +50,7 @@ CREDIT_REVIEW = {
     "september_operational_space_msf": 1.13,
     "september_operational_seats": 17294,
 }
-Winston_SIGNED_SQFT = 450000
+WINSTON_SIGNED_SQFT = 450000
 
 
 def _sha(raw: bytes) -> str:
@@ -203,7 +203,7 @@ def build_devx_lease_cash_bridge(
     original_ebitda = h.get("fifty_pct_uplift_at_15x_required_incremental_annual_ebitda_inr_crore")
     if (
         h.get("state") != "REVERSE_HURDLE_READY"
-        or h.get("winston_area_sqft") != Winston_SIGNED_SQFT
+        or h.get("winston_area_sqft") != WINSTON_SIGNED_SQFT
         or not isinstance(original_ebitda, (float, int))
         or not math.isclose(float(original_ebitda), 11.847268466, abs_tol=1e-8)
         or not math.isclose(price.get("reported_fd_market_cap_inr_crore", 0),
@@ -252,7 +252,7 @@ def build_devx_lease_cash_bridge(
         "frozen_hg005_hurdle_not_modified": {
             "legacy_price_session": "2026-10-01",
             "legacy_fd_market_cap_reference_cr": price["reported_fd_market_cap_inr_crore"],
-            "signed_winston_straight_lease_area_sqft": Winston_SIGNED_SQFT,
+            "signed_winston_straight_lease_area_sqft": WINSTON_SIGNED_SQFT,
             "legacy_50pct_uplift_15x_incremental_indas_ebitda_hurdle_cr": original_ebitda,
             "legacy_straight_lease_project_earnings_verified": False,
             "legacy_hurdle_is_an_approved_stock_target": False,
