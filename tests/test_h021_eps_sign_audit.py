@@ -143,3 +143,39 @@ def test_cli_emits_reproducible_source_sha_and_no_price_fields(tmp_path: Path) -
     assert audit["return_outcomes_opened"] is False
     assert "price" not in json.dumps(audit).lower()
     assert "return" in json.dumps(audit).lower()  # Only closed-return flags, never labels
+
+
+def test_published_negative_eps_evidence_matches_exact_sealed_source() -> None:
+    recorded = json.loads(
+        Path("research/h021-p007-result-v1.json").read_text(encoding="utf-8")
+    )
+    live = audit_sealed_first_cohort()
+    assert recorded["eligible_eps_observations"] == live["eligible_eps_observations"]
+    assert recorded["direction_inversion_count"] == live["direction_inversion_count"]
+    assert recorded["prior_eps_negative_count"] == live["prior_eps_negative_count"]
+    assert recorded["direction_inversion_top_decile_count"] == live[
+        "direction_inversion_top_decile_count"
+    ]
+    assert recorded["original_top_decile_inverted_symbols"] == live[
+        "top_decile_inverted_symbols"
+    ]
+    negatives = {r["symbol"]: r for r in live["audited_rows"] if r["negative_prior_eps"]}
+    assert set(negatives) == {r["symbol"] for r in recorded["negative_prior_eps_cases"]}
+    for case in recorded["negative_prior_eps_cases"]:
+        row = negatives[case["symbol"]]
+        assert case["prior_eps"] == pytest.approx(row["prior_eps"])
+        assert case["current_eps"] == pytest.approx(row["current_eps"])
+        assert case["original_ratio_revision_pct"] == pytest.approx(
+            row["original_ratio_revision_pct"]
+        )
+        assert case["absolute_eps_change"] == pytest.approx(row["absolute_eps_change"])
+        assert case["in_original_primary_top_decile"] == row[
+            "selected_by_original_h021_top_decile"
+        ]
+        if case["economic_direction"] == "LOSS_IMPROVING":
+            assert row["absolute_eps_change"] > 0
+        else:
+            assert case["economic_direction"] == "LOSS_WORSENING"
+            assert row["absolute_eps_change"] < 0
+    assert recorded["return_outcomes_opened"] is False
+    assert recorded["live_capital_allowed"] is False
