@@ -75,15 +75,15 @@ def download_source(
             last_http = response.status_code
             captured = _now()
             if response.status_code == 200 and response.content:
-                return dict(url=url,status="OK",captured_at_utc=captured,
-                            http_status=200,raw=response.content,error=None)
+                return {"url":url,"status":"OK","captured_at_utc":captured,
+                        "http_status":200,"raw":response.content,"error":None}
             if response.status_code == 404:
-                return dict(url=url,status="NOT_PUBLISHED",captured_at_utc=captured,
-                            http_status=404,raw=None,error="OFFICIAL_REPORT_NOT_PUBLISHED")
+                return {"url":url,"status":"NOT_PUBLISHED","captured_at_utc":captured,
+                        "http_status":404,"raw":None,"error":"OFFICIAL_REPORT_NOT_PUBLISHED"}
             if response.status_code in (401,403,429):
-                return dict(url=url,status="ACCESS_BLOCKED",captured_at_utc=captured,
-                            http_status=response.status_code,raw=None,
-                            error=f"HTTP_{response.status_code}_NO_BYPASS")
+                return {"url":url,"status":"ACCESS_BLOCKED","captured_at_utc":captured,
+                        "http_status":response.status_code,"raw":None,
+                        "error":f"HTTP_{response.status_code}_NO_BYPASS"}
             last_error = f"HTTP_{response.status_code}_OR_EMPTY_BODY"
             if response.status_code < 500:
                 break
@@ -91,8 +91,8 @@ def download_source(
             last_error = type(exc).__name__
         if attempt + 1 < attempts:
             time.sleep(sleep_seconds)
-    return dict(url=url,status="FETCH_FAILED",captured_at_utc=_now(),
-                http_status=last_http,raw=None,error=last_error)
+    return {"url":url,"status":"FETCH_FAILED","captured_at_utc":_now(),
+            "http_status":last_http,"raw":None,"error":last_error}
 
 
 def save_attempt(
