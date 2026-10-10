@@ -1,0 +1,100 @@
+name: HG007 NPST original financial visual crosswalk
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_npst_visual_crosswalk.py
+      - scripts/review_hg007_npst_original_visuals.py
+      - tests/test_hg007_npst_visual_crosswalk.py
+      - .github/workflows/hg007-npst-visual-crosswalk.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_npst_visual_crosswalk.py
+      - scripts/review_hg007_npst_original_visuals.py
+      - tests/test_hg007_npst_visual_crosswalk.py
+      - .github/workflows/hg007-npst-visual-crosswalk.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-npst-original-visual-source-crosswalk
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 21
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original five PNG hashes and text-only source amounts
+        run: |
+          ruff check src/marketlab/hg007_npst_visual_crosswalk.py scripts/review_hg007_npst_original_visuals.py tests/test_hg007_npst_visual_crosswalk.py
+          pytest -q tests/test_hg007_npst_visual_crosswalk.py
+      - name: Reproduce document-layout crosswalk and disclosed 0.01cr variances
+        run: |
+          python scripts/review_hg007_npst_original_visuals.py \
+            --repo-root . \
+            --out /tmp/hg007-npst-issuer-visual-source-review-v1.json
+          test -s /tmp/hg007-npst-issuer-visual-source-review-v1.json
+      - name: Preserve complete five-source-page audited-by-hash report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-npst-original-five-page-visual-crosswalk
+          path: /tmp/hg007-npst-issuer-visual-source-review-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Anchor original document source crosswalk once after review
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/npst-aug2026-originals/june-visual-financial-review-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/review_hg007_npst_original_visuals.py \
+              --out "$TARGET" --verify-existing
+            echo "Prior source visual crosswalk verified; refusing overwrite"
+            exit 0
+          fi
+          cp /tmp/hg007-npst-issuer-visual-source-review-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: preserve source-hashed NPST financial table visual review [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Visual source crosswalk previously sealed; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/npst-aug2026-originals/june-source-financial-visuals \
+              research/hg007/npst-aug2026-originals/june-2026-financial-and-funding-ledger-v1.json \
+              src/marketlab/hg007_npst_visual_crosswalk.py \
+              scripts/review_hg007_npst_original_visuals.py; then
+              echo "Original visual source facts changed during Git evidence publication"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original NPST visual source crosswalk could not be anchored"
+          exit 1
