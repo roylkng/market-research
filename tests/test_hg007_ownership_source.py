@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from marketlab.h023_acquisition import H023AcquisitionError as H023Error
 from marketlab.hg007_ownership_source import (
     ISSUED_QIP_SHARES,
     _archive_url,
@@ -203,9 +204,6 @@ def test_content_addressed_original_master_and_xbrl_are_retained(
 def test_403_does_not_trigger_fallback_or_fake_secondary_record(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class Blocked(Exception):
-        pass
-
     monkeypatch.setattr(collector, "master_session", lambda timeout: object())
     monkeypatch.setattr(
         collector, "fetch_master",
@@ -217,6 +215,3 @@ def test_403_does_not_trigger_fallback_or_fake_secondary_record(
     assert raw == {}
     assert receipt["live_capital_allowed"] is False
 
-
-# The acquisition failure is modelled using the same original H023 type.
-from marketlab.h023_acquisition import H023AcquisitionError as H023Error
