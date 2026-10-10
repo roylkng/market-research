@@ -13,7 +13,6 @@ from marketlab.hg007_npst_visual_crosswalk import (
     P020_BLOB,
     REPORT_ID,
     VISUAL_GIT_BLOB,
-    VISUAL_DIR,
     build_visual_quality_crosswalk,
     load_visual_and_funding_evidence,
 )
