@@ -246,6 +246,25 @@ def evaluate_source_xbrl(
     if basic != ISSUED_QIP_SHARES:
         record["source_status"] = "POST_QIP_XBRL_SHARE_COUNT_DISAGREES_WITH_QIP"
         return record
+    # Binding the master date to the XML aggregate context prevents a
+    # newer filename being passed off as an old XBRL shareholding state.
+    try:
+        root = ET.fromstring(raw_xbrl)
+    except ET.ParseError as exc:
+        raise ValueError("original NSE shareholding XML structure invalid") from exc
+    aggregates = [
+        item for item in root.iter()
+        if item.tag.rsplit("}", 1)[-1] == "context"
+        and item.attrib.get("id") == "ShareholdingPattern_ContextI"
+    ]
+    if len(aggregates) != 1:
+        raise ValueError("XBRL lacks unique aggregate shareholding period")
+    dates = [
+        (child.text or "").strip() for child in aggregates[0].iter()
+        if child.tag.rsplit("}", 1)[-1] == "instant"
+    ]
+    if dates != [report_date]:
+        raise ValueError("XBRL aggregate as-of date disagrees with original NSE master")
     record["issuer_original_share_count_reconciled"] = True
     governance = parse_current_governance_xbrl(
         raw_xbrl, symbol=SYMBOL, report_date=report_date, source_url=info["xbrl_url"]
