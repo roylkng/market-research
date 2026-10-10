@@ -151,3 +151,29 @@ def test_retry_configuration_refuses_unbounded_and_invented_sources() -> None:
         module.acquire_source("acuite_html", sleep_seconds=-1)
     with pytest.raises(ValueError, match="unknown original DEVX"):
         module.acquire_source("unapproved_pdf")
+
+
+
+def test_acuite_original_fragment_or_bom_prefix_may_be_valid() -> None:
+    original = _raw_acuite()
+    fragment = b"<!-- provider HTML wrapper -->\n" + original
+    bom = b"\xef\xbb\xbf" + original
+    assert module.validate_original("acuite_html", fragment)["rating"] == (
+        "ACUITE BBB / Stable"
+    )
+    assert module.validate_original("acuite_html", bom)["rating"] == (
+        "ACUITE BBB / Stable"
+    )
+
+
+def test_acuite_200_login_page_and_plain_text_cannot_be_credit_evidence() -> None:
+    login = b"<html><body><p>Sign in to continue</p></body></html>"
+    with pytest.raises(ValueError, match="unusually short"):
+        module.validate_original("acuite_html", login)
+    nonsensical = (
+        b"<html><body><p>" + b"completely unrelated issuer " * 300 + b"</p></body></html>"
+    )
+    with pytest.raises(ValueError, match="identity/credit clause"):
+        module.validate_original("acuite_html", nonsensical)
+    with pytest.raises(ValueError, match="lacks HTML"):
+        module.validate_original("acuite_html", b"rating notice " * 600)
