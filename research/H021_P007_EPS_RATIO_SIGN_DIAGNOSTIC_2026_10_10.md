@@ -48,6 +48,30 @@ The diagnostic is **post-signal and outcome-blind**. It cannot be promoted
 to a new tested alpha, and no failed or successful H021 position may be
 retroactively removed because the underlying EPS had a negative denominator.
 
+## Verified first-cohort results
+
+The initial real-source GitHub CI run (38009494428) confirms:
+
+- 97 valid frozen H021 primary EPS comparisons.
+- 3 source EPS denominators below zero. All 3 nonzero changes are sign-inverted.
+- Exactly one of the original top-ten signals has an inverted economic direction:
+  IDEA's consensus EPS moved **INR -1.73 to -1.81**, worsening the expected
+  loss by INR 0.08 per share, while the frozen ratio reports **+4.6243%**.
+- HINDPETRO improved its expected loss from -30.52 to -28.35 INR EPS,
+  yet the frozen H021 ratio reports **-7.1101%**.
+- SWIGGY worsened its expected loss from -10.78 to -10.83 INR EPS,
+  yet the frozen ratio reports **+0.4638%**. SWIGGY is not in the top ten.
+
+These are analyst-consensus forecasts at the two historical capture times,
+**not** later realized earnings, audited company guidance, target prices,
+shareholder returns or investment recommendations. The exact source-linked
+result is retained in research/h021-p007-result-v1.json, and CI now verifies
+that summary against the original gzip payloads every run.
+
+The original H021-V1 top ten remain unchanged because the rule was frozen
+before these diagnostic results. Any user-facing description of IDEA as an
+absolute EPS upward revision must be corrected.
+
 ## Reproduction
 
     python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
