@@ -1,0 +1,134 @@
+name: H021 first official entry source observation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 12 * * 1-5'
+    - cron: '15 13 * * 1-5'
+    - cron: '45 13 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-first-entry-source-observation
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate H021 entry source invariants
+        run: |
+          ruff check src/marketlab/h021_entry_observation.py scripts/acquire_h021_first_entry.py tests/test_h021_entry_observation.py
+          pytest -q tests/test_h021_entry_observation.py tests/test_h021_first_entry_intent.py
+      - name: Resolve immutable first entry gate
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          OUT="/tmp/h021-first-entry-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "OUT_DIR=$OUT" >> "$GITHUB_ENV"
+          STATUS=SKIP
+          if [[ "$TODAY" > "2026-10-11" && "$TODAY" < "2026-10-31" ]]; then
+            CLOCK="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if [[ "$CLOCK" > "2026-10-12T10:00:00Z" ]]; then
+              git fetch origin main
+              TARGET="research/prospective/h021/entry-observations/2026-10-12-first-entry-v1.json"
+              if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+                STATUS=ALREADY_CAPTURED
+              else
+                STATUS=CAPTURE
+              fi
+            fi
+          fi
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "gate=$STATUS date=$TODAY"
+      - name: Fetch original NSE UDiFF and Nifty 500 index data
+        if: steps.gate.outputs.status == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/acquire_h021_first_entry.py --out-dir "$OUT_DIR" --attempts 3 --sleep-seconds 5
+          test -s "$OUT_DIR/entry-observation-v1.json"
+          test -s "$OUT_DIR/attempt.json"
+      - name: Anchor source receipts and immutable complete observation
+        if: steps.gate.outputs.status == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/h021/entry-observations"
+          TARGET="$DEST/2026-10-12-first-entry-v1.json"
+          ATTEMPT="$DEST/attempts/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          cp "$OUT_DIR/attempt.json" "$ATTEMPT"
+          for original in "$OUT_DIR"/raw/sha256/*; do
+            [[ -f "$original" ]] || continue
+            target="$DEST/raw/sha256/$(basename "$original")"
+            if [[ -f "$target" ]]; then
+              cmp -- "$original" "$target"
+            else
+              cp "$original" "$target"
+            fi
+            digest="$(basename "$target" | cut -d. -f1)"
+            [[ "$(sha256sum "$target" | cut -d' ' -f1)" == "$digest" ]]
+          done
+          SOURCE_STATE="$(python - "$OUT_DIR/entry-observation-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_entry_observation import validate_entry_observation
+          payload=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_entry_observation(payload)
+          print(payload['source_observation_status'])
+          PY
+          )"
+          if [[ "$SOURCE_STATE" == FULL_OFFICIAL_OHLC_SOURCE_OBSERVED ]]; then
+            cp "$OUT_DIR/entry-observation-v1.json" "$TARGET"
+          fi
+          git config user.name 'marketlab-research-bot'
+          git config user.email 'marketlab-research-bot@users.noreply.github.com'
+          git add -f "$DEST"
+          git commit -m "H021: anchor official Oct 12 entry source attempt $GITHUB_RUN_ID"
+
+          START_SHA="$(git rev-parse HEAD^)"
+          git fetch origin main
+          if ! git diff --quiet "$START_SHA" origin/main -- \
+            .github/workflows/h021-first-entry-observation.yml \
+            src/marketlab/h021_entry_observation.py \
+            src/marketlab/h021_first_entry_intent.py \
+            src/marketlab/pf001_marketdata.py \
+            scripts/acquire_h021_first_entry.py \
+            research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+            research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
+            research/prospective/universes/FY27-Q2-2026-09-06.json \
+            research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
+            echo "Frozen H021 sources changed during acquisition; refusing anchor"
+            exit 1
+          fi
+          if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+            echo "First entry success already anchored; refusing overwrite"
+            exit 1
+          fi
+          git rebase origin/main
+          git push origin HEAD:main
+          echo "H021 source attempt anchored, state=$SOURCE_STATE"
+      - name: Retain independent evidence if push fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-first-entry-receipt
+          path: /tmp/h021-first-entry-*
+          if-no-files-found: ignore
+          retention-days: 90
+          compression-level: 6
