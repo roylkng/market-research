@@ -3,7 +3,12 @@ name: SS002 P001 daily special-situation surveillance
 on:
   push:
     branches:
+      - main
       - feat/ss002-p001-daily-special-situations-20261009
+    paths:
+      - scripts/run_ss002_p001_daily.py
+      - src/marketlab/ss002_p001_source_gaps.py
+      - .github/workflows/ss002-p001-daily-special-situations.yml
   schedule:
     - cron: '15 7 * * *'
   workflow_dispatch:
@@ -26,7 +31,7 @@ concurrency:
 
 jobs:
   capture:
-    if: github.event_name != 'push' || contains(github.event.head_commit.message, '[ss002-p001-bootstrap]')
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[ss002-p001-bootstrap]')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -45,10 +50,13 @@ jobs:
         run: |
           ruff check \
             src/marketlab/ss002_daily_capture.py \
+            src/marketlab/ss002_p001_source_gaps.py \
             scripts/run_ss002_p001_daily.py \
-            tests/test_ss002_daily_capture.py
+            tests/test_ss002_daily_capture.py \
+            tests/test_ss002_p001_source_gaps.py
           pytest -q \
             tests/test_ss002_daily_capture.py \
+            tests/test_ss002_p001_source_gaps.py \
             tests/test_ss002_special_situations.py \
             tests/test_alpha_announcements.py
 
@@ -96,6 +104,30 @@ jobs:
                   raw = gzip.decompress(archive_bytes)
                   assert hashlib.sha256(raw).hexdigest() == meta["raw_sha256"]
           print(f"verified immutable source captures={len(captures)}")
+          from datetime import date
+          from marketlab.ss002_p001_source_gaps import (
+              MAX_AUTOMATED_ATTEMPTS_PER_DAY, source_attempts_for_day
+          )
+          attempts_root = root / "research/prospective/ss002-p001"
+          attempt_days = list((attempts_root / "attempts").glob("????-??-??"))
+          blocked = []
+          for day_dir in attempt_days:
+              day = date.fromisoformat(day_dir.name)
+              attempts = source_attempts_for_day(attempts_root, day)
+              canonical = attempts_root / f"{day.isoformat()}-v1.json"
+              if not canonical.exists():
+                  blocked.append((day.isoformat(), len(attempts)))
+          print(f"official_source_gap_days={len(blocked)}")
+          for day, number in sorted(blocked):
+              print(f"SOURCE_GAP {day} attempt_receipts={number} max_automatic={MAX_AUTOMATED_ATTEMPTS_PER_DAY}")
+          import os
+          summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary:
+              with open(summary, "a", encoding="utf-8") as out:
+                  out.write("## SS002 official source coverage\n")
+                  out.write(f"Valid source captures: {len(captures)}. Unresolved source dates: {len(blocked)}.\n")
+                  for day, number in sorted(blocked):
+                      out.write(f"- {day}: SOURCE_UNAVAILABLE ({number} run receipts, no zero-event substitution)\n")
           PY
 
       - name: Commit append-only source evidence
@@ -109,7 +141,36 @@ jobs:
             echo "P001 ALREADY_CAPTURED"
             exit 0
           fi
-          git commit -m "SS002 P001: append completed NSE source days [skip ci]"
-          git fetch origin "$GITHUB_REF_NAME"
-          git rebase "origin/$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          git commit -m "SS002 P001: append completed source days or explicit missing-source receipts [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin "$GITHUB_REF_NAME"
+            MAIN_SHA="$(git rev-parse "origin/$GITHUB_REF_NAME")"
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              src/marketlab/ss002_daily_capture.py \
+              src/marketlab/ss002_p001_source_gaps.py \
+              scripts/run_ss002_p001_daily.py \
+              .github/workflows/ss002-p001-daily-special-situations.yml; then
+              echo "Official SS002 source or safety protocol changed while acquiring"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase "origin/$GITHUB_REF_NAME"
+              BASE_SHA="$(git rev-parse HEAD^)"
+            fi
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Could not anchor original NSE source or honest missing-date receipt"
+          exit 1
+
+      - name: Preserve independent source-availability attempt receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ss002-p001-original-nse-source-attempts
+          path: research/prospective/ss002-p001/attempts
+          if-no-files-found: ignore
+          retention-days: 90
