@@ -34,7 +34,7 @@ def test_original_oct7_press_source_and_page_bound_management_claim() -> None:
         "management_synergies_future_year",
         "contract_5pct_escalation",
     }
-    for field, row in pages.items():
+    for row in pages.values():
         assert row["page_number"] in range(1, result["original_pdf_page_count"] + 1)
         assert row["source_pdf_sha256"] == PRESS_SHA
         assert row["page_text_sha256"] in result["original_pdf_page_text_sha256"]
