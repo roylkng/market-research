@@ -77,6 +77,8 @@ def original_announcement_identity(repo_root: Path) -> dict[str, Any]:
         or candidate.get("category_hints_only") != ["INSOLVENCY_RESOLUTION"]
         or candidate.get("economic_relevance_verified") is not False
         or candidate.get("portfolio_eligibility_allowed") is not False
+        or candidate.get("current_eq_isin_at_capture") != "INE455K01017"
+        or candidate.get("mapping_state") != "SYMBOL_IN_EQ_MASTER_AT_CAPTURE"
     ):
         raise ValueError("P015 attempted to replace original Polycab source event")
     return {
@@ -86,7 +88,7 @@ def original_announcement_identity(repo_root: Path) -> dict[str, Any]:
         "source_event_seq": CANDIDATE_ANNOUNCEMENT_SEQ,
         "source_event_id": candidate["announcement_id"],
         "source_event_category": "INSOLVENCY_RESOLUTION",
-        "original_nse_announcement_timestamp": candidate["exchdisstime"],
+        "original_nse_announcement_timestamp": candidate["exchange_published_at_utc"],
     }
 
 
