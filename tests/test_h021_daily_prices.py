@@ -6,7 +6,7 @@ import json
 import zipfile
 from copy import deepcopy
 from dataclasses import replace
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
@@ -17,6 +17,7 @@ from marketlab.h021_daily_prices import (
 )
 from marketlab.marketdata import index_snapshot_url, udiff_url
 from scripts.collect_h021_daily_official import load_frozen_sources, save_attempt
+from scripts.resolve_h021_daily_session import resolve_session
 
 SESSION = "2026-10-13"
 CAPTURED = "2026-10-13T12:00:00Z"
@@ -119,8 +120,8 @@ def test_missing_index_retains_stocks_but_not_source_complete() -> None:
 
 def test_requires_completed_official_session_and_original_calendar() -> None:
     intent,universe,calendar=load_frozen_sources()
-    kw=dict(udiff_source=_source("udiff",_stock_zip(universe)),
-            index_source=_source("index",_index_csv()),recorded_at_utc=RECORDED)
+    kw={"udiff_source":_source("udiff",_stock_zip(universe)),
+        "index_source":_source("index",_index_csv()),"recorded_at_utc":RECORDED}
     with pytest.raises(ValueError,match="post-entry"):
         build_daily_source_observation(
             intent,universe,calendar,session_date="2026-10-12",**kw
@@ -188,9 +189,6 @@ def test_output_tamper_detection_and_intent_copy_not_mutated() -> None:
 
 
 def test_resolver_never_acquires_before_market_close_or_unverified_2027(tmp_path: Path) -> None:
-    from datetime import UTC, datetime
-    from scripts.resolve_h021_daily_session import resolve_session
-
     _intent, _universe, calendar = load_frozen_sources()
     before = resolve_session(
         calendar, tmp_path, as_of_utc=datetime(2026,10,13,9,0,tzinfo=UTC)
@@ -209,9 +207,6 @@ def test_resolver_never_acquires_before_market_close_or_unverified_2027(tmp_path
 def test_resolver_bounds_source_failures_and_proceeds_with_missing_record(
     tmp_path: Path,
 ) -> None:
-    from datetime import UTC, datetime
-    from scripts.resolve_h021_daily_session import resolve_session
-
     _intent, _universe, calendar = load_frozen_sources()
     root = tmp_path
     attempts = root / "attempts"
@@ -232,9 +227,6 @@ def test_resolver_bounds_source_failures_and_proceeds_with_missing_record(
 
 
 def test_resolver_validates_old_immutable_packet_before_skipping(tmp_path: Path) -> None:
-    from datetime import UTC, datetime
-    from scripts.resolve_h021_daily_session import resolve_session
-
     _intent, _universe, calendar = load_frozen_sources()
     payload = _produce()
     (tmp_path / "2026-10-13-v1.json").write_text(
