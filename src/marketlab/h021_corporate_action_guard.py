@@ -109,7 +109,7 @@ def _source_rows(value: object) -> list[dict[str, Any]]:
         elif isinstance(value.get("records"), list):
             candidate = value["records"]
         else:
-            raise ValueError("NSE corporate-action response missing data/records list")
+            raise TypeError("NSE corporate-action response missing data/records list")
     else:
         raise TypeError("NSE corporate-action response must be a list or object")
     if any(not isinstance(row, dict) for row in candidate):
