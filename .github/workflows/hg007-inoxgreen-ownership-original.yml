@@ -1,0 +1,146 @@
+name: HG007 INOXGREEN original post-QIP ownership source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_ownership_source.py
+      - scripts/probe_hg007_inoxgreen_ownership.py
+      - .github/workflows/hg007-inoxgreen-ownership-original.yml
+  schedule:
+    # 20:00 IST during October; no continuously retrying a denied endpoint.
+    - cron: '30 14 10-31 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-inoxgreen-post-qip-original-shareholding
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify source and no-investment invariants
+        run: |
+          ruff check src/marketlab/hg007_ownership_source.py scripts/probe_hg007_inoxgreen_ownership.py tests/test_hg007_ownership_source.py
+          pytest -q tests/test_hg007_ownership_source.py
+      - name: Resolve source-acquisition gate
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          DEST="research/hg007/inoxgreen-post-qip-ownership/original-source-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch || ( "$TODAY" > "2026-10-09" && "$TODAY" < "2026-11-01" ) ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$DEST" 2>/dev/null; then
+              STATE=ALREADY_ANCHORED
+            else
+              STATE=ATTEMPT
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "HG007 official INOXGREEN source state gate=$STATE"
+      - name: Capture original master and conditional original NSE XBRL
+        if: steps.gate.outputs.state == 'ATTEMPT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-inoxgreen-shp-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "OWNERSHIP_RUN_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_inoxgreen_ownership.py \
+            --out-dir "$OUT" --timeout 18
+          test -s "$OUT/receipt.json"
+      - name: Anchor only source-verified post-QIP original filing
+        if: steps.gate.outputs.state == 'ATTEMPT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          READY="$(python - "$OWNERSHIP_RUN_OUT/receipt.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          d=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert d["portfolio_eligibility_allowed"] is False
+          assert d["live_capital_allowed"] is False
+          child=d.get("dated_original_xbrl_result")
+          if d["state"]=="ORIGINAL_POST_QIP_MASTER_XBRL_RETAINED" and isinstance(child,dict):
+              print(child["source_status"])
+          else:
+              print(d["state"])
+          PY
+          )"
+          if [[ "$READY" != POST_QIP_XBRL_SHARE_COUNT_AND_GOVERNANCE_RECONCILED ]]; then
+            echo "Official post-QIP shareholding/pledge boolean not independently resolved: $READY"
+            echo "All source bytes and failure receipt retained in run artifact, no claims promoted."
+            exit 0
+          fi
+          ROOT="research/hg007/inoxgreen-post-qip-ownership"
+          TARGET="$ROOT/original-source-v1.json"
+          mkdir -p "$ROOT/raw/sha256"
+          cp "$OWNERSHIP_RUN_OUT/receipt.json" "$TARGET"
+          cp "$OWNERSHIP_RUN_OUT"/raw/sha256/* "$ROOT/raw/sha256/"
+          python - "$ROOT" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          receipt=json.loads((root/"original-source-v1.json").read_text())
+          for k,suffix in (("master_source_receipt",".json"),("dated_original_xbrl_result",".xml")):
+              info=receipt[k]
+              sha=info["raw_sha256"] if k=="master_source_receipt" else info["original_xbrl_sha256"]
+              raw=(root/"raw"/"sha256"/f"{sha}{suffix}").read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==sha
+          assert receipt["current_fully_diluted_share_count_confirmed"] is False
+          print("Exact original dated NSE shareholding source secured and SHA verified")
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$ROOT"
+          git commit -m "HG007: anchor original post-QIP NSE shareholding and pledge boolean as-of date [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original dated source already published; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              src/marketlab/hg007_ownership_source.py \
+              scripts/probe_hg007_inoxgreen_ownership.py \
+              .github/workflows/hg007-inoxgreen-ownership-original.yml; then
+              echo "Official issuer source/protocol changed during acquisition"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((RETRY*2))
+          done
+          echo "Could not anchor original source after bounded race retries"
+          exit 1
+      - name: Retain blocked and complete attempts independently
+        if: always() && steps.gate.outputs.state == 'ATTEMPT'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-inoxgreen-original-sept-ownership-attempt
+          path: ${{ env.OWNERSHIP_RUN_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
