@@ -25,6 +25,19 @@ The result explicitly retains the absence of any observed future stock prices, b
 
 A strict consumer must call require_horizon_calendar_ready and may not read a guessed exit session when the readiness state is BLOCKED. New outcome evaluation is prohibited until the official calendar evidence is verified and the scientific input amended under a separately versioned, prospectively documented calendar correction.
 
+## Additional P005 next-open protection
+
+The same unresolved Muhurat session also creates a **pre-entry** ambiguity.
+If a future frozen H021 comparison is captured on Friday 6 November 2026,
+the original weekday-only calendar would choose Monday 9 November as the next
+open while Sunday 8 November remains a possible exchange-trading session.
+P006 therefore amends the reusable P005 intent builder to **reject a
+candidate next-open that crosses an unresolved special trading date**.
+
+This fail-closed check does not modify the first 9 October decision or invent
+a confirmed Sunday trading schedule. A separate source-verified corrected
+calendar is required to admit such a future cohort.
+
 ## Scientific invariants
 
 The original 28-to-35-day EPS comparison, 100-name U001 universe, 10 H021 selected identities, 12 October entry proxy, primary 60-session horizon, secondary 20-session horizon, Nifty 500 benchmark family and prospective selection protocol are UNCHANGED.
