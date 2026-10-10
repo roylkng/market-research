@@ -7,12 +7,12 @@ horizon returns, P&L, target prices, trade fills, or modify frozen stock selecti
 from __future__ import annotations
 
 import hashlib
-import json
 import math
 from datetime import date, datetime
 from typing import Any
 
-from marketlab.calendar_snapshot import CalendarSnapshot, _canonical_hash as calendar_hash
+from marketlab.calendar_snapshot import CalendarSnapshot
+from marketlab.calendar_snapshot import _canonical_hash as calendar_hash
 from marketlab.h021_entry_observation import (
     ENTRY_DAY,
     _canonical_hash,
