@@ -2,12 +2,19 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError
-from marketlab.nse import NSEClient
+from marketlab.nse import NSEAcquisitionError, NSEClient
+from marketlab.ss002_p001_source_gaps import (
+    MAX_AUTOMATED_ATTEMPTS_PER_DAY,
+    append_source_failure,
+    build_source_failure,
+    source_attempts_for_day,
+)
 from marketlab.ss002_daily_capture import (
     FIRST_SOURCE_DATE,
     build_daily_capture,
@@ -45,9 +52,14 @@ def pending_source_dates(
     while current <= last:
         capture_path = root / f"{current.isoformat()}-v1.json"
         if not capture_path.exists():
-            days.append(current)
-            if len(days) >= MAX_DAYS_PER_RUN:
-                break
+            # Explicit date-scoped replays are allowed to recover a prior gap.
+            # Scheduled runs stop hammering a persistently blocked old date
+            # after three independently retained run attempts.
+            count = len(source_attempts_for_day(root, current))
+            if start_date is not None or count < MAX_AUTOMATED_ATTEMPTS_PER_DAY:
+                days.append(current)
+                if len(days) >= MAX_DAYS_PER_RUN:
+                    break
         current += timedelta(days=1)
     return days
 
@@ -59,6 +71,37 @@ def _write_immutable(path: Path, data: bytes) -> None:
             raise AlphaContractError(f"P001 immutable output collision: {path}")
         return
     path.write_bytes(data)
+
+
+def _source_attempt_id() -> str:
+    run = os.environ.get("GITHUB_RUN_ID")
+    if run is not None:
+        if not run.isdigit():
+            raise ValueError("GitHub SS002 run ID is invalid")
+        attempt = os.environ.get("GITHUB_RUN_ATTEMPT", "1")
+        if not attempt.isdigit():
+            raise ValueError("GitHub SS002 run attempt ID is invalid")
+        return f"github-{run}-{attempt}"
+    return f"local-{datetime.now(ZoneInfo('UTC')).strftime('%Y%m%dT%H%M%S%fZ')}"
+
+
+def _record_source_failure(
+    root: Path, *, day: date, phase: str, exc: NSEAcquisitionError
+) -> None:
+    record = build_source_failure(
+        source_day=day,
+        recorded_at_utc=datetime.now(ZoneInfo("UTC")).isoformat().replace("+00:00", "Z"),
+        source_phase=phase,
+        exception=exc,
+        attempt_identity=_source_attempt_id(),
+    )
+    receipt = append_source_failure(root, record)
+    print(
+        f"P001 SOURCE_UNAVAILABLE {day.isoformat()} phase={phase} "
+        f"reason={record['source_failure_reason']} "
+        f"attempt={record['attempt_identity']} receipt={receipt}",
+        flush=True,
+    )
 
 
 def parse_args() -> argparse.Namespace:
@@ -91,17 +134,35 @@ def main() -> None:
         return
 
     client = NSEClient(timeout=args.timeout_seconds, attempts=args.attempts)
-    master_raw = client.all_equity_csv()
+    try:
+        master_raw = client.all_equity_csv()
+    except NSEAcquisitionError as exc:
+        _record_source_failure(
+            output_dir, day=dates[0], phase="EQUITY_MASTER_FETCH", exc=exc
+        )
+        return
     for source_day in dates:
         day_text = source_day.isoformat()
         dest = output_dir / f"{day_text}-v1.json"
         if dest.exists():
             raise AlphaContractError(f"P001 would overwrite captured date: {day_text}")
-        payload, raw = client.corporate_announcements_with_raw(
-            None,
-            from_date=source_day.strftime("%d-%m-%Y"),
-            to_date=source_day.strftime("%d-%m-%Y"),
-        )
+        try:
+            payload, raw = client.corporate_announcements_with_raw(
+                None,
+                from_date=source_day.strftime("%d-%m-%Y"),
+                to_date=source_day.strftime("%d-%m-%Y"),
+            )
+        except NSEAcquisitionError as exc:
+            _record_source_failure(
+                output_dir,
+                day=source_day,
+                phase="CORPORATE_ANNOUNCEMENTS_FETCH",
+                exc=exc,
+            )
+            # A failed official endpoint is not an empty market event day.
+            # Avoid repeatedly hammering the source for other dates now.
+            # Subsequent scheduled runs retry or advance after the bound.
+            break
         captured_at = datetime.now(ZoneInfo("UTC")).isoformat().replace("+00:00", "Z")
         capture = build_daily_capture(
             source_day=source_day,
