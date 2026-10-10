@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.hg007_npst_june_facts import P019_BLOB
-from scripts.render_hg007_npst_original_tables import validate_source_visuals
+from marketlab.hg007_npst_june_facts import DOCUMENTS
 
 REPORT_ID = "HG007-P022-NPST-VISUAL-CROSSWALK-AND-EARNINGS-QUALITY-v1"
 P020_PATH = Path(
@@ -79,6 +79,53 @@ def _git_blob(raw: bytes) -> str:
     ).hexdigest()
 
 
+
+def _validate_pinned_source_images(root: Path) -> dict[str, Any]:
+    """Verify exact P021 bytes without depending on a non-packaged script."""
+    raw = (root / "source-visuals-v1.json").read_bytes()
+    if _git_blob(raw) != VISUAL_GIT_BLOB:
+        raise ValueError("unrecognized immutable original PNG source manifest")
+    record = json.loads(raw)
+    if (
+        not isinstance(record, dict)
+        or record.get("render_id") != "HG007-P021-NPST-2026-JUNE-ORIGINAL-FINANCIAL-TABLE-VISUALS-v1"
+        or record.get("selected_page_count") != 5
+        or record.get("source_p019_original_page_spine_git_blob") != P019_BLOB
+        or record.get("page_layout_review_approved") is not False
+        or record.get("live_capital_allowed") is not False
+    ):
+        raise ValueError("original NPST P021 image identity or research-only state changed")
+    entries = record.get("rendered_pages")
+    if not isinstance(entries, list) or len(entries) != 5:
+        raise ValueError("all five original issuer pages required")
+    required = {
+        ("presentation", 18), ("presentation", 19), ("presentation", 20),
+        ("reg32", 2), ("reg32", 3),
+    }
+    present = set()
+    for row in entries:
+        if not isinstance(row, dict):
+            raise TypeError("source image entry must be a JSON object")
+        role, page = row.get("document_source_role"), row.get("original_page_number")
+        if (role, page) not in required or (role, page) in present:
+            raise ValueError("original NPST page substituted or duplicated")
+        present.add((role, page))
+        if (
+            row.get("file_name") != f"{role}-original-page-{page:02d}.png"
+            or row.get("original_pdf_sha256") != DOCUMENTS[role]["sha256"]
+            or row.get("layout_and_visual_semantics_independently_reviewed") is not False
+        ):
+            raise ValueError("original source PDF-image identity or status wrong")
+        image = (root / row["file_name"]).read_bytes()
+        if (
+            image[:8] != b"\x89PNG\r\n\x1a\n"
+            or hashlib.sha256(image).hexdigest() != row.get("image_sha256")
+        ):
+            raise ValueError("original NPST PNG page sha mismatch")
+    if present != required:
+        raise ValueError("not all five original financial table pages present")
+    return record
+
 def load_visual_and_funding_evidence(
     repo_root: Path,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -100,7 +147,7 @@ def load_visual_and_funding_evidence(
     manifest_raw = (root / "source-visuals-v1.json").read_bytes()
     if _git_blob(manifest_raw) != VISUAL_GIT_BLOB:
         raise ValueError("P021 immutable original source images manifest changed")
-    images = validate_source_visuals(root)
+    images = _validate_pinned_source_images(root)
     if (
         images.get("source_p019_original_page_spine_git_blob") != P019_BLOB
         or images.get("page_layout_review_approved") is not False
