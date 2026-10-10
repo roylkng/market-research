@@ -156,3 +156,21 @@ def test_rejects_duplicate_and_missing_company_universe() -> None:
     universe["members"][0]["symbol"] = "NONEXISTENT"
     with pytest.raises(ValueError, match="symbol set"):
         _build(comp, manifest, calendar, universe)
+
+def test_rejects_unresolved_muhurat_as_possible_next_market_open() -> None:
+    # 6 Nov is a Friday. The weekday-only next session is 9 Nov, but the
+    # original NSE calendar explicitly leaves Sunday 8 Nov Muhurat unresolved.
+    comp, manifest, calendar, universe = _oct16_fixture()
+    comp["prior_capture_date_ist"] = "2026-10-09"
+    comp["current_capture_date_ist"] = "2026-11-06"
+    for row in comp["revision_observations"]:
+        row["prior_capture_date"] = "2026-10-09"
+        row["current_capture_date"] = "2026-11-06"
+    manifest["capture_date_ist"] = "2026-11-06"
+    manifest["logical_capture_id"] = "2026-11-06-full-u001-v1"
+    manifest["captured_at_utc"] = "2026-11-06T13:00:00Z"
+    with pytest.raises(ValueError, match="unresolved NSE special session"):
+        _build(
+            comp, manifest, calendar, universe,
+            when="2026-11-07T01:00:00Z",
+        )
