@@ -2,6 +2,11 @@ name: HG007 WWIL official BSE PDF source evidence
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg007-wwil-original-bse-source.yml
   schedule:
     # Oct 10-31 only; the workflow's date gate makes later years no-ops.
     - cron: '30 3 10-31 10 *'
