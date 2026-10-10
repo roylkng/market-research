@@ -213,7 +213,7 @@ def evaluate_source_xbrl(
         "official_reported_promoter_pledge_boolean": None,
         "official_reported_promoter_non_disposal_boolean": None,
         "official_reported_other_promoter_encumbrance_boolean": None,
-        "official_source_reported_raw_pledged_share_count": None,
+        "official_reported_raw_pledged_share_count": None,
         "issuer_original_share_count_reconciled": False,
         "independent_reg31_row_semantic_review_complete": False,
         "source_status": None,
