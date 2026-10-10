@@ -1,0 +1,145 @@
+name: HG007 original 29Sep post-QIP special Reg31 XBRL
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_special_shp.py
+      - scripts/collect_hg007_special_shp.py
+      - tests/test_hg007_special_shp.py
+      - .github/workflows/hg007-post-qip-special-xbrl.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_special_shp.py
+      - scripts/collect_hg007_special_shp.py
+      - tests/test_hg007_special_shp.py
+      - .github/workflows/hg007-post-qip-special-xbrl.yml
+  workflow_dispatch:
+  schedule:
+    - cron: '25 6 11-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-post-qip-special-reg31
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Original 29Sep special source and no-returns tests
+        run: |
+          ruff check src/marketlab/hg007_special_shp.py scripts/collect_hg007_special_shp.py tests/test_hg007_special_shp.py
+          pytest -q tests/test_hg007_special_shp.py
+      - name: Source collection gate
+        id: gate
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DATE="$(TZ=Asia/Kolkata date +%F)"
+          ACTION=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$DATE" > "2026-10-10" && "$DATE" < "2026-10-21" ]]; then
+            git fetch origin main
+            DEST="research/hg007/inoxgreen-post-qip-special/original-receipt-v1.json"
+            if git cat-file -e "origin/main:$DEST" 2>/dev/null; then
+              ACTION=ALREADY_CAPTURED
+            else
+              ACTION=CAPTURE
+            fi
+          fi
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "NSE post-QIP special XBRL action=$ACTION"
+      - name: Fetch original QIP-special 29Sep exchange XBRL
+        if: steps.gate.outputs.action == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-post-qip-special-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "HG007_SPECIAL_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/collect_hg007_special_shp.py --repo-root . --out-dir "$OUT"
+          test -s "$OUT/original-receipt-v1.json"
+      - name: Anchor exact original source without asserting current October FD
+        if: steps.gate.outputs.action == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_STATE="$(python - "$HG007_SPECIAL_OUT/original-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          obj=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert obj['live_capital_allowed'] is False
+          assert obj['pledge_quantity_4_9m_certified'] is False
+          assert obj['oct11_current_shares_certified'] is False
+          print(obj['status'])
+          PY
+          )"
+          if [[ "$SOURCE_STATE" == XBRL_SOURCE_UNAVAILABLE ]]; then
+            echo "Original NSE 29Sep exceptional XBRL inaccessible; no source fact promoted"
+            exit 0
+          fi
+          TARGET_DIR="research/hg007/inoxgreen-post-qip-special"
+          mkdir -p "$TARGET_DIR/raw"
+          cp "$HG007_SPECIAL_OUT/original-receipt-v1.json" "$TARGET_DIR/original-receipt-v1.json"
+          cp "$HG007_SPECIAL_OUT"/raw/*.xml "$TARGET_DIR/raw/"
+          python - "$TARGET_DIR" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          receipt=json.loads((root/'original-receipt-v1.json').read_text())
+          sha=receipt['original_xbrl_sha256']
+          assert hashlib.sha256((root/'raw'/f"{sha}.xml").read_bytes()).hexdigest()==sha
+          assert receipt['live_capital_allowed'] is False
+          assert receipt['oct11_current_shares_certified'] is False
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$TARGET_DIR"
+          git commit -m "HG007: retain exact NSE Sep29 QIP-shareholding XBRL, no current FD approval [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET_DIR/original-receipt-v1.json" 2>/dev/null; then
+              echo "Original source already anchored; cannot overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/inoxgreen-reg31-source/source \
+              src/marketlab/hg007_special_shp.py \
+              scripts/collect_hg007_special_shp.py \
+              research/hg007/inoxgreen-sep2026-qip/original-receipt-v1.json; then
+              echo "Original source/protocol changed during capture"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain source even if official NSE access blocked
+        if: always() && steps.gate.outputs.action == 'CAPTURE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-special-29sep-exchange-original
+          path: ${{ env.HG007_SPECIAL_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
