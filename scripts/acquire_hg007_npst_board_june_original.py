@@ -94,8 +94,10 @@ def original_page_evidence(raw: bytes) -> dict[str, Any]:
         "financial_results_limited_review": (
             "limited review" in normalized
         ),
-        "june_monitoring": (
-            "monitoring agency" in normalized and "june 30, 2026" in normalized
+        "june_monitoring": any(
+            "monitoring agency" in " ".join(page.casefold().split())
+            and "june 30, 2026" in " ".join(page.casefold().split())
+            for page in text_pages
         ),
         "original_cover_npst": (
             ISSUER_ISIN.casefold() in first
