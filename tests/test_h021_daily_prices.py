@@ -184,3 +184,71 @@ def test_output_tamper_detection_and_intent_copy_not_mutated() -> None:
     packet["stock_rows"][0]["ohlc"]["open_inr"]=999.0
     with pytest.raises(ValueError,match="modified after sealing"):
         validate_daily_source_observation(packet)
+
+
+
+def test_resolver_never_acquires_before_market_close_or_unverified_2027(tmp_path: Path) -> None:
+    from datetime import UTC, datetime
+    from scripts.resolve_h021_daily_session import resolve_session
+
+    _intent, _universe, calendar = load_frozen_sources()
+    before = resolve_session(
+        calendar, tmp_path, as_of_utc=datetime(2026,10,13,9,0,tzinfo=UTC)
+    )
+    assert before["state"] == "NO_COMPLETED_PENDING_SESSION"
+
+    after = resolve_session(
+        calendar, tmp_path, as_of_utc=datetime(2026,10,13,11,0,tzinfo=UTC)
+    )
+    assert after["state"] == "CAPTURE"
+    assert after["session_date"] == "2026-10-13"
+    assert after["outcomes_opened"] is False
+    assert after["live_capital_allowed"] is False
+
+
+def test_resolver_bounds_source_failures_and_proceeds_with_missing_record(
+    tmp_path: Path,
+) -> None:
+    from datetime import UTC, datetime
+    from scripts.resolve_h021_daily_session import resolve_session
+
+    _intent, _universe, calendar = load_frozen_sources()
+    root = tmp_path
+    attempts = root / "attempts"
+    attempts.mkdir()
+    asof = datetime(2026, 10, 14, 13, 0, tzinfo=UTC)
+    for i in range(3):
+        (attempts / f"2026-10-13-run{i}.json").write_text('{"missing":true}')
+    resolved = resolve_session(calendar, root, as_of_utc=asof)
+    assert resolved["state"] == "CAPTURE"
+    assert resolved["session_date"] == "2026-10-14"
+    assert resolved["unresolved_past_sessions"] == [
+        {
+            "session_date": "2026-10-13",
+            "state": "SOURCE_UNRESOLVED_AFTER_BOUNDED_RETRIES",
+            "attempts": 3,
+        }
+    ]
+
+
+def test_resolver_validates_old_immutable_packet_before_skipping(tmp_path: Path) -> None:
+    from datetime import UTC, datetime
+    from scripts.resolve_h021_daily_session import resolve_session
+
+    _intent, _universe, calendar = load_frozen_sources()
+    payload = _produce()
+    (tmp_path / "2026-10-13-v1.json").write_text(
+        json.dumps(payload,sort_keys=True)
+    )
+    resolved=resolve_session(
+        calendar,tmp_path,as_of_utc=datetime(2026,10,14,12,0,tzinfo=UTC)
+    )
+    assert resolved["state"]=="CAPTURE"
+    assert resolved["session_date"]=="2026-10-14"
+    assert resolved["previous_complete_sessions"]==1
+
+    (tmp_path / "2026-10-13-v1.json").write_text(json.dumps({"bad":"packet"}))
+    with pytest.raises(ValueError,match="digest"):
+        resolve_session(
+            calendar,tmp_path,as_of_utc=datetime(2026,10,14,12,0,tzinfo=UTC)
+        )
