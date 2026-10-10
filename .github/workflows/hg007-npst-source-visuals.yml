@@ -1,0 +1,119 @@
+name: HG007 NPST source financial table and Reg32 page renders
+
+on:
+  pull_request:
+    paths:
+      - scripts/render_hg007_npst_original_tables.py
+      - tests/test_hg007_npst_original_visuals.py
+      - .github/workflows/hg007-npst-source-visuals.yml
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/render_hg007_npst_original_tables.py
+      - tests/test_hg007_npst_original_visuals.py
+      - .github/workflows/hg007-npst-source-visuals.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-npst-original-q1-reg32-page-visuals
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install and verify PDF renderer availability
+        run: |
+          python -m pip install -e '.[dev]'
+          if ! command -v pdftoppm >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y poppler-utils
+          fi
+      - name: Test exact-source original NPST page rendering and no-return guard
+        run: |
+          ruff check scripts/render_hg007_npst_original_tables.py tests/test_hg007_npst_original_visuals.py
+          pytest -q tests/test_hg007_npst_original_visuals.py
+      - name: Render five issuer-source accounting and Reg32 pages
+        run: |
+          python scripts/render_hg007_npst_original_tables.py \
+            --repo-root . \
+            --output-dir /tmp/hg007-npst-original-june-accounting-pages \
+            --max-side 1900
+          test "$(find /tmp/hg007-npst-original-june-accounting-pages -maxdepth 1 -name '*.png' | wc -l)" -eq 5
+      - name: Retain original financial/Reg32 PNGs independent of Git publication
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-npst-aug2026-original-issuer-accounting-five-pages
+          path: /tmp/hg007-npst-original-june-accounting-pages
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Seal images and immutable source manifest to Git on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/hg007/npst-aug2026-originals/june-source-financial-visuals"
+          if [[ -d "$DEST" ]]; then
+            python - "$DEST" <<'PY'
+          import sys
+          from pathlib import Path
+          from scripts.render_hg007_npst_original_tables import validate_source_visuals
+          result=validate_source_visuals(Path(sys.argv[1]))
+          assert result["page_layout_review_approved"] is False
+          print("Existing five-page original visual evidence remains valid")
+          PY
+            exit 0
+          fi
+          mkdir -p "$DEST"
+          cp /tmp/hg007-npst-original-june-accounting-pages/*.png "$DEST/"
+          cp /tmp/hg007-npst-original-june-accounting-pages/source-visuals-v1.json "$DEST/"
+          python - "$DEST" <<'PY'
+          import sys
+          from pathlib import Path
+          from scripts.render_hg007_npst_original_tables import validate_source_visuals
+          packet=validate_source_visuals(Path(sys.argv[1]))
+          assert packet["page_layout_review_approved"] is False
+          print("Original BSE page images source sealed:",len(packet["rendered_pages"]))
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor five original NPST BSE PDF table pages for visual review [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$DEST/source-visuals-v1.json" 2>/dev/null; then
+              echo "Immutable original NPST pages already retained; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/npst-aug2026-originals/june-original-page-text-v1.json \
+              research/hg007/npst-aug2026-originals/2026-08-11-investor-presentation \
+              research/hg007/npst-aug2026-originals/2026-08-11-june-reg32-use-of-funds \
+              scripts/render_hg007_npst_original_tables.py; then
+              echo "Original source PDF, page text or render contract changed"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to commit original NPST issuer document images"
+          exit 1
