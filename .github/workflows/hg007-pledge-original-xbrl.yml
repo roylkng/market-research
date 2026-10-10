@@ -1,0 +1,98 @@
+name: HG007 issuer original XBRL exact pledged-share audit
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_pledge_xbrl.py
+      - scripts/audit_hg007_pledge_xbrl.py
+      - tests/test_hg007_pledge_xbrl.py
+      - .github/workflows/hg007-pledge-original-xbrl.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_pledge_xbrl.py
+      - scripts/audit_hg007_pledge_xbrl.py
+      - tests/test_hg007_pledge_xbrl.py
+      - .github/workflows/hg007-pledge-original-xbrl.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-ino-29sept-official-pledge-aggregate
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original group and named promoter share pledge contexts
+        run: |
+          ruff check src/marketlab/hg007_pledge_xbrl.py scripts/audit_hg007_pledge_xbrl.py tests/test_hg007_pledge_xbrl.py
+          pytest -q tests/test_hg007_pledge_xbrl.py
+      - name: Materialize original-source pledge and reported FD as-of filing
+        run: |
+          python scripts/audit_hg007_pledge_xbrl.py \
+            --repo-root . \
+            --out /tmp/hg007-original-pledge-v1.json
+          test -s /tmp/hg007-original-pledge-v1.json
+      - name: Anchor no-capital exact issuer source result after merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/inoxgreen-post-qip-special/original-promoter-pledge-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/audit_hg007_pledge_xbrl.py \
+              --out "$TARGET" --verify-existing
+            exit 0
+          fi
+          cp /tmp/hg007-original-pledge-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor exact 4.9m pledged promoter shares as of Sep29, not Oct11 [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Exact original pledged-share proof already immutable"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/inoxgreen-reg31-source/attempts/38085969447-1.json \
+              research/hg007/inoxgreen-post-qip-special/raw \
+              research/hg007/inoxgreen-post-qip-special/original-receipt-v1.json \
+              src/marketlab/hg007_pledge_xbrl.py; then
+              echo "Original XBRL source or interpreted rule changed mid-audit"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain independent original shareholding proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-ino-xbrl-pledge-fd-sep29
+          path: /tmp/hg007-original-pledge-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
