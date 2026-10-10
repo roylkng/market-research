@@ -19,8 +19,8 @@ from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
 from marketlab.gf001_governance import parse_current_governance_xbrl
-from marketlab.hg005_context import parse_shareholding_counts
 from marketlab.h023_ownership import BROADCAST_FORMAT, REPORT_DATE_FORMAT
+from marketlab.hg005_context import parse_shareholding_counts
 
 AUDIT_ID = "HG007-P010-INOXGREEN-OFFICIAL-POST-QIP-OWNERSHIP-SOURCE-v1"
 SYMBOL = "INOXGREEN"
@@ -103,14 +103,14 @@ def _validated_master_rows(raw: bytes, *, captured_at_utc: str) -> list[dict[str
     records = []
     for row in payload:
         if not isinstance(row, dict):
-            raise ValueError("NSE master has non-object source record")
+            raise TypeError("NSE master has non-object source record")
         reported = str(row.get("symbol") or "").upper().strip()
         if reported not in ("", SYMBOL):
             raise ValueError("original NSE master contains foreign issuer")
         report_raw = row.get("date")
         broadcast_raw = row.get("broadcastDate")
         if not isinstance(report_raw, str) or not isinstance(broadcast_raw, str):
-            raise ValueError("NSE master report-date/broadcastDate missing")
+            raise TypeError("NSE master report-date/broadcastDate missing")
         try:
             day = datetime.strptime(report_raw.upper(), REPORT_DATE_FORMAT).date()
             broadcast = (
