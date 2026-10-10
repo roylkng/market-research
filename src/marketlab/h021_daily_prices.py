@@ -12,7 +12,7 @@ import math
 from datetime import date, datetime
 from typing import Any
 
-from marketlab.calendar_snapshot import CalendarSnapshot
+from marketlab.calendar_snapshot import CalendarSnapshot, _canonical_hash as calendar_hash
 from marketlab.h021_entry_observation import (
     ENTRY_DAY,
     _canonical_hash,
@@ -33,6 +33,10 @@ ALLOWED_SOURCE_STATES = frozenset({"OK", "NOT_PUBLISHED", "ACCESS_BLOCKED", "FET
 
 
 def _verified_session(calendar: CalendarSnapshot, session_date: str) -> tuple[datetime, date]:
+    unsigned = calendar.to_dict()
+    original_digest = unsigned.pop("sha256")
+    if calendar_hash(unsigned) != original_digest:
+        raise ValueError("in-memory official calendar source was modified")
     if calendar.version != "NSE-CM-FY27Q2-v1" or calendar.sha256 != CALENDAR_SHA256:
         raise ValueError("unverified original NSE 2026 source calendar")
     day = date.fromisoformat(session_date)
