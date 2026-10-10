@@ -1,0 +1,138 @@
+name: HG007 WWIL original October company press PDF custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg007-wwil-oct7-original-press.yml
+      - scripts/probe_hg007_wwil_oct7_press.py
+  schedule:
+    - cron: '40 13 10-30 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-wwil-oct7-original-press-custody
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original PDF source custody invariants
+        run: |
+          ruff check scripts/probe_hg007_wwil_oct7_press.py tests/test_hg007_wwil_oct7_press.py
+          pytest -q tests/test_hg007_wwil_oct7_press.py
+      - name: Ensure current October original source is not already sealed
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          TARGET="research/hg007/wwil-oct7-press/original-source-receipt-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-09" && "$TODAY" < "2026-10-31" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_CAPTURED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "source gate=$STATE"
+      - name: Acquire exact original BSE 7 October WWIL press release
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-wwil-oct7-press-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "WWIL_PRESS_ORIGINAL_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_wwil_oct7_press.py --out-dir "$OUT"
+          test -s "$OUT/source-receipt-v1.json"
+      - name: Retain immutable original PDF only if received, never mark EBITDA verified
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$WWIL_PRESS_ORIGINAL_OUT/source-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          report=json.loads(Path(sys.argv[1]).read_text())
+          assert report['management_2x_post_synergy_ebitda_multiple_semantically_approved'] is False
+          assert report['portfolio_eligibility_allowed'] is False
+          print(report['source_status'])
+          PY
+          )"
+          if [[ "$STATE" != BSE_ORIGINAL_PRESS_PDF_CAPTURED_UNREVIEWED ]]; then
+            echo "Original BSE press PDF not available: $STATE"
+            echo "Do not synthesize source text or a target EBITA"
+            exit 0
+          fi
+          DEST="research/hg007/wwil-oct7-press"
+          TARGET="$DEST/original-source-receipt-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$WWIL_PRESS_ORIGINAL_OUT/source-receipt-v1.json" "$TARGET"
+          cp "$WWIL_PRESS_ORIGINAL_OUT"/raw/sha256/*.pdf "$DEST/raw/sha256/"
+          python - "$TARGET" "$DEST" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          report=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          digest=report['source_original_pdf_sha256']
+          raw=(Path(sys.argv[2])/'raw'/'sha256'/f"{digest}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==digest
+          assert report['wwil_historical_ebitda_source_verified'] is False
+          assert report['stock_expected_returns_calculated'] is False
+          print("Preserving unreviewed original WWIL press PDF",digest)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: retain original Oct7 WWIL press PDF without EBITDA approval [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            REMOTE="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original source already sealed; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE" -- \
+              scripts/probe_hg007_wwil_oct7_press.py \
+              .github/workflows/hg007-wwil-oct7-original-press.yml \
+              research/hg007/wwil-oct7-press; then
+              echo "Original source or acquisition contract changed"
+              exit 1
+            fi
+            if [[ "$REMOTE" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve original-source attempt evidence
+        if: always() && steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-wwil-2x-ebitda-original-bse-press-attempt
+          path: ${{ env.WWIL_PRESS_ORIGINAL_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
