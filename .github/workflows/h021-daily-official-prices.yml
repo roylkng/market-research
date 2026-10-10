@@ -1,0 +1,150 @@
+name: H021 daily official source path
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 18:15 and 19:15 IST, weekdays. Never infer Sunday Muhurat sessions.
+    - cron: '45 12 * * 1-5'
+    - cron: '45 13 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-official-daily-price-source
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify source-only invariants
+        run: |
+          ruff check src/marketlab/h021_daily_prices.py scripts/collect_h021_daily_official.py scripts/resolve_h021_daily_session.py tests/test_h021_daily_prices.py
+          pytest -q tests/test_h021_daily_prices.py tests/test_h021_entry_observation.py tests/test_h021_horizon_readiness.py
+      - name: Identify oldest source-missing completed session
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h021-daily-resolution
+          python scripts/resolve_h021_daily_session.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --observations-dir research/prospective/h021/daily-prices \
+            > /tmp/h021-daily-resolution/resolution.json
+          python - /tmp/h021-daily-resolution/resolution.json <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          obj=json.loads(Path(sys.argv[1]).read_text())
+          with open(os.environ["GITHUB_OUTPUT"],"a") as out:
+              out.write(f"state={obj['state']}\n")
+              out.write(f"session={obj['session_date'] or ''}\n")
+          print(json.dumps(obj,sort_keys=True))
+          PY
+      - name: Acquire original NSE UDiFF and Nifty 500 files
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SESSION="$(cat /tmp/h021-daily-resolution/resolution.json | python -c 'import json,sys; print(json.load(sys.stdin)["session_date"])')"
+          OUT="/tmp/h021-daily-source-$SESSION-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "H021_RAW_OUTPUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/collect_h021_daily_official.py \
+            --session-date "$SESSION" --out-dir "$OUT" --attempts 3 --sleep-seconds 5
+          test -s "$OUT/observation.json"
+          test -s "$OUT/attempt.json"
+      - name: Anchor immutable source bytes and bounded attempt
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          SESSION="$(python -c 'import json; print(json.load(open("/tmp/h021-daily-resolution/resolution.json"))["session_date"])')"
+          DEST="research/prospective/h021/daily-prices"
+          TARGET="$DEST/$SESSION-v1.json"
+          ATTEMPT="$DEST/attempts/$SESSION-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          cp "$H021_RAW_OUTPUT/attempt.json" "$ATTEMPT"
+          for src in "$H021_RAW_OUTPUT"/raw/sha256/*; do
+            [[ -f "$src" ]] || continue
+            dst="$DEST/raw/sha256/$(basename "$src")"
+            if [[ -f "$dst" ]]; then
+              cmp -- "$src" "$dst"
+            else
+              cp "$src" "$dst"
+            fi
+            expected="$(basename "$dst" | cut -d. -f1)"
+            observed="$(sha256sum "$dst" | cut -d' ' -f1)"
+            [[ "$expected" == "$observed" ]]
+          done
+          SOURCE_STATE="$(python - "$H021_RAW_OUTPUT/observation.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_daily_prices import validate_daily_source_observation
+          obj=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          validate_daily_source_observation(obj)
+          print(obj["capture_state"])
+          PY
+          )"
+          if [[ "$SOURCE_STATE" == SOURCE_COMPLETE ]]; then
+            if [[ -f "$TARGET" ]]; then
+              echo "Immutable daily source already exists: $TARGET"
+              exit 1
+            fi
+            cp "$H021_RAW_OUTPUT/observation.json" "$TARGET"
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "H021: seal NSE daily source $SESSION $GITHUB_RUN_ID"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              .github/workflows/h021-daily-official-prices.yml \
+              scripts/resolve_h021_daily_session.py \
+              scripts/collect_h021_daily_official.py \
+              src/marketlab/h021_daily_prices.py \
+              src/marketlab/h021_entry_observation.py \
+              src/marketlab/pf001_marketdata.py \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+              research/prospective/universes/FY27-Q2-2026-09-06.json; then
+              echo "Original source/scientific contract changed during acquisition"
+              exit 1
+            fi
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original daily source already sealed, no overwrite"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((RETRY*2))
+          done
+          echo "Unable to anchor official H021 source after bounded retries"
+          exit 1
+      - name: Retain source-run evidence even on repository race
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-daily-official-source
+          path: |
+            /tmp/h021-daily-resolution
+            /tmp/h021-daily-source-*
+          if-no-files-found: ignore
+          retention-days: 90
