@@ -117,7 +117,7 @@ def require_horizon_calendar_ready(readiness: dict[str, Any], horizon: int) -> s
         raise ValueError("H021 future outcomes already opened")
     state = readiness.get("horizons", {}).get(str(horizon))
     if not isinstance(state, dict):
-        raise ValueError("horizon not declared by frozen H021 experiment")
+        raise TypeError("horizon not declared by frozen H021 experiment")
     if state.get("state") != "CALENDAR_READY_FOR_SEPARATE_SOURCE_EVALUATION":
         raise ValueError(
             f"H021 {horizon}-session calendar not ready: {state.get('blockers')}"
