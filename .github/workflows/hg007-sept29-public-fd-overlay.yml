@@ -1,0 +1,100 @@
+name: HG007 verified Sep29 FD pledge and public-timing overlay
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_verified_shp_overlay.py
+      - scripts/build_hg007_verified_shp_overlay.py
+      - tests/test_hg007_verified_shp_overlay.py
+      - .github/workflows/hg007-sept29-public-fd-overlay.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_verified_shp_overlay.py
+      - scripts/build_hg007_verified_shp_overlay.py
+      - tests/test_hg007_verified_shp_overlay.py
+      - .github/workflows/hg007-sept29-public-fd-overlay.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-sept29-fd-pledge-visibility
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate original source ancestry and no lookahead
+        run: |
+          ruff check src/marketlab/hg007_verified_shp_overlay.py scripts/build_hg007_verified_shp_overlay.py tests/test_hg007_verified_shp_overlay.py
+          pytest -q tests/test_hg007_verified_shp_overlay.py
+      - name: Reproduce all 28-company source-timestamp overlay
+        run: |
+          python scripts/build_hg007_verified_shp_overlay.py \
+            --repo-root . \
+            --out /tmp/hg007-p013-date-locked-fd-pledge.json
+          test -s /tmp/hg007-p013-date-locked-fd-pledge.json
+      - name: Seal original source evidence on main only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p013-28-case-sept29-fd-pledge-overlay-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_verified_shp_overlay.py \
+              --out "$TARGET" --verify-existing
+            exit 0
+          fi
+          cp /tmp/hg007-p013-date-locked-fd-pledge.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor Oct8-public Sep29 FD and promoter pledge 28-case audit [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Earlier immutable P013 original-source overlay exists; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/hg007-p009-28-case-capital-readiness-overlay-v1.json \
+              research/hg007/inoxgreen-sep2026-qip/post-qip-market-cap-audit-v1.json \
+              research/hg007/inoxgreen-post-qip-special/original-receipt-v1.json \
+              research/hg007/inoxgreen-post-qip-special/original-promoter-pledge-v1.json \
+              research/hg007/inoxgreen-post-qip-special/raw \
+              src/marketlab/hg007_verified_shp_overlay.py; then
+              echo "Source or technical definition changed before publish"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain original-source verified research packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-original-sept29-fd-pledge-28-case-no-lookahead
+          path: /tmp/hg007-p013-date-locked-fd-pledge.json
+          if-no-files-found: ignore
+          retention-days: 90
