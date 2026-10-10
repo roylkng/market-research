@@ -1,4 +1,4 @@
-"""Inspect H021 20/60 session calendar readiness without opening returns."""
+"""Check first H021 20/60-session NSE calendar without opening outcomes."""
 
 from __future__ import annotations
 
@@ -7,12 +7,32 @@ import json
 from pathlib import Path
 
 from marketlab.calendar_snapshot import load_calendar_snapshot
-from marketlab.h021_first_entry_intent import CALENDAR_PATH, load_pinned_inputs
+from marketlab.h021_first_entry_intent import (
+    CALENDAR_PATH,
+    build_first_entry_intent,
+    git_blob_sha,
+    load_pinned_inputs,
+)
 from marketlab.h021_horizon_readiness import (
     first_cohort_horizon_readiness,
     require_horizon_calendar_ready,
 )
-from scripts.acquire_h021_first_entry import load_and_verify_sources
+
+INTENT_PATH = Path(
+    "research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json"
+)
+INTENT_BLOB_SHA = "e25f77e1c845456473e624899d4748e306b1225b"
+
+
+def load_first_intent() -> dict:
+    comparison, calendar = load_pinned_inputs()
+    raw_intent = INTENT_PATH.read_bytes()
+    if git_blob_sha(raw_intent) != INTENT_BLOB_SHA:
+        raise ValueError("first H021 original entry intent Git blob changed")
+    stored = json.loads(raw_intent)
+    if stored != build_first_entry_intent(comparison, calendar):
+        raise ValueError("first H021 intent cannot be reproduced from pinned sources")
+    return stored
 
 
 def main() -> None:
@@ -21,9 +41,7 @@ def main() -> None:
     parser.add_argument("--require-horizon", type=int, choices=(20, 60))
     args = parser.parse_args()
 
-    # Reverify all original source Git hashes, original intent, and calendar.
-    load_pinned_inputs()
-    intent, _universe = load_and_verify_sources()
+    intent = load_first_intent()
     snapshot = load_calendar_snapshot(CALENDAR_PATH)
     result = first_cohort_horizon_readiness(intent, snapshot)
     if args.require_horizon is not None:
