@@ -169,6 +169,6 @@ def test_cli_materializes_complete_source_evidence_and_is_idempotent(
     assert all(len(value["git_blob_sha"]) == 40 for value in result["source_provenance"].values())
     subprocess.run(command + ["--verify-existing"], check=True, capture_output=True, text=True)
     out.write_text(out.read_text(encoding="utf-8").replace('"live_capital_allowed": false', '"live_capital_allowed": true'))
-    failure = subprocess.run(command + ["--verify-existing"], capture_output=True, text=True)
+    failure = subprocess.run(command + ["--verify-existing"], check=False, capture_output=True, text=True)
     assert failure.returncode != 0
     assert "changed from exact frozen sources" in failure.stderr
