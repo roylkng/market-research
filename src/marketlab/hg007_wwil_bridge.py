@@ -32,7 +32,7 @@ SOURCE = {
         "for-wind-world-india-limited-and-investment-in-vibhav-energy-"
         "private-limited-a-wholly-own-07-oct-2026"
     ),
-    "official_source_pdf_sha256_verified": False,
+    "original_source_pdf_sha256_verified": False,
 }
 
 PROVISIONAL_TERMS = {
