@@ -141,7 +141,7 @@ def review_original_xbrl(
         raise ValueError("unrecognized source discovery")
     source = master.get("original_latest_visible_standard_quarter")
     if not isinstance(source, dict):
-        raise ValueError("no official standard-quarter XBRL identified")
+        raise TypeError("no official standard-quarter XBRL identified")
     if not isinstance(raw_xml, bytes) or not raw_xml or len(raw_xml) > 5_000_000:
         raise ValueError("original XBRL bytes missing or outside bounded source limit")
     retrieved = _utc(retrieved_at_utc)
