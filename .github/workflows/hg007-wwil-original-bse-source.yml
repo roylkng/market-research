@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           TODAY="$(TZ=Asia/Kolkata date +%F)"
           STATE=SKIP
-          if [[ "$TODAY" > "2026-10-09" && "$TODAY" < "2026-11-01" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || [[ "$TODAY" > "2026-10-09" && "$TODAY" < "2026-11-01" ]]; then
             git fetch origin main
             DEST="research/hg007/wwil-bse-original/official-source-receipt-v1.json"
             if git cat-file -e "origin/main:$DEST" 2>/dev/null; then
