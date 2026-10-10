@@ -178,6 +178,17 @@ def acquire_original(
     success = raw is not None and inspection is not None
     if success != (state == "ORIGINAL_PDF_BYTE_AND_PAGE_STRUCTURE_CAPTURED"):
         raise ValueError("captured raw NPST bytes/source state inconsistency")
+    if success and (
+        inspection["issuer_name_mentioned_in_extracted_text"] is not True
+        or not inspection[
+            "june_2026_reporting_date_text_found"
+            if source["declared_reporting_period"] == "2026-06-30"
+            else "march_2026_reporting_date_text_found"
+        ]
+    ):
+        # The candidate original is retained in the run's separate artifact,
+        # but must not be promoted to the immutable issuer-confirmed Git path.
+        reason = "PDF_CANDIDATE_HAS_UNVERIFIED_ISSUER_OR_REPORTING_PERIOD"
     receipt = {
         "schema_version": 1,
         "case_id": CASE_ID,
@@ -207,6 +218,15 @@ def acquire_original(
             if success else False
         ),
         "original_pdf_text_economic_facts_approved": False,
+        "original_issuer_and_period_identity_gate_passed": (
+            inspection["issuer_name_mentioned_in_extracted_text"]
+            and (
+                inspection["june_2026_reporting_date_text_found"]
+                if source["declared_reporting_period"] == "2026-06-30"
+                else inspection["march_2026_reporting_date_text_found"]
+            )
+            if success else False
+        ),
         "monitoring_march_is_not_q1_june_evidence": (
             source["family"] == "MONITORING_AGENCY_PRIOR_MARCH_QUARTER"
         ),
