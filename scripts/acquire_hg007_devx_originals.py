@@ -135,6 +135,7 @@ def acquire_source(
     url = NSE_PDF_URL if kind == "nse_pdf" else ACUITE_URL
     code: int | None = None
     reason = "NO_OFFICIAL_ORIGINAL_RESPONSE"
+    state = "FETCH_FAILED"
     for attempt in range(attempts):
         try:
             response = requests.get(
