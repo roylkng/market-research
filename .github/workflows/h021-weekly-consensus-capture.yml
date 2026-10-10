@@ -189,6 +189,23 @@ jobs:
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --out "research/prospective/ae001-h021/expectations/${CAPTURE_DATE}-v1.json"
 
+      - name: Freeze next H021 research-only cohort before next open
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          CAPTURE_DATE="${{ steps.gate.outputs.capture_date }}"
+          if [[ "$CAPTURE_DATE" < "2026-10-10" ]]; then
+            echo "Independent first H021-P003 Oct 9 entry intent remains authoritative"
+            exit 0
+          fi
+          python scripts/materialize_h021_future_intent.py \
+            --comparison "research/prospective/h021/comparisons/$CAPTURE_DATE-primary-revision-v1.json" \
+            --manifest "research/prospective/h021/captures/$CAPTURE_DATE-full-u001-v1.manifest.json" \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
+            --out "research/prospective/h021/intents/$CAPTURE_DATE-primary-entry-intent-v2.json"
+
       - name: Refuse to anchor observations if frozen H021 inputs changed
         if: steps.gate.outputs.state == 'CAPTURE'
         shell: bash
@@ -218,6 +235,8 @@ jobs:
             "scripts/acquire_h021_weekly_capture.py"
             "scripts/seal_h021_capture.py"
             "scripts/compare_h021_captures.py"
+            "scripts/materialize_h021_future_intent.py"
+            "src/marketlab/h021_future_intent.py"
             "scripts/materialize_ae001_h021_expectations.py"
             "scripts/materialize_dr001_h021_gate.py"
             "scripts/materialize_dr001_post_h021_pack.py"
@@ -253,6 +272,7 @@ jobs:
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add \
             research/prospective/h021/captures \
+            research/prospective/h021/intents \
             research/prospective/ae001-h021 \
             research/prospective/dr001-h021 \
             "$WORK/session-decision.json" \
@@ -288,6 +308,8 @@ jobs:
             "scripts/acquire_h021_weekly_capture.py"
             "scripts/seal_h021_capture.py"
             "scripts/compare_h021_captures.py"
+            "scripts/materialize_h021_future_intent.py"
+            "src/marketlab/h021_future_intent.py"
             "scripts/materialize_ae001_h021_expectations.py"
             "scripts/materialize_dr001_h021_gate.py"
             "scripts/materialize_dr001_post_h021_pack.py"
@@ -310,6 +332,22 @@ jobs:
               fi
               git rebase origin/main
               ANCHOR_BASE_SHA="$CURRENT_MAIN"
+            fi
+            if [[ "$CAPTURE_DATE" > "2026-10-09" ]]; then
+              NEXT_OPEN="$(python - "$CAPTURE_DATE" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          path=Path('research/prospective/h021/intents') / (sys.argv[1] + '-primary-entry-intent-v2.json')
+          intent=json.loads(path.read_text(encoding='utf-8'))
+          print(intent['planned_entry']['open_timestamp_utc'])
+          PY
+              )"
+              NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              if [[ "$NOW" > "$NEXT_OPEN" || "$NOW" == "$NEXT_OPEN" ]]; then
+                echo "H021 pre-entry intent is late; refusing prospective anchor"
+                exit 1
+              fi
             fi
             if git push origin HEAD:main; then
               exit 0
