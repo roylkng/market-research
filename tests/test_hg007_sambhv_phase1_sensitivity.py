@@ -111,7 +111,7 @@ def test_tampered_source_receipt_or_frozen_market_cap_fails(
 ) -> None:
     a, b, c, refs = deepcopy(originals)
     a["document_identity_evidence"]["source_declared_power_capex_inr_crore"] = 80
-    with pytest.raises(ValueError, match="43-page issuer roadmap"):
+    with pytest.raises(ValueError, match="source family changed"):
         build_steel_power_sensitivity(a, b, c, provenance=refs)
     a, b, c, refs = deepcopy(originals)
     b["key_mechanical_context"]["SAMBHV"]["reported_fd_market_cap_inr_crore"] += 1
