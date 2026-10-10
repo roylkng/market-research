@@ -93,12 +93,15 @@ def validate_original(kind: str, raw: bytes) -> dict[str, Any]:
             "lease_rent_outflow_cr_source_number_text_present": True,
             "winston_signed_not_recognized_as_current_cash_flow": True,
         }
-    if not raw.lstrip().lower().startswith((b"<!doctype html", b"<html")):
-        raise ValueError("original Acuite source is not HTML")
-    decoded = raw.decode("utf-8", errors="strict")
+    # The original Acuite site serves fragments and prefixed server markup
+    # without a reliable DOCTYPE. Identity is established by fixed original
+    # HTTPS endpoint plus full source content, not its first ten bytes.
+    decoded = raw.decode("utf-8-sig", errors="strict")
     if "\x00" in decoded:
         raise ValueError("original Acuite HTML contains binary/null bytes")
     parsed = BeautifulSoup(decoded, "html.parser")
+    if parsed.find(["html", "body", "table", "h1", "p", "div"]) is None:
+        raise ValueError("credit rating response lacks HTML document elements")
     text = _normal(parsed.get_text(" ", strip=True))
     if len(text) < 3500:
         raise ValueError("credit rating page unusually short")
