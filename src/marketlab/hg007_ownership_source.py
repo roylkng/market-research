@@ -98,8 +98,22 @@ def _validated_master_rows(raw: bytes, *, captured_at_utc: str) -> list[dict[str
         payload = json.loads(raw)
     except (UnicodeDecodeError, ValueError, TypeError) as exc:
         raise ValueError("original NSE shareholding master JSON invalid") from exc
+    # The endpoint may return a root list or an explicit data/records array
+    # envelope. Never mistake an error/status object for a clean empty list.
+    if isinstance(payload, dict):
+        if (
+            any(key in payload for key in ("error", "errors", "exception"))
+            or payload.get("status") in (False, "error", "failed", "failure")
+        ):
+            raise ValueError("NSE corporate master returned a structured error")
+        if isinstance(payload.get("data"), list):
+            payload = payload["data"]
+        elif isinstance(payload.get("records"), list):
+            payload = payload["records"]
+        else:
+            raise TypeError("original NSE master object lacks data/records list")
     if not isinstance(payload, list):
-        raise TypeError("original NSE master must return a list, not error envelope")
+        raise TypeError("original NSE master must contain an explicit dated list")
     records = []
     for row in payload:
         if not isinstance(row, dict):
