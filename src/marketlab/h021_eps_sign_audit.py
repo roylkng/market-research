@@ -199,7 +199,7 @@ def build_eps_sign_audit(
 
     if len(audited) != comparison.get("primary_signal_available_count"):
         raise ValueError("H021 audited EPS coverage changed")
-    if set(row["symbol"] for row in audited if row["selected_by_original_h021_top_decile"]) != top_set:
+    if {row["symbol"] for row in audited if row["selected_by_original_h021_top_decile"]} != top_set:
         raise ValueError("H021 selected symbols changed")
     inverted = [row for row in audited if row["ratio_direction_inverted_vs_absolute_eps_change"]]
     selected_inverted = [row for row in inverted if row["selected_by_original_h021_top_decile"]]
