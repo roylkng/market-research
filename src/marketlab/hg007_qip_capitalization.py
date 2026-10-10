@@ -136,7 +136,7 @@ def build_qip_denominator_audit(
         raise ValueError("9 October official stock close source changed")
     original = old.get("key_mechanical_context", {}).get("INOXGREEN")
     if not isinstance(original, dict):
-        raise ValueError("HG005 original INOXGREEN payoff source missing")
+        raise TypeError("HG005 original INOXGREEN payoff source missing")
     close_oct1 = _price(original.get("close_price_inr"), "Oct 1 official close")
     old_fd_cap = _price(
         original.get("reported_fd_market_cap_inr_crore"), "old FD market cap"
@@ -172,7 +172,7 @@ def build_qip_denominator_audit(
 
     issued = qip.get("source_page_text_provenance")
     if not isinstance(issued, dict):
-        raise ValueError("QIP original three-page issuer source evidence absent")
+        raise TypeError("QIP original three-page issuer source evidence absent")
     if (
         issued.get("issuer_reported_date") != "2026-09-30"
         or issued.get("qip_allotment_date") != "2026-09-29"
