@@ -251,7 +251,7 @@ def test_actual_unknown_original_master_envelope_keeps_source_bytes_and_sha(
 
     class SourceResponse:
         url = NSE_MASTER_URL
-        history = []
+        history = ()
         status_code = 200
         content = original
 
@@ -289,13 +289,13 @@ def test_wrapped_original_nse_records_reach_only_official_xbrl(
         url = NSE_MASTER_URL
         status_code = 200
         content = rows
-        history = []
+        history = ()
 
     class Archive:
         url = EXCHANGE_ARCHIVE
         status_code = 200
         content = _xbrl()
-        history = []
+        history = ()
 
     calls = []
 
