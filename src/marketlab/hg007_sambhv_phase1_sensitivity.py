@@ -10,14 +10,18 @@ investment recommendation is inferred.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import math
 from pathlib import Path
 from typing import Any
 
-from scripts.acquire_hg007_sambhv_original import (
-    ORIGINAL_URL,
-    verify_original_issuer_roadmap,
+from pypdf import PdfReader
+from pypdf.errors import PdfReadError
+
+ORIGINAL_URL = (
+    "https://www.sambhv.com/uploads/pdf/investors/"
+    "financial-performance/results/2026-2027/Investor-Presentation.pdf"
 )
 
 MODEL_ID = "HG007-P017-SAMBHV-STEEL-POWER-PHASE1-BOUNDARY-v1"
@@ -49,6 +53,30 @@ def _git_blob_sha(raw: bytes) -> str:
         b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw,
         usedforsecurity=False,
     ).hexdigest()
+
+
+def _verify_original_page_9(raw: bytes) -> str:
+    """Recheck original issuer roadmap page without importing the CLI script.
+
+    This is supported by exact SHA-pinned original bytes and the P016
+    43-page source receipt. Re-reading the page validates the source
+    page-to-terms link, not the future economic dependency.
+    """
+    try:
+        reader = PdfReader(io.BytesIO(raw), strict=False)
+        if len(reader.pages) != 43:
+            raise ValueError("original source is not 43 PDF pages")
+        text = reader.pages[8].extract_text() or ""
+    except (PdfReadError, OSError, KeyError, TypeError, ValueError) as exc:
+        raise ValueError("original Sambhv roadmap PDF page could not be verified") from exc
+    page_sha = hashlib.sha256(text.encode()).hexdigest()
+    if page_sha != "c57f4b31a8c55113312ab6658773071e53e2835b1e6d8ab4a1b8808b1af49197":
+        raise ValueError("original issuer roadmap PDF page 9 text hash mismatch")
+    folded = " ".join(text.casefold().split())
+    for token in ("0.36", "8,100", "25 mw", "1,250", "q4fy27"):
+        if token not in folded:
+            raise ValueError("source Phase I roadmap lacks original steel/power token")
+    return page_sha
 
 
 def _pinned_json(root: Path, key: str) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -85,9 +113,10 @@ def load_sambhv_pinned_sources(root: Path) -> tuple[dict, dict, dict, dict]:
         is not None  # This field is inside the original document evidence.
     ):
         raise ValueError("Sambhv original P016 source/conditional boundary modified")
-    parsed_terms = verify_original_issuer_roadmap(raw)
-    if parsed_terms != receipt.get("document_identity_evidence"):
-        raise ValueError("original issuer roadmap page no longer matches P016 receipt")
+    _verify_original_page_9(raw)
+    parsed_terms = receipt.get("document_identity_evidence")
+    if not isinstance(parsed_terms, dict):
+        raise TypeError("original issuer P016 document evidence is required")
     if (
         parsed_terms.get("roadmap_page_number") != 9
         or parsed_terms.get("source_declared_steel_capacity_mmtpa") != 0.36
