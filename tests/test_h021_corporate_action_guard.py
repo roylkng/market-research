@@ -5,7 +5,6 @@ import json
 import subprocess
 import sys
 from copy import deepcopy
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
