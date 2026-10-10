@@ -69,7 +69,10 @@ jobs:
         run: |
           set -euo pipefail
           ARGS=(--repo-root . --attempts 4 --timeout-seconds 25)
-          if [[ "$RUN_EVENT" == "push" ]]; then
+          # Historical feature bootstrap alone uses the original Oct 5-8
+          # window. A main-branch push must use the normal oldest-missing
+          # resolver, otherwise Oct 9+ is silently skipped after merge.
+          if [[ "$RUN_EVENT" == "push" && "$GITHUB_REF_NAME" == "feat/ss002-p001-daily-special-situations-20261009" ]]; then
             ARGS+=(--start-date 2026-10-05 --end-date 2026-10-08)
           else
             if [[ -n "$INPUT_START_DATE" ]]; then ARGS+=(--start-date "$INPUT_START_DATE"); fi
