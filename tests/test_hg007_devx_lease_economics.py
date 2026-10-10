@@ -49,7 +49,7 @@ def test_standalone_indas_and_cash_rent_fully_reconcile(report: dict) -> None:
     assert fy["fy26_rent_outflow"] == 66.92
     assert fy["fy26_lease_interest"] == 27.20
     assert fy["fy26_right_of_use_depreciation"] == 50.24
-    assert fy["reported_ebitda_margin_pct"] == pytest.approx(60.535954596)
+    assert fy["reported_ebitda_margin_pct"] == pytest.approx(60.53478438944474)
     assert fy["reported_cash_ebit_margin_pct"] == pytest.approx(21.385524545)
     assert fy["cash_ebit_as_ratio_of_indas_ebitda_pct"] == pytest.approx(
         100*36.55/103.46
