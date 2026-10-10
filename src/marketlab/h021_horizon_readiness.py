@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from marketlab.calendar_snapshot import CalendarSnapshot
+from marketlab.calendar_snapshot import CalendarSnapshot, _canonical_hash
 
 FIRST_INTENT_ID = "H021-P003-2026-10-09-FIRST-COHORT-v1"
 HORIZON_READINESS_ID = "H021-P006-FIRST-COHORT-HORIZON-CALENDAR-v1"
@@ -41,6 +41,10 @@ def first_cohort_horizon_readiness(
     entry_date = planned.get("session_date_ist")
     if entry_date != "2026-10-12":
         raise ValueError("frozen first H021 entry date changed")
+    content = calendar.to_dict()
+    declared_sha = content.pop("sha256")
+    if _canonical_hash(content) != declared_sha:
+        raise ValueError("NSE calendar contents changed without a new source hash")
     if calendar.version != "NSE-CM-FY27Q2-v1":
         raise ValueError("unreviewed calendar version cannot replace frozen calendar")
     if calendar.sha256 != FROZEN_CALENDAR_SHA256:
