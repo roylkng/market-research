@@ -1,0 +1,102 @@
+name: HG007 original WWIL economic term text review
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_wwil_terms_review.py
+      - scripts/reconcile_hg007_wwil_original_terms.py
+      - tests/test_hg007_wwil_terms_review.py
+      - .github/workflows/hg007-wwil-original-term-review.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_wwil_terms_review.py
+      - scripts/reconcile_hg007_wwil_original_terms.py
+      - tests/test_hg007_wwil_terms_review.py
+      - .github/workflows/hg007-wwil-original-term-review.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-wwil-text-terms-v1
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify exact six-page original sources and term review
+        run: |
+          ruff check src/marketlab/hg007_wwil_terms_review.py scripts/reconcile_hg007_wwil_original_terms.py tests/test_hg007_wwil_terms_review.py
+          pytest -q tests/test_hg007_wwil_terms_review.py
+      - name: Reproduce source-verified issuer financial and legal statements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/reconcile_hg007_wwil_original_terms.py \
+            --repo-root . \
+            --out /tmp/hg007-wwil-original-text-terms-v1.json
+          test -s /tmp/hg007-wwil-original-text-terms-v1.json
+      - name: Anchor frozen text-reviewed terms to Git after merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/wwil-bse-original/reconciled-issuer-terms-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/reconcile_hg007_wwil_original_terms.py \
+              --out "$TARGET" --verify-existing
+            echo "Original source reviewed facts already anchored"
+            exit 0
+          fi
+          cp /tmp/hg007-wwil-original-text-terms-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor source-pinned WWIL parent financing terms and uncertainties [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Reviewed source packet already published; refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/wwil-bse-original \
+              src/marketlab/hg007_original_pages.py \
+              src/marketlab/hg007_wwil_terms_review.py \
+              scripts/reconcile_hg007_wwil_original_terms.py; then
+              echo "Original BSE PDF source, page text or term rules changed during run"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Reviewed source facts could not be anchored after bounded retries"
+          exit 1
+      - name: Preserve reproduced evidence packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-wwil-original-annexure-text-terms
+          path: /tmp/hg007-wwil-original-text-terms-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
