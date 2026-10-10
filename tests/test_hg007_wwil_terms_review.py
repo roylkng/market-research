@@ -98,7 +98,7 @@ def test_page_text_mutation_fails_even_if_source_metadata_is_relabelled() -> Non
     modified["pages"][4]["extracted_text"] = modified["pages"][4][
         "extracted_text"
     ].replace("12% per annum", "2% per annum")
-    with pytest.raises(ValueError, match="original six page"):
+    with pytest.raises(ValueError, match="SHA/page locator"):
         build_text_facts(modified)
 
 
