@@ -232,8 +232,13 @@ def build_eps_sign_audit(
 def audit_sealed_first_cohort() -> dict[str, Any]:
     universe = _load_json(UNIVERSE_PATH)
     batches = _load_json(BATCH_PATH)
-    if universe.get("schema_version") != 1:
-        raise ValueError("frozen H021 U001 schema changed")
+    if (
+        universe.get("schema_version") != 2
+        or universe.get("rule_version")
+        != "U001-nifty200-top100-nonfinancial-ffmc-v2"
+        or universe.get("cohort_id") != "FY27-Q2-2026-09-06"
+    ):
+        raise ValueError("frozen H021 U001 schema/rule identity changed")
     prior, prior_manifest = load_h021_capture_compatible(
         PRIOR_PATH, universe=universe, batch_spec=batches
     )
