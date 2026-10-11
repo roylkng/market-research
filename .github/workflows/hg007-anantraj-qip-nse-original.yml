@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           OUT="/tmp/hg007-anantraj-nse-monitor-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           echo "NSE_QIP_REPORT_RUN=$OUT" >> "$GITHUB_ENV"
-          python scripts/probe_hg007_anantraj_june_qip_nse_original.py \
+          python -m scripts.probe_hg007_anantraj_june_qip_nse_original \
             --out-dir "$OUT" --attempts 2 --sleep-seconds 3
           test -s "$OUT/attempt.json"
       - name: Retain exact exchange PDF and hash, no demerger cash approval
