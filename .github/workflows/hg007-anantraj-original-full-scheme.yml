@@ -1,0 +1,132 @@
+name: HG007 original 48-page Anant Raj full scheme PDF custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_anantraj_full_scheme.py
+      - tests/test_hg007_full_scheme_original.py
+      - .github/workflows/hg007-anantraj-original-full-scheme.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-full-scheme-pdf-primary-source
+  cancel-in-progress: false
+
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Test exact original 48-page source and no-target invariants
+        run: |
+          ruff check scripts/acquire_hg007_anantraj_full_scheme.py tests/test_hg007_full_scheme_original.py
+          pytest -q tests/test_hg007_full_scheme_original.py
+      - name: Refuse acquisition after already-verified original
+        id: gate
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          TARGET="research/hg007/anantraj-full-scheme/original-source-v1.json"
+          if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+            echo "state=ALREADY_COMPLETE" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=COLLECT" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Read original first-party scheme PDF from explicitly discovered URL
+        if: steps.gate.outputs.state == 'COLLECT'
+        run: |
+          set -euo pipefail
+          OUT="/tmp/anantraj-full-original-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "SCHEME_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_anantraj_full_scheme.py \
+            --repo-root . \
+            --out-dir "$OUT"
+          test -s "$OUT/source-receipt-v1.json"
+      - name: Anchor exact PDF source bytes only if issuer/page proof passed
+        if: steps.gate.outputs.state == 'COLLECT'
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$SCHEME_SOURCE_OUT/source-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          p=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert p['liability_values_and_assets_transferred_current_verified'] is False
+          assert p['regulatory_approvals_effective_date_verified'] is False
+          assert p['live_capital_allowed'] is False
+          print(p['state'])
+          PY
+          )"
+          if [[ "$STATE" != OFFICIAL_ISSUER_SCHEME_PDF_BYTES_IDENTITY_VERIFIED_NOT_LEGALLY_APPROVED ]]; then
+            echo "Original scheme source remains blocked/incomplete: $STATE"
+            exit 0
+          fi
+          DIR="research/hg007/anantraj-full-scheme"
+          TARGET="$DIR/original-source-v1.json"
+          mkdir -p "$DIR/raw/sha256"
+          cp "$SCHEME_SOURCE_OUT/source-receipt-v1.json" "$TARGET"
+          cp "$SCHEME_SOURCE_OUT"/raw/sha256/*.pdf "$DIR/raw/sha256/"
+          python - "$TARGET" "$DIR/raw/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_anantraj_full_scheme import _extract_verified_scheme_pages
+          p=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          s=p['source_pdf']
+          pdf=(Path(sys.argv[2])/f"{s['pdf_sha256']}.pdf").read_bytes()
+          assert hashlib.sha256(pdf).hexdigest()==s['pdf_sha256']
+          assert len(pdf)==s['pdf_byte_count']
+          assert _extract_verified_scheme_pages(pdf)==s
+          assert p['regulatory_approvals_effective_date_verified'] is False
+          print('Verified original scheme PDF source sha=',s['pdf_sha256'],'pages=',s['page_count'])
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: anchor original 48-page August composite scheme with SHA and page evidence [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original full scheme already retained; no overwritten source"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              scripts/acquire_hg007_anantraj_full_scheme.py \
+              research/hg007/anantraj-full-scheme-discovery \
+              .github/workflows/hg007-anantraj-original-full-scheme.yml; then
+              echo "Official source discovery/protocol changed during scheme acquisition"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Could not anchor original scheme after bounded retries"
+          exit 1
+      - name: Retain independent source evidence including blocked attempts
+        if: always() && steps.gate.outputs.state == 'COLLECT'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-anantraj-original-48-page-scheme-pdf
+          path: ${{ env.SCHEME_SOURCE_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
+          compression-level: 0
