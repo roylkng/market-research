@@ -1,0 +1,146 @@
+name: HG007 Sambhv Q2 volume and warrant original source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_sambhv_october_sources.py
+      - .github/workflows/hg007-sambhv-october-sources.yml
+  schedule:
+    - cron: '35 4 11-19 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-sambhv-october-issuer-sources-v1
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify source and absence of capital-trading semantics
+        run: |
+          ruff check scripts/acquire_hg007_sambhv_october_sources.py tests/test_hg007_sambhv_october_sources.py
+          pytest -q tests/test_hg007_sambhv_october_sources.py
+      - name: Gate exact primary sources and bounded current-year source retrieval
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          TARGET="research/hg007/sambhv-oct2026-sources/sambhv-october-case-v1.json"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-10" && "$TODAY" < "2026-10-20" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_CAPTURED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Original issuer source state gate=$STATE"
+      - name: Acquire exact original Q2 sales and warrant agency source PDFs
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-sambhv-oct-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "SAMBHV_ISSUER_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_sambhv_october_sources.py \
+            --out-dir "$OUT" --attempts 2 --retry-seconds 3
+          test -s "$OUT/q2_sales-source-receipt.json"
+          test -s "$OUT/warrant_monitor-source-receipt.json"
+      - name: Anchor both only after original PDF byte and table verification
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -s "$SAMBHV_ISSUER_OUT/sambhv-october-case.json" ]]; then
+            echo "One or both original issuer PDFs unavailable; leave investment case unverified"
+            exit 0
+          fi
+          DIR="research/hg007/sambhv-oct2026-sources"
+          TARGET="$DIR/sambhv-october-case-v1.json"
+          mkdir -p "$DIR/raw/sha256"
+          cp "$SAMBHV_ISSUER_OUT/sambhv-october-case.json" "$TARGET"
+          cp "$SAMBHV_ISSUER_OUT/q2_sales-source-receipt.json" "$DIR/q2-sales-receipt-v1.json"
+          cp "$SAMBHV_ISSUER_OUT/warrant_monitor-source-receipt.json" "$DIR/warrant-monitor-receipt-v1.json"
+          cp "$SAMBHV_ISSUER_OUT"/raw/sha256/*.pdf "$DIR/raw/sha256/"
+          python - "$DIR" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_sambhv_october_sources import PDFS,build_sambhv_q2_case
+          root=Path(sys.argv[1])
+          docs={}
+          originals={}
+          for family,filename in (
+              ("q2_sales","q2-sales-receipt-v1.json"),
+              ("warrant_monitor","warrant-monitor-receipt-v1.json"),
+          ):
+              rec=json.loads((root/filename).read_text(encoding="utf-8"))
+              assert rec["source_url"]==PDFS[family]["url"]
+              assert rec["state"]=="ORIGINAL_ISSUER_PDF_CAPTURED_FACTS_VERIFIED"
+              sha=rec["original_pdf_sha256"]
+              raw=(root/"raw"/"sha256"/f"{sha}.pdf").read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==sha
+              docs[family]=rec
+              originals[family]=raw
+          expected=build_sambhv_q2_case(docs,originals)
+          saved=json.loads((root/"sambhv-october-case-v1.json").read_text(encoding="utf-8"))
+          assert saved==expected
+          assert saved["live_capital_allowed"] is False
+          print("Verified original Sambhv October source PDFs:",len(originals))
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: anchor original Sambhv Q2 tonnage and warrant notice without profit claim [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            LATEST="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original Sambhv data already anchored; cannot overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$LATEST" -- \
+              scripts/acquire_hg007_sambhv_october_sources.py \
+              .github/workflows/hg007-sambhv-october-sources.yml \
+              research/HG007_P031_SAMBHV_OCT_Q2_VOLUME_AND_WARRANT_PRIMARY_SOURCE_2026_10_11.md; then
+              echo "Source validation protocol changed since download; refuse to anchor"
+              exit 1
+            fi
+            if [[ "$LATEST" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$LATEST"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve source attempts and exact originals even if access blocked
+        if: always() && steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-sambhv-q2-and-warrant-original-issuer
+          path: ${{ env.SAMBHV_ISSUER_OUT }}
+          retention-days: 90
+          if-no-files-found: ignore
