@@ -1,0 +1,104 @@
+name: HG007 Sambhv original cash stage five-case readiness refresh
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_sambhv_update.py
+      - scripts/build_hg007_sambhv_updated_underwriting.py
+      - tests/test_hg007_sambhv_updated_underwriting.py
+      - .github/workflows/hg007-sambhv-five-case-refresh.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_sambhv_update.py
+      - scripts/build_hg007_sambhv_updated_underwriting.py
+      - tests/test_hg007_sambhv_updated_underwriting.py
+      - .github/workflows/hg007-sambhv-five-case-refresh.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-five-case-original-sambhv-cash-readiness
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Source provenance and five-case immutable research regression
+        run: |
+          ruff check src/marketlab/hg007_sambhv_update.py scripts/build_hg007_sambhv_updated_underwriting.py tests/test_hg007_sambhv_updated_underwriting.py
+          pytest -q tests/test_hg007_sambhv_updated_underwriting.py
+      - name: Construct and verify dated five-company source-only readiness
+        run: |
+          python scripts/build_hg007_sambhv_updated_underwriting.py \
+            --repo-root . \
+            --out /tmp/hg007-five-case-sambhv-source-readiness.json
+          python scripts/build_hg007_sambhv_updated_underwriting.py \
+            --repo-root . \
+            --out /tmp/hg007-five-case-sambhv-source-readiness.json \
+            --verify-existing
+      - name: Append unique source-only underwriting readiness report on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p033-five-case-sambhv-source-timing-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_sambhv_updated_underwriting.py \
+              --out "$TARGET" --verify-existing
+            exit 0
+          fi
+          mkdir -p "$(dirname "$TARGET")"
+          cp /tmp/hg007-five-case-sambhv-source-readiness.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor source-verified Sambhv warrant cash timing into five-case diligence [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Updated five-case report already anchored; no overwrites"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/hg007-p030-five-case-underwriting-readiness-v1.json \
+              research/hg007/sambhv-oct2026-sources/sambhv-october-case-v1.json \
+              research/hg007/sambhv-july2026-warrant \
+              src/marketlab/hg007_sambhv_update.py \
+              scripts/build_hg007_sambhv_updated_underwriting.py; then
+              echo "Frozen issuer underwriting sources changed during assembly"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((ATTEMPT * 2))"
+          done
+          echo "Five-case source evidence not anchored after bounded retries"
+          exit 1
+      - name: Keep independent evidence artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-five-case-sambhv-original-warrant-source-update
+          path: /tmp/hg007-five-case-sambhv-source-readiness.json
+          if-no-files-found: ignore
+          retention-days: 90
