@@ -45,7 +45,7 @@ def _xml(*, paid: int = QIP_BASIC_ISSUED_SHARES,
   <x:Symbol>INOXGREEN</x:Symbol>
   <x:NumberOfFullyPaidUpEquityShares contextRef="ShareholdingPattern_ContextI" unitRef="shares">{paid}</x:NumberOfFullyPaidUpEquityShares>
   <x:NumberOfSharesOnFullyDilutedBasisIncludingWarrantsESOPAndConvertibleSecurities contextRef="ShareholdingPattern_ContextI" unitRef="shares">{fd}</x:NumberOfSharesOnFullyDilutedBasisIncludingWarrantsESOPAndConvertibleSecurities>
-</root>""".encode("utf-8")
+</root>""".encode()
 
 
 def _audit(master: bytes | None, xml: bytes | None,
