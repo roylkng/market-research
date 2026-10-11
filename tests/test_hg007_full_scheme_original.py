@@ -136,7 +136,8 @@ def test_successful_streamed_exact_official_pdf_original_retains_hash(
     class Response:
         status_code = 200
         url = module.EXACT_TRANSPORT_SOURCE
-        headers = {"content-length": str(len(original))}
+        def __init__(self):
+            self.headers = {"content-length": str(len(original))}
 
         def iter_content(self, chunk_size: int = 1_048_576):
             yield original[:5000]
