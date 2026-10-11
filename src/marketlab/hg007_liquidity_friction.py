@@ -72,7 +72,14 @@ def build_one_session_liquidity(packet: dict, original_zip: bytes, provenance: d
                 for x in (amount, volume, close, low, high))
             or type(count) is not int or count <= 0
         ):
-            raise ValueError("official volume, trading value or price invalid")
+            invalid_fields = {
+                name: {"value": value, "type": type(value).__name__}
+                for name, value in (
+                    ("turnover", amount), ("volume", volume), ("close", close),
+                    ("low", low), ("high", high), ("trades", count)
+                )
+            }
+            raise ValueError(f"official market value invalid for {symbol}: {invalid_fields}")
         vwap = amount / volume
         if not low <= close <= high or not low <= vwap <= high:
             raise ValueError("official source reported an invalid intraday price range")
