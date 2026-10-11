@@ -1,0 +1,145 @@
+name: HG007 INOXGREEN post-QIP NSE shareholding source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg007-inoxgreen-post-qip-reg31.yml
+      - scripts/acquire_hg007_post_qip_reg31.py
+  schedule:
+    # One bounded NSE source check per weekday until Oct 30, 2026.
+    - cron: '20 12 * 10 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-inoxgreen-post-qip-reg31-original-source
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Check strict Reg31 and no-investment boundaries
+        run: |
+          ruff check src/marketlab/hg007_reg31_check.py scripts/acquire_hg007_post_qip_reg31.py tests/test_hg007_reg31_check.py
+          pytest -q tests/test_hg007_reg31_check.py
+      - name: Determine source-gated acquisition
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]] || [[ "$TODAY" > "2026-10-11" && "$TODAY" < "2026-10-31" ]]; then
+            git fetch origin main
+            TARGET="research/hg007/inoxgreen-post-qip-reg31/original-source-receipt-v1.json"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_ANCHORED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Source-gate=$STATE date=$TODAY"
+      - name: Acquire bounded NSE original master and XBRL source
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-inoxgreen-reg31-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "REG31_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_post_qip_reg31.py --out-dir "$OUT"
+          test -s "$OUT/observation-v1.json"
+          test -s "$OUT/run-receipt-v1.json"
+      - name: Retain exact source only when post-QIP shares parse
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(python - "$REG31_OUT/observation-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          obj=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert obj['live_capital_allowed'] is False
+          assert obj['full_post_qip_equity_market_cap_approved'] is False
+          assert obj['cash_adjusted_enterprise_value_approved'] is False
+          assert obj['reported_share_counts'] is None or obj['reported_share_counts']['fully_diluted_shares'] >= obj['reported_share_counts']['fully_paid_shares']
+          print(obj['evidence_status'])
+          PY
+          )"
+          if [[ "$STATUS" != ORIGINAL_REPORTED_POST_QIP_SHARE_COUNTS_CAPTURED && "$STATUS" != ORIGINAL_REPORTED_LATER_SHARE_COUNT_CAPTURED ]]; then
+            echo "Post-QIP official source not eligible; keep blocked attempt artifact: $STATUS"
+            exit 0
+          fi
+          DEST="research/hg007/inoxgreen-post-qip-reg31"
+          TARGET="$DEST/original-source-receipt-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$REG31_OUT/observation-v1.json" "$TARGET"
+          cp "$REG31_OUT"/raw/sha256/* "$DEST/raw/sha256/"
+          python - "$TARGET" "$DEST/raw/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          receipt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          root=Path(sys.argv[2])
+          for key,ext in (('master_original_raw_sha256','.json'),('xbrl_original_raw_sha256','.xml')):
+              value=receipt[key]
+              raw=(root/f'{value}{ext}').read_bytes()
+              if hashlib.sha256(raw).hexdigest()!=value:
+                  raise SystemExit('NSE original source bytes SHA mismatch')
+          print("Original NSE Reg31 captured with published report date",receipt["selected_original_filing"]["report_date"])
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor original post-QIP shareholding source/pledge evidence [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Source already captured; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              src/marketlab/hg007_reg31_check.py \
+              src/marketlab/hg005_context.py \
+              src/marketlab/gf001_governance.py \
+              scripts/acquire_hg007_post_qip_reg31.py \
+              .github/workflows/hg007-inoxgreen-post-qip-reg31.yml \
+              research/hg007/inoxgreen-sep2026-qip/post-qip-market-cap-audit-v1.json; then
+              echo "Source/contract changed while scanning NSE"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Official source not anchored after bounded conflicts"
+          exit 1
+      - name: Retain original-data attempt receipt even if exchange blocked
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-inoxgreen-post-qip-official-reg31
+          path: /tmp/hg007-inoxgreen-reg31-*
+          if-no-files-found: ignore
+          retention-days: 90
