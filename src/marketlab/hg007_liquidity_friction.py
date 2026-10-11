@@ -70,16 +70,12 @@ def build_one_session_liquidity(packet: dict, original_zip: bytes, provenance: d
         if (
             any(type(x) not in (int, float) or not math.isfinite(x) or x <= 0
                 for x in (amount, volume, close, low, high))
-            or type(count) is not int or count <= 0
+            or type(count) not in (int, float)
+            or not math.isfinite(count) or count <= 0
+            or not float(count).is_integer()
+            or not float(volume).is_integer()
         ):
-            invalid_fields = {
-                name: {"value": value, "type": type(value).__name__}
-                for name, value in (
-                    ("turnover", amount), ("volume", volume), ("close", close),
-                    ("low", low), ("high", high), ("trades", count)
-                )
-            }
-            raise ValueError(f"official market value invalid for {symbol}: {invalid_fields}")
+            raise ValueError(f"{symbol}: invalid original NSE volume, trade count or OHLC")
         vwap = amount / volume
         if not low <= close <= high or not low <= vwap <= high:
             raise ValueError("official source reported an invalid intraday price range")
