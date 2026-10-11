@@ -78,7 +78,7 @@ def build_one_session_liquidity(packet: dict, original_zip: bytes, provenance: d
             raise ValueError(f"{symbol}: invalid original NSE volume, trade count or OHLC")
         vwap = amount / volume
         if not low <= close <= high or not low <= vwap <= high:
-            raise ValueError("official source reported an invalid intraday price range")
+            raise ValueError("original NSE source reported an invalid intraday price range")
         comparisons = {
             "close": (close, bar.close_price),
             "high": (high, bar.high_price),
