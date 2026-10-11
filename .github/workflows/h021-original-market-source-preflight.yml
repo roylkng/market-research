@@ -61,7 +61,7 @@ jobs:
           set -euo pipefail
           OUT="/tmp/h021-preentry-rehearsal-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           echo "PREFLIGHT_OUT=$OUT" >> "$GITHUB_ENV"
-          python scripts/rehearse_h021_original_market_sources.py \
+          python -m scripts.rehearse_h021_original_market_sources \
             --out-dir "$OUT" \
             --repo-root .
           test -s "$OUT/preentry-rehearsal-v1.json"
