@@ -225,3 +225,11 @@ def test_output_flags_cannot_be_promoted_without_market_source() -> None:
     report["live_capital_allowed"] = True
     with pytest.raises(ValueError, match="may not authorize"):
         validate_five_case_price_context(report)
+
+
+def test_recovered_prior_original_artifact_must_match_immutable_sha(tmp_path: Path) -> None:
+    recovered=tmp_path/"udiff.zip"
+    recovered.write_bytes(_udiff())
+    with pytest.raises(ValueError,match="does not match frozen SHA"):
+        downloader.recover_original_ss002_p007_artifact(recovered)
+    assert not (tmp_path/"acquisition-receipt.json").exists()
