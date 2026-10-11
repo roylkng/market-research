@@ -9,7 +9,6 @@ opening return outcomes, publishing historical prices or making trades.
 from __future__ import annotations
 
 import hashlib
-import json
 from datetime import UTC, date, datetime
 from typing import Any
 
