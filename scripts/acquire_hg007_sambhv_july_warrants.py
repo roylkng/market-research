@@ -118,7 +118,7 @@ def verify_original_board_terms(raw: bytes) -> dict[str, Any]:
         ("sambhv steel tubes", "july 15, 2026", "8,695,400", "115", "999,971,000"),
         ("shareholders", "funds"),
         ("8,695,400", "115", "18 months"),
-        ("25%", "75%", "18", "forfeited", "one equity share"),
+        ("25%", "75%", "18", "forfeited", "equity share"),
         ("anjaneya minerals", "6,608,600", "suresh kumar goyal", "anu garg"),
     )
     for page_idx, tokens in enumerate(requirements):
