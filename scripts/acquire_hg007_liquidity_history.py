@@ -153,9 +153,10 @@ def _retain(
         "raw_bytes": len(raw),
         "historical_later_acquisition_not_early_alpha": True,
     }
-    if receipt_path.exists():
-        if json.loads(receipt_path.read_text(encoding="utf-8")) != source_receipt:
-            raise ValueError("existing original NSE source receipt differs, no overwrite")
+    if receipt_path.exists() and json.loads(
+        receipt_path.read_text(encoding="utf-8")
+    ) != source_receipt:
+        raise ValueError("existing original NSE source receipt differs, no overwrite")
     raw_path.parent.mkdir(parents=True, exist_ok=True)
     if raw_path.exists() and raw_path.read_bytes() != raw:
         raise ValueError("content-addressed original NSE archive collision")
