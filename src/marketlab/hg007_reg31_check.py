@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 from datetime import UTC, date, datetime
 from typing import Any
 from urllib.parse import urlsplit
