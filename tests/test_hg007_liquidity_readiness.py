@@ -80,11 +80,10 @@ def test_tampered_twenty_day_turnover_and_preregistration_refused() -> None:
 
 
 def test_original_git_blob_and_20_day_market_bytes_remain_pinned(tmp_path: Path) -> None:
-    from marketlab.hg007_liquidity_readiness import SOURCES
-    from marketlab.hg007_liquidity_history import (
-        CALENDAR_PATH, ROOT, ORIGINAL_ZIP, PRICE_FILE
-    )
     from pathlib import Path as P
+
+    from marketlab.hg007_liquidity_history import CALENDAR_PATH, ORIGINAL_ZIP, PRICE_FILE, ROOT
+    from marketlab.hg007_liquidity_readiness import SOURCES
 
     for name,_sha in SOURCES.values():
         path = tmp_path / name
