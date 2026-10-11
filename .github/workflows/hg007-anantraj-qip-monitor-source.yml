@@ -1,0 +1,141 @@
+name: HG007 Anant Raj original June 2026 QIP monitoring report custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/probe_hg007_anantraj_june_qip_monitor.py
+      - .github/workflows/hg007-anantraj-qip-monitor-source.yml
+  schedule:
+    - cron: '40 3 11-31 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-june-qip-monitor-original
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify exact source and no-capital invariants
+        run: |
+          ruff check scripts/probe_hg007_anantraj_june_qip_monitor.py tests/test_hg007_anantraj_qip_monitor_source.py
+          pytest -q tests/test_hg007_anantraj_qip_monitor_source.py
+      - name: Check original-source capture gate
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATUS=SKIP
+          DEST="research/hg007/anantraj-qip-monitor-june2026/original-receipt-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > 2026-10-10 && "$TODAY" < 2026-11-01 ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$DEST" 2>/dev/null; then
+              STATUS=ALREADY_RETAINED
+            else
+              STATUS=ACQUIRE
+            fi
+          fi
+          echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "Original QIP monitor gate=$STATUS"
+      - name: Fetch exact BSE attachment, no access bypass
+        if: steps.gate.outputs.status == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-anantraj-june-qip-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "QIP_MONITOR_SOURCE=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_anantraj_june_qip_monitor.py \
+            --out-dir "$OUT" --attempts 2 --sleep-seconds 3
+          test -s "$OUT/attempt.json"
+      - name: Anchor only complete source bytes, never interpret cash as transferred
+        if: steps.gate.outputs.status == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$QIP_MONITOR_SOURCE/attempt.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          d=json.loads(Path(sys.argv[1]).read_text())
+          if d["cloud_scheme_cash_transfer_amount_audited"] is not False:
+              raise SystemExit("Cannot promote cash transfer from raw monitoring report")
+          if d["portfolio_eligibility_allowed"] is not False:
+              raise SystemExit("Cannot promote portfolio eligibility")
+          print(d["state"])
+          PY
+          )"
+          if [[ "$STATE" != ORIGINAL_BSE_MONITOR_PDF_BYTES_CAPTURED_NOT_FINANCIAL_AUDIT ]]; then
+            echo "Original source not obtained: $STATE. Retaining separate run artifact."
+            exit 0
+          fi
+          DEST="research/hg007/anantraj-qip-monitor-june2026"
+          TARGET="$DEST/original-receipt-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$QIP_MONITOR_SOURCE/attempt.json" "$TARGET"
+          cp "$QIP_MONITOR_SOURCE"/raw/sha256/*.pdf "$DEST/raw/sha256/"
+          python - "$TARGET" "$DEST/raw/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.probe_hg007_anantraj_june_qip_monitor import _inspect_original_pdf
+          d=json.loads(Path(sys.argv[1]).read_text())
+          digest=d["original_pdf_sha256"]
+          raw=(Path(sys.argv[2])/f"{digest}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==digest
+          assert _inspect_original_pdf(raw)==d["source_pdf_text_identity"]
+          assert d["report_is_a_financial_statement_audit"] is False
+          print("Original BSE QIP source SHA:", digest)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: source-anchor original June ANANTRAJ QIP monitoring report [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Immutable source receipt already anchored; refuse replacement"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/probe_hg007_anantraj_june_qip_monitor.py \
+              .github/workflows/hg007-anantraj-qip-monitor-source.yml \
+              research/hg007/anantraj-full-scheme; then
+              echo "Frozen source or scheme changed after QIP evidence capture"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original BSE monitor source not anchored"
+          exit 1
+      - name: Keep source capture attempt independently
+        if: always() && steps.gate.outputs.status == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-original-anantraj-june-qip-monitor
+          path: ${{ env.QIP_MONITOR_SOURCE }}
+          if-no-files-found: ignore
+          retention-days: 90
