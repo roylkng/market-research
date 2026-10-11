@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from marketlab.h021_entry_observation import EXPECTED_SELECTION, _validate_intent
 from marketlab.h021_first_entry_intent import (
