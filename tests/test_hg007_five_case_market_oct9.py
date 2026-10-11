@@ -199,7 +199,8 @@ def test_official_download_access_controls_and_exact_source(monkeypatch) -> None
 
 
 def test_official_source_digest_mismatch_keeps_price_context_closed(monkeypatch) -> None:
-    sample = _udiff()
+    # Size-valid but cryptographically incorrect report cannot be promoted.
+    sample = _udiff() + b"other-unverified-data" * 100
 
     class WrongOriginal:
         status_code = 200
