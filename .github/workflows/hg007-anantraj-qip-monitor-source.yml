@@ -2,14 +2,6 @@ name: HG007 Anant Raj original June 2026 QIP monitoring report custody
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - scripts/probe_hg007_anantraj_june_qip_monitor.py
-      - .github/workflows/hg007-anantraj-qip-monitor-source.yml
-  schedule:
-    - cron: '40 3 11-31 10 *'
 
 permissions:
   contents: write
