@@ -1,0 +1,139 @@
+name: HG007 original NSE Anant Raj June QIP agency report custody
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/probe_hg007_anantraj_june_qip_nse_original.py
+      - .github/workflows/hg007-anantraj-qip-nse-original.yml
+  schedule:
+    - cron: '50 3 11-31 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-june-monitor-nse-original-source
+  cancel-in-progress: false
+
+jobs:
+  original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify exact original NSE issuer/date/report contract
+        run: |
+          ruff check scripts/probe_hg007_anantraj_june_qip_nse_original.py tests/test_hg007_anantraj_june_qip_nse_original.py
+          pytest -q tests/test_hg007_anantraj_june_qip_nse_original.py
+      - name: Gate on missing original NSE PDF only
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          TARGET="research/hg007/anantraj-qip-monitor-june2026/nse-original-receipt-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > 2026-10-10 && "$TODAY" < 2026-11-01 ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_CAPTURED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Original NSE QIP report state=$STATE"
+      - name: Retrieve 21-page original NSE PDF without follow-redirect
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-anantraj-nse-monitor-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "NSE_QIP_REPORT_RUN=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_anantraj_june_qip_nse_original.py \
+            --out-dir "$OUT" --attempts 2 --sleep-seconds 3
+          test -s "$OUT/attempt.json"
+      - name: Retain exact exchange PDF and hash, no demerger cash approval
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$NSE_QIP_REPORT_RUN/attempt.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          r=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert r["cash_transferred_to_ashok_cloud_ascertained"] is False
+          assert r["portfolio_eligibility_allowed"] is False
+          print(r["state"])
+          PY
+          )"
+          if [[ "$STATE" != NSE_ORIGINAL_21PAGE_PDF_CAPTURED_NOT_CLOUD_ASSET_AUDIT ]]; then
+            echo "Original NSE PDF source failed: $STATE, retaining attempt artifact"
+            exit 0
+          fi
+          DIR="research/hg007/anantraj-qip-monitor-june2026"
+          TARGET="$DIR/nse-original-receipt-v1.json"
+          mkdir -p "$DIR/nse-original/sha256"
+          cp "$NSE_QIP_REPORT_RUN/attempt.json" "$TARGET"
+          cp "$NSE_QIP_REPORT_RUN"/raw/sha256/*.pdf "$DIR/nse-original/sha256/"
+          python - "$TARGET" "$DIR/nse-original/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.probe_hg007_anantraj_june_qip_monitor import _inspect_original_pdf
+          d=json.loads(Path(sys.argv[1]).read_text())
+          sha=d["source_sha256"]
+          raw=(Path(sys.argv[2])/f"{sha}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==sha
+          assert _inspect_original_pdf(raw)==d["pdf_text_identity"]
+          assert d["pdf_text_identity"]["page_count"]==21
+          print("Original NSE QIP report SHA-256:",sha)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: source-anchor original NSE Anant Raj June QIP report [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NOW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original NSE report already anchored; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NOW_MAIN" -- \
+              scripts/probe_hg007_anantraj_june_qip_monitor.py \
+              scripts/probe_hg007_anantraj_june_qip_nse_original.py \
+              .github/workflows/hg007-anantraj-qip-nse-original.yml \
+              research/hg007/anantraj-full-scheme; then
+              echo "Original source validation or demerger proposal changed"
+              exit 1
+            fi
+            if [[ "$NOW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NOW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve independent source attempt and original evidence
+        if: always() && steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-anantraj-nse-qip-original-june2026
+          path: ${{ env.NSE_QIP_REPORT_RUN }}
+          if-no-files-found: ignore
+          retention-days: 90
