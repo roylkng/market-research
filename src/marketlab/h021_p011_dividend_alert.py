@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 from marketlab.h021_entry_observation import EXPECTED_SELECTION, _validate_intent
 from marketlab.h021_first_entry_intent import (
@@ -42,7 +41,7 @@ KNOWN_EVENTS = (
             {
                 "url": "https://groww.in/stocks/vedanta-ltd",
                 "kind": "SECONDARY_EX_DATE_TABLE",
-                "dated": "2026-10-11",
+                "dated": "EXACT_PAGE_PUBLICATION_TIME_UNVERIFIED",
                 "supports": "Oct14 ex-date and record date, Rs5 declared",
             },
         ],
