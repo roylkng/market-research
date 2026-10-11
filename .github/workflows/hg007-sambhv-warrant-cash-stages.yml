@@ -1,0 +1,152 @@
+name: HG007 Sambhv July warrant original cash and conversion terms
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_sambhv_july_warrants.py
+      - .github/workflows/hg007-sambhv-warrant-cash-stages.yml
+  schedule:
+    # October 11-20 source recovery, once daily.
+    - cron: '35 4 11-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-sambhv-july-warrant-board-custody
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Prove five-page warrant cash chronology and no-trade flags
+        run: |
+          ruff check scripts/acquire_hg007_sambhv_july_warrants.py tests/test_hg007_sambhv_warrant_cash_tranches.py
+          pytest -q tests/test_hg007_sambhv_warrant_cash_tranches.py
+      - name: Determine original source acquisition need
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || [[ "$TODAY" > "2026-10-10" && "$TODAY" < "2026-10-21" ]]; then
+            git fetch origin main
+            TARGET="research/hg007/sambhv-july2026-warrant/warrant-board-cash-timing-v1.json"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_ANCHORED
+            else
+              STATE=ACQUIRE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Sambhv source evidence state=$STATE"
+      - name: Fetch original 15 July five-page issuer board filing
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-sambhv-july-warrants-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "HG007_BOARD_RAW=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_sambhv_july_warrants.py \
+            --repo-root . --out-dir "$OUT" \
+            --attempts 2 --sleep-seconds 2
+          test -s "$OUT/original-source-receipt.json"
+      - name: Anchor conditional receipt and original source only after full validation
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(python - "$HG007_BOARD_RAW/original-source-receipt.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          v=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if v.get("live_capital_allowed") is not False:
+              raise SystemExit("Original issuer source unexpectedly authorizes capital")
+          print(v["state"])
+          PY
+          )"
+          if [[ "$STATUS" != ORIGINAL_BOARD_PDF_CAPTURED_AND_TERMS_BOUND ]]; then
+            echo "Exact official July board PDF blocked/unverified: $STATUS"
+            exit 0
+          fi
+          SOURCE="research/hg007/sambhv-july2026-warrant"
+          TARGET="$SOURCE/warrant-board-cash-timing-v1.json"
+          mkdir -p "$SOURCE/original-raw/sha256"
+          cp "$HG007_BOARD_RAW/original-source-receipt.json" "$SOURCE/original-source-receipt-v1.json"
+          cp "$HG007_BOARD_RAW/warrant-board-cash-timing-v1.json" "$TARGET"
+          cp "$HG007_BOARD_RAW"/original-raw/sha256/*.pdf "$SOURCE/original-raw/sha256/"
+
+          python - "$SOURCE" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_sambhv_july_warrants import verify_original_board_terms
+          root=Path(sys.argv[1])
+          rec=json.loads((root/"original-source-receipt-v1.json").read_text(encoding="utf-8"))
+          report=json.loads((root/"warrant-board-cash-timing-v1.json").read_text(encoding="utf-8"))
+          digest=rec["original_pdf_sha256"]
+          pdf=(root/"original-raw"/"sha256"/f"{digest}.pdf").read_bytes()
+          assert hashlib.sha256(pdf).hexdigest()==digest
+          assert verify_original_board_terms(pdf)==rec["source_text_verified"]
+          assert report["original_source_provenance"]["original_pdf_sha256"]==digest
+          for field in ("first_25pct_subscription_cash_received_verified",
+                        "last_75pct_conversion_cash_received_verified",
+                        "current_fully_diluted_share_count_verified",
+                        "live_capital_allowed"):
+              assert report[field] is False
+          print("Original board 25/75% cash stages verified with source SHA",digest)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$SOURCE"
+          git commit -m "HG007: retain original Sambhv July warrant cash stages without bank receipt [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original warrant tranche study already anchored; refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/acquire_hg007_sambhv_july_warrants.py \
+              .github/workflows/hg007-sambhv-warrant-cash-stages.yml \
+              research/hg005-d001-result-v1.json \
+              research/hg007/sambhv-aug2026-investor/phase1-steel-power-capex-v1.json \
+              research/hg007/sambhv-oct2026-sources/sambhv-october-case-v1.json; then
+              echo "Pinned original source or warrant terms changed during capture"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor original board source after bounded Git attempts"
+          exit 1
+      - name: Preserve source attempt including failures
+        if: always() && steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-sambhv-july-warrant-board-original
+          path: ${{ env.HG007_BOARD_RAW }}
+          if-no-files-found: ignore
+          retention-days: 90
