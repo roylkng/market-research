@@ -1,0 +1,149 @@
+name: H021 real Oct9 NSE source pre-entry rehearsal
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/h021-original-market-source-preflight.yml
+  schedule:
+    # One extra 06:35 IST attempt on Oct 12, only before planned 09:15 open.
+    - cron: '5 1 12 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-first-entry-preopen-real-source-rehearsal
+  cancel-in-progress: false
+
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify the real original 9 Oct stock rows and no-lookahead rules
+        run: |
+          ruff check src/marketlab/h021_real_source_rehearsal.py scripts/rehearse_h021_original_market_sources.py tests/test_h021_real_source_rehearsal.py
+          pytest -q tests/test_h021_real_source_rehearsal.py tests/test_h021_first_entry_intent.py
+      - name: Check immutable post-October9 and pre-October12 time window
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          STATE=SKIP
+          TARGET="research/prospective/h021/preentry-rehearsal/original-sources-format-ready-v1.json"
+          if [[ "$NOW" > "2026-10-09T10:00:00Z" && "$NOW" < "2026-10-12T03:45:00Z" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_VALIDATED
+            else
+              STATE=CAPTURE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "H021 real-source pre-entry gate=$STATE utc=$NOW"
+      - name: Rehearse actual frozen NSE stock ZIP and direct Nifty 500 index CSV
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/h021-preentry-rehearsal-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "PREFLIGHT_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/rehearse_h021_original_market_sources.py \
+            --out-dir "$OUT" \
+            --repo-root .
+          test -s "$OUT/preentry-rehearsal-v1.json"
+          test -s "$OUT/attempt.json"
+      - name: Anchor exact pre-entry source state and never overwrite success
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/h021/preentry-rehearsal"
+          TARGET="$DEST/original-sources-format-ready-v1.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          cp "$PREFLIGHT_OUT/attempt.json" "$DEST/attempts/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          for src in "$PREFLIGHT_OUT"/raw/sha256/*; do
+            [[ -f "$src" ]] || continue
+            dst="$DEST/raw/sha256/$(basename "$src")"
+            if [[ -f "$dst" ]]; then
+              cmp -- "$src" "$dst"
+            else
+              cp "$src" "$dst"
+            fi
+            original_sha="$(basename "$dst" | cut -d. -f1)"
+            [[ "$(sha256sum "$dst" | cut -d' ' -f1)" == "$original_sha" ]]
+          done
+          STATE="$(python - "$PREFLIGHT_OUT/preentry-rehearsal-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_real_source_rehearsal import validate_pre_entry_rehearsal
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          validate_pre_entry_rehearsal(packet)
+          print(packet['rehearsal_state'])
+          PY
+          )"
+          if [[ "$STATE" == VALIDATED_REAL_OCT9_STOCK_AND_INDEX_SOURCE_FORMATS ]]; then
+            cp "$PREFLIGHT_OUT/preentry-rehearsal-v1.json" "$TARGET"
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "H021: preserve original NSE real-source pre-entry rehearsal [$GITHUB_RUN_ID]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if [[ "$NOW" > "2026-10-12T03:45:00Z" || "$NOW" == "2026-10-12T03:45:00Z" ]]; then
+              echo "Prospective pre-entry report did not anchor before NSE open"
+              exit 1
+            fi
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original real-source pre-entry success already anchored; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              .github/workflows/h021-original-market-source-preflight.yml \
+              src/marketlab/h021_real_source_rehearsal.py \
+              scripts/rehearse_h021_original_market_sources.py \
+              src/marketlab/h021_first_entry_intent.py \
+              src/marketlab/pf001_marketdata.py \
+              research/hg007/oct09-five-case-market/original \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
+              research/prospective/universes/FY27-Q2-2026-09-06.json; then
+              echo "Frozen October 9 source/selection/parser changed after rehearsal"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Source preflight receipts preserved only in Actions artifact due Git race"
+          exit 1
+      - name: Preserve pre-entry source evidence even if Git publication fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-real-oct9-preentry-source-rehearsal
+          path: ${{ env.PREFLIGHT_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
