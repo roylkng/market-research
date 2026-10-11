@@ -229,6 +229,8 @@ def build_sep29_report(raw: bytes, captured: dict, old_qip: dict) -> dict:
             "sep29_reported_basic_market_cap_inr_crore": basic * price / INR_CRORE,
             "sep29_reported_fd_market_cap_inr_crore": fd * price / INR_CRORE,
             "basis": "SEP29_REPORTED_SHARE_COUNTS_TIMES_HISTORICAL_NSE_CLOSE",
+            "source_reg31_filing_was_public_at_price_close": day >= "2026-10-09",
+            "date_is_after_original_reg31_oct8_publication": day >= "2026-10-09",
             "share_count_freshness_at_price_session_proven": False,
             "economic_wwil_enterprise_value_verified": False,
         }
