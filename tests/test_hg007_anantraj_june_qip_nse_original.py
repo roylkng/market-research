@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -135,3 +137,23 @@ def test_nse_source_retry_limit_and_fake_completion_rejected() -> None:
             "EVERYTHING_IS_APPROVED", http_code=200,
             original=None, identity=None, error="none"
         )
+
+
+
+def test_production_entrypoint_imports_sibling_without_network() -> None:
+    # This exactly matches the GitHub Actions command form. The previous
+    # `python scripts/file.py` form failed before HTTP with
+    # ModuleNotFoundError because Python sys.path pointed at scripts/.
+    done = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.probe_hg007_anantraj_june_qip_nse_original",
+            "--help",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "--out-dir" in done.stdout
+    assert "--attempts" in done.stdout
