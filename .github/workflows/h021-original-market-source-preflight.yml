@@ -36,6 +36,7 @@ jobs:
         run: |
           ruff check src/marketlab/h021_real_source_rehearsal.py scripts/rehearse_h021_original_market_sources.py tests/test_h021_real_source_rehearsal.py
           pytest -q tests/test_h021_real_source_rehearsal.py tests/test_h021_first_entry_intent.py
+          python -m scripts.rehearse_h021_original_market_sources --help >/dev/null
       - name: Check immutable post-October9 and pre-October12 time window
         id: gate
         shell: bash
