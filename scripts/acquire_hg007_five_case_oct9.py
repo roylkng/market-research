@@ -99,13 +99,48 @@ def acquire(*, timeout: int = 30) -> tuple[dict, bytes | None]:
     return result, raw
 
 
+
+def recover_original_ss002_p007_artifact(path: Path) -> tuple[dict, bytes]:
+    """Require exact original SS002-P007 NSE ZIP, never a proxy or new source."""
+    raw = path.read_bytes()
+    original_sha = hashlib.sha256(raw).hexdigest()
+    if original_sha != PINNED_ORIGINAL_NSE_SHA256:
+        raise ValueError("recovered SS002 P007 original UDiFF does not match frozen SHA")
+    if not 1000 <= len(raw) <= MAX_SOURCE_BYTES:
+        raise ValueError("recovered original NSE ZIP has invalid source byte length")
+    return {
+        "schema_version": 1,
+        "source_url": SOURCE_URL,
+        "captured_at_utc": _now(),
+        "status": "ORIGINAL_OCT9_UDIFF_BYTES_VERIFIED",
+        "http_status": None,
+        "source_sha256": original_sha,
+        "original_source_byte_count": len(raw),
+        "error": None,
+        "research_price_context_published": False,
+        "source_recovery_route": (
+            "PRIOR_OFFICIAL_SS002_P007_GITHUB_ACTIONS_ORIGINAL_RAW_ARTIFACT"
+        ),
+        "source_original_acquisition_run_id": 37998444346,
+        "source_original_acquisition_artifact_id": 11647487905,
+        "raw_source_obtained_live_from_exchange_on_this_run": False,
+        "return_outcomes_opened": False,
+        "portfolio_eligibility_allowed": False,
+        "live_capital_allowed": False,
+    }, raw
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--timeout", type=int, default=30)
+    parser.add_argument("--original-zip", type=Path)
     args = parser.parse_args()
     hg005, p007, p033, receipts = load_frozen_five_sources(Path("."))
-    receipt, raw = acquire(timeout=args.timeout)
+    receipt, raw = (
+        recover_original_ss002_p007_artifact(args.original_zip)
+        if args.original_zip is not None else acquire(timeout=args.timeout)
+    )
     out = args.out_dir
     out.mkdir(parents=True, exist_ok=True)
     if raw is not None:
