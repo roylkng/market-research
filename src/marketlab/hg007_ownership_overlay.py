@@ -11,7 +11,6 @@ import hashlib
 import json
 import math
 from pathlib import Path
-from typing import Any
 
 ID = "HG007-P012-28-CASE-OFFICIAL-OWNERSHIP-RECONCILIATION-v1"
 P009_PATH = Path("research/hg007/hg007-p009-28-case-capital-readiness-overlay-v1.json")
