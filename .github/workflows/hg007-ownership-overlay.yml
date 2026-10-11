@@ -1,0 +1,98 @@
+name: HG007 official 28-case ownership and pledged-share source overlay
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_ownership_overlay.py
+      - scripts/build_hg007_ownership_overlay.py
+      - tests/test_hg007_ownership_overlay.py
+      - .github/workflows/hg007-ownership-overlay.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_ownership_overlay.py
+      - scripts/build_hg007_ownership_overlay.py
+      - tests/test_hg007_ownership_overlay.py
+      - .github/workflows/hg007-ownership-overlay.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-p012-28-case-source-ownership
+  cancel-in-progress: false
+
+jobs:
+  source_review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 19
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original 28-company selection and NSE source facts
+        run: |
+          ruff check src/marketlab/hg007_ownership_overlay.py scripts/build_hg007_ownership_overlay.py tests/test_hg007_ownership_overlay.py
+          pytest -q tests/test_hg007_ownership_overlay.py
+      - name: Rebuild no-network source-only governance watch
+        run: |
+          python scripts/build_hg007_ownership_overlay.py \
+            --repo-root . \
+            --out /tmp/hg007-p012-28-case-ownership-v1.json
+          test -s /tmp/hg007-p012-28-case-ownership-v1.json
+      - name: Publish original-source overlay exactly once on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p012-source-verified-28-case-ownership-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_ownership_overlay.py \
+              --out "$TARGET" --verify-existing
+            exit 0
+          fi
+          cp /tmp/hg007-p012-28-case-ownership-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: record source-dated FD/pledge review in 28-case watch [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Source evidence already frozen; do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/hg007-p009-28-case-capital-readiness-overlay-v1.json \
+              research/hg007/inoxgreen-post-qip-reg31/sep29-reported-fd-promoter-pledge-v1.json \
+              src/marketlab/hg007_ownership_overlay.py \
+              scripts/build_hg007_ownership_overlay.py; then
+              echo "Research snapshot or source lineage changed during Git publication"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve independent 28-case governance review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-p012-original-sep29-pledge-28-case-watch
+          path: /tmp/hg007-p012-28-case-ownership-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
