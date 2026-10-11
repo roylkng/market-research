@@ -121,7 +121,7 @@ def discover_official_pdf_candidates(
         }
     # Some listed-company sites embed file URLs in server-rendered JSON
     # rather than <a> links. These are unapproved candidate URLs only.
-    pattern = re.compile(r"https?://[^\"'\s<>\\]{1,1500}?\.pdf(?:\?[^\"'\s<>\\]{0,400})?", re.I)
+    pattern = re.compile(r"https?://[^\"'\s<>\\]{1,1500}?\.pdf(?:\?[^\"'\s<>\\]{0,400})?", re.IGNORECASE)
     for match in pattern.finditer(source):
         found = _candidate_pdf(match.group(), base=url)
         if found is None or found in candidates:
@@ -236,7 +236,7 @@ def retain_discovery_run(
         raise ValueError("both exact official source webpages must be accounted for")
     output_dir.mkdir(parents=True, exist_ok=True)
     receipts = []
-    for page_id in PRIMARY_PAGES:
+    for page_id, page_url in PRIMARY_PAGES.items():
         receipt, raw = sources[page_id]
         if receipt.get("source_page_id") != page_id:
             raise ValueError("cross-page official source receipt mismatch")
@@ -251,7 +251,7 @@ def retain_discovery_run(
             if receipt.get("source_state") != "OFFICIAL_PAGE_HTML_CAPTURED":
                 raise ValueError("captured HTML may not be reported as unavailable")
             candidates = discover_official_pdf_candidates(
-                page_id, PRIMARY_PAGES[page_id], raw
+                page_id, page_url, raw
             )
             digest = hashlib.sha256(raw).hexdigest()
             if digest != receipt.get("raw_html_sha256"):
