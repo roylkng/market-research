@@ -117,7 +117,6 @@ def test_source_bound_cash_scenarios_do_not_invent_current_bank_cash(
     assert output["warrant_exercise_completed_verified"] is False
     assert output["current_fully_diluted_share_count_verified"] is False
     assert output["q2_sales_growth_verifies_project_ebitda"] is False
-    assert hash(tuple(raw)) != 0  # Original raw bytes are not inferred from companion.
 
 
 def test_original_pdf_missing_cash_term_or_allotment_clock_fails_closed(
