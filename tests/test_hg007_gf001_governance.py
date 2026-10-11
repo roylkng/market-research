@@ -28,7 +28,7 @@ def test_outside_u001_contract_original_28_never_substituted() -> None:
 
 
 def test_fails_closed_when_full_market_census_missing() -> None:
-    with pytest.raises(ValueError, match="original full-market"):
+    with pytest.raises(ValueError, match="GF001 original run/result identity changed"):
         module.validate_original_full_market(
             {"census_id": "FAKE", "rows": []},
             {"panel_id": "GF001-D002-v1", "rows": []},
