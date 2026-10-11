@@ -77,7 +77,7 @@ def test_issuer_board_source_carries_25_75_cash_staging_and_tenure(
 def test_source_bound_cash_scenarios_do_not_invent_current_bank_cash(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    receipt, raw = _ready(monkeypatch)
+    receipt, _raw = _ready(monkeypatch)
     sources, originals = _companion()
     old_sources = deepcopy(sources)
     output = subject.build_conditional_board_cash_timing(
