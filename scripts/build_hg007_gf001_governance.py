@@ -11,11 +11,11 @@ import json
 from pathlib import Path
 
 from marketlab.hg007_gf001_governance import (
+    GF001_RESULT_PATH,
+    _read_json,
     build_outside_u001_governance,
     frozen_outside_u001,
     validate_original_full_market,
-    _read_json,
-    GF001_RESULT_PATH,
 )
 
 
