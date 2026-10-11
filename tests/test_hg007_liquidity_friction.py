@@ -9,8 +9,14 @@ from pathlib import Path
 import pytest
 
 from marketlab.hg007_liquidity_friction import (
-    EXPECTED_NAMES, ORIGINAL_ZIP, PRICE_BLOB, PRICE_FILE, SOURCE_SHA,
-    build_one_session_liquidity, load_official_oct9, validate_one_session_liquidity,
+    EXPECTED_NAMES,
+    ORIGINAL_ZIP,
+    PRICE_BLOB,
+    PRICE_FILE,
+    SOURCE_SHA,
+    build_one_session_liquidity,
+    load_official_oct9,
+    validate_one_session_liquidity,
 )
 
 
