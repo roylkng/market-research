@@ -15,11 +15,6 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
 
-from marketlab.hg007_qip_capitalization import (
-    build_qip_denominator_audit,
-    load_verified_source_references,
-)
-
 AUDIT_ID = "HG007-P011-INOXGREEN-SEP29-ORIGINAL-FD-AND-PLEDGE-v1"
 ORIGINAL_XML_SHA = (
     "6c58845fa1b3f17c9c72b2466978bf8c69cece2436b1a92f7d40c4410f8b1822"
