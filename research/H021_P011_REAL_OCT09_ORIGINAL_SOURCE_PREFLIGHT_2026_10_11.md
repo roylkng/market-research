@@ -69,6 +69,7 @@ spread or tradable opening auction fills.
   src/marketlab/h021_real_source_rehearsal.py
 - Runner:
   scripts/rehearse_h021_original_market_sources.py
+  (invoke with python -m scripts.rehearse_h021_original_market_sources)
 - Tests:
   tests/test_h021_real_source_rehearsal.py
 - Workflow:
