@@ -75,7 +75,7 @@ def test_tampered_twenty_day_turnover_and_preregistration_refused() -> None:
         build_five_case_liquidity_overlay(old, p035, fake, src)
     fake = deepcopy(old)
     fake["casework"][1]["symbol"] = "UNREGISTERED"
-    with pytest.raises(ValueError, match="company"):
+    with pytest.raises(ValueError, match="companies missing"):
         build_five_case_liquidity_overlay(fake, p035, p036, src)
 
 
