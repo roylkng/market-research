@@ -86,7 +86,7 @@ def test_fully_paid_and_diluted_source_counts_are_distinct_and_no_capital() -> N
         "live_capital_allowed",
     ):
         assert report[key] is False
-    with pytest.raises(ValueError, match="source-blocked"):
+    with pytest.raises(ValueError, match="net cash basis still blocked"):
         require_independently_verified_enterprise_value(report)
 
 
