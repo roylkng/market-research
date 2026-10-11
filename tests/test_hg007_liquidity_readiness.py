@@ -71,7 +71,7 @@ def test_tampered_twenty_day_turnover_and_preregistration_refused() -> None:
     old, p035, p036, src = load_verified_issuer_sources(Path("."))
     fake = deepcopy(p036)
     fake["company_distribution"][1]["twenty_session_traded_value_median_inr_crore"] = 5000
-    with pytest.raises(ValueError, match="modified"):
+    with pytest.raises(ValueError, match="altered"):
         build_five_case_liquidity_overlay(old, p035, fake, src)
     fake = deepcopy(old)
     fake["casework"][1]["symbol"] = "UNREGISTERED"
