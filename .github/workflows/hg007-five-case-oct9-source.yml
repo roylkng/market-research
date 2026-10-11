@@ -1,0 +1,154 @@
+name: HG007 five-case official 9 October NSE source
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_five_case_market_oct9.py
+      - scripts/acquire_hg007_five_case_oct9.py
+      - tests/test_hg007_five_case_market_oct9.py
+      - .github/workflows/hg007-five-case-oct9-source.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_five_case_market_oct9.py
+      - scripts/acquire_hg007_five_case_oct9.py
+      - tests/test_hg007_five_case_market_oct9.py
+      - .github/workflows/hg007-five-case-oct9-source.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: hg007-five-case-official-oct9-market-source
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Check source-only official five-case guards
+        run: |
+          ruff check src/marketlab/hg007_five_case_market_oct9.py scripts/acquire_hg007_five_case_oct9.py tests/test_hg007_five_case_market_oct9.py
+          pytest -q tests/test_hg007_five_case_market_oct9.py
+      - name: Find immutable five-case source record on main
+        id: gate
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          TARGET="research/hg007/oct09-five-case-market/five-case-oct09-market-context-v1.json"
+          STATE=ACQUIRE
+          if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+            STATE=ALREADY_RETAINED
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Original NSE 9 Oct five-case source gate: $STATE"
+      - name: Download exactly the prior official SS002 original market source
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        uses: actions/download-artifact@v4
+        with:
+          name: ss002-p007-37998444346
+          path: reports/ss002-p007-original
+          github-token: ${{ github.token }}
+          repository: roylkng/market-research
+          run-id: 37998444346
+      - name: Cross-check original SS002-P007 archive and extract five source rows
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED="8adbb3410c8cf4372290484a9b1798490ef279d30fc2439c93f082cc20ed198c"
+          ZIP="reports/ss002-p007-original/raw/$EXPECTED.zip"
+          if [[ ! -f "$ZIP" ]]; then
+            echo "Original SS002 P007 2026-10-09 NSE archive missing from prior run artifact"
+            find reports/ss002-p007-original -maxdepth 3 -type f -printf '%p\n'
+            exit 1
+          fi
+          [[ "$(sha256sum "$ZIP" | cut -d' ' -f1)" == "$EXPECTED" ]]
+          OUT="/tmp/hg007-five-case-oct9-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_five_case_oct9.py \
+            --original-zip "$ZIP" --out-dir "$OUT"
+          test -s "$OUT/acquisition-receipt.json"
+          test -s "$OUT/five-case-oct09-market-context-v1.json"
+          test -s "$OUT/original/$EXPECTED.zip"
+      - name: Anchor source bytes and date-scoped output without reclassification
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/hg007/oct09-five-case-market"
+          TARGET="$DEST/five-case-oct09-market-context-v1.json"
+          mkdir -p "$DEST/original"
+          cp "$SOURCE_OUT/acquisition-receipt.json" "$DEST/source-acquisition-v1.json"
+          cp "$SOURCE_OUT/five-case-oct09-market-context-v1.json" "$TARGET"
+          cp "$SOURCE_OUT"/original/*.zip "$DEST/original/"
+          python - "$TARGET" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.hg007_five_case_market_oct9 import validate_five_case_price_context
+          p=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          validate_five_case_price_context(p)
+          assert len(p['price_context_rows']) == 5
+          assert p['stock_current_fd_capital_approved'] is False
+          assert p['expected_returns_calculated'] is False
+          assert p['portfolio_eligibility_allowed'] is False
+          print('Five original NSE EQ source names:', [x['symbol'] for x in p['price_context_rows']])
+          print('Official NSE share closes:', [(x['symbol'], x['official_oct9_close_inr']) for x in p['price_context_rows']])
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor exact prior SS002 Oct9 NSE UDiFF and five case stock bars [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            HEAD_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original five-case source already immutable on main; refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$HEAD_MAIN" -- \
+              research/hg005-d001-result-v1.json \
+              research/ss002-p007-result-v1.json \
+              research/hg007/hg007-p033-five-case-sambhv-source-timing-v1.json \
+              src/marketlab/hg007_five_case_market_oct9.py \
+              scripts/acquire_hg007_five_case_oct9.py \
+              .github/workflows/hg007-five-case-oct9-source.yml; then
+              echo "Original price source or research evidence was changed during acquisition"
+              exit 1
+            fi
+            if [[ "$HEAD_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$HEAD_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((ATTEMPT*2))"
+          done
+          echo "Could not anchor independently verified official 9 October stock source"
+          exit 1
+      - name: Retain original-source execution artifact on any failure
+        if: always() && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-five-case-exact-oct9-original-nse-source
+          path: |
+            reports/ss002-p007-original
+            /tmp/hg007-five-case-oct9-*
+          retention-days: 90
+          if-no-files-found: ignore
