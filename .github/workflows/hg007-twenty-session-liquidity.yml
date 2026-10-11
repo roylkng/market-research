@@ -1,0 +1,146 @@
+name: HG007 official 20-session five-stock NSE liquidity sources
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_liquidity_history.py
+      - scripts/acquire_hg007_liquidity_history.py
+      - tests/test_hg007_liquidity_history.py
+      - .github/workflows/hg007-twenty-session-liquidity.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_liquidity_history.py
+      - scripts/acquire_hg007_liquidity_history.py
+      - tests/test_hg007_liquidity_history.py
+      - .github/workflows/hg007-twenty-session-liquidity.yml
+  workflow_dispatch:
+  schedule:
+    # Bounded Oct 2026 recovery checks. No horizon extension or backdating.
+    - cron: '15 13 11-17 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-frozen-twenty-session-liquidity
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 27
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify official source, turnover math and execution firewall
+        run: |
+          ruff check src/marketlab/hg007_liquidity_history.py scripts/acquire_hg007_liquidity_history.py tests/test_hg007_liquidity_history.py
+          pytest -q tests/test_hg007_liquidity_history.py tests/test_hg007_liquidity_friction.py
+      - name: Gate on main and exact October source recovery period
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS=SKIP
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          TARGET="research/hg007/twenty-session-liquidity/twenty-session-liquidity-v1.json"
+          if [[ "${GITHUB_REF:-}" == refs/heads/main ]] &&
+             { [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] ||
+               { [[ "$TODAY" > 2026-10-10 ]] && [[ "$TODAY" < 2026-10-18 ]]; }; }; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATUS=ALREADY_COMPLETE
+            else
+              STATUS=ACQUIRE
+            fi
+          fi
+          echo "state=$STATUS" >> "$GITHUB_OUTPUT"
+          echo "HG007 historical liquidity source gate=$STATUS; local_date=$TODAY"
+      - name: Recover original pre-Oct9 NSE market archives only
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/acquire_hg007_liquidity_history.py \
+            --repo-root . \
+            --attempt-key "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --attempts-per-date 2 \
+            --sleep-seconds 2 \
+            | tee /tmp/hg007-20-session-acquisition-summary.json
+          test -s /tmp/hg007-20-session-acquisition-summary.json
+      - name: Anchor original ZIPs, receipts and only complete statistics
+        if: steps.gate.outputs.state == 'ACQUIRE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIR="research/hg007/twenty-session-liquidity"
+          TARGET="$DIR/twenty-session-liquidity-v1.json"
+          if [[ -e "$TARGET" ]]; then
+            python - "$TARGET" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.hg007_liquidity_history import validate_twenty_session_liquidity
+          pkt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_twenty_session_liquidity(pkt)
+          assert pkt['source_status']=='COMPLETE_ORIGINAL_20_SESSION_EQUITY_EVIDENCE'
+          assert pkt['observed_complete_session_count']==20
+          print("Twenty original NSE sessions sealed. No execution or stock return.")
+          PY
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          if git diff --cached --quiet; then
+            echo "No new original source or receipt; no push"
+            exit 0
+          fi
+          git commit -m "HG007: anchor bounded original NSE twenty-session liquidity evidence [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Complete source already sealed; refuse another competing record"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              src/marketlab/hg007_liquidity_history.py \
+              src/marketlab/hg007_liquidity_friction.py \
+              scripts/acquire_hg007_liquidity_history.py \
+              research/hg007/oct09-five-case-market \
+              research/hg007/hg007-p035-five-case-liquidity-friction-v1.json \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+              "$DIR"; then
+              echo "Original research/source path changed during acquisition"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor official NSE originals"
+          exit 1
+      - name: Retain acquisition evidence if original push fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-five-case-twenty-session-original-liquidity-attempt
+          path: |
+            /tmp/hg007-20-session-acquisition-summary.json
+            research/hg007/twenty-session-liquidity
+          if-no-files-found: ignore
+          retention-days: 90
+          compression-level: 6
