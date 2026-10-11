@@ -14,8 +14,8 @@ from marketlab.hg007_anantraj_scheme_pages import (
     PAGE_COUNT,
     PDF_SHA256,
     RECEIPT_PATH,
-    load_original_scheme_source,
     build_page_text_evidence,
+    load_original_scheme_source,
     write_or_verify_page_evidence,
 )
 
