@@ -1,0 +1,104 @@
+name: HG007 original ANANTRAJ 48-page scheme source text
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_anantraj_scheme_pages.py
+      - scripts/materialize_hg007_anantraj_scheme_pages.py
+      - tests/test_hg007_anantraj_scheme_pages.py
+      - .github/workflows/hg007-anantraj-48-page-source-text.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_anantraj_scheme_pages.py
+      - scripts/materialize_hg007_anantraj_scheme_pages.py
+      - tests/test_hg007_anantraj_scheme_pages.py
+      - .github/workflows/hg007-anantraj-48-page-source-text.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-full-scheme-48-original-pages
+  cancel-in-progress: false
+
+jobs:
+  source-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate immutable original 48-page issuer source and metadata
+        run: |
+          ruff check src/marketlab/hg007_anantraj_scheme_pages.py scripts/materialize_hg007_anantraj_scheme_pages.py tests/test_hg007_anantraj_scheme_pages.py
+          pytest -q tests/test_hg007_anantraj_scheme_pages.py
+      - name: Extract every original page into independent hash-bound source text
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg007_anantraj_scheme_pages.py \
+            --repo-root . --output-dir /tmp/hg007-anantraj-scheme-pages-v1
+          test "$(find /tmp/hg007-anantraj-scheme-pages-v1 -maxdepth 1 -name 'original-page-*.txt' | wc -l)" -eq 48
+          test -s /tmp/hg007-anantraj-scheme-pages-v1/page-index-v1.json
+      - name: Retain exact independent source text artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-anantraj-composite-scheme-48-hashed-original-pages
+          path: /tmp/hg007-anantraj-scheme-pages-v1
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Permanently anchor original pages once after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/hg007/anantraj-full-scheme/page-text-v1"
+          if [[ -d "$DEST" ]]; then
+            python scripts/materialize_hg007_anantraj_scheme_pages.py \
+              --repo-root . --output-dir "$DEST" --verify-existing
+            echo "Existing original 48-page source matched exactly"
+            exit 0
+          fi
+          mkdir -p "$DEST"
+          cp /tmp/hg007-anantraj-scheme-pages-v1/* "$DEST/"
+          python scripts/materialize_hg007_anantraj_scheme_pages.py \
+            --repo-root . --output-dir "$DEST" --verify-existing
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: anchor all 48 original ANANTRAJ composite scheme pages with source SHA [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$DEST/page-index-v1.json" 2>/dev/null; then
+              echo "Original scheme pages already sealed, refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/anantraj-full-scheme/raw \
+              research/hg007/anantraj-full-scheme/original-source-v1.json \
+              src/marketlab/hg007_anantraj_scheme_pages.py \
+              scripts/materialize_hg007_anantraj_scheme_pages.py; then
+              echo "Original full scheme or extraction protocol changed during execution"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original 48-page source text failed bounded Git anchoring"
+          exit 1
