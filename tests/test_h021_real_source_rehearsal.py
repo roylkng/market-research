@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from copy import deepcopy
 from datetime import date
 from pathlib import Path
@@ -207,3 +209,21 @@ def test_index_source_is_excluded_from_rehearsal_selection() -> None:
     assert "selected" not in json.dumps(observed).lower() or (
         observed["selected_stock_identity_count"] == 10
     )
+
+
+def test_exact_github_module_entrypoint_imports_without_network() -> None:
+    # Stable after the Oct12 opening, unlike attempting a post-hoc pre-entry
+    # source acquisition. Only checks Python module import/help, no network.
+    finished = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "scripts.rehearse_h021_original_market_sources",
+            "--help",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "--out-dir" in finished.stdout
+    assert "--repo-root" in finished.stdout
