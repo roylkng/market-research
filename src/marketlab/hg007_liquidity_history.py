@@ -293,7 +293,7 @@ def build_twenty_session_liquidity(root: Path) -> dict[str, Any]:
                 "twenty_session_traded_value_min_inr_crore": min(measures) / 10_000_000,
                 "twenty_session_traded_value_max_inr_crore": max(measures) / 10_000_000,
                 "oct9_day_traded_value_inr_crore": oct9_amount / 10_000_000,
-                "oct9_to_prior_20_session_median_turnover_ratio": oct9_amount / median,
+                "oct9_to_trailing_20_session_median_turnover_ratio": oct9_amount / median,
                 "ten_lakh_ticket_divided_by_one_pct_of_historical_median": (
                     ILLUSTRATIVE_TICKET_INR / (0.01 * median)
                 ),
