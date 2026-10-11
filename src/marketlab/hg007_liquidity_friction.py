@@ -117,7 +117,7 @@ def build_one_session_liquidity(packet: dict, original_zip: bytes, provenance: d
             "live_capital_allowed": False,
         })
 
-    return {
+    result = {
         "schema_version": 1,
         "audit_id": AUDIT_ID,
         "classification": "SINGLE_VERIFIED_OCT9_NSE_DAY_NOT_EXECUTABLE_LIQUIDITY_CAPACITY",
@@ -135,3 +135,47 @@ def build_one_session_liquidity(packet: dict, original_zip: bytes, provenance: d
         "portfolio_eligibility_allowed": False,
         "live_capital_allowed": False,
     }
+
+    result["packet_sha256"] = hashlib.sha256(
+        json.dumps(result, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    ).hexdigest()
+    return result
+
+
+def validate_one_session_liquidity(result: dict) -> None:
+    if result.get("audit_id") != AUDIT_ID or result.get("source_session") != "2026-10-09":
+        raise ValueError("unrecognized official one-session NSE market diagnostic")
+    rows = result.get("cases")
+    if not isinstance(rows, list) or tuple(row.get("symbol") for row in rows) != EXPECTED_NAMES:
+        raise ValueError("five original company identities missing or reordered")
+    original_hash = result.get("packet_sha256")
+    unsigned = {key: value for key, value in result.items() if key != "packet_sha256"}
+    if not isinstance(original_hash, str) or original_hash != hashlib.sha256(
+        json.dumps(unsigned, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    ).hexdigest():
+        raise ValueError("official single-session research record was modified")
+    for flag in (
+        "original_selection_changed", "daily_volumes_assumed_stable",
+        "spread_slippage_and_impact_modeled", "expected_returns_calculated",
+        "investment_recommendations_created", "portfolio_eligibility_allowed",
+        "live_capital_allowed",
+    ):
+        if result.get(flag) is not False:
+            raise ValueError(f"one-session turnover study cannot authorize {flag}")
+    for row in rows:
+        for flag in (
+            "verified_bid_ask_spread", "verified_orderbook_depth",
+            "multi_session_liquidity_distribution_measured",
+            "actual_ticket_execution_claimed", "live_capital_allowed",
+        ):
+            if row.get(flag) is not False:
+                raise ValueError(f"one-day source cannot establish {flag}")
+        scenarios = row.get("illustrative_participation_scenarios")
+        if not isinstance(scenarios, list) or len(scenarios) != len(PARTICIPATION) * len(TICKETS_INR):
+            raise ValueError("participation/size scenario accounting changed")
+        if any(
+            scenario.get("executable_order_capacity_verified") is not False
+            or scenario.get("predicted_elapsed_trading_days") is not None
+            for scenario in scenarios
+        ):
+            raise ValueError("one-day turnover quotient cannot predict order execution")
