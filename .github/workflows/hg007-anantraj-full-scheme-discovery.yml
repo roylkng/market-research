@@ -1,0 +1,105 @@
+name: HG007 discover published official Anant Raj composite scheme source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/discover_hg007_anantraj_full_scheme.py
+      - tests/test_hg007_full_scheme_discovery.py
+      - .github/workflows/hg007-anantraj-full-scheme-discovery.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-full-scheme-published-source-discovery
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate strict official source and original byte semantics
+        run: |
+          ruff check scripts/discover_hg007_anantraj_full_scheme.py tests/test_hg007_full_scheme_discovery.py
+          pytest -q tests/test_hg007_full_scheme_discovery.py
+      - name: Read exact official company and NSE scheme listings
+        run: |
+          set -euo pipefail
+          OUT="/tmp/anantraj-official-scheme-listing-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "ANANTRAJ_LISTING_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/discover_hg007_anantraj_full_scheme.py --out-dir "$OUT"
+          test -s "$OUT/discovery-v1.json"
+      - name: Preserve original HTML proof and unverified candidate URLs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-anantraj-aug2026-official-scheme-listing
+          path: ${{ env.ANANTRAJ_LISTING_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Append once on main, without asserting original scheme PDF acquired
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="research/hg007/anantraj-full-scheme-discovery/attempts"
+          TARGET="$ROOT/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          if [[ -e "$TARGET" ]]; then
+            echo "Append-only source discovery receipt already exists"
+            exit 1
+          fi
+          mkdir -p "$TARGET"
+          cp "$ANANTRAJ_LISTING_OUT/discovery-v1.json" "$TARGET/"
+          if [[ -d "$ANANTRAJ_LISTING_OUT/raw" ]]; then
+            cp -r "$ANANTRAJ_LISTING_OUT/raw" "$TARGET/"
+          fi
+          python - "$TARGET/discovery-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert packet['aug17_35_58mb_scheme_pdf_original_bytes_retrieved'] is False
+          assert packet['scheme_schedules_assets_liabilities_reconciled'] is False
+          assert packet['live_capital_allowed'] is False
+          print('Retained unapproved PDF candidates:',packet['unique_candidate_pdf_url_count'])
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$TARGET"
+          git commit -m "HG007: record exact public NSE and company scheme listing source attempt [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET/discovery-v1.json" 2>/dev/null; then
+              echo "Discovery attempt already anchored; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/discover_hg007_anantraj_full_scheme.py \
+              .github/workflows/hg007-anantraj-full-scheme-discovery.yml \
+              research/hg007/anantraj-full-scheme-discovery; then
+              echo "Official discovery protocol was altered during acquisition"
+              exit 1
+            fi
+            if [[ "$BASE_SHA" != "$MAIN_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
