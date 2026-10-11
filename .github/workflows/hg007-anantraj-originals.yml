@@ -1,0 +1,142 @@
+name: HG007 ANANTRAJ three original July scheme filings
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_hg007_anantraj_originals.py
+      - .github/workflows/hg007-anantraj-originals.yml
+  schedule:
+    # Original-source retry window Oct 11–17 2026; later scheduled years gated.
+    - cron: '45 4 11-17 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-anantraj-july2026-original-source-custody
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python research environment
+        run: python -m pip install -e '.[dev]'
+      - name: Test exact original document custody boundaries
+        run: |
+          ruff check scripts/acquire_hg007_anantraj_originals.py tests/test_hg007_anantraj_originals.py
+          pytest -q tests/test_hg007_anantraj_originals.py
+      - name: Check whether complete original source packet exists
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          TARGET="research/hg007/anantraj-july2026-originals/verified-original-source-receipts-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == push || "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-10" && "$TODAY" < "2026-10-18" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=COMPLETE_ALREADY
+            else
+              STATE=COLLECT
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "ANANTRAJ original source gate=$STATE"
+      - name: Acquire exact three NSE primary source PDFs
+        if: steps.gate.outputs.state == 'COLLECT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-anantraj-originals-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "ANANTRAJ_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_hg007_anantraj_originals.py \
+            --out-dir "$OUT" \
+            --attempts 2 \
+            --sleep-seconds 2
+          test -s "$OUT/source-receipts-v1.json"
+      - name: Anchor all three immutable originals or keep unresolved
+        if: steps.gate.outputs.state == 'COLLECT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$ANANTRAJ_SOURCE_OUT/source-receipts-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          if packet['original_scheme_transaction_effective_verified'] is not False:
+              raise SystemExit('Original source cannot declare scheme effective')
+          print(packet['source_completion_state'])
+          PY
+          )"
+          if [[ "$STATE" != THREE_ORIGINAL_ISSUER_FILINGS_VERIFIED ]]; then
+            echo "ANANTRAJ originals not all valid: $STATE. Preserve attempt artifact."
+            exit 0
+          fi
+          DIR="research/hg007/anantraj-july2026-originals"
+          TARGET="$DIR/verified-original-source-receipts-v1.json"
+          mkdir -p "$DIR/raw/sha256"
+          cp "$ANANTRAJ_SOURCE_OUT/source-receipts-v1.json" "$TARGET"
+          cp "$ANANTRAJ_SOURCE_OUT"/raw/sha256/*.pdf "$DIR/raw/sha256/"
+          python - "$TARGET" "$DIR/raw/sha256" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from scripts.acquire_hg007_anantraj_originals import verify_source_bytes
+          result=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          for receipt in result['source_receipts']:
+              original=receipt['verified_original']
+              pdf=(Path(sys.argv[2])/f"{original['original_pdf_sha256']}.pdf").read_bytes()
+              assert verify_source_bytes(receipt['source_role'],pdf)==original
+              assert receipt['official_nclt_effective_demerger_order_verified'] is False
+          print("All three original issuer PDFs independently revalidated")
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DIR"
+          git commit -m "HG007: anchor original July2026 ANANTRAJ scheme and ACPL subscription sources [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "ANANTRAJ original source receipt already exists; do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              scripts/acquire_hg007_anantraj_originals.py \
+              .github/workflows/hg007-anantraj-originals.yml \
+              research/hg007/anantraj-july2026-originals; then
+              echo "Original source contract changed during retrieval"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor original issuer sources"
+          exit 1
+      - name: Retain independently time-stamped source attempt
+        if: always() && steps.gate.outputs.state == 'COLLECT'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-anantraj-july2026-issuer-originals
+          path: ${{ env.ANANTRAJ_SOURCE_OUT }}
+          retention-days: 90
+          if-no-files-found: ignore
