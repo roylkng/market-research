@@ -1,0 +1,101 @@
+name: HG007 original five-case NSE liquidity friction screen
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_liquidity_friction.py
+      - scripts/build_hg007_liquidity_friction.py
+      - tests/test_hg007_liquidity_friction.py
+      - .github/workflows/hg007-five-case-liquidity-friction.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_liquidity_friction.py
+      - scripts/build_hg007_liquidity_friction.py
+      - tests/test_hg007_liquidity_friction.py
+      - .github/workflows/hg007-five-case-liquidity-friction.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-p035-liquidity-source
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original five-stock source, quotient and blocked orders
+        run: |
+          ruff check src/marketlab/hg007_liquidity_friction.py scripts/build_hg007_liquidity_friction.py tests/test_hg007_liquidity_friction.py
+          pytest -q tests/test_hg007_liquidity_friction.py
+      - name: Recreate original exchange one-day cash-equity source report
+        run: |
+          python scripts/build_hg007_liquidity_friction.py \
+            --out /tmp/hg007-p035-five-case-liquidity-v1.json
+          test -s /tmp/hg007-p035-five-case-liquidity-v1.json
+          python scripts/build_hg007_liquidity_friction.py \
+            --out /tmp/hg007-p035-five-case-liquidity-v1.json \
+            --verify-existing
+      - name: Anchor original-date-only research packet on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p035-five-case-liquidity-friction-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_liquidity_friction.py \
+              --out "$TARGET" --verify-existing
+            echo "Original source-bound packet exists; no overwrite"
+            exit 0
+          fi
+          cp /tmp/hg007-p035-five-case-liquidity-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: source-pin one-session five-stock turnover friction only [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Immutable HG007 P035 output published elsewhere; do not overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE_SHA" -- \
+              research/hg007/oct09-five-case-market \
+              src/marketlab/hg007_five_case_market_oct9.py \
+              src/marketlab/hg007_liquidity_friction.py; then
+              echo "Original NSE price or study inputs changed; refuse delayed commit"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor original source friction packet after bounded retries"
+          exit 1
+      - name: Preserve readable research-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-p035-original-oct9-liquidity-friction
+          path: /tmp/hg007-p035-five-case-liquidity-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
