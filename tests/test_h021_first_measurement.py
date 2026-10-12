@@ -14,10 +14,10 @@ from marketlab.h021_first_measurement import (
     SOURCE_FILES,
     VEDL_ORIGINAL_PDF_SHA,
     VEDL_PDF_FILE,
+    _read_source,
     build_measurement_record,
     source_pinned_first_measurement,
 )
-from marketlab.h021_first_measurement import _read_source
 
 
 def _inputs() -> tuple[dict, dict, dict, dict, dict, dict, dict, dict]:
