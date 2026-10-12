@@ -198,3 +198,40 @@ def test_redirection_and_retry_limits(
         p012.download_original(archive={}, attempts=4)
     with pytest.raises(ValueError, match="retry delay"):
         p012.download_original(archive={}, retry_delay=-1)
+
+
+
+def test_exact_ordinal_1st_from_original_nse_pdf_is_accepted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Visually verified original issuer PDF says '1st Interim Dividend';
+    # earlier normalized sources spelled it out as 'First'.
+    official = (
+        "VEDL/Sec./SE/26-27/108 October 08, 2026 "
+        "Vedanta Limited Scrip Code: VEDL "
+        "Board of Directors approved the 1st Interim Dividend 2026-27 "
+        "of Rs 5/- per equity share on face value of Rs 1/- per equity share. "
+        "The record date shall be Wednesday, October 14, 2026. "
+        "The approval has been accorded at 01:00 PM IST."
+    )
+    _pdf_page_stub(monkeypatch, text=official)
+    result = p012.verify_original_dividend_pdf(_original_stub())
+    assert result["issuer_reported_dividend_per_share_inr"] == 5.0
+    assert result["issuer_reported_record_date_ist"] == "2026-10-14"
+    assert result["ex_date_confirmed_by_this_pdf"] is False
+
+
+def test_second_dividend_cannot_pass_original_first_dividend_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    unrelated = (
+        "VEDL/Sec./SE/26-27/108 October 08, 2026 "
+        "Vedanta Limited Scrip Code: VEDL "
+        "Board approved the 2nd Interim Dividend 2026-27 "
+        "of Rs 5/- per equity share. The record date is "
+        "Wednesday, October 14, 2026. "
+        "The approval was at 01:00 PM IST."
+    )
+    _pdf_page_stub(monkeypatch, text=unrelated)
+    with pytest.raises(ValueError, match="FY27 first interim declaration"):
+        p012.verify_original_dividend_pdf(_original_stub())
