@@ -13,7 +13,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from marketlab.calendar_snapshot import load_calendar_snapshot
-from marketlab.h021_daily_prices import CALENDAR_SHA256, validate_daily_source_observation
+from marketlab.h021_daily_prices import (
+    CALENDAR_SHA256,
+    official_market_transport_ready,
+)
 
 FIRST_FUTURE_SESSION = "2026-10-13"
 MAX_AUTOMATED_ATTEMPTS = 3
@@ -27,6 +30,7 @@ def resolve_session(calendar, observations_root: Path, *, as_of_utc: datetime) -
         raise ValueError("original H021 NSE source calendar changed")
     skipped = []
     complete = 0
+    first_cohort_partial_transport_days = []
     for session in calendar.sessions:
         day = session.session_date
         if day < FIRST_FUTURE_SESSION:
@@ -36,10 +40,15 @@ def resolve_session(calendar, observations_root: Path, *, as_of_utc: datetime) -
         record = observations_root / f"{day}-v1.json"
         if record.exists():
             payload=json.loads(record.read_text(encoding="utf-8"))
-            validate_daily_source_observation(payload)
-            if payload["session_date_ist"] != day or payload["capture_state"] != "SOURCE_COMPLETE":
-                raise ValueError("unexpected sealed H021 daily price record")
-            complete += 1
+            if payload["session_date_ist"] != day:
+                raise ValueError("unexpected sealed H021 daily market source date")
+            if not official_market_transport_ready(payload):
+                raise ValueError("sealed H021 market file lacks independently verified transport")
+            if payload["capture_state"] == "SOURCE_COMPLETE":
+                complete += 1
+            else:
+                # Still incomplete for the frozen first ten; not a zero return.
+                first_cohort_partial_transport_days.append(day)
             continue
         attempts=len(list((observations_root/"attempts").glob(f"{day}-*.json")))
         if attempts >= MAX_AUTOMATED_ATTEMPTS:
@@ -53,6 +62,7 @@ def resolve_session(calendar, observations_root: Path, *, as_of_utc: datetime) -
             "attempts_so_far":attempts,
             "maximum_automatic_attempts":MAX_AUTOMATED_ATTEMPTS,
             "previous_complete_sessions":complete,
+            "first_cohort_partial_but_transport_ready_sessions":first_cohort_partial_transport_days,
             "unresolved_past_sessions":skipped,
             "outcomes_opened":False,
             "live_capital_allowed":False,
@@ -62,6 +72,7 @@ def resolve_session(calendar, observations_root: Path, *, as_of_utc: datetime) -
         "state":"NO_COMPLETED_PENDING_SESSION",
         "session_date":None,
         "previous_complete_sessions":complete,
+            "first_cohort_partial_but_transport_ready_sessions":first_cohort_partial_transport_days,
         "unresolved_past_sessions":skipped,
         "outcomes_opened":False,
         "live_capital_allowed":False,
