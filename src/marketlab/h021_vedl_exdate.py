@@ -230,7 +230,7 @@ def build_official_vedl_exdate_packet(
             raise ValueError("NSE original source not-published requires 404")
         source_state = "BLOCKED_" + status
 
-    pre_ex_date_source = recorded < _utc(EXDATE_SESSION_OPEN_UTC)
+    pre_ex_date_source = status == "OK" and recorded < _utc(EXDATE_SESSION_OPEN_UTC)
     packet = {
         "schema_version": 1,
         "review_id": EXDATE_ID,
