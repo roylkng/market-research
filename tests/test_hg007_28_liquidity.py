@@ -169,6 +169,10 @@ def test_source_modified_frozen_membership_and_packet_fail_closed(tmp_path: Path
 
     pkt = build_twenty_day_all_28(Path("."))
     pkt["casework"][0]["symbol"] = "DIDNOTSELECT"
+    from marketlab.hg007_28_liquidity import _digest
+    pkt["packet_sha256"] = _digest({
+        k: v for k, v in pkt.items() if k != "packet_sha256"
+    })
     with pytest.raises(ValueError, match="membership was modified"):
         validate_twenty_day_all_28(pkt)
 
