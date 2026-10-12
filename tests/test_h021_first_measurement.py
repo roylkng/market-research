@@ -143,12 +143,12 @@ def test_changed_symbol_price_or_benchmark_status_cannot_pass() -> None:
     args = _inputs()
     altered = deepcopy(args)
     altered[3]["stock_observations"][0]["open_price_inr"] = 1000
-    with pytest.raises(ValueError, match="source"):
-        # Source reconciliation refuses fabricated stock/entry semantics.
+    with pytest.raises(ValueError, match="content hash mismatch"):
+        # Original source packet digest refuses fabricated OHLC.
         _build_from(altered)
     altered = deepcopy(args)
     altered[3]["source_receipts"]["index"]["status"] = "OK"
-    with pytest.raises(ValueError, match="source-replay original NSE receipts changed"):
+    with pytest.raises(ValueError, match="content hash mismatch"):
         _build_from(altered)
     altered = deepcopy(args)
     altered[2]["source_receipts"]["index"]["http_status"] = 200
