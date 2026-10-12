@@ -9,6 +9,10 @@ prospectively frozen October 9 top-decile stock selection.
 - Original Oct 9 H021 P003 first-cohort intent was frozen before the Oct12
   09:15 IST market open. H021 selected 10/97 covered members of the
   originally frozen 100-company U001.
+- Exact stock ISINs are independently joined from the original, SHA-pinned
+  U001 universe. The P003 first intent stores symbol and EPS score, but
+  does **not** contain the ISIN field; it must not be inferred from the
+  intent itself.
 - Original P004 first attempt: 12 October approximately **17:33 IST**,
   run **38246531921-1**. Official NSE CM UDiFF ZIP source
   SHA-256 **818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99**.
