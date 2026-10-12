@@ -233,5 +233,47 @@ def test_second_dividend_cannot_pass_original_first_dividend_identity(
         "The approval was at 01:00 PM IST."
     )
     _pdf_page_stub(monkeypatch, text=unrelated)
-    with pytest.raises(ValueError, match="FY27 first interim declaration"):
+    with pytest.raises(ValueError, match="different numbered dividend"):
+        p012.verify_original_dividend_pdf(_original_stub())
+
+
+
+def test_original_pdf_still_verifies_when_text_parser_splits_ordinal_and_punctuation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Actual archived original PDF renders "1st", but PDF text parsers may
+    # split its ordinal, fiscal-year dash, rupee suffix or record-date comma.
+    extracted = (
+        "VEDL/Sec./SE/26-27/108 October 08, 2026. "
+        "Scrip Code: VEDL for Vedanta Limited. "
+        "Board approved 1 st Interim Dividend 2026 - 27 "
+        "of ₹ 5 /- per equity share. "
+        "The record date for payment is Wednesday, October 14, 2026. "
+        "Board approval was at 01:00 PM IST."
+    )
+    _pdf_page_stub(monkeypatch, text=extracted)
+    evidence = p012.verify_original_dividend_pdf(_original_stub())
+    assert evidence["issuer_reported_dividend_per_share_inr"] == 5.0
+    assert evidence["issuer_reported_record_date_ist"] == "2026-10-14"
+    assert evidence["cash_dividend_payable_or_received_proven"] is False
+
+
+def test_missing_issuer_or_dividend_amount_remains_blocked(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    other = (
+        "Scrip Code: VEDL October 08, 2026. "
+        "Board approved First Interim Dividend 2026-27 "
+        "of Rs 5/- per equity share. "
+        "record date Wednesday October 14, 2026, "
+        "approved at 01:00 PM IST."
+    )
+    _pdf_page_stub(monkeypatch, text=other)
+    with pytest.raises(ValueError, match="vedanta limited"):
+        p012.verify_original_dividend_pdf(_original_stub())
+    missing_amount = other.replace("Scrip Code: VEDL", "Vedanta Limited Scrip Code: VEDL").replace(
+        "5/- per", "3/- per"
+    )
+    _pdf_page_stub(monkeypatch, text=missing_amount)
+    with pytest.raises(ValueError, match="5 per equity share"):
         p012.verify_original_dividend_pdf(_original_stub())
