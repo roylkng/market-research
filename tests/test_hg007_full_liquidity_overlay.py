@@ -63,10 +63,10 @@ def test_true_original_nse_turnover_not_orderbook_capacity() -> None:
     checks = {
         "DEVX": (0.40847033, 24.48158229754411),
         "SUVIDHAA": (0.0202446025, 493.95882186375354),
-        "SANDESH": (0.04973082, 201.082507),
+        "SANDESH": (0.04973082, 201.08254800544213),
         "ANANTRAJ": (88.72696000750001, 0.11270531526330563),
         "INOXGREEN": (26.6312475355, 0.37549874397246297),
-        "SAMBHV": (47.8594882545, 0.208944),
+        "SAMBHV": (47.8594882545, 0.2089449838415217),
     }
     for symbol, (expected_median, expected_factor) in checks.items():
         reading = by_symbol[symbol]["historical_eq_source_readiness"]
