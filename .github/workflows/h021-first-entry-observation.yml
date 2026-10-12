@@ -2,6 +2,13 @@ name: H021 first official entry source observation
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      # Run once immediately after this reviewed capture-contract amendment
+      # reaches main; keep all other main updates from retriggering it.
+      - .github/workflows/h021-first-entry-observation.yml
   schedule:
     - cron: '45 12 * * 1-5'
     - cron: '15 13 * * 1-5'
