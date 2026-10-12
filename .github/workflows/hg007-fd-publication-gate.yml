@@ -1,0 +1,104 @@
+name: HG007 original INOXGREEN FD first-public time review
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_fd_publication_gate.py
+      - scripts/reconcile_hg007_fd_publication.py
+      - tests/test_hg007_fd_publication_gate.py
+      - .github/workflows/hg007-fd-publication-gate.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_fd_publication_gate.py
+      - scripts/reconcile_hg007_fd_publication.py
+      - tests/test_hg007_fd_publication_gate.py
+      - .github/workflows/hg007-fd-publication-gate.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-sept29-original-fd-first-public-timestamp
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original Sep29 NSE XBRL, QIP and source-time boundaries
+        run: |
+          ruff check src/marketlab/hg007_fd_publication_gate.py scripts/reconcile_hg007_fd_publication.py tests/test_hg007_fd_publication_gate.py
+          pytest -q tests/test_hg007_fd_publication_gate.py
+      - name: Materialize source-dated original FD and first-public labels
+        run: |
+          python scripts/reconcile_hg007_fd_publication.py \
+            --repo-root . \
+            --out /tmp/hg007-sept29-fd-publication-v1.json
+          python scripts/reconcile_hg007_fd_publication.py \
+            --repo-root . \
+            --out /tmp/hg007-sept29-fd-publication-v1.json \
+            --verify-existing
+      - name: Anchor immutable dated original FD report only after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p044-inoxgreen-publication-safe-fd-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/reconcile_hg007_fd_publication.py \
+              --out "$TARGET" --verify-existing
+            echo "Previously anchored source-time FD evidence reproduced"
+            exit 0
+          fi
+          cp /tmp/hg007-sept29-fd-publication-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: pin Sep29 FD source with Oct8 publication gate, no future capital [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEXT_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Already published fixed FD timeline; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEXT_MAIN" -- \
+              research/hg007/inoxgreen-sep2026-qip/post-qip-market-cap-audit-v1.json \
+              research/hg007/hg007-p040-net-promoter-share-reconciliation-v1.json \
+              research/hg007/inoxgreen-post-qip-special/raw \
+              src/marketlab/hg007_fd_publication_gate.py \
+              src/marketlab/hg005_context.py; then
+              echo "Original NSE source or FD chronology code changed"
+              exit 1
+            fi
+            if [[ "$NEXT_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEXT_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Source-time FD evidence anchor failed after bounded retries"
+          exit 1
+      - name: Retain independently reproducible original source time packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-p044-sept29-fd-first-public-time
+          path: /tmp/hg007-sept29-fd-publication-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
