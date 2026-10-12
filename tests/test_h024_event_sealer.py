@@ -110,3 +110,100 @@ def test_listing_date_parser_is_fail_closed_for_unknown_formats() -> None:
     assert sealer._parse_listing_date("16-09-2026").isoformat() == "2026-09-16"
     assert sealer._parse_listing_date("") is None
     assert sealer._parse_listing_date("16/Sep/2026") is None
+
+
+def test_preentry_source_gate_rejects_delayed_action_and_insufficient_lead() -> None:
+    from datetime import UTC, datetime, timedelta
+
+    module = _load_sealer_module()
+    first_open = datetime(2026, 10, 12, 3, 45, 0, tzinfo=UTC)
+    assert module._preentry_source_gate(
+        checked_at_utc=first_open - timedelta(minutes=5),
+        official_entry_open_utc=first_open,
+        minimum_lead_seconds=45,
+    ) == "TIMING_SOURCE_READY"
+    for late in (
+        first_open - timedelta(seconds=45),
+        first_open - timedelta(seconds=25),
+        first_open,
+        first_open + timedelta(hours=7),
+    ):
+        assert module._preentry_source_gate(
+            checked_at_utc=late,
+            official_entry_open_utc=first_open,
+            minimum_lead_seconds=45,
+        ) == "PREENTRY_SOURCE_CUTOFF_MISSED"
+    with pytest.raises(module.H024EventSealerError, match="timing source gate"):
+        module._preentry_source_gate(
+            checked_at_utc=datetime(2026, 10, 12, 3, 20),
+            official_entry_open_utc=first_open,
+            minimum_lead_seconds=45,
+        )
+
+
+def test_official_security_master_http_404_is_an_unavailable_source_not_retry(
+    tmp_path: Path,
+) -> None:
+    from datetime import date
+
+    module = _load_sealer_module()
+    calls = []
+
+    class Response:
+        status_code = 404
+
+    class FakeSession:
+        def get(self, url: str, **kwargs: object) -> Response:
+            calls.append((url, kwargs))
+            return Response()
+
+    with pytest.raises(module.H024SecurityMasterHTTP404, match="HTTP 404"):
+        module._download_security_master(
+            FakeSession(),
+            entry_day=date(2026, 10, 12),
+            raw_dir=tmp_path,
+            attempts=4,
+            timeout=5,
+        )
+    assert len(calls) == 1
+    assert calls[0][0] == module.REPORTS_ENDPOINT
+    assert calls[0][1]["params"]["date"] == "12-Oct-2026"
+    assert not list(tmp_path.glob("*.gz"))
+
+
+def test_blocked_source_receipt_cannot_be_mistaken_for_prospective_event() -> None:
+    from datetime import UTC, datetime
+
+    module = _load_sealer_module()
+    report = module._source_block_report(
+        planned_session="2026-10-12",
+        official_entry_open_utc=datetime(2026, 10, 12, 3, 45, tzinfo=UTC),
+        started_at_utc="2026-10-12T10:24:23Z",
+        due_symbols={"WSI"},
+        reason="PREENTRY_SOURCE_CUTOFF_MISSED",
+        signal_ledger_sha256="a" * 64,
+        event_ledger_sha256="b" * 64,
+        source_detail="OFFICIAL_SESSION_NOT_OBSERVED_BEFORE_ENTRY_OPEN",
+    )
+    assert report["report_state"] == "BLOCKED_PROSPECTIVE_SOURCE_NO_EVENT_SEALED"
+    assert report["due_symbol_count"] == 1
+    assert report["blocked_due_symbols"] == ["WSI"]
+    assert report["official_entry_open_utc"] == "2026-10-12T03:45:00Z"
+    assert report["sealed_event_count"] == 0
+    assert report["original_event_ledger_sha256"] == "b" * 64
+    assert report["prior_day_security_master_substituted"] is False
+    assert report["past_session_reclassification_permitted"] is False
+    assert report["outcome_data_attached"] is False
+    assert report["portfolio_eligibility_allowed"] is False
+    assert report["live_capital_allowed"] is False
+    with pytest.raises(module.H024EventSealerError, match="unsupported"):
+        module._source_block_report(
+            planned_session="2026-10-12",
+            official_entry_open_utc=datetime(2026, 10, 12, 3, 45, tzinfo=UTC),
+            started_at_utc="2026-10-12T03:44:00Z",
+            due_symbols={"WSI"},
+            reason="ASSUME_PREVIOUS_SESSION_SECURITY_MASTER_ACCEPTABLE",
+            signal_ledger_sha256="a" * 64,
+            event_ledger_sha256="b" * 64,
+            source_detail="invalid",
+        )
