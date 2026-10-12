@@ -1,0 +1,146 @@
+name: H021 original VEDL pre-entry dividend filing source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/acquire_h021_vedl_dividend_original.py
+      - .github/workflows/h021-vedl-original-dividend-source.yml
+  schedule:
+    # Short bounded retry period after the frozen 12 October entry observation.
+    - cron: '20 12 12-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-vedl-original-oct08-dividend-source
+  cancel-in-progress: false
+
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify archived Oct8 source and PDF source contract
+        run: |
+          ruff check scripts/acquire_h021_vedl_dividend_original.py tests/test_h021_vedl_original_dividend.py
+          pytest -q tests/test_h021_vedl_original_dividend.py
+      - name: Check original PDF is not already captured
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/prospective/h021/dividend-evidence/vedl-2026-10-08/source-receipt-v1.json"
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || \
+             [[ "$TODAY" > "2026-10-11" && "$TODAY" < "2026-10-21" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_ANCHORED
+            else
+              STATE=CAPTURE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Vedanta original dividend source gate=$STATE"
+      - name: Fetch original PDF only from archived NSE announcement
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/h021-vedl-original-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "P012_OUT=$OUT" >> "$GITHUB_ENV"
+          python -m scripts.acquire_h021_vedl_dividend_original \
+            --repo-root . \
+            --out-dir "$OUT" \
+            --attempts 2 \
+            --retry-delay 2
+          test -s "$OUT/source-receipt-v1.json"
+      - name: Anchor original PDF source bytes, never infer returns
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$P012_OUT/source-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          doc=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert doc['live_capital_allowed'] is False
+          assert doc['h021_return_basis_total_return_certified'] is False
+          assert doc['actual_h021_trade_and_entitlement_proven'] is False
+          print(doc['state'])
+          PY
+          )"
+          if [[ "$STATE" != OFFICIAL_PDF_BYTES_AND_ISSUER_TEXT_CAPTURED_NOT_ENTITLEMENT_AUDITED ]]; then
+            echo "Original VEDL PDF not independently verified: $STATE; no source approval created"
+            exit 0
+          fi
+          DEST="research/prospective/h021/dividend-evidence/vedl-2026-10-08"
+          TARGET="$DEST/source-receipt-v1.json"
+          mkdir -p "$DEST/original/sha256"
+          cp "$P012_OUT/source-receipt-v1.json" "$TARGET"
+          cp "$P012_OUT"/original/sha256/*.pdf "$DEST/original/sha256/"
+          python - "$DEST" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from scripts.acquire_h021_vedl_dividend_original import verify_receipt
+          root=Path(sys.argv[1])
+          doc=json.loads((root/'source-receipt-v1.json').read_text(encoding='utf-8'))
+          pdf=(root/'original'/'sha256'/f"{doc['original_pdf_sha256']}.pdf").read_bytes()
+          verify_receipt(doc,pdf)
+          assert doc['issuer_reported_dividend_terms']['issuer_reported_record_date_ist']=='2026-10-14'
+          print("Original NSE 8 Oct dividend PDF SHA",doc['original_pdf_sha256'])
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "H021: retain pre-entry announced original VEDL dividend PDF without trade claims [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original dividend evidence already sealed; refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              scripts/acquire_h021_vedl_dividend_original.py \
+              .github/workflows/h021-vedl-original-dividend-source.yml \
+              research/prospective/ss002-p001/2026-10-08-v1.json \
+              research/prospective/ss002-p001/raw/announcements \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json; then
+              echo "Pre-entry source or original H021 intent changed; refusing source overwrite"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original VEDL source could not be committed, see workflow artifact"
+          exit 1
+      - name: Preserve source/blocked response receipt separately
+        if: always() && steps.gate.outputs.state == 'CAPTURE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-vedl-original-dividend-source
+          path: ${{ env.P012_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
