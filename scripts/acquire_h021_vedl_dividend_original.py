@@ -184,7 +184,7 @@ def verify_original_dividend_pdf(raw: bytes) -> dict[str, Any]:
         "original_pdf_page1_text_sha256": _sha(text.encode("utf-8")),
         "original_pdf_byte_count": len(raw),
         "issuer_reported_board_declaration_date": "2026-10-08",
-        "issuer_reported_interim_dividend_per_share_inr": 5.0,
+        "issuer_reported_dividend_per_share_inr": 5.0,
         "issuer_reported_record_date_ist": "2026-10-14",
         "issuer_reported_board_approval_time_ist": "13:00",
         "ex_date_confirmed_by_this_pdf": False,
