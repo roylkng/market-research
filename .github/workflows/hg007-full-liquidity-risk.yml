@@ -1,0 +1,103 @@
+name: HG007 all 28 casework liquidity source and EQ BE audit
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_full_liquidity_overlay.py
+      - scripts/build_hg007_28_liquidity_risk.py
+      - tests/test_hg007_full_liquidity_overlay.py
+      - .github/workflows/hg007-full-liquidity-risk.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_full_liquidity_overlay.py
+      - scripts/build_hg007_28_liquidity_risk.py
+      - tests/test_hg007_full_liquidity_overlay.py
+      - .github/workflows/hg007-full-liquidity-risk.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-28-original-eq-be-source-liquidity-readiness
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible research dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Recheck three exact frozen research sources and 28-company controls
+        run: |
+          ruff check src/marketlab/hg007_full_liquidity_overlay.py scripts/build_hg007_28_liquidity_risk.py tests/test_hg007_full_liquidity_overlay.py
+          pytest -q tests/test_hg007_full_liquidity_overlay.py
+      - name: Generate full 28 original company casework with EQ BE status
+        run: |
+          python scripts/build_hg007_28_liquidity_risk.py \
+            --repo-root . --out /tmp/hg007-full-28-liquidity-risk.json
+          python scripts/build_hg007_28_liquidity_risk.py \
+            --repo-root . \
+            --out /tmp/hg007-full-28-liquidity-risk.json --verify-existing
+      - name: Append only the source-verified report to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p043-28-case-liquidity-risk-v1.json"
+          if [[ -e "$TARGET" ]]; then
+            python scripts/build_hg007_28_liquidity_risk.py \
+              --out "$TARGET" --verify-existing
+            echo "Verified previous P043 immutable report; nothing to change"
+            exit 0
+          fi
+          cp /tmp/hg007-full-28-liquidity-risk.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: seal 28-case EQ BE liquidity source overlay, not expected returns [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "P043 original data already anchored; refuse any overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg007/hg007-p009-28-case-capital-readiness-overlay-v1.json \
+              research/hg007/twenty-session-liquidity/twenty-session-28-stock-v1.json \
+              research/hg007/twenty-session-liquidity/eq-absence-series-review-v1.json \
+              src/marketlab/hg007_28_liquidity.py \
+              src/marketlab/hg007_eq_absence_review.py \
+              src/marketlab/hg007_full_liquidity_overlay.py; then
+              echo "Source or rules changed while P043 was being sealed"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Failed to anchor immutable original source after bounded retries"
+          exit 1
+      - name: Retain independent source-bound complete 28-company result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-p043-full-28-eq-be-casework-source
+          path: /tmp/hg007-full-28-liquidity-risk.json
+          if-no-files-found: ignore
+          retention-days: 90
