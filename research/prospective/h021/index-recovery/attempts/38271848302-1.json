@@ -1,0 +1,53 @@
+{
+  "live_capital_allowed": false,
+  "observed_index_primary_or_dual_verified": true,
+  "original_raw_csv_files_retained": [
+    {
+      "byte_count": 15668,
+      "endpoint": "primary",
+      "path": "raw/sha256/fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25.csv",
+      "sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25"
+    },
+    {
+      "byte_count": 15668,
+      "endpoint": "nse_archive_mirror",
+      "path": "raw/sha256/fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25.csv",
+      "sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25"
+    }
+  ],
+  "packet_sha256": "8e8194a7eb0a9e575b3d924a75f2f78ff1796f24db409936c52fb38fc14eb612",
+  "recovery_id": "H021-P018-2026-10-12-OFFICIAL-INDEX-SOURCE-RECOVERY-v1",
+  "return_outcomes_opened": false,
+  "schema_version": 1,
+  "source_receipts": {
+    "nse_archive_mirror": {
+      "captured_at_utc": "2026-10-12T15:40:09.556382Z",
+      "close_index_value": 21822.75,
+      "endpoint_id": "nse_archive_mirror",
+      "fetch_error": null,
+      "fetch_status": "OK",
+      "http_status": 200,
+      "open_index_value": 21936.25,
+      "parse_status": "EXACT_OCT12_NIFTY500_PRICE_INDEX_ROW",
+      "raw_byte_count": 15668,
+      "raw_sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25",
+      "url": "https://nsearchives.nseindia.com/content/indices/ind_close_all_12102026.csv"
+    },
+    "primary": {
+      "captured_at_utc": "2026-10-12T15:40:09.090521Z",
+      "close_index_value": 21822.75,
+      "endpoint_id": "primary",
+      "fetch_error": null,
+      "fetch_status": "OK",
+      "http_status": 200,
+      "open_index_value": 21936.25,
+      "parse_status": "EXACT_OCT12_NIFTY500_PRICE_INDEX_ROW",
+      "raw_byte_count": 15668,
+      "raw_sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25",
+      "url": "https://archives.nseindia.com/content/indices/ind_close_all_12102026.csv"
+    }
+  },
+  "source_state": "OFFICIAL_DUAL_HOSTS_AGREE",
+  "workflow_run_attempt": "1",
+  "workflow_run_id": "38271848302"
+}
