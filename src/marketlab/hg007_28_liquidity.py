@@ -314,7 +314,7 @@ def build_twenty_day_all_28(root: Path) -> dict[str, Any]:
             "live_capital_allowed": False,
         })
 
-    return {
+    packet = {
         "schema_version": 1,
         "audit_id": AUDIT_ID,
         "classification": "ORIGINAL_NSE_28_HG002_HISTORICAL_LIQUIDITY_NOT_ALPHA_OR_EXECUTION",
@@ -348,11 +348,18 @@ def build_twenty_day_all_28(root: Path) -> dict[str, Any]:
         "portfolio_eligibility_allowed": False,
         "live_capital_allowed": False,
     }
+    packet["packet_sha256"] = _digest(packet)
+    return packet
 
 
 def validate_twenty_day_all_28(packet: dict[str, Any]) -> None:
     if packet.get("audit_id") != AUDIT_ID:
         raise ValueError("unrecognized HG007 28-stock liquidity contract")
+    packet_hash = packet.get("packet_sha256")
+    if not isinstance(packet_hash, str) or _digest({
+        k: v for k, v in packet.items() if k != "packet_sha256"
+    }) != packet_hash:
+        raise ValueError("HG007 28-stock source packet digest changed")
     if (
         packet.get("original_outside_u001_symbol_count") != 28
         or packet.get("original_completed_sessions") != REQUIRED_SESSIONS
