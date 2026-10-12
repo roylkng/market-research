@@ -7862,9 +7862,123 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-12T19:15:48.606682+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "8df9f7d74157b2d766a8872906558923cd7d39951bcf4881626d61042df0bbc2",
+      "captured_at": "2026-10-12T19:24:54.793069+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 2,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 6
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99",
+      "identity_session": "2026-10-12",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "80498b2e5585fcaef78944a87e6251823b5a533ff995965c9863c801e947896d",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 2,
+        "DOCUMENT_CAPTURED": 6,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "started_at": "2026-10-12T19:24:29.441656+00:00"
     }
   ],
-  "ledger_sha256": "e2e2a3ac095796ad1699b56587ff0742febca5efe9fc167c59b65c6790b30cae",
+  "ledger_sha256": "d8470a5b299481786d473f590103fb432d940107588c023d7f14ee5e8972abfd",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -637682,6 +637796,30 @@
       "topics": [
         "ORDER_CUSTOMER"
       ]
+    },
+    {
+      "capture_id": "8df9f7d74157b2d766a8872906558923cd7d39951bcf4881626d61042df0bbc2",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-12T19:24:47.770346+00:00",
+      "item_id": "5110dcd71416097081e112b7d506faa3e7f48918da9312f51bd09be1e4ebe95a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9439bf874874f57aee44a7ef2d0686909dfeb0c129b65bd185c69a9d6951948e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 13 Oct 2026 00:45:12 +0530",
+        "value": "2026-10-12T19:15:12+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/demand-for-crude-oil-may-have-peaked-last-year-fge-says-11791832513230.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "80f9b067fd58b7bd1ed998cbeb07af025aa2a408e02ae1e44f7d707cdbe35568",
+      "topics": []
     }
   ],
   "schema_version": 1
