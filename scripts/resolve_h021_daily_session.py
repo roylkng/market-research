@@ -40,10 +40,12 @@ def resolve_session(calendar, observations_root: Path, *, as_of_utc: datetime) -
         record = observations_root / f"{day}-v1.json"
         if record.exists():
             payload=json.loads(record.read_text(encoding="utf-8"))
-            if payload["session_date_ist"] != day:
-                raise ValueError("unexpected sealed H021 daily market source date")
+            # Verify cryptographic packet/transport *before* reading row fields:
+            # corrupted evidence must fail on its provenance contract.
             if not official_market_transport_ready(payload):
                 raise ValueError("sealed H021 market file lacks independently verified transport")
+            if payload["session_date_ist"] != day:
+                raise ValueError("unexpected sealed H021 daily market source date")
             if payload["capture_state"] == "SOURCE_COMPLETE":
                 complete += 1
             else:
