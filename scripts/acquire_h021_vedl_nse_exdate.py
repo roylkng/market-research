@@ -124,10 +124,12 @@ def save_attempt(
         if location.exists() and location.read_bytes() != raw:
             raise ValueError("NSE original action raw source SHA collision")
         location.write_bytes(raw)
-    if report.get("original_exchange_ex_date_verified") is not True:
-        # Save failed attempt in the run artifact without writing any
-        # source-verified return/entitlement or historical event claim.
-        pass
+    if (
+        report.get("live_capital_allowed") is not False
+        or report.get("dividend_cash_entitlement_assessed_or_paid") is not False
+        or report.get("twenty_sixty_session_outcomes_opened") is not False
+    ):
+        raise ValueError("source probe cannot authorize capital, entitlement or returns")
     (root / "source-receipt.json").write_text(
         json.dumps(source_receipt, indent=2, sort_keys=True, allow_nan=False) + "\n",
         encoding="utf-8",
