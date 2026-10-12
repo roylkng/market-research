@@ -101,28 +101,42 @@ jobs:
           git add -f "$DEST"
           git commit -m "H021: anchor official Oct 12 entry source attempt $GITHUB_RUN_ID"
 
-          START_SHA="$(git rev-parse HEAD^)"
-          git fetch origin main
-          if ! git diff --quiet "$START_SHA" origin/main -- \
-            .github/workflows/h021-first-entry-observation.yml \
-            src/marketlab/h021_entry_observation.py \
-            src/marketlab/h021_first_entry_intent.py \
-            src/marketlab/pf001_marketdata.py \
-            scripts/acquire_h021_first_entry.py \
-            research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
-            research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
-            research/prospective/universes/FY27-Q2-2026-09-06.json \
-            research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
-            echo "Frozen H021 sources changed during acquisition; refusing anchor"
-            exit 1
-          fi
-          if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
-            echo "First entry success already anchored; refusing overwrite"
-            exit 1
-          fi
-          git rebase origin/main
-          git push origin HEAD:main
-          echo "H021 source attempt anchored, state=$SOURCE_STATE"
+          # Other prospective-source workflows may commit to main while NSE
+          # reports are being fetched. Retry only safe, unrelated movement;
+          # never alter original H021 intent/selection or overwrite entry.
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3 4 5; do
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE_SHA" -- \
+              .github/workflows/h021-first-entry-observation.yml \
+              src/marketlab/h021_entry_observation.py \
+              src/marketlab/h021_first_entry_intent.py \
+              src/marketlab/pf001_marketdata.py \
+              scripts/acquire_h021_first_entry.py \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
+              research/prospective/universes/FY27-Q2-2026-09-06.json \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
+              echo "Frozen H021 source, parser or entry workflow changed mid-acquisition; refusing anchor"
+              exit 1
+            fi
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "First entry success already anchored; refusing overwrite"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              echo "H021 source attempt anchored, state=$SOURCE_STATE"
+              exit 0
+            fi
+            sleep "$((RETRY * 2))"
+          done
+          echo "H021 first-entry source receipt retained in Actions artifact; bounded Git push retry exhausted"
+          exit 1
       - name: Retain independent evidence if push fails
         if: always()
         uses: actions/upload-artifact@v4
