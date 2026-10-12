@@ -1,0 +1,146 @@
+name: H021 official VEDL October dividend ex-date source
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/h021_vedl_exdate.py
+      - scripts/acquire_h021_vedl_nse_exdate.py
+      - tests/test_h021_vedl_exdate.py
+      - .github/workflows/h021-vedl-original-action-exdate.yml
+  schedule:
+    # Short independent collection window for upcoming Oct14 ex-date.
+    - cron: '15 14 12-14 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-original-vedl-dividend-ex-date
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original issuer and official event guard
+        run: |
+          ruff check src/marketlab/h021_vedl_exdate.py scripts/acquire_h021_vedl_nse_exdate.py tests/test_h021_vedl_exdate.py
+          pytest -q tests/test_h021_vedl_exdate.py
+      - name: Select only as-yet-unanchored original VEDL source
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          TARGET="research/prospective/h021/dividend-evidence/vedl-2026-10-08/original-nse-exdate-v1.json"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch || ( "$TODAY" > "2026-10-11" && "$TODAY" < "2026-10-15" ) ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_SEALED
+            else
+              STATE=FETCH
+            fi
+          fi
+          echo "status=$STATE" >> "$GITHUB_OUTPUT"
+          echo "VEDL official corporate action source gate=$STATE"
+      - name: Attempt exact official NSE VEDL corporate-action API source
+        if: steps.gate.outputs.status == 'FETCH'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/h021-vedl-exdate-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "H021_VEDL_SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/acquire_h021_vedl_nse_exdate.py \
+            --repo-root . --out-dir "$OUT"
+          test -s "$OUT/source-receipt.json"
+          test -s "$OUT/event-date-screen.json"
+      - name: Anchor original verified ex-date and immutable raw NSE bytes
+        if: steps.gate.outputs.status == 'FETCH'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERIFIED="$(python - "$H021_VEDL_SOURCE_OUT/event-date-screen.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          row=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert row['dividend_cash_entitlement_assessed_or_paid'] is False
+          assert row['twenty_sixty_session_outcomes_opened'] is False
+          assert row['live_capital_allowed'] is False
+          print(row['original_exchange_ex_date_verified'])
+          PY
+          )"
+          if [[ "$VERIFIED" != True ]]; then
+            echo "VEDL original ex-date source still unavailable/unverified; no date silently promoted"
+            exit 0
+          fi
+          ROOT="research/prospective/h021/dividend-evidence/vedl-2026-10-08"
+          TARGET="$ROOT/original-nse-exdate-v1.json"
+          mkdir -p "$ROOT/original-nse-actions/sha256"
+          cp "$H021_VEDL_SOURCE_OUT/event-date-screen.json" "$TARGET"
+          cp "$H021_VEDL_SOURCE_OUT"/raw/sha256/*.json "$ROOT/original-nse-actions/sha256/"
+          python - "$TARGET" "$ROOT/original-nse-actions/sha256" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          digest=packet['source_raw_sha256']
+          raw=(Path(sys.argv[2])/f"{digest}.json").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==digest
+          assert packet['official_matching_row']['exchange_ex_date']=='2026-10-14'
+          assert packet['issuer_reported_record_date_ist']=='2026-10-14'
+          assert packet['dividend_cash_entitlement_assessed_or_paid'] is False
+          print("NSE ex-date original source anchored as SHA",digest)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$ROOT"
+          git commit -m "H021: pin original NSE VEDL ex-date source, no cash entitlement [skip ci]"
+          BASE="$(git rev-parse HEAD^)"
+          for TRIAL in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "VEDL original NSE ex-date already sealed, refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE" "$MAIN_SHA" -- \
+              src/marketlab/h021_vedl_exdate.py \
+              scripts/acquire_h021_vedl_nse_exdate.py \
+              research/prospective/h021/dividend-evidence/vedl-2026-10-08/original \
+              research/prospective/h021/dividend-evidence/vedl-2026-10-08/source-receipt-v1.json \
+              research/prospective/h021/entry-observations/2026-10-12-first-entry-v1.json; then
+              echo "Original issuer/selection or source code changed during capture"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE" ]]; then
+              git rebase origin/main
+              BASE="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((TRIAL*2))"
+          done
+          echo "Source evidence could not be anchored after bounded retries"
+          exit 1
+      - name: Retain original NSE response and explicit blocked status for audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-vedl-original-nse-ex-date
+          path: ${{ env.H021_VEDL_SOURCE_OUT }}
+          if-no-files-found: ignore
+          retention-days: 90
