@@ -20,7 +20,7 @@ from marketlab.h021_first_measurement import (
 )
 
 
-def _inputs() -> tuple[dict, dict, dict, dict, dict, dict, dict, dict]:
+def _inputs() -> tuple[dict, dict, dict, dict, dict, dict, dict, dict, dict]:
     values = {
         key: _read_source(Path("."), key)[0]
         for key in SOURCE_FILES
@@ -34,12 +34,14 @@ def _inputs() -> tuple[dict, dict, dict, dict, dict, dict, dict, dict]:
         values["original_vedl_dividend_risk"],
         values["original_vedl_nse_pdf_receipt"],
         {},
+        values["frozen_u001_original_universe"],
     )
 
 
 def _build_from(args: tuple) -> dict:
     return build_measurement_record(
         intent=args[0],
+        universe=args[8],
         comparison=args[1],
         original_attempt=args[2],
         first_replay=args[3],
