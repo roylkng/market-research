@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from marketlab.h021_entry_observation import validate_entry_observation
 from marketlab.h021_first_entry_intent import git_blob_sha
 
 AUDIT_ID = "H021-P017-FIRST-ENTRY-MEASUREMENT-CAVEATS-v1"
@@ -117,6 +118,7 @@ def build_measurement_record(
     vedl_receipt: dict[str, Any],
     source_provenance: dict[str, Any],
 ) -> dict[str, Any]:
+    validate_entry_observation(first_replay)
     if (
         intent.get("intent_id") != "H021-P003-2026-10-09-FIRST-COHORT-v1"
         or intent.get("live_capital_allowed") is not False
