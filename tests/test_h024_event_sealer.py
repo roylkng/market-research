@@ -207,3 +207,134 @@ def test_blocked_source_receipt_cannot_be_mistaken_for_prospective_event() -> No
             event_ledger_sha256="b" * 64,
             source_detail="invalid",
         )
+
+
+def test_delayed_real_sealer_main_never_issues_source_request(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    from argparse import Namespace
+    from datetime import UTC, datetime
+
+    module = _load_sealer_module()
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026, 10, 12, 10, 24, 23, tzinfo=UTC).astimezone(tz or UTC)
+
+    monkeypatch.setattr(module, "datetime", Clock)
+    monkeypatch.setattr(
+        module, "parse_args",
+        lambda: Namespace(
+            state_dir=tmp_path,
+            raw_dir=tmp_path / "raw",
+            report=tmp_path / "report.json",
+            entry_session="2026-10-12",
+            lookback_days=35,
+            timeout_seconds=30,
+            attempts=4,
+            final_refresh_seconds_before_open=45,
+            max_completed_sessions=260,
+        ),
+    )
+    monkeypatch.setattr(
+        module, "_load_or_initialize",
+        lambda path, factory: {"ledger_sha256": "a" * 64},
+    )
+    monkeypatch.setattr(
+        module, "_load_json",
+        lambda path: {"ledger_sha256": "b" * 64},
+    )
+    for check_name in (
+        "validate_source_ledger",
+        "validate_evidence_ledger",
+        "validate_signal_ledger",
+        "validate_scan_ledger",
+        "validate_event_ledger",
+    ):
+        monkeypatch.setattr(module, check_name, lambda payload: None)
+    monkeypatch.setattr(
+        module, "due_event_keys",
+        lambda **kwargs: [("WSI", "2026-10-12")],
+    )
+    monkeypatch.setattr(
+        module, "_entry_open_for_session",
+        lambda *args: datetime(2026, 10, 12, 3, 45, tzinfo=UTC),
+    )
+
+    def unexpected_fetch(*args, **kwargs):
+        raise AssertionError("post-entry NSE source fetch is forbidden")
+
+    monkeypatch.setattr(module, "discovery_session", unexpected_fetch)
+    monkeypatch.setattr(module, "_download_security_master", unexpected_fetch)
+    assert module.main() == 0
+    report = __import__("json").loads(
+        (tmp_path / "report.json").read_text(encoding="utf-8")
+    )
+    assert report["blocking_reason"] == "PREENTRY_SOURCE_CUTOFF_MISSED"
+    assert report["sealed_event_count"] == 0
+    assert report["blocked_due_symbols"] == ["WSI"]
+    assert report["prior_signal_backdated_to_entry"] is False
+
+
+def test_timely_run_404_is_a_source_only_report_not_an_event(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    from argparse import Namespace
+    from datetime import UTC, datetime
+
+    module = _load_sealer_module()
+
+    class Clock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026, 10, 12, 3, 0, tzinfo=UTC).astimezone(tz or UTC)
+
+    monkeypatch.setattr(module, "datetime", Clock)
+    monkeypatch.setattr(
+        module, "parse_args",
+        lambda: Namespace(
+            state_dir=tmp_path,
+            raw_dir=tmp_path / "raw",
+            report=tmp_path / "report.json",
+            entry_session="2026-10-12",
+            lookback_days=35,
+            timeout_seconds=30,
+            attempts=4,
+            final_refresh_seconds_before_open=45,
+            max_completed_sessions=260,
+        ),
+    )
+    monkeypatch.setattr(
+        module, "_load_or_initialize",
+        lambda path, factory: {"ledger_sha256": "a" * 64},
+    )
+    monkeypatch.setattr(
+        module, "_load_json",
+        lambda path: {"ledger_sha256": "b" * 64},
+    )
+    for check_name in (
+        "validate_source_ledger",
+        "validate_evidence_ledger",
+        "validate_signal_ledger",
+        "validate_scan_ledger",
+        "validate_event_ledger",
+    ):
+        monkeypatch.setattr(module, check_name, lambda payload: None)
+    monkeypatch.setattr(module, "due_event_keys", lambda **kwargs: [("WSI", "2026-10-12")])
+    monkeypatch.setattr(
+        module, "_entry_open_for_session",
+        lambda *args: datetime(2026, 10, 12, 3, 45, tzinfo=UTC),
+    )
+    monkeypatch.setattr(module, "discovery_session", lambda timeout: object())
+
+    def unavailable(*args, **kwargs):
+        raise module.H024SecurityMasterHTTP404("HTTP 404 at exact NSE report")
+
+    monkeypatch.setattr(module, "_download_security_master", unavailable)
+    assert module.main() == 0
+    report = __import__("json").loads((tmp_path / "report.json").read_text())
+    assert report["blocking_reason"] == "OFFICIAL_SECURITY_MASTER_HTTP_404"
+    assert report["sealed_event_count"] == 0
+    assert report["portfolio_eligibility_allowed"] is False
+    assert report["live_capital_allowed"] is False
