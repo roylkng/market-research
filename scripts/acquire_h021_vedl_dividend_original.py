@@ -167,7 +167,6 @@ def verify_original_dividend_pdf(raw: bytes) -> dict[str, Any]:
         "vedanta limited",
         "october 08, 2026",
         "vedl",
-        "first interim dividend 2026-27",
         "5/- per",
         "october 14, 2026",
         "record date",
@@ -176,6 +175,15 @@ def verify_original_dividend_pdf(raw: bytes) -> dict[str, Any]:
     for anchor in anchors:
         if anchor not in normalized:
             raise ValueError(f"original VEDL dividend PDF missing source anchor: {anchor}")
+    # Original NSE attachment typesets "1st Interim Dividend 2026-27";
+    # some text renderers normalize this to "First Interim Dividend".
+    # Require one of these equivalent ordinal renderings, not a broad
+    # free-form "dividend" substring.
+    if not any(
+        variant in normalized
+        for variant in ("1st interim dividend 2026-27", "first interim dividend 2026-27")
+    ):
+        raise ValueError("original VEDL dividend PDF missing FY27 first interim declaration")
     if normalized.index("record date") > normalized.index("october 14, 2026"):
         raise ValueError("original VEDL record date appears in wrong context")
     return {
