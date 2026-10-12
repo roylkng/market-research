@@ -145,7 +145,8 @@ def test_denied_public_site_exits_without_request_spam(
         status_code = 403
 
     class Session:
-        headers: dict = {}
+        def __init__(self):
+            self.headers = {}
 
         def __enter__(self):
             return self
