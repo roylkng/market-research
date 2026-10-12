@@ -75,6 +75,85 @@ class H024EventSealerError(RuntimeError):
     """Raised when a prospective H024 event cannot be sealed without guessing."""
 
 
+class H024SecurityMasterHTTP404(H024EventSealerError):
+    """Official requested session security-master returned HTTP 404.
+
+    This is NOT proof the exchange had no valid session or tradable security.
+    """
+
+
+def _preentry_source_gate(
+    *,
+    checked_at_utc: datetime,
+    official_entry_open_utc: datetime,
+    minimum_lead_seconds: int,
+) -> str:
+    """Fail closed before attempting a prospective same-session source.
+
+    This prevents delayed GitHub schedule execution being converted into
+    fictitious pre-entry evidence after the market opened.
+    """
+    if (
+        checked_at_utc.tzinfo is None
+        or official_entry_open_utc.tzinfo is None
+        or not isinstance(minimum_lead_seconds, int)
+        or minimum_lead_seconds < 5
+    ):
+        raise H024EventSealerError("invalid H024 prospective timing source gate")
+    now = checked_at_utc.astimezone(UTC)
+    cutoff = official_entry_open_utc.astimezone(UTC) - timedelta(
+        seconds=minimum_lead_seconds
+    )
+    return "TIMING_SOURCE_READY" if now < cutoff else "PREENTRY_SOURCE_CUTOFF_MISSED"
+
+
+def _source_block_report(
+    *,
+    planned_session: str,
+    official_entry_open_utc: datetime,
+    started_at_utc: str,
+    due_symbols: set[str],
+    reason: str,
+    signal_ledger_sha256: str,
+    event_ledger_sha256: str,
+    source_detail: str,
+) -> dict[str, Any]:
+    """Retain a missed/unavailable source receipt without constructing an event."""
+    if reason not in {
+        "PREENTRY_SOURCE_CUTOFF_MISSED",
+        "OFFICIAL_SECURITY_MASTER_HTTP_404",
+        "PREENTRY_REFRESH_FINISHED_AFTER_ENTRY_OPEN",
+    }:
+        raise H024EventSealerError("unsupported H024 source-block reason")
+    return {
+        "schema_version": 1,
+        "hypothesis_id": "H024",
+        "receipt_id": "H024-P002-ENTRY-SOURCE-BLOCK-v1",
+        "classification": "ORIGINAL_SOURCE_OR_TIMING_BLOCK_NOT_AN_EVENT_OR_RETURN",
+        "report_state": "BLOCKED_PROSPECTIVE_SOURCE_NO_EVENT_SEALED",
+        "blocking_reason": reason,
+        "blocking_source_detail": source_detail,
+        "planned_entry_session": planned_session,
+        "official_entry_open_utc": official_entry_open_utc.astimezone(UTC).isoformat().replace(
+            "+00:00", "Z"
+        ),
+        "started_at_utc": started_at_utc,
+        "observed_blocked_at_utc": utc_now_text(),
+        "due_symbol_count": len(due_symbols),
+        "blocked_due_symbols": sorted(due_symbols),
+        "sealed_event_count": 0,
+        "original_signal_ledger_sha256": signal_ledger_sha256,
+        "original_event_ledger_sha256": event_ledger_sha256,
+        "synthetic_security_master_used": False,
+        "prior_day_security_master_substituted": False,
+        "prior_signal_backdated_to_entry": False,
+        "past_session_reclassification_permitted": False,
+        "outcome_data_attached": False,
+        "portfolio_eligibility_allowed": False,
+        "live_capital_allowed": False,
+    }
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -216,6 +295,12 @@ def _download_security_master(
             ) and attempt < attempts:
                 time.sleep(1.0 * (2 ** (attempt - 1)))
                 continue
+            if response.status_code == 404:
+                raise H024SecurityMasterHTTP404(
+                    "official same-session NSE security-master report endpoint returned "
+                    f"HTTP 404 for {entry_day.isoformat()}; cannot infer publication "
+                    "status or replace with previous-session data"
+                )
             response.raise_for_status()
             raw = response.content
             source_url = response.url
@@ -245,6 +330,10 @@ def _download_security_master(
             path = raw_dir / f"NSE_CM_security_{entry_day.strftime('%d%m%Y')}.csv.gz"
             path.write_bytes(raw)
             return raw, source_url
+        except H024SecurityMasterHTTP404:
+            # A date-specific 404 is not transient or evidence that a
+            # previous-day security master may replace the requested date.
+            raise
         except (requests.RequestException, H024EventSealerError) as exc:
             last_error = exc
             if attempt < attempts:
@@ -579,15 +668,50 @@ def main() -> int:
         return 0
 
     symbols = {symbol for symbol, _ in due}
+    entry_open = _entry_open_for_session(signal_ledger, entry_session)
+    if _preentry_source_gate(
+        checked_at_utc=datetime.now(UTC),
+        official_entry_open_utc=entry_open,
+        minimum_lead_seconds=args.final_refresh_seconds_before_open,
+    ) != "TIMING_SOURCE_READY":
+        blocked = _source_block_report(
+            planned_session=entry_session,
+            official_entry_open_utc=entry_open,
+            started_at_utc=started_at,
+            due_symbols=symbols,
+            reason="PREENTRY_SOURCE_CUTOFF_MISSED",
+            signal_ledger_sha256=signal_ledger["ledger_sha256"],
+            event_ledger_sha256=event_ledger["ledger_sha256"],
+            source_detail="DUE_GITHUB_RUN_STARTED_TOO_LATE_FOR_PROSPECTIVE_SOURCE",
+        )
+        _write_json(args.report, blocked)
+        print(json.dumps(blocked, sort_keys=True), flush=True)
+        return 0
+
     entry_day = date.fromisoformat(entry_session)
     nse = discovery_session(args.timeout_seconds)
-    security_raw, security_url = _download_security_master(
-        nse,
-        entry_day=entry_day,
-        raw_dir=args.raw_dir / "security-master",
-        attempts=args.attempts,
-        timeout=args.timeout_seconds,
-    )
+    try:
+        security_raw, security_url = _download_security_master(
+            nse,
+            entry_day=entry_day,
+            raw_dir=args.raw_dir / "security-master",
+            attempts=args.attempts,
+            timeout=args.timeout_seconds,
+        )
+    except H024SecurityMasterHTTP404 as exc:
+        blocked = _source_block_report(
+            planned_session=entry_session,
+            official_entry_open_utc=entry_open,
+            started_at_utc=started_at,
+            due_symbols=symbols,
+            reason="OFFICIAL_SECURITY_MASTER_HTTP_404",
+            signal_ledger_sha256=signal_ledger["ledger_sha256"],
+            event_ledger_sha256=event_ledger["ledger_sha256"],
+            source_detail=str(exc),
+        )
+        _write_json(args.report, blocked)
+        print(json.dumps(blocked, sort_keys=True), flush=True)
+        return 0
     security_hash = sha256_bytes(security_raw)
     security_rows = _parse_security_master(security_raw, symbols=symbols)
 
@@ -612,11 +736,24 @@ def main() -> int:
         for symbol in sorted(symbols)
     }
 
-    entry_open = _entry_open_for_session(signal_ledger, entry_session)
     refresh_target = entry_open - timedelta(
         seconds=args.final_refresh_seconds_before_open
     )
     now = datetime.now(UTC)
+    if now >= entry_open:
+        blocked = _source_block_report(
+            planned_session=entry_session,
+            official_entry_open_utc=entry_open,
+            started_at_utc=started_at,
+            due_symbols=symbols,
+            reason="PREENTRY_REFRESH_FINISHED_AFTER_ENTRY_OPEN",
+            signal_ledger_sha256=signal_ledger["ledger_sha256"],
+            event_ledger_sha256=event_ledger["ledger_sha256"],
+            source_detail="MARKET_SOURCE_RETRIEVAL_EXCEEDED_NEXT_OPEN_NO_BACKDATED_FREEZE",
+        )
+        _write_json(args.report, blocked)
+        print(json.dumps(blocked, sort_keys=True), flush=True)
+        return 0
     if now < refresh_target:
         time.sleep((refresh_target - now).total_seconds())
 
