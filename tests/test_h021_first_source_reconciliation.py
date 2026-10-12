@@ -27,7 +27,6 @@ from marketlab.h021_index_recovery import ORIGINAL_STOCK_PATH
 from marketlab.marketdata import index_snapshot_url, udiff_url
 from scripts.acquire_h021_first_entry import load_and_verify_sources
 
-
 CAPTURED = "2026-10-12T16:10:00Z"
 RECORDED = "2026-10-12T16:15:00Z"
 
