@@ -1,0 +1,104 @@
+name: H021 first NSE entry measurement integrity audit
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/h021_first_measurement.py
+      - scripts/audit_h021_first_entry_measurement.py
+      - tests/test_h021_first_measurement.py
+      - .github/workflows/h021-first-entry-measurement.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/h021_first_measurement.py
+      - scripts/audit_h021_first_entry_measurement.py
+      - tests/test_h021_first_measurement.py
+      - .github/workflows/h021-first-entry-measurement.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-first-entry-measurement-integrity-v1
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Reverify original NSE raw packet, EPS and payout evidence
+        run: |
+          ruff check src/marketlab/h021_first_measurement.py scripts/audit_h021_first_entry_measurement.py tests/test_h021_first_measurement.py
+          pytest -q tests/test_h021_first_measurement.py tests/test_h021_entry_attempt_replay.py
+      - name: Build first ten official entry-price source measurement audit
+        run: |
+          python scripts/audit_h021_first_entry_measurement.py \
+            --out /tmp/h021-first-measurement-integrity-v1.json
+          test -s /tmp/h021-first-measurement-integrity-v1.json
+      - name: Anchor single original entry-risk packet after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/prospective/h021/entry-observations/measurement-integrity-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/audit_h021_first_entry_measurement.py \
+              --out "$TARGET" --verify-existing
+            echo "Previously pinned first-entry measurement remains valid"
+            exit 0
+          fi
+          cp /tmp/h021-first-measurement-integrity-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "H021: preserve exact ten original Oct12 opens and IDEA/VEDL measurement hazards [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3 4 5; do
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "First-entry source packet already anchored, refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE_SHA" -- \
+              src/marketlab/h021_first_measurement.py \
+              src/marketlab/h021_entry_observation.py \
+              research/prospective/h021/entry-observations/attempts/38246531921-1.json \
+              research/prospective/h021/entry-observations/reconstructed-attempts/38246531921-1.json \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
+              research/h021-p007-result-v1.json \
+              research/prospective/h021/pre-entry-risk/2026-10-09-vedl-dividend-alert-v1.json \
+              research/prospective/h021/dividend-evidence/vedl-2026-10-08; then
+              echo "Original selection/source or measurement contract changed mid-audit"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Original first-entry measurement evidence not anchored"
+          exit 1
+      - name: Retain independent measurement packet even on concurrent main update
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-original-first-entry-measurement-integrity-v1
+          path: /tmp/h021-first-measurement-integrity-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
