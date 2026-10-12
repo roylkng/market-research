@@ -6,6 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
+import requests
 
 from marketlab.h021_index_recovery import (
     ORIGINAL_FIRST_PACKET,
@@ -17,7 +18,7 @@ from marketlab.h021_index_recovery import (
     read_originals,
     validate_recovery,
 )
-from scripts import recover_h021_nifty500_original as module
+from scripts.recover_h021_nifty500_original import retrieve_index_source, write_attempt
 
 
 CAPTURE = "2026-10-12T15:00:00Z"
@@ -29,7 +30,7 @@ def _csv(*, day: str = "12-10-2026", close: str = "21822.75") -> bytes:
         "Index Name,Index Date,Open Index Value,Closing Index Value\n"
         "Nifty 50,12-10-2026,22593.2,22429.5\n"
         f"Nifty 500,{day},21936.25,{close}\n"
-    ).encode("utf-8")
+    ).encode()
 
 
 def _source(name: str, raw: bytes | None = None, *, status: str = "OK") -> dict:
@@ -173,7 +174,7 @@ def test_original_official_csv_retained_by_sha_and_provenance(tmp_path: Path) ->
         "primary": _source("primary"),
         "nse_archive_mirror": _source("nse_archive_mirror", status="NOT_PUBLISHED"),
     }
-    out = module.write_attempt(
+    out = write_attempt(
         tmp_path, original=original, sources=candidates, recorded_at_utc=RECORD
     )
     assert out["source_state"] in SEALABLE_STATES
@@ -201,8 +202,8 @@ def test_nse_access_denial_stops_immediately_without_redirect_bypass(
         calls.append((url, kwargs))
         return Forbidden()
 
-    monkeypatch.setattr(module.requests, "get", getter)
-    result = module.retrieve_index_source("primary", attempts=3, sleep_seconds=0)
+    monkeypatch.setattr(requests, "get", getter)
+    result = retrieve_index_source("primary", attempts=3, sleep_seconds=0)
     assert result["status"] == "ACCESS_BLOCKED"
     assert result["raw"] is None
     assert result["http_status"] == 403
