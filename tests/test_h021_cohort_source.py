@@ -245,3 +245,93 @@ def test_zero_eligible_future_cohort_does_not_fabricate_positions(tmp_path:Path)
     assert response["new_cohort_source_packets"]==0
     assert response["outcomes_opened"] is False
     assert not result_root.exists()
+
+
+
+def test_next_cohort_can_observe_reliance_when_first_cohort_vedl_absent() -> None:
+    # An otherwise valid original NSE full-market file must not be discarded
+    # merely because a stock in the *earlier* first ten lacks an EQ row.
+    first, universe, calendar = load_frozen_sources()
+    market_zip = _original_zip(universe, missing="VEDL")
+    index_raw = _index()
+    day = __import__("datetime").date(2026, 10, 19)
+    daily = build_daily_source_observation(
+        first, universe, calendar, session_date=DATE,
+        udiff_source=_source(udiff_url(day), market_zip),
+        index_source=_source(index_snapshot_url(day), index_raw),
+        recorded_at_utc=RECORDED,
+    )
+    assert daily["capture_state"] == "SOURCE_INCOMPLETE"
+    assert daily["observed_stock_count"] == 9
+
+    # Only RELIANCE is in this hypothetical independently pre-frozen P005
+    # research cohort, so its price remains observable.
+    future = _future_intent(universe)
+    future["selected_observations"] = future["selected_observations"][:1]
+    future["selected_count"] = 1
+    future["packet_sha256"] = _canonical_hash(
+        {k: v for k, v in future.items() if k != "packet_sha256"}
+    )
+    out = build_future_cohort_source(
+        future, daily, raw_udiff=market_zip, raw_index=index_raw
+    )
+    validate_future_cohort_source(out)
+    assert out["source_state"] == "COMPLETE"
+    assert out["official_stock_row_count"] == 1
+    assert out["original_first_cohort_source_state"] == "SOURCE_INCOMPLETE"
+    assert out["source_transport_reused_despite_first_cohort_missing_row"] is True
+    assert out["company_rows"][0]["symbol"] == "RELIANCE"
+    assert out["company_rows"][0]["observed_open_inr"] == 110.0
+    assert daily["stock_rows"][0]["status"] == "OFFICIAL_EQ_ROW_MISSING"
+    assert daily["stock_rows"][0]["ohlc"]["open_inr"] is None
+    assert out["benchmark_excess_return_calculated"] is False
+    assert out["live_capital_allowed"] is False
+
+
+def test_source_fanout_materializes_partial_first_cohort_transport(
+    tmp_path: Path,
+) -> None:
+    first, universe, calendar = load_frozen_sources()
+    market_zip = _original_zip(universe, missing="VEDL")
+    index_raw = _index()
+    session = __import__("datetime").date(2026, 10, 19)
+    daily = build_daily_source_observation(
+        first, universe, calendar, session_date=DATE,
+        udiff_source=_source(udiff_url(session), market_zip),
+        index_source=_source(index_snapshot_url(session), index_raw),
+        recorded_at_utc=RECORDED,
+    )
+    assert daily["capture_state"] == "SOURCE_INCOMPLETE"
+    future = _future_intent(universe)
+    future["selected_observations"] = future["selected_observations"][:1]
+    future["selected_count"] = 1
+    future["packet_sha256"] = _canonical_hash(
+        {k: v for k, v in future.items() if k != "packet_sha256"}
+    )
+    intents, daily_dir, out_dir = (
+        tmp_path / "intents", tmp_path / "daily", tmp_path / "cohort"
+    )
+    intents.mkdir()
+    daily_dir.mkdir()
+    (intents / "2026-10-16-primary-entry-intent-v2.json").write_text(
+        json.dumps(future), encoding="utf-8"
+    )
+    (daily_dir / f"{DATE}-v1.json").write_text(
+        json.dumps(daily), encoding="utf-8"
+    )
+    raw_dir = daily_dir / "raw" / "sha256"
+    raw_dir.mkdir(parents=True)
+    (raw_dir / f"{hashlib.sha256(market_zip).hexdigest()}.zip").write_bytes(market_zip)
+    (raw_dir / f"{hashlib.sha256(index_raw).hexdigest()}.csv").write_bytes(index_raw)
+    record = materialize_all(intents, daily_dir, out_dir)
+    assert record["new_cohort_source_packets"] == 1
+    assert record["first_cohort_partial_days_with_independent_source_transport"] == [
+        DATE
+    ]
+    extracted = json.loads(
+        (out_dir / "2026-10-16" / f"{DATE}-v1.json").read_text(encoding="utf-8")
+    )
+    assert extracted["source_state"] == "COMPLETE"
+    assert extracted["source_transport_reused_despite_first_cohort_missing_row"] is True
+    assert extracted["holding_period_return_calculated"] is False
+    assert materialize_all(intents, daily_dir, out_dir)["existing_verified_packets"] == 1
