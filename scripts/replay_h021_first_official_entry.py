@@ -16,10 +16,42 @@ from marketlab.h021_entry_replay import (
     replay_first_h021_entry,
     validate_first_h021_replay,
 )
-from scripts.acquire_h021_first_entry import load_and_verify_sources
+from marketlab.h021_first_entry_intent import (
+    build_first_entry_intent,
+    git_blob_sha,
+    load_pinned_inputs,
+)
 
 ORIGINAL_ROOT = Path("research/prospective/h021/entry-observations")
 ORIGINAL_PACKET_PATH = ORIGINAL_ROOT / "2026-10-12-first-entry-v1.json"
+FROZEN_INTENT_PATH = Path(
+    "research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json"
+)
+FROZEN_UNIVERSE_PATH = Path(
+    "research/prospective/universes/FY27-Q2-2026-09-06.json"
+)
+FROZEN_INTENT_BLOB = "e25f77e1c845456473e624899d4748e306b1225b"
+FROZEN_UNIVERSE_BLOB = "8026e81faee3e913d2fba1dba72d60603b69fa07"
+
+
+def _load_verified_frozen_sources() -> tuple[dict, dict]:
+    # Directly imported marketlab modules, not another scripts/ entrypoint.
+    # This keeps 'python scripts/replay_h021_first_official_entry.py' runnable
+    # under the normal editable installation and its GitHub Actions runner.
+    comparison, calendar = load_pinned_inputs()
+    intent_raw = FROZEN_INTENT_PATH.read_bytes()
+    universe_raw = FROZEN_UNIVERSE_PATH.read_bytes()
+    if git_blob_sha(intent_raw) != FROZEN_INTENT_BLOB:
+        raise ValueError("original first H021 intent Git blob has changed")
+    if git_blob_sha(universe_raw) != FROZEN_UNIVERSE_BLOB:
+        raise ValueError("original U001 first H021 universe Git blob has changed")
+    intent = json.loads(intent_raw)
+    universe = json.loads(universe_raw)
+    if not isinstance(intent, dict) or not isinstance(universe, dict):
+        raise TypeError("original H021 intent and universe must be JSON objects")
+    if intent != build_first_entry_intent(comparison, calendar):
+        raise ValueError("original H021 intent not reproducible from sealed comparison")
+    return intent, universe
 
 
 def _json_object(path: Path) -> dict:
@@ -47,7 +79,7 @@ def _replay_raw(root: Path, source: dict, kind: str, suffix: str) -> bytes:
 def reproduce_entry(
     root: Path, *, packet_path: Path | None = None,
 ) -> dict:
-    frozen_intent, frozen_universe = load_and_verify_sources()
+    frozen_intent, frozen_universe = _load_verified_frozen_sources()
     actual_path = packet_path if packet_path is not None else root / (
         "2026-10-12-first-entry-v1.json"
     )
