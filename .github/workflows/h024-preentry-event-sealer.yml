@@ -157,12 +157,31 @@ jobs:
         run: |
           set -euo pipefail
           cp "$work_dir/state/"*.json research/prospective/h024/
+          # A missed pre-entry cutoff or official 404 is evidence of a
+          # BLOCKED research session, never grounds to backdate an event.
+          BLOCK_STATE="$(python - "$work_dir/event-seal-report.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          r=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          print(r.get("report_state") or "NO_BLOCK")
+          PY
+          )"
+          if [[ "$BLOCK_STATE" == BLOCKED_PROSPECTIVE_SOURCE_NO_EVENT_SEALED ]]; then
+            RECEIPT="research/prospective/h024/entry-blocks/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+            mkdir -p "$(dirname "$RECEIPT")"
+            if [[ -e "$RECEIPT" ]]; then
+              echo "H024 original source block receipt cannot be overwritten"
+              exit 1
+            fi
+            cp "$work_dir/event-seal-report.json" "$RECEIPT"
+            echo "H024 missed or unpublished original source retained at $RECEIPT"
+          fi
           python scripts/verify_h024_prospective_state.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --state-dir research/prospective/h024
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
-          git add research/prospective/h024/*.json
+          git add research/prospective/h024
           if git diff --cached --quiet; then
             echo "No H024 canonical state change"
             exit 0
