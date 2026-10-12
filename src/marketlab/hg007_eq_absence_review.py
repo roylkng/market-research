@@ -20,10 +20,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from marketlab.hg007_28_liquidity import (
-    AUDIT_ID as ALL28_SOURCE_ID,
-    validate_twenty_day_all_28,
-)
+from marketlab.hg007_28_liquidity import AUDIT_ID as ALL28_SOURCE_ID
+from marketlab.hg007_28_liquidity import validate_twenty_day_all_28
 from marketlab.hg007_liquidity_history import (
     LAST_SESSION,
     SOURCE_SHA,
@@ -244,6 +242,7 @@ def build_missing_eq_series_review(root: Path) -> dict[str, Any]:
                 "classification": reason,
                 "historically_observed_eq_isin": verified_isins[0],
                 "same_symbol_non_eq_rows": alternate,
+                "observed_original_non_eq_isins": alternate_isins,
                 "non_eq_isin_matches_prior_eq_isin": matching_identity if alternate else None,
                 "other_ticker_names_or_unreported_series_excluded": True,
                 "no_stock_trading_on_exchange_proven": False,
