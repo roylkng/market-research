@@ -1,0 +1,103 @@
+name: HG007 original NSE missing EQ-series evidence review
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_eq_absence_review.py
+      - scripts/review_hg007_missing_eq_series.py
+      - tests/test_hg007_eq_absence_review.py
+      - .github/workflows/hg007-original-eq-gap-review.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_eq_absence_review.py
+      - scripts/review_hg007_missing_eq_series.py
+      - tests/test_hg007_eq_absence_review.py
+      - .github/workflows/hg007-original-eq-gap-review.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-28-nse-eq-gap-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate and test original non-EQ source classifications
+        run: |
+          ruff check src/marketlab/hg007_eq_absence_review.py scripts/review_hg007_missing_eq_series.py tests/test_hg007_eq_absence_review.py
+          pytest -q tests/test_hg007_eq_absence_review.py
+      - name: Reopen original 20 UDiFF raw ZIPs and report non-EQ evidence
+        run: |
+          python scripts/review_hg007_missing_eq_series.py \
+            --repo-root . \
+            --out /tmp/hg007-original-28-eq-gap-review.json
+          test -s /tmp/hg007-original-28-eq-gap-review.json
+      - name: Preserve independent original-series research packet
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-original-nse-orbtexp-retail-eq-series-gaps
+          path: /tmp/hg007-original-28-eq-gap-review.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Anchor source review once, after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/twenty-session-liquidity/eq-absence-series-review-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/review_hg007_missing_eq_series.py \
+              --out "$TARGET" --verify-existing
+            echo "Previous original NSE EQ gap review reproduced"
+            exit 0
+          fi
+          cp /tmp/hg007-original-28-eq-gap-review.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: anchor original non-EQ-series evidence for 16 EQ gaps [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            MAIN_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Another reviewed source packet already exists; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$MAIN_SHA" -- \
+              research/hg007/twenty-session-liquidity/raw \
+              research/hg007/twenty-session-liquidity/receipts \
+              research/hg007/twenty-session-liquidity/twenty-session-28-stock-v1.json \
+              research/hg007/oct09-five-case-market \
+              src/marketlab/hg007_eq_absence_review.py \
+              src/marketlab/hg007_liquidity_history.py \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
+              echo "Original NSE market files or source parser changed"
+              exit 1
+            fi
+            if [[ "$MAIN_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$MAIN_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Failed to anchor original EQ gap review"
+          exit 1
