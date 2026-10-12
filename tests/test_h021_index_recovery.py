@@ -20,7 +20,6 @@ from marketlab.h021_index_recovery import (
 )
 from scripts.recover_h021_nifty500_original import retrieve_index_source, write_attempt
 
-
 CAPTURE = "2026-10-12T15:00:00Z"
 RECORD = "2026-10-12T15:01:00Z"
 
