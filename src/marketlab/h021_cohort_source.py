@@ -12,7 +12,7 @@ import math
 from datetime import UTC, date, datetime
 from typing import Any
 
-from marketlab.h021_daily_prices import validate_daily_source_observation
+from marketlab.h021_daily_prices import official_market_transport_ready
 from marketlab.h021_entry_observation import _canonical_hash
 from marketlab.h021_future_intent import (
     EXPECTED_CALENDAR_GIT_BLOB,
@@ -125,11 +125,10 @@ def build_future_cohort_source(
     raw_index:bytes,
 ) -> dict[str,Any]:
     cohort_date,entry_date,ids=_verify_p005_intent(intent)
-    validate_daily_source_observation(daily_packet)
+    if not official_market_transport_ready(daily_packet):
+        raise ValueError("cannot fan out missing/unverified original NSE stock or index transport")
     if daily_packet.get("classification") != REQUIRED_SOURCE_CLASS:
         raise ValueError("unrecognized official daily source contract")
-    if daily_packet.get("capture_state") != "SOURCE_COMPLETE":
-        raise ValueError("cannot fan out partial or blocked official source data")
     observed_date=daily_packet.get("session_date_ist")
     if not isinstance(observed_date,str):
         raise TypeError("market observation day missing")
@@ -187,6 +186,10 @@ def build_future_cohort_source(
         "session_date_ist":observed_date,
         "session_role":"ENTRY_PROXY_SOURCE" if observed_date==entry_date else "HOLDING_PERIOD_SOURCE",
         "intent_sha256":intent["packet_sha256"],
+        "original_first_cohort_source_state":daily_packet["capture_state"],
+        "source_transport_reused_despite_first_cohort_missing_row":(
+            daily_packet["capture_state"] == "SOURCE_INCOMPLETE"
+        ),
         "original_daily_source_sha256":daily_packet["packet_sha256"],
         "original_udiff_sha256":daily_packet["stock_source"]["sha256"],
         "original_nifty_500_sha256":daily_packet["index_source"]["sha256"],

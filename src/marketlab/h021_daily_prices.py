@@ -15,6 +15,7 @@ from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.calendar_snapshot import _canonical_hash as calendar_hash
 from marketlab.h021_entry_observation import (
     ENTRY_DAY,
+    EXPECTED_SELECTION,
     _canonical_hash,
     _utc,
     _validate_intent,
@@ -224,3 +225,116 @@ def validate_daily_source_observation(packet: dict[str, Any]) -> None:
     ):
         if packet.get(flag) is not False:
             raise ValueError(f"daily observation cannot enable {flag}")
+
+
+def official_market_transport_ready(packet: dict[str, Any]) -> bool:
+    """Can the original NSE stock *and* index files serve independent cohorts?
+
+    Transport readiness is not first-cohort completeness. A suspended/missing
+    stock in the first ten must not discard other issuers from an otherwise
+    parseable full-market UDiFF file. Still fail closed on source/ISIN/date
+    anomalies and missing original index data.
+    """
+    validate_daily_source_observation(packet)
+    if (
+        packet.get("schema_version") != 1
+        or packet.get("classification") != "FUTURE_NSE_PRICE_SOURCE_CAPTURE_NOT_H021_OUTCOME"
+        or packet.get("selected_company_count") != 10
+        or packet.get("calendar_sha256") != CALENDAR_SHA256
+    ):
+        raise ValueError("unexpected original P008 daily source contract")
+
+    observed_day = packet.get("session_date_ist")
+    if not isinstance(observed_day, str):
+        raise TypeError("P008 day must be ISO date")
+    day = date.fromisoformat(observed_day)
+    if not (date.fromisoformat(ENTRY_DAY) < day <= date(2026, 12, 31)):
+        raise ValueError("P008 source outside originally frozen 2026 calendar")
+
+    source_receipts = []
+    for name, expected in (
+        ("stock_source", udiff_url(day)),
+        ("index_source", index_snapshot_url(day)),
+    ):
+        source = packet.get(name)
+        if not isinstance(source, dict):
+            raise TypeError("P008 original market-source receipt missing")
+        if source.get("url") != expected:
+            raise ValueError("P008 source URL no longer matches original NSE report day")
+        source_receipts.append(source)
+
+    if any(receipt.get("status") != "OK" for receipt in source_receipts):
+        return False
+
+    for source in source_receipts:
+        digest = source.get("sha256")
+        if (
+            source.get("http_status") != 200
+            or not isinstance(digest, str)
+            or len(digest) != 64
+            or any(c not in "0123456789abcdef" for c in digest)
+            or type(source.get("byte_count")) is not int
+            or source["byte_count"] <= 0
+            or source.get("error") is not None
+        ):
+            raise ValueError("original complete NSE market transport receipt is inconsistent")
+
+    benchmark = packet.get("benchmark")
+    if not isinstance(benchmark, dict):
+        raise TypeError("original Nifty 500 benchmark row missing")
+    if benchmark.get("status") != "OFFICIAL_INDEX_OHLC":
+        return False
+    if (
+        benchmark.get("benchmark_id") != "nifty_500"
+        or benchmark.get("basis") != "PRICE_INDEX_NOT_TRI"
+        or benchmark.get("source_sha256") != source_receipts[1]["sha256"]
+        or any(
+            type(benchmark.get(field)) not in (int, float)
+            or not math.isfinite(benchmark[field])
+            or benchmark[field] <= 0
+            for field in ("open", "close")
+        )
+    ):
+        raise ValueError("official Nifty 500 price-index source was substituted")
+
+    rows = packet.get("stock_rows")
+    if not isinstance(rows, list) or len(rows) != len(EXPECTED_SELECTION):
+        raise ValueError("original P008 frozen first-cohort row set missing")
+    if [r.get("symbol") for r in rows if isinstance(r, dict)] != list(EXPECTED_SELECTION):
+        raise ValueError("first H021 cohort identity/order changed in P008 market source")
+    valid = 0
+    for row in rows:
+        if row.get("source_sha256") != source_receipts[0]["sha256"]:
+            raise ValueError("original first-cohort row is not bound to the source UDiFF")
+        if row.get("trade_filled") is not False or row.get("corporate_action_adjusted") is not False:
+            raise ValueError("original stock data cannot claim execution or adjustments")
+        ohlc = row.get("ohlc")
+        if not isinstance(ohlc, dict):
+            raise TypeError("original first-cohort OHLC row missing")
+        if row.get("status") == "OFFICIAL_OHLC_NOT_EXECUTABLE_FILL":
+            if row.get("reason") is not None:
+                raise ValueError("verified first-cohort stock row has unexplained failure")
+            if any(
+                type(ohlc.get(key)) not in (int, float)
+                or not math.isfinite(ohlc[key])
+                or ohlc[key] <= 0
+                for key in ("open_inr", "high_inr", "low_inr", "close_inr")
+            ):
+                raise ValueError("official first-cohort OHLC contains missing/invalid price")
+            valid += 1
+        elif row.get("status") in ("OFFICIAL_EQ_ROW_MISSING", "INVALID_OFFICIAL_EQ_SOURCE"):
+            if any(ohlc.get(key) is not None for key in (
+                "open_inr", "high_inr", "low_inr", "close_inr"
+            )):
+                raise ValueError("missing/invalid original row must not have a filled price")
+        else:
+            raise ValueError("unrecognized original EQ stock source state")
+
+    if valid != packet.get("observed_stock_count"):
+        raise ValueError("P008 signed original EQ coverage count disagrees with actual rows")
+    expected_state = "SOURCE_COMPLETE" if valid == 10 else "SOURCE_INCOMPLETE"
+    if packet.get("capture_state") != expected_state:
+        raise ValueError("P008 first-cohort complete/incomplete status inconsistent")
+    # At least one original observed trade confirms the original ZIP was
+    # parseable, while the index must independently have parsed correctly.
+    return valid > 0

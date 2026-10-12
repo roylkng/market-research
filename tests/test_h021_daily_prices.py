@@ -13,6 +13,7 @@ import pytest
 
 from marketlab.h021_daily_prices import (
     build_daily_source_observation,
+    official_market_transport_ready,
     validate_daily_source_observation,
 )
 from marketlab.marketdata import index_snapshot_url, udiff_url
@@ -243,4 +244,73 @@ def test_resolver_validates_old_immutable_packet_before_skipping(tmp_path: Path)
     with pytest.raises(ValueError,match="digest"):
         resolve_session(
             calendar,tmp_path,as_of_utc=datetime(2026,10,14,12,0,tzinfo=UTC)
+        )
+
+
+
+def test_market_source_transport_can_be_verified_without_all_original_ten() -> None:
+    # A VEDL suspension affects the first research cohort, not the
+    # independent existence of the original full-market UDiFF ZIP.
+    packet = _produce(missing="VEDL", mismatch="GAIL")
+    assert packet["capture_state"] == "SOURCE_INCOMPLETE"
+    assert packet["observed_stock_count"] == 8
+    assert official_market_transport_ready(packet) is True
+    assert packet["horizon_return_calculated"] is False
+    assert packet["benchmark_excess_calculated"] is False
+    assert packet["portfolio_eligibility_allowed"] is False
+
+
+def test_fanout_transport_needs_both_true_original_stock_and_index_sources() -> None:
+    assert official_market_transport_ready(_produce(no_index=True)) is False
+    full = _produce()
+    assert official_market_transport_ready(full) is True
+
+    forged = _produce(missing="VEDL")
+    forged["capture_state"] = "SOURCE_COMPLETE"
+    from marketlab.h021_entry_observation import _canonical_hash
+    forged["packet_sha256"] = _canonical_hash(
+        {k: v for k, v in forged.items() if k != "packet_sha256"}
+    )
+    with pytest.raises(ValueError, match="inconsistent"):
+        official_market_transport_ready(forged)
+
+    changed_row = _produce(missing="VEDL")
+    changed_row["stock_rows"][0]["ohlc"]["open_inr"] = 10
+    changed_row["packet_sha256"] = _canonical_hash(
+        {k: v for k, v in changed_row.items() if k != "packet_sha256"}
+    )
+    with pytest.raises(ValueError, match="missing/invalid original row"):
+        official_market_transport_ready(changed_row)
+
+
+def test_resolver_keeps_first_cohort_gap_explicit_but_allows_next_source_day(
+    tmp_path: Path,
+) -> None:
+    _, _, calendar = load_frozen_sources()
+    partial = _produce(missing="VEDL")
+    assert official_market_transport_ready(partial)
+    (tmp_path / "2026-10-13-v1.json").write_text(
+        json.dumps(partial), encoding="utf-8"
+    )
+    day = resolve_session(
+        calendar,
+        tmp_path,
+        as_of_utc=datetime(2026, 10, 14, 12, 0, tzinfo=UTC),
+    )
+    assert day["state"] == "CAPTURE"
+    assert day["session_date"] == "2026-10-14"
+    assert day["previous_complete_sessions"] == 0
+    assert day["first_cohort_partial_but_transport_ready_sessions"] == [
+        "2026-10-13"
+    ]
+    assert day["outcomes_opened"] is False
+
+    missing_index = _produce(no_index=True)
+    (tmp_path / "2026-10-13-v1.json").write_text(
+        json.dumps(missing_index), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="lacks independently verified transport"):
+        resolve_session(
+            calendar, tmp_path,
+            as_of_utc=datetime(2026, 10, 14, 12, 0, tzinfo=UTC),
         )

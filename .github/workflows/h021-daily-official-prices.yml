@@ -89,19 +89,25 @@ jobs:
           SOURCE_STATE="$(python - "$H021_RAW_OUTPUT/observation.json" <<'PY'
           import json,sys
           from pathlib import Path
-          from marketlab.h021_daily_prices import validate_daily_source_observation
+          from marketlab.h021_daily_prices import official_market_transport_ready
           obj=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-          validate_daily_source_observation(obj)
-          print(obj["capture_state"])
+          ready=official_market_transport_ready(obj)
+          if not ready:
+              print("ORIGINAL_MARKET_TRANSPORT_UNAVAILABLE")
+          elif obj["capture_state"] == "SOURCE_COMPLETE":
+              print("SOURCE_COMPLETE")
+          else:
+              print("SOURCE_TRANSPORT_READY_WITH_FIRST_COHORT_GAP")
           PY
           )"
-          if [[ "$SOURCE_STATE" == SOURCE_COMPLETE ]]; then
+          if [[ "$SOURCE_STATE" == SOURCE_COMPLETE || "$SOURCE_STATE" == SOURCE_TRANSPORT_READY_WITH_FIRST_COHORT_GAP ]]; then
             if [[ -f "$TARGET" ]]; then
               echo "Immutable daily source already exists: $TARGET"
               exit 1
             fi
             cp "$H021_RAW_OUTPUT/observation.json" "$TARGET"
           fi
+          echo "H021 P008 raw market source state=$SOURCE_STATE; original ten-stock completeness is independently preserved"
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
           git add -f "$DEST"
