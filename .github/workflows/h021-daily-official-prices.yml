@@ -3,9 +3,15 @@ name: H021 daily official source path
 on:
   workflow_dispatch:
   schedule:
-    # 18:15 and 19:15 IST, weekdays. Never infer Sunday Muhurat sessions.
+    # Earlier attempts preserve original HTTP404 publication latency.
+    # NSE's original Oct12 index CSV was unavailable at 17:33 IST
+    # and available later that evening. 21:45 and 22:45 IST reduce
+    # premature exhaustion of the three-attempt per-session budget.
+    # Never infer the unresolved Sunday 8-Nov Muhurat session.
     - cron: '45 12 * * 1-5'
     - cron: '45 13 * * 1-5'
+    - cron: '15 16 * * 1-5'
+    - cron: '15 17 * * 1-5'
 
 permissions:
   contents: write
@@ -41,6 +47,7 @@ jobs:
           python scripts/resolve_h021_daily_session.py \
             --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
             --observations-dir research/prospective/h021/daily-prices \
+            --allow-delayed-publication-recovery \
             > /tmp/h021-daily-resolution/resolution.json
           python - /tmp/h021-daily-resolution/resolution.json <<'PY'
           import json,os,sys
@@ -107,6 +114,7 @@ jobs:
             fi
             cp "$H021_RAW_OUTPUT/observation.json" "$TARGET"
           fi
+          echo "H021 P020 mode=$(python -c 'import json; print(json.load(open("/tmp/h021-daily-resolution/resolution.json"))["capture_mode"])') session=$SESSION"
           echo "H021 P008 raw market source state=$SOURCE_STATE; original ten-stock completeness is independently preserved"
           git config user.name marketlab-research-bot
           git config user.email marketlab-research-bot@users.noreply.github.com
