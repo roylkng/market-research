@@ -26,6 +26,10 @@ ORIGINAL_STOCK_ZIP_SHA = "818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9
 VEDL_ORIGINAL_PDF_SHA = "abdd026339469b9e51ab75fb2a37551be23812dcc037c875759cd79a8e6cb364"
 INDEX_URL = "https://archives.nseindia.com/content/indices/ind_close_all_12102026.csv"
 SOURCE_FILES: dict[str, tuple[str, str]] = {
+    "frozen_u001_original_universe": (
+        "research/prospective/universes/FY27-Q2-2026-09-06.json",
+        "8026e81faee3e913d2fba1dba72d60603b69fa07",
+    ),
     "original_preentry_intent": (
         "research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json",
         "e25f77e1c845456473e624899d4748e306b1225b",
@@ -114,6 +118,7 @@ def _float(value: object, description: str) -> float:
 def build_measurement_record(
     *,
     intent: dict[str, Any],
+    universe: dict[str, Any],
     comparison: dict[str, Any],
     original_attempt: dict[str, Any],
     first_replay: dict[str, Any],
@@ -136,6 +141,19 @@ def build_measurement_record(
     selections = tuple(row.get("symbol") for row in observations)
     if selections != EXPECTED_NAMES:
         raise ValueError("first 10 original cohort names/order changed")
+    members = universe.get("members")
+    if (
+        universe.get("cohort_id") != "FY27-Q2-2026-09-06"
+        or not isinstance(members, list)
+        or len(members) != 100
+    ):
+        raise ValueError("frozen U001 ISIN source cohort identity changed")
+    frozen_isins = {item["symbol"]: item["isin"] for item in members}
+    if len(frozen_isins) != 100 or any(
+        not isinstance(isin, str) or len(isin) != 12
+        for isin in frozen_isins.values()
+    ):
+        raise ValueError("original frozen U001 universe symbol/ISIN identity invalid")
     if (
         comparison.get("hypothesis_id") != "H021"
         or comparison.get("current_capture_date_ist") != "2026-10-09"
@@ -275,7 +293,7 @@ def build_measurement_record(
             open_inr <= 0 or close_inr <= 0
             or row.get("status") != "OFFICIAL_OHLC_OBSERVED_NOT_EXECUTABLE_FILL"
             or row.get("source_sha256") != ORIGINAL_STOCK_ZIP_SHA
-            or row.get("isin") != by_intent[symbol].get("isin")
+            or row.get("isin") != frozen_isins[symbol]
             or row.get("actual_trade_fill_confirmed") is not False
             or source.get("primary_signal_available") is not True
             or original_eps != by_intent[symbol].get("eps_revision_pct")
@@ -366,6 +384,7 @@ def source_pinned_first_measurement(root: Path) -> dict[str, Any]:
     }
     return build_measurement_record(
         intent=sources["original_preentry_intent"],
+        universe=sources["frozen_u001_original_universe"],
         comparison=sources["original_eps_comparison"],
         original_attempt=sources["original_first_entry_source_attempt"],
         first_replay=sources["independent_original_source_replay"],
