@@ -66,12 +66,12 @@
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
-      "additional_ready_sessions_needed": 1,
+      "additional_ready_sessions_needed": 0,
       "distinct_target_session_count": 3,
-      "ledger_sha256": "8a54fd27e991916e518ddf659f9068b019e1830d29d52345702a32a39e8a48fb",
+      "ledger_sha256": "5dfe45ab1785e869b2b99456c9fffaea6bb75bb6913539debfd5084b3540317c",
       "minimum_ready_sessions": 3,
-      "ready_before_preopen_cutoff_session_count": 2,
-      "state": "WAITING_FOR_TIMING_EVIDENCE"
+      "ready_before_preopen_cutoff_session_count": 3,
+      "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
       "decision_count": 0,
@@ -105,25 +105,26 @@
       "state": "DELIVERY_SOURCE_WARMUP_BLOCKED"
     },
     "T005_PREOPEN_SUCCESSOR": {
-      "additional_ready_sessions_needed": 1,
+      "additional_ready_sessions_needed": 0,
       "analysis_id": "AE001-T005-PREOPEN-SUCCESSOR-READINESS-v1",
       "calendar_sha256": "2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce",
       "calendar_version": "NSE-CM-FY27Q2-v1",
       "candidate_trial_id": "AE001-T012",
       "live_capital_allowed": false,
       "minimum_ready_sessions_for_successor_freeze": 3,
-      "ready_target_session_count": 2,
+      "ready_target_session_count": 3,
       "ready_target_sessions": [
         "2026-10-01",
-        "2026-10-05"
+        "2026-10-05",
+        "2026-10-12"
       ],
       "schema_version": 1,
-      "source_ledger_sha256": "8a54fd27e991916e518ddf659f9068b019e1830d29d52345702a32a39e8a48fb",
+      "source_ledger_sha256": "5dfe45ab1785e869b2b99456c9fffaea6bb75bb6913539debfd5084b3540317c",
       "source_timing_sessions_may_be_backfilled_as_predictions": false,
-      "state": "WAITING_FOR_SC003_TIMING_EVIDENCE",
+      "state": "READY_TO_FREEZE_SUCCESSOR_TRIAL",
       "successor_trial_frozen": false,
-      "successor_trial_registration_permitted": false,
-      "summary_sha256": "442b49ef83bee1679a3427995fb56612dc08991764fa310d274c8819bde9a7d8",
+      "successor_trial_registration_permitted": true,
+      "summary_sha256": "8bcdb7876e96756a151ad27349ad256be5b3cb0fb6d3775fcba96a9d4c830ca2",
       "uses_return_or_alpha_outcomes": false
     },
     "T006": {
@@ -189,5 +190,5 @@
   "latest_expected_market_session": "2026-10-12",
   "live_capital_allowed": false,
   "schema_version": 1,
-  "summary_sha256": "d7857a71008021db79618874656dfc34d8faf010511d443edbcb73da3c50d6a1"
+  "summary_sha256": "9024684a57c8470d2f034113af20f3de95ecc879d5f4cbf894c256a98f3ded77"
 }
