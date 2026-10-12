@@ -107,9 +107,12 @@ def _originals(root: Path) -> tuple[dict[str, dict], dict[str, Any]]:
             if dates != [report_date]:
                 raise ValueError(f"{key}: as-of date/context mismatch")
 
-        def numeric_fact(concept: str, context: str, *, required: bool = True) -> int | None:
+        def numeric_fact(
+            concept: str, context: str, *, required: bool = True,
+            bound_root: ET.Element = root_element, source_label: str = key,
+        ) -> int | None:
             matched = [
-                element for element in root_element.iter()
+                element for element in bound_root.iter()
                 if _local(element.tag) == concept
                 and element.attrib.get("contextRef") == context
             ]
@@ -117,17 +120,17 @@ def _originals(root: Path) -> tuple[dict[str, dict], dict[str, Any]]:
                 return None
             if len(matched) != 1:
                 raise ValueError(
-                    f"{key}: expected one {concept} fact for {context}"
+                    f"{source_label}: expected one {concept} fact for {context}"
                 )
             element = matched[0]
             if element.attrib.get("unitRef") != "shares":
-                raise ValueError(f"{key}: share-count unit not verified")
+                raise ValueError(f"{source_label}: share-count unit not verified")
             try:
                 number = int((element.text or "").strip().replace(",", ""))
             except ValueError as exc:
-                raise ValueError(f"{key}: noninteger XBRL share count") from exc
+                raise ValueError(f"{source_label}: noninteger XBRL share count") from exc
             if number < 0:
-                raise ValueError(f"{key}: negative share count")
+                raise ValueError(f"{source_label}: negative share count")
             return number
 
         promoter = numeric_fact("NumberOfShares", GROUP_CTX)
