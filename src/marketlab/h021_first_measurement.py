@@ -39,8 +39,10 @@ SOURCE_FILES: dict[str, tuple[str, str]] = {
         "",  # P004 event-specific receipt; its original packet SHA is validated below.
     ),
     "independent_original_source_replay": (
-        "research/prospective/h021/entry-observations/reconstructed-attempts/"
-        "38246531921-1.json",
+        (
+            "research/prospective/h021/entry-observations/reconstructed-attempts/"
+            "38246531921-1.json"
+        ),
         "4c85a6a053ffcdb6d28456163464e63a463f9511",
     ),
     "original_preentry_eps_sign_audit": (
@@ -52,8 +54,10 @@ SOURCE_FILES: dict[str, tuple[str, str]] = {
         "968ade0e2275107b0e5ab760ba111110497224a6",
     ),
     "original_vedl_nse_pdf_receipt": (
-        "research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
-        "source-receipt-v1.json",
+        (
+            "research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
+            "source-receipt-v1.json"
+        ),
         "de2d9889ec303067404ba62c136cd221288ac0ad",
     ),
 }
