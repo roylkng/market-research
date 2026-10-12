@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 from copy import deepcopy
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -44,7 +45,7 @@ def _synthetic_later_full_packet() -> dict:
     return build_entry_observation(
         intent, universe,
         udiff_source={
-            "url": udiff_url(__import__("datetime").date(2026, 10, 12)),
+            "url": udiff_url(date(2026, 10, 12)),
             "captured_at_utc": CAPTURED,
             "status": "OK",
             "http_status": 200,
@@ -52,7 +53,7 @@ def _synthetic_later_full_packet() -> dict:
             "error": None,
         },
         index_source={
-            "url": index_snapshot_url(__import__("datetime").date(2026, 10, 12)),
+            "url": index_snapshot_url(date(2026, 10, 12)),
             "captured_at_utc": CAPTURED,
             "status": "OK",
             "http_status": 200,
