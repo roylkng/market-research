@@ -162,29 +162,32 @@ def verify_original_dividend_pdf(raw: bytes) -> dict[str, Any]:
         text = reader.pages[0].extract_text() or ""
     except (PdfReadError, KeyError, OSError, TypeError, ValueError) as exc:
         raise ValueError("original VEDL PDF structure/text unavailable") from exc
-    normalized = re.sub(r"\s+", " ", text).casefold()
+    # A source-page renderer may turn "1st" into "1 st" or insert spaces
+    # around the FY27 dash/₹5/-. Match an exact *set of economic and
+    # chronological facts* from the archived issuer PDF, not typography.
+    normalized = re.sub(r"[^a-z0-9]+", " ", text.casefold()).strip()
     anchors = (
         "vedanta limited",
-        "october 08, 2026",
+        "october 08 2026",
         "vedl",
-        "5/- per",
-        "october 14, 2026",
+        "interim dividend",
+        "2026 27",
+        "5 per equity share",
+        "october 14 2026",
         "record date",
-        "01:00 pm ist",
+        "01 00 pm ist",
     )
     for anchor in anchors:
         if anchor not in normalized:
             raise ValueError(f"original VEDL dividend PDF missing source anchor: {anchor}")
-    # Original NSE attachment typesets "1st Interim Dividend 2026-27";
-    # some text renderers normalize this to "First Interim Dividend".
-    # Require one of these equivalent ordinal renderings, not a broad
-    # free-form "dividend" substring.
-    if not any(
-        variant in normalized
-        for variant in ("1st interim dividend 2026-27", "first interim dividend 2026-27")
+    # The source event independently declares the *first* interim dividend.
+    # Reject a different sequential dividend even with matching other text.
+    if re.search(
+        r"\b(?:2\s*nd|second|3\s*rd|third)\s+interim\s+dividend\b",
+        normalized,
     ):
-        raise ValueError("original VEDL dividend PDF missing FY27 first interim declaration")
-    if normalized.index("record date") > normalized.index("october 14, 2026"):
+        raise ValueError("original VEDL PDF is a different numbered dividend")
+    if normalized.index("record date") > normalized.index("october 14 2026"):
         raise ValueError("original VEDL record date appears in wrong context")
     return {
         "original_pdf_sha256": _sha(raw),
