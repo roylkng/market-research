@@ -7,10 +7,6 @@ on:
       - main
     paths:
       - .github/workflows/h021-original-market-source-preflight.yml
-  schedule:
-    # One extra 06:35 IST attempt on Oct 12, only before planned 09:15 open.
-    - cron: '5 1 12 10 *'
-
 permissions:
   contents: write
 
@@ -140,8 +136,8 @@ jobs:
           done
           echo "Source preflight receipts preserved only in Actions artifact due Git race"
           exit 1
-      - name: Preserve pre-entry source evidence even if Git publication fails
-        if: always()
+      - name: Preserve pre-entry source evidence only if actual pre-entry capture ran
+        if: always() && steps.gate.outputs.state == 'CAPTURE'
         uses: actions/upload-artifact@v4
         with:
           name: h021-real-oct9-preentry-source-rehearsal
