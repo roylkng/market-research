@@ -19,26 +19,26 @@ from marketlab.hg005_context import parse_shareholding_counts
 AUDIT_ID = "HG007-P040-INOXGREEN-PROMOTER-NET-HOLDINGS-QIP-DILUTION-v1"
 SOURCE_FILES = {
     "june_original": (
-        "research/hg007/outside-u001-governance-2026-10-04/raw/sha256/"
-        "fcb8910121252da982dc38937f3b3fd012c15c51e43ea494a4342f7a4d7e3c47.xml",
+        ("research/hg007/outside-u001-governance-2026-10-04/raw/sha256/"
+         "fcb8910121252da982dc38937f3b3fd012c15c51e43ea494a4342f7a4d7e3c47.xml"),
         "fcb8910121252da982dc38937f3b3fd012c15c51e43ea494a4342f7a4d7e3c47",
         "2026-06-30",
-        "https://nsearchives.nseindia.com/corporate/xbrl/"
-        "SHP_1706948_03082026041959_WEB.xml",
+        ("https://nsearchives.nseindia.com/corporate/xbrl/"
+         "SHP_1706948_03082026041959_WEB.xml"),
     ),
     "september_qip_original": (
-        "research/hg007/inoxgreen-post-qip-special/raw/"
-        "6c58845fa1b3f17c9c72b2466978bf8c69cece2436b1a92f7d40c4410f8b1822.xml",
+        ("research/hg007/inoxgreen-post-qip-special/raw/"
+         "6c58845fa1b3f17c9c72b2466978bf8c69cece2436b1a92f7d40c4410f8b1822.xml"),
         "6c58845fa1b3f17c9c72b2466978bf8c69cece2436b1a92f7d40c4410f8b1822",
         "2026-09-29",
-        "https://nsearchives.nseindia.com/corporate/xbrl/"
-        "SHP_1734551_08102026065442_WEB.xml",
+        ("https://nsearchives.nseindia.com/corporate/xbrl/"
+         "SHP_1734551_08102026065442_WEB.xml"),
     ),
 }
 LEDGER_FILES = {
     "oct4_original_governance": (
-        "research/hg007/outside-u001-governance-2026-10-04/"
-        "28-original-governance-v1.json",
+        ("research/hg007/outside-u001-governance-2026-10-04/"
+         "28-original-governance-v1.json"),
         "e1947ee234e0044c9974dacdf290d75c4021c5cc",
     ),
     "sept29_primary_pledge": (
