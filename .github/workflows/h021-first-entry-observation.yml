@@ -2,6 +2,13 @@ name: H021 first official entry source observation
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - H021 original Oct12 Nifty500 index source recovery
+    types:
+      - completed
+    branches:
+      - main
   push:
     branches:
       - main
@@ -23,6 +30,9 @@ concurrency:
 
 jobs:
   capture:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 22
     steps:
@@ -39,6 +49,8 @@ jobs:
         run: |
           ruff check src/marketlab/h021_entry_observation.py scripts/acquire_h021_first_entry.py tests/test_h021_entry_observation.py
           pytest -q tests/test_h021_entry_observation.py tests/test_h021_first_entry_intent.py
+          ruff check src/marketlab/h021_first_source_reconciliation.py scripts/reconcile_h021_first_full_source.py tests/test_h021_first_source_reconciliation.py
+          pytest -q tests/test_h021_first_source_reconciliation.py
       - name: Resolve immutable first entry gate
         id: gate
         shell: bash
@@ -102,6 +114,14 @@ jobs:
           )"
           if [[ "$SOURCE_STATE" == FULL_OFFICIAL_OHLC_SOURCE_OBSERVED ]]; then
             cp "$OUT_DIR/entry-observation-v1.json" "$TARGET"
+            # Later published Oct12 NSE index must exactly match P018's two
+            # identical original NSE archive hosts. Do NOT relabel the first
+            # HTTP404 or change its ten original observed NSE stock opens.
+            python scripts/reconcile_h021_first_full_source.py \
+              --repo-root . \
+              --full-path "$TARGET" \
+              --out "$DEST/2026-10-12-reconciled-source-v1.json"
+            test -s "$DEST/2026-10-12-reconciled-source-v1.json"
           fi
           git config user.name 'marketlab-research-bot'
           git config user.email 'marketlab-research-bot@users.noreply.github.com'
@@ -121,6 +141,11 @@ jobs:
               src/marketlab/h021_first_entry_intent.py \
               src/marketlab/pf001_marketdata.py \
               scripts/acquire_h021_first_entry.py \
+              scripts/reconcile_h021_first_full_source.py \
+              src/marketlab/h021_first_source_reconciliation.py \
+              src/marketlab/h021_index_recovery.py \
+              research/prospective/h021/index-recovery \
+              research/prospective/h021/entry-observations/reconstructed-attempts \
               research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
               research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
               research/prospective/universes/FY27-Q2-2026-09-06.json \
