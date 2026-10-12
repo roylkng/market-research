@@ -1,0 +1,47 @@
+{
+  "intent_id": "H021-P003-2026-10-09-FIRST-COHORT-v1",
+  "live_capital_allowed": false,
+  "observed_official_stock_open_count": 10,
+  "packet_sha256": "858cfb44b1bfe061e6d9ca133d229073ca08afb72608f9b476337fe2534c32fc",
+  "portfolio_eligibility_allowed": false,
+  "raw_sources_retained": [
+    {
+      "kind": "udiff",
+      "path": "raw/sha256/818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99.zip",
+      "sha256": "818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99"
+    },
+    {
+      "kind": "index",
+      "path": "raw/sha256/fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25.csv",
+      "sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25"
+    }
+  ],
+  "recorded_at_utc": "2026-10-12T15:53:27.795560Z",
+  "schema_version": 1,
+  "session_date_ist": "2026-10-12",
+  "source_observation_status": "FULL_OFFICIAL_OHLC_SOURCE_OBSERVED",
+  "source_receipts": {
+    "index": {
+      "captured_at_utc": "2026-10-12T15:53:27.794831Z",
+      "error": null,
+      "http_status": 200,
+      "official_source_url": "https://archives.nseindia.com/content/indices/ind_close_all_12102026.csv",
+      "raw_byte_count": 15668,
+      "raw_filename_extension": ".csv",
+      "raw_sha256": "fc847998c9d8bfa461ddad1770dc610086eadea3d442f1dfe515ae76b83c7f25",
+      "status": "OK"
+    },
+    "udiff": {
+      "captured_at_utc": "2026-10-12T15:53:27.273412Z",
+      "error": null,
+      "http_status": 200,
+      "official_source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261012_F_0000.csv.zip",
+      "raw_byte_count": 207055,
+      "raw_filename_extension": ".zip",
+      "raw_sha256": "818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99",
+      "status": "OK"
+    }
+  },
+  "workflow_run_attempt": "1",
+  "workflow_run_id": "38273433980"
+}
