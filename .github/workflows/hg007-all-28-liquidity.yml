@@ -1,0 +1,103 @@
+name: HG007 all 28 official 20-session liquidity source audit
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_28_liquidity.py
+      - scripts/build_hg007_28_liquidity.py
+      - tests/test_hg007_28_liquidity.py
+      - .github/workflows/hg007-all-28-liquidity.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_28_liquidity.py
+      - scripts/build_hg007_28_liquidity.py
+      - tests/test_hg007_28_liquidity.py
+      - .github/workflows/hg007-all-28-liquidity.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-20day-28-liquidity
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Check strict original-source and 28-name invariants
+        run: |
+          ruff check src/marketlab/hg007_28_liquidity.py scripts/build_hg007_28_liquidity.py tests/test_hg007_28_liquidity.py
+          pytest -q tests/test_hg007_28_liquidity.py
+      - name: Rebuild all 28 historical official NSE turnover records
+        run: |
+          python scripts/build_hg007_28_liquidity.py \
+            --repo-root . --output /tmp/hg007-28-original-20day-turnover.json
+          test -s /tmp/hg007-28-original-20day-turnover.json
+      - name: Preserve independent source-bound research artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-original-28-issuer-20day-turnover-context
+          path: /tmp/hg007-28-original-20day-turnover.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Anchor append-only full-company source review after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/twenty-session-liquidity/twenty-session-28-stock-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_28_liquidity.py \
+              --output "$TARGET" --verify-existing
+            echo "Original 28-case context already anchored; nothing overwritten"
+            exit 0
+          fi
+          cp /tmp/hg007-28-original-20day-turnover.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: seal all 28 selected NSE historical turnover contexts [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original all-28 turnover result already sealed; reject overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg002-d001-result-v1.json \
+              research/hg007/twenty-session-liquidity/raw \
+              research/hg007/twenty-session-liquidity/receipts \
+              research/hg007/twenty-session-liquidity/twenty-session-liquidity-v1.json \
+              research/hg007/oct09-five-case-market \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+              src/marketlab/hg007_28_liquidity.py \
+              src/marketlab/hg007_liquidity_history.py; then
+              echo "Original market source or frozen company selection changed; stop"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to permanently anchor source review after bounded retries"
+          exit 1
