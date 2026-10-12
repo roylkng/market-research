@@ -33,11 +33,6 @@ FROZEN_CAPTURE_ID = "SS002-P001-2026-10-08-v1"
 FROZEN_ANNOUNCEMENT_CAPTURE_SHA = (
     "cefe063a076ff9bfb6a88e06293fe435e5a7a62707b0e294d247640d10ca135d"
 )
-FROZEN_ANNOUNCEMENTS_GZIP_SHA = (
-    "1afe43bc21344c6c91ca632b91ca632b91ca632b91ca632b91ca632b91ca632b91ca632b91ca"
-)
-# Correct exact gzip identity is independently verified from the pinned
-# SS002 source manifest at runtime; it is never inferred from PDF text.
 FROZEN_ANNOUNCEMENTS_RAW_SHA = (
     "aff6e8075d4f2b3067a2fa84349a484ed7ba225825397db6d1978ccea2718171"
 )
