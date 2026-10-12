@@ -5,7 +5,6 @@ import subprocess
 import sys
 from copy import deepcopy
 from dataclasses import replace
-from datetime import date
 from pathlib import Path
 
 import pytest
