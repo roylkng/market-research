@@ -16,7 +16,7 @@ from marketlab.h021_cohort_source import (
     build_future_cohort_source,
     validate_future_cohort_source,
 )
-from marketlab.h021_daily_prices import validate_daily_source_observation
+from marketlab.h021_daily_prices import official_market_transport_ready
 
 
 def _json(path: Path) -> dict:
@@ -47,6 +47,7 @@ def materialize_all(
     existing=0
     eligible_days=0
     zero_signal_cohorts=0
+    partial_first_cohort_days_reused=set()
     for intent_file in intents:
         intent=_json(intent_file)
         source=intent.get("source") or {}
@@ -68,13 +69,14 @@ def materialize_all(
             if day<first_date:
                 continue
             daily=_json(daily_path)
-            validate_daily_source_observation(daily)
             if daily.get("session_date_ist")!=day:
                 raise ValueError("daily official source filename/date disagreement")
-            if daily.get("capture_state")!="SOURCE_COMPLETE":
-                raise ValueError("sealed H021 P008 record is not source complete")
+            if not official_market_transport_ready(daily):
+                raise ValueError("sealed H021 P008 original NSE market transport unavailable")
             stock_raw=_raw(daily_dir,daily["stock_source"]["sha256"],".zip")
             index_raw=_raw(daily_dir,daily["index_source"]["sha256"],".csv")
+            if daily["capture_state"] == "SOURCE_INCOMPLETE":
+                partial_first_cohort_days_reused.add(day)
             out=build_future_cohort_source(
                 intent,daily,raw_udiff=stock_raw,raw_index=index_raw
             )
@@ -100,6 +102,9 @@ def materialize_all(
         "sealed_daily_source_count":len(daily_files),
         "eligible_cohort_day_pairs":eligible_days,
         "zero_eligible_cohorts_with_no_source_positions":zero_signal_cohorts,
+        "first_cohort_partial_days_with_independent_source_transport":sorted(
+            partial_first_cohort_days_reused
+        ),
         "new_cohort_source_packets":made,
         "existing_verified_packets":existing,
         "outcomes_opened":False,
