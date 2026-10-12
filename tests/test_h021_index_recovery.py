@@ -78,7 +78,7 @@ def test_only_official_primary_oct12_csv_may_seal_unbackdated_supplement() -> No
     assert result["benchmark"]["corroborated_recovery_close"] == 21822.75
     assert result["first_original_source_attempt_unmodified"] is True
     assert result["nifty500_price_index_not_tri"] is True
-    assert result["original_first_equity_source"] if "original_first_equity_source" in result else True
+    assert result["first_original_equity_source"]["original_stock_open_count"] == 10
     assert result["stock_price_source_substituted"] is False
     assert result["actual_executable_open_trade_confirmed"] is False
     assert result["benchmark_excess_return_calculated"] is False
