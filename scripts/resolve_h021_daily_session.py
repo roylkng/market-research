@@ -133,8 +133,7 @@ def _eligible_delayed_publication_recovery(
         )
         if not eligible:
             return False, count
-        if timestamp > latest_recorded:
-            latest_recorded = timestamp
+        latest_recorded = max(latest_recorded, timestamp)
     # At most one delayed retry on a given local day. This avoids creating
     # multiple 404 requests during the same short publication-delay window.
     if latest_recorded.astimezone(IST).date() >= as_of_utc.astimezone(IST).date():
