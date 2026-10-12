@@ -1,0 +1,162 @@
+name: H021 original Oct12 Nifty500 index source recovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/h021-index-source-recovery.yml
+  schedule:
+    # Weekday 20:45 IST and morning next-day recovery at 08:15 IST.
+    # Exact 12 Oct files only. Date gate below disables after October.
+    - cron: '15 15 * * 1-5'
+    - cron: '45 2 * * 2-6'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-original-oct12-official-index-source-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original ten-stock entry and official NSE index recovery contract
+        run: |
+          ruff check src/marketlab/h021_index_recovery.py scripts/recover_h021_nifty500_original.py tests/test_h021_index_recovery.py
+          pytest -q tests/test_h021_index_recovery.py tests/test_h021_entry_observation.py tests/test_h021_first_entry_intent.py
+      - name: Enforce exact entry date and one successful benchmark supplement
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          OUT="/tmp/h021-nifty500-index-source-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "SOURCE_OUT=$OUT" >> "$GITHUB_ENV"
+          STATE=SKIP
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch || ( "$TODAY" > "2026-10-11" && "$TODAY" < "2026-11-01" ) ]]; then
+            CURRENT_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if [[ "$CURRENT_UTC" > "2026-10-12T10:00:00Z" ]]; then
+              git fetch origin main
+              TARGET="research/prospective/h021/index-recovery/2026-10-12-official-index-supplement-v1.json"
+              if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+                STATE=ALREADY_RECOVERED
+              else
+                STATE=PROBE
+              fi
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Original Oct12 Nifty 500 index recovery gate=$STATE"
+      - name: Probe exact original NSE archive hosts, never substitute a vendor
+        if: steps.gate.outputs.state == 'PROBE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/recover_h021_nifty500_original.py \
+            --repo-root . --out-dir "$SOURCE_OUT" \
+            --attempts 2 --sleep-seconds 4
+          test -s "$SOURCE_OUT/index-source-evidence-v1.json"
+          test -s "$SOURCE_OUT/attempt.json"
+      - name: Anchor append-only source attempt and separately audited successful supplement
+        if: steps.gate.outputs.state == 'PROBE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/h021/index-recovery"
+          FINAL="$DEST/2026-10-12-official-index-supplement-v1.json"
+          ATTEMPT="$DEST/attempts/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          cp "$SOURCE_OUT/attempt.json" "$ATTEMPT"
+          for raw in "$SOURCE_OUT"/raw/sha256/*; do
+            [[ -f "$raw" ]] || continue
+            target="$DEST/raw/sha256/$(basename "$raw")"
+            if [[ -f "$target" ]]; then
+              cmp -- "$raw" "$target"
+            else
+              cp "$raw" "$target"
+            fi
+            sha="$(basename "$target" | cut -d. -f1)"
+            [[ "$(sha256sum "$target" | cut -d' ' -f1)" == "$sha" ]]
+          done
+          STATE="$(python - "$SOURCE_OUT/index-source-evidence-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_index_recovery import validate_recovery,SEALABLE_STATES
+          p=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          validate_recovery(p)
+          assert p["return_outcomes_opened"] is False
+          assert p["benchmark_excess_return_calculated"] is False
+          assert p["live_capital_allowed"] is False
+          print(p["source_state"])
+          PY
+          )"
+          if [[ "$STATE" == OFFICIAL_PRIMARY_INDEX_VERIFIED || "$STATE" == OFFICIAL_DUAL_HOSTS_AGREE ]]; then
+            if [[ -f "$FINAL" ]]; then
+              echo "Original benchmark supplement cannot be overwritten"
+              exit 1
+            fi
+            cp "$SOURCE_OUT/index-source-evidence-v1.json" "$FINAL"
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "H021: preserve official Oct12 NSE index-only source recovery $GITHUB_RUN_ID"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3 4 5; do
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$FINAL" 2>/dev/null; then
+              echo "First official index source supplement already anchored; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE_SHA" -- \
+              .github/workflows/h021-index-source-recovery.yml \
+              scripts/recover_h021_nifty500_original.py \
+              src/marketlab/h021_index_recovery.py \
+              src/marketlab/h021_entry_observation.py \
+              src/marketlab/h021_first_entry_intent.py \
+              src/marketlab/pf001_marketdata.py \
+              research/prospective/h021/entry-observations/attempts \
+              research/prospective/h021/entry-observations/reconstructed-attempts \
+              research/prospective/h021/entry-observations/raw \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/h021/comparisons/2026-10-09-primary-revision-v1.json \
+              research/prospective/universes/FY27-Q2-2026-09-06.json \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
+              echo "Original frozen source, rule or parser moved; refuse to backdate"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              echo "Original Oct12 source recovery attempt anchored: $STATE"
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Source evidence retained in Actions artifact, repository anchor retries exhausted"
+          exit 1
+      - name: Retain independent original NSE archive capture on all attempts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-oct12-original-nifty500-index-recovery
+          path: /tmp/h021-nifty500-index-source-*
+          if-no-files-found: ignore
+          retention-days: 90
