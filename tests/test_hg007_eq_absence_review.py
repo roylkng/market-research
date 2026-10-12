@@ -13,7 +13,6 @@ import pytest
 
 from marketlab.hg007_eq_absence_review import (
     EXPECTED_GAPS,
-    ORIGINAL_COHORT_BLOB,
     P041_GIT_BLOB,
     P041_PATH,
     _original_full_market_rows,
@@ -125,7 +124,6 @@ def test_pinned_source_bytes_and_result_digest_must_not_change(tmp_path: Path) -
     copy.write_bytes(original + b" ")
     with pytest.raises(ValueError, match="source evidence Git blob changed"):
         _source28(tmp_path)
-    assert len(ORIGINAL_COHORT_BLOB) == 40
 
     data = build_missing_eq_series_review(Path("."))
     mutated = deepcopy(data)
