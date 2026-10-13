@@ -18,6 +18,8 @@ from marketlab.calendar_snapshot import load_calendar_snapshot
 from marketlab.h021_daily_prices import validate_daily_source_observation
 from marketlab.h021_entry_observation import validate_entry_observation
 from marketlab.h021_first_entry_intent import (
+    CALENDAR_PATH,
+    COMPARISON_PATH,
     build_first_entry_intent,
     git_blob_sha,
     load_pinned_inputs,
@@ -101,7 +103,10 @@ def build_pre_ex_date_settlement_review(
 ) -> dict[str, Any]:
     if set(originals) != set(SOURCE_REFS) or set(receipts) != set(SOURCE_REFS):
         raise ValueError("all six original H021 dividend/source contracts required")
-    frozen_comparison, source_calendar = load_pinned_inputs(repo_root=repo_root)
+    frozen_comparison, source_calendar = load_pinned_inputs(
+        comparison_path=repo_root / COMPARISON_PATH,
+        calendar_path=repo_root / CALENDAR_PATH,
+    )
     intent = originals["frozen_intent"]
     if intent != build_first_entry_intent(frozen_comparison, source_calendar):
         raise ValueError("H021 first intent no longer derived from preregistered comparison")
