@@ -1,0 +1,135 @@
+name: HG007 original Oct 9 Vibhav conversion NSE filing
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - scripts/probe_hg007_vibhav_oct09_original.py
+      - .github/workflows/hg007-vibhav-oct09-original.yml
+  schedule:
+    - cron: '20 5 13-20 10 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-original-vepl-oct09-source
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Source-custody regression tests
+        run: |
+          ruff check scripts/probe_hg007_vibhav_oct09_original.py tests/test_hg007_vibhav_oct09_original.py
+          pytest -q tests/test_hg007_vibhav_oct09_original.py
+      - name: Gate immutable original source capture
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY="$(TZ=Asia/Kolkata date +%F)"
+          STATE=SKIP
+          TARGET="research/hg007/wwil-oct09-vibhav-conversion/source-receipt-v1.json"
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]] || [[ "$TODAY" > "2026-10-12" && "$TODAY" < "2026-10-21" ]]; then
+            git fetch origin main
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=ALREADY_CAPTURED
+            else
+              STATE=CAPTURE
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+      - name: Retrieve exact October 9 original NSE PDF
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg007-vepl-oct09-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "SOURCE_OUTPUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/probe_hg007_vibhav_oct09_original.py --out-dir "$OUT"
+          test -s "$OUT/source-receipt-v1.json"
+      - name: Anchor original only if exact issuer conversion terms check out
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE="$(python - "$SOURCE_OUTPUT/source-receipt-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          x=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert x["wwil_undertaking_transfer_completed"] is False
+          assert x["live_capital_allowed"] is False
+          print(x["source_state"])
+          PY
+          )"
+          if [[ "$STATE" != OFFICIAL_NSE_OCT09_PDF_CAPTURED_UNREVIEWED ]]; then
+            echo "Exact NSE original unavailable; state=$STATE. Do not forge source."
+            exit 0
+          fi
+          DEST="research/hg007/wwil-oct09-vibhav-conversion"
+          TARGET="$DEST/source-receipt-v1.json"
+          mkdir -p "$DEST/raw/sha256"
+          cp "$SOURCE_OUTPUT/source-receipt-v1.json" "$TARGET"
+          cp "$SOURCE_OUTPUT"/raw/sha256/*.pdf "$DEST/raw/sha256/"
+          python - "$DEST" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          from scripts.probe_hg007_vibhav_oct09_original import verify_original_oct9
+          target=Path(sys.argv[1])
+          receipt=json.loads((target/"source-receipt-v1.json").read_text())
+          sha=receipt["original_pdf_sha256"]
+          raw=(target/"raw"/"sha256"/f"{sha}.pdf").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==sha
+          assert verify_original_oct9(raw)==receipt["text_verified_disclosure_fields_not_investment_approval"]
+          assert receipt["wwil_undertaking_transfer_completed"] is False
+          print("Official Oct9 conversion source verified",sha)
+          PY
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG007: retain original Oct9 VEPL 75-25 capital conversion [skip ci]"
+          BASE="$(git rev-parse HEAD^)"
+          for ATTEMPT in 1 2 3; do
+            git fetch origin main
+            REMOTE="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original already anchored, refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE" "$REMOTE" -- \
+              scripts/probe_hg007_vibhav_oct09_original.py \
+              research/hg007/wwil-bse-original/original-page-text-v1.json; then
+              echo "Predecessor source or collector changed mid-capture"
+              exit 1
+            fi
+            if [[ "$REMOTE" != "$BASE" ]]; then
+              git rebase origin/main
+              BASE="$REMOTE"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((ATTEMPT*2))"
+          done
+          exit 1
+      - name: Retain independently timed success or blocker receipts
+        if: always() && steps.gate.outputs.state == 'CAPTURE'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-vepl-oct9-nse-original
+          path: ${{ env.SOURCE_OUTPUT }}
+          if-no-files-found: ignore
+          retention-days: 90
