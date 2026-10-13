@@ -46,7 +46,7 @@ jobs:
             "scripts/verify_ae001_t012_decisions.py"
           )
           if [ "$EVENT_SHA" != "$MAIN_SHA" ]; then
-            if ! git diff --quiet "$EVENT_SHA" "$MAIN_SHA" -- "$FROZEN_PATHS"; then
+            if ! git diff --quiet "$EVENT_SHA" "$MAIN_SHA" -- "${FROZEN_PATHS[@]}"; then
               echo "Frozen T012 rules changed after scheduling; fail closed"
               exit 1
             fi
@@ -126,7 +126,7 @@ jobs:
             git fetch origin main
             NEW_MAIN="$(git rev-parse origin/main)"
             if [ "$DECISION_BASE_SHA" != "$NEW_MAIN" ]; then
-              if ! git diff --quiet "$DECISION_BASE_SHA" "$NEW_MAIN" -- "$FROZEN_PATHS"; then
+              if ! git diff --quiet "$DECISION_BASE_SHA" "$NEW_MAIN" -- "${FROZEN_PATHS[@]}"; then
                 echo "T012 frozen protocol/model/registration drift during scoring"
                 exit 1
               fi
