@@ -248,17 +248,14 @@ def main() -> int:
     market_data: dict[str, dict] = {}
     incomplete_source_dates = []
     for day in sorted(required):
-        try:
-            observation = _market_observation(
-                day,
-                fetch=fetch,
-                storage=args.source_dir,
-                calendar=calendar,
-            )
-        except Exception:
-            # Parser corruption is a scientific integrity failure and must
-            # abort, not become a benign "missing" source observation.
-            raise
+        # Parser corruption is a scientific integrity failure. Allow it to
+        # propagate instead of disguising it as missing market observations.
+        observation = _market_observation(
+            day,
+            fetch=fetch,
+            storage=args.source_dir,
+            calendar=calendar,
+        )
         if observation is None:
             incomplete_source_dates.append(day)
         else:
