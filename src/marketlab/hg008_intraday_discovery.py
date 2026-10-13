@@ -80,7 +80,7 @@ def _verify_json_bytes(raw: bytes, decoded: object) -> None:
         elif isinstance(original.get("records"), list):
             rows = original["records"]
         else:
-            raise ValueError("NSE payload does not contain explicit announcement rows")
+            raise TypeError("NSE payload does not contain explicit announcement rows")
     else:
         raise TypeError("original NSE announcement source must be row array/envelope")
     if len(rows) > MAX_ORIGINAL_ROWS or any(not isinstance(row, dict) for row in rows):
