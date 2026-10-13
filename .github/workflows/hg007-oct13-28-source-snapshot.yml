@@ -1,0 +1,104 @@
+name: HG007 original NSE October 13 all 28 market-source snapshot
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_oct13_28_snapshot.py
+      - scripts/build_hg007_oct13_28_snapshot.py
+      - tests/test_hg007_oct13_28_snapshot.py
+      - .github/workflows/hg007-oct13-28-source-snapshot.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_oct13_28_snapshot.py
+      - scripts/build_hg007_oct13_28_snapshot.py
+      - tests/test_hg007_oct13_28_snapshot.py
+      - .github/workflows/hg007-oct13-28-source-snapshot.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-oct13-frozen-all28-original-source
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research package
+        run: python -m pip install -e '.[dev]'
+      - name: Test original full-market NSE source and exact 28 identities
+        run: |
+          ruff check src/marketlab/hg007_oct13_28_snapshot.py scripts/build_hg007_oct13_28_snapshot.py tests/test_hg007_oct13_28_snapshot.py
+          pytest -q tests/test_hg007_oct13_28_snapshot.py
+      - name: Generate SHA-sealed source-only complete original 28-company packet
+        run: |
+          python scripts/build_hg007_oct13_28_snapshot.py \
+            --repo-root . \
+            --out /tmp/hg007-2026-10-13-28-official-market-v1.json
+          test -s /tmp/hg007-2026-10-13-28-official-market-v1.json
+      - name: Anchor immutable original packet after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p047-oct13-28-official-nse-source-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg007_oct13_28_snapshot.py \
+              --out "$TARGET" --verify-existing
+            echo "Original Oct13 28-case source already anchored"
+            exit 0
+          fi
+          mkdir -p "$(dirname "$TARGET")"
+          cp /tmp/hg007-2026-10-13-28-official-market-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: retain Oct13 original NSE 28-company cash-market source evidence [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "NSE Oct13 source packet already sealed, refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/prospective/h021/daily-prices/2026-10-13-v1.json \
+              research/prospective/h021/daily-prices/raw \
+              research/hg007/twenty-session-liquidity/twenty-session-28-stock-v1.json \
+              research/hg007/hg007-p046-28-case-vibhav-conversion-stage-v1.json \
+              src/marketlab/hg007_oct13_28_snapshot.py \
+              src/marketlab/hg007_28_liquidity.py \
+              src/marketlab/hg007_eq_absence_review.py; then
+              echo "Frozen original market source or parse semantics changed mid-job"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to retain source packet after bounded Git attempts"
+          exit 1
+      - name: Retain independent original market-source report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-oct13-28-original-nse-source-only
+          path: /tmp/hg007-2026-10-13-28-official-market-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
