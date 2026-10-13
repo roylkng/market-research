@@ -1,0 +1,164 @@
+name: H021S001 preregistered signed EPS prospective challenger
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - H021 weekly consensus capture
+    types:
+      - completed
+    branches:
+      - main
+  schedule:
+    # Recovery after the Friday close, before Monday's next NSE open.
+    - cron: '30 3 * * 6,0'
+    - cron: '30 1 * * 1'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021s001-outcome-blind-future-intents
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install and verify no-lookahead source contracts
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/h021_signed_challenger.py scripts/freeze_h021_signed_challenger.py tests/test_h021_signed_challenger.py
+          pytest -q tests/test_h021_signed_challenger.py
+      - name: Select original future comparison without retroactive selection
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=SKIP
+          COMP=""
+          OUT=""
+          if ! python - <<'PY'
+          import json
+          from pathlib import Path
+          manifest=json.loads(Path("research/rta001-trials-v1.json").read_text())
+          trials=[r for r in manifest["trials"] if r["trial_id"]=="H021S001"]
+          if len(trials)!=1 or trials[0]["result_state"]!="PREREGISTERED_AWAITING_FIRST_COHORT":
+              raise SystemExit("signed challenger has no pre-capture global trial registration")
+          print("H021S001 explicit new trial registered")
+          PY
+          then
+            exit 1
+          fi
+          CANDIDATE="$(find research/prospective/h021/comparisons -maxdepth 1 -type f -name '????-??-??-primary-revision-v1.json' | sort | tail -n 1)"
+          if [[ -n "$CANDIDATE" ]]; then
+            DATE="$(basename "$CANDIDATE" -primary-revision-v1.json)"
+            if [[ "$DATE" > "2026-10-15" ]]; then
+              TARGET="research/prospective/h021/signed-intents/$DATE-signed-eps-challenger-v1.json"
+              if [[ ! -f "$TARGET" ]]; then
+                STATE=CAPTURE
+                COMP="$CANDIDATE"
+                OUT="$TARGET"
+              else
+                python - "$TARGET" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_signed_challenger import validate_challenger_intent
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_challenger_intent(packet)
+          print("Existing signed challenger source-sealed and immutable")
+          PY
+              fi
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "comparison=$COMP" >> "$GITHUB_OUTPUT"
+          echo "out=$OUT" >> "$GITHUB_OUTPUT"
+          echo "H021S001 original new cohort gate: $STATE $COMP"
+      - name: Freeze signed EPS decision before official next open
+        if: steps.gate.outputs.state == 'CAPTURE'
+        run: |
+          set -euo pipefail
+          python scripts/freeze_h021_signed_challenger.py \
+            --repo-root . \
+            --comparison "${{ steps.gate.outputs.comparison }}" \
+            --out "${{ steps.gate.outputs.out }}"
+      - name: Anchor original immutable challenger or refuse late publication
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="${{ steps.gate.outputs.out }}"
+          PREPARED_OPEN="$(python - "$TARGET" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_signed_challenger import validate_challenger_intent
+          packet=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_challenger_intent(packet)
+          print(packet["planned_entry_open_utc"])
+          PY
+          )"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "H021S001: preregistered signed EPS paper intent outcome-blind [skip ci]"
+          ANCHOR_BASE_SHA="$(git rev-parse HEAD^)"
+          for ATTEMPT in 1 2 3; do
+            CURRENT_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if [[ "$CURRENT_TIME" > "$PREPARED_OPEN" || "$CURRENT_TIME" == "$PREPARED_OPEN" ]]; then
+              echo "H021S001 next open already passed; refusing retroactive paper cohort"
+              exit 1
+            fi
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "H021S001 prior frozen intent already exists; refusing overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$ANCHOR_BASE_SHA" "$REMOTE_SHA" -- \
+              .github/workflows/h021-signed-eps-challenger.yml \
+              src/marketlab/h021_signed_challenger.py \
+              scripts/freeze_h021_signed_challenger.py \
+              research/rta001-trials-v1.json \
+              research/H021S001_PREREGISTERED_SIGNED_EPS_DIRECTION_CHALLENGER_2026_10_13.md \
+              research/prospective/h021/captures \
+              research/prospective/h021/comparisons \
+              research/prospective/h021/intents \
+              research/prospective/h021/signed-intents \
+              research/prospective/universes/FY27-Q2-2026-09-06.json \
+              research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json; then
+              echo "Frozen source, preregistration or challenger code changed during build"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$ANCHOR_BASE_SHA" ]]; then
+              git rebase origin/main
+              ANCHOR_BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              echo "H021S001 outcome-blind pre-entry record anchored"
+              exit 0
+            fi
+            sleep "$((ATTEMPT*2))"
+          done
+          echo "H021S001 missed immutable Git anchor before next-open"
+          exit 1
+      - name: Independently retain original challenger run evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021s001-signed-eps-source-intent
+          path: |
+            research/prospective/h021/signed-intents
+          if-no-files-found: ignore
+          retention-days: 90
