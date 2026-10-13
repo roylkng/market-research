@@ -10,16 +10,9 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from datetime import UTC, datetime
 from typing import Any
-from urllib.parse import urlsplit
 
-from marketlab.hg008_event_forecast import (
-    FORECAST_ID,
-    _digest,
-    _official_url,
-    _utc,
-)
+from marketlab.hg008_event_forecast import FORECAST_ID, _digest, _official_url, _utc
 
 SCORE_ID = "HG008-P001-MATURED-EVENT-BRIER-v1"
 OUTCOMES = frozenset({"COMPLETED_BY_DEADLINE","NO_COMPLETION_BY_DEADLINE","RIGHT_CENSORED_OR_UNVERIFIED"})
