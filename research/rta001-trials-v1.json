@@ -1,13 +1,18 @@
 {
   "schema_version": 1,
   "accounting_id": "RTA001-v1",
-  "as_of_date": "2026-10-04",
+  "as_of_date": "2026-10-13",
   "live_capital_allowed": false,
   "fdr_families": {
     "ALPHA_FEATURE_DISCOVERY_V1": {
       "alpha": 0.05,
       "description": "AE001 stock-level feature-family discovery trials",
       "dependency_note": "Shared dates/stocks/baselines imply dependence; report BH, BY, Holm and Bonferroni."
+    },
+    "H021_DIRECTION_COMPARATORS_V1": {
+      "alpha": 0.05,
+      "description": "Pre-registered original H021 and signed EPS H021S001 mechanism pair",
+      "dependency_note": "Same frozen U001, analyst source, entry clock and future return horizon; dependent overlapping stocks. Pending outcomes never produce p-values."
     }
   },
   "trials": [
@@ -393,7 +398,7 @@
       "p_value_status": "PENDING_PROSPECTIVE",
       "nominal_primary_p_value": null,
       "fdr_accounting_p_value": null,
-      "fdr_family": null,
+      "fdr_family": "H021_DIRECTION_COMPARATORS_V1",
       "scientifically_preregistered_before_outcomes": true
     },
     {
@@ -407,7 +412,7 @@
       "p_value_status": "PENDING_FUTURE_UNMATURED_PROSPECTIVE",
       "nominal_primary_p_value": null,
       "fdr_accounting_p_value": null,
-      "fdr_family": null,
+      "fdr_family": "H021_DIRECTION_COMPARATORS_V1",
       "scientifically_preregistered_before_outcomes": true
     },
     {

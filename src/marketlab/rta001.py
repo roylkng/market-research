@@ -201,10 +201,21 @@ def _family_analysis(
         )
         for trial in completed
     ]
-    bh = benjamini_hochberg(p_rows)
-    by = benjamini_yekutieli(p_rows)
-    holm_values = holm(p_rows)
-    bonf = bonferroni(p_rows)
+    # A preregistered family with zero *matured* outcomes must exist
+    # in the trial ledger before any p-value can be published. Calling
+    # the standalone adjustment helpers with no completed p-values is
+    # correctly an error, but the family accounting should remain
+    # evidence-pending rather than fabricating a success/failure p=1.
+    if p_rows:
+        bh = benjamini_hochberg(p_rows)
+        by = benjamini_yekutieli(p_rows)
+        holm_values = holm(p_rows)
+        bonf = bonferroni(p_rows)
+    else:
+        bh = {}
+        by = {}
+        holm_values = {}
+        bonf = {}
 
     records = []
     for trial in sorted(completed, key=lambda row: str(row["trial_id"])):

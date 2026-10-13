@@ -106,3 +106,89 @@ def test_duplicate_trial_ids_fail_closed():
     manifest["trials"].append(dict(manifest["trials"][0]))
     with pytest.raises(AlphaContractError, match="unique"):
         build_rta001_summary(manifest)
+
+
+
+def test_new_pending_only_h021_signed_eps_family_is_accounted_not_fake_alpha() -> None:
+    manifest = _manifest()
+    manifest["fdr_families"]["H021_DIRECTION_COMPARATORS_V1"] = {
+        "alpha": 0.05,
+        "description": "Original and signed-EPS prospective H021 mechanisms",
+        "dependency_note": "Same symbols, source dates, market and entry horizons",
+    }
+    manifest["trials"].extend([
+        {
+            "trial_id": "H021",
+            "category": "MECHANISM_HYPOTHESIS",
+            "result_state": "PROSPECTIVE_CAPTURE_ACTIVE",
+            "reported_primary_supported": None,
+            "nominal_primary_p_value": None,
+            "fdr_accounting_p_value": None,
+            "p_value_status": "PENDING_PROSPECTIVE",
+            "fdr_family": "H021_DIRECTION_COMPARATORS_V1",
+            "scientifically_preregistered_before_outcomes": True,
+        },
+        {
+            "trial_id": "H021S001",
+            "category": "MECHANISM_HYPOTHESIS",
+            "result_state": "PREREGISTERED_AWAITING_FIRST_COHORT",
+            "reported_primary_supported": None,
+            "nominal_primary_p_value": None,
+            "fdr_accounting_p_value": None,
+            "p_value_status": "PENDING_PROSPECTIVE",
+            "fdr_family": "H021_DIRECTION_COMPARATORS_V1",
+            "scientifically_preregistered_before_outcomes": True,
+        },
+    ])
+    summary = build_rta001_summary(manifest)
+    family = summary["fdr_families"]["H021_DIRECTION_COMPARATORS_V1"]
+    assert summary["explicit_trial_count"] == 5
+    assert summary["live_capital_allowed"] is False
+    for mode in ("inclusive", "preregistered_only_sensitivity"):
+        row = family[mode]
+        assert row["registered_trial_count"] == 2
+        assert row["completed_adjusted_trial_count"] == 0
+        assert row["pending_or_unadjusted_trial_count"] == 2
+        assert row["records"] == []
+        assert row["bh_significant_count"] == 0
+        assert row["by_significant_count"] == 0
+        assert row["nominal_supported_count"] == 0
+
+
+def test_one_matured_direction_mechanism_and_one_pending_remain_distinct() -> None:
+    manifest = _manifest()
+    manifest["fdr_families"]["DIRECTION"] = {"alpha": 0.05}
+    first = {
+        "trial_id": "H021", "category": "MECHANISM_HYPOTHESIS",
+        "scientifically_preregistered_before_outcomes": True,
+        "result_state": "COMPLETE", "reported_primary_supported": True,
+        "nominal_primary_p_value": 0.02, "fdr_accounting_p_value": 0.02,
+        "fdr_family": "DIRECTION",
+    }
+    challenger = {
+        "trial_id": "H021S001", "category": "MECHANISM_HYPOTHESIS",
+        "scientifically_preregistered_before_outcomes": True,
+        "result_state": "PENDING_PROSPECTIVE",
+        "reported_primary_supported": None, "nominal_primary_p_value": None,
+        "fdr_accounting_p_value": None, "fdr_family": "DIRECTION",
+    }
+    manifest["trials"].extend([first, challenger])
+    interim = build_rta001_summary(manifest)["fdr_families"]["DIRECTION"]["inclusive"]
+    assert interim["completed_adjusted_trial_count"] == 1
+    assert interim["pending_or_unadjusted_trial_count"] == 1
+    assert interim["records"][0]["bh_q_value"] == pytest.approx(0.02)
+    challenger["result_state"] = "COMPLETE"
+    challenger["fdr_accounting_p_value"] = 0.5
+    challenger["reported_primary_supported"] = False
+    final = build_rta001_summary(manifest)["fdr_families"]["DIRECTION"]["inclusive"]
+    assert final["completed_adjusted_trial_count"] == 2
+    assert final["pending_or_unadjusted_trial_count"] == 0
+    assert final["records"][0]["bh_q_value"] == pytest.approx(0.04)
+    assert final["records"][1]["bh_q_value"] == pytest.approx(0.5)
+
+
+def test_standalone_adjustments_still_refuse_empty_completed_p_values() -> None:
+    from marketlab.rta001 import benjamini_hochberg
+
+    with pytest.raises(AlphaContractError, match="no completed p-values"):
+        benjamini_hochberg([])
