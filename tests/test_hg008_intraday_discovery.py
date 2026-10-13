@@ -136,7 +136,7 @@ def test_forged_or_malformed_official_original_json_is_blocked() -> None:
             request_start=date(2026, 10, 13), request_end=date(2026, 10, 14),
             observed_at_utc=OBSERVED,
         )
-    with pytest.raises(ValueError, match="explicit announcement rows"):
+    with pytest.raises(TypeError, match="explicit announcement rows"):
         _build({"error": "HTTP BLOCKED"})
     with pytest.raises(ValueError, match="malformed or unbounded"):
         _build({"data": [None]})
