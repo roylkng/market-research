@@ -8529,9 +8529,122 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-13T17:05:20.281387+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "913e277d72aa7edad30877d5379a40ef710cadb5fef98364e66d036ab92dc676",
+      "captured_at": "2026-10-13T17:11:01.536611+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "818f673b3cdb96ae8ec4e466c7c4fd3a28d035482173a675dd24f9437a3ecd99",
+      "identity_session": "2026-10-12",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "77202f91435a04dd0e0aeaaf9f8c6d6e81bee709d9172af8fb3953a8bcb7f085",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-10-13T17:10:25.676564+00:00"
     }
   ],
-  "ledger_sha256": "cd48b81f1ebd1280c1e38bf63df5b6204392bc49ba4714263e1b865a31192db6",
+  "ledger_sha256": "7937a475b0a7d5c8bd63f283853f10559343b4a6b8a0b5f5508c9fbb89bf4ab1",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -681549,6 +681662,30 @@
         "CAPACITY_INVESTMENT",
         "POLICY_REGULATION"
       ]
+    },
+    {
+      "capture_id": "913e277d72aa7edad30877d5379a40ef710cadb5fef98364e66d036ab92dc676",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-13T17:10:53.992531+00:00",
+      "item_id": "deab89c24047c80302322a0dac0f48d08f6ea61f09b8c461ae1def861f9e09be",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2bc99057f42f6e74bfd7c0afda3c212796100ab685c8178609bcd67fab0d85d0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 13 Oct 2026 22:37:42 +0530",
+        "value": "2026-10-13T17:07:42+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/noel-tata-son-neville-file-caveat-against-sdtt-trustees-amid-tata-trusts-dispute-report-11791910617314.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "9462967ba80b66939957a619e8d9057f4e729277bc9fc00125b0765ce8484394",
+      "topics": []
     }
   ],
   "schema_version": 1
