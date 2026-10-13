@@ -1,0 +1,106 @@
+name: AE001 T012 original-source prospective outcomes
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 14 * * 1-5'
+    - cron: '30 17 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ae001-t012-original-outcomes
+  cancel-in-progress: false
+
+jobs:
+  mature:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Refresh main, fail on queued frozen-rule changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          EVENT_SHA="$GITHUB_SHA"
+          git fetch origin main
+          MAIN_SHA="$(git rev-parse origin/main)"
+          RULE_PATHS=(".github/workflows/ae001-t012-outcomes.yml" "registry/ae001_t012_outcomes.yaml" "research/AE001_T012_PROSPECTIVE_OUTCOME_P1_20261014.md" "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json" "src/marketlab/alpha_t012_outcomes.py" "scripts/advance_ae001_t012_outcomes.py" "scripts/verify_ae001_t012_outcomes.py")
+          if [ "$EVENT_SHA" != "$MAIN_SHA" ]; then
+            if ! git diff --quiet "$EVENT_SHA" "$MAIN_SHA" -- "${RULE_PATHS[@]}"; then
+              echo "T012 immutable outcome protocol/code changed during queued event"
+              exit 1
+            fi
+          fi
+          git checkout --detach "$MAIN_SHA"
+          echo "OUTCOME_BASE_SHA=$MAIN_SHA" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify source replay and evaluation implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/alpha_t012_outcomes.py scripts/advance_ae001_t012_outcomes.py scripts/verify_ae001_t012_outcomes.py tests/test_alpha_t012_outcomes.py
+          pytest -q tests/test_alpha_t012_outcomes.py tests/test_alpha_t012_decisions.py tests/test_alpha_t012_preopen.py
+          python scripts/verify_ae001_t012_decisions.py
+          python scripts/verify_ae001_t012_outcomes.py
+
+      - name: Acquire original NSE source only after actual holding maturity
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="reports/ae001-t012-outcomes/run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$WORK"
+          python scripts/advance_ae001_t012_outcomes.py --work-dir "$WORK" --attempts 3 --timeout-seconds 30 | tee "$WORK/run.log"
+          python scripts/verify_ae001_t012_outcomes.py
+
+      - name: Anchor signed outcomes, source bytes and prospective trial results
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/ae001-t012 research/ae001/trial-ledger.json research/rta001-trials-v1.json research/rta001-summary-v1.json
+          if git diff --cached --quiet; then
+            echo "No new original-source outcome evidence"
+            exit 0
+          fi
+          git commit -m "AE001 T012: seal original-source matured outcomes [skip ci]"
+          CRITICAL=(".github/workflows/ae001-t012-outcomes.yml" "registry/ae001_t012_outcomes.yaml" "research/AE001_T012_PROSPECTIVE_OUTCOME_P1_20261014.md" "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json" "research/prospective/ae001-t012" "research/ae001/trial-ledger.json" "research/rta001-trials-v1.json" "research/rta001-summary-v1.json" "src/marketlab/alpha_t012_outcomes.py" "scripts/advance_ae001_t012_outcomes.py" "scripts/verify_ae001_t012_outcomes.py")
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            LATEST="$(git rev-parse origin/main)"
+            if [ "$OUTCOME_BASE_SHA" != "$LATEST" ]; then
+              if ! git diff --quiet "$OUTCOME_BASE_SHA" "$LATEST" -- "${CRITICAL[@]}"; then
+                echo "T012 outcome source, policy or trial lineage changed during run"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_ae001_t012_decisions.py
+              python scripts/verify_ae001_t012_outcomes.py
+            fi
+            if git push origin HEAD:main; then
+              echo "Original source-backed prospective outcomes anchored"
+              exit 0
+            fi
+            sleep "$((RETRY * 2))"
+          done
+          echo "T012 outcome commit could not be anchored"
+          exit 1
+
+      - name: Upload diagnostics, not substitutes for official source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ae001-t012-outcome-operational-log
+          path: reports/ae001-t012-outcomes
+          retention-days: 90
+          if-no-files-found: warn
