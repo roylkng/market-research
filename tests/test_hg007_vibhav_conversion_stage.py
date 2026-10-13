@@ -91,7 +91,7 @@ def test_forged_completion_or_retroactive_oct7_ownership_is_rejected() -> None:
         reconcile_oct09_status(fake, receipts)
     fake = deepcopy(a)
     fake["new_oct09"]["wwil_undertaking_transfer_completed"] = True
-    with pytest.raises(ValueError, match="Oct9 original source"):
+    with pytest.raises(ValueError, match="original Oct9 postconversion"):
         reconcile_oct09_status(fake, receipts)
 
 
