@@ -188,7 +188,10 @@ def admit_t012_preopen(
         raise AlphaContractError("T012 requires one linked timely D futures source")
     futures = futures_attempts[0]
     cash = cash_attempts[futures["sc001_attempt_sha256"]]
-    if _utc(cash["captured_at_utc"], label="cash capture") > sealed:
+    cash_captured = _utc(cash["captured_at_utc"], label="cash capture")
+    if cash_captured < _utc(target_close, label="target_close"):
+        raise AlphaContractError("T012 cash evidence predates D close")
+    if cash_captured > sealed:
         raise AlphaContractError("T012 cash evidence observed after decision")
     if _utc(cash["captured_at_utc"], label="cash capture") > decision_cutoff_utc(
         feature_session
