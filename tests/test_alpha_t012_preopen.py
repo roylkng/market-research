@@ -165,3 +165,16 @@ def test_future_futures_raw_missing_fails_closed() -> None:
             sc001_ledger=cash,
             **args,
         )
+
+
+def test_t012_rejects_rewritten_failed_source_probe_even_with_valid_new_hashes() -> None:
+    args = _inputs()
+    ledger = args["sc003_ledger"]
+    failure = ledger["attempts"][0]
+    assert failure["ready_before_preopen_cutoff"] is False
+    failure.pop("attempt_sha256")
+    failure["source_url"] = "https://example.invalid/revised-old-probe"
+    failure["attempt_sha256"] = digest(failure)
+    _resign_ledger(ledger)
+    with pytest.raises(AlphaContractError, match="sealed SC003 evidence prefix changed"):
+        require_t012_registration(**args)
