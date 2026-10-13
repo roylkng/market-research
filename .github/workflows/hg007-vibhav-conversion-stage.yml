@@ -1,0 +1,100 @@
+name: HG007 dated Vibhav minority equity stage reconciliation
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg007_vibhav_conversion_stage.py
+      - scripts/reconcile_hg007_oct09_vibhav_conversion.py
+      - tests/test_hg007_vibhav_conversion_stage.py
+      - .github/workflows/hg007-vibhav-conversion-stage.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg007_vibhav_conversion_stage.py
+      - scripts/reconcile_hg007_oct09_vibhav_conversion.py
+      - tests/test_hg007_vibhav_conversion_stage.py
+      - .github/workflows/hg007-vibhav-conversion-stage.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-vibhav-oct09-completion-vs-bta
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify immutable source hierarchy and independent 28-case overlay
+        run: |
+          ruff check src/marketlab/hg007_vibhav_conversion_stage.py scripts/reconcile_hg007_oct09_vibhav_conversion.py tests/test_hg007_vibhav_conversion_stage.py
+          pytest -q tests/test_hg007_vibhav_conversion_stage.py
+      - name: Reproduce dated 7 Oct proposal and 9 Oct completed minority conversion
+        run: |
+          python scripts/reconcile_hg007_oct09_vibhav_conversion.py \
+            --out /tmp/hg007-oct09-vepl-stage-v1.json
+          test -s /tmp/hg007-oct09-vepl-stage-v1.json
+      - name: Anchor current-stage overlay after checked main merge only
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg007/hg007-p046-28-case-vibhav-conversion-stage-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/reconcile_hg007_oct09_vibhav_conversion.py \
+              --out "$TARGET" --verify-existing
+            echo "Original stage correction already published"
+            exit 0
+          fi
+          mkdir -p "$(dirname "$TARGET")"
+          cp /tmp/hg007-oct09-vepl-stage-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG007: source-seal Oct9 VEPL 75-25 conversion not WWIL BTA closing [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Another source outcome already published; refuse overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_SHA" -- \
+              research/hg007/wwil-oct09-vibhav-conversion \
+              research/hg007/wwil-bse-original/reconciled-issuer-terms-v1.json \
+              research/hg007/hg007-p044-inoxgreen-publication-safe-fd-v1.json \
+              research/hg007/hg007-p009-28-case-capital-readiness-overlay-v1.json \
+              src/marketlab/hg007_vibhav_conversion_stage.py; then
+              echo "Original/derived frozen source changed mid-review"
+              exit 1
+            fi
+            if [[ "$NEW_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Preserve all source-pinned evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg007-vepl-75-25-source-reconciliation
+          path: /tmp/hg007-oct09-vepl-stage-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
