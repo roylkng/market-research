@@ -128,3 +128,54 @@ def test_source_gate_cli_cannot_promote_untrusted_workflow_completion(
     assert packet["state"] == "UNTRUSTED_UPSTREAM"
     assert packet["missed_past_market_cutoff_backfill_authorized"] is False
     assert "state=UNTRUSTED_UPSTREAM\n" in output.read_text(encoding="utf-8")
+
+
+def test_two_stage_runtime_cutoff_preflight_skips_setup_but_rechecks_after_tests() -> None:
+    workflow = yaml.safe_load(WORKFLOW_PATH.read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["probe"]["steps"]
+    named = {
+        item.get("name"): (index, item)
+        for index, item in enumerate(steps)
+        if isinstance(item, dict) and item.get("name")
+    }
+    first_index, preflight = named[
+        "Fast actual-UTC source-window preflight before costly setup"
+    ]
+    install_index, install = named["Install"]
+    verify_index, verify = named[
+        "Verify SC001 and T004 implementation before source access"
+    ]
+    last_index, last_gate = named[
+        "Resolve observed runner window, not upstream event timestamp"
+    ]
+    fetch_index, fetch = named["Probe same-session official NSE sources"]
+    assert first_index < install_index < verify_index < last_index < fetch_index
+    assert preflight["id"] == "preflight"
+    assert last_gate["id"] == "gate"
+    assert "PYTHONPATH=src python scripts/resolve_ae001_sc001_runner_window.py" in (
+        preflight["run"]
+    )
+    assert "python scripts/resolve_ae001_sc001_runner_window.py" in (
+        last_gate["run"]
+    )
+    assert install["if"] == "steps.preflight.outputs.state == 'READY'"
+    assert verify["if"] == "steps.preflight.outputs.state == 'READY'"
+    assert last_gate["if"] == "steps.preflight.outputs.state == 'READY'"
+    assert fetch["if"] == "steps.gate.outputs.state == 'READY'"
+
+
+def test_runner_window_can_expire_during_tests_without_retroactive_eligibility() -> None:
+    before_expiry = resolve_sc001_source_window(
+        observed_at_utc=datetime.fromisoformat("2026-10-14T12:59:55+00:00"),
+        event_name="workflow_run",
+        upstream_head_branch="main",
+    )
+    after_tests = resolve_sc001_source_window(
+        observed_at_utc=datetime.fromisoformat("2026-10-14T13:00:02+00:00"),
+        event_name="workflow_run",
+        upstream_head_branch="main",
+    )
+    assert before_expiry["state"] == "READY"
+    assert after_tests["state"] == "OUTSIDE_PROSPECTIVE_WINDOW"
+    assert before_expiry["missed_past_market_cutoff_backfill_authorized"] is False
+    assert after_tests["missed_past_market_cutoff_backfill_authorized"] is False
