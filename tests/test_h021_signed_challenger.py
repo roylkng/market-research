@@ -265,3 +265,36 @@ def test_cli_forbids_early_or_late_renamed_output(tmp_path: Path) -> None:
     )
     assert result.returncode != 0
     assert "output path/date mismatch" in result.stderr
+
+
+
+def test_new_challenger_github_workflow_yaml_and_registration_heredoc_compile() -> None:
+    import re
+
+    import yaml
+
+    path = Path(".github/workflows/h021-signed-eps-challenger.yml")
+    document = yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+    assert document["name"] == "H021S001 preregistered signed EPS prospective challenger"
+    assert document["on"]["workflow_run"]["workflows"] == [
+        "H021 weekly consensus capture"
+    ]
+    assert document["on"]["workflow_dispatch"] == ""
+    assert len(document["on"]["schedule"]) == 2
+    jobs = document["jobs"]
+    assert set(jobs) == {"capture"}
+    steps = jobs["capture"]["steps"]
+    gate = next(step for step in steps if step.get("id") == "gate")
+    assert "H021_DIRECTION_COMPARATORS_V1" in gate["run"]
+    assert "H021S001" in gate["run"]
+    fragments = re.findall(
+        r"<<'PY'\n(.*?)\nPY(?:\n|$)", gate["run"], flags=re.DOTALL
+    )
+    assert len(fragments) == 2
+    for fragment in fragments:
+        compile(fragment, str(path), "exec")
+    assert any(
+        step.get("name") == "Anchor original immutable challenger or refuse late publication"
+        and "next open already passed" in step["run"]
+        for step in steps
+    )
