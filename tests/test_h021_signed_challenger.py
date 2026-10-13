@@ -222,11 +222,11 @@ def test_currency_switch_and_modified_fiscal_period_rejected() -> None:
 
 def test_missing_immutable_inputs_and_modified_output_digest_rejected() -> None:
     fixture = _sample()
-    kwargs = dict(
-        comparison=fixture[0], prior=fixture[1], current=fixture[2],
-        manifest=fixture[3], universe=fixture[4], calendar=fixture[5],
-        prepared_at_utc="2026-10-16T12:00:00Z",
-    )
+    kwargs = {
+        "comparison": fixture[0], "prior": fixture[1], "current": fixture[2],
+        "manifest": fixture[3], "universe": fixture[4], "calendar": fixture[5],
+        "prepared_at_utc": "2026-10-16T12:00:00Z",
+    }
     with pytest.raises(ValueError, match="original H021 SHA-256"):
         build_signed_challenger_intent(
             **kwargs,
