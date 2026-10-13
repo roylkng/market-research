@@ -1,5 +1,7 @@
 from datetime import UTC, date, datetime
 
+import pytest
+
 from marketlab.alpha import digest
 from marketlab.alpha_prospective_futures_sources import (
     new_futures_source_ledger,
@@ -8,7 +10,12 @@ from marketlab.alpha_prospective_sources import new_source_ledger
 from marketlab.alpha_sc003_preopen import new_sc003_ledger
 from marketlab.alpha_t004_readiness import build_t004_readiness
 from marketlab.calendar_snapshot import build_calendar_snapshot
-from marketlab.prospective_health import build_prospective_health_summary
+from marketlab.prospective_health import (
+    _latest_expected_session,
+    _sc001_state,
+    build_prospective_health_summary,
+    health_clock_markers,
+)
 from marketlab.rm001_c002 import new_forecast_ledger, new_outcome_ledger
 from marketlab.rm001_industry_timing import new_industry_source_ledger
 from marketlab.rm001_size_timing import new_size_source_ledger
@@ -297,3 +304,110 @@ def test_health_confirms_t006_timing_infeasible_only_after_five_late_ready_sessi
         summary["components"]["T006"]["state"]
         == "BLOCKED_BY_CONFIRMED_SC002_TIMING_INFEASIBILITY"
     )
+
+
+def test_2026_oct13_morning_health_does_not_prematurely_expect_today_sc001() -> None:
+    # 09:50 IST is 04:20Z, long before today's NSE market close and
+    # independently before the SC001 official market/delivery 18:30 cutoff.
+    morning = health_clock_markers("2026-10-13T04:20:00Z")
+    assert morning == {
+        "as_of_date": "2026-10-13",
+        "after_market_close": False,
+        "sc001_source_cutoff_passed": False,
+    }
+    calendar = _calendar()
+    expected = _latest_expected_session(
+        calendar,
+        as_of_date=date.fromisoformat(str(morning["as_of_date"])),
+        after_market_close=bool(morning["sc001_source_cutoff_passed"]),
+    )
+    assert expected == "2026-10-12"
+
+    source = _sc001_ready()
+    source["attempts"][0]["session_date"] = "2026-10-12"
+    source["attempts"][0]["captured_at_utc"] = "2026-10-12T12:00:00+00:00"
+    source["attempts"][0]["decision_cutoff_utc"] = "2026-10-12T13:00:00+00:00"
+    source["attempts"][0]["attempt_sha256"] = digest(
+        {k: v for k, v in source["attempts"][0].items() if k != "attempt_sha256"}
+    )
+    _rehash(source)
+    assert _sc001_state(source, expected_session=expected)["state"] == "HEALTHY"
+    assert _sc001_state(source, expected_session="2026-10-13")["state"] == "STALE"
+
+
+@pytest.mark.parametrize(
+    ("instant", "expected_market_close", "expected_sc001_due"),
+    [
+        ("2026-10-13T09:59:59Z", False, False),  # 15:29:59 IST
+        ("2026-10-13T10:00:00Z", True, False),   # 15:30 IST
+        ("2026-10-13T12:59:59Z", True, False),   # 18:29:59 IST
+        ("2026-10-13T13:00:00Z", True, True),    # 18:30 IST
+        ("2026-10-13T15:00:00Z", True, True),    # 20:30 IST
+    ],
+)
+def test_market_close_and_source_cutoff_are_distinct(
+    instant: str, expected_market_close: bool, expected_sc001_due: bool
+) -> None:
+    markers = health_clock_markers(instant)
+    assert markers["as_of_date"] == "2026-10-13"
+    assert markers["after_market_close"] is expected_market_close
+    assert markers["sc001_source_cutoff_passed"] is expected_sc001_due
+    expected = _latest_expected_session(
+        _calendar(),
+        as_of_date=date(2026, 10, 13),
+        after_market_close=bool(markers["sc001_source_cutoff_passed"]),
+    )
+    assert expected == ("2026-10-13" if expected_sc001_due else "2026-10-12")
+
+
+@pytest.mark.parametrize("invalid", [
+    "2026-10-13T04:20:00",
+    "2026-10-13",
+    "2026-10-13T09:50:00+05:30",
+    "not-a-timestamp",
+])
+def test_health_snapshot_utc_requires_real_timezone_specific_instant(invalid: str) -> None:
+    with pytest.raises(ValueError):
+        health_clock_markers(invalid)
+
+
+def test_health_summary_uses_after_source_due_flag_for_sc001_expectation() -> None:
+    t004_d, t004_o = _empty_trial("T004")
+    t006_d, t006_o = _empty_trial("T006")
+    params = {
+        "as_of_date": "2026-10-05",
+        "after_market_close": True,
+        "calendar": _calendar(),
+        "sc001_ledger": _sc001_ready(),
+        "sc002_ledger": new_futures_source_ledger(),
+        "sc003_ledger": new_sc003_ledger(),
+        "rm001_sc001_size_ledger": new_size_source_ledger(),
+        "rm001_sc002_industry_ledger": new_industry_source_ledger(),
+        "t004_decision_ledger": t004_d,
+        "t004_outcome_ledger": t004_o,
+        "t004_readiness": _t004_warmup(),
+        "t006_decision_ledger": t006_d,
+        "t006_outcome_ledger": t006_o,
+        "c002_forecast_ledger": new_forecast_ledger(),
+        "c002_outcome_ledger": new_outcome_ledger(),
+        "h024_summary": {"primary_classification": "INSUFFICIENT_COVERAGE"},
+    }
+    old = build_prospective_health_summary(**params)
+    assert old["components"]["SC001"]["state"] == "STALE"
+    assert old["sc001_source_cutoff_passed"] is True
+
+    before_due = build_prospective_health_summary(
+        **params, sc001_source_cutoff_passed=False
+    )
+    assert before_due["after_market_close"] is True
+    assert before_due["sc001_source_cutoff_passed"] is False
+    assert before_due["latest_expected_market_session"] == "2026-10-01"
+    assert before_due["components"]["SC001"]["state"] == "HEALTHY"
+    assert "SC001_STALE" not in before_due["blockers"]
+    assert "T006_SOURCE_TIMING" in before_due["blockers"]
+
+    with pytest.raises(ValueError, match="source cutoff cannot pass"):
+        build_prospective_health_summary(
+            **{**params, "after_market_close": False},
+            sc001_source_cutoff_passed=True,
+        )
