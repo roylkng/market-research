@@ -13,7 +13,7 @@ AE001-T012 is a distinct, preregistered prospective test of the same-session-D f
 - Frozen NSE CM calendar: \`NSE-CM-FY27Q2-v1\`, hash \`2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce\`.
 - AE001-SC003 official F&O source first available before the following trading morning's 08:30 IST cutoff for **three distinct target sessions: October 1, 5, 12, 2026**.
 - These three observations test timing only. None may become a retrospective T012 prediction.
-- First permitted new **feature/target session D: 2026-10-14**. First possible entry **N: 2026-10-15**, conditional on all source, model, delivery, corporate-action, and common-stock gates. No schedule assures eligibility.
+- First permitted new **feature/target session D: 2026-10-15**. First possible entry **N: 2026-10-16**, conditional on all source, model, delivery, corporate-action, and common-stock gates. No schedule assures eligibility.
 
 ## Frozen decision clock
 
