@@ -191,3 +191,30 @@ def test_official_network_failure_retains_explicit_receipt(
     assert not (tmp_path / "source-clock.json").exists()
     assert not (tmp_path / "original").exists()
     assert receipt["first_seen_forecast_published"] is False
+
+
+
+def test_source_schema_failure_still_preserves_exact_original_response(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    # A malformed NSE schema must be auditable from its original bytes,
+    # but never exposed as a valid first-seen announcement or probability.
+    payload = {"error": "unrecognized official NSE envelope"}
+    raw = json.dumps(payload, sort_keys=True).encode()
+
+    def acquire(**kwargs):
+        return payload, raw
+
+    monkeypatch.setattr(collector, "_now", lambda: OBSERVED)
+    receipt = collector.capture_once(
+        observed_at_utc=OBSERVED, acquire=acquire, out_dir=tmp_path
+    )
+    assert receipt["state"] == "SOURCE_UNAVAILABLE_OR_SCHEMA_BLOCKED_NO_FORECAST"
+    sha = hashlib.sha256(raw).hexdigest()
+    assert receipt["original_source_sha256"] == sha
+    retained = tmp_path / "original" / "sha256" / f"{sha}.json.gz"
+    assert gzip.decompress(retained.read_bytes()) == raw
+    assert receipt["packet_sha256"] is None
+    assert not (tmp_path / "source-clock.json").exists()
+    assert receipt["first_seen_forecast_published"] is False
+    assert receipt["live_capital_allowed"] is False
