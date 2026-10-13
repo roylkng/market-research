@@ -192,7 +192,15 @@ def _official_url(url: object) -> bool:
         return False
     try:
         p = urlsplit(url)
-        return p.scheme == "https" and p.hostname in SOURCE_HOSTS and p.port in (None,443) and p.username is None and p.password is None and not p.fragment
+        return (
+            p.scheme == "https"
+            and p.hostname in SOURCE_HOSTS
+            and p.port in (None, 443)
+            and p.username is None
+            and p.password is None
+            and p.path.endswith(".pdf")
+            and not p.fragment
+        )
     except ValueError:
         return False
 
@@ -222,8 +230,13 @@ def freeze_new_event_forecast(
     source_url = event.get("source_url")
     if not _official_url(source_url):
         raise ValueError("only original approved exchange disclosure URL allowed")
-    if not isinstance(original_notice_bytes, bytes) or len(original_notice_bytes) < 300:
-        raise ValueError("original notice bytes must be retained, not a synthetic text digest")
+    if (
+        not isinstance(original_notice_bytes, bytes)
+        or len(original_notice_bytes) < 300
+        or not original_notice_bytes.startswith(b"%PDF-")
+        or b"%%EOF" not in original_notice_bytes[-2048:]
+    ):
+        raise ValueError("original exchange PDF bytes must have a valid source envelope")
     original_sha = hashlib.sha256(original_notice_bytes).hexdigest()
     if event.get("original_notice_sha256") != original_sha:
         raise ValueError("event notice SHA-256 does not match source bytes")
