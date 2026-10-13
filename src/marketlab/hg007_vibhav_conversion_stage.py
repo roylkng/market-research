@@ -8,11 +8,14 @@ not by itself create new cash or a listed-share price target.
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import math
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
+
+from pypdf import PdfReader
 
 SOURCES = {
     "old_oct07": (
@@ -58,8 +61,6 @@ def load_pinned_sources(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
             "path": rel, "git_blob_sha": expected,
             "original_raw_sha256": hashlib.sha256(raw).hexdigest(),
         }
-    from scripts.probe_hg007_vibhav_oct09_original import verify_original_oct9
-
     original = (
         root / "research/hg007/wwil-oct09-vibhav-conversion/raw/sha256"
         / f"{ORIGINAL_OCT09_PDF_SHA}.pdf"
@@ -72,10 +73,18 @@ def load_pinned_sources(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         "original_pdf_size"
     ) != len(bytes_pdf):
         raise ValueError("original PDF/issuer receipt identity mismatch")
-    if verify_original_oct9(bytes_pdf) != captured.get(
-        "text_verified_disclosure_fields_not_investment_approval"
-    ):
-        raise ValueError("original 9 Oct source text does not reproduce")
+    pages = list(PdfReader(io.BytesIO(bytes_pdf), strict=False).pages)
+    if len(pages) != 2:
+        raise ValueError("original 9 Oct PDF must have exactly two verified pages")
+    expected_page_hashes = captured.get(
+        "text_verified_disclosure_fields_not_investment_approval", {}
+    ).get("page_text_sha256")
+    actual_page_hashes = [
+        hashlib.sha256((page.extract_text() or "").encode()).hexdigest()
+        for page in pages
+    ]
+    if actual_page_hashes != expected_page_hashes:
+        raise ValueError("original 9 Oct text pages do not match first source capture")
     receipts["new_oct09_pdf"] = {
         "path": str(original.relative_to(root)),
         "raw_sha256": ORIGINAL_OCT09_PDF_SHA,
@@ -178,6 +187,7 @@ def reconcile_oct09_status(inputs: dict[str, Any], receipts: dict[str, Any]) -> 
                 "new_cash_inflow_from_conversion": False,
                 "wwil_underlying_om_business_transfer_completed_verified": False,
                 "completion_probability_or_target_price_validated": False,
+                "stock_or_portfolio_approval": False,
             }
         casework.append(case)
     return {
