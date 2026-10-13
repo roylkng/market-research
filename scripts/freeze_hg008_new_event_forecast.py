@@ -12,8 +12,11 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from marketlab.hg008_event_forecast import freeze_new_event_forecast
-from scripts.build_hg008_event_baselines import build
+from marketlab.hg008_event_forecast import (
+    build_first_seen_baselines,
+    freeze_new_event_forecast,
+    load_baseline_sources,
+)
 
 
 def main() -> None:
@@ -27,7 +30,8 @@ def main() -> None:
     if not isinstance(event,dict):
         raise TypeError("new event must be structured original-source record")
     original=args.original_source.read_bytes()
-    baseline=build(args.repo_root)
+    d004, previous_cases, receipts = load_baseline_sources(args.repo_root)
+    baseline=build_first_seen_baselines(d004, previous_cases, receipts)
     event_forecast=freeze_new_event_forecast(
         baseline,
         event=event,
