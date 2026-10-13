@@ -89,7 +89,9 @@ jobs:
           print(item['state'])
           PY
           )"
-          if [[ "$STATE" == ORIGINAL_NSE_INTRADAY_ANNOUNCEMENTS_CAPTURED_SOURCE_ONLY ]]; then
+          SOURCE=""
+          TARGET_RAW=""
+          if [[ -d "$HG008_ORIGINAL_OUT/original/sha256" ]]; then
             SOURCE="$(find "$HG008_ORIGINAL_OUT/original/sha256" -maxdepth 1 -type f -name '*.json.gz' -print -quit)"
             [[ -n "$SOURCE" && -f "$SOURCE" ]]
             SHA="$(basename "$SOURCE" .json.gz)"
@@ -99,15 +101,24 @@ jobs:
             else
               cp "$SOURCE" "$TARGET_RAW"
             fi
-            python - "$ATTEMPT" "$TARGET_RAW" "$HG008_ORIGINAL_OUT/source-clock.json" <<'PY'
+            python - "$ATTEMPT" "$TARGET_RAW" <<'PY'
           import gzip,hashlib,json,sys
+          from pathlib import Path
+          receipt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          raw=gzip.decompress(Path(sys.argv[2]).read_bytes())
+          assert hashlib.sha256(raw).hexdigest()==receipt['original_source_sha256']
+          assert receipt['first_seen_forecast_published'] is False
+          PY
+          fi
+          if [[ "$STATE" == ORIGINAL_NSE_INTRADAY_ANNOUNCEMENTS_CAPTURED_SOURCE_ONLY ]]; then
+            [[ -n "$SOURCE" && -f "$HG008_ORIGINAL_OUT/source-clock.json" ]]
+            python - "$ATTEMPT" "$HG008_ORIGINAL_OUT/source-clock.json" <<'PY'
+          import json,sys
           from pathlib import Path
           from marketlab.hg008_intraday_discovery import validate_discovery_packet
           receipt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
-          raw=gzip.decompress(Path(sys.argv[2]).read_bytes())
-          packet=json.loads(Path(sys.argv[3]).read_text(encoding='utf-8'))
+          packet=json.loads(Path(sys.argv[2]).read_text(encoding='utf-8'))
           validate_discovery_packet(packet)
-          assert hashlib.sha256(raw).hexdigest()==receipt['original_source_sha256']
           assert packet['source_original_raw_sha256']==receipt['original_source_sha256']
           assert packet['packet_sha256']==receipt['packet_sha256']
           assert packet['hg008_valid_forecasts_frozen']==0
