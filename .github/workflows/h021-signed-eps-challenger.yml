@@ -54,13 +54,19 @@ jobs:
           from pathlib import Path
           manifest=json.loads(Path("research/rta001-trials-v1.json").read_text())
           trials=[r for r in manifest["trials"] if r["trial_id"]=="H021S001"]
-          if (len(trials)!=1
-    or trials[0]["result_state"]!="PREREGISTERED_AWAITING_FIRST_COHORT"
-    or trials[0].get("fdr_family")!="H021_DIRECTION_COMPARATORS_V1"
-    or len([r for r in manifest["trials"]
-            if r["trial_id"]=="H021"
-            and r.get("fdr_family")=="H021_DIRECTION_COMPARATORS_V1"])!=1
-    or manifest["fdr_families"].get("H021_DIRECTION_COMPARATORS_V1", {}).get("alpha")!=0.05):
+          if (
+              len(trials) != 1
+              or trials[0]["result_state"] != "PREREGISTERED_AWAITING_FIRST_COHORT"
+              or trials[0].get("fdr_family") != "H021_DIRECTION_COMPARATORS_V1"
+              or len([
+                  r for r in manifest["trials"]
+                  if r["trial_id"] == "H021"
+                  and r.get("fdr_family") == "H021_DIRECTION_COMPARATORS_V1"
+              ]) != 1
+              or manifest["fdr_families"].get(
+                  "H021_DIRECTION_COMPARATORS_V1", {}
+              ).get("alpha") != 0.05
+          ):
               raise SystemExit("signed challenger has no pre-capture global trial registration")
           print("H021S001 explicit new trial registered")
           PY
