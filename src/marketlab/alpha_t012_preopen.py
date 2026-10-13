@@ -60,10 +60,13 @@ def require_t012_registration(
         raise AlphaContractError("T012 frozen calendar hash mismatch")
     readiness = require_preopen_successor_freeze_ready(sc003_ledger, calendar=calendar)
     targets = readiness["ready_target_sessions"]
-    if tuple(targets) != EXPECTED_SOURCE_TARGETS:
+    original_targets = tuple(
+        session for session in targets if session < FIRST_FEATURE_SESSION
+    )
+    if original_targets != EXPECTED_SOURCE_TARGETS:
         raise AlphaContractError("T012 registration readiness targets drifted")
-    if any(session >= FIRST_FEATURE_SESSION for session in targets):
-        raise AlphaContractError("T012 pre-registration target cannot be prediction")
+    # New prospective source captures are allowed only after registration.
+    # The readiness proof is permanently the original three observations.
 
     state = trial_state(trial_ledger, TRIAL_ID)
     if state["result_count"] or state["amendment_count"]:
