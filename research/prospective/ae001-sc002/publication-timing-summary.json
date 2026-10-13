@@ -1,14 +1,14 @@
 {
   "additional_distinct_ready_sessions_needed": 0,
   "analysis_id": "AE001-SC002-PUBLICATION-TIMING-v1",
-  "candidate_cutoff_basis_session": "2026-10-08",
-  "candidate_cutoff_ist": "00:00:00",
+  "candidate_cutoff_basis_session": "2026-10-13",
+  "candidate_cutoff_ist": "00:15:00",
   "candidate_cutoff_session_offset_days": 1,
   "candidate_rule": "LATEST_FIRST_READY_PLUS_30_MINUTES_ROUNDED_UP_TO_NEXT_15_MINUTES",
-  "distinct_ready_session_count": 6,
-  "latest_first_ready_at_ist": "2026-10-08T23:20:22.317769+05:30",
+  "distinct_ready_session_count": 7,
+  "latest_first_ready_at_ist": "2026-10-13T23:38:27.649167+05:30",
   "live_capital_allowed": false,
-  "median_first_ready_local_seconds": 82385.9491765,
+  "median_first_ready_local_seconds": 82519.416763,
   "minimum_distinct_ready_sessions": 3,
   "observations": [
     {
@@ -70,14 +70,24 @@
       "futures_raw_sha256": "3db31a70f80a3d3c3ee2f58c1ce0ec16d9f826b3b02f8553ab86f1288e422276",
       "local_seconds_after_session_midnight": 82519.416763,
       "session_date": "2026-10-09"
+    },
+    {
+      "attempt_seq": 98,
+      "attempt_sha256": "1ab00425b5866c3e3ea45cbf0ef5de46fee4782372380175a46b9a366f07d5de",
+      "captured_at_ist": "2026-10-13T23:38:27.649167+05:30",
+      "captured_at_utc": "2026-10-13T18:08:27.649167+00:00",
+      "eligible_before_1830": false,
+      "futures_raw_sha256": "d60574a1e4e3d6a805f6988cfb7853d89bdce0f4f33d192efaaa17b0d199d389",
+      "local_seconds_after_session_midnight": 85107.649167,
+      "session_date": "2026-10-13"
     }
   ],
   "rounding_minutes": 15,
   "safety_buffer_minutes": 30,
   "schema_version": 1,
-  "source_ledger_sha256": "4ab57112d2ea417da1a8b2afee527b8720e3f0b735c1631b4abb43ab5801941f",
+  "source_ledger_sha256": "4910172875dda0df7511748ef0be9237ed4bac72f7ce999d6616279239742420",
   "state": "SOURCE_TIMING_READY_FOR_SUCCESSOR_DESIGN",
   "successor_trial_cutoff_frozen": false,
-  "summary_sha256": "0b490955106e4b50b691db22f398186c5628cfd44cb19258d033c569926e7f3b",
+  "summary_sha256": "c5e7b8c44ea0d40079ffef77962c9df3982a50bd03dd75132913d59a72f1e6bb",
   "uses_stock_return_or_alpha_outcomes": false
 }
