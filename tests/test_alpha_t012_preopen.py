@@ -178,3 +178,26 @@ def test_t012_rejects_rewritten_failed_source_probe_even_with_valid_new_hashes()
     _resign_ledger(ledger)
     with pytest.raises(AlphaContractError, match="sealed SC003 evidence prefix changed"):
         require_t012_registration(**args)
+
+
+def test_t012_rejects_cash_source_timestamp_before_frozen_close() -> None:
+    args = _inputs()
+    cash, futures = _future_sources()
+    row = cash["attempts"][-1]
+    row.pop("attempt_sha256")
+    row["captured_at_utc"] = "2026-10-15T09:59:59+00:00"
+    row["attempt_sha256"] = digest(row)
+    _resign_ledger(cash)
+    linked = futures["attempts"][-1]
+    linked.pop("attempt_sha256")
+    linked["sc001_attempt_sha256"] = row["attempt_sha256"]
+    linked["attempt_sha256"] = digest(linked)
+    _resign_ledger(futures)
+    args["sc003_ledger"] = futures
+    with pytest.raises(AlphaContractError, match="cash evidence predates D close"):
+        admit_t012_preopen(
+            feature_session=FIRST_FEATURE_SESSION,
+            sealed_at_utc="2026-10-16T02:55:00+00:00",
+            sc001_ledger=cash,
+            **args,
+        )
