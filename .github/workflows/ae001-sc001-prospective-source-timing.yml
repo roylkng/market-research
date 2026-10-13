@@ -5,6 +5,15 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - H022 P001 prospective stream
+      - Company intelligence v2 prospective news capture
+      - HG008 original NSE hourly first-seen discovery clock
+    types:
+      - completed
+    branches:
+      - main
   schedule:
     # Uncommon UTC minutes reduce scheduler contention.
     # UTC -> Asia/Kolkata: 16:37, 17:07, 17:37, 17:57, 18:17, 18:27.
@@ -24,7 +33,12 @@ concurrency:
 
 jobs:
   probe:
-    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
+    if: >-
+      (github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')) &&
+      (github.event_name != 'workflow_run' ||
+       (github.event.workflow_run.head_branch == 'main' &&
+        (contains(github.event.workflow_run.run_started_at, 'T11:') ||
+         contains(github.event.workflow_run.run_started_at, 'T12:'))))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -53,11 +67,15 @@ jobs:
             src/marketlab/alpha_prospective_sources.py \
             src/marketlab/alpha_t004_prospective.py \
             src/marketlab/alpha_t004_readiness.py \
+            scripts/resolve_ae001_sc001_runner_window.py \
+            src/marketlab/ae001_sc001_window.py \
+            tests/test_ae001_sc001_window.py \
             scripts/probe_ae001_sc001.py \
             scripts/verify_ae001_sc001.py \
             scripts/score_ae001_t004_decision.py \
             scripts/verify_ae001_t004_decisions.py \
             scripts/verify_ae001_t004_readiness.py \
+            tests/test_ae001_sc001_window.py \
             tests/test_alpha_prospective_sources.py \
             tests/test_alpha_t004_prospective.py \
             tests/test_alpha_t004_readiness.py
@@ -73,24 +91,13 @@ jobs:
           python scripts/verify_ae001_t004_readiness.py \
             --readiness research/prospective/ae001-t004/readiness.json
 
-      - name: Resolve frozen start boundary
+      - name: Resolve observed runner window, not upstream event timestamp
         id: gate
-        shell: bash
+        env:
+          SC001_UPSTREAM_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
           set -euo pipefail
-          TODAY="$(TZ=Asia/Kolkata date +%F)"
-          NOW_HM="$(TZ=Asia/Kolkata date +%H%M)"
-          EVENT_NAME="${{ github.event_name }}"
-          if [[ "$TODAY" < "2026-09-30" ]]; then
-            STATE="BEFORE_START"
-          elif [[ "$EVENT_NAME" == "push" && ( "$NOW_HM" < "1630" || "$NOW_HM" > "1829" ) ]]; then
-            STATE="OUTSIDE_PUSH_WINDOW"
-          else
-            STATE="READY"
-          fi
-          echo "date=$TODAY" >> "$GITHUB_OUTPUT"
-          echo "state=$STATE" >> "$GITHUB_OUTPUT"
-          echo "SC001 gate: date=$TODAY time=$NOW_HM event=$EVENT_NAME state=$STATE"
+          python scripts/resolve_ae001_sc001_runner_window.py
 
       - name: Probe same-session official NSE sources
         if: steps.gate.outputs.state == 'READY'
@@ -127,6 +134,8 @@ jobs:
               "research/AE001_SC001_PROSPECTIVE_SOURCE_TIMING_PROTOCOL_V1.md"
               "research/prospective/ae001-sc001"
               "src/marketlab/alpha_prospective_sources.py"
+              "scripts/resolve_ae001_sc001_runner_window.py"
+              "src/marketlab/ae001_sc001_window.py"
               "scripts/probe_ae001_sc001.py"
               "scripts/verify_ae001_sc001.py"
             )
