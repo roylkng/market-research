@@ -1,0 +1,52 @@
+schema_version: 1
+id: AE001-T012-OUTCOMES-P1
+trial_id: AE001-T012
+status: FROZEN_BEFORE_FIRST_T012_DECISION
+frozen_date: 2026-10-14
+live_capital_allowed: false
+predecessor: AE001-T006
+cash_market_calendar: research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json
+cash_market_calendar_sha256: 2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce
+source:
+  exchange: NSE
+  stock: OFFICIAL_CM_UDIFF_EQ_SYMBOL_ISIN_PRICE
+  benchmark: OFFICIAL_NIFTY_500_PRICE_INDEX
+  actions: OFFICIAL_NSE_CORPORATE_ACTIONS
+  source_bytes: CONTENT_ADDRESSED_RETAINED
+  source_acquisition: ONLY_AFTER_CORRESPONDING_SESSION_CLOSE
+  missing: PRESERVE_MISSING_NO_BACKFILL_AS_DECISION
+  publication_timestamp: ACTUAL_RETRIEVAL_TIME_NO_BACKDATING
+horizons:
+  primary: 5
+  secondary: 1
+entry:
+  session: NEXT_FROZEN_NSE_CM_TRADING_SESSION_AFTER_FEATURE_D
+  price: ENTRY_SESSION_OFFICIAL_OPEN_PROXY_NO_ACTUAL_FILL
+exit:
+  session: HOLDING_SESSION_H_CLOSE
+  price: OFFICIAL_CLOSE
+  block_if_expected_calendar_session_missing: true
+  reject_unknown_or_duplicate_sessions: true
+  corporate_action_window: ENTRY_THROUGH_EXIT_FAIL_CLOSED
+metrics:
+  target: STOCK_SIMPLE_RETURN_MINUS_NIFTY_500_PRICE_INDEX_SIMPLE_RETURN
+  fixed_predictions: FULL37_MINUS_CORE27_ON_IDENTICAL_STOCK_ROWS
+  primary:
+    minimum_decision_sessions: 60
+    minimum_valid_paired_rank_ic_sessions: 50
+    cohort: SMALLEST_CHRONOLOGICAL_COMPLETE_PREFIX
+    inference: PAIRED_NEWEY_WEST
+    lag: 4
+    both_positive_with_two_sided_p_below: 0.05
+  secondary:
+    inference: PAIRED_NEWEY_WEST
+    lag: 5
+    cannot_rescue_primary: true
+    cohort: SAME_PRIMARY_COHORT_ONLY
+  multiplicity_family: ALPHA_FEATURE_DISCOVERY_V1
+  historical_t005_nominal_result_is_not_prospective_evidence: true
+immutable:
+  outcome_ledger: research/prospective/ae001-t012/outcome-ledger.json
+  decision_ledger: research/prospective/ae001-t012/decision-ledger.json
+  no_live_trades: true
+  no_post_outcome_hyperparameter_changes: true
