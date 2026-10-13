@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from copy import deepcopy
-from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
 from marketlab.hg008_event_forecast import (
-    _digest,
     build_first_seen_baselines,
     freeze_new_event_forecast,
     load_baseline_sources,
