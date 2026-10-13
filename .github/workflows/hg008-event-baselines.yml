@@ -1,0 +1,110 @@
+name: HG008 prospective event calibration baselines
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg008_event_forecast.py
+      - src/marketlab/hg008_event_score.py
+      - scripts/build_hg008_event_baselines.py
+      - scripts/freeze_hg008_new_event_forecast.py
+      - scripts/score_hg008_mature_event.py
+      - tests/test_hg008_event_forecast.py
+      - .github/workflows/hg008-event-baselines.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg008_event_forecast.py
+      - src/marketlab/hg008_event_score.py
+      - scripts/build_hg008_event_baselines.py
+      - scripts/freeze_hg008_new_event_forecast.py
+      - scripts/score_hg008_mature_event.py
+      - tests/test_hg008_event_forecast.py
+      - .github/workflows/hg008-event-baselines.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg008-source-bound-first-seen-event-stage-forecast
+  cancel-in-progress: false
+
+jobs:
+  stage-baselines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify source-contract and outcome-censor tests
+        run: |
+          ruff check src/marketlab/hg008_event_forecast.py src/marketlab/hg008_event_score.py scripts/build_hg008_event_baselines.py scripts/freeze_hg008_new_event_forecast.py scripts/score_hg008_mature_event.py tests/test_hg008_event_forecast.py
+          pytest -q tests/test_hg008_event_forecast.py
+      - name: Generate source-pinned 5 historical first-seen forecast baselines
+        run: |
+          set -euo pipefail
+          python scripts/build_hg008_event_baselines.py \
+            --repo-root . \
+            --out /tmp/hg008-first-seen-event-stage-baselines-v1.json
+          python scripts/build_hg008_event_baselines.py \
+            --repo-root . \
+            --out /tmp/hg008-first-seen-event-stage-baselines-v1.json \
+            --verify-existing
+      - name: Retain reviewable historical stage forecast cards
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg008-five-first-seen-stage-baselines-no-stock-alpha
+          path: /tmp/hg008-first-seen-event-stage-baselines-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
+      - name: Anchor immutable baseline cards only after main merge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg008/hg008-p001-first-seen-stage-baselines-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/build_hg008_event_baselines.py \
+              --repo-root . --out "$TARGET" --verify-existing
+            echo "Existing original baseline card set unchanged"
+            exit 0
+          fi
+          mkdir -p "$(dirname "$TARGET")"
+          cp /tmp/hg008-first-seen-event-stage-baselines-v1.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG008: anchor original HG006 first-seen event calibration baseline [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Original probability baseline already published; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              research/hg006-d004-result-v1.json \
+              research/hg006-p001-result-v1.json \
+              src/marketlab/hg008_event_forecast.py \
+              src/marketlab/hg008_event_score.py; then
+              echo "Underlying original historical source or forecast rule changed"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
