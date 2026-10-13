@@ -1,0 +1,167 @@
+{
+  "baseline_id": "HG008-P001-2026-10-13-HISTORICAL-EVENT-BASELINE-v1",
+  "classification": "HISTORICAL_CIF_FOR_FUTURE_FIRST_SEEN_EVENTS_NOT_STOCK_RETURNS",
+  "equity_return_prediction_calculated": false,
+  "existing_case_current_probability_count": 0,
+  "existing_company_survivor_abstentions": [
+    {
+      "conditional_current_probability": null,
+      "family": "SCHEME_REORGANISATION",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "NO_PUBLISHABLE_EXACT_STAGE_BASE_RATE",
+      "stage": "BOARD_APPROVED",
+      "symbol": "ANANTRAJ",
+      "track": "transaction_completion"
+    },
+    {
+      "conditional_current_probability": null,
+      "family": "PREFERENTIAL_WARRANT",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "CURRENT_TERMINAL_COMPLETED",
+      "stage": "ALLOTMENT_COMPLETED",
+      "symbol": "DEVX",
+      "track": "issuance_completion"
+    },
+    {
+      "conditional_current_probability": null,
+      "family": "PREFERENTIAL_WARRANT",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "stage": "ALLOTMENT_COMPLETED",
+      "symbol": "DEVX",
+      "track": "full_economic_exercise"
+    },
+    {
+      "conditional_current_probability": null,
+      "family": "SCHEME_REORGANISATION",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "symbol": "INOXGREEN",
+      "track": "transaction_completion"
+    },
+    {
+      "conditional_current_probability": null,
+      "family": "PREFERENTIAL_WARRANT",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "stage": "BOARD_APPROVED",
+      "symbol": "SAMBHV",
+      "track": "issuance_completion"
+    },
+    {
+      "conditional_current_probability": null,
+      "family": "PREFERENTIAL_WARRANT",
+      "may_use_new_stage_inception_baseline_for_current_survivor": false,
+      "original_2026_10_04_stage_survivor_state": "INSUFFICIENT_SURVIVOR_CONDITIONED_SUPPORT",
+      "stage": "BOARD_APPROVED",
+      "symbol": "SAMBHV",
+      "track": "full_economic_exercise"
+    }
+  ],
+  "frozen_reference_date": "2026-10-13",
+  "future_market_prices_used": false,
+  "historical_fitted_sample_is_not_out_of_sample_validation": true,
+  "historical_source_cutoff": "2026-09-30",
+  "live_capital_allowed": false,
+  "new_prospective_forecast_count": 0,
+  "packet_sha256": "d17a51147593aeebb9ef568e3221a0e2c2c2c1c6dbf249d4a2b8e83a3b083a4f",
+  "portfolio_eligibility_allowed": false,
+  "schema_version": 1,
+  "source_receipts": {
+    "historical": {
+      "git_blob_sha": "89abf5ba79a3a6525339a6851bdcb19eb0cb508a",
+      "path": "research/hg006-d004-result-v1.json",
+      "raw_sha256": "70dfb3d1653f25a1e6b8adbfb417d8b9fc7e58a5325ea892b63ddce297cabc5a"
+    },
+    "survivor": {
+      "git_blob_sha": "2c13d5424c0f88af1bd0deeec559c60f190f464b",
+      "path": "research/hg006-p001-result-v1.json",
+      "raw_sha256": "903b7eed049c2077f3f2399477a881daac6bcd43951cb9bf59d79ee7f5f39d09"
+    }
+  },
+  "stage_baseline_count": 5,
+  "stage_baselines": [
+    {
+      "existing_months_old_survivor_probability_allowed": false,
+      "family": "PREFERENTIAL_WARRANT",
+      "historical_interval_95_lower": 0.5914976335361731,
+      "historical_interval_95_upper": 0.8112745098039216,
+      "historical_support": 68,
+      "historical_terminal": 48,
+      "horizon_days": 90,
+      "intended_population": "FUTURE_FIRST_SEEN_STAGE_ENTRANTS_ONLY",
+      "out_of_sample_forecast_calibration_confirmed": false,
+      "prediction_target": "ISSUANCE_COMPLETION_WITHIN_90_DAYS_FROM_FIRST_STAGE_PUBLICATION",
+      "probability": 0.7066176470588235,
+      "right_censored": 20,
+      "stage": "BOARD_APPROVED",
+      "track": "issuance_completion"
+    },
+    {
+      "existing_months_old_survivor_probability_allowed": false,
+      "family": "PREFERENTIAL_WARRANT",
+      "historical_interval_95_lower": 0.20588235294117646,
+      "historical_interval_95_upper": 0.4264705882352941,
+      "historical_support": 68,
+      "historical_terminal": 21,
+      "horizon_days": 90,
+      "intended_population": "FUTURE_FIRST_SEEN_STAGE_ENTRANTS_ONLY",
+      "out_of_sample_forecast_calibration_confirmed": false,
+      "prediction_target": "FULL_ECONOMIC_EXERCISE_WITHIN_90_DAYS_FROM_FIRST_STAGE_PUBLICATION",
+      "probability": 0.3088235294117647,
+      "right_censored": 47,
+      "stage": "BOARD_APPROVED",
+      "track": "full_economic_exercise"
+    },
+    {
+      "existing_months_old_survivor_probability_allowed": false,
+      "family": "PREFERENTIAL_WARRANT",
+      "historical_interval_95_lower": 0.4838709677419355,
+      "historical_interval_95_upper": 0.6881720430107527,
+      "historical_support": 93,
+      "historical_terminal": 55,
+      "horizon_days": 90,
+      "intended_population": "FUTURE_FIRST_SEEN_STAGE_ENTRANTS_ONLY",
+      "out_of_sample_forecast_calibration_confirmed": false,
+      "prediction_target": "FULL_ECONOMIC_EXERCISE_WITHIN_90_DAYS_FROM_FIRST_STAGE_PUBLICATION",
+      "probability": 0.5913978494623656,
+      "right_censored": 38,
+      "stage": "ALLOTMENT_COMPLETED",
+      "track": "full_economic_exercise"
+    },
+    {
+      "existing_months_old_survivor_probability_allowed": false,
+      "family": "SCHEME_REORGANISATION",
+      "historical_interval_95_lower": 0.16091954022988506,
+      "historical_interval_95_upper": 0.33442987949124703,
+      "historical_support": 87,
+      "historical_terminal": 22,
+      "horizon_days": 90,
+      "intended_population": "FUTURE_FIRST_SEEN_STAGE_ENTRANTS_ONLY",
+      "out_of_sample_forecast_calibration_confirmed": false,
+      "prediction_target": "TRANSACTION_COMPLETION_WITHIN_90_DAYS_FROM_FIRST_STAGE_PUBLICATION",
+      "probability": 0.24297984279918863,
+      "right_censored": 65,
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "track": "transaction_completion"
+    },
+    {
+      "existing_months_old_survivor_probability_allowed": false,
+      "family": "SCHEME_REORGANISATION",
+      "historical_interval_95_lower": 0.1723735781994959,
+      "historical_interval_95_upper": 0.34898667061042954,
+      "historical_support": 87,
+      "historical_terminal": 22,
+      "horizon_days": 180,
+      "intended_population": "FUTURE_FIRST_SEEN_STAGE_ENTRANTS_ONLY",
+      "out_of_sample_forecast_calibration_confirmed": false,
+      "prediction_target": "TRANSACTION_COMPLETION_WITHIN_180_DAYS_FROM_FIRST_STAGE_PUBLICATION",
+      "probability": 0.25626089818867653,
+      "right_censored": 65,
+      "stage": "REGULATORY_OR_COURT_APPROVED",
+      "track": "transaction_completion"
+    }
+  ],
+  "survivor_and_family_membership_bias_not_calibrated": true
+}
