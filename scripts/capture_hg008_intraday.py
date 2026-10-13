@@ -61,14 +61,11 @@ def capture_once(
             from_date=first.strftime("%d-%m-%Y"),
             to_date=last.strftime("%d-%m-%Y"),
         )
-        packet = build_intraday_discovery(
-            source=decoded,
-            original_raw=raw,
-            request_start=first,
-            request_end=last,
-            observed_at_utc=_now(),
-        )
-        validate_discovery_packet(packet)
+        # Retain the actual NSE response even if its schema is malformed,
+        # otherwise research cannot reproduce or diagnose a source failure.
+        # Such bytes are NOT promoted to a validated event/forecast source.
+        if not isinstance(raw, bytes) or not 1 <= len(raw) <= 8_000_000:
+            raise ValueError("original NSE source bytes absent or unbounded")
         zipped = deterministic_gzip(raw)
         source_sha = hashlib.sha256(raw).hexdigest()
         raw_path = out_dir / "original" / "sha256" / f"{source_sha}.json.gz"
@@ -78,6 +75,15 @@ def capture_once(
         raw_path.write_bytes(zipped)
         if raw_path.read_bytes() != zipped:
             raise ValueError("original source bytes failed retention")
+        receipt["original_source_sha256"] = source_sha
+        packet = build_intraday_discovery(
+            source=decoded,
+            original_raw=raw,
+            request_start=first,
+            request_end=last,
+            observed_at_utc=_now(),
+        )
+        validate_discovery_packet(packet)
         output = out_dir / "source-clock.json"
         output.write_text(
             json.dumps(packet, sort_keys=True, indent=2, allow_nan=False) + "\n",
