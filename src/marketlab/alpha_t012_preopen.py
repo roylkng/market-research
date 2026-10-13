@@ -28,7 +28,7 @@ from marketlab.alpha_trials import trial_state
 from marketlab.calendar_snapshot import CalendarSnapshot
 
 TRIAL_ID = "AE001-T012"
-FIRST_FEATURE_SESSION = "2026-10-14"
+FIRST_FEATURE_SESSION = "2026-10-15"
 CALENDAR_SHA256 = "2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce"
 MODEL_ARTIFACT_SHA256 = "da1ce462b5d9c59fb5bea2f4b69c574c8ecbf1f728c44b23af8f3e73bd5de091"
 BASE_SHA256 = "774ce4b6ac0955b213521f017116ea32e579e73bfcbdb9ed3441c8e57248378c"
