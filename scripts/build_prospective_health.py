@@ -55,6 +55,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--c002-forecast-ledger", type=Path, required=True)
     parser.add_argument("--c002-outcome-ledger", type=Path, required=True)
     parser.add_argument("--h024-summary", type=Path, required=True)
+    parser.add_argument("--t012-trial-ledger", type=Path)
+    parser.add_argument("--t012-decision-ledger", type=Path)
+    parser.add_argument("--t012-outcome-ledger", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -98,6 +101,17 @@ def main() -> int:
         c002_forecast_ledger=_load(args.c002_forecast_ledger),
         c002_outcome_ledger=_load(args.c002_outcome_ledger),
         h024_summary=_load(args.h024_summary),
+        t012_trial_ledger=(
+            None if args.t012_trial_ledger is None else _load(args.t012_trial_ledger)
+        ),
+        t012_decision_ledger=(
+            None if args.t012_decision_ledger is None
+            else _load(args.t012_decision_ledger)
+        ),
+        t012_outcome_ledger=(
+            None if args.t012_outcome_ledger is None
+            else _load(args.t012_outcome_ledger)
+        ),
     )
     _write(args.output, summary)
     print(json.dumps(summary, sort_keys=True))
