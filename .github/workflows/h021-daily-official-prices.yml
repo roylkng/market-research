@@ -2,6 +2,17 @@ name: H021 daily official source path
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      # Run once immediately on merge; do not rerun on bot source commits.
+      - .github/workflows/h021-daily-official-prices.yml
+      - src/marketlab/h021_daily_prices.py
+      - scripts/resolve_h021_daily_session.py
+      - scripts/collect_h021_daily_official.py
+      - tests/test_h021_daily_prices.py
+      - tests/test_h021_delayed_source_recovery.py
   schedule:
     # Earlier attempts preserve original HTTP404 publication latency.
     # NSE's original Oct12 index CSV was unavailable at 17:33 IST
