@@ -247,3 +247,54 @@ def append_t012_decision(
     updated["ledger_sha256"] = _ledger_hash(updated)
     validate_t012_decision_ledger(updated)
     return updated
+
+
+def reseal_t012_decision_artifact(
+    artifact: dict[str, Any],
+    *,
+    final_admission: dict[str, Any],
+) -> dict[str, Any]:
+    """Bind the *completed* computation to a fresh final pre-open clock proof.
+
+    A preflight admission before data download/computation is not a final
+    sealing event. The runner MUST call this after scoring and before writing.
+    """
+    initial = dict(artifact)
+    stored_artifact_sha256 = initial.pop("artifact_sha256", None)
+    if digest(initial) != stored_artifact_sha256:
+        raise AlphaContractError("T012 preflight artifact hash mismatch")
+    final = dict(final_admission)
+    stored_admission_sha256 = final.pop("admission_sha256", None)
+    if digest(final) != stored_admission_sha256:
+        raise AlphaContractError("T012 final admission hash mismatch")
+    if final_admission.get("trial_id") != "AE001-T012":
+        raise AlphaContractError("T012 final admission is for wrong trial")
+    pairs = {
+        "session_date": "feature_session",
+        "entry_session": "entry_session",
+        "sc001_attempt_sha256": "sc001_attempt_sha256",
+        "sc003_attempt_sha256": "sc003_attempt_sha256",
+        "current_market_sha256": "cash_market_raw_sha256",
+        "current_delivery_sha256": "delivery_raw_sha256",
+        "current_futures_sha256": "futures_raw_sha256",
+        "frozen_model_artifact_sha256": "frozen_model_artifact_sha256",
+    }
+    for artifact_key, admission_key in pairs.items():
+        if artifact.get(artifact_key) != final_admission.get(admission_key):
+            raise AlphaContractError(
+                f"T012 final admission source/model drift: {artifact_key}"
+            )
+    final_sealed = _time(final_admission.get("sealed_at_utc"), label="final seal")
+    if final_sealed < _time(artifact.get("sealed_at_utc"), label="preflight"):
+        raise AlphaContractError("T012 final seal predates preflight")
+    if final_sealed > preopen_cutoff_utc(str(artifact["entry_session"])):
+        raise AlphaContractError("T012 final seal missed pre-open cutoff")
+    if final_admission.get("live_capital_allowed") is not False:
+        raise AlphaContractError("T012 final admission cannot permit live capital")
+    updated = copy.deepcopy(artifact)
+    updated.pop("artifact_sha256", None)
+    updated["sealed_at_utc"] = final_admission["sealed_at_utc"]
+    updated["admission_sha256"] = final_admission["admission_sha256"]
+    updated["decision_cutoff_utc"] = final_admission["decision_deadline_utc"]
+    updated["artifact_sha256"] = digest(updated)
+    return updated
