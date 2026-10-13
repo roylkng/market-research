@@ -11,6 +11,13 @@ from marketlab.alpha_prospective_futures_sources import validate_futures_source_
 from marketlab.alpha_prospective_sources import validate_source_ledger
 from marketlab.alpha_sc003_preopen import preopen_readiness_summary, validate_sc003_ledger
 from marketlab.alpha_t004_readiness import validate_t004_readiness
+from marketlab.alpha_t012_decisions import validate_t012_decision_ledger
+from marketlab.alpha_t012_outcomes import validate_t012_outcome_ledger
+from marketlab.alpha_t012_preopen import (
+    CALENDAR_SHA256 as T012_CALENDAR_SHA256,
+    FIRST_FEATURE_SESSION as T012_FIRST_FEATURE_SESSION,
+)
+from marketlab.alpha_trials import trial_state, validate_trial_ledger
 from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.rm001_c002 import validate_forecast_ledger, validate_outcome_ledger
 from marketlab.rm001_industry_timing import (
@@ -486,6 +493,77 @@ def _c002_state(
     }
 
 
+def _t012_state(
+    *,
+    calendar: CalendarSnapshot,
+    trial_ledger: dict[str, Any],
+    decision_ledger: dict[str, Any],
+    outcome_ledger: dict[str, Any],
+) -> dict[str, Any]:
+    """Read actual T012 registration, distinct from SC003 readiness."""
+    validate_trial_ledger(trial_ledger)
+    validate_t012_decision_ledger(decision_ledger)
+    validate_t012_outcome_ledger(outcome_ledger)
+    state = trial_state(trial_ledger, "AE001-T012")
+    registration = state["registration"]
+    protocol = registration["payload"]
+    if protocol.get("status") != "FROZEN_BEFORE_FIRST_ELIGIBLE_PREOPEN_DECISION":
+        raise AlphaContractError("T012 health requires frozen registration")
+    if protocol.get("earliest_feature_session") != T012_FIRST_FEATURE_SESSION:
+        raise AlphaContractError("T012 health first feature date mismatch")
+    if protocol.get("calendar_sha256") != T012_CALENDAR_SHA256:
+        raise AlphaContractError("T012 health trial calendar source drift")
+    if calendar.sha256 != T012_CALENDAR_SHA256:
+        raise AlphaContractError("T012 health snapshot calendar source drift")
+    if protocol.get("live_capital_allowed") is not False:
+        raise AlphaContractError("T012 health cannot permit live capital")
+
+    available = sum(
+        session.session_date >= T012_FIRST_FEATURE_SESSION
+        for session in calendar.sessions
+    )
+    count = decision_ledger["decision_count"]
+    outcomes = outcome_ledger["outcomes"]
+    primary = next(
+        (event for event in state["results"]
+         if event["payload"].get("result_kind") == "PRIMARY_5D"),
+        None,
+    )
+    if primary is not None:
+        status = "PRIMARY_ASSESSED"
+    elif outcomes:
+        status = "PROSPECTIVE_OUTCOMES_ACCUMULATING"
+    elif count:
+        status = "PROSPECTIVE_DECISIONS_ACCUMULATING"
+    else:
+        status = "PREREGISTERED_AWAITING_FIRST_DECISION"
+    shortfall = max(0, 60 - available)
+    return {
+        "state": status,
+        "trial_id": "AE001-T012",
+        "trial_registered": True,
+        "trial_registration_event_sha256": registration["event_sha256"],
+        "first_eligible_feature_session": T012_FIRST_FEATURE_SESSION,
+        "decision_count": count,
+        "decision_ledger_sha256": decision_ledger["ledger_sha256"],
+        "outcome_count": outcome_ledger["outcome_count"],
+        "outcome_ledger_sha256": outcome_ledger["ledger_sha256"],
+        "h1_outcome_count": sum(row["horizon_sessions"] == 1 for row in outcomes),
+        "h5_outcome_count": sum(row["horizon_sessions"] == 5 for row in outcomes),
+        "minimum_primary_decisions": 60,
+        "minimum_valid_paired_ic_sessions": 50,
+        "primary_assessed": primary is not None,
+        "primary_status": None if primary is None else primary["payload"].get("status"),
+        "calendar_last_session": calendar.sessions[-1].session_date,
+        "frozen_calendar_max_possible_feature_sessions": available,
+        "calendar_minimum_60_session_shortfall": shortfall,
+        "forward_only_calendar_extension_required": shortfall > 0,
+        "forward_calendar_extension_not_backfillable": True,
+        "source_readiness_not_equivalent_to_prediction": True,
+        "live_capital_allowed": False,
+    }
+
+
 def build_prospective_health_summary(
     *,
     as_of_date: str,
@@ -505,6 +583,9 @@ def build_prospective_health_summary(
     c002_outcome_ledger: dict[str, Any],
     h024_summary: dict[str, Any],
     sc001_source_cutoff_passed: bool | None = None,
+    t012_trial_ledger: dict[str, Any] | None = None,
+    t012_decision_ledger: dict[str, Any] | None = None,
+    t012_outcome_ledger: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     # Preserve old retrospective callers while allowing realtime producers
     # to distinguish NSE 15:30 close from the actual 18:30 SC001 deadline.
@@ -609,6 +690,19 @@ def build_prospective_health_summary(
     )
     t006["source_timing_feasibility"] = t006_feasibility
 
+    t012_inputs = (t012_trial_ledger, t012_decision_ledger, t012_outcome_ledger)
+    if all(ledger is None for ledger in t012_inputs):
+        t012 = None
+    elif all(ledger is not None for ledger in t012_inputs):
+        t012 = _t012_state(
+            calendar=calendar,
+            trial_ledger=t012_trial_ledger,
+            decision_ledger=t012_decision_ledger,
+            outcome_ledger=t012_outcome_ledger,
+        )
+    else:
+        raise AlphaContractError("T012 health requires all three canonical ledgers")
+
     c002 = _c002_state(
         forecast_ledger=c002_forecast_ledger,
         outcome_ledger=c002_outcome_ledger,
@@ -638,6 +732,8 @@ def build_prospective_health_summary(
         blockers.append("T004_DELIVERY_WARMUP")
     if t006["state"].startswith("BLOCKED_"):
         blockers.append("T006_SOURCE_TIMING")
+    if t012 is not None and t012["forward_only_calendar_extension_required"]:
+        blockers.append("T012_FUTURE_CALENDAR_EXTENSION_REQUIRED")
 
     summary: dict[str, Any] = {
         "schema_version": 1,
@@ -664,5 +760,7 @@ def build_prospective_health_summary(
         "blocker_count": len(blockers),
         "live_capital_allowed": False,
     }
+    if t012 is not None:
+        summary["components"]["T012"] = t012
     summary["summary_sha256"] = _canonical_hash(summary)
     return summary
