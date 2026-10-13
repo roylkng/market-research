@@ -32,7 +32,7 @@ SOURCES = {
         "a502a582e93b408baba38dca7b95532836646700",
     ),
 }
-NEW_PDF_SHA = "12a0a512c279ee6580120b82346bc85c1720c4ae0e5959edd9b7d3225e9b898f"
+ORIGINAL_OCT09_PDF_SHA = "12a0a512c279ee6580120b82346bc85c1720c4ae0e5959edd9b7d3225e9b898f"
 REVIEW_ID = "HG007-P046-INOXGREEN-2026-10-09-VEPL-CONVERSION-STATE-v1"
 
 
@@ -62,13 +62,13 @@ def load_pinned_sources(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
 
     original = (
         root / "research/hg007/wwil-oct09-vibhav-conversion/raw/sha256"
-        / f"{NEW_PDF_SHA}.pdf"
+        / f"{ORIGINAL_OCT09_PDF_SHA}.pdf"
     )
     bytes_pdf = original.read_bytes()
-    if hashlib.sha256(bytes_pdf).hexdigest() != NEW_PDF_SHA:
+    if hashlib.sha256(bytes_pdf).hexdigest() != ORIGINAL_OCT09_PDF_SHA:
         raise ValueError("original 9 Oct issuer PDF original SHA mismatch")
     captured = values["new_oct09"]
-    if captured.get("original_pdf_sha256") != NEW_PDF_SHA or captured.get(
+    if captured.get("original_pdf_sha256") != ORIGINAL_OCT09_PDF_SHA or captured.get(
         "original_pdf_size"
     ) != len(bytes_pdf):
         raise ValueError("original PDF/issuer receipt identity mismatch")
@@ -78,7 +78,7 @@ def load_pinned_sources(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         raise ValueError("original 9 Oct source text does not reproduce")
     receipts["new_oct09_pdf"] = {
         "path": str(original.relative_to(root)),
-        "raw_sha256": NEW_PDF_SHA,
+        "raw_sha256": ORIGINAL_OCT09_PDF_SHA,
         "bytes": len(bytes_pdf),
     }
     return values, receipts
