@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import copy
-from datetime import date
+from datetime import date, datetime, time, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_preopen_successor import preopen_successor_readiness
@@ -26,6 +27,34 @@ from marketlab.rm001_size_timing import (
     size_timing_summary,
     validate_size_source_ledger,
 )
+
+HEALTH_IST = ZoneInfo("Asia/Kolkata")
+NSE_CASH_SESSION_CLOSE_IST = time(15, 30)
+SC001_SOURCE_DECISION_CUTOFF_IST = time(18, 30)
+
+
+def health_clock_markers(snapshot_utc: str) -> dict[str, str | bool]:
+    """Use one real UTC instant for both exchange-close and source-due gates.
+
+    A morning workflow run cannot claim today's source is stale. Market
+    close (15:30 IST) is distinct from the SC001 evidence cutoff (18:30).
+    """
+    if not isinstance(snapshot_utc, str):
+        raise TypeError("health snapshot timestamp must be a string")
+    try:
+        observed = datetime.fromisoformat(snapshot_utc)
+    except ValueError as exc:
+        raise ValueError("health snapshot UTC timestamp invalid") from exc
+    if observed.tzinfo is None or observed.utcoffset() != timedelta(0):
+        raise ValueError("health snapshot time must be explicitly UTC")
+    ist = observed.astimezone(HEALTH_IST)
+    local_clock = ist.time()
+    return {
+        "as_of_date": ist.date().isoformat(),
+        "after_market_close": local_clock >= NSE_CASH_SESSION_CLOSE_IST,
+        "sc001_source_cutoff_passed": local_clock >= SC001_SOURCE_DECISION_CUTOFF_IST,
+    }
+
 
 HEALTH_ID = "MARKETLAB-PROSPECTIVE-HEALTH-v1"
 C002_START = date(2026, 10, 5)
@@ -475,12 +504,25 @@ def build_prospective_health_summary(
     c002_forecast_ledger: dict[str, Any],
     c002_outcome_ledger: dict[str, Any],
     h024_summary: dict[str, Any],
+    sc001_source_cutoff_passed: bool | None = None,
 ) -> dict[str, Any]:
+    # Preserve old retrospective callers while allowing realtime producers
+    # to distinguish NSE 15:30 close from the actual 18:30 SC001 deadline.
+    if type(after_market_close) is not bool:
+        raise TypeError("after_market_close must be boolean")
+    if sc001_source_cutoff_passed is None:
+        source_cutoff_passed = after_market_close
+    elif type(sc001_source_cutoff_passed) is bool:
+        source_cutoff_passed = sc001_source_cutoff_passed
+    else:
+        raise TypeError("SC001 source cutoff state must be boolean")
+    if source_cutoff_passed and not after_market_close:
+        raise AlphaContractError("source cutoff cannot pass before exchange market close")
     day = date.fromisoformat(as_of_date)
     expected_session = _latest_expected_session(
         calendar,
         as_of_date=day,
-        after_market_close=after_market_close,
+        after_market_close=source_cutoff_passed,
     )
     sc001 = _sc001_state(
         sc001_ledger,
@@ -602,6 +644,7 @@ def build_prospective_health_summary(
         "health_id": HEALTH_ID,
         "as_of_date": day.isoformat(),
         "after_market_close": after_market_close,
+        "sc001_source_cutoff_passed": source_cutoff_passed,
         "calendar_version": calendar.version,
         "calendar_sha256": calendar.sha256,
         "latest_expected_market_session": expected_session,

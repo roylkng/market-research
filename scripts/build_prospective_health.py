@@ -5,7 +5,10 @@ import json
 from pathlib import Path
 
 from marketlab.calendar_snapshot import load_calendar_snapshot
-from marketlab.prospective_health import build_prospective_health_summary
+from marketlab.prospective_health import (
+    build_prospective_health_summary,
+    health_clock_markers,
+)
 
 
 def _load(path: Path) -> dict:
@@ -34,8 +37,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build derived MarketLab prospective health snapshot"
     )
-    parser.add_argument("--as-of-date", required=True)
+    parser.add_argument("--as-of-date")
+    parser.add_argument("--as-of-utc", help="Real UTC snapshot timestamp; derives close and source-due gates")
     parser.add_argument("--after-market-close", action="store_true")
+    parser.add_argument("--sc001-source-cutoff-passed", action="store_true", default=None)
     parser.add_argument("--calendar", type=Path, required=True)
     parser.add_argument("--sc001-ledger", type=Path, required=True)
     parser.add_argument("--sc002-ledger", type=Path, required=True)
@@ -56,9 +61,27 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.as_of_utc is not None:
+        if args.after_market_close or args.sc001_source_cutoff_passed is not None:
+            raise ValueError(
+                "realtime --as-of-utc must not be combined with manual clock flags"
+            )
+        clock = health_clock_markers(args.as_of_utc)
+        if args.as_of_date is not None and args.as_of_date != clock["as_of_date"]:
+            raise ValueError("as-of date differs from observed IST calendar date")
+        session_day = str(clock["as_of_date"])
+        after_close = bool(clock["after_market_close"])
+        sc001_due = bool(clock["sc001_source_cutoff_passed"])
+    else:
+        if args.as_of_date is None:
+            raise ValueError("an explicit --as-of-date or --as-of-utc is required")
+        session_day = args.as_of_date
+        after_close = args.after_market_close
+        sc001_due = args.sc001_source_cutoff_passed
     summary = build_prospective_health_summary(
-        as_of_date=args.as_of_date,
-        after_market_close=args.after_market_close,
+        as_of_date=session_day,
+        after_market_close=after_close,
+        sc001_source_cutoff_passed=sc001_due,
         calendar=load_calendar_snapshot(args.calendar),
         sc001_ledger=_load(args.sc001_ledger),
         sc002_ledger=_load(args.sc002_ledger),
