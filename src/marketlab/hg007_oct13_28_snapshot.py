@@ -183,8 +183,17 @@ def build_oct13_market_snapshot(
     h021 = {r["symbol"]: r for r in p008["stock_rows"]}
     if len(h021) != 10:
         raise ValueError("H021 independent market source reconciliation missing")
+    # H021 U001 and HG002 outside-U001 are independent frozen universes.
+    # Validate H021's ten names against the original *whole-market* ZIP,
+    # not against the subset of 28 unrelated HG002 companies.
+    h021_all_rows: dict[str, list[DailyEquityObservation]] = {
+        symbol: [] for symbol in h021
+    }
+    for original_bar in official_eq:
+        if original_bar.symbol in h021_all_rows:
+            h021_all_rows[original_bar.symbol].append(original_bar)
     for symbol, stored in h021.items():
-        available = by_symbol.get(symbol, [])
+        available = h021_all_rows.get(symbol, [])
         if (
             len(available) != 1
             or available[0].isin != stored["isin"]
