@@ -55,7 +55,7 @@ def test_current_ino_status_is_not_a_new_buy_signal_or_business_closing() -> Non
     ino = cells["INOXGREEN"]["latest_documented_vepl_milestone"]
     assert ino["equity_allotment"] == "COMPLETED_VIBHAV_ICD_TO_EQUITY"
     assert ino["minority_ownership"] == {"INOXGREEN_percent": 75, "AUTHUM_percent": 25}
-    assert ino["vepl_is_wholly_owned_after_oct09"] if "vepl_is_wholly_owned_after_oct09" in ino else True
+    assert ino["vepl_legal_subsidiary_still_controlled"] is True
     assert ino["wwil_underlying_om_business_transfer_completed_verified"] is False
     assert ino["stock_or_portfolio_approval"] is False
     assert r["listed_issuer_current_oct13_fd_count_verified"] is False
