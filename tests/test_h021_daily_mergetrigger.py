@@ -25,6 +25,7 @@ def test_daily_source_capture_mergetrigger_is_narrow_and_safe() -> None:
         "scripts/collect_h021_daily_official.py",
         "tests/test_h021_daily_prices.py",
         "tests/test_h021_delayed_source_recovery.py",
+        "tests/test_h021_daily_mergetrigger.py",
     }
     assert set(events["push"]["paths"]) == expected
     assert len(events["schedule"]) >= 2
