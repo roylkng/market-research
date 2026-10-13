@@ -76,7 +76,10 @@ The query is bounded to 8MB of original UTF-8 JSON and 3,500
 source rows per poll. Duplicate exact announcements collapse
 canonically, conflicting sequence/symbol records fail closed.
 HTTP/source failure creates an honest missing-data receipt with
-no invented zero events or false first-seen forecasts.
+no invented zero events or false first-seen forecasts. When the NSE
+returns bounded original bytes but parsing fails, those exact raw bytes
+and a SHA-256 are still retained for diagnosing the blocked schema;
+this does not make the event source semantically valid.
 
 Raw source/packet digest, original NSE query and UTC time are
 retained. The official NSE endpoint can be unavailable or delayed;
