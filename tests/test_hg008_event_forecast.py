@@ -119,7 +119,7 @@ def test_current_hg006_survivor_and_backdated_source_not_eligible() -> None:
 
 
 def test_exact_historical_baseline_source_mutations_are_detected(tmp_path:Path) -> None:
-    from marketlab.hg008_event_forecast import D004_PATH,P001_PATH
+    from marketlab.hg008_event_forecast import D004_PATH, P001_PATH
     for path in (D004_PATH,P001_PATH):
         dest=tmp_path/path
         dest.parent.mkdir(parents=True,exist_ok=True)
