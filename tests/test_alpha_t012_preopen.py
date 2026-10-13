@@ -53,8 +53,8 @@ def _future_sources() -> tuple[dict, dict]:
     future_cash.update({
         "seq": cash["attempt_count"] + 1,
         "session_date": FIRST_FEATURE_SESSION,
-        "captured_at_utc": "2026-10-14T12:00:00+00:00",
-        "decision_cutoff_utc": "2026-10-14T13:00:00+00:00",
+        "captured_at_utc": "2026-10-15T12:00:00+00:00",
+        "decision_cutoff_utc": "2026-10-15T13:00:00+00:00",
     })
     future_cash.pop("attempt_sha256")
     future_cash["attempt_sha256"] = digest(future_cash)
@@ -69,10 +69,10 @@ def _future_sources() -> tuple[dict, dict]:
         "seq": fo["attempt_count"] + 1,
         "target_session_date": FIRST_FEATURE_SESSION,
         "observation_date": FIRST_FEATURE_SESSION,
-        "captured_at_utc": "2026-10-14T13:30:00+00:00",
-        "cutoff_session_date": "2026-10-15",
-        "preopen_cutoff_utc": "2026-10-15T03:00:00+00:00",
-        "target_close_timestamp_utc": "2026-10-14T10:00:00Z",
+        "captured_at_utc": "2026-10-15T13:30:00+00:00",
+        "cutoff_session_date": "2026-10-16",
+        "preopen_cutoff_utc": "2026-10-16T03:00:00+00:00",
+        "target_close_timestamp_utc": "2026-10-15T10:00:00Z",
         "sc001_attempt_sha256": future_cash["attempt_sha256"],
     })
     future_fo.pop("attempt_sha256")
@@ -110,18 +110,18 @@ def test_preopen_admission_requires_future_target_and_exact_linkage() -> None:
     args["sc003_ledger"] = fo
     admission = admit_t012_preopen(
         feature_session=FIRST_FEATURE_SESSION,
-        sealed_at_utc="2026-10-15T02:55:00+00:00",
+        sealed_at_utc="2026-10-16T02:55:00+00:00",
         sc001_ledger=cash,
         **args,
     )
-    assert admission["entry_session"] == "2026-10-15"
+    assert admission["entry_session"] == "2026-10-16"
     assert admission["outcomes_attached"] is False
     assert admission["live_capital_allowed"] is False
 
     with pytest.raises(AlphaContractError, match="pre-open decision missed"):
         admit_t012_preopen(
             feature_session=FIRST_FEATURE_SESSION,
-            sealed_at_utc="2026-10-15T03:00:01+00:00",
+            sealed_at_utc="2026-10-16T03:00:01+00:00",
             sc001_ledger=cash,
             **args,
         )
@@ -137,13 +137,13 @@ def test_preopen_admission_requires_future_target_and_exact_linkage() -> None:
     wrong = copy.deepcopy(cash)
     row = wrong["attempts"][-1]
     row.pop("attempt_sha256")
-    row["captured_at_utc"] = "2026-10-14T12:01:00+00:00"
+    row["captured_at_utc"] = "2026-10-15T12:01:00+00:00"
     row["attempt_sha256"] = digest(row)
     _resign_ledger(wrong)
     with pytest.raises(AlphaContractError, match="linked timely"):
         admit_t012_preopen(
             feature_session=FIRST_FEATURE_SESSION,
-            sealed_at_utc="2026-10-15T02:55:00+00:00",
+            sealed_at_utc="2026-10-16T02:55:00+00:00",
             sc001_ledger=wrong,
             **args,
         )
@@ -161,7 +161,7 @@ def test_future_futures_raw_missing_fails_closed() -> None:
     with pytest.raises(AlphaContractError, match="official futures bytes absent"):
         admit_t012_preopen(
             feature_session=FIRST_FEATURE_SESSION,
-            sealed_at_utc="2026-10-15T02:55:00+00:00",
+            sealed_at_utc="2026-10-16T02:55:00+00:00",
             sc001_ledger=cash,
             **args,
         )
