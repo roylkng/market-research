@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import copy
-from datetime import UTC, date, datetime, time, timedelta
-from zoneinfo import ZoneInfo
+from datetime import date, datetime, time, timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_preopen_successor import preopen_successor_readiness
