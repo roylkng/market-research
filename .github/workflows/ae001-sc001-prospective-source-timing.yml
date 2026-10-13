@@ -58,10 +58,20 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Fast actual-UTC source-window preflight before costly setup
+        id: preflight
+        env:
+          SC001_UPSTREAM_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          PYTHONPATH=src python scripts/resolve_ae001_sc001_runner_window.py
+
       - name: Install
+        if: steps.preflight.outputs.state == 'READY'
         run: python -m pip install -e '.[dev]'
 
       - name: Verify SC001 and T004 implementation before source access
+        if: steps.preflight.outputs.state == 'READY'
         run: |
           ruff check \
             src/marketlab/alpha_prospective_sources.py \
@@ -69,7 +79,6 @@ jobs:
             src/marketlab/alpha_t004_readiness.py \
             scripts/resolve_ae001_sc001_runner_window.py \
             src/marketlab/ae001_sc001_window.py \
-            tests/test_ae001_sc001_window.py \
             scripts/probe_ae001_sc001.py \
             scripts/verify_ae001_sc001.py \
             scripts/score_ae001_t004_decision.py \
@@ -93,6 +102,7 @@ jobs:
 
       - name: Resolve observed runner window, not upstream event timestamp
         id: gate
+        if: steps.preflight.outputs.state == 'READY'
         env:
           SC001_UPSTREAM_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
         run: |
