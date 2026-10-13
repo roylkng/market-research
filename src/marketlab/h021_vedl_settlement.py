@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -40,18 +39,18 @@ SOURCE_REFS = {
         "a0aad217d171313426e00af6d234d5df02a45395",
     ),
     "nse_original_vedl_exdate": (
-        "research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
-        "original-nse-exdate-v1.json",
+        ("research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
+         "original-nse-exdate-v1.json"),
         "140812e47548f27faa03612119d64c661ab1ed79",
     ),
     "original_vedl_issuer_dividend": (
-        "research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
-        "source-receipt-v1.json",
+        ("research/prospective/h021/dividend-evidence/vedl-2026-10-08/"
+         "source-receipt-v1.json"),
         "de2d9889ec303067404ba62c136cd221288ac0ad",
     ),
     "frozen_nse_session_calendar": (
-        "research/prospective/calendars/FY27-Q2-2026-09-06/"
-        "NSE-CM-FY27Q2-v1.json",
+        ("research/prospective/calendars/FY27-Q2-2026-09-06/"
+         "NSE-CM-FY27Q2-v1.json"),
         "9ac614820a67b0f7b20d8170d15b84df3c996b62",
     ),
 }
