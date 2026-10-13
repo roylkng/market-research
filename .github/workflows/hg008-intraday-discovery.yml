@@ -1,0 +1,156 @@
+name: HG008 original NSE hourly first-seen discovery clock
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg008-intraday-discovery.yml
+      - src/marketlab/hg008_intraday_discovery.py
+      - scripts/capture_hg008_intraday.py
+      - tests/test_hg008_intraday_discovery.py
+  schedule:
+    # One attempt per UTC hour, original-source observation only.
+    - cron: '13 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg008-p002-intraday-original-nse-source-clock
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify the 8h source clock and no-probability safety
+        run: |
+          ruff check src/marketlab/hg008_intraday_discovery.py scripts/capture_hg008_intraday.py tests/test_hg008_intraday_discovery.py
+          pytest -q tests/test_hg008_intraday_discovery.py tests/test_hg008_event_forecast.py
+      - name: Gate first new-stage UTC boundary and bounded October pilot
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          HOUR="$(date -u +%Y%m%d%H)"
+          STATE=SKIP
+          if [[ "$NOW" > "2026-10-13T23:59:59Z" && "$NOW" < "2026-11-14T00:00:00Z" ]]; then
+            git fetch origin main
+            DEST="research/prospective/hg008-p002/attempts"
+            # One recorded request/hour, whether the endpoint succeeds or fails.
+            FILES="$(git ls-tree -r --name-only origin/main -- "$DEST" | grep "^$DEST/$HOUR-" || true)"
+            if [[ -z "$FILES" ]]; then
+              STATE=CAPTURE
+            else
+              STATE=HOUR_ALREADY_ATTEMPTED
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "hour=$HOUR" >> "$GITHUB_OUTPUT"
+          echo "original NSE poll state=$STATE hour=$HOUR"
+      - name: Acquire exchange-wide original announcement snapshot
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/hg008-intraday-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "HG008_ORIGINAL_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/capture_hg008_intraday.py --out-dir "$OUT"
+          test -s "$OUT/receipt.json"
+      - name: Publish append-only source capture or source-failure evidence
+        if: steps.gate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/hg008-p002"
+          HOUR="${{ steps.gate.outputs.hour }}"
+          ATTEMPT="$DEST/attempts/$HOUR-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/original/sha256" "$DEST/snapshots"
+          cp "$HG008_ORIGINAL_OUT/receipt.json" "$ATTEMPT"
+          STATE="$(python - "$ATTEMPT" <<'PY'
+          import json,sys
+          from pathlib import Path
+          item=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          assert item['first_seen_forecast_published'] is False
+          assert item['live_capital_allowed'] is False
+          print(item['state'])
+          PY
+          )"
+          if [[ "$STATE" == ORIGINAL_NSE_INTRADAY_ANNOUNCEMENTS_CAPTURED_SOURCE_ONLY ]]; then
+            SOURCE="$(find "$HG008_ORIGINAL_OUT/original/sha256" -maxdepth 1 -type f -name '*.json.gz' -print -quit)"
+            [[ -n "$SOURCE" && -f "$SOURCE" ]]
+            SHA="$(basename "$SOURCE" .json.gz)"
+            TARGET_RAW="$DEST/original/sha256/$SHA.json.gz"
+            if [[ -f "$TARGET_RAW" ]]; then
+              cmp "$SOURCE" "$TARGET_RAW"
+            else
+              cp "$SOURCE" "$TARGET_RAW"
+            fi
+            python - "$ATTEMPT" "$TARGET_RAW" "$HG008_ORIGINAL_OUT/source-clock.json" <<'PY'
+          import gzip,hashlib,json,sys
+          from pathlib import Path
+          from marketlab.hg008_intraday_discovery import validate_discovery_packet
+          receipt=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          raw=gzip.decompress(Path(sys.argv[2]).read_bytes())
+          packet=json.loads(Path(sys.argv[3]).read_text(encoding='utf-8'))
+          validate_discovery_packet(packet)
+          assert hashlib.sha256(raw).hexdigest()==receipt['original_source_sha256']
+          assert packet['source_original_raw_sha256']==receipt['original_source_sha256']
+          assert packet['packet_sha256']==receipt['packet_sha256']
+          assert packet['hg008_valid_forecasts_frozen']==0
+          PY
+            cp "$HG008_ORIGINAL_OUT/source-clock.json" \
+              "$DEST/snapshots/$HOUR-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "HG008: source-only NSE intraday original announcement attempt $HOUR [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            REMOTE_SHA="$(git rev-parse origin/main)"
+            if git ls-tree -r --name-only origin/main -- "$DEST/attempts" \
+              | grep -q "^$DEST/attempts/$HOUR-"; then
+              echo "Another original NSE poll already recorded this UTC hour"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$REMOTE_SHA" -- \
+              src/marketlab/hg008_intraday_discovery.py \
+              scripts/capture_hg008_intraday.py \
+              .github/workflows/hg008-intraday-discovery.yml \
+              src/marketlab/hg008_event_forecast.py; then
+              echo "Frozen HG008 source or 8h protocol changed during polling"
+              exit 1
+            fi
+            if [[ "$REMOTE_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$REMOTE_SHA"
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          exit 1
+      - name: Retain original capture or blocked-source receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg008-p002-nse-intraday-original-discovery
+          path: /tmp/hg008-intraday-*
+          if-no-files-found: ignore
+          retention-days: 90
