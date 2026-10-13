@@ -131,3 +131,17 @@ committed under research/prospective/h021/signed-intents/.
 No historical H021 selection, price outcome, portfolio eligibility,
 live capital, return conclusion, beta fitting or 50% CAGR claim
 is changed or authorized.
+
+
+## Explicit global multiple-testing family, preregistered 13 October
+
+RTA001 reserved the two-member H021_DIRECTION_COMPARATORS_V1
+family containing original H021 and this new H021S001 experiment
+before H021S001 can capture its first 16 October prospective
+cohort. Both currently have zero matured 60-session return
+outcomes, so neither can have a valid family-adjusted p-value
+or alpha promotion yet. The two are paired and dependent;
+their ultimate significance must also be assessed in the
+wider discovery-trial universe.
+
+Reference: research/RTA001_H021_DIRECTION_PENDING_FAMILY_2026_10_13.md.
