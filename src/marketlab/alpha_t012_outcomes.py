@@ -8,7 +8,6 @@ attached, and all source attempts retain their true acquisition timestamp.
 from __future__ import annotations
 
 import copy
-import statistics
 from datetime import UTC, datetime
 from typing import Any
 
