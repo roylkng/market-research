@@ -8,7 +8,7 @@ attached, and all source attempts retain their true acquisition timestamp.
 from __future__ import annotations
 
 import copy
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
@@ -18,6 +18,7 @@ from marketlab.alpha_t012_decisions import validate_t012_decision_ledger
 from marketlab.alpha_t012_preopen import CALENDAR_SHA256, FIRST_FEATURE_SESSION
 from marketlab.alpha_trials import append_trial_event, trial_state
 from marketlab.calendar_snapshot import CalendarSnapshot
+from marketlab.marketdata import index_snapshot_url, udiff_url
 
 TRIAL = "AE001-T012"
 OUTCOME_LEDGER_ID = "AE001-T012-OUTCOME-LEDGER-v1"
@@ -182,13 +183,9 @@ def build_t012_horizon_outcome(
         ):
             raise AlphaContractError("T012 missing exact NSE EQ/Nifty500 session")
         if (
-            row.get("udiff_url") is None
-            or row.get("benchmark_url") is None
-            or not str(row["udiff_url"]).startswith(
-                "https://nsearchives.nseindia.com/content/cm/"
-            )
-            or not str(row["benchmark_url"]).startswith(
-                "https://nsearchives.nseindia.com/"
+            row.get("udiff_url") != udiff_url(date.fromisoformat(iso))
+            or row.get("benchmark_url") != index_snapshot_url(
+                date.fromisoformat(iso)
             )
             or not row.get("udiff_sha256")
             or not row.get("benchmark_sha256")
