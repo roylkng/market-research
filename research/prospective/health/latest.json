@@ -1,12 +1,13 @@
 {
   "after_market_close": false,
   "as_of_date": "2026-10-14",
-  "blocker_count": 4,
+  "blocker_count": 5,
   "blockers": [
     "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T004_DELIVERY_WARMUP",
-    "T006_SOURCE_TIMING"
+    "T006_SOURCE_TIMING",
+    "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
   ],
   "calendar_sha256": "2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce",
   "calendar_version": "NSE-CM-FY27Q2-v1",
@@ -43,7 +44,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "b65652af62216c206cbc297421f7aeb58c19eea7ab901f773ff843d05ba215ca",
+      "ledger_sha256": "aa008c415ddaccdf7c293efd9d842d6c035926ccbcf21ab593ae6246bae9603e",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -185,6 +186,30 @@
         "state": "ACCUMULATING_EVIDENCE"
       },
       "state": "BLOCKED_BY_SC002_SAME_DAY_FUTURES_TIMING"
+    },
+    "T012": {
+      "calendar_last_session": "2026-12-31",
+      "calendar_minimum_60_session_shortfall": 8,
+      "decision_count": 0,
+      "decision_ledger_sha256": "2e8c478a7f0e5c0f2a750eab1fb36a85fcec8eed6731a23c140beeff945ae15f",
+      "first_eligible_feature_session": "2026-10-15",
+      "forward_calendar_extension_not_backfillable": true,
+      "forward_only_calendar_extension_required": true,
+      "frozen_calendar_max_possible_feature_sessions": 52,
+      "h1_outcome_count": 0,
+      "h5_outcome_count": 0,
+      "live_capital_allowed": false,
+      "minimum_primary_decisions": 60,
+      "minimum_valid_paired_ic_sessions": 50,
+      "outcome_count": 0,
+      "outcome_ledger_sha256": "f38b958ea65ec5a6cc47980aaaac7c76183ca8e22c9bce7009dac3c823b879e0",
+      "primary_assessed": false,
+      "primary_status": null,
+      "source_readiness_not_equivalent_to_prediction": true,
+      "state": "PREREGISTERED_AWAITING_FIRST_DECISION",
+      "trial_id": "AE001-T012",
+      "trial_registered": true,
+      "trial_registration_event_sha256": "eebf814f806f532f0cfd39626ee721f455211fadd8b85c0bbb12ba9f803b278f"
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
@@ -192,5 +217,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "691311192bfd55356945fcbaf51c4e41890a469e0815e2e364f3eef0fac00769"
+  "summary_sha256": "4ba522d5180dea80b781a8c3c3c2eb112e11b0b9475960a757472e90c8839172"
 }
