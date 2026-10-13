@@ -16,9 +16,9 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.alpha_market import DailyEquityObservation, parse_udiff_eq_panel
+from marketlab.h021_daily_prices import validate_daily_source_observation
 from marketlab.hg007_28_liquidity import _valid_bar, validate_twenty_day_all_28
 from marketlab.hg007_eq_absence_review import _original_full_market_rows
-from marketlab.h021_daily_prices import validate_daily_source_observation
 from marketlab.marketdata import index_snapshot_url, udiff_url
 
 AUDIT_ID = "HG007-P047-2026-10-13-28-CASE-OFFICIAL-NSE-SOURCE-v1"
