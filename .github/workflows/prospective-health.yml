@@ -94,7 +94,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TODAY="$(TZ=Asia/Kolkata date +%F)"
           OUTPUT="research/prospective/health/latest.json"
 
           git config user.name "marketlab-research-bot"
@@ -104,9 +103,10 @@ jobs:
             git fetch origin main
             git checkout --detach origin/main
 
+            SNAPSHOT_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Health observation UTC instant: $SNAPSHOT_UTC"
             python scripts/build_prospective_health.py \
-              --as-of-date "$TODAY" \
-              --after-market-close \
+              --as-of-utc "$SNAPSHOT_UTC" \
               --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
               --sc001-ledger research/prospective/ae001-sc001/source-ledger.json \
               --sc002-ledger research/prospective/ae001-sc002/source-ledger.json \
