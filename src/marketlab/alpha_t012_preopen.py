@@ -81,20 +81,30 @@ def require_t012_registration(
         raise AlphaContractError("T012 trial calendar mismatch")
     if payload.get("model_artifact_sha256") != MODEL_ARTIFACT_SHA256:
         raise AlphaContractError("T012 model artifact lineage mismatch")
-    if payload.get("sc003_source_ledger_sha256_at_freeze") != sc003_ledger[
-        "ledger_sha256"
-    ]:
-        # SC003 remains append-only after registration. Exact original source
-        # hash must be verified against the registration's frozen prefix below.
-        frozen_target_hashes = payload.get("source_gate_attempt_hashes")
-        if frozen_target_hashes != [
-            row["attempt_sha256"]
-            for row in validated_preopen_ready_attempts(
-                sc003_ledger, calendar=calendar
-            )
-            if row["target_session_date"] in EXPECTED_SOURCE_TARGETS
-        ]:
-            raise AlphaContractError("T012 source gate evidence changed after freeze")
+    # SC003 may accumulate new observations, but the *entire* original
+    # five-attempt source ledger, including two failed probes, is immutable.
+    # Proving only the original READY attempt hashes would leave room to
+    # rewrite source-timing failures without invalidating the registration.
+    frozen_attempt_count = 5
+    if len(sc003_ledger["attempts"]) < frozen_attempt_count:
+        raise AlphaContractError("T012 source evidence prefix truncated")
+    frozen_prefix = {
+        "schema_version": sc003_ledger["schema_version"],
+        "ledger_id": sc003_ledger["ledger_id"],
+        "attempt_count": frozen_attempt_count,
+        "attempts": sc003_ledger["attempts"][:frozen_attempt_count],
+        "live_capital_allowed": False,
+    }
+    if digest(frozen_prefix) != payload.get("sc003_source_ledger_sha256_at_freeze"):
+        raise AlphaContractError("T012 sealed SC003 evidence prefix changed")
+    frozen_target_hashes = payload.get("source_gate_attempt_hashes")
+    observed_gate_hashes = [
+        row["attempt_sha256"]
+        for row in validated_preopen_ready_attempts(sc003_ledger, calendar=calendar)
+        if row["target_session_date"] in EXPECTED_SOURCE_TARGETS
+    ]
+    if frozen_target_hashes != observed_gate_hashes:
+        raise AlphaContractError("T012 source gate attempts changed after freeze")
     frozen_date = _utc(
         registration["recorded_at_utc"], label="registration recorded_at_utc"
     ).astimezone(IST).date()
