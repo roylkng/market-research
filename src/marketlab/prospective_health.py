@@ -15,6 +15,8 @@ from marketlab.alpha_t012_decisions import validate_t012_decision_ledger
 from marketlab.alpha_t012_outcomes import validate_t012_outcome_ledger
 from marketlab.alpha_t012_preopen import (
     CALENDAR_SHA256 as T012_CALENDAR_SHA256,
+)
+from marketlab.alpha_t012_preopen import (
     FIRST_FEATURE_SESSION as T012_FIRST_FEATURE_SESSION,
 )
 from marketlab.alpha_trials import trial_state, validate_trial_ledger
