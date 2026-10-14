@@ -11,6 +11,7 @@ import copy
 import gzip
 import hashlib
 import io
+import json
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -136,12 +137,13 @@ def _numeric_in_line(line: str, token: str) -> bool:
 def _check_html(raw: bytes, spec: dict, rule: dict) -> dict:
     content = BeautifulSoup(raw, "html.parser")
     full = _squash(content.get_text(" ", strip=True))
+    is_standalone = "STANDALONE" in rule["reporting_basis"]
+    basis = "standalone" if is_standalone else "consolidated"
     if (
-        _squash("NSE Symbol") not in full
+        "nse symbol" not in full
         or spec["symbol"].casefold() not in full
         or spec["isin"].casefold() not in full
-        or "standalone" not in full if "STANDALONE" in rule["reporting_basis"]
-        else "consolidated" not in full
+        or basis not in full
     ):
         raise AlphaContractError("P010 issuer symbol/ISIN/basis not source verified")
     if _squash(rule["period_end"]) not in full:
@@ -236,7 +238,7 @@ def build_p010_evidence(root: Path) -> dict[str, Any]:
     ))
     evidence_by_doc: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for path in all_receipts:
-        receipt = __import__("json").loads(path.read_text(encoding="utf-8"))
+        receipt = json.loads(path.read_text(encoding="utf-8"))
         validate_original_receipt(receipt, root=root)
         name = receipt["document_id"]
         if name not in originals:
@@ -311,8 +313,8 @@ def build_p010_evidence(root: Path) -> dict[str, Any]:
             "original_issuer_source_version_proofs": audit_versions,
             "state": state,
             "conditionally_verified_reported_facts_cr": (
-                rules["summary_crore"] if state ==
-                "ORIGINAL_SOURCE_TEXT_MATCHED_NOT_INVESTMENT_READY"
+                rules["summary_crore"]
+                if state == "ORIGINAL_SOURCE_TEXT_MATCHED_NOT_INVESTMENT_READY"
                 else None
             ),
             "company_equity_value_verified": False,
