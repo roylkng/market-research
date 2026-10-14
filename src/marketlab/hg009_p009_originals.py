@@ -165,13 +165,12 @@ def original_source_receipt(
     fetch: Callable[[str], tuple[int, bytes | None]],
     recorded_at_utc: datetime,
     repo_root: Path,
+    completed_at_utc: datetime | None = None,
 ) -> dict[str, Any]:
     if recorded_at_utc.tzinfo is None:
         raise AlphaContractError("P009 observation timestamp must be timezone-aware")
-    recorded = recorded_at_utc.astimezone(UTC).isoformat()
-    # Do not claim issuer publication was observed at its stated publication
-    # date. Actual retrieval timestamp is always the current attempt.
-    if recorded[:10] < spec["original_issuer_publication_date"]:
+    started = recorded_at_utc.astimezone(UTC)
+    if started.date().isoformat() < spec["original_issuer_publication_date"]:
         raise AlphaContractError("P009 original document cannot be observed before filing")
     try:
         status, raw = fetch(spec["source_url"])
@@ -179,6 +178,14 @@ def original_source_receipt(
         status, raw, err = None, None, type(exc).__name__
     else:
         err = None
+    # The acquisition receipt is sealed AFTER the HTTP result. Do not use the
+    # attempt-start time as an earlier publication or retrieval timestamp.
+    completed = (
+        datetime.now(UTC) if completed_at_utc is None else completed_at_utc
+    )
+    if completed.tzinfo is None or completed.astimezone(UTC) < started:
+        raise AlphaContractError("P009 completed retrieval before start time")
+    finished_at = completed.astimezone(UTC).isoformat()
     state = "BLOCKED_ORIGINAL_HTTP"
     source_sha = None
     archive_path = None
@@ -206,7 +213,9 @@ def original_source_receipt(
         "schema_version": 1,
         "program_id": PROGRAM_ID,
         **spec,
-        "actual_retrieved_at_utc": recorded,
+        "attempt_started_at_utc": started.isoformat(),
+        "actual_retrieved_at_utc": finished_at,
+        "capture_clock_rule": "HTTP_RESPONSE_COMPLETION_UTC_V2",
         "http_status": status,
         "state": state,
         "error_class": err,
