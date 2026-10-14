@@ -34,6 +34,7 @@ from marketlab.hg009_daily_io import (
     original_source_bytes as _original_raw,
 )
 
+
 def _next_available_source(
     *,
     root: Path,
