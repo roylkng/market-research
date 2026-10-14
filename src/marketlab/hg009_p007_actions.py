@@ -7,6 +7,7 @@ can NEVER certify a clean, economically adjusted equity total return.
 from __future__ import annotations
 
 import copy
+import json
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -170,8 +171,6 @@ def validate_action_hazard_audit(value: dict[str, Any]) -> None:
 
 
 def load_original_hg009_sources(repo_root: Path) -> tuple[dict, dict, dict]:
-    import json
-
     original, selected = load_hg009_inputs(repo_root)
     controls = json.loads((repo_root / CONTROL_PATH).read_text("utf-8"))
     return original, selected, controls
