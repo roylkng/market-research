@@ -237,9 +237,7 @@ def build_datamatics_reverse_hurdle(
             100 * fy26_cash_proxy / mcap, 2
         ),
         "fy26_financial_borrowings_less_cash_inr_crore_excluding_lease": round(
-            facts["fy26_noncurrent_consolidated_borrowing_inr_crore"]
-            if "fy26_noncurrent_consolidated_borrowing_inr_crore" in facts
-            else facts["fy26_consolidated_noncurrent_borrowing_inr_crore"]
+            facts["fy26_consolidated_noncurrent_borrowing_inr_crore"]
             + facts["fy26_consolidated_current_borrowing_inr_crore"]
             - facts["fy26_consolidated_cash_and_equivalents_inr_crore"],
             3,
