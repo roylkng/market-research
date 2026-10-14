@@ -22,9 +22,19 @@ from marketlab.alpha import AlphaContractError, digest
 
 SOURCE_URL_PREFIX = "https://nsearchives.nseindia.com/corporate/ixbrl/"
 EXPECTED_ROWS = {
+    # Independently transcribed NSE FY26 consolidated P&L and cash-flow cells.
+    # Do not certify a source merely because the first three figures match.
     "pretax_profit": ("profit before tax", "total profit before tax"),
     "operating_cfo": ("net cash flows from (used in) operating activities",),
     "ppe_purchase": ("purchase of property, plant and equipment",),
+    "financing_lease_principal": ("payments of lease liabilities",),
+    "financing_interest_paid": ("interest paid",),
+    # Balance-sheet cells. Source set has noncurrent borrowings 0 in FY26,
+    # with declared borrowings equal to current borrowings.
+    "cash_equivalents": ("cash and cash equivalents",),
+    "financial_borrowings": ("borrowings, current",),
+    "current_investments": ("current investments",),
+    "noncontrolling_equity": ("non controlling interest", "non-controlling interest"),
 }
 
 
