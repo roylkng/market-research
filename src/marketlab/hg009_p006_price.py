@@ -17,8 +17,8 @@ from marketlab.alpha import AlphaContractError, digest
 from marketlab.calendar_snapshot import CalendarSnapshot
 from marketlab.hg009_daily import (
     RECORD_ID as DAILY_RECORD_ID,
-    validate_hg009_daily_snapshot,
 )
+from marketlab.hg009_daily import validate_hg009_daily_snapshot
 from marketlab.hg009_p004_clock import (
     FIRST_ENTRY,
     PROTOCOL_ID,
@@ -84,6 +84,10 @@ def _source_rows(
         key = (row.get("symbol"), row.get("frozen_isin"))
         if arm not in expected or key not in expected[arm] or key in lookup:
             raise AlphaContractError("HG009 P006 original source membership/ISIN drift")
+        if row.get("source_original_udiff_sha256") != packet.get(
+            "original_market_source_sha256"
+        ):
+            raise AlphaContractError("HG009 P006 original NSE cash row source drift")
         if row.get("actual_trade_fill") is not False:
             raise AlphaContractError("HG009 P006 original OHLC is not executed fill")
         if row.get("corporate_action_adjusted") is not False:
@@ -164,6 +168,8 @@ def build_hg009_price_only_diagnostic(
         selected=selected,
         controls=controls,
     )
+    if protocol.get("protocol_id") != PROTOCOL_ID:
+        raise AlphaContractError("HG009 P006 wrong frozen outcome protocol")
     if horizon_sessions not in HORIZONS:
         raise AlphaContractError(
             "HG009 P006 H20/H60 not cleared by original calendar"
