@@ -18,6 +18,8 @@ from typing import Any
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_100 import (
     COHORT_ID as HG009_COHORT_ID,
+)
+from marketlab.hg009_100 import (
     FROZEN_SOURCE_SHA,
     _frozen_router_check,
     load_hg001_router,
