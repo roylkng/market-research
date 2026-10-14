@@ -1,0 +1,70 @@
+name: HG009 P008 source-pinned ten-company cash underwriting gates
+
+on:
+  push:
+    branches:
+      - research/hg009-p008-ten-case-cash-proof-and-valuation-contract-20261014
+    paths:
+      - .github/workflows/hg009-p008-proof.yml
+      - registry/hg009_p008_fy26_nse_cash_facts.json
+      - src/marketlab/hg009_p008_underwriting.py
+      - src/marketlab/hg009_p008_capture.py
+      - scripts/capture_hg009_p008_originals.py
+      - tests/test_hg009_p008_capture.py
+      - src/marketlab/hg009_p008_valuation.py
+      - scripts/materialize_hg009_p008.py
+      - tests/test_hg009_p008.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p008-ten-case-original-evidence-freeze
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Replay original historical source identities, produce ten dossiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p008.py
+          python scripts/materialize_hg009_p008.py --check
+          ruff check src/marketlab/hg009_p008_underwriting.py src/marketlab/hg009_p008_valuation.py src/marketlab/hg009_p008_capture.py scripts/materialize_hg009_p008.py scripts/capture_hg009_p008_originals.py tests/test_hg009_p008.py tests/test_hg009_p008_capture.py
+          pytest -q tests/test_hg009_p008.py tests/test_hg009_p008_capture.py
+      - name: Attempt original NSE issuer HTML archival and preserve blocked receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_hg009_p008_originals.py --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Anchor signed source-only evidence, without investor recommendations
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p008-ten-underwriting-evidence-v1.json
+          if [ -d research/hg009/p008-originals ]; then
+            git add -f research/hg009/p008-originals
+          fi
+          if git diff --cached --quiet; then
+            echo "P008 signed original ten-company report is already sealed"
+            exit 0
+          fi
+          git commit -m "HG009 P008: freeze ten source-bound company cash and valuation gates [skip ci]"
+          git fetch origin research/hg009-p008-ten-case-cash-proof-and-valuation-contract-20261014
+          git rebase origin/research/hg009-p008-ten-case-cash-proof-and-valuation-contract-20261014
+          python scripts/materialize_hg009_p008.py --check
+          git push origin HEAD:research/hg009-p008-ten-case-cash-proof-and-valuation-contract-20261014
