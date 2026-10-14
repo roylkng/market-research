@@ -20,6 +20,7 @@ def verify(root: Path) -> dict:
     archive_root = root / ARCHIVE_ROOT / "attempts"
     statuses = Counter()
     archived = set()
+    versions: dict[str, set[str]] = {document_id: set() for document_id in sources}
     checked = []
     for path in sorted(archive_root.glob("*.json")) if archive_root.exists() else []:
         receipt = json.loads(path.read_text(encoding="utf-8"))
@@ -38,6 +39,7 @@ def verify(root: Path) -> dict:
         statuses[receipt["state"]] += 1
         if receipt.get("raw_repo_path"):
             archived.add(name)
+            versions[name].add(receipt["raw_sha256"])
         checked.append({
             "document_id": name,
             "source_sha256": receipt.get("raw_sha256"),
@@ -49,6 +51,15 @@ def verify(root: Path) -> dict:
         "predeclared_document_count": len(sources),
         "verified_attempt_count": len(checked),
         "unique_archived_document_count": len(archived),
+        "original_byte_versions_per_document": {
+            name: sorted(values)
+            for name, values in sorted(versions.items())
+        },
+        "issuer_documents_with_multiple_raw_byte_versions": sorted(
+            name for name, values in versions.items() if len(values) > 1
+        ),
+        "different_html_bytes_may_have_different_financial_values": True,
+        "no_version_is_silently_promoted": True,
         "retrieval_states": dict(sorted(statuses.items())),
         "receipt_evidence": checked,
         "all_issuer_financial_values_verified": False,
