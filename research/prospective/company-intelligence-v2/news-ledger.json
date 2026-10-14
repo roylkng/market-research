@@ -9210,9 +9210,122 @@
         "SNAPSHOT_CAPTURED": 7
       },
       "started_at": "2026-10-14T14:38:32.134456+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "captured_at": "2026-10-14T14:42:56.098272+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "b3aba7f1e20587e4c77a5de2b720cbcd5d8f4c8fe42e1b67f06f0d7deaabbf46",
+      "identity_session": "2026-10-13",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "fa0df2fa8e706fc3356a5fd8b29672cba24d462c506086d78a45e17a906ed945",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-10-14T14:42:14.928431+00:00"
     }
   ],
-  "ledger_sha256": "5a676c1bb8ab6cc0f17ca17644bc124c078538d17188d7e688b919c5ef295b61",
+  "ledger_sha256": "60e7832ddc24e8b6ca75da2872b540edb99854ca7cdc376a6237db890ca27cc7",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -725099,6 +725212,625 @@
       "source_id": "mint-markets",
       "title_sha256": "ea61cd9ac1621b5451658eb38852297ab3c8770cf898796ea3ed23e3de868753",
       "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "7990c01564400fa7296e26bfb9188218ef4381405bf08ac1cb24f52e07beea55",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "00bfa4dcd360381edbb81c48c7dd8f737af8d0ca0d09179376266c08982ae0b7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:38:00 +0000",
+        "value": "2026-10-14T14:38:00+00:00"
+      },
+      "resource_key": "prn:302908711",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2564eb205ce741f5c7b16e8c201432866e9ddc96c52fcc73970358745db5a4ef",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "ae6bc149602d0f7a70dd0a3cfdd0d7491702bd4e1fbbdf0168cb176160d72aba",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0191ec0bbdb44a68304eb239688d0fd28647b17774a12596f8f073acf47648e2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:25:00 +0000",
+        "value": "2026-10-14T14:25:00+00:00"
+      },
+      "resource_key": "prn:302908698",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a89452e079127929ab67d5875ccf26d1523474ec13ab75eb4bc526bd9244ed4b",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "5fee00dbddb038beee9a337a144ac0954eb10f11548900268dd759da58ea0b5e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0768c2bf64d983fc178c2d886633ad9c79abd1d87882774f7af8629a9d6a8b94",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:31:00 +0000",
+        "value": "2026-10-14T14:31:00+00:00"
+      },
+      "resource_key": "prn:302908705",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a89452e079127929ab67d5875ccf26d1523474ec13ab75eb4bc526bd9244ed4b",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "a0c1f8fda2a1c2abf7c4294b9e118f344bec3ee6abb969c2c3da378251074100",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0ba5defb4db03b2631badf25ccc398d94f259da9e874c36ce5bc344380654ead",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:32:00 +0000",
+        "value": "2026-10-14T14:32:00+00:00"
+      },
+      "resource_key": "prn:302908706",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "128f10bc0f3e548659465ae078767bdd8dd3731a1609498f24bf764ac664ce13",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "ada62ffe258a919f02719b6f0f0c0babc8627fad1b9842f05e197192bf691236",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0fcc15b669510abbe613d116064835887b1510bd7d60a77dac5da385c19598f8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:20:00 +0000",
+        "value": "2026-10-14T14:20:00+00:00"
+      },
+      "resource_key": "prn:302907597",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "25cefcf9e394960b6921b03842df706bd25a91d0f217954f748c44d953ce5626",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "503a27bd8f38b43f4ccdf74b6a05cdfbfd5a5143f02ee836767eb9b8ca16a57c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1dd2345d2a1dc3d7b40fb56e81995a5e829306517bf6f8eacb719501caa0c684",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:22:00 +0000",
+        "value": "2026-10-14T14:22:00+00:00"
+      },
+      "resource_key": "prn:302908176",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2bc9b575dac6ef5b7a464f2e49c5b8556e3c16f74e70c6200710efcbee7334f4",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "46f942d01d4eb43c9117b8f433781a67290fe216828b2693bf62c009350c69fc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2df5f3beb537f131246240e7e66c16e51a8fecae4f4a7b48e0e86e71ef1f420c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:35:00 +0000",
+        "value": "2026-10-14T14:35:00+00:00"
+      },
+      "resource_key": "prn:302906357",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "54c3dbdbd07c4212486af36290dc0f7c228b0197bba362ed2f547983d6fef41d",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "32b0292be35417c84b7d69c0a7d26d17d4b7d9a287e0076d5f85c836d4cb9369",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "41c6d3e068c9fba463efc693b4c7398b10e9e1b3cef61e6dbdeab9cb83d74211",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:27:00 +0000",
+        "value": "2026-10-14T14:27:00+00:00"
+      },
+      "resource_key": "prn:302908700",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "ee62a3e489813b045c1ea6ada8d8f9aa175b1ab64413c1f022597863d1b39086",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "6a435b8c6a8c0dc5130976803e9ceace7c17c3b3c382cce10c30a5f9063c79d2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7171d95ac83f97c32751a36894f9fed79f8a703fe26b88f66f837dad1c7f2420",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:30:00 +0000",
+        "value": "2026-10-14T14:30:00+00:00"
+      },
+      "resource_key": "prn:302908338",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "51dc3c81704dccaba6e0a157a2cb4ee8621334b981dabf52549da38d297ce532",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "bce32d6f697a0f30347f82ab0f63e3a9f9004ef390cbb7512524a6aba450a9f9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "89681c5c385a628b2dcad8a45c21c1d1a155a358a7fdda7e4fde78754e82cb90",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:30:00 +0000",
+        "value": "2026-10-14T14:30:00+00:00"
+      },
+      "resource_key": "prn:302907727",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "6d21198ee0a0bb48584b9492804448a7f5551e43521c68a8663fd1022f9f6e04",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "fea02514f476b94ab7123760fbde4d64628c65a3b70731f23e72919962f7c609",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "96be441999a0bec4bf1fc242fb974401f5064a7e80847e6b219409127debe869",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:30:00 +0000",
+        "value": "2026-10-14T14:30:00+00:00"
+      },
+      "resource_key": "prn:302908243",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8747acc40b4b505461fd8e6eee887bbb5e815b636814ec8ce02e1d4db4649694",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "99480b2c09f388330214e1fcc043b2672ac899711d2c477d1311c34d84debe82",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "99b3033670fbdc038e6887842636c389e898561191aae06e269eb6c3b96f44c2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:33:00 +0000",
+        "value": "2026-10-14T14:33:00+00:00"
+      },
+      "resource_key": "prn:302908708",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "d9437e6437840f4c59e3487f4fcda59d3cc7f07facff529c0c7932a9d3e045d9",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "7d4eb3f92f0b8ae73a72fccd64651727553656507c6aa502e633357f7f8c5c8e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a1f1c2f07a694a5d7c0271b6f436ec96a7749f2fe0ae9b6b712f0ca53ef84070",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:31:00 +0000",
+        "value": "2026-10-14T14:31:00+00:00"
+      },
+      "resource_key": "prn:302908161",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "b891923e15baafd04107324f03a82554506dc5789d384ef3e7e0bd6097c814be",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "7f3db3293878acf4a083c2d4c22db3f5d72d1183868c519670ae31c6931144e0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a7a4aa0fa359180ae1c99eb55b1735b2c98b1371ad0ab54b0b2b95f94d4b7cb2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:30:00 +0000",
+        "value": "2026-10-14T14:30:00+00:00"
+      },
+      "resource_key": "prn:302908704",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "89aff31e7e25ee5ddd4d7146638a7950ebc59b33eab0c7cbb92fdf9825d29ca7",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "046f97cfa58b6aa32f96fbf5aa2ec6dfee84f1d9c5fe2e6c82ff5bab4cc35518",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ab7e31c64ca4531a47ef830ed8c17d424706be9c840b1c3fff14853be007717c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:28:00 +0000",
+        "value": "2026-10-14T14:28:00+00:00"
+      },
+      "resource_key": "prn:302908702",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "6653a2fc76c3c55d6efa7f528e5b704a1250904e162f06fb80f07f3805b3f8a3",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "6400deac336fc985ff7c426fb58fd38e3917a9d92127dabf2763f591e816313e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ac27ac28516bb686df9a03e8e8554d64862849fd994fbec433ceaee2bb85f636",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:37:00 +0000",
+        "value": "2026-10-14T14:37:00+00:00"
+      },
+      "resource_key": "prn:302908710",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "870231d5e7c5effaf145419dd8ef7c4530814cc66aa5e16dc781433ecdb5c6af",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "6513e53a27b8d301e1fe12750d473397e0d00ec6a874f890d144996e33f001e7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b918b66352789f7a726e72ec2f5625e13af5578350610870af1a782fa3fb86b7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:32:00 +0000",
+        "value": "2026-10-14T14:32:00+00:00"
+      },
+      "resource_key": "prn:302908167",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "45a3310c242bd3b278ce6232cc570658f88532b25bbcb80d6e1117ab538462a5",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "d84c534a0c943793d81e0b90d1495c5016a2d19e54c8ff86460c3c88bb6793b2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "badfbd85b235638af2cabb4c6177c93e105bf18005901270a7588949ff8ebafe",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:19:00 +0000",
+        "value": "2026-10-14T14:19:00+00:00"
+      },
+      "resource_key": "prn:302908692",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8da5fe3faee00d62b140e2992e4068089a9a1e0027d049e137a3cd2a42837ea2",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "7b5d028a0558c331dda585ef1551f6224425b75e111c6b2f06aa091a488bf74c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "daed3f4cd6a0c720c25fbf6f0c4fe22c04f088e37ccd4cd979ccbdf1df27a590",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:30:00 +0000",
+        "value": "2026-10-14T14:30:00+00:00"
+      },
+      "resource_key": "prn:302854459",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "35b1c7808d09010ae20f775dc30451434fe7d02db0873b575f358af9de820425",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-14T14:42:25.689618+00:00",
+      "item_id": "4ccc73d5576067153a770774721a24d3dd2c25962eed1cddc31a2dd675e2895f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eb6b7b82a83d6cd382a76a1ed8948b06db8bc973c5cbe8ec839885bd76e71a23",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 14 Oct 2026 14:23:00 +0000",
+        "value": "2026-10-14T14:23:00+00:00"
+      },
+      "resource_key": "prn:302908694",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "0efe850164e559ae4eba9f6ed7d44c47353cdc9449debfe0b5f7fcd1a147349e",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "Hariom Pipe Industries Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "4b3e823f3fb4927e5df6a85026c5f6f773d6764a23bc10cac84086fd1011603c",
+      "first_seen_at": "2026-10-14T14:42:26.351780+00:00",
+      "item_id": "f6969b914f8454d4c7d521d2892a4219c0a188f5038829badc813d89bfa14fe9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HARIOMPIPE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0c273fcb9ccf7586749257185cf91532490e35f029653e59e4b821ad13210c5f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "14-Oct-2026 20:09:08",
+        "value": "2026-10-14T14:39:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/hariompipes_14102026200128_SE_Intimation_of_HPEPL_Project_Commissioning_Certificate.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "fc67018e45f4b768a0d0b3ccacc1f42eb8382c752e0ed459e152166eff9ed83d",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "Sunteck Realty Limited has informed the Exchange about Certificate under SEBI (Depositories and Participants) Regulations, 2018 for the quarter ended 30th September, 2026 |SUBJECT: Certificate under SEBI (Depositories and Participants) Regulations, 2018",
+      "event_context_sha256": "6f9f5603326b5d03757a41b62a0e6d14e769598d9ff91a2bd7d8713413eb2bcd",
+      "first_seen_at": "2026-10-14T14:42:26.351780+00:00",
+      "item_id": "99b1b478866a4b341ce0de1b32f0ddaeb33d669fbdc84555ee13c59885972852",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SUNTECK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "131f358985b56a64917ee9a08e616a04dd391c24902dd9bef5ee771fffb2457e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "14-Oct-2026 20:10:48",
+        "value": "2026-10-14T14:40:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SUNTECK_14102026201032_SRL.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "735d2f382854ef38d5da72d6711a4adcb9ac8c08570a51090eb08c4a1bd53b25",
+      "topics": [
+        "POLICY_REGULATION",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "Delaplex Limited has informed the Exchange regarding 'Clarification on movement in share price'. |SUBJECT: Updates",
+      "event_context_sha256": "28d5fe832a33b866bbe822238619384bfbd85982ac6be6d175c20d9f6b408a07",
+      "first_seen_at": "2026-10-14T14:42:26.351780+00:00",
+      "item_id": "dac573c531fd45997eaf1705ef89dbab7c1665fff71d51dc873e8ce94c6e4a1e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5cb25ffdf24f8725f4390f6131f40df2d95c84bbd32de55f8f777e9119bbc2e9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "14-Oct-2026 20:09:13",
+        "value": "2026-10-14T14:39:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/DELAPLEX_14102026200901_Clarification_for_Movement_in_price_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ac32a3b28071ac183f86541563d3591e88923f77fc9ad4cacacdc35307805db7",
+      "topics": []
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "Leela Palaces Hotels & Resorts Limited has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "727ea889e37d3a6f5e280e4ba4b97f59c5a721c0edb784c10efdc6676f06fd7e",
+      "first_seen_at": "2026-10-14T14:42:26.351780+00:00",
+      "item_id": "723f402d1bb460e452e5e666cd57edb322fa1f0cff67a33a60c34f24b9d48267",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "73bdeadb510f3004ce5aad4657ce6219f21272124e8deaa42d6fc57a64493227",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "14-Oct-2026 20:08:36",
+        "value": "2026-10-14T14:38:36+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_24541_WebXMLFile_20261014_200835240.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "2f08c0e5ef6e87d53eee86b85a78b6a4bbb1fd7d70efbcbbd5bf7d10cecc6a90",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "e844af240e7e62c7156e32fe141568f601ad08dc695f33c1466d07177fd75b9c",
+      "event_context": "FORCE MOTORS LTD has informed the Exchange about Certificate under SEBI (Depositories and Participants) Regulations, 2018 |SUBJECT: Certificate under SEBI (Depositories and Participants) Regulations, 2018",
+      "event_context_sha256": "688241a78031429302168c1c6915bcecf8f476af29b6578c70f7afb121473309",
+      "first_seen_at": "2026-10-14T14:42:26.351780+00:00",
+      "item_id": "e0ee35e998d04099ce29b287c4c5fdc308fa93b87920a69090712427a8626ea1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "FORCEMOT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f43eb83fe5d2405940d52a46b6d0a69108a0e1fdd0ab0c240aecec7333857acb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "14-Oct-2026 20:11:27",
+        "value": "2026-10-14T14:41:27+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/FORCEMOTORS_14102026201112_inti74514102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c779e1e162a931c8ae84620606e1e74c4516ef9ae0bebc4b039bb6c612ab0dca",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
     }
   ],
   "schema_version": 1
