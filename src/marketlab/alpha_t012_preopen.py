@@ -60,13 +60,18 @@ def require_t012_registration(
         raise AlphaContractError("T012 frozen calendar hash mismatch")
     readiness = require_preopen_successor_freeze_ready(sc003_ledger, calendar=calendar)
     targets = readiness["ready_target_sessions"]
+    # A real new READY SC003 session (e.g., Oct 14) can arrive between the
+    # Oct 13 trial registration and the first Oct 15 D feature session.
+    # Filtering all dates before D would falsely invalidate the preregistered
+    # model, despite these later observations having their own source clock.
+    # The immutable *first five source attempts* and the exact three frozen
+    # READY target hashes are separately checked below.
     original_targets = tuple(
-        session for session in targets if session < FIRST_FEATURE_SESSION
+        session for session in targets if session in EXPECTED_SOURCE_TARGETS
     )
     if original_targets != EXPECTED_SOURCE_TARGETS:
         raise AlphaContractError("T012 registration readiness targets drifted")
-    # New prospective source captures are allowed only after registration.
-    # The readiness proof is permanently the original three observations.
+    # New source observations do not amend or backdate the three freeze probes.
 
     state = trial_state(trial_ledger, TRIAL_ID)
     if state["result_count"] or state["amendment_count"]:
