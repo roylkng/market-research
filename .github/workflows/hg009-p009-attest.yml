@@ -1,0 +1,57 @@
+name: HG009 P009 independently attest first NSE issuer source bytes
+
+on:
+  push:
+    branches:
+      - research/hg009-p008-p009-original-nse-issuer-attestation-20261015
+    paths:
+      - .github/workflows/hg009-p009-attest.yml
+      - src/marketlab/hg009_p009_attestation.py
+      - scripts/materialize_hg009_p009.py
+      - tests/test_hg009_p009_attestation.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p009-original-issuer-source-attestation
+  cancel-in-progress: false
+
+jobs:
+  attest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify original NSE issuer bytes and immutable first source receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p009.py
+          python scripts/materialize_hg009_p009.py --check
+          ruff check src/marketlab/hg009_p009_attestation.py scripts/materialize_hg009_p009.py tests/test_hg009_p009_attestation.py
+          pytest -q tests/test_hg009_p009_attestation.py
+      - name: Seal three independent original-byte attestation entries
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p009-original-fy26-attestation-v1.json
+          if git diff --cached --quiet; then
+            echo "P009 original first-source attestation already signed"
+            exit 0
+          fi
+          git commit -m "HG009 P009: independently attest first three original issuer source receipts [skip ci]"
+          git fetch origin research/hg009-p008-p009-original-nse-issuer-attestation-20261015
+          git rebase origin/research/hg009-p008-p009-original-nse-issuer-attestation-20261015
+          python scripts/materialize_hg009_p009.py --check
+          git push origin HEAD:research/hg009-p008-p009-original-nse-issuer-attestation-20261015

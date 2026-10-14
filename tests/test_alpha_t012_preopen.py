@@ -201,3 +201,34 @@ def test_t012_rejects_cash_source_timestamp_before_frozen_close() -> None:
             sc001_ledger=cash,
             **args,
         )
+
+
+
+def test_later_oct14_sc003_readiness_does_not_rewrite_oct13_registration() -> None:
+    args = _inputs()
+    assert len(args["sc003_ledger"]["attempts"]) > 5
+    registration = require_t012_registration(**args)
+    original = registration["payload"]
+    assert original["source_gate_target_sessions"] == [
+        "2026-10-01", "2026-10-05", "2026-10-12"
+    ]
+    assert len(original["source_gate_attempt_hashes"]) == 3
+    assert original["earliest_feature_session"] == "2026-10-15"
+    assert original["live_capital_allowed"] is False
+    # The latest Oct 14 (and future) probe belongs to source-time history,
+    # not the original three pre-registration success targets.
+    assert args["sc003_ledger"]["attempt_count"] > 5
+
+
+def test_later_sc003_source_append_does_not_weaken_original_prefix_hash() -> None:
+    args = _inputs()
+    pristine = require_t012_registration(**args)
+    assert pristine["trial_id"] == "AE001-T012"
+    tampered = copy.deepcopy(args)
+    original_attempt = tampered["sc003_ledger"]["attempts"][2]
+    original_attempt.pop("attempt_sha256")
+    original_attempt["raw_sha256"] = "a" * 64
+    original_attempt["attempt_sha256"] = digest(original_attempt)
+    _resign_ledger(tampered["sc003_ledger"])
+    with pytest.raises(AlphaContractError, match="sealed SC003 evidence prefix changed"):
+        require_t012_registration(**tampered)
