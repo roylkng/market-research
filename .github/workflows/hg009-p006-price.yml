@@ -1,0 +1,138 @@
+name: HG009 P006 calendar-safe H1 H5 NSE price diagnostic
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - HG009 P002 original NSE source observations for 300
+    types:
+      - completed
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hg009-p006-price.yml
+      - src/marketlab/hg009_p006_price.py
+      - scripts/evaluate_hg009_p006_price.py
+      - research/hg009/daily/**
+  schedule:
+    # 22:00 IST after NSE full-market source capture, plus next-day fallback.
+    # The actual exchange close and original data timestamps decide eligibility.
+    - cron: '30 16 * * 1-5'
+    - cron: '0 4 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p006-nse-source-price-horizons
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Refresh latest canonical scientific protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "BASE_MAIN_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify source-only H1 H5 diagnostics and regression gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check \
+            src/marketlab/hg009_p006_price.py \
+            scripts/evaluate_hg009_p006_price.py \
+            tests/test_hg009_p006_price.py
+          pytest -q tests/test_hg009_p006_price.py tests/test_hg009_daily.py
+          python scripts/verify_hg009_daily.py
+          python scripts/evaluate_hg009_p006_price.py --check
+
+      - name: Evaluate only completed NSE H1 H5 prices, without total-return promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/hg009-p006
+          python scripts/evaluate_hg009_p006_price.py | tee /tmp/hg009-p006/result.json
+          python scripts/evaluate_hg009_p006_price.py --check | tee /tmp/hg009-p006/replay.json
+
+      - name: Seal future original price diagnostics after source verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="research/hg009/price-diagnostics"
+          if [ ! -d "$OUT" ]; then
+            echo "HG009: H1/H5 not yet source-mature, no research return implied"
+            exit 0
+          fi
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f "$OUT"
+          if git diff --cached --quiet; then
+            echo "No new original-source price-only H1/H5 report"
+            exit 0
+          fi
+          git commit -m "HG009 P006: seal complete-original-source H1 H5 price diagnostics [skip ci]"
+          CHECK_PATHS=(
+            ".github/workflows/hg009-p006-price.yml"
+            "research/hg009/hg009-p004-2026-outcome-clock-v1.json"
+            "research/hg009/hg009-d001-100-experimental-companies-v1.json"
+            "research/hg009/hg009-p001-matched-300-company-controls-v1.json"
+            "research/hg009/daily"
+            "research/hg009/price-diagnostics"
+            "research/prospective/h021/daily-prices"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "src/marketlab/hg009_p006_price.py"
+            "src/marketlab/hg009_daily.py"
+            "scripts/evaluate_hg009_p006_price.py"
+          )
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            LATEST="$(git rev-parse origin/main)"
+            if [ "$LATEST" != "$BASE_MAIN_SHA" ]; then
+              if ! git diff --quiet "$BASE_MAIN_SHA" "$LATEST" -- "${CHECK_PATHS[@]}"; then
+                echo "Original source or predeclared H1/H5 methodology changed after evaluation"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/evaluate_hg009_p006_price.py --check
+            fi
+            if git push origin HEAD:main; then
+              echo "HG009 P006 original-source price diagnostic anchored on main"
+              exit 0
+            fi
+            sleep "$((RETRY * 2))"
+          done
+          echo "Cannot remotely anchor HG009 P006; do not count this as evidence"
+          exit 1
+
+      - name: Retain operational run status, not exchange-price proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg009-p006-observation-diagnostics
+          path: /tmp/hg009-p006
+          retention-days: 90
+          if-no-files-found: ignore
