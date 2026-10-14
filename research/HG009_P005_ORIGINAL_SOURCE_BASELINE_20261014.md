@@ -44,3 +44,25 @@ Future scientific validation needs source-backed sector/size/industry controls, 
 Run python scripts/materialize_hg009_p005.py --check and pytest -q tests/test_hg009_p005_baseline.py. The signed 300-company and three-arm result appears in research/hg009/hg009-p005-source-baseline-300-v1.json. No returns, investment scores, predicted upside or capital authorization are permitted.
 
 NSE's unresolved November 8, 2026 Muhurat classification and official 2027 calendar extension remain separate future-return measurement gates, not excuses to infer session dates.
+
+
+## Measured original-source results before opening future market prices
+
+The exact immutable source replay on the October 14 freeze workflow generated packet **09b31afc59b2b2b5cd3278ee4c73a5cff4c12dc835486fd9a0726ad45202b25e**. The three groups are identical in **liquidity-band counts** but not in company operating performance. Values below are original historical source metrics, not Oct14 trading-day returns. Each group always retains 100 companies, so the observed denominator is reported beside each median.
+
+| Original source diagnostic | Selected 100 | One-signal 100 | Zero-signal 100 |
+|---|---:|---:|---:|
+| YoY revenue growth median | 19.69% (97 observed) | 20.88% (88) | 5.89% (71) |
+| YoY basic EPS growth median | 39.38% (87) | 15.89% (85) | -4.97% (63) |
+| Current PBT margin median | 16.95% (98) | 12.36% (88) | 8.94% (71) |
+| Finance cost YoY median | -3.52% (97) | +14.77% (86) | +1.98% (69) |
+| Historical daily turnover median | ₹10.38cr (100) | ₹10.41cr (100) | ₹10.37cr (100) |
+| Historical investment-asset review flags | 41 | 18 | 0 |
+| EPS/revenue divergence flags | 34 | 24 | 0 |
+| Negative pretax margin flags | 6 | 5 | 13 |
+
+**Scientific implication:** the selected and zero-signal arms are **very different on EPS growth, revenue growth, pretax margin and data missingness**, even before future price observations. The selected arm cannot be called alpha if it beats zero-lane names without meaningful sector, size, valuation and earnings-quality normalization.
+
+The original source zero-lane basic-EPS growth **mean** is about -114.34%, distorted by a -5,518.75% denominator-driven outlier. This is why source medians and missing denominator counts are essential. Extreme EPS growth or falling losses are not the same as sustainable, distributable owner earnings.
+
+The first next step is not a retrospective re-selection of preferred stocks. Preserve all 300 frozen identities, obtain future original market prices, publish coverage/missingness, and evaluate the *prospectively specified* method and independent cohorts under factor/style/corporate-action challenges. No shares become investable on the strength of this table alone.
