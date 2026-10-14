@@ -55,3 +55,10 @@ Source-pinned canonical outputs:
 - src/marketlab/hg009_p008_valuation.py
 
 Research result: **0/10 complete equity valuations, 0/10 capital-eligible candidates.** This is an honest blocker, not a failure to score stocks. Actual pricing requires collecting and archiving the primary legal, operating and cash-flow evidence above. Corporate-action/total-return treatment is tracked separately as HG009 P007 issue #438.
+
+
+## Original FY26 source-byte verification and DCF semantics
+
+After initially quarantining the original NSE HTML responses, a real-HTML regression identified embedded line breaks within issuer cash-flow labels. The corrected validator checks **nine independently transcribed fields** against complete original NSE source bytes for ACUTAAS, ACE, and TRAVELFOOD: PBT, operating CFO, PPE purchases, financing lease principal, financing interest, cash and equivalents, current borrowings, current investments, and minority equity. The initial failed attempts remain append-only evidence; verified content-addressed copies retain the exact NSE bytes and actual capture timestamps. This is **cash-statement-source verification**, not verification of sustainable parent-owner FCF or present-day share capital.
+
+The synthetic three-year cash-to-equity DCF discounts interim owner cash and a terminal owner-cash multiple to the *valuation date*. Its output is **present intrinsic-value sensitivity**, not a forecast of the share price at year three. The model must never annualize the present intrinsic-value gap and call it three-year realized stock return. P008 now reports a provisional margin of safety against an explicitly source-backed threshold and leaves both one-year and three-year realized-return expectations **null**. Probabilities remain gated on a verifiable, relevant reference class, with no empirical probabilities yet for real P008 companies.
