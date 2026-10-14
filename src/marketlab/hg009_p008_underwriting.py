@@ -149,6 +149,20 @@ def _fy26_cash(source: dict, isin: str) -> dict:
 
 
 def build_packet(sources: dict[str, dict], receipts: dict[str, dict]) -> dict:
+    # Git-blob checks happen at loading. Re-check embedded original packet
+    # signatures as well, to reject later in-memory source manipulation.
+    for source_key, sig_key in (
+        ("hg007", "packet_sha256"),
+        ("datamatics", "packet_sha256"),
+        ("hundred", "cohort_sha256"),
+        ("accounting", "packet_sha256"),
+    ):
+        signed_source = copy.deepcopy(sources[source_key])
+        original = signed_source.pop(sig_key, None)
+        if original != digest(signed_source):
+            raise AlphaContractError(
+                f"P008 tampered original signed source: {source_key}"
+            )
     events = sources["hg007"]
     old_cases = {x["symbol"]: x for x in sources["five"]["casework"]}
     hg007 = {x["symbol"]: x for x in events["cases"]}
@@ -156,6 +170,12 @@ def build_packet(sources: dict[str, dict], receipts: dict[str, dict]) -> dict:
     pilots = sources["accounting"]["original_nse_iXBRL_manual_filing_pilots"]
     audited = {x["symbol"]: x for x in sources["new_fy26"]["numeric_facts"]}
     p049 = sources["datamatics"]
+    exact_event_cohort = {
+        "ANANTRAJ", "AXITA", "DATAMATICS", "INOXGREEN",
+        "SAMBHV", "SANDESH", "SUVIDHAA",
+    }
+    if set(hg007) != exact_event_cohort:
+        raise AlphaContractError("P008 original seven direct identities drifted")
     if (
         events["active_direct_catalyst_count"] != 7
         or len(old_cases) != 5
