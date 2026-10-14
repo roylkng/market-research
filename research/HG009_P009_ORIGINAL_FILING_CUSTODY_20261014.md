@@ -45,3 +45,11 @@ The source archive is append-only by run ID, and each retrieved filing is addres
 - The revised P009 receipt records HTTP request start and **post-HTTP completion UTC** separately. Earlier first-run records retain their original source fields as historical attempt receipts, but cannot be treated as finer-than-available first-byte timing evidence.
 
 No archival state authorizes current diluted shares, cashflow normalization, dividends, full market-return performance or capital.
+
+## Final original-source archive receipt after collection
+
+The P009 source-capture and verifier workflow passed with distinct content-addressed copies for the Mayur FY26, PIX standalone FY26/FY27 and Datamatics FY26 original files. The POKARNA May 28 2026 NSE source returned HTTP 200 and **20,060,968 bytes**, exceeding the project's deliberate 8 MB direct Git archive limit. The source has not been lost, but its bytes must be retained through a separately auditable object-store route. POKARNA financial cashflow extraction remains blocked.
+
+Repeated issuer HTML downloads were not always byte-identical. MAYURUNIQ FY26 and PIXTRANS Q1 FY26 each produced more than one original raw SHA across attempts, while the verifier retains every version and **refuses automatic financial equivalence**. Original retrieval **completion UTC**, not just HTTP request start, is now recorded separately on new attempts.
+
+Next financial validation must bind a **specific** original raw SHA and leaf-statement financial row, accounting basis, date, symbol and ISIN. A different NSE HTML hash requires independent revalidation, never silent adoption. Source custody is not a market-price prediction.
