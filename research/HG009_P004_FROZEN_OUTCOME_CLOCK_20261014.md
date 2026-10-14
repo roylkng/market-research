@@ -36,3 +36,7 @@ If original corporate-action entitlement/dividend/source data are missing, only 
 Frozen source SHA for selected 100: **e904e5d69dc7a6c2a45ea3cf34933544bc2634f80e3666125185d475372864d5**. Controls SHA: **8c8d9781adf7900addd28a1a60f1cfb33bed9a1e4985e6c410a010d2c819eef8**.
 
 Run **python scripts/materialize_hg009_p004_clock.py --check** and **pytest -q tests/test_hg009_p004_clock.py**. The signed JSON record appears in research/hg009/hg009-p004-2026-outcome-clock-v1.json. No source price label, trade, stock expected return, scenario probability, capital authorization or portfolio weight can be inferred from this clock.
+
+## Immutable preregistration source receipt
+
+The separate HG009 P004 clock registration is signed as **da4588603dd248fb434ce956f2e89e833854e1c4cd268599c0f755ac4fea8aa9**. The source freeze job [38546767326](https://github.com/roylkng/market-research/actions/runs/38546767326) verified the original NSE calendar, full HG001 source cohort, both HG009 sample/control manifests, exact horizon chronology and no-return/no-trade status. This receipt is not evidence that October 15 NSE opens have occurred or that any investment alpha exists. A future filing/publication and calendar amendment must be time-sealed independently.
