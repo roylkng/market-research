@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
+from requests.exceptions import RequestException
+
 from marketlab.alpha import AlphaContractError, digest
 
 PROGRAM_ID = "HG009-P009-ORIGINAL-ISSUER-DOCUMENT-CUSTODY-v1"
@@ -151,7 +153,7 @@ def original_source_receipt(
         raise AlphaContractError("P009 original document cannot be observed before filing")
     try:
         status, raw = fetch(spec["source_url"])
-    except (OSError, ConnectionError, TimeoutError) as exc:
+    except (OSError, RequestException) as exc:
         status, raw, err = None, None, type(exc).__name__
     else:
         err = None
@@ -173,7 +175,7 @@ def original_source_receipt(
             archive_path = str(target.relative_to(repo_root))
             state = "RAW_ARCHIVED_NOT_YET_FINANCIALLY_OR_IDENTITY_VALIDATED"
         else:
-            state = "QUARANTINED_WRONG_OR_UNREADABLE_FORMAT"
+            state = "BLOCKED_UNREADABLE_FORMAT_RAW_NOT_PROMOTED"
     receipt: dict[str, Any] = {
         "schema_version": 1,
         "program_id": PROGRAM_ID,
