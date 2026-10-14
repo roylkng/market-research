@@ -1,0 +1,57 @@
+name: HG009 P003 freeze original accounting-quality diligence
+
+on:
+  push:
+    branches:
+      - research/hg009-p003-accounting-quality-gates-20261014
+    paths:
+      - .github/workflows/hg009-p003-accounting.yml
+      - src/marketlab/hg009_p003_accounting.py
+      - scripts/materialize_hg009_accounting.py
+      - tests/test_hg009_p003_accounting.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p003-immutable-accounting-redteam
+  cancel-in-progress: false
+
+jobs:
+  seal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deterministic MarketLab
+        run: python -m pip install -e '.[dev]'
+      - name: Freeze original HG001 source and issuer-filing redteam output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_accounting.py
+          python scripts/materialize_hg009_accounting.py --check
+          ruff check src/marketlab/hg009_p003_accounting.py scripts/materialize_hg009_accounting.py tests/test_hg009_p003_accounting.py
+          pytest -q tests/test_hg009_p003_accounting.py
+      - name: Publish deterministic accounting research without return backfill
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p003-accounting-quality-redteam-v1.json
+          if git diff --cached --quiet; then
+            echo "HG009 P003 original accounting source report already sealed"
+            exit 0
+          fi
+          git commit -m "HG009 P003: seal 100-name accounting redteam and two original issuer pilots [skip ci]"
+          git fetch origin research/hg009-p003-accounting-quality-gates-20261014
+          git rebase origin/research/hg009-p003-accounting-quality-gates-20261014
+          python scripts/materialize_hg009_accounting.py --check
+          git push origin HEAD:research/hg009-p003-accounting-quality-gates-20261014
