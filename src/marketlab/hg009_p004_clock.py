@@ -7,6 +7,7 @@ approve trading, backfill source time, or score outcome performance.
 from __future__ import annotations
 
 import copy
+import json
 from pathlib import Path
 from typing import Any
 
@@ -92,10 +93,7 @@ def build_hg009_outcome_clock(
         or controls.get("manifest_sha256") != CONTROL_SHA
     ):
         raise AlphaContractError("HG009 P004 300-company population changed")
-    if any(
-        x.get("selected_company_count") != 100
-        for x in [controls]
-    ):
+    if controls.get("selected_company_count") != 100:
         raise AlphaContractError("HG009 P004 100-name selected count drift")
     if (
         controls["zero_lane_control_company_count"] != 100
@@ -184,8 +182,6 @@ def validate_hg009_outcome_clock(
 
 
 def load_p004_inputs(root: Path) -> tuple[CalendarSnapshot, dict, dict, dict]:
-    import json
-
     calendar = load_calendar_snapshot(root / (
         "research/prospective/calendars/FY27-Q2-2026-09-06/"
         "NSE-CM-FY27Q2-v1.json"
