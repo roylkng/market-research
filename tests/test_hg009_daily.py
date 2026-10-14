@@ -258,9 +258,13 @@ def test_market_row_price_or_future_return_promotion_fails_packet_signature():
         validate_hg009_daily_snapshot(output)
 
 
-def test_empty_daily_observation_archive_remains_prestart():
+def test_source_replay_archive_is_valid_both_before_and_after_first_day():
     result = verify_daily_observations(ROOT)
-    assert result["state"] == "NO_PROSPECTIVE_MARKET_SOURCE_YET"
-    assert result["count"] == 0
+    assert result["state"] in {
+        "NO_PROSPECTIVE_MARKET_SOURCE_YET",
+        "VERIFIED_ORIGINAL_NSE_REPLAY",
+    }
+    assert result["count"] >= 0
+    assert result["count"] == len(result["verified"])
     assert result["no_stock_returns_scored"] is True
     assert result["live_capital_allowed"] is False
