@@ -8,7 +8,6 @@ retains full NSE cash + Nifty 500 originals. This derives a source-linked
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -23,40 +22,13 @@ from marketlab.hg009_daily import (
     build_hg009_daily_source_observation,
     validate_hg009_daily_snapshot,
 )
-
-CALENDAR = Path(
-    "research/prospective/calendars/FY27-Q2-2026-09-06/"
-    "NSE-CM-FY27Q2-v1.json"
+from marketlab.hg009_daily_io import (
+    CALENDAR,
+    CONTROL,
+    DAILY_OUTPUT,
+    load_json_source as _load_json,
+    original_source_bytes as _original_raw,
 )
-CONTROL = Path(
-    "research/hg009/hg009-p001-matched-300-company-controls-v1.json"
-)
-DAILY_OUTPUT = Path("research/hg009/daily")
-
-
-def _load_json(path: Path) -> dict[str, Any]:
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        raise TypeError(f"HG009 expected JSON source: {path}")
-    return data
-
-
-def _original_raw(
-    root: Path, receipt: dict[str, Any], *, suffix: str
-) -> bytes:
-    sha = str(receipt["sha256"])
-    if len(sha) != 64 or any(c not in "0123456789abcdef" for c in sha):
-        raise AlphaContractError("HG009 source SHA missing or malformed")
-    file = root / H021_SOURCE_DIR / "raw" / "sha256" / f"{sha}{suffix}"
-    if not file.is_file():
-        raise AlphaContractError(f"HG009 original NSE source absent: {file}")
-    raw = file.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != sha or len(raw) != receipt[
-        "byte_count"
-    ]:
-        raise AlphaContractError(f"HG009 original NSE byte mismatch: {file}")
-    return raw
-
 
 def _next_available_source(
     *,
