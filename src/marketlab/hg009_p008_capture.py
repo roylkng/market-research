@@ -116,6 +116,22 @@ def capture_issuer(
     try:
         parsed = validate_issuer_html(raw, facts, observed_at_utc=captured)
     except (AlphaContractError, UnicodeError, ValueError) as exc:
+        # An unverified NSE HTTP 200 payload is still original research
+        # evidence. Preserve its exact bytes in a segregated quarantine for
+        # independent inspection, never as a validated financial statement.
+        sha = hashlib.sha256(raw).hexdigest()
+        quarantined = None
+        if 0 < len(raw) <= 2_000_000:
+            target = (
+                root / "research/hg009/p008-originals/quarantine"
+                / symbol / f"{sha}.html.gz"
+            )
+            target.parent.mkdir(parents=True, exist_ok=True)
+            compressed = gzip.compress(raw, compresslevel=9, mtime=0)
+            if target.exists() and target.read_bytes() != compressed:
+                raise AlphaContractError("P008 quarantined original byte collision")
+            target.write_bytes(compressed)
+            quarantined = str(target.relative_to(root))
         return {
             "symbol": symbol,
             "source_url": facts["original_url"],
@@ -123,8 +139,12 @@ def capture_issuer(
             "state": "BLOCKED_ORIGINAL_NSE_IDENTITY_OR_CASH_ROW",
             "http_status": 200,
             "error_class": type(exc).__name__,
-            "raw_sha256": hashlib.sha256(raw).hexdigest(),
+            "blocked_reason": str(exc)[:256],
+            "raw_sha256": sha,
+            "raw_byte_count": len(raw),
             "original_raw_repo_path": None,
+            "quarantined_source_path_not_validated": quarantined,
+            "financial_fields_cleared_for_valuation": False,
             "live_capital_allowed": False,
         }
     sha = parsed["raw_sha256"]
