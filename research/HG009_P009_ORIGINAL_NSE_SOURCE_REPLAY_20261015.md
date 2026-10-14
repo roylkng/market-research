@@ -22,3 +22,9 @@ Reproduce with:
     pytest -q tests/test_hg009_p009_attestation.py
 
 The signed result lives at research/hg009/hg009-p009-original-fy26-attestation-v1.json.
+
+## Deterministic attestation receipt
+
+The independent source-freeze workflow generated and validated the three-file attestation without opening stock-return data. The completed immutable attestation packet SHA-256 is **993c53fd4bba1d43e08fda41767708a1c4366461cb2ddc24c3a065be2d1b4792**. Each original cash/balance receipt retains its first verified NSE retrieval timestamp. The source is historical FY26, and the October 15 attestation must not be misrepresented as a pre-2026 corporate event forecast.
+
+The ten-company normalized-owner-cash completion count is **zero**, even though the first three source rows are byte-reproducible. All live-capital and portfolio eligibility remain disabled.
