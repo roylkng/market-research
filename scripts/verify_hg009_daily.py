@@ -13,13 +13,13 @@ from marketlab.hg009_daily import (
     build_hg009_daily_source_observation,
     validate_hg009_daily_snapshot,
 )
-from scripts.materialize_hg009_daily import (
+from marketlab.hg009_daily import H021_SOURCE_DIR
+from marketlab.hg009_daily_io import (
     CALENDAR,
     CONTROL,
     DAILY_OUTPUT,
-    H021_SOURCE_DIR,
-    _load_json,
-    _original_raw,
+    load_json_source as _load_json,
+    original_source_bytes as _original_raw,
 )
 
 
