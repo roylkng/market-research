@@ -70,3 +70,7 @@ The canonical numeric source-screen and pilot calculations are generated from re
 ## Next required system work
 
 Automate primary-source retrieval and original byte hashing for all 100 selected plus the 200 control identities where filings exist, with timestamp/period/accounting-basis contracts. Segment cash flow and share notes must be reconciled to a reported parent-company basis. Only after original disclosure checks and a valuation scenario model should any company move from a screen to a **paper** expected-return thesis. Avoid retrospective winner-selection from future prices.
+
+## Frozen reporting receipt
+
+The original-router-derived 100-company accounting packet was materialized and reverified on October 14 before the intended October 15 entry. Signed content SHA-256: **ec1f133f530deba7ee3f4fec1d70f69b78c317aeb426582f5b22cb08d6f8b103**. This hash seals the seven overlapping diagnostic flag counts and the two limited original-exchange filing extracts. The method itself is a **post-selection manual research review**, not an Oct-5 preregistered return signal. The issuer iXBRL source pages are public URLs, not retained full original HTML bytes.
