@@ -9,6 +9,7 @@ any October 15 onward price labels are opened.
 from __future__ import annotations
 
 import copy
+import json
 import math
 import statistics
 from collections import Counter
@@ -225,8 +226,6 @@ def build_hg009_source_baseline(
 
 
 def materialize_hg009_source_baseline(root: Path) -> dict[str, Any]:
-    import json
-
     source, selected = load_hg009_inputs(root)
     controls = json.loads((root / SOURCE_CONTROL).read_text(encoding="utf-8"))
     return build_hg009_source_baseline(
