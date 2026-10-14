@@ -151,3 +151,28 @@ def test_sha_reproduction_is_strict_with_nulls():
     assert data["packet_sha256"] == digest({
         k: v for k, v in data.items() if k != "packet_sha256"
     })
+
+
+def test_resigned_hazard_packet_still_cannot_promote_one_issuer():
+    report = _run(None, None)
+    row = report["company_hazards"][0]
+    row["economic_total_return_eligible"] = True
+    unsigned = {key: value for key, value in report.items() if key != "packet_sha256"}
+    report["packet_sha256"] = digest(unsigned)
+    with pytest.raises(AlphaContractError, match="issuer not cleared"):
+        validate_action_hazard_audit(report)
+
+    report = _run(None, None)
+    report["company_hazards"][0]["isin"] = "INE000000000"
+    unsigned = {key: value for key, value in report.items() if key != "packet_sha256"}
+    report["packet_sha256"] = digest(unsigned)
+    # A resigner cannot assert that an altered ISIN is the original issuer.
+    # The CLI's full-source rebuild additionally compares all identities.
+    original, selected, controls = load_original_hg009_sources(ROOT)
+    replay = build_action_hazard_audit(
+        original=original, selected=selected, controls=controls,
+        start_session=OPEN, end_session=EXIT,
+        original_action_raw=None, action_receipt=None,
+        prepared_at_utc=PREPARED,
+    )
+    assert report != replay
