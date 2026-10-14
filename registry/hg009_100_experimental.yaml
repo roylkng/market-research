@@ -1,0 +1,61 @@
+schema_version: 1
+id: HG009-D001-100-DIVERSIFIED-RESEARCH-v1
+name: full_market_cross_plane_one_hundred_company_experimental_coverage
+method_frozen_date: 2026-10-14
+status: FROZEN_BEFORE_FIRST_HG009_PROSPECTIVE_FORECAST
+research_class: OUTCOME_BLIND_EXPLORATORY_COHORT_DESIGN
+live_capital_allowed: false
+portfolio_eligibility_allowed: false
+not_approved_as_expected_return_ranking: true
+
+original_source:
+  router_id: HG001-D001-v1
+  workflow_run_id: 37258053642
+  artifact_id: 11323461912
+  artifact_name: hg001-d001-37258053642
+  router_sha256: 79e6b068f95c890e4ef88be62ffe2e8dfb94fabbf293770804e64aaa82d6e5ff
+  original_router_bytes_sha256: 600a5b54b73b8c9aba0fb1027281b4237fac6028a31d0259614121945b5e47f1
+  original_market_identity_count: 2319
+  original_source_timestamp: OCT_2026_FIRST_WEEK_DEVELOPMENT_ROUTER
+  permanent_gzip: research/hg009/original-hg001-d001-router-20261005.json.gz
+
+original_three_lane:
+  selected_count: 28
+  exactly:
+    - EARNINGS_INFLECTION
+    - ASSET_OR_CAPACITY_ANOMALY
+    - CURRENT_SPECIAL_SITUATION
+  universe: OUTSIDE_U001
+  no_governance_caution: true
+  no_asset_caution: true
+  preserve_every_original_HG002_member: true
+  liquidity_filter: NO_RETROSPECTIVE_OMISSION
+
+two_lane_stratified_source_only:
+  selected_count: 72
+  quota_per_pair: 24
+  pairs:
+    - ASSET_OR_CAPACITY_ANOMALY+CURRENT_SPECIAL_SITUATION
+    - EARNINGS_INFLECTION+ASSET_OR_CAPACITY_ANOMALY
+    - EARNINGS_INFLECTION+CURRENT_SPECIAL_SITUATION
+  universe: OUTSIDE_U001
+  no_governance_caution: true
+  no_asset_caution: true
+  median_daily_cash_turnover_inr_at_least: 10000000
+  choose_by: ASCENDING_SHA256_WITH_SYMBOL_TIEBREAK
+  hash_input: SOURCE_ROUTER_SHA|HG009-D001-100-DIVERSIFIED-RESEARCH-v1|PAIR|SYMBOL|ISIN
+  materialize_selection_using_future_prices_or_returns: false
+
+result:
+  cohort: research/hg009/hg009-d001-100-experimental-companies-v1.json
+  deterministic_script: scripts/materialize_hg009_100.py
+  full_frozen_source_replay_required: true
+  start_for_eligible_prospective_prediction: ONLY_AFTER_MODEL_AND_SOURCE_TIMING_PREREGISTRATION
+  before_first_prospective_forecast_no_return_signal: true
+  older_U001_is_independent: true
+  older_HG002_28_is_preserved: true
+  company_expected_returns_unavailable: true
+  price_targets_unavailable: true
+  execution_liquidity_unverified: true
+  stock_universe_selection_is_not_stock_prediction: true
+  no_live_capital: true
