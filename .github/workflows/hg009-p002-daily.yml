@@ -1,0 +1,131 @@
+name: HG009 P002 original NSE source observations for 300
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - H021 daily official source path
+    types:
+      - completed
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - research/prospective/h021/daily-prices/**
+      - .github/workflows/hg009-p002-daily.yml
+      - src/marketlab/hg009_daily.py
+      - scripts/materialize_hg009_daily.py
+      - scripts/verify_hg009_daily.py
+  schedule:
+    # Original H021 NSE source is often published after cash market close.
+    # 20:15 and 22:15 India time, plus H021 workflow completion.
+    - cron: '45 14 * * 1-5'
+    - cron: '45 16 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p002-original-nse-daily-300
+  cancel-in-progress: false
+
+jobs:
+  derive:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Use current canonical research branch and source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "OBSERVATION_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MarketLab
+        run: python -m pip install -e '.[dev]'
+
+      - name: Validate shared-source and immutable-cohort logic
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/hg009_daily.py scripts/materialize_hg009_daily.py scripts/verify_hg009_daily.py tests/test_hg009_daily.py
+          pytest -q tests/test_hg009_daily.py tests/test_hg009_100.py tests/test_hg009_controls.py
+          python scripts/verify_hg009_daily.py
+
+      - name: Materialize original daily NSE prices without invented fills
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/hg009-p002-report
+          python scripts/materialize_hg009_daily.py | tee /tmp/hg009-p002-report/source-observation.json
+          python scripts/verify_hg009_daily.py | tee /tmp/hg009-p002-report/replay-verification.json
+
+      - name: Publish one immutable original-source observation when available
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d research/hg009/daily ]; then
+            echo "No post-freeze official source yet; no HG009 price claim"
+            exit 0
+          fi
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/hg009/daily
+          if git diff --cached --quiet; then
+            echo "No new original-source HG009 observation"
+            exit 0
+          fi
+          git commit -m "HG009 P002: seal one original NSE 300-company source session [skip ci]"
+          CHECK_PATHS=(
+            ".github/workflows/hg009-p002-daily.yml"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "research/prospective/h021/daily-prices"
+            "research/hg009"
+            "src/marketlab/hg009_daily.py"
+            "src/marketlab/hg009_controls.py"
+            "src/marketlab/hg009_100.py"
+            "scripts/materialize_hg009_daily.py"
+            "scripts/verify_hg009_daily.py"
+          )
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            CURRENT="$(git rev-parse origin/main)"
+            if [ "$OBSERVATION_BASE_SHA" != "$CURRENT" ]; then
+              if ! git diff --quiet "$OBSERVATION_BASE_SHA" "$CURRENT" -- "${CHECK_PATHS[@]}"; then
+                echo "Original source or scientific cohort changed during HG009 observation"
+                exit 1
+              fi
+              git rebase origin/main
+              python scripts/verify_hg009_daily.py
+            fi
+            if git push origin HEAD:main; then
+              echo "One immutable original-source daily source packet anchored on main"
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "HG009 source packet not remotely sealed, no prospective evidence claim"
+          exit 1
+
+      - name: Upload diagnostic source timestamps and coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg009-p002-source-300
+          path: /tmp/hg009-p002-report
+          retention-days: 90
+          if-no-files-found: ignore
