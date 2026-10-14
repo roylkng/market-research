@@ -39,3 +39,9 @@ Any dividends, split/bonus/rights, merger/demerger or changes in shares/ISIN dur
 5. No price target, calibrated probability, statistical win claim or actual capital authorization until separately verified.
 
 **Reproduce:** python scripts/materialize_hg009_controls.py --check; pytest -q tests/test_hg009_controls.py. The manifest is research/hg009/hg009-p001-matched-300-company-controls-v1.json. Its input source remains the immutable October 5 2,319-NSE-identity router committed under HG009-D001.
+
+## Published pre-entry reproducibility receipt
+
+The first control freezer completed on October 14 before the planned next trading-session entry, and the canonical three-arm JSON manifest has SHA-256 **8c8d9781adf7900addd28a1a60f1cfb33bed9a1e4985e6c410a010d2c819eef8**. The three arms contain exactly 100, 100, and 100 unique symbol+ISIN pairs. The source was the original HG001 SHA **79e6b068f95c890e4ef88be62ffe2e8dfb94fabbf293770804e64aaa82d6e5ff** and the selected HG009 SHA **e904e5d69dc7a6c2a45ea3cf34933544bc2634f80e3666125185d475372864d5**. Both identities and the matching rules must remain unchanged after opening future prices.
+
+This receipt is **not** an outcome. The initial Oct 15 NSE entry can be counted as predeclared only if this source manifest is present on the canonical remote branch before the market opens. A later merge cannot retroactively repair that temporal condition.
