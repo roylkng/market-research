@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.hg009_100 import validate_hg009_100, load_hg001_router
+from marketlab.hg009_100 import load_hg001_router, validate_hg009_100
 
 REVIEW_ID = "HG009-P003-2026-10-14-ACCOUNTING-QUALITY-RED-TEAM-v1"
 SNAPSHOT_DATE = "2026-10-05"
