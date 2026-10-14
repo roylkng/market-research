@@ -107,7 +107,7 @@ def test_original_source_mutation_and_case_packet_tamper_fail_closed():
     data, receipts = load_sources(ROOT)
     damaged = copy.deepcopy(data)
     damaged["hg007"]["cases"][0]["symbol"] = "FAKE_FUTURE_WINNER"
-    with pytest.raises(AlphaContractError, match="not in original"):
+    with pytest.raises(AlphaContractError, match="tampered original signed source"):
         build_packet(damaged, receipts)
     damaged_report = materialize(ROOT)
     damaged_report["cases"][0]["current_fair_value_per_share"] = 100000
