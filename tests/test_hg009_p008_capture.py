@@ -29,7 +29,7 @@ def _html(*, symbol: str = "ACUTAAS", cfo: str = "29,217.36") -> bytes:
         "<p>Consolidated Audited year ended 31-03-2026 INR Lakhs</p>"
         "<table>"
         "<tr><td>Profit before tax</td><td>48,272.57</td></tr>"
-        f"<tr><td>Net cash flows from (used in) operating activities</td>"
+        f"<tr><td>Net cash flows from (used in)\n                        operating activities</td>"
         f"<td>{cfo}</td></tr>"
         "<tr><td>Purchase of property, plant and equipment</td>"
         "<td>32,797.88</td></tr>"
@@ -119,3 +119,17 @@ def test_original_source_capture_script_not_network_run_by_unit_suite():
     assert set(EXPECTED_ROWS) == {"pretax_profit", "operating_cfo", "ppe_purchase"}
     assert len(load_sources(ROOT)[0]["new_fy26"]["numeric_facts"]) == 3
     assert json.dumps(_acutaas_facts())  # statement metadata is JSON-serializable
+
+
+
+def test_newline_inside_original_issuer_cashflow_row_is_not_false_rejection():
+    # Archived NSE originals use a literal LF inside the text cell. A separate
+    # space inserted between HTML nodes is not enough to normalize that LF.
+    raw = _html()
+    assert b"\n                        operating activities" in raw
+    result = validate_issuer_html(
+        raw, _acutaas_facts(), observed_at_utc="2026-10-14T19:00:00Z"
+    )
+    assert result["validation_state"] == (
+        "ORIGINAL_NSE_FY26_CASHFLOW_SOURCE_BYTES_ROW_MATCHED"
+    )
