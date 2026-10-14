@@ -42,13 +42,15 @@ ARCHIVE_DOCUMENTS = (
 )
 
 
-def _load_original(path: Path, sha_field: str | None) -> dict[str, Any]:
+def _load_original(
+    path: Path, sha_field: str | None, *, root: Path
+) -> dict[str, Any]:
     raw = path.read_bytes()
-    expected_blob = PARENT_SOURCE_GIT_BLOBS.get(str(path.relative_to(path.parents[2])))
+    expected_blob = PARENT_SOURCE_GIT_BLOBS.get(str(path.relative_to(root)))
     if expected_blob is None:
         raise AlphaContractError("P009 unknown original source parent")
     computed_blob = hashlib.sha1(
-        b"blob " + str(len(raw)).encode("ascii") + b"\\0" + raw,
+        b"blob " + str(len(raw)).encode("ascii") + bytes((0,)) + raw,
         usedforsecurity=False,
     ).hexdigest()
     if computed_blob != expected_blob:
@@ -63,11 +65,10 @@ def _load_original(path: Path, sha_field: str | None) -> dict[str, Any]:
             raise AlphaContractError("P009 original parent document hash drift")
     return data
 
-
 def source_specifications(root: Path) -> list[dict[str, Any]]:
-    p003 = _load_original(root / P003, "packet_sha256")
-    p049 = _load_original(root / P049, "packet_sha256")
-    p008 = _load_original(root / P008, None)
+    p003 = _load_original(root / P003, "packet_sha256", root=root)
+    p049 = _load_original(root / P049, "packet_sha256", root=root)
+    p008 = _load_original(root / P008, None, root=root)
     if (
         p003.get("selected_case_count") != 100
         or p049.get("market_source", {}).get("symbol") != "DATAMATICS"
