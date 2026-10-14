@@ -84,9 +84,8 @@ def test_new_fy26_original_consolidated_cash_exhibits_funding_differences():
         assert case["original_html_bytes_archived"] is False
         assert case["owner_cash_flow_verified"] is False
         assert case["maintenance_capex_verified"] is False
-        assert case["return_on_incremental_capital_established"] if (
-            "return_on_incremental_capital_established" in case
-        ) else True
+        assert case["reported_cash_cr_not_verified_excess"] >= 0
+        assert case["reported_current_investments_cr_not_unrestricted"] >= 0
 
 
 def test_existing_datamatics_mayur_and_pix_do_not_mix_reporting_bases():
