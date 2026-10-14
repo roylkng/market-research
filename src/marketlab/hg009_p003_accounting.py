@@ -12,6 +12,7 @@ detection, stock ranking, prediction, or live execution.
 from __future__ import annotations
 
 import copy
+import json
 import math
 from collections import Counter
 from pathlib import Path
@@ -313,8 +314,6 @@ def build_hg009_accounting_review(
 
 def materialize_hg009_accounting_review(root: Path) -> dict[str, Any]:
     router = load_hg001_router(root / SOURCE)
-    import json
-
     cohort = json.loads((root / COHORT).read_text(encoding="utf-8"))
     return build_hg009_accounting_review(router=router, cohort=cohort)
 
