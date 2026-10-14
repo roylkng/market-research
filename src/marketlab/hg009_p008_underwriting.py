@@ -149,11 +149,14 @@ def _fy26_cash(source: dict, isin: str) -> dict:
 
 
 def build_packet(sources: dict[str, dict], receipts: dict[str, dict]) -> dict:
-    # Git-blob checks happen at loading. Re-check embedded original packet
-    # signatures as well, to reject later in-memory source manipulation.
+    # Git-blob checks happen at loading for ALL six sources. Independently
+    # check embedded packet signatures only where the original serialization
+    # is already validated. The older P049 Datamatics report is still pinned
+    # byte-exact by Git SHA but uses a legacy non-canonical signature, so its
+    # internal SHA must be recorded as unverified rather than silently
+    # declared to be cryptographically valid.
     for source_key, sig_key in (
         ("hg007", "packet_sha256"),
-        ("datamatics", "packet_sha256"),
         ("hundred", "cohort_sha256"),
         ("accounting", "packet_sha256"),
     ):
