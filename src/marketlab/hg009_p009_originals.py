@@ -61,15 +61,10 @@ def _load_original(
     if sha_field:
         plain = dict(data)
         stored = plain.pop(sha_field, None)
-        if stored != digest(plain):
-            # Legacy P049 has a reproducible self-checksum inconsistency
-            # exposed by this independent audit. Do NOT alter the original
-            # October 14 file or accept a different blob. Its exact Git blob
-            # is pinned above, so immutable custody is still verified.
-            if path.relative_to(root) != P049:
-                raise AlphaContractError(
-                    "P009 original parent document hash drift"
-                )
+        # Legacy P049 has a reproducible self-checksum inconsistency.
+        # Its exact Git blob is independently pinned, without rewriting it.
+        if stored != digest(plain) and path.relative_to(root) != P049:
+            raise AlphaContractError("P009 original parent document hash drift")
     return data
 
 def source_specifications(root: Path) -> list[dict[str, Any]]:
