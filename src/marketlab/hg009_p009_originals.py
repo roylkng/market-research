@@ -184,7 +184,11 @@ def original_source_receipt(
     archive_path = None
     if status == 200 and isinstance(raw, bytes):
         source_sha = hashlib.sha256(raw).hexdigest()
-        if _permitted_raw(raw, file_type=spec["file_type"]):
+        if len(raw) > MAX_RAW_BYTES:
+            # Large annual PDF originals should live in content-addressed
+            # object storage, not silently expand a Git repository.
+            state = "BLOCKED_OVERSIZE_ORIGINAL_NEEDS_EXTERNAL_BYTE_STORE"
+        elif _permitted_raw(raw, file_type=spec["file_type"]):
             ext = ".pdf" if spec["file_type"] == "pdf" else ".html"
             target = repo_root / ARCHIVE_ROOT / spec["symbol"] / (
                 source_sha + ext + ".gz"
@@ -207,6 +211,9 @@ def original_source_receipt(
         "state": state,
         "error_class": err,
         "raw_sha256": source_sha,
+        "raw_byte_count_if_downloaded": (
+            len(raw) if isinstance(raw, bytes) else None
+        ),
         "raw_repo_path": archive_path,
         "issuer_and_period_content_verified": False,
         "cashflow_values_reconciled_to_original_bytes": False,
