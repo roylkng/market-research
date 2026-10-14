@@ -10,16 +10,20 @@ from marketlab.alpha import AlphaContractError
 from marketlab.calendar_snapshot import load_calendar_snapshot
 from marketlab.hg009_controls import load_hg009_inputs
 from marketlab.hg009_daily import (
+    H021_SOURCE_DIR,
     build_hg009_daily_source_observation,
     validate_hg009_daily_snapshot,
 )
-from scripts.materialize_hg009_daily import (
+from marketlab.hg009_daily_io import (
     CALENDAR,
     CONTROL,
     DAILY_OUTPUT,
-    H021_SOURCE_DIR,
-    _load_json,
-    _original_raw,
+)
+from marketlab.hg009_daily_io import (
+    load_json_source as _load_json,
+)
+from marketlab.hg009_daily_io import (
+    original_source_bytes as _original_raw,
 )
 
 

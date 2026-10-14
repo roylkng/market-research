@@ -6,6 +6,8 @@ import copy
 import csv
 import io
 import json
+import subprocess
+import sys
 import zipfile
 from datetime import date
 from pathlib import Path
@@ -268,3 +270,20 @@ def test_source_replay_archive_is_valid_both_before_and_after_first_day():
     assert result["count"] == len(result["verified"])
     assert result["no_stock_returns_scored"] is True
     assert result["live_capital_allowed"] is False
+
+
+def test_direct_verifier_and_materializer_commands_do_not_require_scripts_package():
+    verify = subprocess.run(
+        [sys.executable, "scripts/verify_hg009_daily.py"],
+        cwd=ROOT, capture_output=True, text=True, check=True,
+    )
+    payload = json.loads(verify.stdout)
+    assert payload["live_capital_allowed"] is False
+    assert payload["no_stock_returns_scored"] is True
+    assert payload["count"] == len(payload["verified"])
+
+    materialize = subprocess.run(
+        [sys.executable, "scripts/materialize_hg009_daily.py", "--help"],
+        cwd=ROOT, capture_output=True, text=True, check=True,
+    )
+    assert "session-date" in materialize.stdout
