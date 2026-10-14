@@ -139,7 +139,7 @@ def test_router_and_cohort_edits_fail_closed() -> None:
 
 
 def test_100_cohort_can_be_regenerated_byte_for_byte_from_archived_source() -> None:
-    source, expected = _build()
+    _source, expected = _build()
     assert expected == json.loads(COHORT.read_text(encoding="utf-8"))
     run = subprocess.run(
         [
