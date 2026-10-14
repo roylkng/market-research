@@ -36,3 +36,12 @@ This is a **source acquisition workflow**, not five new company valuations. It d
 - research/hg009/p009-originals/
 
 The source archive is append-only by run ID, and each retrieved filing is addressed by its original SHA-256. The research may subsequently replay stored financial pages, but **0/10 completed current-owner-cash valuations** remains correct until separate fully diluted share, cash, capex, minority and forward return calibration are complete.
+
+## Source-custody findings and outstanding integrity defects
+
+- First successful original HTTP attempts on October 15 IST archived MAYURUNIQ FY26, PIXTRANS standalone Q1 FY26 and Q1 FY27, and DATAMATICS FY26 as content-addressed originals. These are **raw files not automatically verified financial statements**. Each original receipt retains its UTC attempt/retrieval clocks.
+- POKARNA's original audited outcome PDF is a large (~20 MB) official filing. The initial Git archive limit does not accept such a file. A forward-only attempt records the response SHA and byte length with state `BLOCKED_OVERSIZE_ORIGINAL_NEEDS_EXTERNAL_BYTE_STORE`; it does not claim the large PDF is absent or label it an invalid document. A content-addressed object-store source with independently auditable bytes is needed to complete this source gate without overloading Git.
+- An independent P009 canonical source-validation test found that the historical DATAMATICS P049 JSON self-checksum does not recompute, despite its exact historical Git blob being pinned. This inconsistency is preserved, tracked under [issue #446](https://github.com/roylkng/market-research/issues/446), and **does not** justify changing that historical source or fabricating a new P049 price observation.
+- The revised P009 receipt records HTTP request start and **post-HTTP completion UTC** separately. Earlier first-run records retain their original source fields as historical attempt receipts, but cannot be treated as finer-than-available first-byte timing evidence.
+
+No archival state authorizes current diluted shares, cashflow normalization, dividends, full market-return performance or capital.
