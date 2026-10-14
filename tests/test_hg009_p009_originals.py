@@ -90,7 +90,7 @@ def test_http_403_and_redirects_never_appear_as_original_retrieval(tmp_path):
     spec = _spec("PIXTRANS")
     for code in (302, 403, 404, 429):
         blocked = original_source_receipt(
-            spec=spec, fetch=lambda _url: (code, None),
+            spec=spec, fetch=lambda _url, status=code: (status, None),
             recorded_at_utc=NOW, repo_root=tmp_path,
         )
         validate_original_receipt(blocked, root=tmp_path)
