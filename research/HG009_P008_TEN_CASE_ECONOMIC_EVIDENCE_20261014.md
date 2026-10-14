@@ -62,3 +62,17 @@ Research result: **0/10 complete equity valuations, 0/10 capital-eligible candid
 After initially quarantining the original NSE HTML responses, a real-HTML regression identified embedded line breaks within issuer cash-flow labels. The corrected validator checks **nine independently transcribed fields** against complete original NSE source bytes for ACUTAAS, ACE, and TRAVELFOOD: PBT, operating CFO, PPE purchases, financing lease principal, financing interest, cash and equivalents, current borrowings, current investments, and minority equity. The initial failed attempts remain append-only evidence; verified content-addressed copies retain the exact NSE bytes and actual capture timestamps. This is **cash-statement-source verification**, not verification of sustainable parent-owner FCF or present-day share capital.
 
 The synthetic three-year cash-to-equity DCF discounts interim owner cash and a terminal owner-cash multiple to the *valuation date*. Its output is **present intrinsic-value sensitivity**, not a forecast of the share price at year three. The model must never annualize the present intrinsic-value gap and call it three-year realized stock return. P008 now reports a provisional margin of safety against an explicitly source-backed threshold and leaves both one-year and three-year realized-return expectations **null**. Probabilities remain gated on a verifiable, relevant reference class, with no empirical probabilities yet for real P008 companies.
+
+## Original-byte attestation checkpoint, October 14
+
+The first validated source-retrieval receipts are separately retained and repeatable, rather than upgrading the older frozen ten-case JSON retroactively:
+
+| Issuer | First verified attempt | Original NSE HTML SHA-256 | Validation |
+|---|---|---|---|
+| ACUTAAS | 38617239523-1 | `d2051e30328859b10f5e40a3161dd69ecbdfdce59f9cd73d8fd2e126a1149b57` | Nine statement fields match |
+| ACE | 38617239523-1 | `6e58fccb3104932bd45f5311cd5ff47ad59e47547066e2217e9b12fc68c05f72` | Nine statement fields match |
+| TRAVELFOOD | 38617239523-1 | `0c7173926ba43378626ce876ef417a7ea210a18fa731ab5d4b33f4d63b5dd2a9` | Nine statement fields match |
+
+Each underlying source resides as a content-addressed `.html.gz` under `research/hg009/p008-originals/<ISSUER>/`. The source receipt contains its actual original retrieval UTC. An independent pinned source-replay attestation will be produced separately, without rewriting the earlier frozen ten-company research facts.
+
+**System-wide CI clarification:** the old unrelated T012 append-only SC003 readiness failure was independently corrected and merged as PR #442. P008's source model, historical financial figures and no-capital restrictions were unchanged by that prospective trial fix.
