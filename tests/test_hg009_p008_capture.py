@@ -33,6 +33,12 @@ def _html(*, symbol: str = "ACUTAAS", cfo: str = "29,217.36") -> bytes:
         f"<td>{cfo}</td></tr>"
         "<tr><td>Purchase of property, plant and equipment</td>"
         "<td>32,797.88</td></tr>"
+        "<tr><td>Payments of lease liabilities</td><td>66.30</td></tr>"
+        "<tr><td>Interest paid</td><td>127.80</td></tr>"
+        "<tr><td>Cash and cash equivalents</td><td>21,555.11</td></tr>"
+        "<tr><td>Borrowings, current</td><td>2,649.08</td></tr>"
+        "<tr><td>Current investments</td><td>0.00</td></tr>"
+        "<tr><td>Non controlling interest</td><td>5,718.92</td></tr>"
         "</table></body></html>"
     ).encode()
 
@@ -133,3 +139,51 @@ def test_newline_inside_original_issuer_cashflow_row_is_not_false_rejection():
     assert result["validation_state"] == (
         "ORIGINAL_NSE_FY26_CASHFLOW_SOURCE_BYTES_ROW_MATCHED"
     )
+
+
+
+def test_all_three_real_archived_originals_reconcile_all_nine_fy26_source_cells():
+    # These Git-retained quarantine files were downloaded on Oct 14 with
+    # original UTC receipts. The original CFO label has a literal LF, which
+    # originally caused the source to be rejected. Verify against real bytes,
+    # not only the handcrafted fixture.
+    facts = load_sources(ROOT)[0]["new_fy26"]["numeric_facts"]
+    assert len(facts) == 3
+    for fact in facts:
+        name = fact["symbol"]
+        paths = sorted(
+            (ROOT / "research/hg009/p008-originals/quarantine" / name).glob(
+                "*.html.gz"
+            )
+        )
+        assert len(paths) == 1, name
+        original = gzip.decompress(paths[0].read_bytes())
+        sha = hashlib.sha256(original).hexdigest()
+        assert paths[0].name == f"{sha}.html.gz"
+        evidence = validate_issuer_html(
+            original,
+            fact,
+            observed_at_utc="2026-10-14T18:41:00Z",
+        )
+        assert evidence["validation_state"] == (
+            "ORIGINAL_NSE_FY26_CASHFLOW_SOURCE_BYTES_ROW_MATCHED"
+        )
+        assert evidence["raw_sha256"] == sha
+        assert evidence["financial_values_are_normalized_owner_fcf"] is False
+
+
+def test_cashflow_row_cannot_be_certified_if_lease_or_balance_sheet_is_modified():
+    fact = _acutaas_facts()
+    original = _html()
+    for prior, later in (
+        (b"66.30", b"66.31"),
+        (b"127.80", b"127.81"),
+        (b"21,555.11", b"99,555.11"),
+        (b"2,649.08", b"2,649.00"),
+        (b"5,718.92", b"5,718.00"),
+    ):
+        edited = original.replace(prior, later)
+        with pytest.raises(AlphaContractError, match="statement row unverified"):
+            validate_issuer_html(
+                edited, fact, observed_at_utc="2026-10-14T18:41:00Z",
+            )
