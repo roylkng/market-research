@@ -166,6 +166,50 @@ def validate_action_hazard_audit(value: dict[str, Any]) -> None:
         or value.get("live_capital_allowed") is not False
     ):
         raise AlphaContractError("P007 source screening improperly promoted to return")
+    expected_arms = {arm: 100 for arm in ARMS}
+    if value.get("original_fixed_arm_counts") != expected_arms:
+        raise AlphaContractError("P007 original three-arm count drift")
+    if (
+        value.get("dividends_or_bonus_rights_returns_adjusted") is not False
+        or value.get("empty_action_API_response_proves_no_event") is not False
+        or value.get("price_change_alone_is_issuer_total_return") is not False
+    ):
+        raise AlphaContractError("P007 insufficient action proof was promoted")
+    source_rows = value["company_hazards"]
+    seen_symbols: set[str] = set()
+    seen_pairs: set[tuple[str, str]] = set()
+    seen_by_arm = {arm: 0 for arm in ARMS}
+    for row in source_rows:
+        arm = row.get("arm")
+        sym, isin = row.get("symbol"), row.get("isin")
+        if (
+            arm not in seen_by_arm
+            or not isinstance(sym, str)
+            or not sym
+            or not isinstance(isin, str)
+            or len(isin) != 12
+            or sym in seen_symbols
+            or (sym, isin) in seen_pairs
+        ):
+            raise AlphaContractError("P007 duplicated or changed original issuer identity")
+        for key in (
+            "full_interval_coverage_verified",
+            "share_entitlement_adjustments_verified",
+            "dividend_total_return_adjustments_verified",
+            "economic_total_return_eligible",
+            "capital_eligible",
+        ):
+            if row.get(key) is not False:
+                raise AlphaContractError("P007 issuer not cleared for action-adjusted return")
+        if not isinstance(row.get("original_action_source_hazards"), list):
+            raise AlphaContractError("P007 action hazard evidence list invalid")
+        if not isinstance(row.get("original_unknown_events"), list):
+            raise AlphaContractError("P007 ambiguous event evidence list invalid")
+        seen_symbols.add(sym)
+        seen_pairs.add((sym, isin))
+        seen_by_arm[arm] += 1
+    if seen_by_arm != expected_arms:
+        raise AlphaContractError("P007 original per-arm denominator changed")
 
 
 def load_original_hg009_sources(repo_root: Path) -> tuple[dict, dict, dict]:
