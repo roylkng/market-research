@@ -146,7 +146,7 @@ def _synthetic_full_evidence():
         "date": "2026-10-14",
         "current_fully_diluted_shares": 10000000,
         "dated_original_nse_eq_price_inr": 200,
-        "required_equity_return_fraction": 0.15,
+        "minimum_margin_of_safety_fraction": 0.15,
         "total_round_trip_impact_fees_tax_fraction": 0.02,
         "shareholder_discount_rate": 0.12,
         "corporate_action_basis_verified": True,
@@ -190,6 +190,17 @@ def test_synthetic_three_year_equity_dcf_reconciles_and_forbids_capital():
     assert report["not_a_causal_llm_alpha_test"] is True
     assert report["live_capital_allowed"] is False
     assert report["model_sha256"] is not None
+    assert report["model_values_are_discounted_as_of_date_not_three_year_exit_prices"]
+    assert report["future_realized_one_year_return_estimate"] is None
+    assert report["future_realized_three_year_return_estimate"] is None
+    assert all(
+        x["predicted_one_or_three_year_return"] is None
+        and "three_year_net_annualized_return" not in x
+        and "gross_price_change_fraction" not in x
+        and "intrinsic_value_gap_fraction_not_future_price_return" in x
+        and "margin_of_safety_fraction" in x
+        for x in report["scenarios"]
+    )
 
 
 def test_real_incomplete_research_inputs_cannot_be_run_as_investable_dcf():
