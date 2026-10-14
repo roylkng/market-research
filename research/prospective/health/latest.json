@@ -1,11 +1,9 @@
 {
-  "after_market_close": false,
+  "after_market_close": true,
   "as_of_date": "2026-10-14",
-  "blocker_count": 5,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
-    "T004_DELIVERY_WARMUP",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
   ],
@@ -52,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 4,
+      "eligible_session_count": 5,
       "expected_latest_session": "2026-10-13",
-      "latest_eligible_session": "2026-10-12",
-      "ledger_sha256": "4087c42e0637bf2a8e04e4c3193315182495b1759178148d6c597e22a77e072e",
-      "state": "STALE"
+      "latest_eligible_session": "2026-10-14",
+      "ledger_sha256": "888ff5103ebaa2eca11eca02c4d17d57134183743ebf15393ceade7908a8cbb4",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 108,
@@ -76,35 +74,15 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 0,
-      "decision_ledger_sha256": "9cd407f05ea7681508ca78eb4871c6cab92bab8e7f2714b5d5cf463daec85b7c",
-      "delivery_warmup": {
-        "additional_clean_prior_sessions_needed": 2,
-        "blocking_sessions": [
-          {
-            "raw_sha256": "b87ff28f3b73d59eb3f29cdd3d5b8c42236865317cc5f9dc4772d0f8f23236b0",
-            "session_date": "2026-09-11",
-            "status": "EXCLUDE_SESSION_INTERNAL_FIELD_INCONSISTENCY"
-          }
-        ],
-        "consecutive_clean_prior_sessions": 18,
-        "required_prior_sessions": 20
-      },
-      "eligibility_projection": {
-        "additional_clean_prior_sessions_needed": 2,
-        "assumption": "ALL_SUBSEQUENT_REQUIRED_DELIVERY_SESSIONS_CLEAN",
-        "guaranteed": false,
-        "projected_first_possible_decision_session": "2026-10-14",
-        "readiness_session": "2026-10-12",
-        "state": "PROJECTED"
-      },
-      "latest_readiness_session": "2026-10-12",
-      "mature_outcome_fraction": null,
+      "decision_count": 1,
+      "decision_ledger_sha256": "07baa350a52ceb0f4e4f4498b21f97bfdfce2c210fb73804b487fba67d0b5ab2",
+      "latest_readiness_session": "2026-10-14",
+      "mature_outcome_fraction": 0.0,
       "outcome_count": 0,
       "outcome_ledger_sha256": "fb3034e7fee720ce91842d06bb19dc805b3ef65ed8a5e7580b72f36432ece730",
-      "readiness_sha256": "021006953c9ba686e428452291d40fe1e9a6c9b7ac7ae799bff113181ab006de",
-      "readiness_state": "DELIVERY_SOURCE_WARMUP_BLOCKED",
-      "state": "DELIVERY_SOURCE_WARMUP_BLOCKED"
+      "readiness_sha256": "7345cd936063d49abc3a56358c0347ba9e16088f5be44809b2a49154e434edf1",
+      "readiness_state": "SEALED",
+      "state": "ACTIVE"
     },
     "T005_PREOPEN_SUCCESSOR": {
       "additional_ready_sessions_needed": 0,
@@ -217,5 +195,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "315b2e4af1ffe5d731644d026d8951fdfe869526ebd9ac12e0e7ed4be69f3344"
+  "summary_sha256": "b905efd306b6ef9c443f0c663932c51c5cee287469fc461bf376c9367dddecba"
 }
