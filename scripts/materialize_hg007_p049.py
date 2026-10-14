@@ -24,7 +24,12 @@ def main() -> int:
         + "\n"
     )
     if args.check:
-        if not args.output.exists() or args.output.read_text(encoding="utf-8") != payload:
+        # Compare the signed canonical JSON payload, not irrelevant indentation
+        # or whether an exact INR amount is spelled 295531945 or 295531945.0.
+        if not args.output.exists():
+            raise SystemExit("P049 materialized source report is missing")
+        observed = json.loads(args.output.read_text(encoding="utf-8"))
+        if observed != result or observed.get("packet_sha256") != result["packet_sha256"]:
             raise SystemExit("P049 frozen report no longer matches original source math")
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)
