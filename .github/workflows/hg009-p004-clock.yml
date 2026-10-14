@@ -1,0 +1,57 @@
+name: HG009 P004 freeze official 20-day outcome clock
+
+on:
+  push:
+    branches:
+      - research/hg009-p004-frozen-outcome-clock-20261014
+    paths:
+      - .github/workflows/hg009-p004-clock.yml
+      - src/marketlab/hg009_p004_clock.py
+      - scripts/materialize_hg009_p004_clock.py
+      - tests/test_hg009_p004_clock.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p004-clock-freeze
+  cancel-in-progress: false
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Independently recompute frozen NSE timeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p004_clock.py
+          python scripts/materialize_hg009_p004_clock.py --check
+          ruff check src/marketlab/hg009_p004_clock.py scripts/materialize_hg009_p004_clock.py tests/test_hg009_p004_clock.py
+          pytest -q tests/test_hg009_p004_clock.py
+      - name: Seal outcome-blind timeline before first scheduled source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p004-2026-outcome-clock-v1.json
+          if git diff --cached --quiet; then
+            echo "HG009 P004 outcome-blind clock already frozen"
+            exit 0
+          fi
+          git commit -m "HG009 P004: freeze 300-company official NSE research horizon [skip ci]"
+          git fetch origin research/hg009-p004-frozen-outcome-clock-20261014
+          git rebase origin/research/hg009-p004-frozen-outcome-clock-20261014
+          python scripts/materialize_hg009_p004_clock.py --check
+          git push origin HEAD:research/hg009-p004-frozen-outcome-clock-20261014
