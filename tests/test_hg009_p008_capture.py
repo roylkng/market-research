@@ -34,7 +34,7 @@ def _html(*, symbol: str = "ACUTAAS", cfo: str = "29,217.36") -> bytes:
         "<tr><td>Purchase of property, plant and equipment</td>"
         "<td>32,797.88</td></tr>"
         "</table></body></html>"
-    ).encode("utf-8")
+    ).encode()
 
 
 def test_source_bytes_confirm_exact_symbol_and_source_cash_rows():
