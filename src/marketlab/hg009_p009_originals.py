@@ -28,6 +28,11 @@ ALLOWED_HOST = "nsearchives.nseindia.com"
 P003 = Path("research/hg009/hg009-p003-accounting-quality-redteam-v1.json")
 P049 = Path("research/hg007/hg007-p049-datamatics-cash-hurdle-v1.json")
 P008 = Path("registry/hg009_p008_fy26_nse_cash_facts.json")
+PARENT_SOURCE_GIT_BLOBS = {
+    str(P003): "e24f7e164fbaea1ceab7edb86b2c0d980a19a700",
+    str(P049): "706c2dd100a49859b5054323baeddc345531fb59",
+    str(P008): "8f257a6d8787aebf30c67123a056d8fe08d87afd",
+}
 ARCHIVE_DOCUMENTS = (
     ("MAYURUNIQ", "FY26_AUDITED_CONSOLIDATED", "html", "2026-05-20"),
     ("PIXTRANS", "Q1FY27_STANDALONE", "html", "2026-08-07"),
@@ -39,6 +44,15 @@ ARCHIVE_DOCUMENTS = (
 
 def _load_original(path: Path, sha_field: str | None) -> dict[str, Any]:
     raw = path.read_bytes()
+    expected_blob = PARENT_SOURCE_GIT_BLOBS.get(str(path.relative_to(path.parents[2])))
+    if expected_blob is None:
+        raise AlphaContractError("P009 unknown original source parent")
+    computed_blob = hashlib.sha1(
+        b"blob " + str(len(raw)).encode("ascii") + b"\\0" + raw,
+        usedforsecurity=False,
+    ).hexdigest()
+    if computed_blob != expected_blob:
+        raise AlphaContractError("P009 pinned Git blob original source altered")
     data = json.loads(raw)
     if not isinstance(data, dict):
         raise AlphaContractError("P009 original parent document invalid")
