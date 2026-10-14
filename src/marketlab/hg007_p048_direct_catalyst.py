@@ -175,7 +175,7 @@ def build_direct_catalyst_triage(
         market = prices[symbol]
         historical = liquidity_row.get("historical_eq_source_readiness")
         if not isinstance(historical, dict):
-            raise ValueError(f"{symbol}: original twenty-session context absent")
+            raise TypeError(f"{symbol}: original twenty-session context absent")
         if (
             market.get("source_series_state")
             != "OFFICIAL_EQ_PRICE_VOLUME_OBSERVED_NOT_FILL"
