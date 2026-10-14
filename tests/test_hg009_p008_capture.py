@@ -107,6 +107,10 @@ def test_403_or_bad_html_creates_explicit_nonpromotable_source_receipt(tmp_path:
     )
     assert malformed["state"] == "BLOCKED_ORIGINAL_NSE_IDENTITY_OR_CASH_ROW"
     assert malformed["original_raw_repo_path"] is None
+    assert malformed["financial_fields_cleared_for_valuation"] is False
+    quarantined = tmp_path / malformed["quarantined_source_path_not_validated"]
+    assert gzip.decompress(quarantined.read_bytes()) == b"malformed NSE candidate"
+    assert "symbol/ISIN" in malformed["blocked_reason"]
 
 
 def test_original_source_capture_script_not_network_run_by_unit_suite():
