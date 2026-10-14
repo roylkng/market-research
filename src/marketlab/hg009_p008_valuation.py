@@ -93,7 +93,7 @@ def evaluate_issuer_equity_dcf(
     excess = _amount(owner_cash, "separately_verified_excess_cash_cr")
     shares = _amount(market, "current_fully_diluted_shares", min_value=1)
     price = _amount(market, "dated_original_nse_eq_price_inr", min_value=1e-9)
-    hurdle = _amount(market, "required_equity_return_fraction")
+    hurdle = _amount(market, "minimum_margin_of_safety_fraction")
     impact = _amount(market, "total_round_trip_impact_fees_tax_fraction")
     discount = _amount(market, "shareholder_discount_rate")
     if discount > 0.6 or impact >= 0.5 or hurdle > 0.8:
@@ -121,8 +121,12 @@ def evaluate_issuer_equity_dcf(
         terminal = cash[-1] * multiple / ((1 + discount) ** HORIZON_YEARS)
         equity_cr = excess + present + terminal
         per_share = equity_cr * 10_000_000 / shares
-        gross = per_share / price - 1
-        net = gross - impact
+        # The DCF discounts all projected cash and terminal value back to
+        # TODAY. Its discrepancy to today's price is NOT a 3-year stock
+        # return, price forecast, or annualized CAGR.
+        intrinsic_gap = per_share / price - 1
+        margin = 1 - price / per_share
+        net_value_gap = intrinsic_gap - impact
         rows.append({
             "name": s["name"],
             "base_rate_sample_count": observations,
@@ -131,12 +135,17 @@ def evaluate_issuer_equity_dcf(
             "terminal_owner_cash_multiple": multiple,
             "equity_value_cr": round(equity_cr, 5),
             "per_diluted_share_inr": round(per_share, 5),
-            "gross_price_change_fraction": round(gross, 8),
-            "net_price_change_fraction_after_cost_proxy": round(net, 8),
-            "three_year_net_annualized_return": (
-                round((1 + net) ** (1 / 3) - 1, 8) if net > -1 else None
+            "intrinsic_value_gap_fraction_not_future_price_return": round(
+                intrinsic_gap, 8
             ),
-            "beats_predeclared_return_hurdle": net > hurdle,
+            "intrinsic_value_gap_after_cost_proxy_not_return": round(
+                net_value_gap, 8
+            ),
+            "margin_of_safety_fraction": round(margin, 8),
+            "passes_minimum_margin_of_safety_after_cost": (
+                margin - impact >= hurdle
+            ),
+            "predicted_one_or_three_year_return": None,
         })
     mean_value = sum(
         (r["base_rate_sample_count"] / total) * r["per_diluted_share_inr"]
@@ -155,10 +164,15 @@ def evaluate_issuer_equity_dcf(
         "scenarios": rows,
         "weighted_per_share_value_inr": round(mean_value, 5),
         "comparison_share_price_inr": price,
-        "weighted_gross_change_fraction": round(mean_value / price - 1, 8),
-        "weighted_net_change_after_cost_fraction": round(
+        "weighted_intrinsic_value_gap_fraction_not_future_return": round(
+            mean_value / price - 1, 8
+        ),
+        "weighted_intrinsic_value_gap_after_cost_proxy_not_return": round(
             mean_value / price - 1 - impact, 8
         ),
+        "future_realized_one_year_return_estimate": None,
+        "future_realized_three_year_return_estimate": None,
+        "model_values_are_discounted_as_of_date_not_three_year_exit_prices": True,
         "this_is_not_realized_future_return": True,
         "not_a_causal_llm_alpha_test": True,
         "uncertainty_not_removed_by_scenario_weights": True,
