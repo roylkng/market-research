@@ -122,7 +122,17 @@ def test_403_or_bad_html_creates_explicit_nonpromotable_source_receipt(tmp_path:
 def test_original_source_capture_script_not_network_run_by_unit_suite():
     from marketlab.hg009_p008_capture import EXPECTED_ROWS
 
-    assert set(EXPECTED_ROWS) == {"pretax_profit", "operating_cfo", "ppe_purchase"}
+    assert set(EXPECTED_ROWS) == {
+        "pretax_profit",
+        "operating_cfo",
+        "ppe_purchase",
+        "financing_lease_principal",
+        "financing_interest_paid",
+        "cash_equivalents",
+        "financial_borrowings",
+        "current_investments",
+        "noncontrolling_equity",
+    }
     assert len(load_sources(ROOT)[0]["new_fy26"]["numeric_facts"]) == 3
     assert json.dumps(_acutaas_facts())  # statement metadata is JSON-serializable
 
