@@ -140,19 +140,21 @@ def build_two_filing_pilots() -> dict[str, dict[str, Any]]:
     fcf = cfo - capex
     if fcf <= 0 or cfo >= pretax:
         raise AlphaContractError("HG009-P003 Mayur original cashflow check drift")
+    # Exchange statement is in INR lakh with two decimals. Conversion into
+    # crore is rounded to four decimals to avoid machine-float display drift.
     working_capital_components = {
-        "inventory": -_positive_fact(
+        "inventory": round(-_positive_fact(
             mayur, "fy26_inventory_working_capital_outflow_lakh"
-        ) / 100,
-        "trade_receivables": -_positive_fact(
+        ) / 100, 4),
+        "trade_receivables": round(-_positive_fact(
             mayur, "fy26_receivables_working_capital_outflow_lakh"
-        ) / 100,
-        "other_current_assets": -_positive_fact(
+        ) / 100, 4),
+        "other_current_assets": round(-_positive_fact(
             mayur, "fy26_other_current_assets_working_capital_outflow_lakh"
-        ) / 100,
-        "trade_payables": _positive_fact(
+        ) / 100, 4),
+        "trade_payables": round(_positive_fact(
             mayur, "fy26_payables_working_capital_inflow_lakh"
-        ) / 100,
+        ) / 100, 4),
     }
     pbt = _positive_fact(pix, "q1fy27_standalone_pbt_lakh")
     prior_pbt = _positive_fact(pix, "q1fy26_standalone_pbt_lakh")
