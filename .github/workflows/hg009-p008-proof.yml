@@ -44,6 +44,37 @@ jobs:
           python scripts/materialize_hg009_p008.py --check
           ruff check src/marketlab/hg009_p008_underwriting.py src/marketlab/hg009_p008_valuation.py src/marketlab/hg009_p008_capture.py scripts/materialize_hg009_p008.py scripts/capture_hg009_p008_originals.py tests/test_hg009_p008.py tests/test_hg009_p008_capture.py
           pytest -q tests/test_hg009_p008.py tests/test_hg009_p008_capture.py
+      - name: Diagnose previously quarantined original iXBRL cashflow row structure
+        shell: bash
+        run: |
+          python - <<'PY'
+          import gzip
+          import re
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          for name in ("ACUTAAS", "ACE", "TRAVELFOOD"):
+              files = sorted(Path("research/hg009/p008-originals/quarantine").glob(f"{name}/*.html.gz"))
+              if not files:
+                  print(name, "NO_QUARANTINED_SOURCE")
+                  continue
+              raw = gzip.decompress(files[-1].read_bytes())
+              soup = BeautifulSoup(raw, "html.parser")
+              targets = ("net cash flows", "operating activities", "purchase of property", "profit before tax")
+              matched_rows = [
+                  tr for tr in soup.find_all("tr")
+                  if any(t in tr.get_text(" ", strip=True).casefold() for t in targets)
+              ]
+              print(name, "HTML", len(raw), "TABLE_ROWS", len(soup.find_all("tr")), "MATCHED", len(matched_rows))
+              for tr in matched_rows[-12:]:
+                  print(name, "row", repr(tr.get_text(" ", strip=True)[:250]))
+              expected = {"ACUTAAS": "29,217.36", "ACE": "41,727.00", "TRAVELFOOD": "39,296.80"}[name]
+              for needle in (expected, "Net cash flows from (used in) operating activities"):
+                  found = soup.find_all(string=re.compile(re.escape(needle), re.I))
+                  print(name, "target", needle, "strings", len(found))
+                  for item in found[:2]:
+                      parent = item.find_parent("tr")
+                      print(name, "parent-row", repr(parent.get_text(" ", strip=True)[:400] if parent else None))
+          PY
       - name: Attempt original NSE issuer HTML archival and preserve blocked receipts
         shell: bash
         run: |
