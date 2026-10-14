@@ -13,12 +13,10 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.h021_corporate_action_guard import screen_h021_corporate_actions
 from marketlab.hg009_controls import (
     load_hg009_inputs,
     verify_hg009_controls,
-)
-from marketlab.h021_corporate_action_guard import (
-    screen_h021_corporate_actions,
 )
 
 AUDIT_ID = "HG009-P007-300-NSE-ORIGINAL-ACTION-HAZARD-P1"
