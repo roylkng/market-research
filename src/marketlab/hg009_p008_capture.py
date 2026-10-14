@@ -59,7 +59,15 @@ def validate_issuer_html(
         or "Audited" not in text
     ):
         raise AlphaContractError("P008 wrong symbol/ISIN/period/reporting basis")
-    rows = [row.get_text(" ", strip=True).casefold() for row in content.find_all("tr")]
+    # NSE iXBRL cash-flow labels contain embedded newlines/indentation in
+    # the ORIGINAL HTML text nodes. get_text(separator=...) does not normalize
+    # whitespace within a node, which previously quarantined valid FY26 rows.
+    # Restrict matching to leaf table rows rather than outer nested tables.
+    rows = [
+        " ".join(row.get_text(" ", strip=True).casefold().split())
+        for row in content.find_all("tr")
+        if row.find("tr") is None
+    ]
     for key, labels in EXPECTED_ROWS.items():
         token = _source_token(facts[key]).casefold()
         if not any(
