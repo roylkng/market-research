@@ -148,6 +148,9 @@ def test_read_only_verifier_does_not_create_or_retrieve_any_issuer_file():
     assert output["live_capital_allowed"] is False
     assert output["shareholder_owner_cashflow_verified"] is False
     assert output["all_issuer_financial_values_verified"] is False
+    assert len(output["original_byte_versions_per_document"]) == 5
+    assert output["different_html_bytes_may_have_different_financial_values"] is True
+    assert output["no_version_is_silently_promoted"] is True
     assert ARCHIVE_ROOT.parts[-1] == "p009-originals"
 
 
