@@ -1,0 +1,57 @@
+name: HG009 P007 freeze original 300-company corporate-action hazard control
+
+on:
+  push:
+    branches:
+      - research/hg009-p007-action-hazards-300-20261014
+    paths:
+      - .github/workflows/hg009-p007-action-hazards.yml
+      - src/marketlab/hg009_p007_actions.py
+      - scripts/materialize_hg009_p007_actions.py
+      - tests/test_hg009_p007_actions.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p007-original-action-source-freeze
+  cancel-in-progress: false
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deterministic NSE market research
+        run: python -m pip install -e '.[dev]'
+      - name: Seal no-source P007 300-company action risk before outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p007_actions.py
+          python scripts/materialize_hg009_p007_actions.py --check
+          ruff check src/marketlab/hg009_p007_actions.py scripts/materialize_hg009_p007_actions.py tests/test_hg009_p007_actions.py
+          pytest -q tests/test_hg009_p007_actions.py
+      - name: Anchor no-action-coverage evidence status with immutable source rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p007-action-hazard-p1-v1.json
+          if git diff --cached --quiet; then
+            echo "P007 original action-risk review already sealed"
+            exit 0
+          fi
+          git commit -m "HG009 P007: seal original 300-company unverified action-source status [skip ci]"
+          git fetch origin research/hg009-p007-action-hazards-300-20261014
+          git rebase origin/research/hg009-p007-action-hazards-300-20261014
+          python scripts/materialize_hg009_p007_actions.py --check
+          git push origin HEAD:research/hg009-p007-action-hazards-300-20261014
