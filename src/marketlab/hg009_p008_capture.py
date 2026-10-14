@@ -10,11 +10,13 @@ from __future__ import annotations
 import gzip
 import hashlib
 import re
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from bs4 import BeautifulSoup
+from requests.exceptions import RequestException
 
 from marketlab.alpha import AlphaContractError, digest
 
@@ -50,8 +52,8 @@ def validate_issuer_html(
     if (
         not isinstance(symbol, str)
         or not isinstance(isin, str)
-        or not re.search(rf"\b{re.escape(symbol)}\b", text, re.I)
-        or not re.search(rf"\b{re.escape(isin)}\b", text, re.I)
+        or not re.search(rf"\b{re.escape(symbol)}\b", text, re.IGNORECASE)
+        or not re.search(rf"\b{re.escape(isin)}\b", text, re.IGNORECASE)
         or "31-03-2026" not in text
         or "Consolidated" not in text
         or "Audited" not in text
@@ -94,7 +96,7 @@ def capture_issuer(
     captured = now_utc.astimezone(UTC).isoformat()
     try:
         status, raw = fetch(facts["original_url"])
-    except Exception as exc:
+    except (RequestException, OSError) as exc:
         status, raw = None, None
         failure = type(exc).__name__
     else:
