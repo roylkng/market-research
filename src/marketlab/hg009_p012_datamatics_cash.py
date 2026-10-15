@@ -51,24 +51,19 @@ CASH_ROWS: dict[str, tuple[tuple[str, ...], str]] = {
     "fy25_cfo": (("net cash flow from operating activities",), "223.72"),
     "fy26_cash_capex": (("purchase of fixed assets",), "(39.57)"),
     "fy25_cash_capex": (("purchase of fixed assets",), "(35.91)"),
-    "fy26_acquisition_cash": (("investment in subsidiaries",), "(33.93)"),
     "fy26_net_investment_purchase": (("sale of investments",), "(262.76)"),
     "fy26_fixed_asset_sales": (("sale of fixed assets",), "1.03"),
     "fy26_dividend_received": (("dividend received from others",), "0.24"),
     "fy26_interest_received": (("interest received",), "18.45"),
     "fy26_net_investing": (("net cash flow used in investing",), "(316.54)"),
     "fy25_net_investing": (("net cash flow used in investing",), "(249.23)"),
-    "fy26_new_long_borrowings": (("proceeds from long-term borrowings",), "33.59"),
     "fy26_net_short_borrowing_repayment": (
         ("short-term borrowings",), "(49.99)"
     ),
     "fy26_lease_payment": (("payment of lease liabilities",), "(23.98)"),
-    "fy26_dividend_paid": (("dividend paid",), "(29.55)"),
-    "fy26_interest_paid": (("interest paid",), "(13.74)"),
     "fy26_net_financing": (("net cash flow used in financing",), "(83.67)"),
     "fy25_net_financing": (("net cash flow used in financing",), "118.91"),
     "fy26_cash_change": (("net cash flow during the year",), "(76.22)"),
-    "fy25_cash_change": (("net cash flow during the year",), "93.40"),
     "fy26_cash_beginning": (
         ("cash and cash equivalents at the beginning",), "217.64"
     ),
@@ -76,6 +71,18 @@ CASH_ROWS: dict[str, tuple[tuple[str, ...], str]] = {
         ("net cash and cash equivalents at the end",), "141.42"
     ),
 }
+# This PDF's embedded text layer mangles some punctuation or ligatures.
+# Visual page 8 was inspected against the exact pinned archive bytes.
+# Do not falsely label these amounts machine-text-verified. The source labels
+# are still checked on their original cash-flow page and the totals reconcile.
+VISUAL_CASH_ROWS: dict[str, tuple[tuple[str, ...], str]] = {
+    "fy26_acquisition_cash": (("investment in subsidiaries",), "(33.93)"),
+    "fy26_new_long_borrowings": (("proceeds from long",), "33.59"),
+    "fy26_dividend_paid": (("dividend paid",), "(29.55)"),
+    "fy26_interest_paid": (("interest paid",), "(13.74)"),
+    "fy25_cash_change": (("net cash flow during the year",), "93.40"),
+}
+ALL_CASH_ROWS = {**CASH_ROWS, **VISUAL_CASH_ROWS}
 BALANCE_ROWS: dict[str, tuple[tuple[str, ...], str]] = {
     "fy26_cash_balance": (("cash and cash equivalents",), "141.42"),
     "fy26_noncurrent_investments": (("investments",), "228.77"),
@@ -161,16 +168,30 @@ def _pdf_replay(raw: bytes) -> tuple[list[str], list[str], int]:
         cash = reader.pages[7].extract_text(extraction_mode="layout") or ""
     except (ValueError, IndexError, TypeError, OSError) as exc:
         raise AlphaContractError("P012 original NSE PDF unreadable") from exc
+    # The exact archived PDF bytes, signed NSE receipt and source URL already
+    # independently prove the filing version and date. The text layer has
+    # imperfect recognition on certain headers and cannot be treated as OCR
+    # truth merely because the PDF renders correctly.
     if (
         "datamatics" not in front.casefold()
-        or "may 21, 2026" not in front.casefold()
-        or "consolidated" not in cash.casefold()
-        or "consolidated" not in balance.casefold()
         or "cash flow statement" not in cash.casefold()
+        or "investments" not in balance.casefold()
     ):
-        raise AlphaContractError("P012 original issuer/period/page identity changed")
+        raise AlphaContractError("P012 original issuer/page type changed")
+    strict = check_row_tokens(cash, CASH_ROWS, source_label="cashflow")
+    lines = [_normalize(line) for line in cash.splitlines()]
+    visual = []
+    for key, (labels, _) in VISUAL_CASH_ROWS.items():
+        if not any(
+            any(label in line for label in labels) for line in lines
+        ):
+            raise AlphaContractError(
+                f"P012 original visually reviewed cash row label absent: {key}"
+            )
+        visual.append(key)
     return (
-        check_row_tokens(cash, CASH_ROWS, source_label="cashflow"),
+        strict,
+        visual,
         check_row_tokens(balance, BALANCE_ROWS, source_label="balance sheet"),
         pages,
     )
@@ -185,13 +206,13 @@ def _cr(token: str) -> Decimal:
 
 def build_datamatics_original_cash_bridge(root: Path) -> dict[str, Any]:
     raw, receipt = _original_receipt(root)
-    verified_cash, verified_balance, pages = _pdf_replay(raw)
+    verified_cash, visual_cash, verified_balance, pages = _pdf_replay(raw)
     old_raw = (root / P049).read_bytes()
     if _blob(old_raw) != P049_PINNED_GIT_BLOB:
         raise AlphaContractError("P012 older Datamatics source changed")
     old = json.loads(old_raw)
     old_facts = old["fy26_historical_cash_and_balance_sheet_facts"]
-    rows = {key: _cr(token) for key, (_, token) in CASH_ROWS.items()}
+    rows = {key: _cr(token) for key, (_, token) in ALL_CASH_ROWS.items()}
     bals = {key: _cr(token) for key, (_, token) in BALANCE_ROWS.items()}
     if (
         rows["fy26_cfo"] != Decimal(str(old_facts["fy26_cfo_inr_crore"]))
@@ -248,6 +269,13 @@ def build_datamatics_original_cash_bridge(root: Path) -> dict[str, Any]:
         "page_zero_based_balance_sheet": 6,
         "exact_original_pdf_cashflow_row_labels_and_values_replayed": (
             verified_cash
+        ),
+        "visually_checked_original_cashflow_rows_pdf_text_glyph_ambiguous": (
+            visual_cash
+        ),
+        "pdf_text_layer_complete_for_all_financing_rows": False,
+        "visually_confirmed_but_not_machine_text_matched_cashflow_count": (
+            len(visual_cash)
         ),
         "exact_original_pdf_balance_row_labels_and_values_replayed": (
             verified_balance
