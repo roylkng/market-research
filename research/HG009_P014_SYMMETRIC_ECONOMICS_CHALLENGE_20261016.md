@@ -61,3 +61,8 @@ Failure of any gate means an explicit missingness or conditional uncertainty. Ne
 The companion Python report maps the original ten companies and the above source evidence into five cashflow-review, one symmetric-profit-review and four source-completion cases, with **zero fair values, zero price targets, zero capital authorization**, and an actual audited-file byte-hash proof. It is *not* a new stock ranking.
 
 Run: python scripts/materialize_hg009_p014.py --check. Canonical output: research/hg009/hg009-p014-economic-symmetry-and-cash-v1.json.
+
+
+## Independent reproduction receipt
+
+The canonical P014 packet was generated from the previously sealed original NSE filing PDFs/HTML and Oct 15 full-market NSE source. Its source-only packet SHA-256 is **093c29805ccf0423c1d8b0bfbb8c80c9d89c83c2f12395ea16348a0d6ae47ddc**. The P014 original-source replay and focused checks succeeded in GitHub run **38811031356**. Full repository pull-request tests are separately required before merging this review. Five cases have replayable FY26 cash evidence, PIXTRANS has a symmetric quarter-profit source comparison, and four require missing legal/economic sources. **Zero** source-complete owner-cash valuations and **zero** recommendations are published.
