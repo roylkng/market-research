@@ -63,6 +63,7 @@ class V2ScopeTests(unittest.TestCase):
         self.assertEqual(report["scope_identity"]["e002_rule_sha256"], E002_RULE_SHA256)
         self.assertEqual(report["e002_record_count"], 4)
         self.assertEqual(len(report["input_files"]), 3)
+        self.assertFalse(report["git_blob_bindings_checked"])
 
     def test_every_current_signal_has_bound_extraction(self):
         report = self.audit()
@@ -169,7 +170,7 @@ class V2ScopeTests(unittest.TestCase):
 
 
 class GitBindingTests(unittest.TestCase):
-    def test_wrong_checkout_head_is_rejected(self):
+    def test_unresolvable_named_snapshot_is_rejected(self):
         raws = (b"a", b"b", b"c")
         completed = type("R", (), {"stdout": "f" * 40 + "\n"})()
         with tempfile.TemporaryDirectory() as tmp, patch(
