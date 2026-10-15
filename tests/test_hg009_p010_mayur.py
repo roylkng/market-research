@@ -110,12 +110,28 @@ def test_packet_cannot_promote_synthetic_future_equity_return():
         validate_mayur_cash_use_bridge(data, ROOT)
 
 
-def test_bitwise_original_report_and_standalone_cli():
-    actual = json.loads(REPORT.read_text(encoding="utf-8"))
+def test_bitwise_original_report_and_standalone_cli(tmp_path: Path):
     expected = build_mayur_cash_use_bridge(ROOT)
-    assert actual == expected
+    if REPORT.is_file():
+        actual = json.loads(REPORT.read_text(encoding="utf-8"))
+        assert actual == expected
+    # The PR validation may precede the separate freeze-workflow's signed
+    # report commit. Always exercise both CLI write and read-only check
+    # without mutating a real archived scientific artifact.
+    temporary = tmp_path / "mayur-p010-source.json"
+    generator = subprocess.run(
+        [
+            sys.executable, "scripts/materialize_hg009_p010_mayur.py",
+            "--output", str(temporary),
+        ],
+        cwd=ROOT, capture_output=True, text=True, check=True,
+    )
+    assert json.loads(generator.stdout)["report_sha256"] == expected["report_sha256"]
     proc = subprocess.run(
-        [sys.executable, "scripts/materialize_hg009_p010_mayur.py", "--check"],
+        [
+            sys.executable, "scripts/materialize_hg009_p010_mayur.py",
+            "--output", str(temporary), "--check",
+        ],
         cwd=ROOT, capture_output=True, text=True, check=True,
     )
     status = json.loads(proc.stdout)
