@@ -88,7 +88,7 @@ def test_missing_or_rewritten_original_share_basis_blocks_review():
     originals, receipts = load_sources(ROOT)
     changed = copy.deepcopy(originals)
     changed["equity"]["issuer_rows"][0]["isin"] = "INE000000001"
-    with pytest.raises(AlphaContractError, match="source/ISIN/period"):
+    with pytest.raises(AlphaContractError, match="original Oct15 ACE EQ not priceable"):
         build_reverse_cash_hurdles(changed, receipts)
     changed = copy.deepcopy(originals)
     changed["market"]["source_identity_rows"][0]["symbol"] = "FAKE_ALPHA_WINNER"
