@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
+from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_p014_economics import (
     PREDECLARED,
     build_review,
@@ -115,12 +115,26 @@ def test_original_filing_bytes_tamper_and_unsigned_report_rejected():
     wrong["pix"]["quarter_numbers_recalculated_to_inr_crore"][
         "Q1FY27_STANDALONE"
     ]["other_income"] += 1
-    with pytest.raises(AlphaContractError, match="PIX current symmetric income"):
+    with pytest.raises(AlphaContractError, match="original signed source seal mismatch"):
         build_review(wrong, receipts)
+
+    # An attacker cannot alter any of the other 290 observed identities either.
     wrong = copy.deepcopy(source)
     wrong["market"]["source_identity_rows"][0]["symbol"] = "FUTURE_WINNER"
-    with pytest.raises(AlphaContractError, match="same-ISIN original Oct15 quote"):
+    with pytest.raises(AlphaContractError, match="original signed source seal mismatch"):
         build_review(wrong, receipts)
+
+    # Even a re-signed tampered quarter cannot escape symmetric financial math.
+    wrong = copy.deepcopy(source)
+    wrong["pix"]["quarter_numbers_recalculated_to_inr_crore"][
+        "Q1FY27_STANDALONE"
+    ]["other_income"] += 1
+    unsigned = dict(wrong["pix"])
+    unsigned.pop("packet_sha256")
+    wrong["pix"]["packet_sha256"] = digest(unsigned)
+    with pytest.raises(AlphaContractError, match="PIX current symmetric income"):
+        build_review(wrong, receipts)
+
     bad = materialize(ROOT)
     bad["cash_flow_and_other_income_diagnostics"][0][
         "investable_risk_adjusted_value_per_share"
@@ -138,5 +152,5 @@ def test_reproducible_packet_and_standalone_check_command():
     )
     summary = json.loads(proc.stdout)
     assert summary["state"] == "VERIFIED"
-    assert summary["company_count"] == 10
+    assert summary["case_count"] == 10
     assert summary["investable"] == 0
