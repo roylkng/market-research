@@ -47,6 +47,14 @@ def _resign_ledger(ledger: dict) -> None:
 def _future_sources() -> tuple[dict, dict]:
     """Fabricated fixtures for gates, explicitly not historical observations."""
     cash = _read("research/prospective/ae001-sc001/source-ledger.json")
+    # The canonical ledgers are append-only and have *real* Oct 15 sources.
+    # This unit test creates one fake Oct 15 forecast, so isolate a private
+    # pre-Oct15 historical prefix first. Never change on-disk source evidence.
+    cash["attempts"] = [
+        row for row in cash["attempts"]
+        if row["session_date"] < FIRST_FEATURE_SESSION
+    ]
+    _resign_ledger(cash)
     future_cash = copy.deepcopy([
         a for a in cash["attempts"] if a.get("eligible_before_cutoff") is True
     ][-1])
@@ -62,6 +70,11 @@ def _future_sources() -> tuple[dict, dict]:
     _resign_ledger(cash)
 
     fo = _read("research/prospective/ae001-sc003/source-ledger.json")
+    fo["attempts"] = [
+        row for row in fo["attempts"]
+        if row["target_session_date"] < FIRST_FEATURE_SESSION
+    ]
+    _resign_ledger(fo)
     future_fo = copy.deepcopy([
         a for a in fo["attempts"] if a.get("ready_before_preopen_cutoff") is True
     ][-1])
