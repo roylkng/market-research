@@ -183,9 +183,13 @@ def _original_bytes(root: Path) -> tuple[bytes, dict[str, Any], dict[str, Any]]:
         raw = gzip.decompress((root / SOURCE_RAW).read_bytes())
     except (FileNotFoundError, OSError) as exc:
         raise AlphaContractError("P010 original NSE source bytes unreadable") from exc
+    # The first P009 acquisition used v1 receipt fields and did not retain a
+    # byte-count field. Its content SHA and signed receipt *are* immutable.
+    # Do not invent a retrospective count in the original receipt.
+    old_count = receipt.get("raw_byte_count_if_downloaded")
     if (
         hashlib.sha256(raw).hexdigest() != SOURCE_RAW_SHA256
-        or len(raw) != receipt["raw_byte_count_if_downloaded"]
+        or (old_count is not None and len(raw) != old_count)
     ):
         raise AlphaContractError("P010 archived NSE issuer bytes changed")
     return raw, receipt, original
