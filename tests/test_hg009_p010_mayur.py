@@ -89,7 +89,7 @@ def test_source_cell_or_archived_issuer_tamper_cannot_pass():
     assert values["other_long_asset_purchase"] > values["other_long_asset_sale_proceeds"]
     altered = raw.replace(b"26,624.41", b"27,624.41", 1)
     assert altered != raw
-    with pytest.raises(AlphaContractError, match="original"):
+    with pytest.raises(AlphaContractError, match="row/amount absent"):
         extract_original_financial_rows(altered)
 
     broken = raw.replace(b"MAYURUNIQ", b"FAKE_WIN", 1)
