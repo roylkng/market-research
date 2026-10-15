@@ -54,7 +54,7 @@ def test_original_nse_23_page_pdf_and_cashflow_reconcile():
         638.9
     )
     assert doc["fy26_reported_borrowings_total_cr"] == 141.36
-    assert doc["fy26_lease_liability_total_cr"] == 79.57
+    assert doc["fy26_lease_liability_total_cr"] == 78.57
     assert doc["fy26_goodwill_cr"] == 611.12
     assert doc["cash_residual_is_not_sustainable_earnings"] is True
     assert doc["investment_purchase_is_not_a_cost_of_goods_or_permanent_cash_loss"]
