@@ -308,9 +308,6 @@ def build_review(packets: dict[str, dict], receipts: dict[str, dict]) -> dict:
             "source_reported_economics_not_owner_fcf": evidence,
             "original_oct15_official_EQ_close_inr_not_current_quote": observed,
             "price_date": "2026-10-15",
-            "old_reference_historical_turnover_cr_not_order_capacity": case[
-                "source_prior_20_session_EQ_median_traded_value_inr_crore_not_capacity"
-            ],
             "original_underwriting_missing_document_keys": case[
                 "missing_verified_source_requirements"
             ],
