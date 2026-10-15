@@ -109,7 +109,7 @@ def test_pix_must_compare_same_other_income_exclusion_on_both_quarters():
     assert result["single_adjustment_pix_is_valid_symmetric_growth_claim"] is False
 
 
-def test_original_filing_bytes_tamper_and_unsigned_report_rejected(tmp_path):
+def test_original_filing_bytes_tamper_and_unsigned_report_rejected():
     source, receipts = load_inputs(ROOT)
     wrong = copy.deepcopy(source)
     wrong["pix"]["quarter_numbers_recalculated_to_inr_crore"][
@@ -119,7 +119,7 @@ def test_original_filing_bytes_tamper_and_unsigned_report_rejected(tmp_path):
         build_review(wrong, receipts)
     wrong = copy.deepcopy(source)
     wrong["market"]["source_identity_rows"][0]["symbol"] = "FUTURE_WINNER"
-    with pytest.raises(AlphaContractError, match="original ten company"):
+    with pytest.raises(AlphaContractError, match="same-ISIN original Oct15 quote"):
         build_review(wrong, receipts)
     bad = materialize(ROOT)
     bad["cash_flow_and_other_income_diagnostics"][0][
