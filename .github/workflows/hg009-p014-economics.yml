@@ -1,0 +1,57 @@
+name: HG009 P014 immutable symmetric economics challenge
+
+on:
+  push:
+    branches:
+      - research/hg009-p014-symmetric-economics-challenge-20261016
+    paths:
+      - .github/workflows/hg009-p014-economics.yml
+      - src/marketlab/hg009_p014_economics.py
+      - scripts/materialize_hg009_p014.py
+      - tests/test_hg009_p014_economics.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p014-symmetric-accounting-seal
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable MarketLab
+        run: python -m pip install -e '.[dev]'
+      - name: Replay immutable ten cases, original filing bytes, symmetric PIX and bank cash
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/hg009_p014_economics.py scripts/materialize_hg009_p014.py tests/test_hg009_p014_economics.py
+          python scripts/materialize_hg009_p014.py
+          python scripts/materialize_hg009_p014.py --check
+          pytest -q tests/test_hg009_p014_economics.py
+      - name: Append signed analysis without touching any frozen source cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p014-economic-symmetry-and-cash-v1.json
+          if git diff --cached --quiet; then
+            echo "P014 review already sealed"
+            exit 0
+          fi
+          git commit -m "HG009 P014: seal original-source symmetric business cash challenge [skip ci]"
+          git fetch origin research/hg009-p014-symmetric-economics-challenge-20261016
+          git rebase origin/research/hg009-p014-symmetric-economics-challenge-20261016
+          python scripts/materialize_hg009_p014.py --check
+          git push origin HEAD:research/hg009-p014-symmetric-economics-challenge-20261016
