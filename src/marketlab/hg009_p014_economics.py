@@ -269,6 +269,13 @@ def _cash_basis(packets: dict[str, dict], symbol: str) -> dict[str, Any] | None:
 
 
 def build_review(packets: dict[str, dict], receipts: dict[str, dict]) -> dict:
+    # Standalone callers cannot mutate prior JSON after load_inputs seals it.
+    # This also protects the OTHER 290 market slots outside the 10 dossiers.
+    for key, (_path, _blob, sha_key) in SOURCE_MAP.items():
+        unsigned = copy.deepcopy(packets[key])
+        stored = unsigned.pop(sha_key, None)
+        if stored != digest(unsigned):
+            raise AlphaContractError(f"P014 original signed source seal mismatch: {key}")
     base = packets["underwriting"]
     if base["company_count"] != 10 or base["fully_underwritten_equity_valuations_count"] != 0:
         raise AlphaContractError("P014 original ten company research scope changed")
