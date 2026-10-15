@@ -12,7 +12,6 @@ import gzip
 import hashlib
 import io
 import json
-import re
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
