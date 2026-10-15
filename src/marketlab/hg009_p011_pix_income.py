@@ -191,15 +191,15 @@ def _pct(a: Decimal, b: Decimal) -> float:
 def build_pix_symmetric_income_bridge(root: Path) -> dict[str, Any]:
     numbers: dict[str, dict[str, Decimal]] = {}
     receipts: dict[str, dict[str, Any]] = {}
-    for period in DOCUMENTS:
+    for period, document in DOCUMENTS.items():
         raw, receipt, spec = _verified_source(root, period=period)
-        numbers[period] = _extract_rows(raw, expected=DOCUMENTS[period])
+        numbers[period] = _extract_rows(raw, expected=document)
         receipts[period] = {
             "original_url": spec["source_url"],
-            "quarter_ended": DOCUMENTS[period]["quarter_ended"],
-            "source_display_unit": DOCUMENTS[period]["source_unit"],
-            "source_sha256": DOCUMENTS[period]["raw_sha256"],
-            "retained_original_receipt_path": DOCUMENTS[period]["receipt"],
+            "quarter_ended": document["quarter_ended"],
+            "source_display_unit": document["source_unit"],
+            "source_sha256": document["raw_sha256"],
+            "retained_original_receipt_path": document["receipt"],
             "retained_retrieval_utc": receipt["actual_retrieved_at_utc"],
         }
     prior = numbers["Q1FY26_STANDALONE"]
