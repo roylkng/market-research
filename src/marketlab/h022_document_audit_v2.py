@@ -60,6 +60,7 @@ def _validate_top_level(doc: dict[str, Any], *, kind: str) -> None:
     _require_equal(doc.get("hypothesis_id"), HYPOTHESIS_ID, f"{kind}_hypothesis_drift")
     _require_equal(doc.get("cohort_id"), COHORT_ID, f"{kind}_cohort_drift")
     _require_equal(doc.get("cohort_sha256"), COHORT_SHA256, f"{kind}_cohort_hash_drift")
+    _require_equal(doc.get("schema_version"), 1, f"{kind}_schema_version_drift")
     _require_equal(doc.get("outcome_data_attached"), False, f"{kind}_outcome_data_forbidden")
     records = doc.get("records")
     if not isinstance(records, list) or doc.get("record_count") != len(records):
@@ -182,10 +183,11 @@ def verify_git_snapshot(
             raise AuditError("git_snapshot_verification_failed") from exc
         return result.stdout.strip()
 
-    _require_equal(git("rev-parse", "HEAD"), snapshot_commit, "checkout_commit_mismatch")
+    resolved = git("rev-parse", f"{snapshot_commit}^{commit}")
+    _require_equal(resolved, snapshot_commit, "snapshot_commit_resolution_mismatch")
     observed: dict[str, str] = {}
     for path, raw in zip(INPUT_PATHS, raws, strict=True):
-        expected = git("rev-parse", f"HEAD:{path}")
+        expected = git("rev-parse", f"{snapshot_commit}:{path}")
         actual = _git_blob_sha(raw)
         _require_equal(actual, expected, "working_file_differs_from_pinned_blob")
         observed[path] = expected
@@ -289,7 +291,7 @@ def audit_snapshot(
         }
     )
     report["e002_record_count"] = len(extraction_map)
-    report["git_snapshot_verified"] = git_blob_shas is not None
+    report["git_blob_bindings_checked"] = git_blob_shas is not None
     report["previous_audit_sha256"] = None
     if previous_audit is not None:
         report["previous_audit_sha256"] = _validate_previous(
@@ -337,7 +339,7 @@ def main(argv: list[str] | None = None) -> int:
                     "signal_count": report["signal_count"],
                     "classification_counts": report["classification_counts"],
                     "frozen_inputs_unchanged": True,
-                    "git_snapshot_verified": report["git_snapshot_verified"],
+                    "git_blob_bindings_checked": report["git_blob_bindings_checked"],
                     "advisory_only": True,
                 },
                 sort_keys=True,
