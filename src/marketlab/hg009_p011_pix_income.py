@@ -234,9 +234,11 @@ def build_pix_symmetric_income_bridge(root: Path) -> dict[str, Any]:
         "reported_revenue_yoy_pct": _pct(
             current["revenue"], prior["revenue"]
         ),
-        "current_fvtpl_share_of_reported_pbt_pct": _pct(
-            current["fvtpl"], current["pbt"]
-        ) + 100,
+        "current_fvtpl_share_of_reported_pbt_pct": float(
+            (
+                Decimal(100) * current["fvtpl"] / current["pbt"]
+            ).quantize(Decimal("0.01"))
+        ),
         "current_pbt_less_fvtpl_inr_crore": _reported(current_less_fvtpl),
         "current_other_income_less_fvtpl_inr_crore": _reported(
             current["other_income"] - current["fvtpl"]
