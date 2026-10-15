@@ -94,7 +94,7 @@ def test_raw_source_row_or_fvtpl_note_change_fails_closed():
         numbers = _extract_rows(raw, expected=DOCUMENTS[period])
         assert numbers["pbt"] > 0
     previous = _original("Q1FY26_STANDALONE")
-    damaged = previous.replace(b"309666000", b"309666001", 1)
+    damaged = previous.replace(b"309666000", b"309666001")
     assert damaged != previous
     with pytest.raises(AlphaContractError, match="original reported cell"):
         _extract_rows(damaged, expected=DOCUMENTS["Q1FY26_STANDALONE"])
