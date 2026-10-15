@@ -157,7 +157,9 @@ def check_row_tokens(
     return matched
 
 
-def _pdf_replay(raw: bytes) -> tuple[list[str], list[str], int]:
+def _pdf_replay(
+    raw: bytes,
+) -> tuple[list[str], list[str], list[str], int]:
     try:
         reader = PdfReader(io.BytesIO(raw))
         pages = len(reader.pages)
