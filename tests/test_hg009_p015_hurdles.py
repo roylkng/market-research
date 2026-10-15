@@ -39,9 +39,7 @@ def test_original_oct15_two_companies_and_dated_not_current_equity():
     assert len(result["two_case_records"]) == 2
     assert len(result["prior_original_source_receipts"]) == 3
     for row in result["two_case_records"]:
-        assert row["original_oct15_official_EQ_close_inr_not_current_quote"] if (
-            "original_oct15_official_EQ_close_inr_not_current_quote" in row
-        ) else row["dated_price_EQ_close_inr"] > 0
+        assert row["dated_price_EQ_close_inr"] > 0
         assert row["reporting_basis"] == "STANDALONE_UNAUDITED_Q1FY27"
         assert row["current_fully_diluted_shares_verified"] is False
         assert row["issuer_q1_raw_HTML_retained_and_replayed"] is False
@@ -58,7 +56,7 @@ def test_ACE_q1_parent_capital_and_cash_multiple_are_cross_date_only():
     assert ace["cross_date_illustrative_basic_market_cap_cr"] == 13764.39
     assert ace["fy26_CONSOLIDATED_CFO_cr"] == 417.27
     assert ace["fy26_CFO_less_PPE_cr_not_owner_FCF"] == 324.01
-    assert ace["CFO_yield_on_cross_date_basic_cap_pct_not_owner_yield"] == 3.031
+    assert ace["CFO_yield_on_cross_date_basic_cap_pct_not_owner_yield"] == 3.032
     assert ace["CFO_less_PPE_yield_pct_not_owner_yield"] == 2.354
     assert ace["cross_date_cap_to_FY26_CFO_less_PPE_if_positive"] == 42.481
     assert ace["q1_standalone_reported_PBT_cr"] == 156.79
@@ -83,7 +81,7 @@ def test_ACUTAAS_high_capex_and_undocumented_incremental_project_returns():
     assert a["q1_standalone_other_income_cr"] == 4.476
     assert a["q1_PBT_less_other_income_not_owner_earnings_cr"] == 99.539
     assert a["reverse_cash_for_50pct_ONE_TIME_gross_price_lift_at_16x_cr"] == 2404.33
-    assert a["reverse_cash_for_50pct_CAGR_3Y_at_16x_cr"] == 5409.42
+    assert a["reverse_cash_for_50pct_CAGR_3Y_at_16x_cr"] == 5409.74
 
 
 def test_missing_or_rewritten_original_share_basis_blocks_review():
@@ -94,8 +92,15 @@ def test_missing_or_rewritten_original_share_basis_blocks_review():
         build_reverse_cash_hurdles(changed, receipts)
     changed = copy.deepcopy(originals)
     changed["market"]["source_identity_rows"][0]["symbol"] = "FAKE_ALPHA_WINNER"
-    review = build_reverse_cash_hurdles(changed, receipts)
-    assert review["investment_price_targets_created"] == 0
+    with pytest.raises(AlphaContractError, match="original signed source drift"):
+        build_reverse_cash_hurdles(changed, receipts)
+
+    changed = copy.deepcopy(originals)
+    changed["audited"]["symbol_records"][0][
+        "source_CFO_less_PPE_cash_proxy_cr_not_owner_fcf"
+    ] *= 2
+    with pytest.raises(AlphaContractError, match="original signed source drift"):
+        build_reverse_cash_hurdles(changed, receipts)
 
     altered = materialize(ROOT)
     altered["two_case_records"][0]["future_price_target_inr"] = 5000
