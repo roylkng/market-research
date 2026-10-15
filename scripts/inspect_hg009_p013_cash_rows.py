@@ -46,11 +46,14 @@ def main() -> int:
                 " ".join(cell.get_text(" ", strip=True).split())
                 for cell in row.find_all(["td", "th"], recursive=False)
             ]
-            if not cells or not MATCH.search(cells[0]):
+            # NSE iXBRL has nested wrappers and a leftmost blank table cell;
+            # inspect every direct cell and keep the row label/value together.
+            joined = " || ".join(cells)
+            if not cells or not MATCH.search(joined):
                 continue
-            print(" || ".join(cells)[:420])
+            print(joined[:650])
             count += 1
-            if count >= 85:
+            if count >= 140:
                 break
         print(f"SOURCE_ROWS_PRINTED={count}")
     return 0
