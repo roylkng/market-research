@@ -55,3 +55,10 @@ The result is a **cash allocation bridge**, not a conclusion that the company ha
 The original 2026 first-party PDF is pinned by its byte SHA, its Git archive path, and a timestamped original retrieval receipt. Report: research/hg009/hg009-p012-datamatics-fy26-cash-bridge-v1.json. Source parser: src/marketlab/hg009_p012_datamatics_cash.py. CLI: python scripts/materialize_hg009_p012_datamatics.py --check.
 
 The historical P049 original source and its known self-checksum discrepancy are not rewritten. The P012 source validator pins its Git blob instead.
+
+
+## Original-source replay acceptance receipt, October 15
+
+The independent archived-PDF source job completed successfully, preserving the original 4,068,966-byte NSE PDF. The signed P012 report SHA-256 is **2425ce72104caa931e48f9c2d3dd94e4ebacb9e72f3098c6e6d911f56c2ba823**. Seventeen cash-flow rows and eight balance-sheet rows were exact matched to the original PDF text. Five additional source rows (acquisition spending, new long-term borrowing, dividends paid, interest paid and FY25 cash movement) required visual confirmation due to degraded PDF text glyph extraction and are explicitly separated in the report.
+
+The four primary FY26 cash totals reconcile as 323.99 - 316.54 - 83.67 = -76.22 crore. The 2026 March financial investments sum to 638.90 crore, but their legal accessibility, tax and value to current common shareholders remain unverified. **No source-backed price target, 1-year return or 3-year return is produced.**
