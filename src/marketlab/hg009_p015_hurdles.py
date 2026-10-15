@@ -88,6 +88,21 @@ def load_sources(root: Path) -> tuple[dict[str, dict], dict[str, dict]]:
 def build_reverse_cash_hurdles(
     originals: dict[str, dict], receipts: dict[str, dict]
 ) -> dict:
+    # Fail closed even when a caller alters source objects after reading their
+    # original Git blob. Keep every one of the 300 market identities protected.
+    for key in ("audited", "market"):
+        source = copy.deepcopy(originals[key])
+        sha_key = SOURCE_MAP[key][2]
+        sealed = source.pop(sha_key, None)
+        if sealed != digest(source):
+            raise AlphaContractError(f"P015 original signed source drift: {key}")
+    validate_hg009_daily_snapshot(originals["market"])
+    if originals["market"].get("date_ist") != "2026-10-15":
+        raise AlphaContractError("P015 incorrect source-market observation date")
+    if originals["equity"].get("retained_original_HTML_bytes") is not False:
+        raise AlphaContractError("P015 cannot claim unarchived Q1 issuer evidence")
+    if len(originals["market"]["source_identity_rows"]) != 300:
+        raise AlphaContractError("P015 original market identity denominator changed")
     bank = {
         x["symbol"]: x for x in originals["audited"]["symbol_records"]
     }
