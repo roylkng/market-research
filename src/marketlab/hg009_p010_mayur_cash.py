@@ -12,7 +12,6 @@ import copy
 import gzip
 import hashlib
 import json
-import re
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -64,8 +63,11 @@ CASH_ROWS_LAKH: dict[str, tuple[str, str]] = {
     "dividends_paid": ("Dividends paid", "2,170.70"),
     "interest_paid_financing": ("Interest paid", "81.29"),
     "net_cash_change_before_fx": (
-        "Net increase (decrease) in cash and cash equivalents "
-        "before effect of exchange rate changes", "(566.73)"
+        (
+            "Net increase (decrease) in cash and cash equivalents "
+            "before effect of exchange rate changes"
+        ),
+        "(566.73)",
     ),
     "exchange_effect_on_cash": (
         "Effect of exchange rate changes on cash and cash equivalents", "170.20"
