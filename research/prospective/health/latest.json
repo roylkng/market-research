@@ -1,5 +1,5 @@
 {
-  "after_market_close": false,
+  "after_market_close": true,
   "as_of_date": "2026-10-15",
   "blocker_count": 3,
   "blockers": [
@@ -50,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 5,
+      "eligible_session_count": 6,
       "expected_latest_session": "2026-10-14",
-      "latest_eligible_session": "2026-10-14",
-      "ledger_sha256": "888ff5103ebaa2eca11eca02c4d17d57134183743ebf15393ceade7908a8cbb4",
-      "state": "HEALTHY"
+      "latest_eligible_session": "2026-10-15",
+      "ledger_sha256": "db07a8cccc1240605c09fe3bfe01d32735453298aea3cb377836d9151d236427",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 115,
@@ -74,13 +74,13 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 1,
-      "decision_ledger_sha256": "07baa350a52ceb0f4e4f4498b21f97bfdfce2c210fb73804b487fba67d0b5ab2",
-      "latest_readiness_session": "2026-10-14",
+      "decision_count": 2,
+      "decision_ledger_sha256": "d4bc88b631d438485bd218e370cfc52150a5af675520e1c93012501775a27052",
+      "latest_readiness_session": "2026-10-15",
       "mature_outcome_fraction": 0.0,
       "outcome_count": 0,
       "outcome_ledger_sha256": "fb3034e7fee720ce91842d06bb19dc805b3ef65ed8a5e7580b72f36432ece730",
-      "readiness_sha256": "7345cd936063d49abc3a56358c0347ba9e16088f5be44809b2a49154e434edf1",
+      "readiness_sha256": "9824294913c02b37f686cf151de06ff671956e8360cb516f0412872f74d80294",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -196,5 +196,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "e4855264ddbe4e1bb8fd62a0d02cefc0f9dc8e95f24d6bb4af814d49f0a7fabb"
+  "summary_sha256": "c0db5b72fdc59af2481132c4800f6ec8096d62815913ee7196e812884244da10"
 }
