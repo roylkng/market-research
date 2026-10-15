@@ -89,7 +89,7 @@ BALANCE_ROWS: dict[str, tuple[tuple[str, ...], str]] = {
     "fy26_current_investments": (("investments",), "410.13"),
     "fy26_noncurrent_borrowings": (("borrowings",), "86.62"),
     "fy26_current_borrowings": (("borrowings",), "54.74"),
-    "fy26_noncurrent_lease": (("lease liabilities",), "46.77"),
+    "fy26_noncurrent_lease": (("lease liabilities",), "45.77"),
     "fy26_current_lease": (("lease liabilities",), "32.80"),
     "fy26_goodwill": (("goodwill",), "611.12"),
 }
