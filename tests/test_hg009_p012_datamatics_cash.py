@@ -17,8 +17,8 @@ from marketlab.hg009_p012_datamatics_cash import (
     CASH_ROWS,
     FIRST_RECEIPT,
     ORIGINAL_SOURCE,
-    check_row_tokens,
     build_datamatics_original_cash_bridge,
+    check_row_tokens,
     validate_datamatics_original_cash_bridge,
 )
 
