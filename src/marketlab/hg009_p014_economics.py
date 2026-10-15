@@ -89,9 +89,15 @@ def _close(a: float, b: float, label: str, *, abs_tol: float = 0.00011) -> None:
 
 
 def _source_proof(root: Path, report: dict[str, Any], symbol: str) -> None:
-    path = report.get("original_source_path") or report.get("pinned_original_byte_path")
-    sha = report.get("original_nse_full_html_sha256") or report.get(
-        "pinned_original_byte_sha256"
+    path = (
+        report.get("original_source_path")
+        or report.get("pinned_original_byte_path")
+        or report.get("original_raw_repo_path")
+    )
+    sha = (
+        report.get("original_nse_full_html_sha256")
+        or report.get("pinned_original_byte_sha256")
+        or report.get("original_raw_sha256")
     )
     if not isinstance(path, str) or not isinstance(sha, str) or len(sha) != 64:
         raise AlphaContractError(f"P014 {symbol} missing archived original filing")
