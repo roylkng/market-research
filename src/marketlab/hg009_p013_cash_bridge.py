@@ -12,7 +12,6 @@ from __future__ import annotations
 import copy
 import gzip
 import hashlib
-import json
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
