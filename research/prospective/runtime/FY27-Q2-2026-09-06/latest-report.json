@@ -14,23 +14,27 @@
     "winner_concentration": null
   },
   "cost_sensitivity": {},
-  "generated_at_utc": "2026-10-15T17:41:07.751153Z",
+  "generated_at_utc": "2026-10-16T17:14:54.609318Z",
   "latest_state_counts": {
-    "CALENDAR_PENDING": 9
+    "CALENDAR_PENDING": 10,
+    "SKIPPED": 1
   },
   "live_capital_allowed": false,
   "mae_mfe": {
     "reason": "H002-D v1 retains exact entry/exit sources; intraday path data is not inferred",
     "status": "NOT_CAPTURED_V1"
   },
-  "observation_count": 9,
+  "observation_count": 11,
   "paper_only": true,
-  "report_sha256": "93e2dd3110f4ec51c002d995775380b11bdfff28c99329e02ee756bef079e08c",
+  "report_sha256": "6af67814edd4b2889d59b6872d0e46079ee938304ec7d8edc44526c747a07d23",
   "runner_rule_id": "H002-D001",
   "schema_version": 1,
   "signal_bucket_counts": {
     "NEGATIVE": 1,
-    "POSITIVE": 8
+    "NO_SIGNAL": 1,
+    "POSITIVE": 9
   },
-  "skipped_reason_counts": {}
+  "skipped_reason_counts": {
+    "baseline_identity_mismatch": 1
+  }
 }
