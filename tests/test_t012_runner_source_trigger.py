@@ -11,8 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from marketlab.alpha import AlphaContractError
-from scripts.preflight_ae001_t012_runner import next_target_gate
+from scripts.preflight_ae001_t012_runner import (
+    PreflightContractError,
+    next_target_gate,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -121,7 +123,7 @@ def test_earlier_than_exchange_close_or_sealed_is_never_scored():
 def test_change_to_wrong_calendar_breaks_original_preopen_contract():
     wrong = _source()
     wrong["calendar"]["sessions"][1]["session_date"] = "2026-10-15"
-    with pytest.raises(AlphaContractError, match="not strict"):
+    with pytest.raises(PreflightContractError, match="not strict"):
         _gate(wrong, "2026-10-16T00:15:00Z")
 
 
@@ -129,18 +131,24 @@ def test_real_oct15_source_was_ready_before_expiry_but_now_past():
     def _json(path):
         return json.loads((ROOT / path).read_text("utf-8"))
 
+    sc001 = _json("research/prospective/ae001-sc001/source-ledger.json")
+    sc003 = _json("research/prospective/ae001-sc003/source-ledger.json")
+    sc001["attempts"] = [
+        row for row in sc001["attempts"]
+        if row.get("session_date", "") <= "2026-10-15"
+    ]
+    sc003["attempts"] = [
+        row for row in sc003["attempts"]
+        if row.get("target_session_date", "") <= "2026-10-15"
+    ]
     value = next_target_gate(
         now_utc=datetime(2026, 10, 16, 0, 30, tzinfo=UTC),
         calendar=_json(
             "research/prospective/calendars/FY27-Q2-2026-09-06/"
             "NSE-CM-FY27Q2-v1.json"
         ),
-        sc001_ledger=_json(
-            "research/prospective/ae001-sc001/source-ledger.json"
-        ),
-        sc003_ledger=_json(
-            "research/prospective/ae001-sc003/source-ledger.json"
-        ),
+        sc001_ledger=sc001,
+        sc003_ledger=sc003,
         decision_ledger=_json(
             "research/prospective/ae001-t012/decision-ledger.json"
         ),
@@ -152,12 +160,8 @@ def test_real_oct15_source_was_ready_before_expiry_but_now_past():
             "research/prospective/calendars/FY27-Q2-2026-09-06/"
             "NSE-CM-FY27Q2-v1.json"
         ),
-        sc001_ledger=_json(
-            "research/prospective/ae001-sc001/source-ledger.json"
-        ),
-        sc003_ledger=_json(
-            "research/prospective/ae001-sc003/source-ledger.json"
-        ),
+        sc001_ledger=sc001,
+        sc003_ledger=sc003,
         decision_ledger=_json(
             "research/prospective/ae001-t012/decision-ledger.json"
         ),
