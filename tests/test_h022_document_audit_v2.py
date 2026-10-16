@@ -184,12 +184,12 @@ class GitBindingTests(unittest.TestCase):
 
         def blob(data):
             return hashlib.sha1(
-                b"blob " + str(len(data)).encode() + b"\\0" + data
+                b"blob " + str(len(data)).encode() + b"\0" + data
             ).hexdigest()
 
         raws = (b"a", b"b", b"c")
         responses = [PIN, *(blob(item) for item in raws)]
-        calls = iter(type("R", (), {"stdout": value + "\\n"})() for value in responses)
+        calls = iter(type("R", (), {"stdout": value + "\n"})() for value in responses)
         with tempfile.TemporaryDirectory() as tmp, patch(
             "subprocess.run", side_effect=lambda *a, **k: next(calls)
         ):
