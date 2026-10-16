@@ -12,12 +12,14 @@ import gzip
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from bs4 import BeautifulSoup
+from requests.exceptions import RequestException
 
 from marketlab.alpha import AlphaContractError, digest
 
@@ -101,12 +103,11 @@ def _matching_row(rows: list[list[str]], label: str, expected: object) -> bool:
 def _identity(rows: list[list[str]], key: str, expected: str) -> bool:
     for cells in rows:
         for pos, cell in enumerate(cells):
-            if key == cell.casefold().strip():
-                if any(
-                    candidate.strip().upper() == expected.upper()
-                    for candidate in cells[pos + 1:]
-                ):
-                    return True
+            if key == cell.casefold().strip() and any(
+                candidate.strip().upper() == expected.upper()
+                for candidate in cells[pos + 1:]
+            ):
+                return True
     return False
 
 
@@ -211,7 +212,7 @@ def capture_one_q1(
 ) -> dict:
     try:
         status, raw = fetch(issuer["original_url"])
-    except Exception as exc:
+    except (RequestException, OSError, TimeoutError) as exc:
         return _blocked_record(
             issuer, observe_now(), state="ORIGINAL_NSE_HTTP_FAILED",
             failure=type(exc).__name__,
