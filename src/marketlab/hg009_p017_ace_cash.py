@@ -24,8 +24,10 @@ from bs4 import BeautifulSoup
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_p013_cash_bridge import (
+    _row_values,
     build_original_fy26_cash_use,
 )
+from requests.exceptions import RequestException
 
 ID = "HG009-P017-ACE-FY25-FY26-CAPEX-TIMING-AUDIT-v1"
 FY25_URL = (
@@ -127,8 +129,6 @@ def _crore(rupees: Decimal) -> float:
 
 def _original_cash_rows(raw: bytes) -> dict[tuple[str, str], list[Decimal]]:
     # Reuse exact already-regressed P013 section-aware HTML table parsing.
-    from marketlab.hg009_p013_cash_bridge import _row_values
-
     return _row_values(raw)
 
 
@@ -177,7 +177,7 @@ def capture_fy25_ace(
     observed = observed_at.astimezone(UTC).isoformat()
     try:
         status, raw = fetch(FY25_URL)
-    except (OSError, TimeoutError, ConnectionError) as exc:
+    except (OSError, TimeoutError, RequestException) as exc:
         return {
             "state": "BLOCKED_ORIGINAL_NSE_TRANSPORT",
             "error_type": type(exc).__name__,
@@ -285,17 +285,21 @@ def build_ace_fy25_fy26_cash_audit(root: Path) -> dict[str, Any]:
     pbt25 = _crore(fy25["pbt"])
     cfo25 = _crore(fy25["cfo"])
     ppe25 = _crore(fy25["ppe_cash_purchase"])
-    pbt26 = fy26["pbt"] if "pbt" in fy26 else None
-    if pbt26 is None:
-        # P013 uses 17 cash flow rows; first cash operating section contains
-        # CFO but no PBT in the source contract. Use P008 FY26 original
-        # previously archived and nine-value attestation through P013.
-        facts_path = root / "registry/hg009_p008_fy26_nse_cash_facts.json"
-        fact_source = json.loads(facts_path.read_text(encoding="utf-8"))
-        match = [x for x in fact_source["numeric_facts"] if x["symbol"] == "ACE"]
-        if len(match) != 1 or match[0]["isin"] != FY25_ISIN:
-            raise AlphaContractError("P017 FY26 PBT source issuer mismatch")
-        pbt26 = match[0]["pretax_profit"] / 100.0
+    # Extract PBT from the same FIRST-BYTE ATTESTED original FY26 issuer
+    # HTML, not from a second mutable or unit-ambiguous summary.
+    original_fy26_path = root / old[0]["original_source_path"]
+    original_fy26_html = gzip.decompress(original_fy26_path.read_bytes())
+    if hashlib.sha256(original_fy26_html).hexdigest() != (
+        old[0]["original_nse_full_html_sha256"]
+    ):
+        raise AlphaContractError("P017 FY26 original ACE bytes changed")
+    matched_pbt = _row_values(original_fy26_html).get(
+        ("operating", "profit before tax"), []
+    )
+    if len(matched_pbt) != 1 or matched_pbt[0] != Decimal("55671.00"):
+        raise AlphaContractError("P017 FY26 original ACE PBT mismatch")
+    # FY26 iXBRL reports in INR LAKHS, unlike FY25 INR ACTUALS.
+    pbt26 = float(matched_pbt[0] / Decimal("100"))
     cfo26 = fy26["cfo"]
     ppe26 = fy26["ppe_purchase"]
     proxy25, proxy26 = cfo25 - ppe25, cfo26 - ppe26
