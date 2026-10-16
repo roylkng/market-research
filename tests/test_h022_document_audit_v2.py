@@ -178,8 +178,19 @@ class GitBindingTests(unittest.TestCase):
         ), self.assertRaises(AuditError):
             verify_git_snapshot(Path(tmp), PIN, raws)
 
+    def test_checked_out_HEAD_must_match_pinned_snapshot(self):
+        calls = iter([
+            type("R", (), {"stdout": PIN + "\n"})(),
+            type("R", (), {"stdout": "f" * 40 + "\n"})(),
+        ])
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "subprocess.run", side_effect=lambda *a, **k: next(calls)
+        ), self.assertRaisesRegex(AuditError, "snapshot_checkout_mismatch"):
+            verify_git_snapshot(Path(tmp), PIN, (b"a", b"b", b"c"))
+
     def test_changed_working_file_is_rejected(self):
         calls = iter([
+            type("R", (), {"stdout": PIN + "\n"})(),
             type("R", (), {"stdout": PIN + "\n"})(),
             type("R", (), {"stdout": "0" * 40 + "\n"})(),
         ])
