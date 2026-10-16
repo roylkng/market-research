@@ -126,7 +126,7 @@ def test_report_build_requires_archived_original_and_signed_comparisons():
     pending = not (ROOT / FIRST_RECEIPT).exists()
     proc = subprocess.run(
         [sys.executable, "scripts/materialize_hg009_p017_ace.py", "--check"],
-        cwd=ROOT, capture_output=True, text=True,
+        cwd=ROOT, capture_output=True, text=True, check=False,
     )
     if pending:
         assert proc.returncode == 0
