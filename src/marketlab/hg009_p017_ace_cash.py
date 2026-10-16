@@ -15,19 +15,20 @@ import gzip
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from bs4 import BeautifulSoup
+from requests.exceptions import RequestException
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_p013_cash_bridge import (
     _row_values,
     build_original_fy26_cash_use,
 )
-from requests.exceptions import RequestException
 
 ID = "HG009-P017-ACE-FY25-FY26-CAPEX-TIMING-AUDIT-v1"
 FY25_URL = (
@@ -97,8 +98,8 @@ EXPECTED_RUPEES = {
     "receivables_change": "-1103200000",
     "payables_change": "1057900000",
 }
-FX_EFFECT_RUPEES = Decimal("3300000")
-RUPEES_PER_CRORE = Decimal("10000000")
+FX_EFFECT_RUPEES = Decimal(3300000)
+RUPEES_PER_CRORE = Decimal(10000000)
 CRORE_PRECISION = Decimal("0.0001")
 
 
@@ -138,12 +139,12 @@ def extract_ace_fy25_original(raw: bytes) -> dict[str, Decimal]:
     html = BeautifulSoup(raw, "html.parser")
     text = " ".join(html.get_text(" ", strip=True).split())
     if (
-        not re.search(r"\bNSE\s+Symbol\s+ACE\b", text, re.I)
+        not re.search(r"\bNSE\s+Symbol\s+ACE\b", text, re.IGNORECASE)
         or FY25_ISIN not in text
-        or not re.search(r"\b31[- ]Mar[- ]2025\b", text, re.I)
-        or not re.search(r"\bConsolidated\b", text, re.I)
-        or not re.search(r"\bAudited\b", text, re.I)
-        or not re.search(r"INR\s*\(in\s+Actuals\)", text, re.I)
+        or not re.search(r"\b31[- ]Mar[- ]2025\b", text, re.IGNORECASE)
+        or not re.search(r"\bConsolidated\b", text, re.IGNORECASE)
+        or not re.search(r"\bAudited\b", text, re.IGNORECASE)
+        or not re.search(r"INR\s*\(in\s+Actuals\)", text, re.IGNORECASE)
     ):
         raise AlphaContractError("P017 wrong FY25 issuer, period, basis or currency")
     parsed = _original_cash_rows(raw)
@@ -299,7 +300,7 @@ def build_ace_fy25_fy26_cash_audit(root: Path) -> dict[str, Any]:
     if len(matched_pbt) != 1 or matched_pbt[0] != Decimal("55671.00"):
         raise AlphaContractError("P017 FY26 original ACE PBT mismatch")
     # FY26 iXBRL reports in INR LAKHS, unlike FY25 INR ACTUALS.
-    pbt26 = float(matched_pbt[0] / Decimal("100"))
+    pbt26 = float(matched_pbt[0] / Decimal(100))
     cfo26 = fy26["cfo"]
     ppe26 = fy26["ppe_purchase"]
     proxy25, proxy26 = cfo25 - ppe25, cfo26 - ppe26
