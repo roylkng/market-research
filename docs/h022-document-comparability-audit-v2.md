@@ -36,7 +36,7 @@ E002 metadata is included in each annotation. Page count and text length remain
 
 The v2 command authenticates the local checkout:
 
-- `git rev-parse HEAD` must equal `--snapshot-commit`;
+- `git rev-parse HEAD` must equal `--snapshot-commit`, enforced with an explicit regression test for a changed checkout;
 - the Git blob ID of each of the three live input files must equal
   `HEAD:<path>`;
 - the bytes read by the audit must hash to those same blob IDs;
@@ -93,3 +93,5 @@ This is a **document-source integrity audit**, not a new management execution-cr
 Auditing older frozen H022 source and E002 records is valid source-custody work, but cannot retroactively create a pre-publication trading signal or rescue unavailable future transcripts. Any future credibility weighting must be frozen separately before first eligible portfolio decision and evaluated against original prospective outcomes.
 
 This original-source audit is reviewed for whole-repository integration before merge, rather than assuming fixture-only tests are sufficient.
+
+The October 16 integration review corrected a broken Git `^{commit}` revision expression and enforced `HEAD == pinned commit` in the implementation. The one-time automated lint formatter has been removed from the branch and is not part of the persistent H022 audit or market-data workflow.
