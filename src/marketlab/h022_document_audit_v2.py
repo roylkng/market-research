@@ -183,7 +183,7 @@ def verify_git_snapshot(
             raise AuditError("git_snapshot_verification_failed") from exc
         return result.stdout.strip()
 
-    resolved = git("rev-parse", f"{snapshot_commit}^{commit}")
+    resolved = git("rev-parse", f"{snapshot_commit}^{{commit}}")
     _require_equal(resolved, snapshot_commit, "snapshot_commit_resolution_mismatch")
     observed: dict[str, str] = {}
     for path, raw in zip(INPUT_PATHS, raws, strict=True):
