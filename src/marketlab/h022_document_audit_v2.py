@@ -187,6 +187,8 @@ def verify_git_snapshot(
 
     resolved = git("rev-parse", f"{snapshot_commit}^{{commit}}")
     _require_equal(resolved, snapshot_commit, "snapshot_commit_resolution_mismatch")
+    current_head = git("rev-parse", "HEAD")
+    _require_equal(current_head, snapshot_commit, "snapshot_checkout_mismatch")
     observed: dict[str, str] = {}
     for path, raw in zip(INPUT_PATHS, raws, strict=True):
         expected = git("rev-parse", f"{snapshot_commit}:{path}")
