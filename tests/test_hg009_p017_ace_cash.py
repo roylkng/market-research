@@ -55,6 +55,14 @@ def _fake_original(
         "<p>Date of end of financial year 31-Mar-2025</p>"
         "<p>Nature of report standalone or consolidated Consolidated</p>"
         "<p>Whether results are audited or unaudited Audited</p>"
+        # Real NSE original iXBRL pages contain substantial filing metadata.
+        # Keep the production >=2 KB sanity gate intact instead of weakening
+        # it just to admit an unrealistically short in-memory fixture.
+        "<section><p>Independent original-filing metadata for the "
+        "issuer's consolidated financial reporting period.</p>"
+        + ("<p>Original filing presentation detail with no financial "
+           "statement values.</p>" * 8)
+        + "</section>"
         "<table><tr><td>Statement of cash flows</td><td></td></tr>"
         + "".join(rows)
         + "</table></body></html>"
