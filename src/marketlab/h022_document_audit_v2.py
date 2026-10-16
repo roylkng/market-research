@@ -17,12 +17,14 @@ from typing import Any
 from marketlab.h022_document_audit import (
     AuditError,
     _sealed,
-    audit_snapshot as audit_snapshot_v1,
     canonical_hash,
     compare_documents,
     load_json,
     timestamp,
     write_report,
+)
+from marketlab.h022_document_audit import (
+    audit_snapshot as audit_snapshot_v1,
 )
 
 VERSION = "h022-document-comparability/2"

@@ -23,13 +23,13 @@ HASH = re.compile(r"^[0-9a-f]{64}$")
 KINDS = {"FULL_TRANSCRIPT", "LINK_ONLY_NOTICE", "FUTURE_CALL_NOTICE", "OTHER", "INCOMPLETE"}
 FUTURE_CALL = re.compile(
     r"\b(?:will\s+(?:hold|host|conduct)|(?:conference|earnings|analyst)\s+call\s+"
-    r"(?:is\s+)?(?:scheduled|will\s+be\s+held))\b", re.I
+    r"(?:is\s+)?(?:scheduled|will\s+be\s+held))\b", re.IGNORECASE
 )
 FUTURE_TRANSCRIPT = re.compile(
     r"\btranscript\b.{0,160}?\b(?:will|shall)\b.{0,80}?"
-    r"\b(?:published|uploaded|available|provided)\b", re.I
+    r"\b(?:published|uploaded|available|provided)\b", re.IGNORECASE
 )
-NOTICE = re.compile(r"\btranscript\b.{0,120}?\b(?:available|uploaded|website|link)\b", re.I)
+NOTICE = re.compile(r"\btranscript\b.{0,120}?\b(?:available|uploaded|website|link)\b", re.IGNORECASE)
 FORBIDDEN = {"stock_price", "stock_return", "benchmark_return", "valuation", "momentum",
              "broker_target", "analyst_revision", "post_publication_news", "later_management_call"}
 
@@ -75,7 +75,7 @@ def timestamp(value: Any) -> datetime:
     if not isinstance(value, str):
         raise AuditError("timezone_timestamp_required")
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value)
     except ValueError as exc:
         raise AuditError("invalid_timestamp") from exc
     if parsed.tzinfo is None:
@@ -110,8 +110,8 @@ def _outcome_free(value: Any) -> None:
 
 
 def _result(kind: str, eligibility: str, basis: str, reasons: list[str]) -> dict[str, Any]:
-    return dict(document_kind=kind, eligibility=eligibility, evidence_basis=basis,
-                reasons=reasons, full_document_verified=False)
+    return {"document_kind": kind, "eligibility": eligibility, "evidence_basis": basis,
+                "reasons": reasons, "full_document_verified": False}
 
 
 def classify_document(source: dict[str, Any] | None, *, source_id: str, symbol: str,
@@ -222,9 +222,9 @@ def compare_documents(current: dict[str, Any], prior: dict[str, Any], *,
         status = "NO_FROZEN_NUMERIC_SIGNAL"
     else:
         status = "COMPARABLE_DOCUMENTS_ONLY"
-    return dict(comparability=status,
-                advisory_primary_signal=frozen_primary_signal if status == "COMPARABLE_DOCUMENTS_ONLY"
-                else None, canonical_signal_replacement=False, canonical_outcome_scoring_changed=False)
+    return {"comparability": status,
+                "advisory_primary_signal": frozen_primary_signal if status == "COMPARABLE_DOCUMENTS_ONLY"
+                else None, "canonical_signal_replacement": False, "canonical_outcome_scoring_changed": False}
 
 
 def _ledger(doc: dict[str, Any], record_hash_key: str) -> dict[str, dict[str, Any]]:
@@ -320,22 +320,22 @@ def audit_snapshot(signal_raw: bytes, source_raw: bytes, *, snapshot_commit: str
     provenance = []
     for name, raw, doc in (("signal-ledger.json", signal_raw, signals),
                            ("source-ledger.json", source_raw, sources)):
-        provenance.append(dict(path="research/prospective/h022/P001/" + name,
-                               git_blob_sha=hashlib.sha1(b"blob " + str(len(raw)).encode()
+        provenance.append({"path": "research/prospective/h022/P001/" + name,
+                               "git_blob_sha": hashlib.sha1(b"blob " + str(len(raw)).encode()
                                                         + b"\0" + raw).hexdigest(),
-                               file_sha256=hashlib.sha256(raw).hexdigest(),
-                               declared_ledger_sha256=doc["ledger_sha256"]))
-    report = dict(audit_version=VERSION, protocol_id="H022-P001", snapshot_commit=snapshot_commit,
-                  cohort_sha256=signals["cohort_sha256"], reviewed_at_utc=reviewed_at_utc,
-                  previous_audit_sha256=previous_hash, advisory_only=True,
-                  canonical_signal_replacement=False, canonical_outcome_scoring_changed=False,
-                  live_capital_allowed=False, outcome_data_used=False,
-                  scope="all supplied signals; source metadata only; both current and prior links",
-                  source_metadata_count=len(src), signal_count=len(sm),
-                  prior_source_count=len(prior_ids),
-                  prior_source_metadata_missing_count=len(prior_ids - set(src)),
-                  full_document_review_count=0, classification_counts=dict(sorted(counts.items())),
-                  input_files=provenance, annotations=annotations)
+                               "file_sha256": hashlib.sha256(raw).hexdigest(),
+                               "declared_ledger_sha256": doc["ledger_sha256"]})
+    report = {"audit_version": VERSION, "protocol_id": "H022-P001", "snapshot_commit": snapshot_commit,
+                  "cohort_sha256": signals["cohort_sha256"], "reviewed_at_utc": reviewed_at_utc,
+                  "previous_audit_sha256": previous_hash, "advisory_only": True,
+                  "canonical_signal_replacement": False, "canonical_outcome_scoring_changed": False,
+                  "live_capital_allowed": False, "outcome_data_used": False,
+                  "scope": "all supplied signals; source metadata only; both current and prior links",
+                  "source_metadata_count": len(src), "signal_count": len(sm),
+                  "prior_source_count": len(prior_ids),
+                  "prior_source_metadata_missing_count": len(prior_ids - set(src)),
+                  "full_document_review_count": 0, "classification_counts": dict(sorted(counts.items())),
+                  "input_files": provenance, "annotations": annotations}
     report["audit_sha256"] = canonical_hash(report)
     return report
 
@@ -387,10 +387,10 @@ def main(argv: list[str] | None = None) -> int:
         if tuple(path.read_bytes() for path in paths) != before:
             raise AuditError("inputs_changed_during_audit")
         write_report(report, args.output if args.output.is_absolute() else root / args.output, root)
-        print(json.dumps(dict(audit_sha256=report["audit_sha256"],
-                              signal_count=report["signal_count"],
-                              classification_counts=report["classification_counts"],
-                              frozen_inputs_unchanged=True, advisory_only=True), sort_keys=True))
+        print(json.dumps({"audit_sha256": report["audit_sha256"],
+                              "signal_count": report["signal_count"],
+                              "classification_counts": report["classification_counts"],
+                              "frozen_inputs_unchanged": True, "advisory_only": True}, sort_keys=True))
         blocked = any(a["comparability"] != "COMPARABLE_DOCUMENTS_ONLY"
                       for a in report["annotations"])
         return 2 if args.check and blocked else 0

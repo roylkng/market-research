@@ -1,5 +1,6 @@
 """Synthetic regression cases plus exact, blob-verified retained P001 ledger checks."""
 from __future__ import annotations
+
 import copy
 import hashlib
 import io
@@ -9,7 +10,20 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
-from marketlab.h022_document_audit import AuditError, VERSION, audit_snapshot, canonical_hash, classify_document, compare_documents, load_json, main, timestamp, write_report
+
+from marketlab.h022_document_audit import (
+    VERSION,
+    AuditError,
+    audit_snapshot,
+    canonical_hash,
+    classify_document,
+    compare_documents,
+    load_json,
+    main,
+    timestamp,
+    write_report,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 FOLDER = ROOT / 'tests/fixtures/h022_document_audit'
 PIN = '434ce97508de7c1005d1acfef9829cfe90199c22'
@@ -26,18 +40,18 @@ def seal(doc, key):
     return doc
 
 def source(sid=SID, symbol='SYNTHETIC', when='2026-10-14T10:00:00Z', announcement=''):
-    return dict(source_id=sid, symbol=symbol, exchange_published_at_utc=when, attachment_text=announcement, attachment_url='https://example.invalid/document.pdf')
+    return {'source_id': sid, 'symbol': symbol, 'exchange_published_at_utc': when, 'attachment_text': announcement, 'attachment_url': 'https://example.invalid/document.pdf'}
 
 def review(text=TEXT, kind='FULL_TRANSCRIPT'):
-    return dict(source_id=SID, text_sha256=hashlib.sha256(text.encode()).hexdigest(), document_kind=kind, reviewed_at_utc=AT, reviewer_ref='synthetic-reviewer', evidence_ref='synthetic-fixture:review-1', call_at_utc='2026-10-13T12:00:00Z')
+    return {'source_id': SID, 'text_sha256': hashlib.sha256(text.encode()).hexdigest(), 'document_kind': kind, 'reviewed_at_utc': AT, 'reviewer_ref': 'synthetic-reviewer', 'evidence_ref': 'synthetic-fixture:review-1', 'call_at_utc': '2026-10-13T12:00:00Z'}
 
 def classify(s=None, **kwargs):
-    arguments = dict(source_id=SID, symbol='SYNTHETIC', published_at_utc='2026-10-14T10:00:00Z', as_of_utc='2026-10-14T11:00:00Z')
+    arguments = {'source_id': SID, 'symbol': 'SYNTHETIC', 'published_at_utc': '2026-10-14T10:00:00Z', 'as_of_utc': '2026-10-14T11:00:00Z'}
     arguments.update(kwargs)
     return classify_document(source() if s is None else s, **arguments)
 
 def classified_text(text=TEXT, **kwargs):
-    arguments = dict(text=text, expected_text_sha256=hashlib.sha256(text.encode()).hexdigest(), extraction_status='TEXT_READY', review=review(text))
+    arguments = {'text': text, 'expected_text_sha256': hashlib.sha256(text.encode()).hexdigest(), 'extraction_status': 'TEXT_READY', 'review': review(text)}
     arguments.update(kwargs)
     return classify(**arguments)
 
@@ -183,7 +197,7 @@ class PairCases(unittest.TestCase):
         self.assertEqual(out['comparability'], 'COMPARABLE_DOCUMENTS_ONLY')
 
     def test_invalid_current_is_not_neutral_zero(self):
-        a = dict(eligibility='INELIGIBLE')
+        a = {'eligibility': 'INELIGIBLE'}
         b = classified_text()
         out = compare_documents(a, b, frozen_primary_signal=-0.936)
         self.assertIsNone(out['advisory_primary_signal'])
@@ -191,7 +205,7 @@ class PairCases(unittest.TestCase):
         self.assertFalse(out['canonical_outcome_scoring_changed'])
 
     def test_invalid_prior_cannot_make_false_rebound(self):
-        out = compare_documents(classified_text(), dict(eligibility='INELIGIBLE'), frozen_primary_signal=1.2)
+        out = compare_documents(classified_text(), {'eligibility': 'INELIGIBLE'}, frozen_primary_signal=1.2)
         self.assertEqual(out['comparability'], 'NOT_COMPARABLE')
         self.assertIsNone(out['advisory_primary_signal'])
 
@@ -200,7 +214,7 @@ class PairCases(unittest.TestCase):
         self.assertEqual(out['comparability'], 'REVIEW_REQUIRED')
 
     def test_two_notices_with_zero_difference_still_invalid(self):
-        a = dict(eligibility='INELIGIBLE')
+        a = {'eligibility': 'INELIGIBLE'}
         self.assertIsNone(compare_documents(a, a, frozen_primary_signal=0.0)['advisory_primary_signal'])
 
     def test_null_frozen_signal_stays_null(self):
@@ -235,13 +249,13 @@ class SnapshotCases(unittest.TestCase):
         self.assertEqual(report['classification_counts'], {'NOT_COMPARABLE': 1, 'REVIEW_REQUIRED': 3})
 
     def test_marico_attached_to_original_frozen_hash(self):
-        record = next((a for a in self.audit()['annotations'] if a['symbol'] == 'MARICO'))
+        record = next(a for a in self.audit()['annotations'] if a['symbol'] == 'MARICO')
         self.assertEqual(record['original_signal_record_sha256'], 'bf5fa646682f45594d9c11f981408539fd4ae2fdf8779dab3b9ee939144ec2f9')
         self.assertEqual(record['original_primary_signal'], -0.9360140776517278)
         self.assertIsNone(record['advisory_primary_signal'])
 
     def test_coforge_filename_is_only_a_warning(self):
-        record = next((a for a in self.audit()['annotations'] if a['symbol'] == 'COFORGE'))
+        record = next(a for a in self.audit()['annotations'] if a['symbol'] == 'COFORGE')
         self.assertEqual(record['comparability'], 'REVIEW_REQUIRED')
         self.assertIn('filename_intimation_is_triage_only', record['current']['reasons'])
 
@@ -353,7 +367,7 @@ class SnapshotCases(unittest.TestCase):
         signals['record_count'] += 1
         seal(signals, 'ledger_sha256')
         s = source(SID, 'MARICO', later['exchange_published_at_utc'], 'Transcript enclosed')
-        r = dict(source=s, first_seen_at_utc='2026-10-15T15:01:00Z')
+        r = {'source': s, 'first_seen_at_utc': '2026-10-15T15:01:00Z'}
         seal(r, 'source_record_sha256')
         sources['records'].append(r)
         sources['record_count'] += 1

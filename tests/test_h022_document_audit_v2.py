@@ -175,9 +175,8 @@ class GitBindingTests(unittest.TestCase):
         completed = type("R", (), {"stdout": "f" * 40 + "\n"})()
         with tempfile.TemporaryDirectory() as tmp, patch(
             "subprocess.run", return_value=completed
-        ):
-            with self.assertRaises(AuditError):
-                verify_git_snapshot(Path(tmp), PIN, raws)
+        ), self.assertRaises(AuditError):
+            verify_git_snapshot(Path(tmp), PIN, raws)
 
     def test_changed_working_file_is_rejected(self):
         calls = iter([
@@ -186,9 +185,8 @@ class GitBindingTests(unittest.TestCase):
         ])
         with tempfile.TemporaryDirectory() as tmp, patch(
             "subprocess.run", side_effect=lambda *a, **k: next(calls)
-        ):
-            with self.assertRaises(AuditError):
-                verify_git_snapshot(Path(tmp), PIN, (b"a", b"b", b"c"))
+        ), self.assertRaises(AuditError):
+            verify_git_snapshot(Path(tmp), PIN, (b"a", b"b", b"c"))
 
 
 if __name__ == "__main__":
