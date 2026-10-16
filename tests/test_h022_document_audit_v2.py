@@ -19,6 +19,7 @@ from marketlab.h022_document_audit_v2 import (
     audit_snapshot,
     validate_frozen_scope,
     verify_git_snapshot,
+    read_pinned_inputs,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -178,19 +179,35 @@ class GitBindingTests(unittest.TestCase):
         ), self.assertRaises(AuditError):
             verify_git_snapshot(Path(tmp), PIN, raws)
 
-    def test_checked_out_HEAD_must_match_pinned_snapshot(self):
-        calls = iter([
-            type("R", (), {"stdout": PIN + "\n"})(),
-            type("R", (), {"stdout": "f" * 40 + "\n"})(),
-        ])
+    def test_historical_commit_does_not_require_checkout_head(self):
+        import hashlib
+
+        def blob(data):
+            return hashlib.sha1(
+                b"blob " + str(len(data)).encode() + b"\\0" + data
+            ).hexdigest()
+
+        raws = (b"a", b"b", b"c")
+        responses = [PIN, *(blob(item) for item in raws)]
+        calls = iter(type("R", (), {"stdout": value + "\\n"})() for value in responses)
         with tempfile.TemporaryDirectory() as tmp, patch(
             "subprocess.run", side_effect=lambda *a, **k: next(calls)
-        ), self.assertRaisesRegex(AuditError, "snapshot_checkout_mismatch"):
-            verify_git_snapshot(Path(tmp), PIN, (b"a", b"b", b"c"))
+        ):
+            observed = verify_git_snapshot(Path(tmp), PIN, raws)
+        self.assertEqual(len(observed), 3)
+
+    def test_reads_historical_inputs_not_working_directory(self):
+        returned = iter((b"a", b"b", b"c"))
+        with tempfile.TemporaryDirectory() as tmp, patch(
+            "subprocess.run",
+            side_effect=lambda *a, **k: type("R", (), {"stdout": next(returned)})(),
+        ) as mocked:
+            self.assertEqual(read_pinned_inputs(Path(tmp), PIN), (b"a", b"b", b"c"))
+            self.assertEqual(mocked.call_count, 3)
+            self.assertTrue(all("show" in call.args[0] for call in mocked.call_args_list))
 
     def test_changed_working_file_is_rejected(self):
         calls = iter([
-            type("R", (), {"stdout": PIN + "\n"})(),
             type("R", (), {"stdout": PIN + "\n"})(),
             type("R", (), {"stdout": "0" * 40 + "\n"})(),
         ])
