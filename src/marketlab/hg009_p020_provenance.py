@@ -6,10 +6,10 @@ all of these to be independently reviewed before invoking scenario arithmetic.
 """
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from hashlib import sha256
-from typing import Mapping
 
 from marketlab.hg009_p019_expectations import Case, evaluate
 
@@ -33,10 +33,10 @@ REQUIRED_ROLES = frozenset({
 
 def _valid_utc(value: str) -> datetime | None:
     try:
-        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        dt = datetime.fromisoformat(value)
     except (TypeError, ValueError):
         return None
-    return dt if dt.tzinfo is not None and dt.utcoffset() == timezone.utc.utcoffset(dt) else None
+    return dt if dt.tzinfo is not None and dt.utcoffset() == UTC.utcoffset(dt) else None
 
 
 def evaluate_with_provenance(
