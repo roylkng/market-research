@@ -18,7 +18,6 @@ from marketlab.hg009_p017_ace_cash import (
     FIRST_RECEIPT,
     FY25_URL,
     capture_fy25_ace,
-    extract_ace_fy25_original,
 )
 
 USER_AGENT = "Mozilla/5.0 (compatible; marketlab-source-verification/1.0)"
