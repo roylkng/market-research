@@ -1,0 +1,58 @@
+name: HG009 P015 freeze ACE and ACUTAAS source-referenced cash hurdles
+
+on:
+  push:
+    branches:
+      - research/hg009-p015-ace-acutaas-reverse-cash-hurdles-20261016
+    paths:
+      - .github/workflows/hg009-p015-reverse-hurdles.yml
+      - registry/hg009_p015_ace_acutaas_q1_sources.json
+      - src/marketlab/hg009_p015_hurdles.py
+      - scripts/materialize_hg009_p015.py
+      - tests/test_hg009_p015_hurdles.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p015-ace-acutaas-cash-hurdle-freeze
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MarketLab
+        run: python -m pip install -e '.[dev]'
+      - name: Freeze exact original-source math and run source-tampering tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/hg009_p015_hurdles.py scripts/materialize_hg009_p015.py tests/test_hg009_p015_hurdles.py
+          python scripts/materialize_hg009_p015.py
+          python scripts/materialize_hg009_p015.py --check
+          pytest -q tests/test_hg009_p015_hurdles.py
+      - name: Seal only historical research, never return signals or capital
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p015-ace-acutaas-hurdles-v1.json
+          if git diff --cached --quiet; then
+            echo "P015 original source report already frozen"
+            exit 0
+          fi
+          git commit -m "HG009 P015: freeze ACE/ACUTAAS original-source reverse cash hurdles [skip ci]"
+          git fetch origin research/hg009-p015-ace-acutaas-reverse-cash-hurdles-20261016
+          git rebase origin/research/hg009-p015-ace-acutaas-reverse-cash-hurdles-20261016
+          python scripts/materialize_hg009_p015.py --check
+          git push origin HEAD:research/hg009-p015-ace-acutaas-reverse-cash-hurdles-20261016
