@@ -36,3 +36,11 @@ At an arbitrary 16× cash multiple, achieving even one-time 50% gross share appr
 - Bear/base/bull attributable owner cash under documented probability base rates, liquidity impact and loss cases.
 
 **No investable price target, calibrated success probability or capital authorization** results from this two-year finding. P017 outputs a hash-bound source-replay report only after the actual original FY25 HTML has been retained. A 403 or wrong source produces a failed receipt, not a fabricated cash value.
+
+## Original byte custody and reproducibility, October 16
+
+The post-fix official original FY25 NSE HTML was first captured on **2026-10-16 07:28:23.431552 UTC**, not in FY25. The 79,375-byte retained source has SHA-256 `02e4a3ebe3dd1a36d7698b4072d82b106ebc7dcf80ea3032291597e59f88c862`. The original issuer file has **16 machine-replayed FY25 cash-flow cells**, including INR-actual (rather than INR-lakh) unit conversion and beginning/ending cash reconciliation. The original retrieval receipt is independently signed and held at `research/hg009/p017-originals/first-valid-ACE-FY25.json`.
+
+The dated source-derived cash audit is `research/hg009/hg009-p017-ace-two-year-cash-bridge-v1.json`, signed SHA-256 `8fad9abfe852f4c7801379eef1fe9ba11c1f2b72d658b2a4bda09c0e8f36a0a6`, and independently reproduces the source-locked FY26 P013 and reference October 15 price P015. The source was retrieved **after** the October 15 price was public. Therefore this comparison is necessarily an *ex-post fundamental audit*, not an October 15 preregistered entry signal or a measurement of predictive accuracy.
+
+**Decision relevance:** at ₹13,764.39 crore illustrative basic capitalization, ₹324.01 crore FY26 CFO minus total PPE is a ~2.35% proxy yield. The 96% capex-reduction share of its annual improvement is a reason to test *incremental productive ROIC* and cash conversion, not a proof of poor economics. No current fully diluted shares, normalized attributable owner cash, action-adjusted returns, or after-impact execution assumptions have been established. ACE remains **NOT UNDERWRITTEN / NO BUY SIGNAL / NO CAPITAL**.
