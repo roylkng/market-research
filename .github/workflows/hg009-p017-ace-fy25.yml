@@ -1,0 +1,67 @@
+name: HG009 P017 ACE original two-year cash quality
+
+on:
+  push:
+    branches:
+      - research/hg009-p017-ace-fy25-fy26-capex-bridge-20261016
+    paths:
+      - .github/workflows/hg009-p017-ace-fy25.yml
+      - src/marketlab/hg009_p017_ace_cash.py
+      - scripts/capture_hg009_p017_ace_fy25.py
+      - scripts/materialize_hg009_p017_ace.py
+      - tests/test_hg009_p017_ace_cash.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p017-original-fy25-ace
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MarketLab
+        run: python -m pip install -e '.[dev]'
+      - name: Test the original FY25 NSE extraction before network capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/hg009_p017_ace_cash.py scripts/capture_hg009_p017_ace_fy25.py scripts/materialize_hg009_p017_ace.py tests/test_hg009_p017_ace_cash.py
+          pytest -q tests/test_hg009_p017_ace_cash.py
+      - name: Capture actual NSE historical FY25 issuer HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_hg009_p017_ace_fy25.py --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python scripts/materialize_hg009_p017_ace.py
+          python scripts/materialize_hg009_p017_ace.py --check
+          pytest -q tests/test_hg009_p017_ace_cash.py
+      - name: Preserve both success and failed source attempt receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/hg009/p017-originals
+          if [ -f research/hg009/hg009-p017-ace-two-year-cash-bridge-v1.json ]; then
+            git add research/hg009/hg009-p017-ace-two-year-cash-bridge-v1.json
+          fi
+          if git diff --cached --quiet; then
+            echo "No new P017 original source evidence"
+            exit 0
+          fi
+          git commit -m "HG009 P017: anchor ACE FY25 actual original source and owner-cash timing proof [skip ci]"
+          git fetch origin research/hg009-p017-ace-fy25-fy26-capex-bridge-20261016
+          git rebase origin/research/hg009-p017-ace-fy25-fy26-capex-bridge-20261016
+          python scripts/materialize_hg009_p017_ace.py --check
+          git push origin HEAD:research/hg009-p017-ace-fy25-fy26-capex-bridge-20261016
