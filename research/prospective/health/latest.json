@@ -42,7 +42,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "0ca35f578f301a7b763de55822634aca844a7ac76e50dc649cdb09adf0a1316d",
+      "ledger_sha256": "15839c910b154b9cb6f0c119ab014c2b05cd17a96b813938ac93ed25c6b42c55",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -51,18 +51,18 @@
     },
     "SC001": {
       "eligible_session_count": 7,
-      "expected_latest_session": "2026-10-15",
+      "expected_latest_session": "2026-10-16",
       "latest_eligible_session": "2026-10-16",
       "ledger_sha256": "eeba53910092a6d437f1a36961552603689cac53e223b6d1d6d95524b23d019f",
-      "state": "AHEAD_OF_EXPECTED_CALENDAR"
+      "state": "HEALTHY"
     },
     "SC002": {
-      "attempt_count": 122,
+      "attempt_count": 123,
       "eligible_before_1830_session_count": 0,
-      "late_ready_session_count": 9,
-      "latest_ready_session": "2026-10-15",
-      "ledger_sha256": "233fe73570c4920a7f82a0bcc0020c91366df43bfd4d76556921efdb6a356b0e",
-      "ready_session_count": 9,
+      "late_ready_session_count": 10,
+      "latest_ready_session": "2026-10-16",
+      "ledger_sha256": "053ead06256ae8dad358852987c45a1ebb53b496d00385eb4f217f88d6def0f0",
+      "ready_session_count": 10,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
@@ -161,7 +161,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "233fe73570c4920a7f82a0bcc0020c91366df43bfd4d76556921efdb6a356b0e",
+        "source_ledger_sha256": "053ead06256ae8dad358852987c45a1ebb53b496d00385eb4f217f88d6def0f0",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -193,9 +193,9 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-10-15",
+  "latest_expected_market_session": "2026-10-16",
   "live_capital_allowed": false,
-  "sc001_source_cutoff_passed": false,
+  "sc001_source_cutoff_passed": true,
   "schema_version": 1,
-  "summary_sha256": "b0cb2ec218f57fbd66e5cb2e32bd5d58dfede6529095744c941d14ac7e24dea4"
+  "summary_sha256": "c0cd877483d42f2df6ba67587683c2ec2daf14f4152c9d25ce3e0e5e025509b5"
 }
