@@ -24,3 +24,15 @@ No P016 result amends original P015 cohort or October 15 stock prices. No live o
 ## Reproduction and test
 
 Run the source retriever from a network-enabled, GitHub-authenticated runner, or the branch's source-freezer workflow. Source status: ORIGINAL_NSE_Q1_FULL_HTML_REPLAY_VERIFIED or a specific blocked reason. Always run the independent verification with --verify-only and confirm immutable first source receipts. Synthetic HTML tests check issuer/ISIN, multiple current-quarter financial rows, mismatch, HTTP 403 and original gzip tampering.
+
+
+## Source freezer completed on October 16
+
+GitHub original-source capture run **38854459012** completed and source-replayed both exact NSE HTML filings. Actual bytes were retained under the content-addressed P016 originals repository directories. The signed original-source receipt has SHA **38116caa87ff103519cf81ed271fc2af9b002284f108f6456156c7ef7044a4be**.
+
+| Issuer | Actual original retrieval UTC | Original raw HTML SHA-256 | Financial row matches |
+|---|---|---|---:|
+| ACE | 2026-10-16T05:11:51.550128Z | 46d4940a2bf3ee97c3427fea3c66b8c864d2e44032679febfe0fde840dfe3f38 | 6/6 |
+| ACUTAAS | 2026-10-16T05:11:52.016179Z | 5cfe54d47d782cf9feb469d8dc28bbfc70efbfa20fa9290975b33cba7445ea60 | 6/6 |
+
+Original source evidence is now much stronger than the manual P015 transcriptions. Nevertheless, no new current fully diluted share count, normalized parent owner cash, or risk-adjusted value is claimed. The combined future-earnings and execution assumptions require separate evidence and red-team validation.
