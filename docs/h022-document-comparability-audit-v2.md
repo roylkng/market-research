@@ -36,11 +36,10 @@ E002 metadata is included in each annotation. Page count and text length remain
 
 The v2 command authenticates the local checkout:
 
-- `git rev-parse HEAD` must equal `--snapshot-commit`, enforced with an explicit regression test for a changed checkout;
-- the Git blob ID of each of the three live input files must equal
-  `HEAD:<path>`;
+- the historical `--snapshot-commit` resolves to an actual commit, independently of the checked-out HEAD;
+- the three input files are read as immutable bytes from `--snapshot-commit:<path>`, not from live prospective ledgers;
 - the bytes read by the audit must hash to those same blob IDs;
-- the bytes are checked again immediately before the append-only audit is written.
+- the audit operates only on those captured historical bytes and never mutates live prospective ledgers.
 
 `--no-git-verify` exists only for isolated fixtures/library use and is explicitly
 not the repository-audit path. The generated report records whether Git binding was
@@ -94,4 +93,4 @@ Auditing older frozen H022 source and E002 records is valid source-custody work,
 
 This original-source audit is reviewed for whole-repository integration before merge, rather than assuming fixture-only tests are sufficient.
 
-The October 16 integration review corrected a broken Git `^{commit}` revision expression and enforced `HEAD == pinned commit` in the implementation. The one-time automated lint formatter has been removed from the branch and is not part of the persistent H022 audit or market-data workflow.
+The October 16 integration review corrected a broken Git `^{commit}` revision expression. The subsequent review removed the HEAD-equality error and reads original historical bytes directly from the named commit. The one-time automated lint formatter has been removed from the branch and is not part of the persistent H022 audit or market-data workflow.
