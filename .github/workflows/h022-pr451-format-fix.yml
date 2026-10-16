@@ -1,0 +1,58 @@
+name: H022 PR451 one-time lint and source-audit test hardening
+
+on:
+  push:
+    branches:
+      - fix/h022-document-comparability-audit-20261015
+    paths:
+      - .github/workflows/h022-pr451-format-fix.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h022-pr451-one-time-format-fix
+  cancel-in-progress: false
+
+jobs:
+  fix-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install frozen MarketLab lint and tests
+        run: python -m pip install -e '.[dev]'
+      - name: Apply scoped Ruff fixes and validate frozen document-audit semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILES=(
+            src/marketlab/h022_document_audit.py
+            src/marketlab/h022_document_audit_v2.py
+            tests/test_h022_document_audit.py
+            tests/test_h022_document_audit_v2.py
+          )
+          ruff check --fix --unsafe-fixes --select I001,FURB167,FURB162,C408,UP034,SIM117 "${FILES[@]}"
+          ruff check src tests scripts
+          pytest -q tests/test_h022_document_audit.py tests/test_h022_document_audit_v2.py
+      - name: Commit scoped lint/test fixes back to same review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add src/marketlab/h022_document_audit.py src/marketlab/h022_document_audit_v2.py tests/test_h022_document_audit.py tests/test_h022_document_audit_v2.py
+          if git diff --cached --quiet; then
+            echo "No scoped audit normalization required"
+            exit 0
+          fi
+          git commit -m "H022: fix source-integrity audit lint and preserve E002 regression tests [skip ci]"
+          git fetch origin fix/h022-document-comparability-audit-20261015
+          git rebase origin/fix/h022-document-comparability-audit-20261015
+          git push origin HEAD:fix/h022-document-comparability-audit-20261015
