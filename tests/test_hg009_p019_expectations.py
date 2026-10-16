@@ -2,19 +2,23 @@
 import unittest
 
 from marketlab.hg009_p019_expectations import (
-    Case, EvidenceError, Scenario, evaluate, reverse_hurdles,
+    Case,
+    EvidenceError,
+    Scenario,
+    evaluate,
+    reverse_hurdles,
 )
 
 
 class ExpectationsTests(unittest.TestCase):
     def base(self, **changes):
-        data = dict(symbol="ACE", price_inr=100.0, fully_diluted_shares_cr=10.0,
-                    shares_source="original fully diluted cap table", price_source="official dated close",
-                    owner_cash_source="audited parent cash bridge",
-                    scenarios=(Scenario("bear", 0.5, 40, 10), Scenario("bull", 0.5, 80, 10)),
-                    as_of="2026-10-16", terminal_years=3, execution_cost_fraction=0.01,
-                    annual_discount_rate=0.10,
-                    independent_probability_basis="frozen prospective calibration")
+        data = {"symbol": "ACE", "price_inr": 100.0, "fully_diluted_shares_cr": 10.0,
+                    "shares_source": "original fully diluted cap table", "price_source": "official dated close",
+                    "owner_cash_source": "audited parent cash bridge",
+                    "scenarios": (Scenario("bear", 0.5, 40, 10), Scenario("bull", 0.5, 80, 10)),
+                    "as_of": "2026-10-16", "terminal_years": 3, "execution_cost_fraction": 0.01,
+                    "annual_discount_rate": 0.10,
+                    "independent_probability_basis": "frozen prospective calibration"}
         data.update(changes)
         return Case(**data)
 
