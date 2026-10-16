@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+
 class PreflightContractError(ValueError):
     """Operational scheduling contract, deliberately no MarketLab dependencies."""
 
