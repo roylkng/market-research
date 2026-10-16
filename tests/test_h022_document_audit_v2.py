@@ -17,9 +17,9 @@ from marketlab.h022_document_audit_v2 import (
     SOURCE_RULE_SHA256,
     VERSION,
     audit_snapshot,
+    read_pinned_inputs,
     validate_frozen_scope,
     verify_git_snapshot,
-    read_pinned_inputs,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
