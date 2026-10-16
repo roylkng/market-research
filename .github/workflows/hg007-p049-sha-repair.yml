@@ -1,0 +1,57 @@
+name: HG007 P049 pin original legacy checksum discrepancy
+
+on:
+  push:
+    branches:
+      - fix/hg007-p049-legacy-canonical-sha-v2-20261016
+    paths:
+      - .github/workflows/hg007-p049-sha-repair.yml
+      - src/marketlab/hg007_p049_sha_repair.py
+      - scripts/materialize_hg007_p049_sha_repair.py
+      - tests/test_hg007_p049_sha_repair.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg007-p049-legacy-original-sha-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original MarketLab digest
+        run: python -m pip install -e '.[dev]'
+      - name: Recalculate actual canonical body digest, preserve legacy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg007_p049_sha_repair.py
+          python scripts/materialize_hg007_p049_sha_repair.py --check
+          ruff check src/marketlab/hg007_p049_sha_repair.py scripts/materialize_hg007_p049_sha_repair.py tests/test_hg007_p049_sha_repair.py
+          pytest -q tests/test_hg007_p049_sha_repair.py
+      - name: Publish append-only discrepancy receipt without rewriting original
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg007/hg007-p049-canonical-sha-repair-v2.json
+          if git diff --cached --quiet; then
+            echo "P049 v2 already recorded"
+            exit 0
+          fi
+          git commit -m "HG007 P049: seal original v1 canonical SHA discrepancy as v2 [skip ci]"
+          git fetch origin fix/hg007-p049-legacy-canonical-sha-v2-20261016
+          git rebase origin/fix/hg007-p049-legacy-canonical-sha-v2-20261016
+          python scripts/materialize_hg007_p049_sha_repair.py --check
+          git push origin HEAD:fix/hg007-p049-legacy-canonical-sha-v2-20261016
