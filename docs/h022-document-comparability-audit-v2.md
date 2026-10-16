@@ -84,3 +84,12 @@ MARICO/COFORGE E002 diagnostics.
 The full repository test suite still needs to be executed in a complete checkout.
 Until then, treat these additions as review hardening with focused tests supplied,
 not as whole-repository validation.
+
+
+## Investment-research interpretation before merge
+
+This is a **document-source integrity audit**, not a new management execution-credibility alpha result. A TEXT_READY extraction may contain only a few pages, and no full-conference-call comparability follows from raw/text hash agreement. COFORGE, SOLARINDS and TCS require actual retained document content review; MARICO remains non-comparable while its transcript is not available.
+
+Auditing older frozen H022 source and E002 records is valid source-custody work, but cannot retroactively create a pre-publication trading signal or rescue unavailable future transcripts. Any future credibility weighting must be frozen separately before first eligible portfolio decision and evaluated against original prospective outcomes.
+
+This original-source audit is reviewed for whole-repository integration before merge, rather than assuming fixture-only tests are sufficient.
