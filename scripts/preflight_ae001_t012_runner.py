@@ -13,7 +13,9 @@ from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from marketlab.alpha import AlphaContractError
+class PreflightContractError(ValueError):
+    """Operational scheduling contract, deliberately no MarketLab dependencies."""
+
 
 IST = timezone(timedelta(hours=5, minutes=30))
 FIRST_FEATURE_SESSION = "2026-10-15"
@@ -24,9 +26,9 @@ def _time(value: object, label: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(str(value))
     except (TypeError, ValueError) as exc:
-        raise AlphaContractError(f"T012 preflight invalid {label}") from exc
+        raise PreflightContractError(f"T012 preflight invalid {label}") from exc
     if parsed.tzinfo is None:
-        raise AlphaContractError(f"T012 preflight {label} missing timezone")
+        raise PreflightContractError(f"T012 preflight {label} missing timezone")
     return parsed.astimezone(UTC)
 
 
@@ -40,21 +42,21 @@ def next_target_gate(
 ) -> dict[str, Any]:
     """Return a *non-authoritative* run/no-run decision, never a prediction."""
     if now_utc.tzinfo is None:
-        raise AlphaContractError("T012 preflight now must have offset")
+        raise PreflightContractError("T012 preflight now must have offset")
     now = now_utc.astimezone(UTC)
     sessions = calendar.get("sessions")
     if not isinstance(sessions, list) or not sessions:
-        raise AlphaContractError("T012 preflight original calendar missing")
+        raise PreflightContractError("T012 preflight original calendar missing")
     dates = [s.get("session_date") for s in sessions]
     if len(set(dates)) != len(dates) or dates != sorted(dates):
-        raise AlphaContractError("T012 preflight calendar not strict and unique")
+        raise PreflightContractError("T012 preflight calendar not strict and unique")
     if not isinstance(sc001_ledger.get("attempts"), list):
-        raise AlphaContractError("T012 preflight cash source ledger malformed")
+        raise PreflightContractError("T012 preflight cash source ledger malformed")
     if not isinstance(sc003_ledger.get("attempts"), list):
-        raise AlphaContractError("T012 preflight F&O source ledger malformed")
+        raise PreflightContractError("T012 preflight F&O source ledger malformed")
     decisions = decision_ledger.get("decisions")
     if not isinstance(decisions, list):
-        raise AlphaContractError("T012 preflight decision ledger malformed")
+        raise PreflightContractError("T012 preflight decision ledger malformed")
 
     # Probe most recent READY target only. We cannot retry historical targets
     # after the original *next-trading-morning* 08:30 IST deadline.
@@ -73,7 +75,7 @@ def next_target_gate(
         }
     target = max(r["target_session_date"] for r in observed)
     if target not in dates or dates.index(target) + 1 >= len(dates):
-        raise AlphaContractError("T012 preflight lacks next frozen trading session")
+        raise PreflightContractError("T012 preflight lacks next frozen trading session")
     entry_date = dates[dates.index(target) + 1]
     cutoff = datetime.fromisoformat(
         f"{entry_date}T08:30:00"
@@ -122,7 +124,7 @@ def next_target_gate(
 def _read(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text("utf-8"))
     if not isinstance(value, dict):
-        raise AlphaContractError("T012 preflight original source must be object")
+        raise PreflightContractError("T012 preflight original source must be object")
     return value
 
 
