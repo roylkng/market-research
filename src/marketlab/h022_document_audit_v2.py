@@ -187,8 +187,6 @@ def verify_git_snapshot(
 
     resolved = git("rev-parse", f"{snapshot_commit}^{{commit}}")
     _require_equal(resolved, snapshot_commit, "snapshot_commit_resolution_mismatch")
-    current_head = git("rev-parse", "HEAD")
-    _require_equal(current_head, snapshot_commit, "snapshot_checkout_mismatch")
     observed: dict[str, str] = {}
     for path, raw in zip(INPUT_PATHS, raws, strict=True):
         expected = git("rev-parse", f"{snapshot_commit}:{path}")
@@ -196,6 +194,26 @@ def verify_git_snapshot(
         _require_equal(actual, expected, "working_file_differs_from_pinned_blob")
         observed[path] = expected
     return observed
+
+
+def read_pinned_inputs(repo_root: Path, snapshot_commit: str) -> tuple[bytes, bytes, bytes]:
+    """Read historical ledger bytes from the named commit, never from live ledgers."""
+    if len(snapshot_commit) != 40 or any(c not in "0123456789abcdef" for c in snapshot_commit):
+        raise AuditError("pinned_commit_required")
+    raws: list[bytes] = []
+    for path in INPUT_PATHS:
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(repo_root.resolve()), "show", f"{snapshot_commit}:{path}"],
+                check=True,
+                capture_output=True,
+                timeout=15,
+                env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise AuditError("pinned_input_read_failed") from exc
+        raws.append(result.stdout)
+    return tuple(raws)  # type: ignore[return-value]
 
 
 def _validate_previous(previous: dict[str, Any], report: dict[str, Any], review_time: datetime) -> str:
@@ -323,7 +341,11 @@ def main(argv: list[str] | None = None) -> int:
     root = args.repo_root.resolve()
     paths = tuple(root / path for path in INPUT_PATHS)
     try:
-        before = tuple(path.read_bytes() for path in paths)
+        before = (
+            tuple(path.read_bytes() for path in paths)
+            if args.no_git_verify
+            else read_pinned_inputs(root, args.snapshot_commit)
+        )
         blobs = None if args.no_git_verify else verify_git_snapshot(root, args.snapshot_commit, before)
         report = audit_snapshot(
             *before,
@@ -332,7 +354,7 @@ def main(argv: list[str] | None = None) -> int:
             git_blob_shas=blobs,
             previous_audit=load_json(args.previous.read_bytes()) if args.previous else None,
         )
-        if tuple(path.read_bytes() for path in paths) != before:
+        if args.no_git_verify and tuple(path.read_bytes() for path in paths) != before:
             raise AuditError("inputs_changed_during_audit")
         output = args.output if args.output.is_absolute() else root / args.output
         write_report(report, output, root)
