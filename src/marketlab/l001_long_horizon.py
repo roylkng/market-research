@@ -116,7 +116,8 @@ def _discounted_fcfe(
 def reverse_value_creation_hurdle(
     *, symbol: str, isin: str, decision_cutoff_utc: str,
     facts: Mapping[str, ValueFact], annual_discount: float,
-    terminal_owner_cash_multiple: float, years: int = 3,
+    terminal_owner_cash_multiple: float, business_model: str,
+    years: int = 3,
 ) -> dict:
     """Solve price-implied *cash-growth hurdle*, not future cash growth.
 
@@ -124,6 +125,8 @@ def reverse_value_creation_hurdle(
     or CFO-minus-PPE as distributable FCFE. Published values remain reviewer
     assertions until original accounting reconciliation is independently proven.
     """
+    if business_model != "NON_FINANCIAL_OPERATING_COMPANY":
+        return _abstain(symbol, "financial_or_unclassified_business_requires_separate_model")
     cutoff = _time(decision_cutoff_utc)
     if cutoff is None or not symbol or not isin:
         return _abstain(symbol, "valid_identity_and_exact_utc_cutoff_required")
