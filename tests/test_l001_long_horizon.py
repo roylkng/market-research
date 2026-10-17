@@ -53,6 +53,7 @@ def evaluate(items=None, *, multiple=15.0):
         facts=facts() if items is None else items,
         annual_discount=0.12,
         terminal_owner_cash_multiple=multiple,
+        business_model="NON_FINANCIAL_OPERATING_COMPANY",
         years=3,
     )
 
@@ -203,3 +204,14 @@ def test_share_count_units_cannot_be_confused_with_rupees():
     items = facts()
     items["price"] = replace(items["price"], unit="INR_CRORE")
     assert "price_unit_mismatch" in evaluate(items)["reasons"]
+
+
+def test_financial_intermediary_requires_separate_economic_model():
+    result = reverse_value_creation_hurdle(
+        symbol="TEST", isin="INE000000001",
+        decision_cutoff_utc=CUTOFF, facts=facts(),
+        annual_discount=0.12, terminal_owner_cash_multiple=15,
+        business_model="FINANCIAL_INTERMEDIARY", years=3,
+    )
+    assert result["status"] == "ABSTAIN"
+    assert "financial_or_unclassified_business_requires_separate_model" in result["reasons"]
