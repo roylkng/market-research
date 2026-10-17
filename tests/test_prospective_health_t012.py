@@ -46,6 +46,7 @@ def _files() -> dict:
 
 def test_t012_health_detects_registered_zero_decisions_and_2027_gap():
     args = _files()
+    args["decision_ledger"] = new_t012_decision_ledger()
     health = _t012_state(**args)
     assert health["trial_id"] == "AE001-T012"
     assert health["trial_registered"] is True
