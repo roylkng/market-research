@@ -74,6 +74,7 @@ def calculate_asof_momentum(
             row.symbol != symbol or row.isin != isin
             or time is None or time > cutoff
             or _date(row.session) > cutoff.date()
+            or time.date() < _date(row.session)
         ):
             return {**base, "status": "ABSTAIN", "reason": "identity_or_future_data"}
         if (
