@@ -10,7 +10,11 @@ import pytest
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.l001_p003_industry_overlap import build_provisional_industry_crosswalk
 from scripts.materialize_l001_p003_industry_overlap import (
-    COHORT, CSV, OUTPUT, READINESS, materialize,
+    COHORT,
+    CSV,
+    OUTPUT,
+    READINESS,
+    materialize,
 )
 
 
