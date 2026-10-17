@@ -45,6 +45,15 @@ def _utc(value: str) -> datetime | None:
     return value_dt if value_dt.tzinfo is not None and value_dt.utcoffset() == timedelta(0) else None
 
 
+def _valid_price(value: object, *, positive: bool = False) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and isfinite(value)
+        and (not positive or value > 0)
+    )
+
+
 def calculate_asof_momentum(
     bars: list[AsOfBar], *, symbol: str, isin: str,
     decision_cutoff_utc: str, universe_known_at_utc: str,
@@ -60,6 +69,10 @@ def calculate_asof_momentum(
     cohort = _utc(universe_known_at_utc)
     if cutoff is None or cohort is None or cohort > cutoff:
         return {**base, "status": "ABSTAIN", "reason": "universe_or_decision_clock_invalid"}
+    if not isinstance(bars, list) or any(not isinstance(row, AsOfBar) for row in bars):
+        return {**base, "status": "ABSTAIN", "reason": "invalid_input_panel"}
+    if any(not isinstance(row.session, str) for row in bars):
+        return {**base, "status": "ABSTAIN", "reason": "invalid_session_calendar"}
     if len(bars) < FORM_WINDOW:
         return {**base, "status": "ABSTAIN", "reason": "insufficient_complete_history"}
     ordered = sorted(bars, key=lambda row: row.session)
@@ -78,12 +91,14 @@ def calculate_asof_momentum(
         ):
             return {**base, "status": "ABSTAIN", "reason": "identity_or_future_data"}
         if (
-            not isfinite(row.adjusted_close_inr) or row.adjusted_close_inr <= 0
-            or not isfinite(row.traded_value_inr) or row.traded_value_inr < 0
+            not _valid_price(row.adjusted_close_inr, positive=True)
+            or not _valid_price(row.traded_value_inr)
+            or row.traded_value_inr < 0
         ):
             return {**base, "status": "ABSTAIN", "reason": "invalid_market_data"}
         if (
-            len(row.source_digest) != 64
+            not isinstance(row.source_digest, str)
+            or len(row.source_digest) != 64
             or any(char not in "0123456789abcdef" for char in row.source_digest)
             or row.adjustment_status != "PIT_CORPORATE_ACTIONS_RECONCILED"
         ):
