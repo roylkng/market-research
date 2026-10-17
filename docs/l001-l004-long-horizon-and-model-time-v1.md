@@ -12,6 +12,7 @@ This implementation follows research/reviews/lra001-2026-10-17-india-papers-news
 
 Code: src/marketlab/l001_long_horizon.py
 
+- The industrial-company NOPAT/ROIC formulation **explicitly excludes banks, NBFCs, insurers and unclassified businesses**, which require a separate credit/capital-adequacy model. HG009 includes financial companies, so applying one model to all 100 would be invalid.
 - Admission requires a set of nine source-backed fields: price, fully diluted parent shares, attributable distributable owner cash, genuinely excess parent cash, separately attributable claims, prior/current NOPAT and prior/current invested capital.
 - Reject a CFO-minus-PPE substitute, issuer-defined net-cash headline used as fully distributable surplus, altered raw bytes, mismatched ticker/ISIN or financial basis, and publication/acquisition after the exact UTC decision instant.
 - Source bytes, exact publication time and an independently reviewed status must be supplied. **The review status is a caller assertion. Code cannot certify economic truth or reviewer independence.**
