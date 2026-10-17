@@ -143,7 +143,7 @@ def test_cash_claims_and_cash_surplus_affect_hurdles():
     items["net_claims"] = replace(items["net_claims"], value=200.0)
     assert evaluate(items)["annual_owner_cash_growth_hurdle"] > base
     items = facts()
-    items["excess_cash"] = replace(items["excess_cash"], value_cr=200.0)
+    items["excess_cash"] = replace(items["excess_cash"], value=200.0)
     assert evaluate(items)["annual_owner_cash_growth_hurdle"] < base
 
 
