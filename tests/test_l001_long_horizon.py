@@ -5,6 +5,7 @@ from hashlib import sha256
 
 from marketlab.l001_long_horizon import (
     BASES,
+    UNITS,
     ReturnObservation,
     ValueFact,
     long_horizon_return_label,
@@ -31,7 +32,8 @@ def facts():
             role=role,
             symbol="TEST",
             isin="INE000000001",
-            value_cr=amounts[role],
+            value=amounts[role],
+            unit=UNITS[role],
             accounting_basis=BASES[role],
             original_bytes=role.encode(),
             sha256_digest=sha256(role.encode()).hexdigest(),
@@ -131,14 +133,14 @@ def test_source_review_is_required_but_not_proof_of_truth():
 
 def test_nonpositive_or_zero_incremental_capital_denied():
     items = facts()
-    items["capital_current"] = replace(items["capital_current"], value_cr=300.0)
+    items["capital_current"] = replace(items["capital_current"], value=300.0)
     assert "positive_net_incremental_capital_required" in evaluate(items)["reasons"]
 
 
 def test_cash_claims_and_cash_surplus_affect_hurdles():
     base = evaluate()["annual_owner_cash_growth_hurdle"]
     items = facts()
-    items["net_claims"] = replace(items["net_claims"], value_cr=200.0)
+    items["net_claims"] = replace(items["net_claims"], value=200.0)
     assert evaluate(items)["annual_owner_cash_growth_hurdle"] > base
     items = facts()
     items["excess_cash"] = replace(items["excess_cash"], value_cr=200.0)
@@ -195,3 +197,9 @@ def test_invalid_dividends_nan_is_missing_not_zero():
 
 def test_wrong_horizon_rejected():
     assert label(horizon_sessions=20)["status"] == "ABSTAIN"
+
+
+def test_share_count_units_cannot_be_confused_with_rupees():
+    items = facts()
+    items["price"] = replace(items["price"], unit="INR_CRORE")
+    assert "price_unit_mismatch" in evaluate(items)["reasons"]
