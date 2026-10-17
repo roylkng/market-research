@@ -28,6 +28,11 @@ BASES = {
     "capital_current": "RECONCILED_INVESTED_CAPITAL",
 }
 REQUIRED = frozenset(BASES)
+UNITS = {
+    role: "INR_PER_SHARE" if role == "price" else "CRORE_SHARES"
+    if role == "diluted_shares" else "INR_CRORE"
+    for role in BASES
+}
 
 
 @dataclass(frozen=True)
@@ -35,7 +40,8 @@ class ValueFact:
     role: str
     symbol: str
     isin: str
-    value_cr: float
+    value: float
+    unit: str
     accounting_basis: str
     original_bytes: bytes
     sha256_digest: str
@@ -133,7 +139,9 @@ def reverse_value_creation_hurdle(
             reasons.append(f"{role}_identity_mismatch")
         if item.accounting_basis != BASES[role]:
             reasons.append(f"{role}_accounting_basis_unreconciled")
-        if not _number(item.value_cr):
+        if item.unit != UNITS[role]:
+            reasons.append(f"{role}_unit_mismatch")
+        if not _number(item.value):
             reasons.append(f"{role}_invalid_numeric_value")
         if (
             not isinstance(item.original_bytes, bytes)
@@ -159,7 +167,7 @@ def reverse_value_creation_hurdle(
     if reasons:
         return _abstain(symbol, *reasons)
 
-    values = {role: facts[role].value_cr for role in REQUIRED}
+    values = {role: facts[role].value for role in REQUIRED}
     if any(
         values[role] <= 0 for role in ("price", "diluted_shares", "owner_cash")
     ):
