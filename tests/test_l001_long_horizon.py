@@ -56,24 +56,24 @@ def evaluate(items=None, *, multiple=15.0):
 
 
 def label(**changes):
-    values = dict(
-        symbol="TEST",
-        isin="INE000000001",
-        horizon_sessions=252,
-        elapsed_verified_sessions=252,
-        entry_price_inr=100.0,
-        exit_price_inr=55.0,
-        shares_per_initial_share=2.0,
-        distributions_per_initial_share_inr=5.0,
-        settlement_per_initial_share_inr=None,
-        benchmark_tr_entry_open=100.0,
-        benchmark_tr_exit_close=110.0,
-        corporate_action_status="FULLY_RECONCILED",
-        exit_status="ACTIVE",
-        entry_tradable=True,
-        roundtrip_cost_fraction=0.01,
-        calendar_receipt_sha256="a" * 64,
-    )
+    values = {
+        "symbol": "TEST",
+        "isin": "INE000000001",
+        "horizon_sessions": 252,
+        "elapsed_verified_sessions": 252,
+        "entry_price_inr": 100.0,
+        "exit_price_inr": 55.0,
+        "shares_per_initial_share": 2.0,
+        "distributions_per_initial_share_inr": 5.0,
+        "settlement_per_initial_share_inr": None,
+        "benchmark_tr_entry_open": 100.0,
+        "benchmark_tr_exit_close": 110.0,
+        "corporate_action_status": "FULLY_RECONCILED",
+        "exit_status": "ACTIVE",
+        "entry_tradable": True,
+        "roundtrip_cost_fraction": 0.01,
+        "calendar_receipt_sha256": "a" * 64,
+    }
     values.update(changes)
     return long_horizon_return_label(ReturnObservation(**values))
 
@@ -83,7 +83,6 @@ def test_reverse_growth_hurdle_and_incremental_roic():
     assert result["status"] == "REVERSE_HURDLE_MATH_ONLY"
     assert result["incremental_nopat_on_net_invested_capital"] == 0.20
     assert result["annual_owner_cash_growth_hurdle"] > 0
-    assert result["return_prediction_validated"] if False else True
     assert result["investment_authorized"] is False
 
 
