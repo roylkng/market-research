@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "audit_id": "LRA001-2026-10-17-INDIA-FACTOR-GAP",
+  "analysis_cutoff_date": "2026-10-17",
+  "status": "RESEARCH_PROPOSAL_NOT_FROZEN",
+  "changes_frozen_prospective_trials": false,
+  "live_capital_allowed": false,
+  "evidence_scope": "Review of published studies, October 2026 market developments and sampled existing repo contracts. Does not certify implementation coverage or performance.",
+  "priority_gaps": [
+    {
+      "id": "L001",
+      "priority": "P0",
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "goal": "1/2/3-year shareholder value creation and return validation",
+      "target_horizons_sessions": [
+        252,
+        504,
+        756
+      ],
+      "required_features": [
+        "full_share_dilution",
+        "owner_cash_after_lease_tax_interest_minorities",
+        "organic_incremental_roic",
+        "acquisition_liability_cash",
+        "market_implied_reverse_dcf",
+        "intangible_capital_quality"
+      ],
+      "controls": [
+        "Nifty500_total_return",
+        "matched_sector_size_liquidity",
+        "value_quality_momentum"
+      ],
+      "expected_return_estimate": null,
+      "pass_gate": "preregistered, causally valid, after-cost benchmark-relative out-of-sample evidence; no fixed return probability before observation",
+      "source_links": [
+        "https://www.sciencedirect.com/science/article/pii/S0304405X14002323",
+        "https://www.sciencedirect.com/science/article/pii/S0304405X13000044"
+      ]
+    },
+    {
+      "id": "L002",
+      "priority": "P0",
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "goal": "Liquidity-conditioned momentum challenger independent of frozen H004",
+      "target_horizons_sessions": [
+        20,
+        60,
+        120
+      ],
+      "required_features": [
+        "momentum_6m_12m",
+        "liquidity_turnover",
+        "free_float_mcap",
+        "sector_adjustment",
+        "volatility",
+        "circuit_and_order_depth"
+      ],
+      "controls": [
+        "unmodified_H004",
+        "simple_momentum",
+        "sector_and_size_matched"
+      ],
+      "expected_return_estimate": null,
+      "pass_gate": "marginal, net executable OOS returns in more than one future regime",
+      "source_links": [
+        "https://www.sciencedirect.com/science/article/pii/S0927538X23002640"
+      ]
+    },
+    {
+      "id": "L003",
+      "priority": "P1",
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "goal": "Expectation revisions and information novelty beyond frozen H002",
+      "target_horizons_sessions": [
+        5,
+        20,
+        60
+      ],
+      "required_features": [
+        "original_eps_surprise",
+        "publication_timestamp",
+        "prior_consensus_snapshot_if_available",
+        "revision_breadth",
+        "news_novelty",
+        "post_event_price_reaction"
+      ],
+      "controls": [
+        "unmodified_H002",
+        "price_only",
+        "simple_news_event_flag"
+      ],
+      "expected_return_estimate": null,
+      "pass_gate": "incremental OOS rank and after-cost returns over H002 sign baseline",
+      "source_links": [
+        "https://www.sciencedirect.com/science/article/pii/S0304405X26001066"
+      ]
+    },
+    {
+      "id": "L004",
+      "priority": "P0",
+      "status": "PROPOSED_NOT_IMPLEMENTED",
+      "goal": "LLM pretraining-memory and source-time lookahead audit",
+      "target_horizons_sessions": [
+        1,
+        5,
+        20
+      ],
+      "required_features": [
+        "document_known_at",
+        "model_training_cutoff",
+        "model_checkpoint_hash_if_open",
+        "prompt_hash",
+        "ticker_blind_probe",
+        "prospective_holdout"
+      ],
+      "controls": [
+        "numeric_source_extraction_only",
+        "chronologically_restricted_model",
+        "live_prospective_timestamps"
+      ],
+      "expected_return_estimate": null,
+      "pass_gate": "no claimed historical predictive alpha from current-LLM interpretations without proof of temporal validity",
+      "source_links": [
+        "https://www.nber.org/papers/w35247",
+        "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4754678"
+      ]
+    }
+  ],
+  "regime_and_cost_gates": [
+    {
+      "id": "REG001",
+      "status": "RULE_VERSIONING_NEEDED",
+      "date": "2026-12-07",
+      "change": "SEBI cash closing-auction and derivatives settlement modifications, exclude later 4.8 provisions",
+      "source": "https://www.sebi.gov.in/sebi_data/attachdocs/oct-2026/1792079571420.pdf"
+    },
+    {
+      "id": "REG002",
+      "status": "RULE_VERSIONING_NEEDED",
+      "date": "2027-02-08",
+      "change": "SEBI CTS-to-CAS carry-forward of unexecuted limit/iceberg orders",
+      "source": "https://www.sebi.gov.in/sebi_data/attachdocs/oct-2026/1792079571420.pdf"
+    },
+    {
+      "id": "REG003",
+      "status": "CONTEXT_NOT_RETURN_SIGNAL",
+      "date": "2026-10-17",
+      "change": "RBI tightening, higher CPI/WPI, foreign outflows, domestic inflows, IT sector repricing",
+      "source": "https://www.reuters.com/world/india/india-raises-policy-rate-by-25-bps-first-hike-nearly-four-years-2026-10-07/"
+    }
+  ],
+  "gaps_already_planned_not_yet_validated": [
+    "fundamental_quality_momentum_liquidity_price_factor_plane",
+    "purged_walk_forward",
+    "transaction_cost_TC001",
+    "risk_RM001",
+    "portfolio_PO001"
+  ],
+  "original_frozen_experiments_must_remain_unchanged": true,
+  "investment_recommendations_created": false
+}
