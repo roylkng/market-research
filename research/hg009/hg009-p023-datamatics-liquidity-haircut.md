@@ -81,3 +81,9 @@ It is **not yet known whether the issuer-defined Rs 639.2 crore net-cash/investm
 The max illustrative amount exposed to this single unresolved classification is Rs 209.69 crore, approximately 4.47% of the historical basic cap Rs 4,687.14 crore. This fraction is not an investment expected return.
 
 Next original annual-report work: capture audited full composition of borrowing, deposits/investments, security deposits, contingent payouts/maturities, owner restrictions and outstanding Q1 acquisition obligations, then reproduce management-defined net cash/investments exactly. Only then update owner-equity bridge.
+
+### Audited cash payment timing: payable within first year
+
+Original annual report FY26 consolidated note 40 liquidity-maturity table, PDF index 166 (printed page 165), independently visually checked, lists the **entire Rs 209.69 crore acquisition-investment consideration under "Due in 1st Year" as of March 31, 2026**. This materially elevates urgency: it is a recognized near-term cash claim, not just theoretical noncash mark-to-market exposure. The same schedule lists Rs 79.57 crore lease liabilities (Rs 32.80 crore first year), Rs 141.36 crore borrowings (Rs 54.74 crore first year), and Rs 174.54 crore trade payables (ordinary operating liabilities, not automatically an equity-value haircut).
+
+Critical remaining reconciliation: whether issuer-defined FY26 and Q1FY27 "net cash & investments" already nets this consideration and whether it was settled between March and June. **Do not double-subtract** it from the headline net-cash KPI. Verify subsequent cash payment from Q1 statement and original related acquisition note. March 2026 recognized due-first-year acquisition claim is source-verified; June 2026 outstanding amount is not yet established.
