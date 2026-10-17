@@ -10,7 +10,6 @@ from __future__ import annotations
 import hashlib
 import math
 import xml.etree.ElementTree as ET
-from collections import Counter
 
 from marketlab.alpha import AlphaContractError, digest
 
