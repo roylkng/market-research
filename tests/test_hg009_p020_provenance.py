@@ -36,7 +36,7 @@ def evidence():
 
 
 def test_complete_synthetic_evidence_is_still_math_only():
-    out = evaluate_with_provenance(case(), evidence())
+    out = evaluate_with_provenance(case(), evidence(), decision_cutoff_utc="2026-10-16T03:00:00Z")
     assert out["status"] == "SCENARIO_MATH_ONLY"
     assert out["investment_authorized"] is False
     assert out["source_content_economic_truth_verified_by_code"] is False
@@ -45,34 +45,49 @@ def test_complete_synthetic_evidence_is_still_math_only():
 def test_unverified_digest_abstains():
     e = evidence()
     e["price"] = replace(e["price"], original_bytes=b"tampered")
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
 
 
 def test_later_publication_abstains():
     e = evidence()
     e["price"] = replace(e["price"], published_utc="2026-10-17T00:00:00Z")
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
 
 
 def test_missing_role_abstains():
     e = evidence()
     del e["probability_calibration"]
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
 
 
 def test_wrong_issuer_abstains():
     e = evidence()
     e["fully_diluted_shares"] = replace(e["fully_diluted_shares"], issuer_symbol="ACUTAAS")
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
 
 
 def test_self_reported_unreviewed_abstains():
     e = evidence()
     e["parent_owner_cash"] = replace(e["parent_owner_cash"], review_status="SELF_REPORTED")
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
 
 
 def test_wrong_scope_abstains():
     e = evidence()
     e["parent_owner_cash"] = replace(e["parent_owner_cash"], reviewed_scope="standalone_PBT")
-    assert evaluate_with_provenance(case(), e)["status"] == "ABSTAIN"
+    assert evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")["status"] == "ABSTAIN"
+
+def test_same_day_post_decision_announcement_is_rejected():
+    e = evidence()
+    e["price"] = replace(e["price"], published_utc="2026-10-16T04:00:00Z")
+    outcome = evaluate_with_provenance(case(), e, decision_cutoff_utc="2026-10-16T03:00:00Z")
+    assert outcome["status"] == "ABSTAIN"
+    assert "price_post_cutoff_or_invalid_publication" in outcome["reasons"]
+
+
+def test_decision_cutoff_invalid_or_wrong_date_abstains():
+    assert evaluate_with_provenance(case(), evidence(), decision_cutoff_utc="invalid")["status"] == "ABSTAIN"
+    result = evaluate_with_provenance(
+        case(), evidence(), decision_cutoff_utc="2026-10-17T03:00:00Z",
+    )
+    assert "decision_cutoff_date_inconsistent" in result["reasons"]
