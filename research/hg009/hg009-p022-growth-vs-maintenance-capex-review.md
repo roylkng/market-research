@@ -37,3 +37,13 @@ The issuer at https://www.travelfoodservices.com/investors lists FY26 revenue Rs
 Evidence: FY26 original source financial packet is archived in the repository. The maintenance capex split comes from a third-party July 2026 call transcript rather than independently retained issuer original. The TRAVELFOOD headline is disclosed on the issuer's official portal. All investment return probabilities, fair values and buy decisions are NULL. Live capital remains disabled.
 
 **Conclusion:** We have a falsifiable diagnostic, not a validated hidden gem.
+
+## Second falsification: TRAVELFOOD high ROCE versus equity price
+
+The original audited NSE FY26 consolidated filing at https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_161065_25052026215924_iXBRL_WEB.html reports parent-attributable annual PAT Rs 441.027 crore, total PAT Rs 452.317 crore, historical paid-up equity Rs 1,316.8 lakh at face value Rs 1 (approximately 13.168 crore historical basic shares), and diluted EPS Rs 33.42. This shareholder count is **not verified October 15 fully diluted**.
+
+Using the already frozen P014 **October 15 historical official EQ close Rs 1,200**, historical basic equity cap is approximately **Rs 15,801.5 crore**. Derived historical basic price / FY26 diluted EPS is **35.9x** (mixed basic price denominator with diluted per-share EPS). Historical equity earnings yield relative to owner PAT is approximately **2.79%**. FY26 CFO after *all* investing of Rs 243.161 crore divided by illustrative cap is approximately **1.54%**, but this is NOT owner cash or necessarily normalized FCF. Any value from investments/cash cannot be appended to earnings without checking financial assets and liabilities to avoid double counting.
+
+At arbitrary 16x owner cash, the historical basic cap requires **Rs 987.6 crore annual parent owner cash for equity parity**, or **Rs 1,481.4 crore** for a hypothetical +50% equity value. Neither is forecast. This cash hurdle is more than three times FY26 cash after all investing, while the latter is not comparable owner cash. Historical ROCE 45% **does not establish bargain pricing**.
+
+**Decision:** Move TRAVELFOOD into the same reverse-hurdle diligence lane as ACE and ACUTAAS, not into an endorsed hidden-gem list. Focus on concession replacement economics, parent cash distribution, and independently validated obligations before attempting terminal valuation.
