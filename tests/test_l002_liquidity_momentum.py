@@ -99,3 +99,21 @@ def test_after_cutoff_universe_cannot_score():
 
 def test_negative_momentum_preserved():
     assert run(bars(growth=-0.001))["momentum_12minus1_fraction"] < 0
+
+
+def test_malformed_numeric_data_abstains():
+    rows = bars()
+    rows[5] = replace(rows[5], adjusted_close_inr="bad")
+    assert run(rows)["status"] == "ABSTAIN"
+
+
+def test_bar_observed_before_session_date_is_rejected():
+    rows = bars()
+    rows[50] = replace(rows[50], source_first_seen_utc="2024-01-01T00:00:00Z")
+    assert run(rows)["status"] == "ABSTAIN"
+
+
+def test_untrusted_hash_type_abstains():
+    rows = bars()
+    rows[20] = replace(rows[20], source_digest=None)
+    assert run(rows)["status"] == "ABSTAIN"
