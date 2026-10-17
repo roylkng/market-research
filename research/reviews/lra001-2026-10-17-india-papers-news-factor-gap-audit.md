@@ -46,7 +46,7 @@ These are research PROPOSALS. Existing prospective signals, recorded market sess
 6. https://www.onlinelibrary.wiley.com/doi/full/10.1111/jofi.12365
 7. https://www.sciencedirect.com/science/article/pii/S0304405X14002323
 8. https://www.sciencedirect.com/science/article/pii/S0304405X13000044
-9. https://www.pm-research.com/content/iijinvest/40/5/94
+9. https://doi.org/10.3905/jpm.2014.40.5.094
 10. https://www.sciencedirect.com/science/article/pii/S0304405X26001066
 11. https://www.nber.org/papers/w35247
 12. https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4754678
@@ -77,7 +77,7 @@ Sources:
 
 **Already designed or partly implemented (do not reinvent):**
 - `README.md`, `registry/hypotheses.yaml`: reject H001, freeze H002 earnings-surprise and H003 management delivery, plus H004 pre-momentum. H002 original feasibility n=24, uncertainty crossed zero.
-- `docs/architecture.md`, `docs/alpha-factory-implementation-plan-v1.md`: distinct immutable H-series and AE001, 1/5/20/60-session forward labels, per-feature known-at, 13 broad feature families, purged walk-forward, risk/factor/cost/optimizer planned, trial accounting.
+- `docs/architecture.md`, `docs/alpha-factory-implementation-plan-v1.md`: distinct immutable H-series and AE001, 1/5/20/60-session forward labels, per-feature known-at, multiple planned feature families, purged walk-forward, risk/factor/cost/optimizer planned, trial accounting.
 - `registry/h004_signal_rule.yaml`: H004 has deliberately capped prior momentum and requires information anchors; it is a **different economic bet** from liquidity-conditioned continuation.
 - `registry/universes.yaml`: U001 selects 100 top-FFMC nonfinancial names from Nifty200 for H002/H003, a valid controlled earnings cohort, but **not** a full search for under-followed mid/small names.
 - HG009 frozen 300-company experiment and P014–P024 owner-cash diligence: useful 100 candidate/2 control arms, but post-Oct15 dossiers cannot be presented as preregistered performance.
