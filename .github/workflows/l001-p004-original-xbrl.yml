@@ -1,0 +1,61 @@
+name: L001 P004 archived-original XBRL replay
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/l001_p004_original_replay.py
+      - scripts/materialize_l001_p004_originals.py
+      - tests/test_l001_p004_original_replay.py
+      - .github/workflows/l001-p004-original-xbrl.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit_originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install and run source contract unit tests
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/l001_p004_original_replay.py scripts/materialize_l001_p004_originals.py tests/test_l001_p004_original_replay.py
+          pytest -q tests/test_l001_p004_original_replay.py
+      - name: Download pinned original GitHub Actions evidence, never latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/l001-p004"
+          for ID in 11301695772 11306919543 11525307261 11303742567 \
+                    11307293225 11307437621 11307367737 \
+                    11306939618 11306939594 11307478103; do
+            curl --fail --location --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ID/zip" \
+              --output "$RUNNER_TEMP/l001-p004/github-actions-artifact-$ID.zip"
+            unzip -tq "$RUNNER_TEMP/l001-p004/github-actions-artifact-$ID.zip" >/dev/null
+          done
+      - name: Independently replay 300 originals and 400 numerical facts
+        run: |
+          python scripts/materialize_l001_p004_originals.py \
+            --zip-dir "$RUNNER_TEMP/l001-p004" \
+            --output "$RUNNER_TEMP/l001-p004-all100-original-audit.json" \
+            --original-pack "$RUNNER_TEMP/l001-p004-original-300-source-files.zip" \
+            | tee "$RUNNER_TEMP/l001-p004-summary.json"
+      - name: Publish immutable review artifacts, not financial predictions
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p004-verified-all100-original-xbrl
+          path: |
+            ${{ runner.temp }}/l001-p004-all100-original-audit.json
+            ${{ runner.temp }}/l001-p004-original-300-source-files.zip
+            ${{ runner.temp }}/l001-p004-summary.json
+          retention-days: 90
