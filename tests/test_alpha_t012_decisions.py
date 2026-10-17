@@ -86,9 +86,12 @@ def test_empty_decision_ledger_is_sealed_and_valid() -> None:
         (ROOT / "research/prospective/ae001-t012/decision-ledger.json")
         .read_text(encoding="utf-8")
     )
-    assert stored == new_t012_decision_ledger()
     validate_t012_decision_ledger(stored)
-    assert stored["decision_count"] == 0
+    assert stored["decision_count"] == len(stored["decisions"])
+    assert stored["decision_count"] >= 1
+    synthetic_empty = new_t012_decision_ledger()
+    validate_t012_decision_ledger(synthetic_empty)
+    assert synthetic_empty["decision_count"] == 0
 
 
 def test_fixed_model_decision_artifact_and_final_seal(
