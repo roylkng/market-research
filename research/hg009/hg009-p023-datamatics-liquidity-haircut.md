@@ -47,3 +47,37 @@ Until verified, capital_eligible=false, owner_cash_estimate=null, probability_of
 DATAMATICS remains high-priority *for source diligence* because cash and acquisition liabilities can create an analyzable accounting misperception. It is not economically confirmed undervalued. Document the exact falsification: if contingent consideration plus financing, restrictions and liabilities absorb most liquid assets, the cash-backed thesis fails. If margins normalize down materially, the operating thesis fails.
 
 Outcome discipline: no retrospective promotion of this post-Oct15 research into HG009 frozen H1 alpha.
+
+## Original audited FY26 annual-report breakthrough: acquisition payable is Rs 209.69 crore
+
+Official original issuer FY26 consolidated annual report:
+https://www.datamatics.com/hubfs/Investors/Financials/2025-2026/Annual-Report-2025-26.pdf
+
+**Audited consolidated note 39**, PDF page index 164 (printed page 163), independently visually checked:
+- March 31, 2026 Level 3 **fair value of consideration for acquisition of investment: Rs 209.69 crore**.
+- The analogous March 2025 balances were Rs 194.68 crore acquisition consideration and Rs 7.59 crore *other* contingent consideration. Do **not** infer Rs 209.69 + Rs 40.85: the Rs 40.85 fair-value change flows through remeasurement and is not a separately payable incremental balance.
+- March 2026 fair-value forward liability Rs 13.58 crore. The acquisition liability and derivative liabilities are distinct.
+
+**Audited consolidated note 39**, PDF page index 163 (printed page 162):
+- Cash and equivalents Rs 141.42 crore.
+- Mutual funds Rs 330.60 crore.
+- Debentures and bonds Rs 166.88 crore across FVTPL and amortized cost.
+- Other financial instruments including investments are disclosed separately. Not all are freely distributable or equivalent to immediate cash.
+- Borrowings Rs 141.36 crore, trade payables Rs 174.54 crore. Do not subtract trade payables mechanically from net cash while also valuing operating working capital.
+
+**Audited consolidated note 38**, PDF page index 163 (printed page 162):
+- FY26 exceptional fair-value liability change Rs 40.85 crore and labour-code one-time effect Rs 24.02 crore, total exceptional impact Rs 64.87 crore. This is distinct from the August Q1 release's Q4-only description of labour code impact.
+- Annual report accounting amounts take precedence over summarizing the quarterly press release when comparing fiscal-year totals.
+
+### What this changes
+
+The existence of **Rs 209.69 crore acquisition consideration payable** materially weakens any naive claim that all Rs 639.2 crore of company-defined FY26 net cash and investments is excess shareholder wealth.
+
+It is **not yet known whether the issuer-defined Rs 639.2 crore net-cash/investments KPI already deducts this Rs 209.69 crore**. Deducting it without reconstructing the KPI would risk double counting. Therefore preserve two hypotheses pending issuer KPI reconciliation, *not competing fair values*:
+
+- Hypothesis A: net cash KPI already net of acquisition payable, no additional haircut justified.
+- Hypothesis B: KPI excludes acquisition payable, requiring full adjustment by the verified outstanding balance (and settlement schedule), with further legal and minority restrictions.
+
+The max illustrative amount exposed to this single unresolved classification is Rs 209.69 crore, approximately 4.47% of the historical basic cap Rs 4,687.14 crore. This fraction is not an investment expected return.
+
+Next original annual-report work: capture audited full composition of borrowing, deposits/investments, security deposits, contingent payouts/maturities, owner restrictions and outstanding Q1 acquisition obligations, then reproduce management-defined net cash/investments exactly. Only then update owner-equity bridge.
