@@ -171,3 +171,12 @@ def test_unknown_issuer_receipts_rejected():
             cohort, p014, research_cutoff_utc=CUTOFF,
             classifications={(fake.symbol, fake.isin): fake},
         )
+
+def test_committed_all100_source_manifest_replays_byte_for_byte():
+    from scripts.materialize_l001_p002_source_intake import OUTPUT, materialize
+
+    assert OUTPUT.exists()
+    assert OUTPUT.read_text(encoding="utf-8") == materialize()
+    stored = json.loads(OUTPUT.read_text(encoding="utf-8"))
+    assert len(stored["companies"]) == 100
+    assert stored["counts"]["investable_valuations"] == 0
