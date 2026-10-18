@@ -14,7 +14,6 @@ import math
 import re
 from dataclasses import dataclass
 from datetime import date
-from pathlib import Path
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.alpha_market import parse_udiff_eq_panel
