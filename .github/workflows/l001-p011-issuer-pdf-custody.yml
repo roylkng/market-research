@@ -1,0 +1,44 @@
+name: L001 P011 original issuer PDF proof of custody
+
+on:
+  pull_request:
+    paths:
+      - scripts/materialize_l001_p011_issuer_pdf_custody.py
+      - tests/test_l001_p011_pdf_custody.py
+      - .github/workflows/l001-p011-issuer-pdf-custody.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original_custody:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Contract lint and adversarial tests
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check scripts/materialize_l001_p011_issuer_pdf_custody.py tests/test_l001_p011_pdf_custody.py
+          pytest -q tests/test_l001_p011_pdf_custody.py
+      - name: Independently retrieve and hash 6 original issuer PDF files
+        run: |
+          python scripts/materialize_l001_p011_issuer_pdf_custody.py \
+            --manifest "$RUNNER_TEMP/l001-p011-original-pdf-manifest.json" \
+            --original-zip "$RUNNER_TEMP/l001-p011-six-original-issuer-documents.zip" \
+            | tee "$RUNNER_TEMP/l001-p011-custody-diagnostics.json"
+      - name: Retain immutable original issuer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p011-original-issuer-pdf-custody
+          path: |
+            ${{ runner.temp }}/l001-p011-original-pdf-manifest.json
+            ${{ runner.temp }}/l001-p011-six-original-issuer-documents.zip
+            ${{ runner.temp }}/l001-p011-custody-diagnostics.json
+          retention-days: 90
+          if-no-files-found: ignore
