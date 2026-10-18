@@ -1,0 +1,54 @@
+name: L001 P012 synchronized Oct15 original listed holdings
+on:
+  pull_request:
+    paths:
+      - src/marketlab/l001_p012_zuari_reprice.py
+      - scripts/materialize_l001_p012_zuari_reprice.py
+      - tests/test_l001_p012_zuari_reprice.py
+      - .github/workflows/l001-p012-zuari-asset-mark.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  original_sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install, lint and test original pricing contract
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/l001_p012_zuari_reprice.py scripts/materialize_l001_p012_zuari_reprice.py tests/test_l001_p012_zuari_reprice.py
+          pytest -q tests/test_l001_p012_zuari_reprice.py
+      - name: Download both exact immutable source-custody artifact archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/zuari-original"
+          for ID in 12132536549 12111414537; do
+            curl --fail --location --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ID/zip" \
+              --output "$RUNNER_TEMP/zuari-original/github-actions-artifact-$ID.zip"
+            unzip -tq "$RUNNER_TEMP/zuari-original/github-actions-artifact-$ID.zip" >/dev/null
+          done
+      - name: Reprice all five original Zuari investments at October 15 NSE closes
+        run: |
+          python scripts/materialize_l001_p012_zuari_reprice.py \
+            --artifact-dir "$RUNNER_TEMP/zuari-original" \
+            --output "$RUNNER_TEMP/l001-p012-zuari-price-synchronized-20261015.json" \
+            | tee "$RUNNER_TEMP/l001-p012-summary.json"
+      - name: Archive posthoc valuation stress evidence only
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p012-oct15-original-zuari-holdings-stress
+          path: |
+            ${{ runner.temp }}/l001-p012-zuari-price-synchronized-20261015.json
+            ${{ runner.temp }}/l001-p012-summary.json
+          retention-days: 90
