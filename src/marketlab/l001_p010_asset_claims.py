@@ -251,3 +251,127 @@ def buyback_nav_sensitivity(observation: BuybackObservation) -> dict:
         "expected_return": None,
         "investment_authorized": False,
     }
+
+
+@dataclass(frozen=True)
+class ReceivableSettlement:
+    debtor: str
+    creditor: str
+    outstanding_before_cr: float
+    first_payment_cr: float
+    first_payment_date: str
+    final_payment_cr: float
+    final_payment_date: str
+    source_first: str
+    source_final: str
+    audited_bank_credit_verified: bool = False
+
+
+def creditor_recovery_reconciliation(
+    settlement: ReceivableSettlement,
+    *,
+    research_cutoff_date: str,
+    reference_basic_equity_cap_cr: float,
+) -> dict:
+    """Counterparty exchange confirmations of receivable conversion to cash.
+
+    A completed repayment extinguishes an existing receivable. It is NOT
+    incremental group wealth or proof the creditor repaid outside lenders.
+    """
+    p = settlement
+    if (
+        not p.debtor or not p.creditor
+        or not p.source_first.startswith("https://www.zuari.in/")
+        or not p.source_final.startswith("https://www.zuari.in/")
+        or not _dates(
+            research_cutoff_date, p.first_payment_date, p.final_payment_date
+        )
+        or p.first_payment_date > p.final_payment_date
+    ):
+        return _rejected(p.creditor, "original_repayment_identity_or_time_missing")
+    if any(not _valid(v) for v in (
+        p.outstanding_before_cr, p.first_payment_cr, p.final_payment_cr,
+        reference_basic_equity_cap_cr,
+    )):
+        return _rejected(p.creditor, "repayment_amount_or_cap_invalid")
+    amount = p.first_payment_cr + p.final_payment_cr
+    if abs(amount - p.outstanding_before_cr) > 1e-6:
+        return _rejected(p.creditor, "repayment_does_not_reconcile_to_prior_debt")
+    return {
+        "status": "ISSUER_COUNTERPARTY_DISCLOSED_FULL_RECEIVABLE_RECOVERY",
+        "debtor": p.debtor,
+        "creditor": p.creditor,
+        "first_payment_date": p.first_payment_date,
+        "final_payment_date": p.final_payment_date,
+        "recovered_receivable_cr": round(amount, 6),
+        "remaining_reported_receivable_cr": 0.0,
+        "payment_as_fraction_of_old_basic_equity_cap": round(
+            amount / reference_basic_equity_cap_cr, 8
+        ),
+        "bank_credit_independently_verified": p.audited_bank_credit_verified,
+        "new_shareholder_wealth_from_debt_to_cash_reclassification_cr": 0,
+        "creditor_external_debt_repayment_independently_verified": False,
+        "cash_now_held_by_parent_or_subsidiary_unverified": True,
+        "receipt_does_not_mean_free_cashflow": True,
+        "investment_authorized": False,
+        "expected_return": None,
+    }
+
+
+@dataclass(frozen=True)
+class InternalGroupTransfer:
+    parent: str
+    wholly_owned_seller: str
+    listed_issuer: str
+    transaction_date: str
+    acquired_target_shares: int
+    parent_shares_before: int
+    subsidiary_shares_before: int
+    purchase_cost_cr: float
+    source_uri: str
+
+
+def internal_group_asset_transfer(
+    transfer: InternalGroupTransfer, *, research_cutoff_date: str,
+) -> dict:
+    """Same-group transfer changes direct ownership, not consolidated units."""
+    t = transfer
+    if (
+        not t.parent or not t.wholly_owned_seller or not t.listed_issuer
+        or not t.source_uri.startswith("https://")
+        or not _dates(research_cutoff_date, t.transaction_date)
+        or any(type(v) is not int or v < 0 for v in (
+            t.acquired_target_shares, t.parent_shares_before,
+            t.subsidiary_shares_before,
+        ))
+        or t.acquired_target_shares == 0
+        or t.acquired_target_shares > t.subsidiary_shares_before
+        or not _valid(t.purchase_cost_cr)
+    ):
+        return _rejected(t.parent, "internal_transfer_source_or_identity_invalid")
+    group_before = t.parent_shares_before + t.subsidiary_shares_before
+    new_parent = t.parent_shares_before + t.acquired_target_shares
+    new_sub = t.subsidiary_shares_before - t.acquired_target_shares
+    return {
+        "status": "INTRAGROUP_TRANSFER_NOT_NEW_GROUP_EQUITY_UNITS",
+        "issuer": t.listed_issuer,
+        "parent": t.parent,
+        "wholly_owned_seller_asserted_not_corporate_tree_verified": (
+            t.wholly_owned_seller
+        ),
+        "date": t.transaction_date,
+        "parent_direct_shares_before": t.parent_shares_before,
+        "parent_direct_shares_after": new_parent,
+        "subsidiary_shares_before": t.subsidiary_shares_before,
+        "subsidiary_shares_after": new_sub,
+        "consolidated_shares_before": group_before,
+        "consolidated_shares_after": new_parent + new_sub,
+        "net_new_group_shares": 0,
+        "reported_transaction_cost_cr_not_extra_consolidated_asset": (
+            t.purchase_cost_cr
+        ),
+        "transaction_taxes_and_external_cash_leakage_not_reconciled": True,
+        "historical_group_holding_must_not_be_double_counted": True,
+        "expected_return": None,
+        "investment_authorized": False,
+    }
