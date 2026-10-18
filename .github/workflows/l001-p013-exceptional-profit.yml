@@ -1,0 +1,63 @@
+name: L001 P013 original Q1 exceptional-profit reconciliation
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/l001_p013_exceptional_profit.py
+      - scripts/materialize_l001_p013_exceptional_profit.py
+      - tests/test_l001_p013_exceptional_profit.py
+      - .github/workflows/l001-p013-exceptional-profit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  original_exceptional_replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate original source and financial accounting contracts
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/l001_p013_exceptional_profit.py scripts/materialize_l001_p013_exceptional_profit.py tests/test_l001_p013_exceptional_profit.py
+          pytest -q tests/test_l001_p013_exceptional_profit.py
+      - name: Retrieve exact earlier original verification artifacts, not latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for ID in 12111414537 12112967877; do
+            curl --fail --location --silent --show-error --retry 3 \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ID/zip" \
+              -o "$RUNNER_TEMP/github-actions-artifact-$ID.zip"
+            unzip -tq "$RUNNER_TEMP/github-actions-artifact-$ID.zip" >/dev/null
+          done
+          unzip -jo "$RUNNER_TEMP/github-actions-artifact-12111414537.zip" \
+            l001-p004-all100-original-audit.json \
+            l001-p004-original-300-source-files.zip -d "$RUNNER_TEMP"
+          unzip -jo "$RUNNER_TEMP/github-actions-artifact-12112967877.zip" \
+            l001-p007-original-q1-other-income-100.json -d "$RUNNER_TEMP"
+      - name: Reopen 100 original XBRL and reconcile exceptional PBT math
+        run: |
+          python scripts/materialize_l001_p013_exceptional_profit.py \
+            --p004-report "$RUNNER_TEMP/l001-p004-all100-original-audit.json" \
+            --p007-report "$RUNNER_TEMP/l001-p007-original-q1-other-income-100.json" \
+            --xml-zip "$RUNNER_TEMP/l001-p004-original-300-source-files.zip" \
+            --output "$RUNNER_TEMP/l001-p013-exceptional-profit-all100.json" \
+            | tee "$RUNNER_TEMP/l001-p013-summary.json"
+      - name: Archive source-only exceptional-profit research
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p013-original-q1-exceptional-profit-all100
+          path: |
+            ${{ runner.temp }}/l001-p013-exceptional-profit-all100.json
+            ${{ runner.temp }}/l001-p013-summary.json
+          retention-days: 90
