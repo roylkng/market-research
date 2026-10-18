@@ -36,8 +36,8 @@ SOURCE_SPEC = (
     ),
     (
         "zuari_agro_sep18_icd_partial_repayment",
-        "https://www.zuari.in/assets/files/"
-        "ZACLDisclosureunderReg30-RepaymentofICDs-18-09-2026.pdf",
+        ("https://www.zuari.in/assets/files/"
+         "ZACLDisclosureunderReg30-RepaymentofICDs-18-09-2026.pdf"),
         "2026-09-18",
         ("214.50", "258.50"),
     ),
@@ -49,15 +49,15 @@ SOURCE_SPEC = (
     ),
     (
         "geship_q1_fy27_original_investor_deck",
-        "https://greatship.com/upload/latest_announcements/"
-        "Q1FY27_Updates_Presentation.pdf_(1).pdf",
+        ("https://greatship.com/upload/latest_announcements/"
+         "Q1FY27_Updates_Presentation.pdf_(1).pdf"),
         "2026-08-04",
         ("1,862", "1,911"),
     ),
     (
         "geship_oct13_original_first_buyback_extinguishment_certificate",
-        "https://greatship.com/upload/investors/buyback_2026/"
-        "1st_Lot_Buyback_Extinguishment_Certificate.pdf",
+        ("https://greatship.com/upload/investors/buyback_2026/"
+         "1st_Lot_Buyback_Extinguishment_Certificate.pdf"),
         "2026-10-13",
         ("18,58,941", "14,09,08,220"),
     ),
