@@ -51,6 +51,29 @@ def _facts_equal(a: dict, b: dict) -> bool:
     )
 
 
+def exceptional_component(
+    before: float, exceptional: float, after: float, *, nbfc_form: bool,
+) -> tuple[str, float | None, bool]:
+    """Describe original Q1 bridge without implying gain recurrence or PAT tax."""
+    if (
+        not isinstance(nbfc_form, bool)
+        or any(type(v) not in (int, float) or not math.isfinite(v)
+               for v in (before, exceptional, after))
+        or abs(round(before + exceptional - after, 6)) > .000002
+    ):
+        raise AlphaContractError("P013 original PBT bridge does not reconcile")
+    sign = (
+        "NONE_REPORTED" if abs(exceptional) < .000001
+        else "POSITIVE" if exceptional > 0 else "NEGATIVE"
+    )
+    share = round(exceptional / after, 8) if after > 0 else None
+    large = (
+        sign == "POSITIVE" and share is not None
+        and share >= MATERIAL_POSITIVE_EXCEPTIONAL_PBT_RATIO and not nbfc_form
+    )
+    return sign, share, large
+
+
 def exceptional_profit_replay(
     p004_report: dict,
     p007_report: dict,
@@ -121,22 +144,9 @@ def exceptional_profit_replay(
         exceptional = actual["exceptional_items_before_tax"]
         if before is None or after is None or exceptional is None:
             raise AlphaContractError("P013 original exceptional bridge incomplete")
-        if abs(round(before + exceptional - after, 6)) > .000002:
-            raise AlphaContractError("P013 original PBT bridge does not reconcile")
-        if abs(exceptional) < .000001:
-            sign = "NONE_REPORTED"
-        elif exceptional > 0:
-            sign = "POSITIVE"
-        else:
-            sign = "NEGATIVE"
-        share = (
-            round(exceptional / after, 8)
-            if after > 0 else None
-        )
-        large = (
-            sign == "POSITIVE" and share is not None
-            and share >= MATERIAL_POSITIVE_EXCEPTIONAL_PBT_RATIO
-            and item["nbfc_source_form_requires_specialist_review"] is False
+        sign, share, large = exceptional_component(
+            before, exceptional, after,
+            nbfc_form=item["nbfc_source_form_requires_specialist_review"],
         )
         members.append({
             "symbol": item["symbol"],
@@ -150,7 +160,7 @@ def exceptional_profit_replay(
             "reported_q1_pbt_before_exceptional_cr": before,
             "reported_q1_exceptional_item_cr": exceptional,
             "reported_q1_pbt_after_exceptional_cr": after,
-            "reported_q1_pat_cr_not_parent_attributable": pat,
+            "reported_q1_pat_cr_parent_claim_unreconciled": pat,
             "exceptional_item_sign": sign,
             "exceptional_item_divided_by_positive_pbt_fraction": share,
             "large_positive_exceptional_vs_pbt_diagnostic": large,
