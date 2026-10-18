@@ -8,17 +8,17 @@ from marketlab.l001_p009_asset_nav import AssetNavCase, stress_non_cash_nav
 
 
 def case(**changes):
-    data = dict(
-        symbol="GESHIP", price_inr=1484.1,
-        price_observation_date="2026-10-15",
-        issuer_nav_per_share_inr=1886.0, nav_as_of_date="2026-06-30",
-        issuer_net_cash_cr=8056.0, historical_basic_shares_cr=14.2767161,
-        nav_source="issuer Q1FY27 original presentation",
-        net_cash_source="issuer Q1FY27 original presentation",
-        original_price_source="HG009 original NSE Oct15 packet",
-        source_original_bytes_verified=False,
-        fully_diluted_shares_verified_at_price_date=False,
-    )
+    data = {
+        "symbol": "GESHIP", "price_inr": 1484.1,
+        "price_observation_date": "2026-10-15",
+        "issuer_nav_per_share_inr": 1886.0, "nav_as_of_date": "2026-06-30",
+        "issuer_net_cash_cr": 8056.0, "historical_basic_shares_cr": 14.2767161,
+        "nav_source": "issuer Q1FY27 original presentation",
+        "net_cash_source": "issuer Q1FY27 original presentation",
+        "original_price_source": "HG009 original NSE Oct15 packet",
+        "source_original_bytes_verified": False,
+        "fully_diluted_shares_verified_at_price_date": False,
+    }
     data.update(changes)
     return AssetNavCase(**data)
 
