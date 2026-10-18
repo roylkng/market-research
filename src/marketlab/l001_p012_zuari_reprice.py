@@ -70,7 +70,6 @@ def repriced_listed_portfolio(
         or zuari_historical_basic_shares <= 0
         or not isinstance(zuari_oct15_close, (int, float))
         or not math.isfinite(zuari_oct15_close) or zuari_oct15_close <= 0
-        or len(prices_by_identity) != len(ORIGINAL_JUNE_HOLDINGS)
         or not haircuts
         or any(type(h) not in (int, float) or not math.isfinite(h) or not 0 <= h <= 1 for h in haircuts)
     ):
