@@ -5,8 +5,12 @@ from dataclasses import replace
 from marketlab.l001_p010_asset_claims import (
     BuybackObservation,
     HoldingCompanyObservation,
+    InternalGroupTransfer,
+    ReceivableSettlement,
     buyback_nav_sensitivity,
+    creditor_recovery_reconciliation,
     holding_company_sensitivity,
+    internal_group_asset_transfer,
 )
 
 
@@ -126,4 +130,100 @@ def test_geship_rejects_future_cancellation_and_spurious_nav():
     )["status"] == "ABSTAIN"
     assert buyback_nav_sensitivity(
         shipping(issuer_nav_low_inr=1950)
+    )["status"] == "ABSTAIN"
+
+
+def test_zuari_agro_fully_settled_prior_258_50_cr_receivable():
+    item = ReceivableSettlement(
+        debtor="ZUARI",
+        creditor="ZUARIIND",
+        outstanding_before_cr=258.50,
+        first_payment_cr=214.50,
+        first_payment_date="2026-09-18",
+        final_payment_cr=44.0,
+        final_payment_date="2026-09-30",
+        source_first=(
+            "https://www.zuari.in/assets/files/"
+            "ZACLDisclosureunderReg30-RepaymentofICDs-18-09-2026.pdf"
+        ),
+        source_final=(
+            "https://www.zuari.in/assets/files/"
+            "Reg30RepaymentofICDsdtd30.09.2026.pdf"
+        ),
+    )
+    original = holding_company_sensitivity(zuari())
+    output = creditor_recovery_reconciliation(
+        item, research_cutoff_date="2026-10-15",
+        reference_basic_equity_cap_cr=original["historical_basic_equity_cap_cr"],
+    )
+    assert output["status"] == "ISSUER_COUNTERPARTY_DISCLOSED_FULL_RECEIVABLE_RECOVERY"
+    assert output["recovered_receivable_cr"] == 258.5
+    assert output["remaining_reported_receivable_cr"] == 0
+    assert abs(output["payment_as_fraction_of_old_basic_equity_cap"] - .324423) < .00001
+    assert output["new_shareholder_wealth_from_debt_to_cash_reclassification_cr"] == 0
+    assert output["bank_credit_independently_verified"] is False
+    assert output["creditor_external_debt_repayment_independently_verified"] is False
+    assert output["investment_authorized"] is False
+
+
+def test_zuari_agro_repayment_unconfirmed_or_future_inadmissible():
+    from dataclasses import replace
+
+    settlement = ReceivableSettlement(
+        debtor="ZUARI",
+        creditor="ZUARIIND",
+        outstanding_before_cr=258.5,
+        first_payment_cr=214.5,
+        first_payment_date="2026-09-18",
+        final_payment_cr=44,
+        final_payment_date="2026-09-30",
+        source_first="https://www.zuari.in/first.pdf",
+        source_final="https://www.zuari.in/last.pdf",
+    )
+    assert creditor_recovery_reconciliation(
+        replace(settlement, final_payment_cr=50),
+        research_cutoff_date="2026-10-15",
+        reference_basic_equity_cap_cr=796.795578,
+    )["status"] == "ABSTAIN"
+    assert creditor_recovery_reconciliation(
+        settlement, research_cutoff_date="2026-09-20",
+        reference_basic_equity_cap_cr=796.795578,
+    )["status"] == "ABSTAIN"
+
+
+def test_zuari_texinfra_direct_transfer_is_not_new_consolidated_units():
+    transfer = InternalGroupTransfer(
+        parent="ZUARIIND",
+        wholly_owned_seller="ZUARI INTERNATIONAL LIMITED",
+        listed_issuer="TEXINFRA",
+        transaction_date="2026-09-23",
+        acquired_target_shares=12_810_900,
+        parent_shares_before=26_480_712,
+        subsidiary_shares_before=12_810_900,
+        purchase_cost_cr=147.96,
+        source_uri="https://bazaarwatch.com/announcement/138972",
+    )
+    result = internal_group_asset_transfer(
+        transfer, research_cutoff_date="2026-10-15"
+    )
+    assert result["status"] == "INTRAGROUP_TRANSFER_NOT_NEW_GROUP_EQUITY_UNITS"
+    assert result["parent_direct_shares_after"] == 39_291_612
+    assert result["subsidiary_shares_after"] == 0
+    assert result["consolidated_shares_before"] == 39_291_612
+    assert result["consolidated_shares_after"] == 39_291_612
+    assert result["net_new_group_shares"] == 0
+    assert result["investment_authorized"] is False
+
+
+def test_group_transfer_with_unproven_seller_inventory_abstains():
+    transfer = InternalGroupTransfer(
+        parent="ZUARIIND", wholly_owned_seller="ZUARI INTERNATIONAL LIMITED",
+        listed_issuer="TEXINFRA", transaction_date="2026-09-23",
+        acquired_target_shares=12_810_900,
+        parent_shares_before=26_480_712,
+        subsidiary_shares_before=1_000,
+        purchase_cost_cr=147.96, source_uri="https://example.org/filing.pdf"
+    )
+    assert internal_group_asset_transfer(
+        transfer, research_cutoff_date="2026-10-15"
     )["status"] == "ABSTAIN"
