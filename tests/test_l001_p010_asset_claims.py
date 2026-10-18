@@ -15,43 +15,43 @@ from marketlab.l001_p010_asset_claims import (
 
 
 def zuari(**changes):
-    fields = dict(
-        symbol="ZUARIIND",
-        price_date="2026-10-15",
-        financial_position_date="2026-03-31",
-        investments_date="2026-06-30",
-        price_inr=267.55,
-        reported_basic_shares=29_781_184,
-        listed_stake_mtm_cr=4223.0,
-        financial_borrowings_cr=2581.29,
-        cash_equivalents_cr=61.8655,
-        pledged_largest_stake_shares=33_975_444,
-        total_largest_stake_shares=59_475_924,
-        largest_stake_reference_quote_inr=468.0,
-        financing_interest_paid_cr=230.601,
-        operating_cashflow_cr=143.7594,
-        ppe_cash_purchase_cr=25.7392,
-        lease_cash_paid_cr=3.9431,
-    )
+    fields = {
+        "symbol": "ZUARIIND",
+        "price_date": "2026-10-15",
+        "financial_position_date": "2026-03-31",
+        "investments_date": "2026-06-30",
+        "price_inr": 267.55,
+        "reported_basic_shares": 29_781_184,
+        "listed_stake_mtm_cr": 4223.0,
+        "financial_borrowings_cr": 2581.29,
+        "cash_equivalents_cr": 61.8655,
+        "pledged_largest_stake_shares": 33_975_444,
+        "total_largest_stake_shares": 59_475_924,
+        "largest_stake_reference_quote_inr": 468.0,
+        "financing_interest_paid_cr": 230.601,
+        "operating_cashflow_cr": 143.7594,
+        "ppe_cash_purchase_cr": 25.7392,
+        "lease_cash_paid_cr": 3.9431,
+    }
     fields.update(changes)
     return HoldingCompanyObservation(**fields)
 
 
 def shipping(**changes):
-    fields = dict(
-        symbol="GESHIP",
-        price_date="2026-10-15",
-        issuer_nav_date="2026-06-30",
-        cancellation_date="2026-10-10",
-        old_shares=142_767_161,
-        legally_extinguished_shares=1_858_941,
-        purchased_after_cancellation_not_yet_extinguished=849_719,
-        quoted_price_inr=1484.1,
-        issuer_nav_low_inr=1862,
-        issuer_nav_mid_inr=1886,
-        issuer_nav_high_inr=1911,
-        cash_spent_on_cancelled_lot_cr=262.714745815,
-    )
+    fields = {
+        "symbol": "GESHIP",
+        "price_date": "2026-10-15",
+        "issuer_nav_date": "2026-06-30",
+        "cancellation_date": "2026-10-10",
+        "old_shares": 142_767_161,
+        "legally_extinguished_shares": 1_858_941,
+        "purchased_after_cancellation_not_yet_extinguished": 849_719,
+        "quoted_price_inr": 1484.1,
+        "issuer_nav_low_inr": 1862,
+        "issuer_nav_mid_inr": 1886,
+        "issuer_nav_high_inr": 1911,
+        "cash_spent_on_cancelled_lot_cr": 262.714745815,
+    }
     fields.update(changes)
     return BuybackObservation(**fields)
 
