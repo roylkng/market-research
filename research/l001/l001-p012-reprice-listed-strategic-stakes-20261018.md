@@ -35,3 +35,33 @@ A complete investment-quality sum of parts needs:
 4. Actual gross and net cash distributed to parent owners and prospective 1/2/3-year after-cost return observations.
 
 **This corrects date alignment without inventing an investment opportunity.**
+
+## Observed results: full original NSE replay succeeded
+
+Independent workflow **39119236445** passed and published GitHub Actions artifact **12133860963**, which contains `l001-p012-zuari-price-synchronized-20261015.json` (canonical report SHA `3080ce5cdd63a161c45ce7be75d6bf68f2f17919bc1fa61d6844697476957fd9`).
+
+| Original listed issuer | June issuer quote | Oct 15 original NSE close | June issuer rounded mark ₹Cr | Repriced Oct 15 ₹Cr |
+|---|---:|---:|---:|---:|
+| CHAMBLFERT | 468.00 | **390.30** | 2,783 | **2,320.40** |
+| ZUARI | 230.00 | **206.39** | 310 | **278.11** |
+| PARADEEP | 136.00 | **146.41** | 8 | **8.61** |
+| TEXRAIL | 108.00 | **112.89** | 695 | **726.30** |
+| TEXINFRA | 109.00 | **123.98** | 428 | **486.71** |
+
+Individually rounded June line marks total ₹4,224Cr; original issuer June aggregate is ₹4,223Cr. Scaling the proportional repricing to its actual disclosed group aggregate yields **₹3,820.124826Cr** on October 15, down **9.54%** from June.
+
+The fresh date-aligned *listed asset mark* only, offset with **still-stale March** debt (₹2,519.4245Cr net), yields a hypothetical ₹1,300.7003Cr residual against ₹796.7956Cr of historical basic equity value. The residual-minus-price gap is **₹503.9047Cr**, not shareholder value.
+
+**Downside sensitivity on the repriced portfolio:**
+
+| Extra portfolio markdown after Oct15 mark | Residual after old March net debt ₹Cr | Gap to historical equity cap ₹Cr |
+|---|---:|---:|
+| 0% | 1,300.70 | +503.90 |
+| 10% | 918.69 | +121.89 |
+| **13.19% (crossover)** | **~796.80** | **~0** |
+| 20% | 536.68 | −260.12 |
+| 30% | 154.66 | −642.13 |
+
+**This supersedes P010's misleading additional 21.47% cushion derived from June asset prices.** The relevant *additional* cushion for an unchanged-ownership and March-net-debt cross-date calculation is approximately **13.19%**. This does **not** represent a robust investment margin of safety because debt/ownership changes, liquidation taxes, pledge terms, operating subsidiary residuals, counterparty recovery and dilution remain unresolved.
+
+The October 15 market ZIP was captured later that same day, well after AE001 decision cutoff, so this is strictly **post-hoc independent original-price reconciliation**. No effect on the original HG009 frozen experiment or recorded returns.
