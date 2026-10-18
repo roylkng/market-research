@@ -1,0 +1,54 @@
+name: L001 P014 original FY26 intangible cash purchase audit
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/l001_p014_intangible_cash.py
+      - scripts/materialize_l001_p014_intangibles.py
+      - tests/test_l001_p014_intangible_cash.py
+      - .github/workflows/l001-p014-original-intangibles.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay_original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install lint and adversarial original fact tests
+        run: |
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/l001_p014_intangible_cash.py scripts/materialize_l001_p014_intangibles.py tests/test_l001_p014_intangible_cash.py
+          pytest -q tests/test_l001_p014_intangible_cash.py
+      - name: Download exact previously verified P004 100-issuer source pack
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12111414537/zip" \
+            -o "$RUNNER_TEMP/p004-proven-original-100-source.zip"
+          unzip -tq "$RUNNER_TEMP/p004-proven-original-100-source.zip" >/dev/null
+      - name: Reread original 100 annual XBRL intangible investing cash purchases
+        run: |
+          python scripts/materialize_l001_p014_intangibles.py \
+            --archive "$RUNNER_TEMP/p004-proven-original-100-source.zip" \
+            --output "$RUNNER_TEMP/l001-p014-intangible-purchases-100.json" \
+            | tee "$RUNNER_TEMP/l001-p014-source-summary.json"
+      - name: Retain source-only numeric audit and distinguish owner cash
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p014-original-100-intangible-purchases
+          path: |
+            ${{ runner.temp }}/l001-p014-intangible-purchases-100.json
+            ${{ runner.temp }}/l001-p014-source-summary.json
+          retention-days: 90
