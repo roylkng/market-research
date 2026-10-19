@@ -59,17 +59,11 @@ def build_p007_probe(
     *,
     repo_root: Path,
     attempt_id: str,
-    observed_at_utc: str,
-    prepared_at_utc: str,
     fetcher: Callable[[], tuple[Any, bytes]],
+    clock: Callable[[], datetime],
 ) -> tuple[dict[str, Any], bytes | None]:
-    """Fetch once; stamp AFTER network acquisition, retain failed attempts."""
+    """Fetch once, then timestamp the receipt from an independently read clock."""
     attempt_id = _attempt_id(attempt_id)
-    observed = _time(observed_at_utc)
-    prepared = _time(prepared_at_utc)
-    today = observed.date().isoformat()
-    if not (FIRST <= today <= LAST_CAPTURE) or prepared < observed:
-        raise AlphaContractError("P007 P2 probe outside frozen capture window/clock")
     status, data, error = "FETCH_FAILED", None, None
     try:
         _unused_payload, candidate = fetcher()
@@ -82,6 +76,13 @@ def build_p007_probe(
             status = "OK"
     except Exception as exc:
         error = type(exc).__name__
+    observed = clock()
+    if not isinstance(observed, datetime) or observed.tzinfo is None:
+        raise AlphaContractError("P007 P2 source clock must be timezone aware")
+    observed = observed.astimezone(UTC)
+    today = observed.date().isoformat()
+    if not (FIRST <= today <= LAST_CAPTURE):
+        raise AlphaContractError("P007 P2 probe outside frozen capture window")
     sha = hashlib.sha256(data).hexdigest() if data is not None else None
     receipt = {
         "url": ACTION_URL,
@@ -93,6 +94,12 @@ def build_p007_probe(
     if status != "OK":
         receipt["error"] = error or "SOURCE_FETCH_FAILED"
     original, selected, controls = load_original_hg009_sources(repo_root)
+    prepared = clock()
+    if not isinstance(prepared, datetime) or prepared.tzinfo is None:
+        raise AlphaContractError("P007 P2 preparation clock must be timezone aware")
+    prepared = prepared.astimezone(UTC)
+    if prepared < observed:
+        raise AlphaContractError("P007 P2 preparation predates original source capture")
     screened = build_action_hazard_audit(
         original=original,
         selected=selected,
