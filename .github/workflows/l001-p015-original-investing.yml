@@ -1,0 +1,98 @@
+name: L001 P015 original 100-company investing cash taxonomy
+
+on:
+  push:
+    branches:
+      - research/l001-p015-100-original-investing-taxonomy-20261019
+    paths:
+      - .github/workflows/l001-p015-original-investing.yml
+      - src/marketlab/l001_p015_investing_taxonomy.py
+      - scripts/materialize_l001_p015_investing.py
+      - tests/test_l001_p015_investing_taxonomy.py
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: l001-p015-100-source-taxonomy
+  cancel-in-progress: false
+
+jobs:
+  replay-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original NSE MarketLab with validation
+        run: python -m pip install -e '.[dev]'
+      - name: Lint and test no-double-counting guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/l001_p015_investing_taxonomy.py scripts/materialize_l001_p015_investing.py tests/test_l001_p015_investing_taxonomy.py
+          pytest -q tests/test_l001_p015_investing_taxonomy.py tests/test_l001_p014_intangible_cash.py
+
+      - name: Download exact 100-issuer original P004 NSE XBRL archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 3             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12111414537/zip"             -o "$RUNNER_TEMP/p004-proven-original-100-source.zip"
+          unzip -tq "$RUNNER_TEMP/p004-proven-original-100-source.zip" >/dev/null
+
+      - name: Independently replay 100 original annual investing cash taxonomies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p research/l001
+          python scripts/materialize_l001_p015_investing.py             --archive "$RUNNER_TEMP/p004-proven-original-100-source.zip"             --output research/l001/l001-p015-investing-cash-taxonomy-100-v1.json             | tee "$RUNNER_TEMP/p015-summary.json"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(
+              Path("research/l001/l001-p015-investing-cash-taxonomy-100-v1.json").read_text()
+          )
+          assert data["issuer_count"] == 100
+          assert data["original_annual_xml_rehashed"] == 100
+          assert data["source_rows_not_added_as_independent_cash_outflows"] is True
+          assert data["live_capital_allowed"] is False
+          assert len({(row["symbol"], row["isin"]) for row in data[
+              "original_tag_inventory_by_company"
+          ]}) == 100
+          print("Verified 100 complete archived original XBRL source inventories")
+          PY
+
+      - name: Publish source-only report on research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/l001/l001-p015-investing-cash-taxonomy-100-v1.json
+          if git diff --cached --quiet; then
+            echo "L001 P015 source taxonomies already sealed"
+            exit 0
+          fi
+          git commit -m "L001 P015: seal original 100-source FY26 investing taxonomy [skip ci]"
+          git fetch origin research/l001-p015-100-original-investing-taxonomy-20261019
+          git rebase origin/research/l001-p015-100-original-investing-taxonomy-20261019
+          git push origin HEAD:research/l001-p015-100-original-investing-taxonomy-20261019
+
+      - name: Retain original 100-company source audit for comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: l001-p015-original-100-investing-cash
+          path: |
+            research/l001/l001-p015-investing-cash-taxonomy-100-v1.json
+            ${{ runner.temp }}/p015-summary.json
+          retention-days: 90
+          if-no-files-found: warn
