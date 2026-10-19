@@ -13,13 +13,13 @@ from pathlib import Path
 import pytest
 
 from marketlab.alpha import AlphaContractError, digest
+from marketlab.hg009_p007_actions import load_original_hg009_sources
 from marketlab.hg009_p007_probe import (
     H5_EXIT,
     build_p007_probe,
     replay_all_probes,
     validate_p007_probe,
 )
-from marketlab.hg009_p007_actions import load_original_hg009_sources
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -83,7 +83,7 @@ def test_empty_original_data_after_h5_still_cannot_certify_no_actions():
 
 
 def test_original_nse_dividend_hazard_blocks_specific_frozen_issuer():
-    original, selected, controls = load_original_hg009_sources(ROOT)
+    _original, selected, _controls = load_original_hg009_sources(ROOT)
     first = selected["selected"][0]
     raw = json.dumps({
         "data": [{
