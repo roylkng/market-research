@@ -46,9 +46,12 @@ def main() -> int:
         "result": result["report_id"],
         "original_artifact": PINNED_P004_ARCHIVE_ID,
         "original_100_xml": result["original_annual_xml_rehashed"],
-        "issuers_with_additional_investing_concepts": result[
-            "companies_with_additional_investing_concepts"
+        "issuers_with_nonzero_additional_investing_concepts": result[
+            "companies_with_additional_nonzero_investing_concepts"
         ],
+        "issuers_with_purchase_candidate_exceeding_simple_proxy": len(
+            result["positive_other_investing_purchase_exceeds_abs_cfo_less_ppe_symbols"]
+        ),
         "issuer_with_falsified_owner_cash": "SUNTV",
         "report_sha256": result["report_sha256"],
         "capital_allowed": False,
