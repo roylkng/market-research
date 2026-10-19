@@ -132,3 +132,23 @@ def test_suntv_source_falsification_math_is_not_owner_earnings():
     intangible = 2130.31
     assert math.isclose(cfo - ppe, 1717.73, abs_tol=1e-9)
     assert math.isclose(cfo - ppe - intangible, -412.58, abs_tol=1e-9)
+
+
+def test_zero_valued_original_source_tags_are_not_real_purchases():
+    rows = source_investing_facts(_xml([
+        (PPE_CONCEPT, "FourD", "INR", "0"),
+        (ORIGINAL_CONCEPT, "FourD", "INR", "0"),
+        ("PurchaseOfInvestmentPropertyClassifiedAsInvestingActivities",
+         "FourD", "INR", "150000000"),
+        ("OtherCashPaymentsToAcquireEquityOrDebtInstrumentsOfOtherEntitiesClassifiedAsInvestingActivities",
+         "FourD", "INR", "0"),
+    ]))
+    zero = [row for row in rows if row["fy26_inr_crore"] == 0]
+    nonzero = [row for row in rows if row["fy26_inr_crore"] != 0]
+    assert len(zero) == 3
+    assert len(nonzero) == 1
+    assert nonzero[0]["fy26_inr_crore"] == 15.0
+    assert nonzero[0]["classification_for_manual_review"] == (
+        "OTHER_INVESTING_PURCHASE_OR_OUTFLOW_REQUIRES_NOTES"
+    )
+    assert all(row["sum_all_tag_values_as_capex_allowed"] is False for row in rows)
