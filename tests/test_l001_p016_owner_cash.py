@@ -99,7 +99,7 @@ def test_all_source_flags_are_evidence_checks_not_computed_alpha():
     assert all(
         0 <= n <= 100 for n in report["source_review_gate_counts_overlap"].values()
     )
-    assert report["original_100_issuer_identities_preserved"] is True
+    assert report["all_original_100_issuer_identities_preserved"] is True
     assert report["prospective_oos_return_labels_not_used_for_selection"]
     assert report["financial_investment_cash_flows_not_assumed_recurring_capex"]
 
