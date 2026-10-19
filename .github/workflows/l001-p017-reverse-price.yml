@@ -1,0 +1,60 @@
+name: L001 P017 dated original NSE value-falsification casework
+
+on:
+  push:
+    branches:
+      - research/l001-p017-dated-value-falsification-20261019
+    paths:
+      - .github/workflows/l001-p017-reverse-price.yml
+      - src/marketlab/l001_p017_reverse_falsification.py
+      - scripts/materialize_l001_p017.py
+      - tests/test_l001_p017_reverse_falsification.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p017-original-nse-reverse-cash-report
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source validators
+        run: python -m pip install -e '.[dev]'
+      - name: Freeze original NSE as-of Oct19 reverse-value cash and NAV hurdles
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_l001_p017.py
+          python scripts/materialize_l001_p017.py --check
+          ruff check \
+            src/marketlab/l001_p017_reverse_falsification.py \
+            scripts/materialize_l001_p017.py \
+            tests/test_l001_p017_reverse_falsification.py
+          pytest -q tests/test_l001_p017_reverse_falsification.py
+      - name: Publish only original-source dated falsification, not alpha
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/l001/l001-p017-three-reverse-value-gates-v1.json
+          if git diff --cached --quiet; then
+            echo "Original source report already immutable"
+            exit 0
+          fi
+          git commit -m "L001 P017: freeze dated Oct19 source and downside falsification [skip ci]"
+          git fetch origin research/l001-p017-dated-value-falsification-20261019
+          git rebase origin/research/l001-p017-dated-value-falsification-20261019
+          python scripts/materialize_l001_p017.py --check
+          git push origin HEAD:research/l001-p017-dated-value-falsification-20261019
