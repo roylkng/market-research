@@ -116,7 +116,10 @@ def audit_investing_taxonomy(
     p014_by = {(r["symbol"], r["isin"]): r for r in p014["companies"]}
     rows = []
     classifications = Counter()
+    nonzero_classifications = Counter()
     additional_symbols = []
+    nonzero_additional_symbols = []
+    largest_additional_purchase_relative_to_proxy = []
     missing_net_flow_symbols = []
     large_net_investing_vs_simple_proxy = []
     for original in prior_p004["source_results"]:
@@ -139,6 +142,8 @@ def audit_investing_taxonomy(
             raise AlphaContractError(f"P015 original PPE/intangible source drift: {symbol}")
         for item in tagged:
             classifications[item["classification_for_manual_review"]] += 1
+            if item["fy26_inr_crore"] != 0:
+                nonzero_classifications[item["classification_for_manual_review"]] += 1
         extra = [
             item["source_concept"] for item in tagged
             if item["source_concept"] not in (
@@ -147,6 +152,28 @@ def audit_investing_taxonomy(
         ]
         if extra:
             additional_symbols.append(symbol)
+        nonzero_extra = [
+            item for item in tagged
+            if item["source_concept"] in extra and item["fy26_inr_crore"] != 0
+        ]
+        if nonzero_extra:
+            nonzero_additional_symbols.append(symbol)
+        purchase_labels = {
+            "BUSINESS_OR_INVESTMENT_ACQUISITION_NEEDS_NOTES",
+            "OTHER_INVESTING_PURCHASE_OR_OUTFLOW_REQUIRES_NOTES",
+        }
+        original_positive_purchase_candidates = [
+            item for item in nonzero_extra
+            if item["classification_for_manual_review"] in purchase_labels
+            and item["fy26_inr_crore"] > 0
+        ]
+        if any(
+            item["fy26_inr_crore"] > abs(
+                expected["fy26_cfo_after_ppe_proxy_cr_not_owner_cash"]
+            )
+            for item in original_positive_purchase_candidates
+        ):
+            largest_additional_purchase_relative_to_proxy.append(symbol)
         net_investing = by.get(NET_INVESTING_CONCEPT)
         if net_investing is None:
             missing_net_flow_symbols.append(symbol)
@@ -171,8 +198,20 @@ def audit_investing_taxonomy(
             ]["annual"]["exchange_published_at_utc"],
             "annual_cash_concept_rows": tagged,
             "tagged_investing_concept_count": len(tagged),
-            "additional_investing_concept_count": len(extra),
-            "additional_investing_concepts": extra,
+            "nonzero_investing_tag_count": sum(
+                item["fy26_inr_crore"] != 0 for item in tagged
+            ),
+            "zero_investing_tag_count": sum(
+                item["fy26_inr_crore"] == 0 for item in tagged
+            ),
+            "additional_investing_concept_count_including_zero_templates": len(extra),
+            "additional_investing_concepts_including_zero_templates": extra,
+            "nonzero_additional_investing_concept_count": len(nonzero_extra),
+            "nonzero_additional_investing_concepts": nonzero_extra,
+            "positive_other_investing_purchase_candidates_needing_notes": (
+                original_positive_purchase_candidates
+            ),
+            "zero_value_template_fact_is_evidence_of_purchase": False,
             "fy26_reported_cfo_cr": expected["fy26_cfo_cr"],
             "fy26_reported_ppe_cash_purchase_cr": ppe,
             "fy26_reported_intangible_cash_purchase_cr": intangible,
@@ -209,11 +248,22 @@ def audit_investing_taxonomy(
         "embedded_replayed_p014_report_sha256": p014["report_sha256"],
         "issuer_count": 100,
         "original_annual_xml_rehashed": 100,
-        "source_investing_classification_occurrences_by_type": dict(
+        "source_investing_classification_occurrences_by_type_including_zero_templates": dict(
             sorted(classifications.items())
         ),
-        "companies_with_additional_investing_concepts": len(additional_symbols),
-        "additional_investing_tag_symbols": sorted(additional_symbols),
+        "source_nonzero_investing_classification_occurrences_by_type": dict(
+            sorted(nonzero_classifications.items())
+        ),
+        "companies_with_additional_nonzero_investing_concepts": len(
+            nonzero_additional_symbols
+        ),
+        "nonzero_additional_investing_tag_symbols": sorted(nonzero_additional_symbols),
+        "companies_with_additional_zero_or_nonzero_template_concepts": len(
+            additional_symbols
+        ),
+        "positive_other_investing_purchase_exceeds_abs_cfo_less_ppe_symbols": sorted(
+            largest_additional_purchase_relative_to_proxy
+        ),
         "no_explicit_net_investing_tag_symbols": sorted(missing_net_flow_symbols),
         "absolute_net_investing_exceeds_cfo_less_ppe_symbols_descriptive_only": sorted(
             large_net_investing_vs_simple_proxy
@@ -221,6 +271,7 @@ def audit_investing_taxonomy(
         "original_tag_inventory_by_company": rows,
         "source_rows_not_added_as_independent_cash_outflows": True,
         "empty_tag_not_proof_of_no_cash_investing": True,
+        "zero_value_investing_template_tags_not_real_transactions": True,
         "cashflow_accounting_not_sustainable_owner_earnings": True,
         "bank_and_media_and_industrial_accounting_not_interchangeable": True,
         "analyst_review_required_for_overlap_acquisition_and_disposal": True,
