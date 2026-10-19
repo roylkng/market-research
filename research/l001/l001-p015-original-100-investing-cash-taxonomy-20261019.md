@@ -23,3 +23,17 @@ The next underwriting gate is issuer-specific bank/cash settlement and investing
 **No stock expected returns, fair values, security rankings or live capital authorization from this taxonomy.**
 
 Reproduce with source-pinned CLI scripts/materialize_l001_p015_investing.py and tests/test_l001_p015_investing_taxonomy.py. Original P004/P014 source digest, first publication clock and 100-name denominator must always remain intact.
+
+
+## Revision after all-100 original source replay: exclude zero-valued taxonomy boilerplate
+
+The first original 100-company replay revealed a source-format trap: the annual XBRL templates expose about 28 investing cash concepts for essentially every company, including many exact **zero** financial cash cells. Counting those present-but-zero concepts as 100 companies with new transactions would be misleading. P015 therefore preserves every exact original item while distinguishing **nonzero actual statement amounts** from zero-valued template cells and listing separately only nonzero investing components that require primary-note review.
+
+This exposes concrete *reported cash-classification* questions, not new share return predictions:
+
+- **ACE:** FY26 CFO ₹417.27cr and PPE ₹93.26cr produce earlier ₹324.01cr CFO-minus-PPE. Separately, original FY26 tagged cash payments for acquisition of other entities' equity/debt instruments **₹831.07cr**, receipts from their sale **₹508.32cr**, and net cash investing **−₹349.89cr**. These financial-asset movements are not necessarily maintenance capex; the issuer note must resolve unrestricted investments and shareholder available cash.
+- **MAYURUNIQ:** reported source purchases of other long-term assets **₹266.2441cr** and corresponding disposal/proceeds **₹160.3842cr**, versus earlier FY26 CFO-minus-PPE **₹108.9456cr**. Their label is insufficient to infer recurring asset maintenance or exact cash availability. Avoid attributing a gross amount to owner FCF without original asset/investment notes.
+- **OIL:** original source CFO **₹10,683.75cr**, standard PPE purchase tag **zero**, and net investing cash **−₹10,381.37cr**, including other investing category **−₹11,396.33cr**. This is a decisive *taxonomy mismatch* for the industrial CFO-minus-PPE framework, **not** evidence that the company had zero productive capital spending.
+- **SUNTV:** FY26 intangible cash **₹2,130.31cr**, source net investing **−₹1,311.46cr**. This illustrates why simultaneously subtracting gross intangible purchases and aggregate net investing would double count financial flows.
+
+Original cash tags can themselves be signed unexpectedly, even for items labelled cash proceeds. **Do not infer economic direction from the English local tag name alone**. Reconciliation with cash-flow note conventions and changes in investments/deposits is a separate next step. These discoveries remain dated FY26 historical facts interpreted October 19, not pre-registered October 15 alpha.
