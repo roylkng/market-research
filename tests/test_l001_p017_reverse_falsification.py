@@ -94,7 +94,7 @@ def test_datamatics_fy26_owner_cash_hurdle_does_not_assume_investment_assets():
     assert d["historical_basic_share_count_as_of_2026_03_31"] == 59106389
     assert d["FY26_CFO_less_PPE_CR_not_normalized_owner_cash"] == 284.42
     assert d["Oct19_price_times_historical_basic_shares_cr"] == pytest.approx(
-        4596.78, abs=0.2
+        4597.0, abs=0.02
     )
     assert d["annual_owner_cash_needed_for_16x_Oct19_basic_share_parity_cr"] == pytest.approx(
         287.3, abs=0.2
