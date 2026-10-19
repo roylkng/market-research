@@ -116,7 +116,7 @@ def test_nonfinite_non_numeric_malformed_investing_xml_abstains():
         bad = _xml([(PPE_CONCEPT, "FourD", "INR", value)])
         with pytest.raises(AlphaContractError, match="nonfinite|nonnumeric"):
             source_investing_facts(bad)
-    for broken in (b"", b"<not-xml", "test".encode()):
+    for broken in (b"", b"<not-xml", b"test"):
         with pytest.raises(AlphaContractError):
             source_investing_facts(broken)
 
