@@ -43,6 +43,16 @@ jobs:
           pytest -q tests/test_l001_p016_owner_cash.py
           python scripts/materialize_l001_p016_owner_cash.py --check
 
+      - name: Run full repository test, lint, source and research-accounting gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src tests scripts
+          pytest -q
+          python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+          python scripts/validate_rta001_coverage.py --repo-root .
+          marketlab validate-registry registry/hypotheses.yaml
+
       - name: Preserve immutable October 19 source-falsification result
         shell: bash
         run: |
