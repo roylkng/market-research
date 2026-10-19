@@ -37,3 +37,18 @@ This exposes concrete *reported cash-classification* questions, not new share re
 - **SUNTV:** FY26 intangible cash **₹2,130.31cr**, source net investing **−₹1,311.46cr**. This illustrates why simultaneously subtracting gross intangible purchases and aggregate net investing would double count financial flows.
 
 Original cash tags can themselves be signed unexpectedly, even for items labelled cash proceeds. **Do not infer economic direction from the English local tag name alone**. Reconciliation with cash-flow note conventions and changes in investments/deposits is a separate next step. These discoveries remain dated FY26 historical facts interpreted October 19, not pre-registered October 15 alpha.
+
+
+## Independently reproduced all-100 result, October 19
+
+The revised original-source replay passed CI, revalidated the same **100 annual XML files**, and sealed the complete P015 report under SHA-256 **fcceac6870ee20ce238448e9926b317e10c6d859257f43839726b0c9a076cfdd**.
+
+- 96 companies have a **nonzero** standard PPE purchase cash tag, four have the exact reported tag zero. Zero is not a guarantee of no capital investment.
+- 17 have **nonzero** standard intangible asset purchase cash tags, consistent with P014. The other 83 zeros are not guarantees of no license, content, intellectual-property or business acquisitions.
+- **36 of 100** have at least one *positive additional investing-purchase classification tag* that exceeds the absolute CFO-minus-PPE cash proxy. This is a documentation/normalization review indicator, **not proof of incremental maintenance spending or positive/negative alpha**. Investment securities transactions in particular can create very large purchase and sale gross legs that are inappropriate to subtract as recurrent owner cash.
+- **55 of 100** have the absolute value of the tagged net investing cash flow larger than their crude CFO-minus-PPE proxy. This confirms a general *classification gap* that must be investigated by source, but net investing includes proceeds, acquisitions and timing, so it cannot simply be substituted for capex.
+- All 100 have at least one additional **nonzero investing source tag** beyond standard PPE, intangibles and net investing. This is not a discriminating screening feature by itself. Source tag count, zero-template presence and company return expectation remain entirely separate.
+
+The material-purchase review cases include ACE, MAYURUNIQ, SUNTV, TRAVELFOOD, selected banks/NBFCs and other industrial/media businesses. These are **not stock-buy priorities by mechanical count**. The same archived source should be classified by accounting regime and then reconciled against the audited issuer notes before any cash flow is labeled sustaining.
+
+**All original 100 member identities preserved, no retrospective forecasts, zero company expected-return estimates or capital permissions.**
