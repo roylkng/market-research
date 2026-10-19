@@ -11,9 +11,10 @@ import copy
 import hashlib
 import json
 import re
-from datetime import UTC, date, datetime
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_p007_actions import (
@@ -74,7 +75,7 @@ def build_p007_probe(
         else:
             data = candidate
             status = "OK"
-    except Exception as exc:
+    except (OSError, RuntimeError, ValueError, TypeError) as exc:
         error = type(exc).__name__
     observed = clock()
     if not isinstance(observed, datetime) or observed.tzinfo is None:
