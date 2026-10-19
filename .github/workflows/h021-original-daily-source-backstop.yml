@@ -1,0 +1,209 @@
+name: H021 independent NSE original daily source backstop
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/h021-original-daily-source-backstop.yml
+  workflow_run:
+    workflows:
+      - AE001 SC001 prospective source timing
+    types:
+      - completed
+    branches:
+      - main
+  schedule:
+    # Alternate timers, independent of the H021 primary source workflow.
+    # UTC -> IST: 20:49, 23:09 and next morning 06:09.
+    # The frozen NSE exchange calendar and actual UTC capture govern admission.
+    - cron: '19 15 * * 1-5'
+    - cron: '39 17 * * 1-5'
+    - cron: '39 0 * * 2-6'
+
+permissions:
+  contents: write
+
+# IMPORTANT: same group as h021-daily-official-prices.yml.
+# Never run two collectors concurrently against the 3-attempt sealed budget.
+concurrency:
+  group: h021-official-daily-price-source
+  cancel-in-progress: false
+
+jobs:
+  backstop:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Refresh canonical main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          echo "BACKSTOP_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install source-only MarketLab
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify original NSE source-only contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check scripts/resolve_h021_daily_session.py scripts/collect_h021_daily_official.py tests/test_h021_independent_source_backstop.py
+          pytest -q tests/test_h021_independent_source_backstop.py tests/test_h021_delayed_source_recovery.py
+          # Do not train/fill a model or create any return labels here.
+
+      - name: Select oldest eligible unobserved completed original NSE session
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/h021-independent-source
+          python scripts/resolve_h021_daily_session.py \
+            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --observations-dir research/prospective/h021/daily-prices \
+            --allow-delayed-publication-recovery \
+            | tee /tmp/h021-independent-source/resolution.json
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          state = json.loads(Path("/tmp/h021-independent-source/resolution.json").read_text())
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("state=" + state["state"] + "\n")
+              output.write("session=" + (state["session_date"] or "") + "\n")
+          print("Source-only capture requested:", state["state"], state["session_date"])
+          PY
+
+      - name: Capture original market UDiFF and Nifty500 with real timestamps
+        if: steps.candidate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DAY="${{ steps.candidate.outputs.session }}"
+          DEST="/tmp/h021-independent-source/capture-$DAY-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "H021_CAPTURE_OUTPUT=$DEST" >> "$GITHUB_ENV"
+          python scripts/collect_h021_daily_official.py \
+            --session-date "$DAY" \
+            --out-dir "$DEST" \
+            --attempts 3 \
+            --sleep-seconds 5
+          test -s "$DEST/attempt.json"
+          test -s "$DEST/observation.json"
+
+      - name: Content-address and anchor immutable real source and attempt
+        if: steps.candidate.outputs.state == 'CAPTURE'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DAY="${{ steps.candidate.outputs.session }}"
+          DEST="research/prospective/h021/daily-prices"
+          TARGET="$DEST/$DAY-v1.json"
+          RECEIPT="$DEST/attempts/$DAY-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          if [ -e "$RECEIPT" ]; then
+            echo "H021 original source receipt collision, refusing overwrite"
+            exit 1
+          fi
+          cp "$H021_CAPTURE_OUTPUT/attempt.json" "$RECEIPT"
+          for original in "$H021_CAPTURE_OUTPUT"/raw/sha256/*; do
+            [ -f "$original" ] || continue
+            stored="$DEST/raw/sha256/$(basename "$original")"
+            if [ -f "$stored" ]; then
+              cmp -- "$original" "$stored"
+            else
+              cp "$original" "$stored"
+            fi
+            EXPECTED="$(basename "$stored" | cut -d. -f1)"
+            ACTUAL="$(sha256sum "$stored" | cut -d' ' -f1)"
+            [ "$EXPECTED" = "$ACTUAL" ]
+          done
+
+          SOURCE_STATE="$(python - "$H021_CAPTURE_OUTPUT/observation.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_daily_prices import official_market_transport_ready
+          row=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if not official_market_transport_ready(row):
+              print("SOURCE_NOT_READY_NO_DERIVED_STOCK_PRICES")
+          else:
+              print("ORIGINAL_NSE_TRANSPORT_READY")
+          PY
+          )"
+          if [ "$SOURCE_STATE" = "ORIGINAL_NSE_TRANSPORT_READY" ]; then
+            if [ -e "$TARGET" ]; then
+              echo "Original day already anchored, never overwrite: $DAY"
+              exit 1
+            fi
+            cp "$H021_CAPTURE_OUTPUT/observation.json" "$TARGET"
+          fi
+
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f "$DEST"
+          if git diff --cached --quiet; then
+            echo "H021 source attempt produced no new canonical evidence"
+            exit 0
+          fi
+          git commit -m "H021 independent source backstop: original NSE $DAY $GITHUB_RUN_ID"
+
+          # The contents are an actual-time source *observation*, not a claim
+          # that a paper trade or earlier prediction was recorded.
+          CRITICAL_PATHS=(
+            ".github/workflows/h021-original-daily-source-backstop.yml"
+            ".github/workflows/h021-daily-official-prices.yml"
+            "scripts/resolve_h021_daily_session.py"
+            "scripts/collect_h021_daily_official.py"
+            "src/marketlab/h021_daily_prices.py"
+            "src/marketlab/h021_entry_observation.py"
+            "research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "research/prospective/universes/FY27-Q2-2026-09-06.json"
+            "research/prospective/h021/daily-prices"
+          )
+          BASE_SHA="$BACKSTOP_BASE_SHA"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            CURRENT="$(git rev-parse origin/main)"
+            if [ "$CURRENT" != "$BASE_SHA" ]; then
+              if ! git diff --quiet "$BASE_SHA" "$CURRENT" -- "${CRITICAL_PATHS[@]}"; then
+                echo "Canonical source evidence or frozen rules changed while fetching"
+                exit 1
+              fi
+              if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+                echo "Original source already remotely published"
+                exit 1
+              fi
+              git rebase origin/main
+              BASE_SHA="$CURRENT"
+            fi
+            if git push origin HEAD:main; then
+              echo "H021 official NSE evidence anchored with actual UTC retrieval"
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Backstop failed to anchor. Do not claim recorded prospective evidence"
+          exit 1
+
+      - name: Retain all source attempts including missing originals
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-independent-source-backstop
+          path: /tmp/h021-independent-source
+          retention-days: 90
+          if-no-files-found: ignore
