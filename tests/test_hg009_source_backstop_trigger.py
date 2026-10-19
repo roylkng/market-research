@@ -55,19 +55,23 @@ def test_oct19_recovery_remains_original_nse_source_not_a_trade(tmp_path: Path):
     assert original["trades_filled"] is False
     assert original["live_capital_allowed"] is False
 
-    derived = tmp_path / "daily"
-    derived.mkdir()
+    # Independent test fixtures do not depend on whether a future
+    # daily-derived October 19 packet has been committed after the test.
+    backstop_originals = tmp_path / "research/prospective/h021/daily-prices"
+    backstop_originals.mkdir(parents=True)
+    src = ORIGINAL_ROOT / "2026-10-19-v1.json"
+    (backstop_originals / src.name).write_bytes(src.read_bytes())
+    observations = Path("research/hg009/daily")
+    derived = tmp_path / observations
+    derived.mkdir(parents=True)
     for day in ("2026-10-15", "2026-10-16"):
-        path = DERIVED_ROOT / f"{day}-v1.json"
-        (derived / path.name).write_bytes(path.read_bytes())
-    date_text, missed = _next_available_source(
-        root=ROOT,
+        item = DERIVED_ROOT / f"{day}-v1.json"
+        (derived / item.name).write_bytes(item.read_bytes())
+    day, missed = _next_available_source(
+        root=tmp_path,
         now=datetime(2026, 10, 19, 18, 8, tzinfo=UTC),
         calendar=load_calendar_snapshot(CALENDAR),
-        observations=derived.relative_to(tmp_path)
-        if False else Path("research/hg009/daily"),
+        observations=observations,
     )
-    # Independently show that the original source is selectable even if
-    # the canonical repository later contains its own derived snapshot.
-    assert date_text in (None, "2026-10-19")
-    assert not missed
+    assert day == "2026-10-19"
+    assert missed == []
