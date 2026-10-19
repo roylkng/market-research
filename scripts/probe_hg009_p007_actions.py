@@ -12,6 +12,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from marketlab.hg009_p007_probe import (
+    FIRST,
+    LAST_CAPTURE,
     build_p007_probe,
     commit_probe,
     replay_all_probes,
@@ -30,6 +32,15 @@ def main() -> int:
         return 0
     if not args.attempt_id:
         p.error("P007 P2 real observation requires a stable --attempt-id")
+    now = datetime.now(UTC).date().isoformat()
+    if not FIRST <= now <= LAST_CAPTURE:
+        print(json.dumps({
+            "state": "OUTSIDE_FROZEN_ORIGINAL_ACTION_CAPTURE_PERIOD_NO_WORK",
+            "observed_date_utc": now,
+            "changed": False,
+            "live_capital_allowed": False,
+        }, sort_keys=True))
+        return 0
     client = NSEClient(timeout=20, attempts=3)
     result, raw = build_p007_probe(
         repo_root=args.repo_root,
