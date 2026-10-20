@@ -48,7 +48,7 @@ BEFORE_SHARES = 142_767_161
 SEPT_EXTINGUISHED = 1_858_941
 POST_SEPT_SHARES = 140_908_220
 CUM_OCT19 = 3_095_660
-JUNE_NAV_PER_OLD_SHARE = Decimal("1886")
+JUNE_NAV_PER_OLD_SHARE = Decimal(1886)
 OCT19_EQ_CLOSE = Decimal("1519.30")
 
 
@@ -126,7 +126,7 @@ def _original_table(raw: bytes) -> list[dict[str, Any]]:
         len(rows) != 30
         or rows[0]["display_date"] != FIRST_DATE
         or rows[-1]["display_date"] != LAST_DATE
-        or [r["date"] for r in rows] != sorted(set(r["date"] for r in rows))
+        or [r["date"] for r in rows] != sorted({r["date"] for r in rows})
     ):
         raise AlphaContractError("P025 original issuer 30-day freeze is incomplete")
     running = 0
@@ -194,7 +194,7 @@ def pinned_prior_sources(root: Path) -> tuple[dict[str, dict], dict[str, dict]]:
 
 
 def _money(rupees: Decimal) -> float:
-    return float((rupees / Decimal("10000000")).quantize(Decimal("0.000001")))
+    return float((rupees / Decimal(10000000)).quantize(Decimal("0.000001")))
 
 
 def _rs(value: Decimal) -> float:
