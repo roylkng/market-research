@@ -24,6 +24,7 @@ from marketlab.l001_p020_srl_hurdles import (
     build_franchise_hurdle,
     materialize,
     original_page_proof,
+    _normal,
     validate,
 )
 
@@ -124,3 +125,9 @@ def test_immutable_original_pdf_replays_and_direct_cli_checks_report():
     assert report["source_document_sha256"] == ARCHIVED_PDF_SHA
     assert report["source_profit_ratio_is_ROIC"] is False
     assert report["live_capital_allowed"] is False
+
+
+def test_pdf_ligature_typography_preserves_strict_source_terms():
+    # pypdf may decode a printed 'fi' glyph as the Unicode ligature U+FB01.
+    assert _normal("inde\uFB01nite useful life") == _normal("indefinite useful life")
+    assert _normal("no impairment loss") != _normal("impairment loss")
