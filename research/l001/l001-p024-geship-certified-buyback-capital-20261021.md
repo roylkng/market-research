@@ -33,3 +33,13 @@ New research code independently validates the **five-page** first-lot PDF, **two
 Expected canonical output: research/l001/l001-p024-geship-buyback-capital-bridge-v1.json. Implementation: src/marketlab/l001_p024_geship_buyback.py, scripts/archive_l001_p024_geship.py and tests/test_l001_p024_geship_buyback.py.
 
 **Still unresolved:** October legally canceled shares after the first lot, November cycle-normalized fleet/offshore values, updated net cash after buyback, price-to-current-NAV and cost-adjusted investment IRR. An 18-month or 3-year positive expected-return signal is not yet warranted.
+
+## Source custody completed
+
+Original company documents were downloaded and independently parsed by the GitHub archival job on October 20 UTC, equivalent to the early hours of October 21 IST. Actual source bytes are now retained rather than merely linked:
+
+- First-lot certified extinguishment, retrieved 2026-10-20T18:42:49.379745Z, 1,081,408 bytes, SHA-256 27e0ca44dfdb66d857ca805a6a0e29f340abf1dfac711b0484eb723559a54bec.
+- October 19 daily purchase report, retrieved 2026-10-20T18:42:51.488187Z, 347,598 bytes, SHA-256 561ed3d0bbe775e5f8fb81ff9a8eac3ddc4a1ee05d92ab2218c8530ea4b4f677.
+- Deterministic source-bound research bridge, SHA-256 d9a3f3f50c583df53d1055e8a495b127647d324bc0c06a9457e2bd63107c2f44.
+
+These are *actual observed retrieval timestamps*, not assumed first-publication times. The October 19 live issuer URL is mutable and should not be retrieved later as if it were an immutable October 19 document. The committed original binary artifact and receipt preserve the as-observed edition.
