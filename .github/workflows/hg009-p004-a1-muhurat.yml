@@ -53,6 +53,10 @@ jobs:
           RUN_KEY="$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           python scripts/collect_hg009_p004_a1_muhurat.py --run-id "$RUN_KEY" |
             tee /tmp/hg009-p004-a1-capture-status.json
+          if jq -e '.state == "ORIGINAL_NSE_SOURCE_ALREADY_SEALED_AND_VERIFIED"'             /tmp/hg009-p004-a1-capture-status.json > /dev/null; then
+            echo "Previously source-sealed PDF independently replayed; no new receipt"
+            exit 0
+          fi
           RECEIPT="research/hg009/p004-a1/originals/attempts/$RUN_KEY.json"
           if [ ! -f "$RECEIPT" ]; then
             echo "No real source attempt receipt, fail closed"
