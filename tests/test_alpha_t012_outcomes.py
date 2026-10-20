@@ -194,7 +194,16 @@ def test_empty_outcome_ledger_is_hash_bound():
         (ROOT / "research/prospective/ae001-t012/outcome-ledger.json")
         .read_text(encoding="utf-8")
     )
-    assert initial == new_t012_outcome_ledger()
+    # Prospective outcome ledgers are append-only, not permanently empty.
+    # Validate genuine current evidence separately from an isolated empty fixture.
+    validate_t012_outcome_ledger(initial)
+    assert initial["outcome_count"] >= 0
+    assert len(initial["outcomes"]) == initial["outcome_count"]
+    assert initial["live_capital_allowed"] is False
+    isolated_empty = new_t012_outcome_ledger()
+    validate_t012_outcome_ledger(isolated_empty)
+    assert isolated_empty["outcome_count"] == 0
+    assert isolated_empty["outcomes"] == []
     damaged = copy.deepcopy(initial)
     damaged["live_capital_allowed"] = True
     with pytest.raises(AlphaContractError, match="authorizes live capital"):
