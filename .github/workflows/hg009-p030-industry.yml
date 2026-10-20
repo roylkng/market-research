@@ -1,0 +1,57 @@
+name: HG009 P030 original industry-source provenance readiness
+
+on:
+  push:
+    branches:
+      - research/hg009-p030-sector-source-audit-queue-20261021
+    paths:
+      - .github/workflows/hg009-p030-industry.yml
+      - src/marketlab/hg009_p030_sector_queue.py
+      - scripts/materialize_hg009_p030_sector.py
+      - tests/test_hg009_p030_sector_queue.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p030-source-readiness-freeze
+  cancel-in-progress: false
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install research dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Materialize original 300 issuer source gaps, reject retroactive sectors
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p030_sector.py
+          python scripts/materialize_hg009_p030_sector.py --check
+          ruff check src/marketlab/hg009_p030_sector_queue.py scripts/materialize_hg009_p030_sector.py tests/test_hg009_p030_sector_queue.py
+          pytest -q tests/test_hg009_p030_sector_queue.py
+      - name: Anchor signed fail-closed industry source acquisition queue
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p030-sector-proof-queue-v1.json
+          if git diff --cached --quiet; then
+            echo "Original signed source-provenance gap queue unchanged"
+            exit 0
+          fi
+          git commit -m "HG009 P030: freeze 300 original issuer industry source gates [skip ci]"
+          git fetch origin research/hg009-p030-sector-source-audit-queue-20261021
+          git rebase origin/research/hg009-p030-sector-source-audit-queue-20261021
+          python scripts/materialize_hg009_p030_sector.py --check
+          git push origin HEAD:research/hg009-p030-sector-source-audit-queue-20261021
