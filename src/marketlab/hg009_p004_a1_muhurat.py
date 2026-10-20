@@ -71,7 +71,10 @@ def validate_original_nse_circular(raw: bytes) -> dict[str, Any]:
     count, original_text = _pdf_text(raw)
     if count != 2:
         raise AlphaContractError("A1 original circular requires exact 2 pages")
+    # Some official NSE PDFs use nonstandard embedded hyphen/control glyphs
+    # in "Non-CAS". Normalize typography without weakening dated evidence.
     text = re.sub(r"\s+", " ", original_text).casefold()
+    text = re.sub(r"non[^a-z0-9]{0,5}cas", "non-cas", text)
     essential = (
         "national stock exchange of india limited",
         "nse/cmtr/76941",
