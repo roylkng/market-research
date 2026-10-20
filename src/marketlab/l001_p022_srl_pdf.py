@@ -10,7 +10,7 @@ import hashlib
 import io
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable, Any
+from typing import Any, Callable
 
 from pypdf import PdfReader
 
