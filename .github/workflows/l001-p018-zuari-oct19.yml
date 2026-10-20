@@ -1,0 +1,60 @@
+name: L001 P018 full-market NSE Oct19 Zuari listed-stake audit
+
+on:
+  push:
+    branches:
+      - research/l001-p018-oct19-listed-stakes-full-nse-20261020
+    paths:
+      - .github/workflows/l001-p018-zuari-oct19.yml
+      - src/marketlab/l001_p018_zuari_fullmarket.py
+      - scripts/materialize_l001_p018.py
+      - tests/test_l001_p018_zuari_fullmarket.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p018-oct19-nse-source-zuari
+  cancel-in-progress: false
+
+jobs:
+  source-reprice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Replay October 15/19 original full-market NSE and retain financial-clock caveats
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_l001_p018.py
+          python scripts/materialize_l001_p018.py --check
+          ruff check \
+            src/marketlab/l001_p018_zuari_fullmarket.py \
+            scripts/materialize_l001_p018.py \
+            tests/test_l001_p018_zuari_fullmarket.py
+          pytest -q tests/test_l001_p018_zuari_fullmarket.py
+      - name: Seal dated historical repricing, never live capital or future alpha
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/l001/l001-p018-oct19-five-stake-source-repricing-v1.json
+          if git diff --cached --quiet; then
+            echo "P018 original NSE value report already sealed"
+            exit 0
+          fi
+          git commit -m "L001 P018: seal October19 full-market five-stake original NSE repricing [skip ci]"
+          git fetch origin research/l001-p018-oct19-listed-stakes-full-nse-20261020
+          git rebase origin/research/l001-p018-oct19-listed-stakes-full-nse-20261020
+          python scripts/materialize_l001_p018.py --check
+          git push origin HEAD:research/l001-p018-oct19-listed-stakes-full-nse-20261020
