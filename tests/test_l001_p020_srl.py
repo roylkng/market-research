@@ -16,11 +16,11 @@ from marketlab.l001_p019_suntv_rights import (
     load_prior_evidence,
 )
 from marketlab.l001_p020_srl_hurdles import (
+    AOC_SOURCE,
     ARCHIVED_PDF_SHA,
     IMPAIRMENT_SOURCE,
-    REPORT_DATE,
-    AOC_SOURCE,
     P019_REPORT_SHA,
+    REPORT_DATE,
     build_franchise_hurdle,
     materialize,
     original_page_proof,
