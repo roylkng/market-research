@@ -95,6 +95,9 @@ def _prices_from_zip(raw_zip: bytes, *, session: str) -> dict[tuple[str, str], f
 def _mark(
     price_map: dict[tuple[str, str], float],
 ) -> tuple[float, list[dict[str, Any]]]:
+    exact_holdings = {(h.symbol, h.isin) for h in ORIGINAL_JUNE_HOLDINGS}
+    if not exact_holdings.issubset(price_map):
+        raise AlphaContractError("P018 all five original listed stakes required")
     rounded_june = sum(h.june_mark_cr for h in ORIGINAL_JUNE_HOLDINGS)
     if rounded_june != 4224 or JUNE_REPORTED_TOTAL_CR != 4223.0:
         raise AlphaContractError("P018 June issuer 4223 vs 4224 rounding changed")
