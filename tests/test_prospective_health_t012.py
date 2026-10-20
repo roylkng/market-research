@@ -46,7 +46,10 @@ def _files() -> dict:
 
 def test_t012_health_detects_registered_zero_decisions_and_2027_gap():
     args = _files()
+    # Zero-decision case is a synthetic isolated fixture. Do not silently
+    # rely on production T012 decision and outcome ledgers staying empty.
     args["decision_ledger"] = new_t012_decision_ledger()
+    args["outcome_ledger"] = new_t012_outcome_ledger()
     health = _t012_state(**args)
     assert health["trial_id"] == "AE001-T012"
     assert health["trial_registered"] is True
@@ -84,6 +87,7 @@ def _future_decision() -> dict:
 def test_t012_health_uses_future_predictions_only_when_genuinely_registered():
     args = _files()
     decision = _future_decision()
+    args["outcome_ledger"] = new_t012_outcome_ledger()
     args["decision_ledger"] = append_t012_decision(
         new_t012_decision_ledger(),
         artifact=decision,
