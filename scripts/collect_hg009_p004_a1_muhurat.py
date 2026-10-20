@@ -76,6 +76,34 @@ def main() -> int:
 
     if not args.run_id or "/" in args.run_id or ".." in args.run_id:
         raise AlphaContractError("A1 run-id must be a filename-safe identifier")
+    already = root / AMENDMENT_PATH
+    if already.is_file():
+        from marketlab.hg009_p004_a1_muhurat import validate_amendment
+
+        preserved = _load_report(already)
+        matched = []
+        for receipt_file in sorted((root / PDF_DIR / "attempts").glob("*.json")):
+            attempt = _load_report(receipt_file)
+            if attempt.get("receipt_sha256") == preserved.get(
+                "original_receipt_sha256"
+            ):
+                matched.append(receipt_file)
+        if len(matched) != 1:
+            raise AlphaContractError("A1 immutable original source receipt ambiguous")
+        validate_amendment(
+            preserved,
+            root=root,
+            receipt_path=matched[0].relative_to(root),
+        )
+        print(json.dumps({
+            "state": "ORIGINAL_NSE_SOURCE_ALREADY_SEALED_AND_VERIFIED",
+            "source_sha256": preserved["original_source_pdf_sha256"],
+            "amendment_sha256": preserved["amendment_sha256"],
+            "H20_amended_exit": preserved["amended_H20_last_session"],
+            "new_source_attempt_created": False,
+            "live_capital_allowed": False,
+        }, sort_keys=True))
+        return 0
     observed_at = datetime.now(UTC).isoformat()
     attempt = {
         "schema_version": 1,
