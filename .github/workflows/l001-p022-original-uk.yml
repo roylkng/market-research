@@ -1,0 +1,62 @@
+name: L001 P022 archive UK SunRisers Leeds scanned original PDF
+
+on:
+  push:
+    branches:
+      - research/l001-p022-uk-source-archive-20261020
+    paths:
+      - .github/workflows/l001-p022-original-uk.yml
+      - src/marketlab/l001_p022_srl_pdf.py
+      - scripts/capture_l001_p022_srl_uk_pdf.py
+      - tests/test_l001_p022_srl_pdf.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p022-original-uk-pdf-source-custody
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PDF source and verification packages
+        run: python -m pip install -e '.[dev]'
+      - name: Validate original PDF capture and fail-closed source constraints
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/l001_p022_srl_pdf.py scripts/capture_l001_p022_srl_uk_pdf.py tests/test_l001_p022_srl_pdf.py
+          pytest -q tests/test_l001_p022_srl_pdf.py tests/test_l001_p021_srl_uk.py
+          python scripts/materialize_l001_p021_srl_uk.py --check
+      - name: Capture official issuer PDF or preserve actual failed attempt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_l001_p022_srl_uk_pdf.py \
+            --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Commit full original PDF if size-safe, or explicit failed source receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/l001/originals/srl_uk_fy26
+          if git diff --cached --quiet; then
+            echo "No new original-source evidence"
+            exit 0
+          fi
+          git commit -m "L001 P022: record UK scanned original PDF or failed source receipt [skip ci]"
+          git fetch origin research/l001-p022-uk-source-archive-20261020
+          git rebase origin/research/l001-p022-uk-source-archive-20261020
+          python scripts/materialize_l001_p021_srl_uk.py --check
+          git push origin HEAD:research/l001-p022-uk-source-archive-20261020
