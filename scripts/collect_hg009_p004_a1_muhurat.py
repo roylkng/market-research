@@ -108,6 +108,7 @@ def main() -> int:
             raw = answer.content
     except requests.RequestException as exc:
         attempt["error_class"] = type(exc).__name__
+        attempt["error_detail"] = str(exc)[:600]
         attempt["captured_at_utc"] = datetime.now(UTC).isoformat()
     if raw is not None:
         try:
@@ -115,7 +116,15 @@ def main() -> int:
         except AlphaContractError as exc:
             attempt["source_state"] = "BLOCKED_ORIGINAL_NSE_PDF_CONTENT"
             attempt["error_class"] = type(exc).__name__
+            attempt["error_detail"] = str(exc)[:600]
             attempt["original_pdf_sha256"] = hashlib.sha256(raw).hexdigest()
+            # Original bytes are retained as QUARANTINE only. They are never
+            # accepted as a verified circular or scientific calendar proof.
+            quarantined = PDF_DIR / "quarantine" / (
+                f"unverified-CMTR76941-{attempt['original_pdf_sha256']}.pdf"
+            )
+            _save_once(root / quarantined, raw)
+            attempt["quarantine_original_pdf_repo_path"] = str(quarantined)
         else:
             source_path = PDF_DIR / (
                 f"CMTR76941-{verified['raw_sha256']}.pdf"
@@ -138,6 +147,7 @@ def main() -> int:
         print(json.dumps({
             "state": attempt["source_state"],
             "source_http_status": attempt["actual_http_status"],
+            "reason": attempt.get("error_detail"),
             "receipt_path": str(receipt_path),
             "H20_unblocked": False,
             "live_capital_allowed": False,
