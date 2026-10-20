@@ -37,9 +37,7 @@ def test_original_source_matches_frozen_oct05_and_oct15_digests():
     )
     assert result["exit_date"] == "2026-10-15"
     assert result["method_selected_after_h1_price_observed"] is True
-    assert result["same_one_market_event_not_independent_test_dates"] is True if (
-        "same_one_market_event_not_independent_test_dates" in result
-    ) else result["posthoc_one_event_not_prospective_multi_date_alpha"] is True
+    assert result["posthoc_one_event_not_prospective_multi_date_alpha"] is True
     assert result["live_capital_allowed"] is False
     validate_report(result, baseline=base, market=h1)
 
