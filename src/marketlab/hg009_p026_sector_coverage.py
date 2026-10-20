@@ -10,13 +10,13 @@ from __future__ import annotations
 import csv
 import hashlib
 import io
-import math
+import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
-from marketlab.hg009_controls import verify_hg009_controls
+from marketlab.hg009_controls import load_hg009_inputs, verify_hg009_controls
 from marketlab.l001_p003_industry_overlap import COLUMNS
 
 REPORT_ID = "HG009-P026-ORIGINAL-SECTOR-COVERAGE-AND-IDENTIFIABILITY-v1"
@@ -218,9 +218,6 @@ def build_sector_identifiability_report(
 
 
 def materialize(root: Path) -> dict[str, Any]:
-    from marketlab.hg009_controls import load_hg009_inputs
-    import json
-
     router, selected = load_hg009_inputs(root)
     controls = json.loads((
         root / "research/hg009/hg009-p001-matched-300-company-controls-v1.json"
