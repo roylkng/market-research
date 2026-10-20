@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import hashlib
 import io
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from pypdf import PdfReader
+from pypdf.errors import PdfReadError
+from requests.exceptions import RequestException
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.l001_p021_srl_uk import SOURCE_URL
@@ -62,7 +65,7 @@ def capture_pdf(
     instant = actual_capture_utc.astimezone(UTC).isoformat()
     try:
         status, raw = fetch(SOURCE_URL)
-    except Exception as exc:
+    except (OSError, ValueError, RequestException) as exc:
         status, raw = None, None
         failure = type(exc).__name__
     else:
@@ -85,7 +88,7 @@ def capture_pdf(
     if status == 200 and isinstance(raw, bytes):
         try:
             inspection = validate_original_pdf(raw)
-        except Exception as exc:
+        except (AlphaContractError, PdfReadError, OSError, ValueError, TypeError) as exc:
             report.update({
                 "source_state": "BLOCKED_UNVERIFIED_OR_INVALID_PDF",
                 "error_class": type(exc).__name__,
