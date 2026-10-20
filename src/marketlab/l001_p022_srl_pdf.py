@@ -85,7 +85,7 @@ def capture_pdf(
     if status == 200 and isinstance(raw, bytes):
         try:
             inspection = validate_original_pdf(raw)
-        except (AlphaContractError, Exception) as exc:
+        except Exception as exc:
             report.update({
                 "source_state": "BLOCKED_UNVERIFIED_OR_INVALID_PDF",
                 "error_class": type(exc).__name__,
