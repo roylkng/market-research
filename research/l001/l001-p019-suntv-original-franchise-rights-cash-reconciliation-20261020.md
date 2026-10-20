@@ -58,3 +58,20 @@ Prior original XBRL-derived cash is pinned to L001 P016 Git blob 00241232ca88aa8
 The source annual PDF's complete raw bytes are **not yet guaranteed to be stored** in the repository. A separate original issuer source capture attempts exact first-party PDF download, validates the named original pages and records a real UTC capture timestamp and SHA-256. It archives the full PDF if at most 8MB, otherwise content-addressed original five-page excerpts, explicitly distinguishing that from full-original archival. A blocked HTTP request or missing page evidence produces a nonpromotable failure receipt. Do not treat a successful excerpt as full source preservation.
 
 Canonical evidence: research/l001/l001-p019-suntv-franchise-rights-cash-bridge-v1.json. Test with scripts/materialize_l001_p019_suntv.py --check and tests/test_l001_p019_suntv_rights.py. Original 100-company HG009 cohort and all prospective price/event ledgers are unchanged. **No buy rating, no owner cash yield, no 50% annual target, no live capital.**
+
+
+## October 20 original issuer PDF custody completed
+
+The branch's actual GitHub original-source acquisition **succeeded** in run 39434163106, after signed cash-source tests passed. The issuer's full **5,199,705-byte** FY26 annual report is now retained as an immutable original PDF at:
+
+research/l001/originals/suntv_fy26/suntv-fy26-full-4bb81cf41e5cd65f83f8b7acb41ccb8039135efaadb28b13bd469bd0b3dc356f.pdf
+
+- Original full PDF SHA-256: **4bb81cf41e5cd65f83f8b7acb41ccb8039135efaadb28b13bd469bd0b3dc356f**
+- Actual retrieval UTC: **2026-10-20T13:52:57.755787+00:00**
+- Original signed source receipt SHA-256: **27faacde889769ea29cb4d724eeccb7d5131bc3bb42f9948f72f238a8d3f3a1c**
+- Five original PDF pages **77, 78, 160, 184 and 228** independently parsed and checked for exact reported amounts, company and date, with each page's extracted-text SHA stored in the receipt.
+- Full original source file archived, **not merely a PDF excerpt**.
+
+The initial P019 numerical JSON intentionally records original-source status as it existed when the manual analysis began. The subsequently sealed **source receipt supersedes that archival-status field only**. Neither the underlying cash figures nor the conditional nature of the acquisition-allocation assumption changes. Page-specific archived originals make the new cash reconciliation reproducible without relying on a future version of the issuer website.
+
+**Remaining fatal underwriting gap:** neither the full issuer annual report nor page-level numbers prove that the entire ₹1,190.88cr subsidiary franchise cost maps one-to-one into the **same FY26 consolidated cashline**. Verify the group transaction statement/bank waterfall before replacing conditional owner cash with a factual normalized figure.
