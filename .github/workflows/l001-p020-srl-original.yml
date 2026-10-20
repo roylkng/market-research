@@ -1,0 +1,58 @@
+name: L001 P020 SunRisers Leeds original earnings and franchise DCF
+
+on:
+  push:
+    branches:
+      - research/l001-p020-suntv-cricket-franchise-roic-falsification-20261020
+    paths:
+      - .github/workflows/l001-p020-srl-original.yml
+      - src/marketlab/l001_p020_srl_hurdles.py
+      - scripts/materialize_l001_p020_srl.py
+      - tests/test_l001_p020_srl.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p020-full-original-cricket-franchise-roi
+  cancel-in-progress: false
+
+jobs:
+  source-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MarketLab and pypdf
+        run: python -m pip install -e '.[dev]'
+      - name: Verify exact full Sun TV PDF and first source receipt, freeze hurdle report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_l001_p020_srl.py
+          python scripts/materialize_l001_p020_srl.py --check
+          ruff check src/marketlab/l001_p020_srl_hurdles.py scripts/materialize_l001_p020_srl.py tests/test_l001_p020_srl.py
+          pytest -q tests/test_l001_p020_srl.py
+
+      - name: Anchor original-source linked report without owner earnings promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/l001/l001-p020-srl-franchise-profit-and-impairment-hurdle-v1.json
+          if git diff --cached --quiet; then
+            echo "P020 audited franchise hurdle is already immutable"
+            exit 0
+          fi
+          git commit -m "L001 P020: original subsidiary earnings and impairment hurdle source proof [skip ci]"
+          git fetch origin research/l001-p020-suntv-cricket-franchise-roic-falsification-20261020
+          git rebase origin/research/l001-p020-suntv-cricket-franchise-roic-falsification-20261020
+          python scripts/materialize_l001_p020_srl.py --check
+          git push origin HEAD:research/l001-p020-suntv-cricket-franchise-roic-falsification-20261020
