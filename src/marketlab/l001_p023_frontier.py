@@ -172,6 +172,12 @@ def build_cross_company_falsification(
         raise AlphaContractError("L001 P023 GESHIP NAV haircut infeasible")
 
     zuari = diag["ZUARIIND"]
+    if (
+        zuari.get("Oct19_actual_attributable_SOTP_value_cr") is not None
+        or zuari.get("Oct19_current_repriced_listed_holdings_cr") is not None
+        or zuari.get("Oct19_contemporaneous_debt_and_pledge_covenants_cr") is not None
+    ):
+        raise AlphaContractError("L001 P023 ZUARI outdated creditor/source bridge promoted")
     quoted_stakes = _checked_positive(
         p018["stake_marks_by_date_cr"]["2026-10-19"], "ZUARI five stakes"
     )
