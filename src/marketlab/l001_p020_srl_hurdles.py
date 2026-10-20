@@ -13,6 +13,7 @@ import hashlib
 import io
 import json
 import re
+import unicodedata
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -73,7 +74,7 @@ _REQUIRED_EXCERPTS = {
 
 
 def _normal(s: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", s.lower())
+    return re.sub(r"[^a-z0-9]+", "", unicodedata.normalize("NFKD", s).casefold())
 
 
 def _amount(value: str, label: str) -> Decimal:
