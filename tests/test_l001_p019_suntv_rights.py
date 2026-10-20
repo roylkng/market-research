@@ -12,8 +12,8 @@ import pytest
 
 from marketlab.alpha import AlphaContractError
 from marketlab.l001_p019_suntv_original import (
-    PDF_PAGE_INDICES,
     PAGE_REQUIRED_TEXT,
+    PDF_PAGE_INDICES,
     archive_pdf_receipt,
     verify_annual_source_pages,
 )
