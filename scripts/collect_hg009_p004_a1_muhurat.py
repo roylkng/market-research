@@ -78,8 +78,6 @@ def main() -> int:
         raise AlphaContractError("A1 run-id must be a filename-safe identifier")
     already = root / AMENDMENT_PATH
     if already.is_file():
-        from marketlab.hg009_p004_a1_muhurat import validate_amendment
-
         preserved = _load_report(already)
         matched = []
         for receipt_file in sorted((root / PDF_DIR / "attempts").glob("*.json")):
