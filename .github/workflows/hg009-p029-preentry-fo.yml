@@ -42,6 +42,16 @@ jobs:
           ruff check src/marketlab/hg009_p029_fo_exposure.py scripts/materialize_hg009_p029.py tests/test_hg009_p029.py
           pytest -q tests/test_hg009_p029.py
 
+      - name: Full repository lint, tests, research accounting and registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src tests scripts
+          pytest -q
+          python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+          python scripts/validate_rta001_coverage.py --repo-root .
+          marketlab validate-registry registry/hypotheses.yaml
+
       - name: Publish immutable source evidence before any strategy inference
         shell: bash
         run: |
