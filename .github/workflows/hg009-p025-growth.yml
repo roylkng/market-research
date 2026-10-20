@@ -1,0 +1,104 @@
+name: HG009 P025 posthoc H1 and frozen H5 growth sensitivity
+
+on:
+  push:
+    branches:
+      - research/hg009-p025-h1-growth-standardization-20261021
+    paths:
+      - .github/workflows/hg009-p025-growth.yml
+      - src/marketlab/hg009_p025_growth.py
+      - scripts/materialize_hg009_p025_growth.py
+      - tests/test_hg009_p025_growth.py
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - HG009 P006 calendar-safe H1 H5 NSE price diagnostic
+    types:
+      - completed
+    branches:
+      - main
+  schedule:
+    # 23:00 IST, future H5 can only be sourced after Oct22 close.
+    - cron: '30 17 * * 1-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p025-growth-sensitivity
+  cancel-in-progress: false
+
+jobs:
+  score:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install and validate source-conservative analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[dev]'
+          ruff check src/marketlab/hg009_p025_growth.py scripts/materialize_hg009_p025_growth.py tests/test_hg009_p025_growth.py
+          python scripts/materialize_hg009_p025_growth.py --horizon 1
+          python scripts/materialize_hg009_p025_growth.py --horizon 1 --check
+          python scripts/materialize_hg009_p025_growth.py --horizon 5
+          python scripts/materialize_hg009_p025_growth.py --horizon 5 --check
+          pytest -q tests/test_hg009_p025_growth.py
+
+      - name: Anchor genuinely source-replayed posthoc H1 and optional H5 diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/hg009/hg009-p025-h1-growth-balanced-20261021.json
+          if [ -f research/hg009/hg009-p025-h5-growth-balanced-20261022.json ]; then
+            git add research/hg009/hg009-p025-h5-growth-balanced-20261022.json
+          fi
+          if git diff --cached --quiet; then
+            echo "No new P025 original-source sensitivity to anchor"
+            exit 0
+          fi
+          BASE="$(git rev-parse HEAD)"
+          BRANCH="$(git symbolic-ref --short -q HEAD || echo main)"
+          git commit -m "HG009 P025: seal source-only growth-balance sensitivity [skip ci]"
+          RULES=(
+            "research/hg009/hg009-p005-source-baseline-300-v1.json"
+            "research/hg009/price-diagnostics"
+            "research/hg009/hg009-p025-h1-growth-balanced-20261021.json"
+            "research/hg009/hg009-p025-h5-growth-balanced-20261022.json"
+            "src/marketlab/hg009_p025_growth.py"
+            "scripts/materialize_hg009_p025_growth.py"
+          )
+          for RETRY in 1 2 3; do
+            git fetch origin "$BRANCH"
+            HEAD_SHA="$(git rev-parse "origin/$BRANCH")"
+            if [ "$HEAD_SHA" != "$BASE" ]; then
+              if ! git diff --quiet "$BASE" "$HEAD_SHA" -- "${RULES[@]}"; then
+                echo "HG009 original source or analysis rules advanced mid-job: fail closed"
+                exit 1
+              fi
+              git rebase "origin/$BRANCH"
+              python scripts/materialize_hg009_p025_growth.py --horizon 1 --check
+              python scripts/materialize_hg009_p025_growth.py --horizon 5 --check
+              BASE="$HEAD_SHA"
+            fi
+            if git push origin HEAD:"$BRANCH"; then
+              echo "Source-bound descriptive diagnostic anchored on $BRANCH"
+              exit 0
+            fi
+            sleep "$((RETRY * 2))"
+          done
+          echo "P025 original-source report was not anchored"
+          exit 1
