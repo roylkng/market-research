@@ -55,7 +55,7 @@ def test_original_byte_change_or_source_receipt_change_fails_closed():
     controls = json.loads((ROOT / CONTROLS_PATH).read_text("utf-8"))
     ledger = json.loads((ROOT / SOURCE_LEDGER).read_text("utf-8"))
     raw = (ROOT / FO_BLOB_PATH).read_bytes()
-    args = dict(original=source, selected=selected, controls=controls)
+    args = {"original": source, "selected": selected, "controls": controls}
     with pytest.raises(AlphaContractError, match="bytes SHA mismatch"):
         build_preentry_fo_exposure(
             **args, source_ledger=ledger, original_fo_raw=raw + b"altered",
