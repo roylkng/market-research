@@ -14,8 +14,8 @@ from marketlab.l001_p025_nav_accretion import (
     build_cash_nav_sensitivity,
     pinned_prior_sources,
     signed_capture,
-    validate_cash_nav_result,
     validate_capture,
+    validate_cash_nav_result,
 )
 from scripts.archive_l001_p025_nav_accretion import run
 
@@ -47,9 +47,9 @@ def _html() -> bytes:
     lines = [
         "<html><body><h1>The Great Eastern Shipping Company</h1>",
         "<h2>BUY BACK 2026</h2><h3>Daily Activity</h3>",
-        "<table><tr><th>Date</th><th>No. of Equity shares bought back</th>"
-        "<th>Average Acquisition Price (INR/share)</th>"
-        "<th>Cumulative Total No. of Equity Shares bought back</th></tr>",
+        ("<table><tr><th>Date</th><th>No. of Equity shares bought back</th>"
+         "<th>Average Acquisition Price (INR/share)</th>"
+         "<th>Cumulative Total No. of Equity Shares bought back</th></tr>"),
     ]
     cum = 0
     for month, entries in (("Sep", SEP), ("Oct", OCT)):
