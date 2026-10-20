@@ -21,8 +21,8 @@ from marketlab.l001_p025_nav_accretion import (
     build_cash_nav_sensitivity,
     pinned_prior_sources,
     signed_capture,
-    validate_cash_nav_result,
     validate_capture,
+    validate_cash_nav_result,
 )
 
 def _write_once(path: Path, raw: bytes) -> None:
