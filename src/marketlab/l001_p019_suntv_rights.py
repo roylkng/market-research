@@ -48,7 +48,6 @@ PAGE_EVIDENCE = {
         "audited_2026_cfo_cr": "1736.10",
         "audited_2026_ppe_cash_cr": "71.17",
         "audited_2026_intangible_cash_cr": "938.51",
-        "audited_2026_subsidiary_investment_cash_cr": "1190.88",
     },
     "STANDALONE_SUBSIDIARY_CASH": {
         "page_index_zero_based": 78,
@@ -144,7 +143,8 @@ def build_suntv_2026_cash_reconciliation(
     intang = _d(consolidated, "audited_2026_intangible_cash_cr")
     rights_cost = _d(rights, "franchise_rights_initial_cost_cr")
     parent_paid = _d(
-        standalone, "audited_2026_subsidiary_investment_cash_cr"
+        PAGE_EVIDENCE["STANDALONE_SUBSIDIARY_CASH"],
+        "audited_2026_subsidiary_investment_cash_cr",
     )
     consideration = _d(note, "purchase_consideration_inr_cr")
     fx = _d(rights, "franchise_rights_fx_translation_cr")
