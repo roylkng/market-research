@@ -83,7 +83,7 @@ def validate_issuer_pdf(kind: str, raw: bytes) -> dict[str, Any]:
     if (
         "zuari agro chemicals" not in lowered
         or "national stock exchange" not in lowered
-        or "nse symbol: zuari" not in lowered
+        or re.search(r"\bnse\s*symbol\s*:\s*zuari\b", lowered) is None
         or spec["heading"].casefold().replace(" ", "") not in tight
     ):
         raise AlphaContractError("P027 wrong issuer or original filing date")
