@@ -101,7 +101,7 @@ def test_synthetic_original_filing_mutations_block_at_accounting_equations():
         build_uk_cash_case(broken, parent, receipt)
     broken = copy.deepcopy(facts)
     broken["parent_disclosed_acquisition_consideration_gbp"] = 5000000
-    with pytest.raises(AlphaContractError, match="deal"):
+    with pytest.raises(AlphaContractError, match="purchase consideration"):
         build_uk_cash_case(broken, parent, receipt)
 
 
