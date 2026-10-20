@@ -39,6 +39,13 @@ jobs:
           python scripts/materialize_l001_p023_frontier.py --check
           ruff check src/marketlab/l001_p023_frontier.py scripts/materialize_l001_p023_frontier.py tests/test_l001_p023_frontier.py
           pytest -q tests/test_l001_p023_frontier.py
+          # Run the exact root CI gates too. Some connector-created pull
+          # requests do not automatically dispatch pull_request workflows.
+          ruff check src tests scripts
+          pytest -q
+          python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+          python scripts/validate_rta001_coverage.py --repo-root .
+          marketlab validate-registry registry/hypotheses.yaml
       - name: Anchor signed four-company research
         shell: bash
         run: |
