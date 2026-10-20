@@ -55,3 +55,9 @@ The same P025 script accepts H5 only after its original NSE sources and P006 sig
 Prioritize eventual *independent, future-dated* 90/180/252-session screens, source-complete corporate-action/shareholder-return adjustments, sector/size/beta matched controls, data-capture missingness and after-cost execution. At company level require original repeatable owner cash and a contemporaneous diluted-share/market-depth bridge. Neither H1 nor H5 price-only data can substitute for a margin-of-safety valuation.
 
 **Source report:** research/hg009/hg009-p025-h1-growth-balanced-20261021.json, with reproducible source-Git-blob and signature checks. **Future H5 counterpart:** same methodology, published only once H5 original receipts exist. **Live capital:** disabled.
+
+## Reproducibility receipt recorded October 21
+
+The exact signed H1 source reanalysis was independently materialized and verified by [GitHub workflow 39489047617](https://github.com/roylkng/market-research/actions/runs/39489047617) before this PR's full-suite review. The generated H1 packet SHA-256 is **5c0a3a2299666857e552c3e1685505f92e48b2571959e5e9b20aab78d9c17c65**. The selected group's trimmed H1 mean is -1.279793%, one-signal -1.205809%, and zero-signal -1.201742%, with source-priced counts 99, 99, and 100.
+
+The revenue-standardized H1 gaps are **-0.220359 pp** versus one-signal and **-0.188974 pp** versus zero-signal. This post-hoc diagnostic adds no independent date-level trials or statistical significance. A subsequent H5 result must retain the exact method and be labeled conditional on H1 already being seen.
