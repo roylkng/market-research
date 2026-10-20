@@ -1,0 +1,73 @@
+name: L001 P019 original Sun TV FY26 acquisition cash bridge
+
+on:
+  push:
+    branches:
+      - research/l001-p019-suntv-acquisition-reconciliation-20261020
+    paths:
+      - .github/workflows/l001-p019-suntv-original.yml
+      - src/marketlab/l001_p019_suntv_rights.py
+      - src/marketlab/l001_p019_suntv_original.py
+      - scripts/materialize_l001_p019_suntv.py
+      - scripts/capture_l001_p019_suntv_original.py
+      - tests/test_l001_p019_suntv_rights.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p019-suntv-source-cash-accounting
+  cancel-in-progress: false
+
+jobs:
+  source-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source validation and PDF reader
+        run: python -m pip install -e '.[dev]'
+      - name: Materialize original signed FY26 source cash bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_l001_p019_suntv.py
+          python scripts/materialize_l001_p019_suntv.py --check
+          ruff check \
+            src/marketlab/l001_p019_suntv_rights.py \
+            src/marketlab/l001_p019_suntv_original.py \
+            scripts/materialize_l001_p019_suntv.py \
+            scripts/capture_l001_p019_suntv_original.py \
+            tests/test_l001_p019_suntv_rights.py
+          pytest -q tests/test_l001_p019_suntv_rights.py
+      - name: Record actual original issuer PDF source receipt or failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_l001_p019_suntv_original.py \
+            --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Commit signed bridge and original or blocked-source receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/l001/l001-p019-suntv-franchise-rights-cash-bridge-v1.json
+          if [ -d research/l001/originals/suntv_fy26 ]; then
+            git add -f research/l001/originals/suntv_fy26
+          fi
+          if git diff --cached --quiet; then
+            echo "P019 original source bridge is already sealed"
+            exit 0
+          fi
+          git commit -m "L001 P019: seal audited Sun TV franchise rights cash bridge and original receipt [skip ci]"
+          git fetch origin research/l001-p019-suntv-acquisition-reconciliation-20261020
+          git rebase origin/research/l001-p019-suntv-acquisition-reconciliation-20261020
+          python scripts/materialize_l001_p019_suntv.py --check
+          git push origin HEAD:research/l001-p019-suntv-acquisition-reconciliation-20261020
