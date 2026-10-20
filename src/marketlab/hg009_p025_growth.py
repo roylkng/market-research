@@ -13,6 +13,7 @@ import json
 import math
 import statistics
 from collections import Counter
+from datetime import datetime, UTC
 from pathlib import Path
 
 from marketlab.alpha import AlphaContractError, digest
@@ -131,6 +132,26 @@ def build_report(baseline: dict, market: dict, *, horizon: int) -> dict:
         or market.get("live_capital_allowed") is not False
     ):
         raise AlphaContractError("P025 original NSE/baseline identity or time drift")
+    evaluation_clock = datetime.fromisoformat(market["observed_at_utc"])
+    if evaluation_clock.tzinfo is None:
+        raise AlphaContractError("P025 evaluation clock lacks UTC offset")
+    for day, evidence in zip(
+        DATES[horizon], market["official_source_evidence"], strict=True
+    ):
+        if evidence.get("date_ist") != day:
+            raise AlphaContractError("P025 original NSE trading-date evidence shifted")
+        for capture_field in (
+            "original_source_market_captured_at_utc",
+            "original_source_index_captured_at_utc",
+            "original_source_recorded_at_utc",
+        ):
+            source_clock = datetime.fromisoformat(evidence[capture_field])
+            if (
+                source_clock.tzinfo is None
+                or source_clock > evaluation_clock
+                or source_clock.date().isoformat() < day
+            ):
+                raise AlphaContractError("P025 source recorded after evaluation or before NSE session")
     original = {}
     for row in baseline["source_identity_metric_rows"]:
         key = (row["arm"], row["symbol"], row["isin"])
