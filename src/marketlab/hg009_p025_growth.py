@@ -13,7 +13,7 @@ import json
 import math
 import statistics
 from collections import Counter
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 
 from marketlab.alpha import AlphaContractError, digest
