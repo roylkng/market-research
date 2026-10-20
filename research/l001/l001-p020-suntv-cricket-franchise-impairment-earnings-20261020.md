@@ -54,3 +54,14 @@ P019's conditional **₹778.30 crore FY26 group cash proxy** remains a condition
 Replays the exact retained original Sun TV PDF, first capture receipt, prior signed P019 source bridge, AOC-1 subsidiary note and original consolidated impairment note. The resulting signed source packet is at research/l001/l001-p020-srl-franchise-profit-and-impairment-hurdle-v1.json. Validate with python scripts/materialize_l001_p020_srl.py --check and pytest -q tests/test_l001_p020_srl.py.
 
 Method created October 20 after HG009's original October 15 entry. No retrospective alpha, calibrated company success probability, expected 1/3-year stock return, owner FCF forecast, buy rating or capital authorization.
+
+
+## Further primary-source verification discovered October 20
+
+Sun TV also publishes the **standalone 24-page SunRisers Leeds Limited FY26 statutory accounts**, rather than only the parent's AOC-1 summary. Official [UK subsidiary 14-month accounts](https://www.suntv.in/pdf/AGM/2025/SunRisers_Leeds_Limited_Financials_25-26.pdf), scanned, visually reviewed as of this research date.
+
+The subsidiary's GBP-denominated **14-month cash-flow statement** (printed page 13, PDF page index 15) reports **£2,060,217 net operating cash inflow** and **£80,489 interest paid**. This is the entire February 2025–March 2026 reporting period, not a post-July-28-2025 Sun TV owner-specific cashflow. Closing cash is £1,983,874, and dividend paid is £141,869, which the directors' report indicates preceded the change of ownership. GBP £2.060m CFO is just **2.05%** of the separately disclosed GBP £100.5m deal consideration across this nonannualized period. An illustrative 9% purchase-cost annual owner-cash target of GBP £9.045m is about 4.39 times the observed source-period operating cash. **Neither ratio is a verified annual IRR, NAV or subsidiary annual normalized cash.**
+
+The subsidiary revenue note (printed page 16, PDF index 18) disaggregates GBP £7,993,088 14-month turnover into broadcast £5,579,226, sponsorship £1,131,351, tickets £1,029,696 and other £252,815. The accounts use UK FRS 102, not the parent's IFRS/Ind AS consolidation. The 14-month versus the preceding 12-month comparisons are not mechanically growth comparable.
+
+These newly discovered subsidiary figures are **not folded into P020's already hash-frozen parent-PDF numeric packet**. The separate scanned original currently has not been archived and independently replayed by the repository. A successor must retain the true subsidiary original PDF, validate cross-page values and acquisition-time cutoff, and reconcile the UK 14-month cashflow against actual Sun TV post-control distributions before estimating return on investment.
