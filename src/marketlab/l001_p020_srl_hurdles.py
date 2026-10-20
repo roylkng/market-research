@@ -163,7 +163,7 @@ def build_franchise_hurdle(
         or audited_pbt - tax != audited_pat
         or imp["asset_life_indefinite"] is not True
         or imp["impairment_recorded"] is not False
-        or not (Decimal("0") < rate < Decimal("30"))
+        or not (Decimal(0) < rate < Decimal(30))
         or carry != initial + Decimal(str(p019["SRL_franchise_right_fx_translation_cr_not_new_cash"]))
     ):
         raise AlphaContractError("P020 source period, ownership or impairment assumptions drift")
