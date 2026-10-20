@@ -41,3 +41,12 @@ Run:
     pytest -q tests/test_hg009_p026_sector_coverage.py
 
 Output research/hg009/hg009-p026-postentry-sector-coverage-v1.json includes all **300** frozen names, exact industry matches or explicit nulls, per-arm financial-skew and industry overlap, signed original file hashes, and explicit rejection of any retrospective size/sector/risk model or investment advice. All live capital remains disabled.
+
+
+## Independent publisher constraint
+
+NSE Indices' official [industry-classification methodology](https://www.nseindia.com/static/products-services/industry-classification) explicitly bases classification primarily on **audited consolidated business-segment revenues**, with a four-tier sector hierarchy. Its industry-classification page also lists subscription contact details. Therefore a publicly downloadable 755-name index constituent subset must not be presented as a free full-exchange classifier for 2,319 NSE identities.
+
+A technically honest open-source fallback is an original audited annual report, source-sealed segment-revenue extract, source-dated classification policy, analyst plus independent-agent review, and an explicit UNKNOWN if no reliable dominant-segment evidence exists. The policy must be frozen before **a subsequent independent cohort**, not reconstructed from later outcomes.
+
+**Actual sealed source audit SHA:** 8309c178feeb1e0de8c30b62be08a5090ac8f394b832a4208fbf4f487a21f9bb. Retrospective sector matching from this October 16 index file does **not** resolve the earlier industry's missing-first-seen defect for the October 15 entry.
