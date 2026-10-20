@@ -1,0 +1,64 @@
+name: L001 P027 issuer original Zuari ICD repayment and parent cash gate
+
+on:
+  push:
+    branches:
+      - research/l001-p027-zuari-original-icd-cash-repayment-20261021
+    paths:
+      - .github/workflows/l001-p027-zuari-icd.yml
+      - src/marketlab/l001_p027_zuari_icd.py
+      - scripts/archive_l001_p027_zuari_icd.py
+      - tests/test_l001_p027_zuari_icd.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p027-original-zuari-agro-creditor-cash
+  cancel-in-progress: false
+
+jobs:
+  verify-and-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install source verification packages
+        run: python -m pip install -e '.[dev]'
+      - name: Validate original source and no double-counting of receivables
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/l001_p027_zuari_icd.py scripts/archive_l001_p027_zuari_icd.py tests/test_l001_p027_zuari_icd.py
+          pytest -q tests/test_l001_p027_zuari_icd.py
+      - name: Source archive or document explicit blocked retrieval
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/archive_l001_p027_zuari_icd.py --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python scripts/archive_l001_p027_zuari_icd.py --check
+      - name: Anchor original first-party PDFs or failed source attempts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/l001/originals/zuari_icd
+          if [ -f research/l001/l001-p027-zuari-original-icd-cash-bridge-v1.json ]; then
+            git add research/l001/l001-p027-zuari-original-icd-cash-bridge-v1.json
+          fi
+          if git diff --cached --quiet; then
+            echo "Zuari lender repayment raw issuer bytes and receipts already retained"
+            exit 0
+          fi
+          git commit -m "L001 P027: archive original Zuari ICD repayments and parent bridge [skip ci]"
+          git fetch origin research/l001-p027-zuari-original-icd-cash-repayment-20261021
+          git rebase origin/research/l001-p027-zuari-original-icd-cash-repayment-20261021
+          python scripts/archive_l001_p027_zuari_icd.py --check
+          git push origin HEAD:research/l001-p027-zuari-original-icd-cash-repayment-20261021
