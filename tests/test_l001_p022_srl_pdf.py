@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import io
 from datetime import UTC, datetime
@@ -13,7 +12,6 @@ from pypdf import PdfWriter
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.l001_p022_srl_pdf import (
-    PDF_DIR,
     SOURCE_URL,
     capture_pdf,
     validate_original_pdf,
@@ -24,7 +22,7 @@ UTC_INSTANT = datetime(2026, 10, 20, 15, 45, tzinfo=UTC)
 
 def _fixture(*, pages: int = 24) -> bytes:
     w = PdfWriter()
-    for i in range(pages):
+    for _ in range(pages):
         w.add_blank_page(width=612, height=792)
     output = io.BytesIO()
     w.write(output)
@@ -80,7 +78,7 @@ def test_missing_or_invalid_pdf_is_never_accepted(tmp_path: Path):
     )
     assert wrong["source_state"] == "BLOCKED_UNVERIFIED_OR_INVALID_PDF"
     assert wrong["original_full_pdf_path"] is None
-    assert wrong["source_inspection"] if "source_inspection" in wrong else True
+    assert "source_inspection" not in wrong
     assert wrong["original_full_pdf_sha256"] is None
     assert wrong["live_capital_allowed"] is False
 
