@@ -49,3 +49,11 @@ These three cases are **not buy recommendations**, and the date-differing number
 The transparent accompanying calculation is source-pinned to the existing original October 15 and October 19 300-company NSE price packets, audited FY26 Datamatics P049 and L001 P009/P012/P016 research. Every resulting field is marked research-only, and normalized owner cash, future expected return, fair value, current dilution and actual fill remain unverified/null.
 
 Canonical research record: research/l001/l001-p017-three-reverse-value-gates-v1.json. Reproduce with python scripts/materialize_l001_p017.py --check and pytest -q tests/test_l001_p017_reverse_falsification.py. No changed original HG009 cohorts or prospective T012 experiments.
+
+## October 20, 2026 external timing verification
+
+NSE's official 2026 equity holiday calendar explicitly lists **Tuesday October 20, 2026** as a Dussehra trading holiday. There is **no October 20 official NSE EQ close** to insert between October 19 and October 21. The October 15 and October 19 original price observations above remain the newest fully pinned source dates used in this report. This publication-day clarification neither changes historical source prices nor retroactively repairs the experiment.
+
+Original exchange calendar: https://www.nseindia.com/resources/exchange-communication-holidays
+
+**External issuer-evidence caution:** Zuari Industries' 2026 annual-report shareholding/security notes identify multiple pledged Chambal Fertilisers, Paradeep and Gillette-related investment claims securing different debts. A listed-stake NAV haircut cannot be interpreted as unencumbered cash realizable by parent common shareholders. Actual pledge release, entity-level debt waterfall, and cross-company ownership still require issuer-controlled original evidence, rather than deducting the pledge's face value a second time. The P017 13.19% haircut remains a purely illustrative break-even sensitivity, not a verified conservative liquidation discount.
