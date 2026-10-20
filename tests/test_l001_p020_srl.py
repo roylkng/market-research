@@ -21,10 +21,10 @@ from marketlab.l001_p020_srl_hurdles import (
     IMPAIRMENT_SOURCE,
     P019_REPORT_SHA,
     REPORT_DATE,
+    _normal,
     build_franchise_hurdle,
     materialize,
     original_page_proof,
-    _normal,
     validate,
 )
 
