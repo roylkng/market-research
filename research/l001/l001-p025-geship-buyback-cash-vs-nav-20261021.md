@@ -38,3 +38,10 @@ Compare with the already-signed October 20 L001 P023 stress: a **27.74% write-do
 No actual October 19 current fair value or expected return follows. A defensible investor model needs: original ship-by-ship values, tanker/offshore industry cycle, present cash/debt after buyback, all legal canceled shares and future cash commitments, segment sustainable owner cash, NAV controls, and execution liquidity. Existing L001/PF001 trading studies are unchanged. **Do not promote GESHIP to a buy recommendation.**
 
 Code: src/marketlab/l001_p025_nav_accretion.py; original-source CLI scripts/archive_l001_p025_nav_accretion.py; signed output research/l001/l001-p025-geship-issuer-buyback-cash-nav-v1.json. Unit tests are fully synthetic as to issuer HTML, while numeric values derive from the company website's dated daily table.
+
+
+## Original issuer HTML custody completed
+
+Official GESHIP Daily Activity page bytes were successfully archived under research/l001/originals/geship_2026_buyback_table. Actual first-seen retrieval by this workflow: **2026-10-20T19:03:50.394496Z** (October 21, 00:33:50 IST). Original 86,249-byte HTML SHA-256 **ad9fa14e0dea3f740a915fadef21af2cf76debf02d50dbdf48b0b023f146c83f**. The frozen 30-row original-source arithmetic report SHA-256 is **e0759fda15b35a50689b91e08a91a6fa47fe5ce194a9b43819d67fc9f7996224**. Both have source-based CI checks and independent byte replay. The source timestamp is retrieval time only, not presumed first-ever public issuer publication. Prices are displayed to two decimal places by the issuer, and transaction fees and actual settlement cash are excluded.
+
+The replay produced September ₹262.714746cr and October through 19th ₹187.802444cr. The two June NAV counterfactual values are ₹1,892.236792 and ₹1,895.545561 respectively. Neither is an October 2026 fleet NAV.
