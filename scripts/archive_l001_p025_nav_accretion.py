@@ -25,6 +25,7 @@ from marketlab.l001_p025_nav_accretion import (
     validate_cash_nav_result,
 )
 
+
 def _write_once(path: Path, raw: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
