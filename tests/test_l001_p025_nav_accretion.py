@@ -103,7 +103,7 @@ def test_sept_oct_cash_spend_and_cancellation_correctly_net_each_other():
 
 
 def test_forged_daily_cumulative_table_or_silent_new_oct21_row_rejected():
-    wrong = _html().replace(b"30,95,660", b"31,95,660", 1)
+    wrong = _html().replace(b"3,095,660", b"3,195,660", 1)
     with pytest.raises(AlphaContractError, match="daily and cumulative"):
         _original_table(wrong)
     newer = _html().replace(
