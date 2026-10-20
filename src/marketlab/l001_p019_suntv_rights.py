@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 from marketlab.alpha import AlphaContractError, digest
-import json
 
 REVIEW_ID = "L001-P019-SUNTV-AUDITED-FRANCHISE-RIGHTS-CASH-BRIDGE-v1"
 SOURCE_PATHS = {
