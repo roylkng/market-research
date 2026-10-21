@@ -12,6 +12,7 @@ import csv
 import gzip
 import hashlib
 import io
+import json
 import re
 from collections import Counter
 from datetime import UTC, datetime
@@ -77,8 +78,6 @@ def _utc(value: str) -> str:
 
 def _frozen(root: Path) -> dict[str, dict[str, str]]:
     router, selected = load_hg009_inputs(root)
-    import json
-
     controls = json.loads(
         (root / "research/hg009/hg009-p001-matched-300-company-controls-v1.json")
         .read_text(encoding="utf-8")
@@ -261,8 +260,6 @@ def archive(
         result["actual_first_retrieved_at_utc"].replace(":", "-") + ".json"
     )
     p.parent.mkdir(parents=True, exist_ok=True)
-    import json
-
     encoded = json.dumps(result, sort_keys=True, indent=2) + "\n"
     if p.exists() and p.read_text("utf-8") != encoded:
         raise AlphaContractError("P034 existing original receipt rewritten")
@@ -271,8 +268,6 @@ def archive(
 
 
 def replay_originals(root: Path) -> dict[str, Any]:
-    import json
-
     verified = []
     for file in sorted((root / RECEIPT_DIR).glob("*.json")):
         saved = json.loads(file.read_text(encoding="utf-8"))
