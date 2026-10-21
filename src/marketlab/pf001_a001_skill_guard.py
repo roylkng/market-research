@@ -51,7 +51,7 @@ PINNED = {
     ),
     "DEVELOPMENT_SUMMARY": (
         ROOT / "runs" / AS_OF / "development-attribution-summary.json",
-        "44447c2c32f6b817c6f96b0b200b3d32bf40f8",
+        "44447c2c32f6b817c6f96b0b200b3d32bf40f8a7",
     ),
 }
 
