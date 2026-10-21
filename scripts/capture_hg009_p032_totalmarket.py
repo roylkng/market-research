@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import gzip
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -32,6 +34,7 @@ def run(root: Path, *, check_only: bool = False) -> dict:
             "original_evidence_count": 0,
             "live_capital_allowed": False,
         }
+    raw: bytes | None = None
     try:
         raw = NSEClient(timeout=16, attempts=1).archive_bytes(SOURCE_URL)
         retrieved = datetime.now(UTC).isoformat()
@@ -51,13 +54,29 @@ def run(root: Path, *, check_only: bool = False) -> dict:
         }
     except (NSEAcquisitionError, AlphaContractError) as exc:
         observed = datetime.now(UTC).isoformat()
+        # A structurally unexpected HTTP 200 NSE CSV is important research
+        # evidence. Preserve its *actual* original bytes in quarantine, not
+        # the failed/empty company-sector joins. Never call this verified.
+        raw_sha = hashlib.sha256(raw).hexdigest() if raw else None
+        quarantine_path = None
+        if raw_sha is not None:
+            quarantine = root / "research/hg009/p032-totalmarket/quarantine"
+            quarantine.mkdir(parents=True, exist_ok=True)
+            target = quarantine / f"{raw_sha}.csv.gz"
+            encoded = gzip.compress(raw, mtime=0, compresslevel=9)
+            if target.exists() and target.read_bytes() != encoded:
+                raise AlphaContractError("P032 quarantine original bytes collision")
+            target.write_bytes(encoded)
+            quarantine_path = str(target.relative_to(root))
         error = {
             "state": "BLOCKED_OFFICIAL_NSE_ORIGINAL_CSV",
             "source_url": SOURCE_URL,
             "actual_attempt_at_utc": observed,
             "error_kind": type(exc).__name__,
             "error_summary": str(exc)[:350],
-            "source_raw_sha256": None,
+            "source_raw_sha256": raw_sha,
+            "quarantine_raw_repo_path": quarantine_path,
+            "original_response_bytes_retained_unverified": raw_sha is not None,
             "industry_cells_verified": 0,
             "live_capital_allowed": False,
         }
