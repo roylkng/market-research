@@ -3,6 +3,7 @@ name: HG009 P036 source-only next independent cohort feasibility
 on:
   push:
     branches:
+      - main
       - research/hg009-p036-independent-index-sourced-cohort-feasibility-20261021
     paths:
       - .github/workflows/hg009-p036-feasibility.yml
@@ -51,7 +52,8 @@ jobs:
             exit 0
           fi
           git commit -m "HG009 P036: freeze independent source-industry matching limits [skip ci]"
-          git fetch origin research/hg009-p036-independent-index-sourced-cohort-feasibility-20261021
-          git rebase origin/research/hg009-p036-independent-index-sourced-cohort-feasibility-20261021
+          TARGET_BRANCH="$GITHUB_REF_NAME"
+          git fetch origin "$TARGET_BRANCH"
+          git rebase "origin/$TARGET_BRANCH"
           python scripts/materialize_hg009_p036.py --check
-          git push origin HEAD:research/hg009-p036-independent-index-sourced-cohort-feasibility-20261021
+          git push origin "HEAD:$TARGET_BRANCH"
