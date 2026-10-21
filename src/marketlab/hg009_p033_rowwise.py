@@ -111,9 +111,16 @@ def parse_nse_totalmarket_rows(raw: bytes) -> dict[str, Any]:
             "industry": industry,
             "series": "EQ",
         }))
+    # A second malformed row with the same symbol still makes the entire
+    # symbol ambiguous. Never accept a clean-looking EQ row by ignoring its
+    # conflicting source sibling.
+    all_symbols = Counter(
+        (row.get(header["Symbol"]) or "").strip()
+        for row in raw_rows if None not in row
+    )
     verified = {}
     for symbol, rows in found.items():
-        if len(rows) != 1:
+        if len(rows) != 1 or all_symbols[symbol] != 1:
             for row_number, _ in rows:
                 rejected.append({
                     "row": row_number,
