@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 import subprocess
 import sys
 from pathlib import Path
@@ -188,3 +189,44 @@ def test_direct_offline_CLI_replays_source_without_network_or_writes():
     assert answer["status"]["live_capital_allowed"] is False
     assert answer["status"]["historical_Oct15_sector_regression_eligible"] is False
     assert not answer["attempted"]
+
+
+def test_prior_NSE_access_denial_stops_all_subsequent_same_day_jobs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+):
+    from scripts import capture_hg009_p031_industry as runner
+
+    today = datetime.now(UTC).date().isoformat()
+    folder = tmp_path / "research/hg009/p031-industry/receipts" / today
+    folder.mkdir(parents=True)
+    (folder / "source-denied.json").write_text(
+        json.dumps({
+            "symbol": SYMBOL,
+            "state": "BLOCKED_NSE_ACCESS_OR_RATE_LIMIT",
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        runner, "frozen_members",
+        lambda _: {SYMBOL: (ISIN, "SELECTED")},
+    )
+    monkeypatch.setattr(
+        runner, "load_verified_receipts",
+        lambda _root, _members: ({}, {}),
+    )
+    monkeypatch.setattr(
+        runner, "build_coverage_status",
+        lambda _: {"verified_original_NSE_issuer_four_tier_count": 0},
+    )
+
+    class NoNetworkAllowed:
+        def __init__(self, **kwargs):
+            raise AssertionError("NSE requests must stop after a daily 403")
+
+    monkeypatch.setattr(runner, "NSEClient", NoNetworkAllowed)
+    result = runner.run(tmp_path, max_symbols=3)
+    assert result["state"] == "NSE_ACCESS_DENIED_TODAY_NO_MORE_REQUESTS"
+    assert result["next_cohort_released"] is False
+    assert not result["attempted"]
+    assert result["live_capital_allowed"] is False
