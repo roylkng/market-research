@@ -121,7 +121,7 @@ def test_too_many_invalid_or_bad_csv_schema_fail_closed():
         parse_nse_totalmarket_rows(_source(bad=21))
     with pytest.raises(AlphaContractError, match="source bytes"):
         parse_nse_totalmarket_rows(b"<html>HTTP 403</html>")
-    with pytest.raises(AlphaContractError, match="before method"):
+    with pytest.raises(AlphaContractError, match="predates method registration"):
         analyze(root=ROOT, raw=_source(), first_observed_at_utc="2026-10-20T12:00:00Z")
 
 
