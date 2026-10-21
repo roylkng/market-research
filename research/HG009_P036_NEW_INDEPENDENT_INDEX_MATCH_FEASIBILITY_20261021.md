@@ -38,3 +38,20 @@ The materializer uses only retained original Git data. It does **not** contact N
     pytest -q tests/test_hg009_p036_pool.py
 
 The signed artifact will be placed at research/hg009/hg009-p036-next-cohort-industry-feasibility-v1.json. A successful report does not automatically register a new portfolio or make a BUY recommendation. Original 300-company H1/H5 evidence stays immutable and separate.
+
+
+## First authentic source-replay result (October 21, 2026)
+
+The dedicated source-only script successfully parsed the archived official **741 valid EQ/industry** NSE index rows and excluded every original 300 development name. The eligible candidate counts after outside-U001, original caution and historical >=₹1 crore/day traded-value gates were:
+
+| Arm | Original candidate pool after source gates | Maximum exact industry + turnover triplets |
+|---|---:|---:|
+| Convergent (2+ signals) | 26 | 18 |
+| One signal | 110 | 18 |
+| Zero signals | 55 | 18 |
+
+The **maximum feasible independent exact-match cohort is 18 companies per arm (54 total)**. This is **not** an approved trial with adequate statistical power or broad Indian-equity coverage. The shortfall is not solved by cherry-picking favorable sectors or relaxing industry/turnover matching after seeing a return. Numbers arose from original Oct5 opportunity source combined with original NSE Oct21 one-level industry source, not future returns.
+
+Source builder's deterministic report SHA-256 on the first captured run: `7c98f87ecac25350a6611c212a7f4b9b6c0ffe92dca7b1e083971e7ae7dbcb66`. The report requires its permanent Git artifact and independent replay. The next method must separately verify financial accounting regime, float capitalization, risk, industry source scope, dividends/entitlements and execution costs before any 60/120/252 NSE-trading-session prospective entry.
+
+**Strategic interpretation:** the "restrict to easily classified NSE index names" alternative closes the sector-data-gap only by shrinking the experimental population dramatically. It may be a useful small feasibility pilot, but it does not fulfill a large, high-confidence hidden-gem alpha objective. Broader original issuer segment/industry coverage and independent sources remain necessary for a well-powered generalizable trial.
