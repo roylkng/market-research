@@ -88,7 +88,7 @@ def classify_future_market_clock(
                 else None
             )
             derivatives_end = _ist_to_utc(
-                day, 15, 30 if derivative_is_expiring_index else 15, 45
+                day, 15, 30 if derivative_is_expiring_index else 45
             )
         else:
             expiry_source = (
