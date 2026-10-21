@@ -25,7 +25,7 @@ The independently sealed original L001 P018 October 19 source puts the five list
 
 This is **not** a shareholder sum-of-parts value. It omits contemporaneous lender debt, cash encumbrances, portfolio pledge release, unlisted-subsidiary net cash/debt, the current rights/holding share units, minority claims, tax on dispositions, proceeds available for distribution and market-impact haircut.
 
-<escape>Illustrative scenario table</escape>
+### Illustrative scenario table
 
 | Extra markdown on these October 19 marks | Remaining investee stakes (₹ crore) | Gap after *stale March borrowing* and historical October equity cap (₹ crore) |
 |---:|---:|---:|
@@ -44,7 +44,20 @@ A mere **12.5863% additional discount** on the investee marks erases the apparen
 
 Key falsifiers: (1) parent financing cost exceeds sustainable operating cash, (2) company ownership stakes are collateralized or inaccessible without creditors, (3) unlisted ventures require additional reinvestment, (4) parent dilution and buybacks change share counts, (5) liquidating listed positions incurs tax/impact, and (6) the present market already capitalizes probable realizations.
 
-**Source-custody limitation:** The public original 30-page issuer PDF was visually reviewed. Complete PDF original bytes/actual Git source receipt are **not archived in this packet**. The two prior Git JSON financial/market research inputs are pinned by exact Git blobs and independently rehashed.
+**Source provenance at the model's freeze:** The public issuer 30-page PDF was visually reviewed when the numerical packet was first sealed. Its complete raw PDF bytes were not yet available **in the original mathematical packet**, which therefore keeps its `original_pdf_bytes_archived_in_this_packet=false` flag unchanged. The two prior Git JSON research inputs were independently pinned and verified.
+
+## Independently completed original PDF custody
+
+The subsequent original-source job retrieved the **exact same** August 14 presentation and successfully verified the issuer plus financial tables on all required original pages. The original PDF bytes are now retained in a **separate, immutable source receipt**, rather than retroactively altering the signed mathematical packet:
+
+- Actual original retrieval: **2026-10-21T16:12:01.446882Z**, not presumed August publication time.
+- Original 30-page PDF length: **7,696,113 bytes**.
+- Original raw PDF SHA-256: `6ebec1ef99aba350000aab28b1e9f1b6c6a39471458df488ece9c7f8ea4fb25b`.
+- Verified issuer, original 14-Aug announcement, June investment-table amounts, consolidated Q1 profit/loss and segment finance/EBITDA original pages.
+- Original PDF: `research/l001/originals/zuari_q1/sha256/6ebec1ef99aba350000aab28b1e9f1b6c6a39471458df488ece9c7f8ea4fb25b.pdf`.
+- Signed independent receipt: `research/l001/originals/zuari_q1/receipts/6ebec1ef99aba350000aab28b1e9f1b6c6a39471458df488ece9c7f8ea4fb25b.json`, receipt SHA `331f55592d26eae018dca3c696b4d78b7d1dcabee486211271738e8a17885cf7`.
+
+This upgrade proves original source custody and page-level numerical consistency only. It does **not** convert the mixed-date stress analysis into a contemporaneous attributable shareholder NAV or an investment recommendation.
 
 Canonical report: research/l001/l001-p025-zuari-q1-debt-stake-falsification-v1.json.
 Generator: scripts/materialize_l001_p025_zuari.py.
