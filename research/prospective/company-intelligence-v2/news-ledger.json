@@ -12565,9 +12565,119 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-21T14:35:57.506888+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "captured_at": "2026-10-21T14:43:41.519994+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 2
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "f0a2e9bf7cb185bb112704355772d2954d662abee3d7295414aabc26d6ecfbde",
+      "identity_session": "2026-10-19",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "9331c4497d4fd021deda99e9ef2f9b67c3a465c2002b42b8c65301f1f0c42445",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 2,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-10-21T14:42:56.351218+00:00"
     }
   ],
-  "ledger_sha256": "864835708af64361b68b124d5f393e8349a52d329c2c88b5df08f128d627efea",
+  "ledger_sha256": "3279c309c5a2c527f73b458c148d29a59ebac9b53272230fe665c312f3c87d8f",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -903252,6 +903362,212 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "26a5a33bdef437de4f76dde8013aa3161d01997e0dbb35581c11d1c67a99c19e",
+      "topics": []
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T14:43:18.244855+00:00",
+      "item_id": "a6028d930479e2a0aff4e8ecf4c2013e40bd028dd834d574dfbd2a38348eb268",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2a7b218cf1e8fcea9ec36cfb980414f95c70ea48035395eb7054bae0835503ea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:42:00 +0000",
+        "value": "2026-10-21T14:42:00+00:00"
+      },
+      "resource_key": "prn:302915609",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "738ccae1fb8e91cdc82f5e2c32e1c9a2a6d5220332c2b9e7e669fef4aaf886b3",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T14:43:18.244855+00:00",
+      "item_id": "adca0fd1a58c727115b2d7ca52f611209e51a94e00876521bf0fbfc3e8211f55",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4de9112dc08035fb4594135cdf8b5d52f858c87a60013a0c7baba1de478b99f1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:35:00 +0000",
+        "value": "2026-10-21T14:35:00+00:00"
+      },
+      "resource_key": "prn:302915602",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "fc0a75fa2f2da95d5a6fcac426ce8a015b7744043dd8736f2cd4b5ec71562136",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T14:43:18.244855+00:00",
+      "item_id": "61605909d53d6ca0b019cbf570e32ec57bfff77dad00bc6a110f0639238bdaf2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "807e3c9017d7a1fb4bad153d25385c644712b214001b89dea3737c48c1cc9477",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:38:00 +0000",
+        "value": "2026-10-21T14:38:00+00:00"
+      },
+      "resource_key": "prn:302915605",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "782898dc59d87ee65a075b2672be3aa08ed4a1a1f4f48236ac8f5c4010d5377a",
+      "topics": []
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "KRN HEAT EXCHANGER AND REFRIGERATION LIMITED has informed the Exchange about Board Meeting to be held on 29-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "4694ee75a2bb5bc52db4043cbcea0d799edcbbdd28743686e14b868c803a5843",
+      "first_seen_at": "2026-10-21T14:43:18.864997+00:00",
+      "item_id": "3e6708412b3ad22dd75e60aff121fcbe40ff6c27cf189792a191473aa7079271",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "160270957bca96ec04e6fd5b9e43edaef676b8c348892905ba752e3dc615d3cf",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 20:08:01",
+        "value": "2026-10-21T14:38:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_23090_WebXMLFile_20261021_200800959.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "42c56fe0ec44f07af4e2bb77d10a6fd23a2ace4774d202863b49852e876d31bc",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "Sundram Fasteners Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "8e42aa731f2c14b165ec8840cf477ee928c6ede0b0aab4eee0ac8ab77f7af875",
+      "first_seen_at": "2026-10-21T14:43:18.864997+00:00",
+      "item_id": "6672098d46be15e56a065eb631183905b7dd8b537c1af6788f249fdd7528a3ac",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SUNDRMFAST"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3698d9b236b26a9c62d56798d7a9bc943b83509d2c63e545db468b19de859d8b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 20:11:59",
+        "value": "2026-10-21T14:41:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SUNDRMFAST_21102026201148_SFLSELETTERREG29BMNOTICE.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "766468c5782486e57f73fb66504e1549050ef7d44d3cdbd2b37e9c2b5c076261",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "Laxmi Dental Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "750c1010b5066fecb92cb0a57681c041818def59b5e5c8d430264de2c66f40ac",
+      "first_seen_at": "2026-10-21T14:43:18.864997+00:00",
+      "item_id": "370736bd35e565ba91bfe2f00cefc165a6ff502b3936878111d5f73c324035a6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LAXMIDENTL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "50827bca9b82049005adc83d428dae14a7d41c3844c3165e4488a480aedb4430",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 20:07:54",
+        "value": "2026-10-21T14:37:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LAXMI_21102026200733_Intimation_on_receiving_COI_of_Leelaben_Foundation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "fc5efa0bb8be3a1642e7c449f0c96ef077c1f68e5295d4e09235179dfc0eb856",
+      "topics": []
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "NBCC (India) Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "799099ea7fc4b6535cee026a1956bd3f209e8dafc2aabd69b1d8910c5833465b",
+      "first_seen_at": "2026-10-21T14:43:18.864997+00:00",
+      "item_id": "49eb4e6b1bd8d31ee76fe5093b3b06b6235cf9ec0d3dac6c175a2259090fb94d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NBCC"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7c3351a74871ab5c865a56499cc1a3d61f39f30b6e812fe54fae483246dbedf7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 20:08:38",
+        "value": "2026-10-21T14:38:38+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/NBCC_21102026200829_IntimationMCACorrigendum6102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "57f760619f42c095ba31e7838f1b2ce4f0a780d61176ad9c177b2ab43fe845ad",
+      "topics": []
+    },
+    {
+      "capture_id": "7520762f71cc22573892abc1f37d91da9ada9cf962bc686cabf1ee184caa637d",
+      "event_context": "Digjam Limited has informed the Exchange about Registrar & Share Transfer Agent Update |SUBJECT: Registrar & Share Transfer Agent Update",
+      "event_context_sha256": "439e03f6d1b1c6c677e69059e82bf9e78013dffcb089a767112e32a607ee5050",
+      "first_seen_at": "2026-10-21T14:43:18.864997+00:00",
+      "item_id": "752293c33f4d9c54f9d168e2e7286e11f957dc0b2cdb45ab7b2b10a952f7f074",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b7d78b37cd39ca5efa4167da323d690600c272787d2cad03358320440f121dd4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 20:12:22",
+        "value": "2026-10-21T14:42:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/DIGJAMLMTD_21102026201044_Outcome_of_BM_Final.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "650f9eae2af73b66b937bd2875202b68d8b7af469374e55121bfad746b974517",
       "topics": []
     }
   ],
