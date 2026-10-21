@@ -82,7 +82,6 @@ def test_same_symbol_without_same_isin_remains_unclassified():
     )
     company = next(x for x in report["frozen_300_company_industry_rows"]
                    if x["symbol"] == "ABCAPITAL")
-    assert company["original_NSE_index_industry_if_exact"] if False else True
     assert company["official_industry_if_verified"] is None
     assert company["classification"] == "SOURCE_NOT_AVAILABLE_OR_IDENTITY_CONFLICT"
     assert report["frozen_300_exact_symbol_isin_matches"] == 0
