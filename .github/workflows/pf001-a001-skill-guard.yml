@@ -1,0 +1,62 @@
+name: PF001 A001 cash-only benchmark-skill attribution audit
+
+on:
+  push:
+    branches:
+      - research/pf001-a001-cash-only-skill-admission-20261021
+    paths:
+      - .github/workflows/pf001-a001-skill-guard.yml
+      - src/marketlab/pf001_a001_skill_guard.py
+      - scripts/materialize_pf001_a001.py
+      - tests/test_pf001_a001_skill_guard.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pf001-a001-original-cash-skill-audit
+  cancel-in-progress: false
+
+jobs:
+  seal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Replay original cash-only and development fund states
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_pf001_a001.py
+          python scripts/materialize_pf001_a001.py --check
+          ruff check src tests scripts
+          pytest -q
+          python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+          python scripts/validate_rta001_coverage.py --repo-root .
+          marketlab validate-registry registry/hypotheses.yaml
+          python scripts/materialize_pf001_a001.py --check
+      - name: Seal separate audit without rewriting legacy PF001 attribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="research/paper-funds/PF001/audits/pf001-a001-stock-selection-skill-v1.json"
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUT"
+          if git diff --cached --quiet; then
+            echo "PF001 A001 original-skill audit already sealed"
+            exit 0
+          fi
+          git commit -m "PF001 A001: freeze source-replayed cash avoidance versus selection skill [skip ci]"
+          git fetch origin research/pf001-a001-cash-only-skill-admission-20261021
+          git rebase origin/research/pf001-a001-cash-only-skill-admission-20261021
+          python scripts/materialize_pf001_a001.py --check
+          git push origin HEAD:research/pf001-a001-cash-only-skill-admission-20261021
