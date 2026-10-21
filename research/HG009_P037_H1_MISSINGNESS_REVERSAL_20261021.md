@@ -31,11 +31,11 @@ The true full-100 mean remains **unknown**, since neither missing stock has an o
 To reverse the selected-versus-one-signal sign:
 
     (unknown_RET​AIL_percent - unknown_MOREPENLAB_percent)
-       must exceed approximately 13.992561 percentage points.
+       must exceed approximately 13.992525 percentage points.
 
 To reverse selected-versus-zero (where there is no missing control):
 
-    unknown_RETAIL_percent must exceed approximately +31.993364%.
+    unknown_RETAIL_percent must exceed approximately +31.993342%.
 
 These are **arithmetic thresholds**, not claims that either return happened or could have happened under an exchange price band. They do not predict tomorrow.
 
