@@ -144,7 +144,6 @@ def analyze_original(
 ) -> dict[str, Any]:
     observed = _utc(first_observed_at_utc)
     headers, rows, csv_bytes, delimiter = _raw_csv(original_gzip)
-    names = [_canonical_header(h) for h in headers]
     columns = {kind: _column(headers, kind) for kind in COLUMN_ALIASES}
     possible_sectors = [
         h for h in headers if _canonical_header(h) in SECTOR_COLUMNS
