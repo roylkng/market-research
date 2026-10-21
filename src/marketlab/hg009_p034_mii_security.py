@@ -104,7 +104,9 @@ def _raw_csv(original_gzip: bytes) -> tuple[list[str], list[dict[str, str]], byt
     if not 300_000 <= len(original_gzip) <= 5_000_000:
         raise AlphaContractError("P034 original NSE MII gzip implausible size")
     try:
-        raw_csv = gzip.decompress(original_gzip)
+        # Limit decompression before allocating large untrusted archives.
+        with gzip.GzipFile(fileobj=io.BytesIO(original_gzip)) as stream:
+            raw_csv = stream.read(45_000_001)
     except (OSError, EOFError) as exc:
         raise AlphaContractError("P034 source is not valid original gzip") from exc
     if not 1_000_000 <= len(raw_csv) <= 45_000_000:
