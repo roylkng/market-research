@@ -32,7 +32,7 @@ INDUSTRY_KEYS = {
     "basicindustryname", "sectorindustry",
 }
 ISIN_KEYS = {"isinnumber", "isin", "isincode", "isinno", "securityisin"}
-SOURCE_SYMBOL_KEYS = {"scripid", "symbol", "scripname", "tradesymbol"}
+SOURCE_SYMBOL_KEYS = {"scripid", "symbol", "tradesymbol"}
 MARKETCAP_KEYS = {"mktcap", "marketcap", "marketcapitalisation", "marketcapitalization"}
 
 
