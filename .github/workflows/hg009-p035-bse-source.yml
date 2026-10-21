@@ -1,0 +1,66 @@
+name: HG009 P035 BSE full equity ISIN original industry feasibility
+
+on:
+  push:
+    branches:
+      - research/hg009-p035-bse-all-equity-original-isin-20261021
+    paths:
+      - .github/workflows/hg009-p035-bse-source.yml
+      - src/marketlab/hg009_p035_bse_industry.py
+      - scripts/capture_hg009_p035_bse_industry.py
+      - tests/test_hg009_p035_bse_industry.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p035-original-bse-full-equity
+  cancel-in-progress: false
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned repo dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Test 300 immutable NSE identities and independent BSE source replay
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check \
+            src/marketlab/hg009_p035_bse_industry.py \
+            scripts/capture_hg009_p035_bse_industry.py \
+            tests/test_hg009_p035_bse_industry.py
+          pytest -q tests/test_hg009_p035_bse_industry.py
+          python scripts/capture_hg009_p035_bse_industry.py --check
+      - name: Attempt one original public BSE source, no circumvention
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_hg009_p035_bse_industry.py \
+            --attempt-id "run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          python scripts/capture_hg009_p035_bse_industry.py --check
+      - name: Anchor success or failed-source attempt on science branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/hg009/p035-bse-industry
+          if git diff --cached --quiet; then
+            echo "No new independent BSE source evidence"
+            exit 0
+          fi
+          git commit -m "HG009 P035: seal actual BSE public original source attempt [skip ci]"
+          git fetch origin research/hg009-p035-bse-all-equity-original-isin-20261021
+          git rebase origin/research/hg009-p035-bse-all-equity-original-isin-20261021
+          python scripts/capture_hg009_p035_bse_industry.py --check
+          git push origin HEAD:research/hg009-p035-bse-all-equity-original-isin-20261021
