@@ -1,0 +1,62 @@
+name: L001 P026 original FY26 Zuari lender-collateral annual PDF
+
+on:
+  push:
+    branches:
+      - research/l001-p026-zuari-annual-pledge-maturity-20261021
+    paths:
+      - .github/workflows/l001-p026-zuari-annual.yml
+      - src/marketlab/l001_p026_zuari_annual.py
+      - scripts/archive_l001_p026_zuari_annual.py
+      - tests/test_l001_p026_zuari_annual.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l001-p026-zuari-original-fy26-annual
+  cancel-in-progress: false
+
+jobs:
+  annual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install primary source PDF parsing dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Test source identity, collateral note text, actual UTC and fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/l001_p026_zuari_annual.py scripts/archive_l001_p026_zuari_annual.py tests/test_l001_p026_zuari_annual.py
+          pytest -q tests/test_l001_p026_zuari_annual.py
+      - name: Preserve original company FY26 annual PDF or blocked source receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/archive_l001_p026_zuari_annual.py \
+            --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python scripts/archive_l001_p026_zuari_annual.py --check
+      - name: Seal raw issuer source and bounded evidence on source-freeze branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/l001/originals/zuari_fy26_annual
+          if git diff --cached --quiet; then
+            echo "No new official annual original evidence"
+            exit 0
+          fi
+          git commit -m "L001 P026: archive original FY26 annual creditor-pledge source receipts [skip ci]"
+          git fetch origin research/l001-p026-zuari-annual-pledge-maturity-20261021
+          git rebase origin/research/l001-p026-zuari-annual-pledge-maturity-20261021
+          python scripts/archive_l001_p026_zuari_annual.py --check
+          git push origin HEAD:research/l001-p026-zuari-annual-pledge-maturity-20261021
