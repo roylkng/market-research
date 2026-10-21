@@ -29,6 +29,13 @@ def test_source_is_original_archived_nse_index_not_legacy_return():
     assert r["original_full_market_identities"] == 2319
     assert r["original_development_identity_count"] == 300
     assert r["original_development_identities_seen"] == 300
+    assert r["new_eligible_source_rows_by_arm"] == {
+        "CONVERGENT_2PLUS": 26,
+        "ONE_SIGNAL": 110,
+        "ZERO_SIGNAL": 55,
+    }
+    assert r["maximum_industry_liquidity_matched_triplets"] == 18
+    assert r["maximum_new_company_count_at_these_two_dimensions"] == 54
     assert r["source_first_observed_at_utc"] == (
         "2026-10-21T10:33:05.207160+00:00"
     )
