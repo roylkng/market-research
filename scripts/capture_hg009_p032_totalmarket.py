@@ -18,10 +18,41 @@ from marketlab.hg009_p032_totalmarket import (
 from marketlab.nse import NSEAcquisitionError, NSEClient
 
 
+def _verify_blocked_raw_receipts(root: Path) -> int:
+    failures = root / "research/hg009/p032-totalmarket/attempts"
+    count = 0
+    for path in sorted(failures.glob("*.json")):
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+        if (
+            receipt.get("state") != "BLOCKED_OFFICIAL_NSE_ORIGINAL_CSV"
+            or receipt.get("source_url") != SOURCE_URL
+            or receipt.get("industry_cells_verified") != 0
+            or receipt.get("live_capital_allowed") is not False
+        ):
+            raise AlphaContractError("P032 invalid blocked original NSE receipt")
+        expected = receipt.get("source_raw_sha256")
+        relative = receipt.get("quarantine_raw_repo_path")
+        if expected is not None:
+            correct = f"research/hg009/p032-totalmarket/quarantine/{expected}.csv.gz"
+            if relative != correct or not (root / relative).is_file():
+                raise AlphaContractError("P032 unverified original source custody missing")
+            try:
+                original = gzip.decompress((root / relative).read_bytes())
+            except OSError as exc:
+                raise AlphaContractError("P032 unverified original source gzip broken") from exc
+            if hashlib.sha256(original).hexdigest() != expected:
+                raise AlphaContractError("P032 unverified original source SHA mismatch")
+        elif relative is not None:
+            raise AlphaContractError("P032 blocked request invented original source")
+        count += 1
+    return count
+
+
 def run(root: Path, *, check_only: bool = False) -> dict:
     verified = replay_all(root)
+    blocked_count = _verify_blocked_raw_receipts(root)
     if check_only:
-        return verified
+        return {**verified, "blocked_original_source_attempt_count": blocked_count}
     if verified["original_evidence_count"]:
         return {**verified, "state": "ORIGINAL_CSV_ALREADY_ARCHIVED_NO_REDOWLOAD"}
     now = datetime.now(UTC)
