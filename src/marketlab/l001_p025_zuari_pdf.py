@@ -56,7 +56,7 @@ def _content_check(raw: bytes) -> dict[str, Any]:
             if term[0].isdigit() and term[-1].isdigit():
                 # "8.05" must not match "88.05" or "8.050".
                 matched = re.search(
-                    rf"(?<![\\d.]){re.escape(term)}(?![\\d.])", text
+                    rf"(?<![0-9.]){re.escape(term)}(?![0-9.])", text
                 ) is not None
             else:
                 matched = term in text
