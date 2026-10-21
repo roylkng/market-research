@@ -52,7 +52,7 @@ def _original_fixture(
         if symbol == duplicate_isin:
             rows.append(dict(row))
     for i in range(3200):
-        rows.append({
+        dummy = {
             "SCRIP_CD": str(600000 + i),
             "scrip_id": f"FILL{i:05d}",
             "Scrip_Name": f"Other synthetic equity member {i}",
@@ -62,7 +62,10 @@ def _original_fixture(
             "Segment": "Equity",
             "Mktcap": str(2000 + i),
             "Issuer_Name": f"Other equity listed issuer {i} group",
-        })
+        }
+        if remove_isin_header:
+            dummy["UnrelatedId"] = dummy.pop("ISIN_NUMBER")
+        rows.append(dummy)
     encoded = json.dumps({"Data": rows}, separators=(",", ":")).encode("utf-8")
     assert len(encoded) > 100000
     return encoded
