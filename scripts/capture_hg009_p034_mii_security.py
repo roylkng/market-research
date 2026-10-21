@@ -16,7 +16,6 @@ import requests
 
 from marketlab.alpha import AlphaContractError, digest
 from marketlab.hg009_p034_mii_security import (
-    RECEIPT_DIR,
     SOURCE_URL,
     archive,
     replay_originals,
@@ -95,7 +94,7 @@ def main() -> int:
                 "company_sector_coverage_added": 0,
                 "live_capital_allowed": False,
             }
-    receipt_dir = args.repo_root / RECEIPT_DIR
+    receipt_dir = args.repo_root / "research/hg009/p034-mii-security/attempts"
     receipt_dir.mkdir(parents=True, exist_ok=True)
     path = receipt_dir / f"attempt-{args.attempt_id}.json"
     report["attempt_receipt_sha256"] = digest(report)
