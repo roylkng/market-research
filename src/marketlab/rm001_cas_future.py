@@ -55,7 +55,7 @@ def classify_future_market_clock(
         return {
             "session_date": session_date,
             "state": "PRE_EFFECTIVE_KEEP_ORIGINAL_MARKET_AND_EVIDENCE_CLOCK",
-            "minimum_auction_complete_utc": None,
+            "conservative_full_CAS_order_window_elapsed_utc": None,
             "derivative_trading_end_utc": None,
             "expiry_settlement_source": None,
             "new_sebi_regime_applied": False,
@@ -69,7 +69,10 @@ def classify_future_market_clock(
             state = "CONTINUOUS_TRADING_STOCK_NOT_IN_CAS_PHASE_ONE"
             cas_clock = None
         else:
-            state = "CAS_AUCTION_PRICE_NOT_PUBLIC_BEFORE_AFTER_1540_IST"
+            # Random order entry may close 15:38–15:40. This 15:40 value is
+            # a conservative post-window audit reference, NOT a claim that
+            # the official exchange auction price cannot publish earlier.
+            state = "CAS_FINAL_PRICE_REQUIRES_OBSERVED_ORIGINAL_PUBLICATION"
             cas_clock = _ist_to_utc(day, 15, 40)
         expiry_source = None
         derivatives_end = None
@@ -97,7 +100,7 @@ def classify_future_market_clock(
     return {
         "session_date": session_date,
         "state": state,
-        "minimum_auction_complete_utc": cas_clock,
+        "conservative_full_CAS_order_window_elapsed_utc": cas_clock,
         "derivative_trading_end_utc": derivatives_end,
         "expiry_settlement_source": expiry_source,
         "new_sebi_regime_applied": True,
@@ -132,7 +135,7 @@ def audit_2026_frozen_cas_transition(
         rows.append({
             "session_date": s.session_date,
             "legacy_calendar_close_utc": frozen_close.isoformat(),
-            "not_before_new_CAS_order_entry_completion_utc": (
+            "conservative_full_CAS_order_window_elapsed_utc": (
                 earliest_cas_complete.isoformat()
             ),
             "legacy_close_is_not_future_CAS_publication_proof": True,
