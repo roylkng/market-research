@@ -53,7 +53,7 @@ def run(
     ):
         raise AlphaContractError("P031 unsafe NSE request frequency/budget")
     members = frozen_members(root)
-    existing, failures = load_verified_receipts(root, members)
+    existing, _failures = load_verified_receipts(root, members)
     if check_only:
         return {
             "state": "REPLAY_ONLY",
