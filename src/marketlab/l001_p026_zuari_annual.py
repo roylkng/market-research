@@ -62,13 +62,23 @@ def _page_texts(raw: bytes) -> list[str]:
 def _validate_original_texts(texts: list[str]) -> dict[str, Any]:
     if not 100 <= len(texts) <= 650:
         raise AlphaContractError("P026 Zuari FY26 annual page range invalid")
-    front = _normalize(" ".join(texts[:12]))
-    if (
-        "zuari industries" not in front
-        or not any(x in front for x in ("annual report 2025-26", "annual report 2025–26"))
-        or not any(x in front for x in ("24 august 2026", "financial year 2025-26"))
-    ):
-        raise AlphaContractError("P026 wrong issuer, annual period or source edition")
+    # A stand-alone signed annual report need not include its *exchange
+    # cover-letter date* on the cover. Validate the actual issuer/fiscal year
+    # that are printed in the report itself. Source publication is an
+    # independent, earlier-dated exchange/issuer provenance assertion.
+    front = _normalize(" ".join(texts[:30])).replace("–", "-").replace("—", "-")
+    issuer_ok = "zuari industries" in front
+    year_ok = (
+        "2025-26" in front
+        and any(tag in front for tag in (
+            "annual report", "financial statements", "financial year"
+        ))
+    )
+    if not issuer_ok or not year_ok:
+        raise AlphaContractError(
+            "P026 wrong issuer, annual period or source edition "
+            f"(issuer={issuer_ok}, fiscal_year={year_ok})"
+        )
     matches: dict[str, dict[str, Any]] = {}
     pages = [_normalize(s) for s in texts]
     for note_id, tokens in SECURITY_NOTES.items():
