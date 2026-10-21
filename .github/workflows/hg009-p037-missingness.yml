@@ -1,0 +1,58 @@
+name: HG009 P037 source-bound H1 missingness falsification
+
+on:
+  push:
+    branches:
+      - research/hg009-p037-h1-missingness-bounds-20261021
+    paths:
+      - .github/workflows/hg009-p037-missingness.yml
+      - src/marketlab/hg009_p037_missingness.py
+      - scripts/materialize_hg009_p037.py
+      - tests/test_hg009_p037_missingness.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p037-original-h1-missingness-freeze
+  cancel-in-progress: false
+
+jobs:
+  seal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Produce H1 missingness sensitivity from original immutable market evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p037.py
+          python scripts/materialize_hg009_p037.py --check
+          ruff check src/marketlab/hg009_p037_missingness.py scripts/materialize_hg009_p037.py tests/test_hg009_p037_missingness.py
+          pytest -q tests/test_hg009_p037_missingness.py
+      - name: Anchor posthoc falsification, never revise original market cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=research/hg009/hg009-p037-h1-missingness-bounds-v1.json
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add "$OUT"
+          if git diff --cached --quiet; then
+            echo "HG009 P037 signed result already present"
+            exit 0
+          fi
+          git commit -m "HG009 P037: seal posthoc original H1 missing-quote bounds [skip ci]"
+          git fetch origin research/hg009-p037-h1-missingness-bounds-20261021
+          git rebase origin/research/hg009-p037-h1-missingness-bounds-20261021
+          python scripts/materialize_hg009_p037.py --check
+          git push origin HEAD:research/hg009-p037-h1-missingness-bounds-20261021

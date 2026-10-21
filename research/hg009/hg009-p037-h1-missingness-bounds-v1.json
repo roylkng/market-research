@@ -1,0 +1,116 @@
+{
+  "H1_result_is_one_common_trading_day_not_300_independent_trials": true,
+  "H5_includes_first_H1_source_and_is_not_independent_replication": true,
+  "H5_will_be_measurable_only_after_2026_10_22_close_and_source": true,
+  "analysis_date_ist": "2026-10-21",
+  "analysis_developed_after_H1_was_observed": true,
+  "arbitrary_missing_stock_stress_interval_pct": {
+    "lower": -20.0,
+    "not_a_guaranteed_price_band_or_probabilistic_confidence_interval": true,
+    "upper": 20.0
+  },
+  "arm_source_missingness_sensitivity": {
+    "ONE_LANE": {
+      "illustrative_full_cohort_mean_if_missing_at_minus20_percent": -1.456307,
+      "illustrative_full_cohort_mean_if_missing_at_plus20_percent": -1.056307,
+      "illustrative_full_cohort_mean_if_missing_at_zero_percent": -1.256307,
+      "missing_issuer_identity_and_reason": [
+        {
+          "isin": "INE083A01026",
+          "original_missing_source_receipts": [
+            {
+              "session_date": "2026-10-15",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            }
+          ],
+          "symbol": "MOREPENLAB"
+        }
+      ],
+      "missing_source_count": 1,
+      "observed_only_mean_percent": -1.268997,
+      "original_fixed_issuer_count": 100,
+      "priced_source_count": 99,
+      "these_are_not_observed_returns_or_exchange_circuit_bands": true
+    },
+    "SELECTED": {
+      "illustrative_full_cohort_mean_if_missing_at_minus20_percent": -1.596232,
+      "illustrative_full_cohort_mean_if_missing_at_plus20_percent": -1.196232,
+      "illustrative_full_cohort_mean_if_missing_at_zero_percent": -1.396232,
+      "missing_issuer_identity_and_reason": [
+        {
+          "isin": "INE03DD01011",
+          "original_missing_source_receipts": [
+            {
+              "session_date": "2026-10-15",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            }
+          ],
+          "symbol": "RETAIL"
+        }
+      ],
+      "missing_source_count": 1,
+      "observed_only_mean_percent": -1.410336,
+      "original_fixed_issuer_count": 100,
+      "priced_source_count": 99,
+      "these_are_not_observed_returns_or_exchange_circuit_bands": true
+    },
+    "ZERO_LANE": {
+      "illustrative_full_cohort_mean_if_missing_at_minus20_percent": -1.076299,
+      "illustrative_full_cohort_mean_if_missing_at_plus20_percent": -1.076299,
+      "illustrative_full_cohort_mean_if_missing_at_zero_percent": -1.076299,
+      "missing_issuer_identity_and_reason": [],
+      "missing_source_count": 0,
+      "observed_only_mean_percent": -1.076299,
+      "original_fixed_issuer_count": 100,
+      "priced_source_count": 100,
+      "these_are_not_observed_returns_or_exchange_circuit_bands": true
+    }
+  },
+  "comparison_bounds": {
+    "SELECTED_MINUS_ONE_LANE": {
+      "gap_sign_robust_to_hypothetical_20pct_interval": false,
+      "illustrative_full_100_gap_with_missing_as_zero_pp": -0.139925,
+      "lower_gap_if_each_unknown_between_minus20_plus20_pp": -0.539925,
+      "observed_only_mean_gap_pp_not_fixed_100_result": -0.141339,
+      "significance_test_or_investable_alpha_eligible": false,
+      "upper_gap_if_each_unknown_between_minus20_plus20_pp": 0.260075
+    },
+    "SELECTED_MINUS_ZERO_LANE": {
+      "gap_sign_robust_to_hypothetical_20pct_interval": true,
+      "illustrative_full_100_gap_with_missing_as_zero_pp": -0.319933,
+      "lower_gap_if_each_unknown_between_minus20_plus20_pp": -0.519933,
+      "observed_only_mean_gap_pp_not_fixed_100_result": -0.334037,
+      "significance_test_or_investable_alpha_eligible": false,
+      "upper_gap_if_each_unknown_between_minus20_plus20_pp": -0.119933
+    }
+  },
+  "corporate_action_and_dividend_economic_returns_reconciled": false,
+  "distinct_market_entry_event_count": 1,
+  "forward_profit_or_price_targets_calculated": false,
+  "investment_recommendations_generated": false,
+  "live_capital_allowed": false,
+  "negative_observed_H1_evidence_is_not_repeatable_negative_alpha_proof": true,
+  "observed_missingness_break_even": {
+    "one_lane_missing_stock": "MOREPENLAB",
+    "selected_missing_stock": "RETAIL",
+    "selected_unknown_return_exceeds_to_overtake_zero_lane_pct": 31.993342,
+    "selected_unknown_return_minus_one_lane_unknown_return_exceeds_pp": 13.992525,
+    "these_are_algebraic_reversal_hurdles_not_forecasts": true,
+    "zero_lane_has_no_missing_H1_quotes": true
+  },
+  "original_fixed_company_count_per_arm": 100,
+  "original_input_receipt": {
+    "original_git_blob_sha": "2cca82f5598504ee280320e2d757d7a75c581d7b",
+    "original_path": "research/hg009/price-diagnostics/HG009-P006-H1-20261015-v1.json",
+    "original_raw_file_sha256": "9a29d94cf9b6d00d10c6a334df3f3673d21c61d2be0ec8a393ae89e4d282c1f0",
+    "original_signed_evaluation_sha256": "811fbb1e18481b43ab5b4c6f9bda827b3bb83709c2388b2c7f55038a856ed2b3"
+  },
+  "original_predeclared_entry_session": "2026-10-15",
+  "report_sha256": "bf3ffd6b3d25f6af5a7f568b2ba9e5bdde6ef623d1f502796c3c52604d731732",
+  "review_id": "HG009-P037-20261021-H1-MISSINGNESS-SHARP-BOUNDS-v1",
+  "schema_version": 1,
+  "sector_size_beta_and_industry_confounders_sufficiently_balanced": false,
+  "source_price_basis": "NSE_EQ_UNADJUSTED_OPEN_TO_CLOSE_ONE_TRADING_DAY_NOT_TOTAL_RETURN",
+  "study_does_not_amend_original_HG009_cohort_or_first_entry": true,
+  "unknown_stock_returns_never_imputed_in_original_report": true
+}
