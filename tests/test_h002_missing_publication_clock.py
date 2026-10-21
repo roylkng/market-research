@@ -9,7 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from marketlab.prospective import ObservationStore
-from marketlab.runner import H002CohortRunner, RawEvidenceStore, TARGET_PERIOD_END
+from marketlab.runner import TARGET_PERIOD_END, H002CohortRunner, RawEvidenceStore
 
 RAW_SOURCE = {
     "data": [
