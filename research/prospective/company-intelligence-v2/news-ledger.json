@@ -12234,9 +12234,120 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-21T08:00:54.222710+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "captured_at": "2026-10-21T08:52:05.709901+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 2,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 3
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "f0a2e9bf7cb185bb112704355772d2954d662abee3d7295414aabc26d6ecfbde",
+      "identity_session": "2026-10-19",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "9a1c3524b31da5beeefa3b009dcfecbb49882577d0c62101d2cebd754bd851d2",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 2,
+        "DOCUMENT_CAPTURED": 3,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "started_at": "2026-10-21T08:51:39.082902+00:00"
     }
   ],
-  "ledger_sha256": "90dd46a07eea39c288d92d59bb25961fec3a152cb42cd50f413a983e026cb995",
+  "ledger_sha256": "3bcf32672ebc932d6e2dae1a33d97fd64346b6d390540a22bf38a8b55083ea9f",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -882644,6 +882755,898 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "d0874738a5280ce7ed85d1036c66e1e428d23c5c0f63eaa41b3a88edacf75712",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:51:42.283321+00:00",
+      "item_id": "55523838660fd5f950ab34124c77550a9fe02810e122151aab57e45cbea602ba",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "253a4b84bb87b5c4227bfbab24d4a82608980130b3e0ec74ec4fd9144d87ce72",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "13:32 IST",
+        "value": null
+      },
+      "resource_key": "prn:302915181",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "720872fd5e6055b330750f5af44175a7b6925eb1f078a01375a9a1f263b7e443",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Suzlon Energy Limited has informed the Exchange about Board Meeting to be held on 29-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "b417481f23d94c3b43d57c4d56d7ee9dd6bee5ebf833f26ded5adcabf3487aa1",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "8dee5a17ed0ca7e19a5ac832fc82151e4242879c1eac7e91f577ac963faf1e98",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SUZLON"
+        ],
+        "panel_symbols": [
+          "SUZLON"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "119ebe03e0e28df1d5ea6ad8df6f38f644fb5f1b8f3104458be0aa07008de270",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:02:04",
+        "value": "2026-10-21T08:32:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_2328_WebXMLFile_20261021_140203540.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e8d7834f006bf4b3de8c0de8e3a938cafe219dc3ac513d075fe031b392abf445",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "PTC Industries Limited has informed the Exchange about Certificate under SEBI (Depositories and Participants) Regulations, 2018 |SUBJECT: Certificate under SEBI (Depositories and Participants) Regulations, 2018",
+      "event_context_sha256": "523824c1bc683cb95123459cc81737fc0ad5f6a5f4d9ef6d25a7d9fd985f5812",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "34ec5f9e5564a0460b7b7d3205fe9ecdd5cdad891ad9e0d13262b7694afe0796",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PTCIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1375fead6e9fa4a0b5d33973343178c5868be4d5d9200b7131cda1393698b8da",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:18:21",
+        "value": "2026-10-21T08:48:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PTCINDUSTRIES_21102026141811_Certificate_74_PDF_Q2FY27_Exchange.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "4747fd95dfa55c1aa840c77b8f893c1b3fad331e1bd93a4f722ef8bb2b7bfbcd",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "NANDAN DENIM LIMITED has informed the Exchange about Board Meeting to be held on 02-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "46d900662b351a1e18c9f6b94952af3f4484f4ef201105e92c3395f6759aff14",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "f395411193bae28e7bdb5737a84c0be201fca86ae13bcfe083528ec369eddc62",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NDL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1d930b61c7f647bca627ad8e0121bbb585c1a73ab13ac8855a0015e0d2385a86",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:54:31",
+        "value": "2026-10-21T08:24:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_5713_WebXMLFile_20261021_135430248.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3faeaac5b846670e80cf00c5890746fb23262c3a8106f1e9eac2d090c03494fe",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "The Jammu & Kashmir Bank Limited has informed the Exchange with copy of minutes of Annual General Meeting held on September 22, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "5b626c619d834afb4fbc91df4d538ce502ee70b71ec6836c2d7eaaa5b1b02053",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "2bf7d8e0ae2e48a51d516a1def16408d07eecd176be4c1cb043f2a4732cd6286",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2c2c90ea913af6e8d42b8df9a1283e0da9060928194cd7c5a49580cf74dfac4e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:48:24",
+        "value": "2026-10-21T08:18:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MARYA_21102026134804_Minutes_AGM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7a48812f81893dd382d317ff5a03d987d31f21618d89558bae3a71aaa7805999",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Record Date Updates |SUBJECT: Record Date Updates",
+      "event_context_sha256": "f57b7ae824467327bab43f048a50a41de06341bc4d23f44b177386fc6fed5fc2",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "55589a396b563c55c7d51dc9548011eafee06bb6da8fec304c840b98277ca4ef",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "BIRLAMONEY"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2edce33b586817d1f207532ac0b127bd99893fc82f3d3aef99630048cb571f0a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:32:04",
+        "value": "2026-10-21T08:02:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/BIRLAMONEY_21102026131004_NSE_Intimation_of_Record_Date_INE865C14QT3_21102026_Sgd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "fb9bb77ab9cfdb33618be218453fca399df2b4f8a990ed3012492a65be46f217",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Structural Digital Database |SUBJECT: Structural Digital Database",
+      "event_context_sha256": "5159514e4ba4fdee060754f926b05bbd6d23aa553368f71359cab84a4504dbb9",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "70ec3a8c813222ce71b92c922086d5a600dadcbd974bb1c9d47b3b51cf67445c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2f6b89106ce43e482d3dbacc5eed87e5cb805b195fbefc4a5eaf65a0c66b3f49",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:10:05",
+        "value": "2026-10-21T08:40:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BDR01_21102026140955_signed_Compliance_certificate_September_2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b0e7c226e6bc3fd115448f8f90cd75c2a736fa5a3783147da4e3949e4b8b8a37",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Outcome of the Board meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "d01b2603c27817bcc34e335bb02aa8e3a6781a6f9cab9e8e0987f0ee85fe5acf",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "7fbc396e0965e484193c05495b0ec3ea489c65dc53672d6334c4f87456b97049",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "WENDT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "34ea1fce2aeca0a4f246266d969f423efd7d1c6f25c48f32dd9bdbaddf13c382",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:03:40",
+        "value": "2026-10-21T08:33:40+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/WENDT_21102026140141_outcoe_sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0064baede950ffc517b537a624890cf778ed8d08dcf8c533767de0c7c8f8773f",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Intimation under Regulation 50(1) |SUBJECT: Intimation under Regulation 50(1)",
+      "event_context_sha256": "1159085e428f4d555560a53cdb4db359fe4a1258f31478f0744845acdf279896",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "2a751e56ab3c952346a5506d745f41511f8d67f14c6068afec23721e17c9487b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "35395da068d8ff260ce1c1bb6083ad1b1d7fcb2acb3044739ab0dd339a474fff",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:07:04",
+        "value": "2026-10-21T08:37:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/IIFCL3_21102026140654_Prior_Intimation_of_Board_Meeting_28-Oct-2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "4facf029f1f8965e4094f5d6795531a6c783671e7ebb4c6a31133995b2dd31e4",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Patil Automation Limited has informed regarding Submission of the Compliance Report on Corporate Governance for the Q_ FY 20__-__ |SUBJECT: Quarterly Compliance Report on Corporate governance - within 21 days from the end of the quarter",
+      "event_context_sha256": "a6a5477795c8031d8bf20f5d56fff3495337156eff516a45594f1444203dc3e3",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "cc43b52d3359fbce4ea2923627a2d1a2d96a81fc06c216667d8d6c3070dd9d54",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3a37b552a965b6db43417f370e7f52b1e2699f418c48d41b23dbbb96c17140db",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:41:15",
+        "value": "2026-10-21T08:11:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PAL_21102026134052_Non_Applicability_of_CG_PAL.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3209831f18236c8e52d51cecd0d9113e65a11e4c2de2d5dd43b3f770abf08881",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "PARTY CRUISERS LIMITED HAS INFORMED THE EXCHANGE REGARDING SDD FOR THE QUARTER ENDED 30TH SEPTEMBER, 2026 |SUBJECT: Structural Digital Database",
+      "event_context_sha256": "8156274f7c4baf339d568681a11754be5e9f3ca78ea226bd0c2230dcfd336d0b",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "af26b4e322714e0f3e19cb37d067941c754400a5ce9f15ffeece189c4f496d67",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4662cf6af7f6b38459f208289c5aa58046adf92c88898d20e79f6cec1d7ebf50",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:01:03",
+        "value": "2026-10-21T08:31:03+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PARTYCRUISERS_21102026140057_SDD_Compliance_certificate.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "cbc91f22ce1065ea040ab63b5156043caef70ad2df4e04e8f1a9b1b6333aaf6d",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Gurunanak Agriculture India Limited has informed the Exchange regarding a press release dated October 21, 2026, titled \"Press Release on the Q2 FY 27 Business Updates\". |SUBJECT: Press Release",
+      "event_context_sha256": "acf5e0e877a6f224cb5919499bb571f2601d42eb7653a73d1eff517756db65b8",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "6ce6fb9ee0ee6a3b217a8d403cbd83a058aa0e49b75a4bfac79e2d296a21cf09",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "556aef1126217b4fee7cd83d650b208685fd83237997973d1296be1efa6fad23",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:41:28",
+        "value": "2026-10-21T08:11:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GURUNANAK_21102026134121_GAIL_BUSINESS_UPDATES.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9cf873c00ec96a31c4f816d2af38159bed45e767fc7d36324bcc67a4af3bde6e",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "MAHINDRA HOLIDAYS & RESORTS INDIA LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "aba800b564d95e1a260566912654720ef3aef631a9ad969a87a442991b47de16",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "b1218a138bbe5fdfc10e53efe9f058a1b47fe29c5d0055c498b2ffd5f0720d0c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MHRIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "571a49514b6b4b97a56a36cc3b11e001aa6efae551851ec7fc255d6f7d2842b3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:52:51",
+        "value": "2026-10-21T08:22:51+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_2895_WebXMLFile_20261021_135250043.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3106a459a17575dd01842be4c19317103d3f2b46842df6f5e6bc07596532b7e9",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Chembond Chemicals Limited has informed the Exchange about Schedule of meet to conduct H1 FY2026-27 earnings call on Saturday, October 24, 2026 at 15:00 hrs. IST in relation to the Un-Audited financial results of the Company for the quarter and half year ended September 30, 2026 |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "242ef86bdefb55268edc7482da68e68a4d69c6d4f76dbe8b14f768f4d0008cf1",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "deaf17e12c6e508454a8af6f47701ec15d1ead0e1dc17b6d287df2a14ecdd665",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5978b48e5a08fe7191d6f48d1f3551a00db77cc2b6deecc44e314fa55e6b199a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:45:39",
+        "value": "2026-10-21T08:15:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CHEMBONDSPECIALTIES_21102026134335_investorcallH1.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "322f356128a0a9a57aeb1360035613993dddd36b113aa2e3b4bf365d714a68f1",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Goa Carbon Limited has informed the Exchange regarding the further Rectification Order received from the Income Tax Department for Assessment Year 2010-11. |SUBJECT: General Updates",
+      "event_context_sha256": "2cf6f810d9cb0c641ea2852fd370f303e781624d65a3a611852df4e8226de274",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "1a2ba0db68ab203a14dc19d11bfab14d5770b88e7edfe840cd5f68fb3bfb496b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GOACARBON"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "71c4d042d1673a5a031ccc4d713a31520957ede97a3f19c84de474d5866965fc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:14:43",
+        "value": "2026-10-21T08:44:43+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GOACARBON_21102026141351_GOACARBON_Updates_21102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "120e88c3e9d0718062338f7ffdbf6a06bd524fcfa667e5ad9da3aad19a545882",
+      "topics": [
+        "ORDER_CUSTOMER",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Confirmation of Redemption/Payment of Interest and Principal |SUBJECT: Confirmation of Redemption/Payment of Interest and Principal",
+      "event_context_sha256": "a34b75bf42f5022e5ce8f92dac202ea43b9107c965a95e27b86b86b8bd47dcc5",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "24143eb2a27648ea86ffd900a7290748fbb4f153f9b8d7bbd21803bb45d91ca0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "75d6c43b06dbfb8e691188eeea13f467f6132390cdfa3c84b9237f53105b60ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:40:22",
+        "value": "2026-10-21T08:10:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/Corbett03_21102026134007_NSE_Interest_Payment_DSC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6615502c3ed293ca7e240f574e3094ee917394e0197c8087cab84979c575c6ef",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "UNICHEM LABORATORIES LIMITED has informed the Exchange about Board Meeting to be held on 04-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "0a0e9f5236697fcecc90f95d6813e03ac25e283c5b58bf6e82de8a4ee0483574",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "f4e39323e5ef9a682fb252941b7356957f7beca9338214a9ed42d5da429efdaf",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "UNICHEMLAB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9479f5916b1e0ef9c177946ce86f3120e4c9e90265ef5d85243219b19bcf8b2c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:10:13",
+        "value": "2026-10-21T08:40:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_344_WebXMLFile_20261021_141012199.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "412ae1a478df854cf90e70c0b8d96b022a1d8a3992220712c38c54bf677ff196",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Aditya Birla Sun Life AMC Limited has submitted to the Exchange, the Unaudited Financial Results (Standalone and Consolidated) of the Company for the quarter and half year ended September 30, 2026 |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "7fbfb7d7416c5a87a68b988f7aa792fa72eddf9fb1f6daf558d98af2c63a46ee",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "fe2f0e904357d40e04cee49af8c63583d7cfa930a7b8d92a266c6ad1d291a0eb",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a966ee033d800bc1417612f359405981da9b77dfb1703ed593c96ca8b8c2549d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:08:21",
+        "value": "2026-10-21T08:38:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ABSLAMC_21102026140813_Financials_Standalone_and_Consolidated_results.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "19d91b909b6c124209a89806e13969d057333d50c468dfdbd3485533e9cf9650",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "ANTELOPUS SELAN ENERGY LIMITED has informed the Exchange about Board Meeting to be held on 26-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "5e2b4a74eba5af3aa3a3c9d665d60ff3523cb76c611eded976c5889923e74acd",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "fe0c0a7b3c060d3f3fb05caf30eab23977a8090d6d7e34b70c509d14219f0497",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b5a86881c8a49395c6eac34fa5ed3a45c9b3ea689140c54cc0b77de6ecaefd05",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:34:12",
+        "value": "2026-10-21T08:04:12+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_2431_WebXMLFile_20261021_133411875.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c0cda92e800c04966c6c575fc7c09194d682e210da17cb0a2c80140448efc659",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "NANDAN DENIM LIMITED has informed the Exchange about Board Meeting to be held on 02-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "46d900662b351a1e18c9f6b94952af3f4484f4ef201105e92c3395f6759aff14",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "4845320b6c4380fcabf1e879611dc5c755b4fcf9a073d621529e88547969296a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NDL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b78697267b117ac347b94e7d7022941f4245d87c06af5cfe60b0a9833744c6bb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:44:31",
+        "value": "2026-10-21T08:14:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_5713_WebXMLFile_20261021_134430531.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3faeaac5b846670e80cf00c5890746fb23262c3a8106f1e9eac2d090c03494fe",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "PNGS REVA DIAMOND JEWELLERY LIMITED has informed the Exchange about Board Meeting to be held on 26-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "2205378007881c0e6bd3e5e4bd1ef21203032e7f340e32088fa5ecc3685e5709",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "7aa3d47c1e325a4e3e410c012f02d14ad96b95bf937335f988dd32d026a250aa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bfd8b69e0a3ace0f712479fac7b0261c80c77b681dc399977edc13f778ca0217",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:04:55",
+        "value": "2026-10-21T08:34:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_26347_WebXMLFile_20261021_140454646.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "1c21b8f1d65e5f8be30e628af2aae14f44142298aa5e3fdbdeab816836dbd1e8",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Goldiam International Limited has informed the Exchange regarding 'Intimation regarding relocation of ORIGEM Retail Store to a Larger Premises at Phoenix Marketcity, Bengaluru.'. |SUBJECT: Updates",
+      "event_context_sha256": "2a14e78f678751ae76db466654ee6f419eb27653d0a5e94103db633964bb7243",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "d038ccf3cb765c94d3cdff7cc96a95b3f06a648f917d30ad356ddf78bf4eb3c3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GOLDIAM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c4b782eedb1ef66cfb5fdbe93b1c635f20304efc29b979b5e7b6795e823d8eb3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:40:27",
+        "value": "2026-10-21T08:10:27+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GOLDIAM_21102026134014_Seventh_store_relocation_Opening_Update_intimation-21-10-26.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "979f2ab3d9a647f245cc9e2818d8ca803e6fbee16da2d080bed83920371c82cb",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Nureca Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "0068583b6f467e431a23a3ef78ce745ada66b90f4d548f2d1bd15abd3bc54090",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "33db028c46d8f909a5131bd8955816cb971987ea2c1bb2daface1968b0a2ee79",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c9cfd025ff3c0ab0f3d063bf75fc77e54f2c050ad245952d8a1fb93be0c9cbe8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:55:34",
+        "value": "2026-10-21T08:25:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/NURECA_21102026135447_StockExchnageIntimationQ2OutcomeofBMSigned.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c5ef59097dad0fbe192727ab2f37c5b952d87cf6577a1c8ed43e70e8a8c789ae",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Kilitch Drugs (India) Limited has informed the Exchange regarding Resignation of Mr Venkita Subramanian Rajan as Non- Executive Independent Director of the company w.e.f. October 21, 2026. |SUBJECT: Resignation",
+      "event_context_sha256": "6200f000ab816c47801ba87253033cddd91a3ce487ea7c9fa73a22d888c2ca21",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "c7328d0b2d3a19b2402795823f46739508beb010ad33293e630fa3fa2614c62b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KILITCH"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d7c43106d334ae35b5c0007c0b6e8d46c29529abd3ee91f57fe23ae96e187563",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:56:09",
+        "value": "2026-10-21T08:26:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KILITCH_21102026135554_IntimationOfResignationToStockExchanges.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3926d4b2ab5b258981a5101ea303e0f476f97746bbbb2a716d5b54337604bcb0",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Record Date Updates |SUBJECT: Record Date Updates",
+      "event_context_sha256": "f57b7ae824467327bab43f048a50a41de06341bc4d23f44b177386fc6fed5fc2",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "69c7ee78123b641998f6280cb00407f28c07d056e4a6f46276a4979c890b39d7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eae5b9c3e23c7c2a47e6f19a24a8ebe6555a297382b80f8cfbec21885e00413f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:43:44",
+        "value": "2026-10-21T08:13:44+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/Corbett03_21102026134334_Record_date_intimation_DSC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6615502c3ed293ca7e240f574e3094ee917394e0197c8087cab84979c575c6ef",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "Confirmation of Redemption/Payment of Interest and Principal |SUBJECT: Confirmation of Redemption/Payment of Interest and Principal",
+      "event_context_sha256": "a34b75bf42f5022e5ce8f92dac202ea43b9107c965a95e27b86b86b8bd47dcc5",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "4c50c90b26d58e849d7fc62d61adbfaad51bfcf448abe28c72f062c5bc39a8e9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ecf232d2df621e3dbd94597b86f1fe8fe981d28cd4797458e26deca9ca52eb15",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 13:40:23",
+        "value": "2026-10-21T08:10:23+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/Corbett03_21102026134007_NSE_Interest_Payment_DSC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6615502c3ed293ca7e240f574e3094ee917394e0197c8087cab84979c575c6ef",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "InfoBeans Techno. Ltd. has informed the Exchange regarding a press release dated October 21, 2026, titled \"InfoBeans Achieves Select Partner Tier in the Claude Partner Network Services Track\". |SUBJECT: Press Release",
+      "event_context_sha256": "912b718b6019b52d04f42a17d0bf95a81b2832a27b9d0d542e5cf7c3ad04662a",
+      "first_seen_at": "2026-10-21T08:51:48.429175+00:00",
+      "item_id": "67b12214cd6cd626f737c9cf53816c39a9e64c9d1796be771f5ee6c6a557c098",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INFOBEAN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f37888914e593658085cdfc9dc24fb9369fa655e5fb1250778e8fe5940f20e9a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "21-Oct-2026 14:08:31",
+        "value": "2026-10-21T08:38:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/INFOBEAN_21102026140821_Press_Release_Claude.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "50ceed308dddea215e7d221a0dc61136febe3485ce8bd3049717e652cb28fa6e",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:00.657201+00:00",
+      "item_id": "9349c700553ac8e09cd113f82739822cd9e3b2e10aebf2997a9616b74cfe90c9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOC"
+        ],
+        "panel_symbols": [
+          "IOC"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3b272f0ac4e164b9aabdbe55333f08b5b74b153045524321177e657d21837570",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 13:37:35 +0530",
+        "value": "2026-10-21T08:07:35+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/indianoil-announces-sabrat-kars-departure-after-38-years-heres-a-look-at-his-career-achievements-and-more-11792569524014.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "77ae5c333d0fa1ddeffa44987f899ef806c752c29bd3f71d45b49a163dcbee95",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:00.657201+00:00",
+      "item_id": "8c230df931dda5697906444376217e586fa0b252b371fdd421cf24e9060dd4bf",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ULTRACEMCO"
+        ],
+        "panel_symbols": [
+          "ULTRACEMCO"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c7b0e7df666d5beea36f03283b96e12cc96124e9f324f4584d4ed5e71b045aa6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:14:35 +0530",
+        "value": "2026-10-21T08:44:35+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/who-is-kc-jhanwar-ultratech-cement-managing-director-appointed-as-non-executive-vice-chairman-from-january-11792571564872.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "4735322defa6a8b3cc0887324a98eabdf17f1ca3e2ade29e9bc54a032f93acae",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:02.043161+00:00",
+      "item_id": "ed4eac0cc181cce1f0848ff4bf984f0ddae61ecf8edf48adbd075576f303ca75",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INDIACEM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0e289b20e098176be043e374c10fe82339de079921010f7732eafe00d3c7ac2d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 13:03:23 +0530",
+        "value": "2026-10-21T07:33:23+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/india-cements-share-price-jumps-8-a-trend-reversal-or-just-a-relief-rally-experts-weigh-in-check-key-levels-to-watch-11792565048115.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "55a1842782d3b1826bf8f2e8a7af36ab0e97fb28b4b985173b3ec5d9d0eed50a",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:02.043161+00:00",
+      "item_id": "a37d600a00b31620f96959b5620e0d16655163803f91ded2986317e9c6a851af",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "EMUDHRA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1174630772fb075d405ea69738fca754cba738318aca7e0f4a791ccf227227db",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:00:22 +0530",
+        "value": "2026-10-21T08:30:22+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/emudhra-share-price-hits-20-lower-circuit-after-researcher-flags-weak-keys-can-the-stock-recover-what-lies-ahead-11792570231752.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "c9252f1c4ef19e787a68c369496892c1db6dc118d8723c97d3adeb546b040790",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:02.043161+00:00",
+      "item_id": "d1ccf583c0c722ef2051d1f28a54586cab99f36cf03013cb52ceba73645a936e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "HDFCBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "28078ba92a98ddd9599e6487cf828db984f5d4c5a284cdd745fe16834547f28f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:00:24 +0530",
+        "value": "2026-10-21T08:30:24+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/hdfc-bank-share-price-29-down-in-2026-anand-rathi-says-long-road-to-catch-up-check-stock-target-price-reasons-11792568438527.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "7329c2f98c94f1b91fcfeee93ffd0c1f1001725eee56f836debfb91102f84b7c",
+      "topics": []
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:02.043161+00:00",
+      "item_id": "6622f9b7f5ed34d195bea2d85c4717a130673097ac30d3362092f12d22f7ca76",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2aee8b3ca93fbd32c28fba43c89e34ca0b9ae932093b179d87144351bac0b1cc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 14:03:32 +0530",
+        "value": "2026-10-21T08:33:32+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/ipo/paras-healthcare-ipo-review-price-band-valuation-11792564829352.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "b9286df7332dd47d3765d48b2e0e03928f1c5f7ea31a2fa0b0ab4ba13e0ddecb",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "ce5dea26b5eb7e46185003816c9ea8bd146644a6e2c6e0d2406c7c7fc63759a1",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-21T08:52:02.043161+00:00",
+      "item_id": "6c93b8aefb1283791edbdb1e43e79e4bce5af6cf38b16370ba1f9c2c783531fb",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c88f8ee2bb62babcd2563397fa348d79139a37cd4dec1bec15161457ee3cc501",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 21 Oct 2026 13:32:58 +0530",
+        "value": "2026-10-21T08:02:58+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/down-25-in-3-months-but-market-expert-sumeet-bagadia-sees-recovery-gains-in-fortis-check-target-price-stoploss-11792567504473.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "26bef2ce38b8cbafd4a47a2aca086d27eddfddfe30186382ff407c0fec08a829",
       "topics": []
     }
   ],
