@@ -9,7 +9,6 @@ from pathlib import Path
 
 from marketlab.alpha import AlphaContractError
 from marketlab.hg009_p032_totalmarket import (
-    RECEIPTS_PATH,
     SOURCE_URL,
     archive,
     replay_all,
