@@ -52,7 +52,15 @@ def _content_check(raw: bytes) -> dict[str, Any]:
     for index, tokens in REQUIRED_PAGE_LINES.items():
         text = re.sub(r"\s+", " ", texts[index]).casefold()
         for token in tokens:
-            if token.casefold() not in text:
+            term = token.casefold()
+            if term[0].isdigit() and term[-1].isdigit():
+                # "8.05" must not match "88.05" or "8.050".
+                matched = re.search(
+                    rf"(?<![\\d.]){re.escape(term)}(?![\\d.])", text
+                ) is not None
+            else:
+                matched = term in text
+            if not matched:
                 raise AlphaContractError(
                     f"P025 original issuer PDF page {index} missing: {token}"
                 )
