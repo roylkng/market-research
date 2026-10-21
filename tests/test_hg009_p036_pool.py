@@ -78,15 +78,26 @@ def test_hypothesis_is_untested_and_original_classification_only():
     }) is None
 
 
-def test_signed_report_and_separate_source_are_reproducible():
+def test_signed_report_and_separate_source_are_reproducible(tmp_path: Path):
     r = build_feasibility(ROOT)
     assert r["report_sha256"] == digest({
         key: value for key, value in r.items() if key != "report_sha256"
     })
-    assert json.loads(REPORT.read_text("utf-8")) == r
     validate_feasibility(ROOT, r)
+    if REPORT.exists():
+        assert json.loads(REPORT.read_text("utf-8")) == r
+    # PR checks can execute before the archival workflow publishes the file.
+    # A temporary full CLI materialization must still reproduce exact contents.
+    temp = tmp_path / "independent-original-source-pool.json"
+    subprocess.run(
+        [sys.executable, "scripts/materialize_hg009_p036.py",
+         "--output", str(temp)],
+        cwd=ROOT, capture_output=True, text=True, check=True,
+    )
+    assert json.loads(temp.read_text("utf-8")) == r
     observed = subprocess.run(
-        [sys.executable, "scripts/materialize_hg009_p036.py", "--check"],
+        [sys.executable, "scripts/materialize_hg009_p036.py",
+         "--output", str(temp), "--check"],
         cwd=ROOT, capture_output=True, text=True, check=True,
     )
     result = json.loads(observed.stdout)
