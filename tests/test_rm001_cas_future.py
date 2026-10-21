@@ -34,9 +34,9 @@ def test_original_dec04_regime_untouched_and_dec07_cas_not_before_1540():
         cas_eligibility_source_verified=True,
     )
     assert before["new_sebi_regime_applied"] is False
-    assert before["minimum_auction_complete_utc"] is None
+    assert before["conservative_full_CAS_order_window_elapsed_utc"] is None
     assert after["new_sebi_regime_applied"] is True
-    assert after["minimum_auction_complete_utc"] == (
+    assert after["conservative_full_CAS_order_window_elapsed_utc"] == (
         "2026-12-07T10:10:00+00:00"
     )
     assert after["source_available_for_alpha_without_original_document"] is False
@@ -51,7 +51,7 @@ def test_cash_security_not_provably_fo_eligible_is_blocked():
         cas_eligibility_source_verified=None,
     )
     assert missing["state"] == "BLOCKED_UNKNOWN_CAS_SECURITY_ELIGIBILITY"
-    assert missing["minimum_auction_complete_utc"] is None
+    assert missing["conservative_full_CAS_order_window_elapsed_utc"] is None
     non_cas = classify_future_market_clock(
         session_date="2026-12-08",
         instrument_kind="CASH_EQ",
@@ -103,7 +103,7 @@ def test_original_calendar_frozen_before_future_change_and_no_2027_extension():
     assert audit["future_2026_frozen_sessions"][0] == {
         "session_date": "2026-12-07",
         "legacy_calendar_close_utc": "2026-12-07T10:00:00+00:00",
-        "not_before_new_CAS_order_entry_completion_utc": (
+        "conservative_full_CAS_order_window_elapsed_utc": (
             "2026-12-07T10:10:00+00:00"
         ),
         "legacy_close_is_not_future_CAS_publication_proof": True,
