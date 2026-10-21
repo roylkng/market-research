@@ -66,10 +66,24 @@ def run(
     # One attempt per symbol per real UTC day. Never hammer NSE on a repeated
     # runner dispatch. A failure elsewhere must not block other issuers forever.
     attempted_today = set()
+    access_denied_today = False
     today = datetime.now(UTC).date().isoformat()
     for path in (root / RECEIPTS / today).glob("*.json"):
         receipt = json.loads(path.read_text(encoding="utf-8"))
         attempted_today.add(receipt["symbol"])
+        if receipt.get("state") == "BLOCKED_NSE_ACCESS_OR_RATE_LIMIT":
+            access_denied_today = True
+    if access_denied_today:
+        # One verified access-denial receipt blocks further issuer requests
+        # that UTC day, across repeated GitHub schedule/dispatch attempts.
+        # Do not route around exchange anti-bot/rate limits.
+        return {
+            "state": "NSE_ACCESS_DENIED_TODAY_NO_MORE_REQUESTS",
+            "attempted": [],
+            "status": build_coverage_status(root),
+            "next_cohort_released": False,
+            "live_capital_allowed": False,
+        }
     remaining = [
         (symbol, expected[0])
         for symbol, expected in sorted(members.items())
