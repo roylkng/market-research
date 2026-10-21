@@ -132,3 +132,38 @@ def test_offline_check_never_calls_network():
     j = json.loads(run.stdout)
     assert j["live_capital_allowed"] is False
     assert j["new_independent_cohort_released"] is False
+
+
+def test_invalid_real_bytes_quarantined_and_not_promoted_as_industry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+):
+    from scripts import capture_hg009_p032_totalmarket as runner
+
+    raw = b"original NSE response with structurally invalid CSV columns"
+
+    class FakeNSE:
+        calls = 0
+
+        def __init__(self, **kwargs):
+            pass
+
+        def archive_bytes(self, url: str) -> bytes:
+            FakeNSE.calls += 1
+            assert url == SOURCE_URL
+            return raw
+
+    monkeypatch.setattr(runner, "NSEClient", FakeNSE)
+    blocked = runner.run(tmp_path)
+    assert blocked["state"] == "BLOCKED_OFFICIAL_NSE_ORIGINAL_CSV"
+    assert blocked["industry_cells_verified"] == 0
+    assert blocked["original_response_bytes_retained_unverified"] is True
+    assert blocked["source_raw_sha256"] is not None
+    assert runner._verify_blocked_raw_receipts(tmp_path) == 1
+    assert runner.run(tmp_path)["state"] == (
+        "NSE_STATIC_ARCHIVE_ATTEMPT_ALREADY_RECORDED_TODAY"
+    )
+    assert FakeNSE.calls == 1
+    summary = runner.run(tmp_path, check_only=True)
+    assert summary["original_evidence_count"] == 0
+    assert summary["blocked_original_source_attempt_count"] == 1
+    assert summary["new_independent_cohort_released"] is False
