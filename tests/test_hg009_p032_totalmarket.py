@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import csv
 import io
 import json
@@ -112,7 +111,7 @@ def test_immutable_original_source_replays_without_current_quotes(tmp_path: Path
         root=tmp_path, raw=_synthetic_csv(),
         first_retrieved_at_utc=UTC_TIMESTAMP,
     )
-    assert report["source_raw_length"] if False else True
+    assert report["source_byte_count"] == len(_synthetic_csv())
     status = replay_all(tmp_path)
     assert status["original_evidence_count"] == 1
     assert status["source_evidence"][0]["exact_frozen_matches"] == 1
