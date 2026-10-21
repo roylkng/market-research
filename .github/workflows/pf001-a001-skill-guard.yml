@@ -37,8 +37,12 @@ jobs:
           set -euo pipefail
           python scripts/materialize_pf001_a001.py
           python scripts/materialize_pf001_a001.py --check
-          ruff check src/marketlab/pf001_a001_skill_guard.py scripts/materialize_pf001_a001.py tests/test_pf001_a001_skill_guard.py
-          pytest -q tests/test_pf001_a001_skill_guard.py
+          ruff check src tests scripts
+          pytest -q
+          python scripts/audit_h021_eps_sign.py --out /tmp/h021-eps-sign-audit.json
+          python scripts/validate_rta001_coverage.py --repo-root .
+          marketlab validate-registry registry/hypotheses.yaml
+          python scripts/materialize_pf001_a001.py --check
       - name: Seal separate audit without rewriting legacy PF001 attribution
         shell: bash
         run: |
