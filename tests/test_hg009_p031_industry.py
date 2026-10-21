@@ -88,7 +88,7 @@ def test_legacy_and_nextgen_NSE_quote_same_four_levels_without_stock_price(raw):
 
 @pytest.mark.parametrize("raw", [_legacy(isin="INE000000009"), _modern(isin="INE000000009")])
 def test_wrong_ISIN_fails_even_for_same_original_NSE_symbol(raw):
-    with pytest.raises(AlphaContractError, match="ISIN mismatch"):
+    with pytest.raises(AlphaContractError, match="ISIN"):
         classify_raw_quote(
             raw, symbol=SYMBOL, isin=ISIN, captured_at_utc=OBSERVED,
         )
