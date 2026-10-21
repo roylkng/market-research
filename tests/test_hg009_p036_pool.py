@@ -116,5 +116,5 @@ def test_tampering_with_source_eligibility_fails():
     tampered["report_sha256"] = digest({
         key: value for key, value in tampered.items() if key != "report_sha256"
     })
-    with pytest.raises(AlphaContractError, match="not reproducible"):
+    with pytest.raises(AlphaContractError, match="next cohort source feasibility changed"):
         validate_feasibility(ROOT, tampered)
