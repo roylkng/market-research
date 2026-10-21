@@ -1,9 +1,8 @@
 {
-  "after_market_close": false,
+  "after_market_close": true,
   "as_of_date": "2026-10-21",
-  "blocker_count": 4,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
@@ -43,7 +42,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "5b4a617f9e6f0239f99246431732379bfe8ef2a2c67d1d5c209633c4af836274",
+      "ledger_sha256": "6cf7677d90855cd25d611a160b706b3fd7031cdcf34897e02253a6ca1cc4410f",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -51,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 7,
+      "eligible_session_count": 8,
       "expected_latest_session": "2026-10-19",
-      "latest_eligible_session": "2026-10-16",
-      "ledger_sha256": "8d4dd09e0a05e1160c04081918790a9dccea693297a36e712c60bef32c04fabc",
-      "state": "STALE"
+      "latest_eligible_session": "2026-10-21",
+      "ledger_sha256": "a3d4509e3ac25c872e12d2e23eef8ab943144476ebf1733e81dd526d805c00de",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 153,
@@ -75,13 +74,13 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 3,
-      "decision_ledger_sha256": "0408e702a6428002ed34f72d8cece75e2cc75e2f31b0bf32f4d840e56d8bb1d0",
-      "latest_readiness_session": "2026-10-16",
+      "decision_count": 4,
+      "decision_ledger_sha256": "2f5607d619e2716a8f4a86e573399b8a4a84d50bedb0dd7800626ad894e3bf7f",
+      "latest_readiness_session": "2026-10-21",
       "mature_outcome_fraction": 0.0,
       "outcome_count": 0,
       "outcome_ledger_sha256": "fb3034e7fee720ce91842d06bb19dc805b3ef65ed8a5e7580b72f36432ece730",
-      "readiness_sha256": "971665cbf57b050710c096e6f6d272f54e3f7ee3577a4664b94cdb8d92fba06a",
+      "readiness_sha256": "172b5bb44be17212bdfad3e294c34703d8503e3da5f631bd384c80e9c5f20680",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -199,5 +198,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "3121ccd05505a88eb03828f101457e0bb8be66003fb56d8aa710d9e009f77cfc"
+  "summary_sha256": "8618b908d62459c51dafd4f8f907dec5a18c3240b947d618aa89f1f2c3f72d23"
 }
