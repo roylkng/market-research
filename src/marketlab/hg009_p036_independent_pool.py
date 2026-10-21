@@ -116,8 +116,10 @@ def build_feasibility(root: Path) -> dict[str, Any]:
         sector, band = industry_row["industry"], row.get("liquidity_band")
         if not isinstance(band, str) or not band:
             raise AlphaContractError("P036 missing original source liquidity band")
-        material = "|".join((ID, FROZEN_SOURCE_SHA, INDEX_SHA, arm,
-                            sector, band, symbol, isin))
+        material = (
+            f"{ID}|{FROZEN_SOURCE_SHA}|{INDEX_SHA}|{arm}|"
+            f"{sector}|{band}|{symbol}|{isin}"
+        )
         groups[(sector, band)][arm].append({
             "symbol": symbol,
             "isin": isin,
