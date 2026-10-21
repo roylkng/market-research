@@ -38,6 +38,7 @@ from marketlab.marketdata import (
 from marketlab.nse import NSEAcquisitionError, NSEClient
 from marketlab.prospective import (
     ObservationStore,
+    ProspectiveError,
     ProspectiveReport,
     build_prospective_report,
     select_first_result_candidate,
@@ -356,12 +357,61 @@ class H002CohortRunner:
                 if event is None:
                     raise
             else:
-                selection = select_first_result_candidate(
-                    discovery_payload,
-                    symbol=symbol,
-                    target_period_end=TARGET_PERIOD_END,
-                    accounting_basis=expectation.accounting_basis,
-                )
+                try:
+                    selection = select_first_result_candidate(
+                        discovery_payload,
+                        symbol=symbol,
+                        target_period_end=TARGET_PERIOD_END,
+                        accounting_basis=expectation.accounting_basis,
+                    )
+                except ProspectiveError as exc:
+                    # A matching integrated filing without a parseable
+                    # exchange publication clock could precede any otherwise
+                    # valid candidate. Never guess a timestamp or ignore it.
+                    # Retain the exact NSE discovery payload and isolate
+                    # *this* symbol instead of aborting the other 99.
+                    params = urlencode({
+                        "index": "equities",
+                        "symbol": symbol,
+                        "period": "Quarterly",
+                    })
+                    raw_receipt = self.raw_store.retain(
+                        discovery_raw,
+                        kind="unverifiable-result-discovery",
+                        source_url=(
+                            f"{NSEClient.INTEGRATED_FILING_ENDPOINT.url}?{params}"
+                        ),
+                        captured_at=as_of,
+                        suffix=".json",
+                    )
+                    evidence = {
+                        **discovery_evidence,
+                        "discovery_sha256": hashlib.sha256(discovery_raw).hexdigest(),
+                        "unverifiable_discovery_raw_sha256": raw_receipt.raw_sha256,
+                        "unverifiable_discovery_raw_path": raw_receipt.raw_path,
+                        "unverifiable_discovery_receipt_id": raw_receipt.evidence_id,
+                        "source_clock_error": str(exc),
+                        "source_clock_verified": False,
+                    }
+                    snapshot, created = self.observations.append(
+                        cohort_id=self.universe.cohort_id,
+                        symbol=symbol,
+                        target_period_end=TARGET_PERIOD_END,
+                        recorded_at=as_of,
+                        state="ERROR",
+                        reason="unverifiable_integrated_filing_publication_order",
+                        event=None if event is None else event.to_dict(),
+                        expectation_record_id=record.record_id,
+                        signal=None if latest is None else latest.signal,
+                        paper_position=None if latest is None else latest.paper_position,
+                        evidence=evidence,
+                    )
+                    return SymbolRunResult(
+                        symbol,
+                        "UPDATED" if created else "UNCHANGED",
+                        snapshot.state,
+                        snapshot.reason,
+                    )
                 if selection is None:
                     if event is None:
                         return SymbolRunResult(symbol, "NO_EVENT", None, None)
