@@ -1,0 +1,68 @@
+name: HG009 P034 NSE full security master source feasibility
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/hg009-p034-nse-full-security-master-20261021
+    paths:
+      - .github/workflows/hg009-p034-security-master.yml
+      - src/marketlab/hg009_p034_mii_security.py
+      - scripts/capture_hg009_p034_mii_security.py
+      - tests/test_hg009_p034_mii_security.py
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p034-one-off-original-nse-master
+  cancel-in-progress: false
+
+jobs:
+  original-source-feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install fixed research environment
+        run: python -m pip install -e '.[dev]'
+
+      - name: Verify no look-ahead and 300 frozen symbol-ISIN identity controls
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff check src/marketlab/hg009_p034_mii_security.py scripts/capture_hg009_p034_mii_security.py tests/test_hg009_p034_mii_security.py
+          pytest -q tests/test_hg009_p034_mii_security.py
+          python scripts/capture_hg009_p034_mii_security.py --attempt-id "test" --check
+
+      - name: Attempt original public NSE MII master once with real retrieval time
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/capture_hg009_p034_mii_security.py \
+            --attempt-id "run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT"
+          python scripts/capture_hg009_p034_mii_security.py --attempt-id "verify" --check
+
+      - name: Preserve original gzip, source header/coverage, or access failure
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add -f research/hg009/p034-mii-security
+          if git diff --cached --quiet; then
+            echo "No new signed official source observation"
+            exit 0
+          fi
+          git commit -m "HG009 P034: retain observed official NSE security-master source result [skip ci]"
+          git fetch origin research/hg009-p034-nse-full-security-master-20261021
+          git rebase origin/research/hg009-p034-nse-full-security-master-20261021
+          python scripts/capture_hg009_p034_mii_security.py --attempt-id "verify" --check
+          git push origin HEAD:research/hg009-p034-nse-full-security-master-20261021
