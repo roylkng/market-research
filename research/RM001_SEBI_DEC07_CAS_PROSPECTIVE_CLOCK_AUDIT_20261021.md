@@ -16,7 +16,7 @@ The new rules apply only to covered instruments, including phase-one CAS-eligibl
 
 ## What the code actually does
 
-The RM001 CAS future module computes a **forward-only 18-session conflict list** using original frozen NSE FY27Q2 calendar SHA-256 2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce. From December 7 to 31, the old calendar's 15:30 UTC-converted close timestamps are not sufficient to prove final CAS quotes. The code requires instrument-kind and independently confirmed CAS stock eligibility. When unknown, it blocks inference rather than guessing. It reports derivatives expiry timing separately from auction price.
+The RM001 CAS future module computes a **forward-only 18-session conflict list** using original frozen NSE FY27Q2 calendar SHA-256 2c3c3fb92f118b1343316879d2935fda41ae8cf12da7843109a3168260c766ce. From December 7 to 31, the old calendar's 15:30 UTC-converted close timestamps are not sufficient to prove final CAS quotes. The 15:40 timestamp is a **conservative full-order-window elapsed reference**, not the earliest physically possible publication time. SEBI permits random order-entry closure between 15:38 and 15:40, after which matching and dissemination can commence. The code requires instrument-kind and independently confirmed CAS stock eligibility. When unknown, it blocks inference rather than guessing. It reports derivatives expiry timing separately from auction price.
 
 Importantly: **nothing in the original calendar, T012, H002, H021, HG009, PF001 paper fund, historic decisions or source ledgers is amended**. The code is a pre-transition risk auditor only. A timestamp at or after 15:40 is at most a lower bound for auction order-entry completion, NOT evidence of final dissemination or of a fill.
 
