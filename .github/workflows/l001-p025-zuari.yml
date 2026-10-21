@@ -7,6 +7,9 @@ on:
     paths:
       - .github/workflows/l001-p025-zuari.yml
       - src/marketlab/l001_p025_zuari_falsification.py
+      - src/marketlab/l001_p025_zuari_pdf.py
+      - scripts/archive_l001_p025_zuari_pdf.py
+      - tests/test_l001_p025_zuari_pdf.py
       - scripts/materialize_l001_p025_zuari.py
       - tests/test_l001_p025_zuari.py
   workflow_dispatch:
@@ -37,8 +40,14 @@ jobs:
           set -euo pipefail
           python scripts/materialize_l001_p025_zuari.py
           python scripts/materialize_l001_p025_zuari.py --check
-          ruff check src/marketlab/l001_p025_zuari_falsification.py scripts/materialize_l001_p025_zuari.py tests/test_l001_p025_zuari.py
-          pytest -q tests/test_l001_p025_zuari.py
+          ruff check src/marketlab/l001_p025_zuari_falsification.py src/marketlab/l001_p025_zuari_pdf.py scripts/materialize_l001_p025_zuari.py scripts/archive_l001_p025_zuari_pdf.py tests/test_l001_p025_zuari.py tests/test_l001_p025_zuari_pdf.py
+          pytest -q tests/test_l001_p025_zuari.py tests/test_l001_p025_zuari_pdf.py
+      - name: Archive exact original August Zuari investor PDF, or preserve blocked receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/archive_l001_p025_zuari_pdf.py             --run-id "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          python scripts/archive_l001_p025_zuari_pdf.py --check
       - name: Commit signed original financial review, not a forecast
         shell: bash
         run: |
@@ -47,6 +56,9 @@ jobs:
           git config user.name "marketlab-research-bot"
           git config user.email "marketlab-research-bot@users.noreply.github.com"
           git add "$REPORT"
+          if [ -d research/l001/originals/zuari_q1 ]; then
+            git add -f research/l001/originals/zuari_q1
+          fi
           if git diff --cached --quiet; then
             echo "P025 source research already recorded"
             exit 0
@@ -55,4 +67,5 @@ jobs:
           git fetch origin research/l001-p025-zuari-debt-stake-falsification-20261021
           git rebase origin/research/l001-p025-zuari-debt-stake-falsification-20261021
           python scripts/materialize_l001_p025_zuari.py --check
+          python scripts/archive_l001_p025_zuari_pdf.py --check
           git push origin HEAD:research/l001-p025-zuari-debt-stake-falsification-20261021
