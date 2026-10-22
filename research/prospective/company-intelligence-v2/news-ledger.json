@@ -13229,9 +13229,121 @@
         "SNAPSHOT_CAPTURED": 7
       },
       "started_at": "2026-10-22T14:37:36.910660+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "captured_at": "2026-10-22T14:43:57.225193+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 2,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 2
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "7d19ef4c8f7e3bf80828a7a33c4fe7d2cd8a56cbecc5e2ce42ce81a35e2ba243",
+      "identity_session": "2026-10-21",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "d73157568a5b734d69285735c378c887a2faa581e76cf51d3be0bd4c4c7b31dc",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 3,
+        "DOCUMENT_CAPTURED": 2,
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "started_at": "2026-10-22T14:43:12.951210+00:00"
     }
   ],
-  "ledger_sha256": "91c4840c7ce413a5a6dc1c14055ebf4ffde719341daa6a675b9f7908af8d2274",
+  "ledger_sha256": "0cd1675ab1d19bef9c3053d078ccb58e8e39ace823ce94a34d79e7a2c4125155",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -949280,6 +949392,164 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "14c6e0ad932d795ce75863d48b3e682162b2826c7774e5848333499a2e387aac",
+      "topics": []
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "OMAXE LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "9cd9fa5f5e695b081bdbc405ee4ae0ed524052a06a64ed4e65d029a0b7c35f97",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "a4851b07865f20c808bc4b119f74da38680f7263e61388e7ac8903f71eb1867b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMAXE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "21fce5ba8841dec1ab812a587a1868705fe1ef8c2d9b520e61b4191f91519e3e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:11:27",
+        "value": "2026-10-22T14:41:27+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_2637_WebXMLFile_20261022_201127041.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b0f80367866f53acfdbfe74f6ef2f0dcd5e0126af2c3f354c747ba004596b2f1",
+      "topics": []
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "NLC India Limited has informed the Exchange regarding a press release dated October 22, 2026, titled \"NLCIL Signs MoU with IPICOL for Establishment of a 3200 MW (4x800 MW)Ultra Super Critical coal-based thermal power plant and Exploration of CoalGasification-Based Fertilizer Production and Beach Sand Mineral ProcessingFacility in Odisha\". |SUBJECT: Press Release",
+      "event_context_sha256": "6968ad8ce09c74324924c599fe2001853a49a80525365aa88c419f239c01f9cf",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "3076d723d10e9383868d6124008ccf4ea46030c32656db714b49f01c0e809183",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NLCINDIA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "983f2adca821a9aa360153eb3d0acc4b62afc4033c4d89540c44156c51b973e8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:07:54",
+        "value": "2026-10-22T14:37:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/NLCINDIA_22102026200744_SE_MoU_with_IPICOL_Press_Release.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ec2a83a078dc6d597d86e2cb36edfac4509bbd75307e0ec2832db07068b9cf65",
+      "topics": []
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "Omaxe Limited has informed the Exchange regarding the Trading Window closure pursuant to SEBI (Prohibition of Insider Trading) Regulations, 2015 |SUBJECT: Trading Window",
+      "event_context_sha256": "e72595293abf94cb4635db6aea103945083b197e47bdbb6ad71fb25ad220d88c",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "804d52ce54e4d519d55c32d6e6e1a88bcbb3b81f8d1f6831b893672636a9f53e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMAXE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a5cf2fdf37c22ca565bb6a1fefe9f8311222439cf87f3512041ccf9cbdcfaafe",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:07:50",
+        "value": "2026-10-22T14:37:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OMAXE_22102026200644_Intimation_Prior_Intimation_Update_TWC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b0f80367866f53acfdbfe74f6ef2f0dcd5e0126af2c3f354c747ba004596b2f1",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "Press Release |SUBJECT: Press Release",
+      "event_context_sha256": "750214077318719592341d1c437017d5ddfd558404f0ed939c6182e7eb66cfa9",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "8fb77f64750f64d7b4aef6b3744a414d68d2a50fd71344b773bb9ea8a2208b4b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "NLCINDIA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b2620b2a96d0ee02f7dd73d230d515315f9255ae14f38deb9e4c4d82713dcc6e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:08:54",
+        "value": "2026-10-22T14:38:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/NLCINDIA_22102026200847_SE_MoU_with_IPICOL_Press_Release.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ec2a83a078dc6d597d86e2cb36edfac4509bbd75307e0ec2832db07068b9cf65",
+      "topics": []
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "Tata Technologies Limited has informed the Exchange about Outcome of analyst / institutional investor meeting (Non Deal Road Show) held on October 22, 2026 |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "dc742305525944dacc1af898492326532bb585bb9a8d7768fcbf3cfcf95fea1b",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "5ad2dc2919aa11749d9aff5c969ee685a0d586e60ecbc08b50bc89c457595e41",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TATATECH"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c7ad3f1ceb90da9e72ed85dae0a680cdf856c23499daa25cd3573178b44ab95b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:12:06",
+        "value": "2026-10-22T14:42:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TTLNSE_22102026201142_Investor_Call_Outcome_22102026_NDR_Mumbai_S.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "966fd3d8af9d4964568ca285a413613fbed6d594bfce8ca70ca0f4e14c7c57a4",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "cb61825b19be74085995347a7aac5e392e8595c062ff018de549fbf700b7441c",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-10-22T14:43:33.590743+00:00",
+      "item_id": "df71c8bf6808ce9fea389229a579437f83e3f686740d2867be69412ca79ffdb9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "cdfa94e7ccaad587a647846b323ff5718ae6626a3c4c041316886d96687a418a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "22-Oct-2026 20:09:37",
+        "value": "2026-10-22T14:39:37+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/provincial93_22102026200924_Outcome_BM_22102026_F.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "78f2926c8286223b49c776f9cf1e3dc820242c3f0f3ec5590fe06c93f058d057",
       "topics": []
     }
   ],
