@@ -10,7 +10,7 @@ a new source acquisition clock, not a retrospective price prediction.
 from __future__ import annotations
 
 import math
-from datetime import UTC, date, datetime
+from datetime import date
 from typing import Any
 
 from marketlab.h021_daily_prices import _source
