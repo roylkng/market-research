@@ -1,0 +1,156 @@
+{
+  "H1_and_H5_share_the_same_initial_market_entry_event": true,
+  "analysis_as_of_date_ist": "2026-10-22",
+  "arm_data": {
+    "ONE_LANE": {
+      "hypothetical_full_100_mean_with_missing_zero_pct": -6.022738,
+      "illustrative_lower_mean_if_each_missing_minus20_pct": -6.222738,
+      "illustrative_upper_mean_if_each_missing_plus20_pct": -5.822738,
+      "missing_issuers": [
+        {
+          "isin": "INE083A01026",
+          "missing_sources": [
+            {
+              "session_date": "2026-10-15",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-16",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-19",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-21",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-22",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            }
+          ],
+          "symbol": "MOREPENLAB"
+        }
+      ],
+      "missing_source_price_never_replaced_with_zero": true,
+      "observed_only_mean_price_change_pct": -6.083574,
+      "observed_only_median_price_change_pct": -6.565657,
+      "original_fixed_identity_denominator": 100,
+      "source_missing_company_count": 1,
+      "source_priced_company_count": 99
+    },
+    "SELECTED": {
+      "hypothetical_full_100_mean_with_missing_zero_pct": -6.223786,
+      "illustrative_lower_mean_if_each_missing_minus20_pct": -6.423786,
+      "illustrative_upper_mean_if_each_missing_plus20_pct": -6.023786,
+      "missing_issuers": [
+        {
+          "isin": "INE03DD01011",
+          "missing_sources": [
+            {
+              "session_date": "2026-10-15",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-16",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-19",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-21",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            },
+            {
+              "session_date": "2026-10-22",
+              "source_state": "MISSING_EQ_IDENTITY_NO_SUBSTITUTION"
+            }
+          ],
+          "symbol": "RETAIL"
+        }
+      ],
+      "missing_source_price_never_replaced_with_zero": true,
+      "observed_only_mean_price_change_pct": -6.286652,
+      "observed_only_median_price_change_pct": -6.700009,
+      "original_fixed_identity_denominator": 100,
+      "source_missing_company_count": 1,
+      "source_priced_company_count": 99
+    },
+    "ZERO_LANE": {
+      "hypothetical_full_100_mean_with_missing_zero_pct": -5.421358,
+      "illustrative_lower_mean_if_each_missing_minus20_pct": -5.421358,
+      "illustrative_upper_mean_if_each_missing_plus20_pct": -5.421358,
+      "missing_issuers": [],
+      "missing_source_price_never_replaced_with_zero": true,
+      "observed_only_mean_price_change_pct": -5.421358,
+      "observed_only_median_price_change_pct": -5.876904,
+      "original_fixed_identity_denominator": 100,
+      "source_missing_company_count": 0,
+      "source_priced_company_count": 100
+    }
+  },
+  "audit_id": "HG009-P038-20261022-H5-100-SLOT-MISSINGNESS-v1",
+  "classification": "POST_H5_SOURCE_MISSINGNESS_SENSITIVITY_NOT_ALPHA_OR_TOTAL_RETURN",
+  "comparison_bounds": {
+    "SELECTED_MINUS_ONE_LANE": {
+      "causal_or_investable_alpha_eligible": false,
+      "illustrative_fixed100_missing_at_zero_gap_pp": -0.201048,
+      "lower_gap_if_each_unknown_between_minus20_plus20_pp": -0.601048,
+      "negative_gap_robust_within_arbitrary_20pct_stress": false,
+      "observed_only_mean_gap_pp_not_full_fixed100": -0.203078,
+      "upper_gap_if_each_unknown_between_minus20_plus20_pp": 0.198952
+    },
+    "SELECTED_MINUS_ZERO_LANE": {
+      "causal_or_investable_alpha_eligible": false,
+      "illustrative_fixed100_missing_at_zero_gap_pp": -0.802428,
+      "lower_gap_if_each_unknown_between_minus20_plus20_pp": -1.002428,
+      "negative_gap_robust_within_arbitrary_20pct_stress": true,
+      "observed_only_mean_gap_pp_not_full_fixed100": -0.865294,
+      "upper_gap_if_each_unknown_between_minus20_plus20_pp": -0.602428
+    }
+  },
+  "developed_after_H5_outcomes_observed": true,
+  "five_day_interval_is_not_five_independent_randomized_trials": true,
+  "issuer_dividend_corporate_action_and_share_entitlement_basis_verified": false,
+  "live_capital_allowed": false,
+  "market_execution_slippage_transaction_costs_verified": false,
+  "missing_price_stress": {
+    "lower_hypothetical_stock_return_pct": -20.0,
+    "not_exchange_price_limits_or_probabilistic_bounds": true,
+    "upper_hypothetical_stock_return_pct": 20.0
+  },
+  "missing_source_algebraic_reversal_hurdles": {
+    "one_lane_missing_issuer": "MOREPENLAB",
+    "selected_missing_issuer": "RETAIL",
+    "selected_missing_return_minus_one_lane_missing_return_exceeds_pp": 20.104777,
+    "selected_missing_stock_return_exceeds_to_overtake_zero_arm_pct": 80.242815,
+    "these_are_algebraic_thresholds_not_forecasts_or_actual_returns": true
+  },
+  "nifty500_unadjusted_price_only_change_pct": -1.62191,
+  "observed_market_entry_event_count": 1,
+  "original_frozen_five_trading_sessions": [
+    "2026-10-15",
+    "2026-10-16",
+    "2026-10-19",
+    "2026-10-21",
+    "2026-10-22"
+  ],
+  "original_h5_price_evidence": {
+    "original_signed_evaluation_sha256": "7ee99e2b9a9a356b89850ac1acd30c4e7f367da5c306793e5cf874ab0098d0aa",
+    "source_git_blob_sha": "158fd143a0c13675cfdcd8cc716e576cd515fdab",
+    "source_path": "research/hg009/price-diagnostics/HG009-P006-H5-20261015-v1.json",
+    "source_raw_sha256": "10852d02dc4cc5a0df2a6e3d5758ec70a3480d37594c65623785c9b81675ae47"
+  },
+  "original_hg009_cohort_or_price_diagnostic_changed": false,
+  "original_precommitted_first_entry": "2026-10-15",
+  "portfolio_eligibility_allowed": false,
+  "recommendations_or_fair_values_calculated": false,
+  "report_sha256": "188175f62a29ec76fc20cec3538653ef2939686b8ca70736a28fdeead2d5d195",
+  "schema_version": 1,
+  "sector_size_beta_profitability_and_cost_balance_not_certified": true,
+  "three_arm_original_size_each": 100
+}
