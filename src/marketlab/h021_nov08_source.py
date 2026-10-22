@@ -166,7 +166,7 @@ def build_h021_muhurat_source(
             "SOURCE_COMPLETE_NOT_ECONOMIC_RETURN" if complete
             else "SOURCE_INCOMPLETE_NO_FABRICATED_PRICE"
         ),
-        "official_Sunday_market_index_price_basis_verified": complete,
+        "original_stock_and_index_row_coverage_complete": complete,
         "H021_H20_trading_return_or_index_excess_calculated": False,
         "actual_execution_and_fees_verified": False,
         "CAS_nonCAS_security_specific_close_basis_verified": False,
