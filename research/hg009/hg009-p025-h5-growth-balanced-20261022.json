@@ -1,0 +1,171 @@
+{
+  "buckets_negative_less_than_zero_and_middle_at_most_15pct": [
+    "NEGATIVE",
+    "ZERO_TO_15",
+    "ABOVE_15",
+    "UNAVAILABLE"
+  ],
+  "corporate_actions_dividends_not_reconciled": true,
+  "diagnostics": {
+    "ONE_LANE": {
+      "conditional_observed": {
+        "mean": -6.083574,
+        "median": -6.565657,
+        "n": 99,
+        "p10": -13.272059,
+        "p90": -1.13888,
+        "positive": 8,
+        "trimmed10": -6.472128
+      },
+      "fixed_population": 100,
+      "growth_buckets": {
+        "ABOVE_15": {
+          "conditional_mean_pct": -7.053681,
+          "missing": 1,
+          "observed": 53,
+          "source_population": 54
+        },
+        "NEGATIVE": {
+          "conditional_mean_pct": -2.713258,
+          "missing": 0,
+          "observed": 9,
+          "source_population": 9
+        },
+        "UNAVAILABLE": {
+          "conditional_mean_pct": -6.133297,
+          "missing": 0,
+          "observed": 12,
+          "source_population": 12
+        },
+        "ZERO_TO_15": {
+          "conditional_mean_pct": -5.216394,
+          "missing": 0,
+          "observed": 25,
+          "source_population": 25
+        }
+      },
+      "growth_standardized_conditional_mean_pct": -5.940716,
+      "missing": 1,
+      "priced": 99
+    },
+    "SELECTED": {
+      "conditional_observed": {
+        "mean": -6.286652,
+        "median": -6.700009,
+        "n": 99,
+        "p10": -11.701593,
+        "p90": -0.500216,
+        "positive": 8,
+        "trimmed10": -6.176939
+      },
+      "fixed_population": 100,
+      "growth_buckets": {
+        "ABOVE_15": {
+          "conditional_mean_pct": -6.734162,
+          "missing": 1,
+          "observed": 56,
+          "source_population": 57
+        },
+        "NEGATIVE": {
+          "conditional_mean_pct": -5.207333,
+          "missing": 0,
+          "observed": 14,
+          "source_population": 14
+        },
+        "UNAVAILABLE": {
+          "conditional_mean_pct": -5.884385,
+          "missing": 0,
+          "observed": 3,
+          "source_population": 3
+        },
+        "ZERO_TO_15": {
+          "conditional_mean_pct": -5.950373,
+          "missing": 0,
+          "observed": 26,
+          "source_population": 26
+        }
+      },
+      "growth_standardized_conditional_mean_pct": -6.291128,
+      "missing": 1,
+      "priced": 99
+    },
+    "ZERO_LANE": {
+      "conditional_observed": {
+        "mean": -5.421358,
+        "median": -5.876904,
+        "n": 100,
+        "p10": -10.336856,
+        "p90": -0.270769,
+        "positive": 10,
+        "trimmed10": -5.695336
+      },
+      "fixed_population": 100,
+      "growth_buckets": {
+        "ABOVE_15": {
+          "conditional_mean_pct": -6.497958,
+          "missing": 0,
+          "observed": 17,
+          "source_population": 17
+        },
+        "NEGATIVE": {
+          "conditional_mean_pct": -6.504829,
+          "missing": 0,
+          "observed": 22,
+          "source_population": 22
+        },
+        "UNAVAILABLE": {
+          "conditional_mean_pct": -4.195575,
+          "missing": 0,
+          "observed": 29,
+          "source_population": 29
+        },
+        "ZERO_TO_15": {
+          "conditional_mean_pct": -5.215393,
+          "missing": 0,
+          "observed": 32,
+          "source_population": 32
+        }
+      },
+      "growth_standardized_conditional_mean_pct": -6.096382,
+      "missing": 0,
+      "priced": 100
+    }
+  },
+  "exit_date": "2026-10-22",
+  "first_entry": "2026-10-15",
+  "gaps": {
+    "SELECTED_MINUS_ONE_LANE": {
+      "causal_or_after_cost_alpha_proven": false,
+      "growth_standardized_mean_gap_pp": -0.350412,
+      "raw_observed_mean_gap_pp": -0.203078,
+      "two_sided_p_value": null
+    },
+    "SELECTED_MINUS_ZERO_LANE": {
+      "causal_or_after_cost_alpha_proven": false,
+      "growth_standardized_mean_gap_pp": -0.194746,
+      "raw_observed_mean_gap_pp": -0.865294,
+      "two_sided_p_value": null
+    }
+  },
+  "h5_exit_not_independent_of_observed_h1_prices": true,
+  "historical_features_as_of": "2026-10-05",
+  "horizon_sessions": 5,
+  "live_capital_allowed": false,
+  "method_developed_on": "2026-10-21",
+  "method_selected_after_h1_price_observed": true,
+  "missing_prices_not_zero_imputed": true,
+  "original_price_report_sha256": "7ee99e2b9a9a356b89850ac1acd30c4e7f367da5c306793e5cf874ab0098d0aa",
+  "original_prior_sha256": "09b31afc59b2b2b5cd3278ee4c73a5cff4c12dc835486fd9a0726ad45202b25e",
+  "posthoc_one_event_not_prospective_multi_date_alpha": true,
+  "report_id": "HG009-P025-OCT21-H1-GROWTH-BALANCE-v1",
+  "report_sha256": "9c687064140a0bfed30e35bec8fef3c1253c1461d8616d256471e81c43c7c710",
+  "research_not_actual_portfolio_or_investment_advice": true,
+  "schema_version": 1,
+  "sector_size_beta_profitability_not_balanced": true,
+  "selected_source_growth_bucket_weights": {
+    "ABOVE_15": 0.57,
+    "NEGATIVE": 0.14,
+    "UNAVAILABLE": 0.03,
+    "ZERO_TO_15": 0.26
+  }
+}
