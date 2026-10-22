@@ -143,7 +143,7 @@ def test_unpublished_index_and_stock_row_dont_create_economic_prices() -> None:
 
 def test_source_fails_closed_before_nov08_special_trading_and_for_spoofed_url() -> None:
     intent, universe, clock = collection.load_source_ancestry()
-    with pytest.raises(ValueError, match="before all exchange trading cutoffs"):
+    with pytest.raises(ValueError, match="cannot precede all exchange trading cutoffs"):
         _build(recorded="2026-11-08T10:30:00Z")
     with pytest.raises(ValueError, match="before official session close"):
         _build(capture="2026-11-08T10:30:00Z")
