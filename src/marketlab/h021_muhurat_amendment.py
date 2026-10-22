@@ -10,7 +10,7 @@ Do not recast the old H021 P006 as prospective trading performance.
 from __future__ import annotations
 
 import copy
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from marketlab.alpha import digest
@@ -23,9 +23,8 @@ from marketlab.h021_horizon_readiness import (
 )
 from marketlab.hg009_p004_a1_muhurat import (
     AMENDMENT_ID as HG009_AMENDMENT_ID,
-    SOURCE_URL,
-    SPECIAL_DATE,
 )
+from marketlab.hg009_p004_a1_muhurat import SOURCE_URL, SPECIAL_DATE
 
 AMENDMENT_ID = "H021-P023-2026-11-08-OFFICIAL-MUHURAT-H20-CLOCK-v1"
 SOURCE_PDF_SHA256 = (
