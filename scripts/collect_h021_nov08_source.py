@@ -19,13 +19,13 @@ from typing import Any
 import requests
 
 from marketlab.h021_first_entry_intent import git_blob_sha
+from marketlab.h021_muhurat_amendment import validate_h021_muhurat_amendment
 from marketlab.h021_nov08_source import (
     SOURCE_RELEASE_NOT_BEFORE,
     SUNDAY,
     build_h021_muhurat_source,
     validate_h021_muhurat_source,
 )
-from marketlab.h021_muhurat_amendment import validate_h021_muhurat_amendment
 from marketlab.marketdata import index_snapshot_url, udiff_url
 
 INTENT_PATH = Path(
