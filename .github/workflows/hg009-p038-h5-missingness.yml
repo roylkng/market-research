@@ -1,0 +1,103 @@
+name: HG009 P038 H5 fixed-cohort missingness review
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/hg009_p038_h5_missingness.py
+      - scripts/materialize_hg009_p038.py
+      - tests/test_hg009_p038_h5_missingness.py
+      - .github/workflows/hg009-p038-h5-missingness.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/hg009_p038_h5_missingness.py
+      - scripts/materialize_hg009_p038.py
+      - tests/test_hg009_p038_h5_missingness.py
+      - .github/workflows/hg009-p038-h5-missingness.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hg009-p038-fixed-cohort-h5-source-review
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify fixed identities and no-return-promotion
+        run: |
+          ruff check src/marketlab/hg009_p038_h5_missingness.py scripts/materialize_hg009_p038.py tests/test_hg009_p038_h5_missingness.py
+          pytest -q tests/test_hg009_p038_h5_missingness.py
+      - name: Recompute missing issuer bounds from immutable H5 result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/materialize_hg009_p038.py \
+            --out /tmp/hg009-p038-h5-fixed-100.json
+          test -s /tmp/hg009-p038-h5-fixed-100.json
+          python scripts/materialize_hg009_p038.py \
+            --out /tmp/hg009-p038-h5-fixed-100.json --check
+      - name: Seal only the reproducible source appendix on main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET="research/hg009/hg009-p038-h5-missingness-bounds-v1.json"
+          if [[ -f "$TARGET" ]]; then
+            python scripts/materialize_hg009_p038.py --check
+            echo "P038 original H5 audit exists and remains source-reproducible"
+            exit 0
+          fi
+          cp /tmp/hg009-p038-h5-fixed-100.json "$TARGET"
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add "$TARGET"
+          git commit -m "HG009: anchor source-replayed H5 missingness sensitivity [skip ci]"
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            CURRENT_SHA="$(git rev-parse origin/main)"
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "P038 complete source output already sealed; no overwrite"
+              exit 1
+            fi
+            if ! git diff --quiet "$BASE_SHA" "$CURRENT_SHA" -- \
+              src/marketlab/hg009_p038_h5_missingness.py \
+              scripts/materialize_hg009_p038.py \
+              research/hg009/price-diagnostics/HG009-P006-H5-20261015-v1.json \
+              .github/workflows/hg009-p038-h5-missingness.yml; then
+              echo "Frozen input or interpretation changed during H5 review"
+              exit 1
+            fi
+            if [[ "$CURRENT_SHA" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$CURRENT_SHA"
+              python scripts/materialize_hg009_p038.py --check
+            fi
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep "$((RETRY * 2))"
+          done
+          echo "H5 source diagnostic not durably anchored after bounded attempts"
+          exit 1
+      - name: Retain independently replayable research-only result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hg009-h5-missingness-fixed100-posthoc-no-alpha
+          path: /tmp/hg009-p038-h5-fixed-100.json
+          if-no-files-found: ignore
+          retention-days: 90
