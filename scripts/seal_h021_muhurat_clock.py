@@ -11,7 +11,12 @@ import json
 from pathlib import Path
 
 from marketlab.calendar_snapshot import load_calendar_snapshot
-from marketlab.h021_first_entry_intent import CALENDAR_PATH, git_blob_sha
+from marketlab.h021_first_entry_intent import (
+    CALENDAR_PATH,
+    build_first_entry_intent,
+    git_blob_sha,
+    load_pinned_inputs,
+)
 from marketlab.h021_muhurat_amendment import (
     build_h021_muhurat_calendar_amendment,
     validate_h021_muhurat_amendment,
@@ -21,11 +26,27 @@ from marketlab.hg009_p004_a1_muhurat import (
     AMENDMENT_PATH,
     validate_amendment,
 )
-from scripts.check_h021_horizon_readiness import load_first_intent
 
 HG009_CALENDAR_AMENDMENT_BLOB_SHA = "ff2bc35970ed73d219bb4b26a9160a37b4947415"
 HG009_RECEIPT_PATH = Path("research/hg009/p004-a1/originals/attempts/39473770080-1.json")
 HG009_RECEIPT_BLOB_SHA = "d90269ab889be329e08f196b74eddbc6dc6408df"
+
+H021_INTENT_PATH = Path(
+    "research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json"
+)
+H021_INTENT_BLOB_SHA = "e25f77e1c845456473e624899d4748e306b1225b"
+
+
+def _load_first_original_intent() -> dict:
+    comparison, calendar = load_pinned_inputs()
+    original = H021_INTENT_PATH.read_bytes()
+    if git_blob_sha(original) != H021_INTENT_BLOB_SHA:
+        raise ValueError("original H021 first intent source Git blob changed")
+    stored = json.loads(original)
+    if stored != build_first_entry_intent(comparison, calendar):
+        raise ValueError("H021 first intent no longer reproducible from sealed sources")
+    return stored
+
 
 
 def load_h021_source_clock() -> dict:
@@ -43,7 +64,7 @@ def load_h021_source_clock() -> dict:
         hg009_amendment, root=root, receipt_path=HG009_RECEIPT_PATH
     )
     original_calendar = load_calendar_snapshot(CALENDAR_PATH)
-    original_intent = load_first_intent()
+    original_intent = _load_first_original_intent()
     packet = build_h021_muhurat_calendar_amendment(
         original_intent, original_calendar, hg009_amendment
     )
