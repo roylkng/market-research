@@ -1,0 +1,171 @@
+name: H021 P024 November 8 official NSE Sunday source
+
+on:
+  pull_request:
+    paths:
+      - src/marketlab/h021_nov08_source.py
+      - scripts/collect_h021_nov08_source.py
+      - tests/test_h021_nov08_source.py
+      - .github/workflows/h021-p024-nov08-original-source.yml
+  push:
+    branches:
+      - main
+    paths:
+      - src/marketlab/h021_nov08_source.py
+      - scripts/collect_h021_nov08_source.py
+      - tests/test_h021_nov08_source.py
+      - .github/workflows/h021-p024-nov08-original-source.yml
+  workflow_dispatch:
+  schedule:
+    # 17:00 IST Sunday 8 Nov, after the 16:15 IST NSE modification cutoff.
+    - cron: '30 11 8 11 *'
+    # Original Oct-calendar special-session source publication recovery.
+    - cron: '0 16 9-13 11 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-p024-nov08-original-nse-sunday-source
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install existing NSE source research harness
+        run: python -m pip install -e '.[dev]'
+      - name: Verify exact Sunday and no-return source contracts
+        run: |
+          ruff check src/marketlab/h021_nov08_source.py scripts/collect_h021_nov08_source.py tests/test_h021_nov08_source.py
+          pytest -q tests/test_h021_nov08_source.py tests/test_h021_muhurat_amendment.py
+      - name: Gate source against future clock, immutable success and bounded attempts
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATE=NO_FUTURE_SESSION_YET
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          TARGET="research/prospective/h021/special-sessions/2026-11-08/2026-11-08-original-ohlc-v1.json"
+          ATTEMPTS="research/prospective/h021/special-sessions/2026-11-08/attempts"
+          if [[ "$NOW" > "2026-11-08T10:45:00Z" ]]; then
+            git fetch origin main
+            STATE=COLLECT
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              STATE=SOURCE_ALREADY_COMPLETE
+            else
+              COUNT=0
+              if [[ -d "$ATTEMPTS" ]]; then
+                COUNT="$(find "$ATTEMPTS" -maxdepth 1 -type f -name '*.json' | wc -l)"
+              fi
+              if [[ "$COUNT" -ge 5 ]]; then
+                STATE=BOUNDED_SOURCE_ATTEMPTS_EXHAUSTED
+              fi
+            fi
+          fi
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          echo "Sunday official NSE source collection state=$STATE UTC=$NOW"
+      - name: Acquire official 2026-11-08 NSE ZIP and index CSV only
+        if: steps.gate.outputs.state == 'COLLECT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="/tmp/h021-nov08-source-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          echo "H021_NOV08_OUT=$OUT" >> "$GITHUB_ENV"
+          python scripts/collect_h021_nov08_source.py \
+            --out-dir "$OUT" \
+            --attempts 2 \
+            --sleep-seconds 3
+          test -s "$OUT/special-source-observation-v1.json"
+          test -s "$OUT/attempt.json"
+      - name: Persist append-only source receipts and original bytes
+        if: steps.gate.outputs.state == 'COLLECT'
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="research/prospective/h021/special-sessions/2026-11-08"
+          TARGET="$DEST/2026-11-08-original-ohlc-v1.json"
+          ATTEMPT="$DEST/attempts/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT.json"
+          mkdir -p "$DEST/attempts" "$DEST/raw/sha256"
+          cp "$H021_NOV08_OUT/attempt.json" "$ATTEMPT"
+          for ORIGINAL in "$H021_NOV08_OUT"/raw/sha256/*; do
+            [[ -f "$ORIGINAL" ]] || continue
+            RAW_PATH="$DEST/raw/sha256/$(basename "$ORIGINAL")"
+            if [[ -f "$RAW_PATH" ]]; then
+              cmp "$ORIGINAL" "$RAW_PATH"
+            else
+              cp "$ORIGINAL" "$RAW_PATH"
+            fi
+            RAW_SHA="$(basename "$RAW_PATH" | cut -d. -f1)"
+            test "$(sha256sum "$RAW_PATH" | cut -d' ' -f1)" = "$RAW_SHA"
+          done
+          SOURCE_STATE="$(python - "$H021_NOV08_OUT/special-source-observation-v1.json" <<'PY'
+          import json,sys
+          from pathlib import Path
+          from marketlab.h021_nov08_source import validate_h021_muhurat_source
+          data=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          validate_h021_muhurat_source(data)
+          print(data['capture_state'])
+          PY
+          )"
+          if [[ "$SOURCE_STATE" == SOURCE_COMPLETE_NOT_ECONOMIC_RETURN ]]; then
+            if [[ -f "$TARGET" ]]; then
+              echo "Already sealed complete Sunday source; never overwrite"
+              exit 1
+            fi
+            cp "$H021_NOV08_OUT/special-source-observation-v1.json" "$TARGET"
+          fi
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add -f "$DEST"
+          git commit -m "H021: retain original Nov8 Sunday NSE market source attempt $GITHUB_RUN_ID [skip ci]"
+
+          # A concurrent scientific contract change is not a safe source merge.
+          BASE_SHA="$(git rev-parse HEAD^)"
+          for RETRY in 1 2 3; do
+            git fetch origin main
+            NEW_MAIN="$(git rev-parse origin/main)"
+            if ! git diff --quiet "$BASE_SHA" "$NEW_MAIN" -- \
+              .github/workflows/h021-p024-nov08-original-source.yml \
+              src/marketlab/h021_nov08_source.py \
+              src/marketlab/h021_muhurat_amendment.py \
+              src/marketlab/h021_daily_prices.py \
+              src/marketlab/pf001_marketdata.py \
+              scripts/collect_h021_nov08_source.py \
+              research/prospective/h021/amendments/h021-p023-nov08-calendar-v1.json \
+              research/prospective/h021/intents/2026-10-09-primary-entry-intent-v1.json \
+              research/prospective/universes/FY27-Q2-2026-09-06.json; then
+              echo "Original NSE source contract changed mid-acquisition; refuse to anchor"
+              exit 1
+            fi
+            if git cat-file -e "origin/main:$TARGET" 2>/dev/null; then
+              echo "Sunday complete source has already been sealed elsewhere"
+              exit 1
+            fi
+            if [[ "$NEW_MAIN" != "$BASE_SHA" ]]; then
+              git rebase origin/main
+              BASE_SHA="$NEW_MAIN"
+            fi
+            if git push origin HEAD:main; then
+              echo "Source-only Sunday official NSE attempt anchored: $SOURCE_STATE"
+              exit 0
+            fi
+            sleep "$((RETRY*2))"
+          done
+          echo "Unable to anchor original Sunday source after bounded Git retries"
+          exit 1
+      - name: Preserve even failed/blocked source transport as workflow evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-nov08-original-sunday-nse-source-attempt
+          path: /tmp/h021-nov08-source-*
+          if-no-files-found: ignore
+          retention-days: 90
