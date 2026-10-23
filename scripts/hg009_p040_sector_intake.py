@@ -14,7 +14,6 @@ import ipaddress
 import json
 import os
 from pathlib import Path
-import socket
 import tempfile
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
@@ -43,7 +42,6 @@ def validate_source_url(value: str) -> str:
     if parts.fragment:
         raise ValueError("URL fragment forbidden")
     hostname = parts.hostname
-    # DNS check at request time is also enforced by the configured egress proxy.
     if hostname == "localhost" or hostname.endswith(".local") or hostname.endswith(".internal"):
         raise ValueError("local destination forbidden")
     try:
@@ -54,6 +52,9 @@ def validate_source_url(value: str) -> str:
     else:
         if not ip.is_global:
             raise ValueError("nonpublic destination forbidden")
+    approved = ('nseindia.com', 'bseindia.com', 'niftyindices.com', 'sebi.gov.in')
+    if not any(hostname == root or hostname.endswith('.' + root) for root in approved):
+        raise ValueError('host is not an approved exchange/regulator domain')
     return value
 
 
