@@ -15,8 +15,8 @@ import os
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlsplit
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[1]
