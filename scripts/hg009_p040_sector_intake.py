@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """HG009 P040: original-document intake, NOT industry classification or trial admission.
 
 Usage:
@@ -13,11 +12,12 @@ import hashlib
 import ipaddress
 import json
 import os
-from pathlib import Path
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
 from urllib.parse import urlsplit
-from urllib.request import Request, build_opener, HTTPRedirectHandler
+from urllib.error import HTTPError, URLError
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[1]
 QUEUE = REPO / "research/hg009/hg009-p030-sector-proof-queue-v1.json"
@@ -42,7 +42,7 @@ def validate_source_url(value: str) -> str:
     if parts.fragment:
         raise ValueError("URL fragment forbidden")
     hostname = parts.hostname
-    if hostname == "localhost" or hostname.endswith(".local") or hostname.endswith(".internal"):
+    if hostname == "localhost" or hostname.endswith((".local", ".internal")):
         raise ValueError("local destination forbidden")
     try:
         ip = ipaddress.ip_address(hostname)
@@ -172,12 +172,12 @@ def run(manifest: Path, out: Path, queue_path: Path = QUEUE) -> dict:
         seen.add(identity)
         try:
             data = fetch_original(url)
-            observed = datetime.now(timezone.utc).isoformat()
+            observed = datetime.now(UTC).isoformat()
             receipt_path = persist(out, symbol, isin, known[key], url, data,
                                    observed, digest(queue_bytes))
             results.append({"symbol": symbol, "isin": isin, "status": "RECEIPT_ONLY",
                             "receipt": str(receipt_path)})
-        except Exception as exc:
+        except (ValueError, OSError, HTTPError, URLError) as exc:
             # Failed sources must never become classifications or successes.
             results.append({"symbol": symbol, "isin": isin, "status": "SOURCE_ERROR",
                             "reason": type(exc).__name__ + ": " + str(exc)})
