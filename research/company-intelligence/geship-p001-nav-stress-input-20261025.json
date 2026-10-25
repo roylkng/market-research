@@ -1,0 +1,78 @@
+{
+  "schema": "GESHIP-P001-20261025-PUBLIC-SOURCE-NAV-STRESS-v1",
+  "purpose": "POST_HOC_INVESTMENT_DILIGENCE_NOT_PROSPECTIVE_ALPHA",
+  "symbol": "GESHIP",
+  "isin": "INE017A01032",
+  "observed_date": "2026-10-25",
+  "inputs": {
+    "price_per_share_inr": 1496.6,
+    "price_date": "2026-10-23",
+    "reported_consolidated_nav_per_share_inr": 1886,
+    "nav_date": "2026-06-30",
+    "reported_consolidated_net_cash_crore": 8056,
+    "net_cash_date": "2026-06-30",
+    "paid_up_share_capital_lakh_inr": 14277,
+    "face_value_inr": 10,
+    "q1_fy27_interim_dividend_inr": 14.4,
+    "buyback_cumulative_through_oct23_shares": 3651960,
+    "buyback_cap_crore": 900,
+    "buyback_price_ceiling_inr": 1530,
+    "reported_consolidated_nav_range_low_inr": 1862,
+    "reported_consolidated_nav_range_high_inr": 1911,
+    "reported_normalized_net_cash_crore": 7726
+  },
+  "sources": {
+    "official_standalone_xbrl": "https://nsearchives.nseindia.com/corporate/ixbrl/INTEGRATED_FILING_INDAS_181838_03082026184049_iXBRL_WEB.html",
+    "issuer_q4_2026_presentation_original": "https://greatship.com/upload/press_releases/image/4Q26_Results_Presentation_15May26.pdf",
+    "original_oct23_buyback": "https://greatship.com/upload/investors/buyback_2026/droct23.pdf",
+    "original_oct23_vlgc": "https://greatship.com/upload/press_releases/image/GE_Shipping_contracts_to_buy_a_secondhand_Very_Large_Gas_Carrier.pdf",
+    "original_sep28_newbuilding": "https://greatship.com/upload/press_releases/image/GE_Shipping_contracts_to_buy_a_new-building_Suezmax_Tanker_28sep26.pdf",
+    "public_nse_quote": "https://stockanalysis.com/quote/nse/GESHIP/history/",
+    "official_q1_fy27_issuer_investor_presentation": "https://greatship.com/upload/announcements/Q1FY27_Updates_Presentation.pdf_(1).pdf",
+    "official_q1_fy27_presentation_pages": "presentation PDF pp.5-8 and p.45 (zero-index pages 4,5,6,7,44)"
+  },
+  "stress_scenarios": [
+    {
+      "name": "reported_NAV_parity_ex_dividend",
+      "residual_noncash_haircut": 0,
+      "net_cash_haircut": 0,
+      "exit_price_to_stressed_nav": 1
+    },
+    {
+      "name": "defensive_repricing",
+      "residual_noncash_haircut": 0.15,
+      "net_cash_haircut": 0.05,
+      "exit_price_to_stressed_nav": 0.85
+    },
+    {
+      "name": "shipping_cycle_bear",
+      "residual_noncash_haircut": 0.3,
+      "net_cash_haircut": 0.1,
+      "exit_price_to_stressed_nav": 0.75
+    },
+    {
+      "name": "asset_upside_repricing",
+      "residual_noncash_haircut": -0.1,
+      "net_cash_haircut": 0,
+      "exit_price_to_stressed_nav": 0.95
+    }
+  ],
+  "watch_haircuts": {
+    "residual_noncash_haircut": 0.15,
+    "net_cash_haircut": 0.05,
+    "margin_of_safety_fraction": 0.25
+  },
+  "evidence_status": "OFFICIAL_ISSUER_PDF_VISUALLY_REVIEWED_OFFICIAL_XBRL_VERIFIED_NO_IMMUTABLE_ORIGINAL_BYTE_ARCHIVE",
+  "result_status": "NO_APPROVED_INVESTMENT_NO_PROBABILITIES_NO_CAPITAL",
+  "limitations": [
+    "Q1 balance and NAV as of June 30; price and buyback through October 23. Not a refreshed Oct23 NAV.",
+    "Issuer NAV uses average of at least two international shipping-broker appraisals per ship as disclosed on page 45 of original issuer presentation. We have not independently inspected individual broker valuations.",
+    "Net cash residual approach is algebraic, not a ship-by-ship valuation and includes non-fleet net assets and obligations.",
+    "Q1 per-share denominator predates Sept/Oct buyback; share cancellation, cash spent and ex dividend need exact pro forma before any investment.",
+    "Further VLGC, Kamsarmax and Suezmax commitments lack disclosed contract prices and committed payments.",
+    "All scenario exit P/NAV ratios and haircuts are stress assumptions, not calibrated forecasts.",
+    "No dividends after Q1, tax, FX, costs, dilution, opportunity cost, probability or time path modeled.",
+    "Underwriting not tied to existing H-series prospective source/return data.",
+    "Company reports normalized consolidated net cash Rs 7,726cr after NCD/currency-swap adjustments versus reported Rs 8,056cr; scenarios use unadjusted Rs 8,056cr and need an alternative reconciliation."
+  ]
+}
