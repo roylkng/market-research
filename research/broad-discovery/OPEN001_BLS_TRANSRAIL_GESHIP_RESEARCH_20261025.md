@@ -40,6 +40,24 @@
 - **GESHIP:** GESHIP-P001 #532 quantified conditional ~₹1,234 research watch threshold from broker vessel NAV but found P/NAV discount recurrent through cycles, and tanker TCE unusually elevated in geopolitical market. BLS is a different, potentially superior cash-return mechanism, but is not automatically cheaper on risk.
 - **ZUARIIND:** existing program audit showed headline gross holdings / share cap discount heavily eroded by debt/pledge/cross-holdings. Rejected current margin-of-safety claim.
 
+## Newly source-identified official contract catalysts (discovered 25 October)
+
+These are **ACTIVE RFP / BID OPENING DATES, NOT BIDDER IDENTITY OR AWARDS**, verified as official published government eProcurement tender-search records with matching tender IDs. The eProcure service uses session-dependent URLs and may show a stale-session page if shared; use the canonical tender ID/reference in https://eprocure.gov.in/epublish/app or the static Indian Embassy / High Commission notices. The **financial value of tender bids is not the company's contract revenue, and EMD/tender fees cannot be treated as economic contract value**.
+
+| Mission | Official 2026 govt tender ID | Deadline | Scheduled bid opening | Is BLS bidder or winner proven? |
+| --- | --- | --- | --- | --- |
+| UAE: Abu Dhabi + Dubai | 2026_MEA_852578_1 | Oct 26 | Oct 26 | NO |
+| Singapore | 2026_MEA_852512_1 | Oct 26 | Oct 26 | NO |
+| Kuwait | 2026_MEA_852518_1 | Oct 26 | Oct 26 | NO |
+| Canada: Ottawa, Toronto, Vancouver | 2026_MEA_853372_1 | Nov 2 | Nov 2 | NO |
+
+- UAE official Indian Embassy **23-Oct-2026 technical bid opening notice** https://www.indembassyuae.gov.in/section/news/notice-regarding-opening-of-technical-bids-regarding-rfp-for-outsourcing-of-cpv-services-in-the-mission-v3/ and 14-Oct published corrigendum https://www.indembassyuae.gov.in/section/public-notice/corrigendum-ii-dated-14-october-2026-to-rfp-for-outsourcing-of-cpv-services-at-embassy-of-india-abu-dhabi-and-consulate-general-of-india-dubai2/ . Official MEA eProcure ref Abu/Cons/415/08/2026, bid opening Oct 26 18:00 per the dated discovery snapshot.
+- Singapore official Indian High Commission **2026 RFP and October corrigenda** https://www.hcisingapore.gov.in/noticeboard?page=3 and MEA portal ref SIN/HCI/ADMN/551/06/2026, bid opening Oct 26 14:00 per published government tender.
+- Kuwait MEA portal ref KUW/Cons/415/01/2026, bid opening Oct 26 16:30 per published tender.
+- Canada MEA portal ref OTT/CONS/406/01/2026 (published Oct 7), bid opening Nov 2 16:30. This is **a newly open formal solicitation**, not merely a published December expiry. Existing Toronto Consulate BLS service mention https://www.cgitoronto.gov.in/page/roles-of-bls/ proves incumbent service at page observation, not the next award.
+- Distinguish **bid submission**, **technical/financial bid opening**, **identifiable bidders**, **qualification**, **final award** and **contract commencement**. A win or loss is not proved at the bid-opening milestone. Courts and corrigenda may change the calendar. Source-runner actual first observation/immutability has not been recorded in repository. These are *post-hoc 25-Oct discovered near-term catalysts*, NEVER October 15 feature data.
+- **Impact analysis required:** Indian Missions represented ~12% of Q1 FY26 total BLS revenue and ~8% EBITDA. It is misleading to model all four tenders as 12% revenue exposure, because that statistic covers all Indian Mission work. Contract-specific public volume, duration, staffing and margins remain UNKNOWN. BLS tender eligibility after the quashing should be verified at each tender, not assumed.
+
 ## Two-year sensitivities are NOT forecasts
 
 Refer to JSON inputs and `scripts/open001_broad_company_sensitivity.py` with negative/tamper tests. In each scenario, the multiple, EPS shock, and growth rate are researcher-imposed sensitivity values, not calibrated likelihoods.
