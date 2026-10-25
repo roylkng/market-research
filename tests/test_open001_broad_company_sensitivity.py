@@ -29,6 +29,8 @@ def test_source_arithmetic_and_no_trade_gate(packet):
     assert report["investment_readiness"] == "NOT_ESTABLISHED"
     bls, trans = report["candidates"]
     assert (bls["symbol"], trans["symbol"]) == ("BLS", "TRANSRAILL")
+    assert bls["unresolved_official_procurement_tenders"] == 4
+    assert trans["unresolved_official_procurement_tenders"] is None
     assert bls["FY26_CFO_less_selected_PPE_crore"] == 765.8431
     assert bls["FY26_naive_CFO_less_PPE_to_observed_mcap_pct"] == 8.93
     assert bls["visa_share_of_reported_segment_results_pct"] == 88.39
@@ -103,4 +105,19 @@ def test_reject_unsupported_model_and_extra_candidates(packet):
     p = copy.deepcopy(packet)
     p["candidates"][1]["symbol"] = "INJECT"
     with pytest.raises(ValueError, match="expected two"):
+        MODULE.evaluate(p)
+
+
+def test_no_assumed_procurement_winner_or_backdated_bid_date(packet):
+    p = copy.deepcopy(packet)
+    p["candidates"][0]["pending_mission_procurement_2026"][0]["awardee"] = "BLS"
+    with pytest.raises(ValueError, match="no bid or award"):
+        MODULE.evaluate(p)
+    p = copy.deepcopy(packet)
+    p["candidates"][0]["pending_mission_procurement_2026"][3]["bid_opening"] = "2026-10-01"
+    with pytest.raises(ValueError, match="no bid or award"):
+        MODULE.evaluate(p)
+    p = copy.deepcopy(packet)
+    p["candidates"][0]["pending_mission_procurement_2026"].pop()
+    with pytest.raises(ValueError, match="tender watch"):
         MODULE.evaluate(p)
