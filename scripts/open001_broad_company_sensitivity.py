@@ -64,9 +64,27 @@ def evaluate(data: dict) -> dict:
             if visa_result <= 0 or digital_result <= 0:
                 raise ValueError("cannot establish segment result contribution")
             visa_result_share = visa_result / (visa_result + digital_result)
+            tenders = issuer["pending_mission_procurement_2026"]
+            expected = {
+                "2026_MEA_852578_1": "2026-10-26",
+                "2026_MEA_852512_1": "2026-10-26",
+                "2026_MEA_852518_1": "2026-10-26",
+                "2026_MEA_853372_1": "2026-11-02",
+            }
+            if {t["tender_id"] for t in tenders} != set(expected) or len(tenders) != 4:
+                raise ValueError("official tender watch identities changed")
+            if any(
+                t["bid_opening"] != expected[t["tender_id"]]
+                or t["awardee"] is not None
+                or t["bls_bid_status"] is not None
+                for t in tenders
+            ):
+                raise ValueError("no bid or award result is yet verified")
+            tender_events_pending = len(tenders)
         else:
             market_cap = number(issuer["fy26_market_cap_crore_observed"], "market cap")
             visa_result_share = None
+            tender_events_pending = None
 
         if market_cap <= 0:
             raise ValueError("invalid market capitalization")
@@ -107,6 +125,7 @@ def evaluate(data: dict) -> dict:
             ),
             "two_year_conditional_sensitivities": scenarios,
             "verified_parent_owner_cash_crore": None,
+            "unresolved_official_procurement_tenders": tender_events_pending,
             "recommendation": "NO_BUY_RESEARCH_ONLY",
         })
     return {
