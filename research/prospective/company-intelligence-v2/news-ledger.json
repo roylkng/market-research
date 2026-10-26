@@ -14585,9 +14585,122 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-10-26T16:17:18.677336+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "captured_at": "2026-10-26T16:20:45.768820+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "009b57f15cb36e14fa956b2e585b69b23f279eb8532c2c63c0adf0aa2ed77689",
+      "identity_session": "2026-10-23",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "c55b263dbdaeaa35cc054f150654e2ad4c761c2e9abb9e159535b16f3ed21103",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-10-26T16:20:10.271932+00:00"
     }
   ],
-  "ledger_sha256": "1f92f972131d03c7f203213101049241a46917aeb5d10b08ec5759e455ce652c",
+  "ledger_sha256": "9fff695fab08c8cc790ccc320663fef2b730ae14f345a19fdb2ac9b3386d0ff8",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1044291,6 +1044404,140 @@
       "source_id": "mint-markets",
       "title_sha256": "90c5bfe979488796de9b792f247793bfb8ace66565ea1f975f9bb031e9c3f68e",
       "topics": []
+    },
+    {
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T16:20:17.109451+00:00",
+      "item_id": "ab8759429ee1f473594e8f334225fd86005386a9b90d5ce40d446c689d991467",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9d35cd9ccb6ef83ce61680e45b3e95d1f6863f29e1318421bf72c823903fb380",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 16:16:00 +0000",
+        "value": "2026-10-26T16:16:00+00:00"
+      },
+      "resource_key": "prn:302919581",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "7234a5fcb24b2efb242fb9ded367d2e72142bd45abc1073eb750d35e725c9acc",
+      "topics": []
+    },
+    {
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "event_context": "Omaxe Limited has informed the Exchange regarding Acquisition of to be incorporated companies |SUBJECT: Acquisition of 'to be incorporated companies'-XBRL",
+      "event_context_sha256": "af02b5d79208d201d9a10742a53587d3f8c2277c22fa93e5a162785e53da82c9",
+      "first_seen_at": "2026-10-26T16:20:17.698923+00:00",
+      "item_id": "c1446366f36c64bfe62d7fe27ad23311cf1ff32c68841e6a8a4a48214662aca2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMAXE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "01dbbd442603bf3316a1c048e0c93c8c1fe616c7e8cbc1aa62e205d7e9291122",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 21:49:48",
+        "value": "2026-10-26T16:19:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_Restructuring_2637_WebXMLFile_20261026_214947830.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b0f80367866f53acfdbfe74f6ef2f0dcd5e0126af2c3f354c747ba004596b2f1",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "event_context": "WeWork India Management Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "dbd911bfae47b479f58d4e517fbc40ff39df157abe2f7848e5d6d2006b759bd1",
+      "first_seen_at": "2026-10-26T16:20:17.698923+00:00",
+      "item_id": "30e7ba355b02954083a4f9b4393d4f63af21f30a6198d558cc326eaa7e770aa4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "WEWORK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "878c141c799ebec3002b6599ed19eaf9d2bfe9a716e4fcfb1cad75990c3cfb54",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 21:47:28",
+        "value": "2026-10-26T16:17:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/WEWORK_26102026214717_WeWork_-_Investor_Presentation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "555881d0fbd3c6ffa151bd602706085652b339e59194efbf7fb8e1a0f08180a9",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "event_context": "Omaxe Limited has informed the Exchange about proposed incorporation. |SUBJECT: Acquisition",
+      "event_context_sha256": "e69010d77b5279f5d595e4a540d72a95d851f17272a5e0a89e90c56407bd5837",
+      "first_seen_at": "2026-10-26T16:20:17.698923+00:00",
+      "item_id": "d3092aaf0e443b5a6be75ddccc6ea50b6e8df3595ff79f2cb7bb923b1247144d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "OMAXE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c9a6012ca2166d840fd08da9ebcf67ae2ba3c6521b375ea0afbbab2ead508912",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 21:48:58",
+        "value": "2026-10-26T16:18:58+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OMAXE_26102026214846_Intimation_OL_261026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b0f80367866f53acfdbfe74f6ef2f0dcd5e0126af2c3f354c747ba004596b2f1",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "0311e9100dedf65a5b6a7837e08582f3cccd0e39b0dd8bb8b2bc84170b750c23",
+      "event_context": "Paramount Communications Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "ef8324cf0452cb889edb3624f7a14fb7fd5356e9b198a63e7e1d4cc8b2c2ceaf",
+      "first_seen_at": "2026-10-26T16:20:17.698923+00:00",
+      "item_id": "7b49d86a069b53f6a93b90939c11c343be6310f7b3c913c0ef13a1a9c9fa3d4d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f9204208e4a33d1b43e220f2839b8110231a2aebbfeef86c663e8576bd35fcfd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 21:49:04",
+        "value": "2026-10-26T16:19:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PARACABLES_26102026214846_Investor_Presentation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0664bb8e5e15e659c87564c84a8c937ea26d30e900b6354035e26f52347e9530",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
     }
   ],
   "schema_version": 1
