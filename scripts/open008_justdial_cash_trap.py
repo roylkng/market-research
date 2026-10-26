@@ -34,7 +34,7 @@ def pinned_financials(meta: dict) -> tuple[float, float, float]:
     ).resolve():
         raise ValueError("original source file changed")
     raw = path.read_bytes()
-    blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\\0" + raw).hexdigest()
+    blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
     if blob != meta["source_baseline_git_blob_sha"]:
         raise ValueError("original source Git blob SHA mismatched")
     p = json.loads(raw)
