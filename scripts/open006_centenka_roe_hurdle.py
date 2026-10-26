@@ -76,7 +76,6 @@ def evaluate(packet: dict) -> dict:
     profit = positive(y26["group_PAT_crore"], "FY26 PAT")
     p_to_b = market_cap / book
     book_value_share = book / price_shares_crore
-    roe = profit / book
     p_to_e = market_cap / profit
     ev = packet["economic_test"]
     if (
