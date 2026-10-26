@@ -1,0 +1,97 @@
+{
+  "schema": "OPEN008-20261026-JUSTDIAL-CAPITAL-ACCESS-V1",
+  "date": "2026-10-26",
+  "source_type": "CONDITIONAL_THESIS_FALSIFICATION_NOT_INVESTMENT",
+  "source_baseline_path": "research/broad-discovery/OPEN007_JUSTDIAL_CASH_BRIDGE_INPUT_20261026.json",
+  "source_baseline_git_blob_sha": "f0650a9c6dac7c22db3432634812e7119c7899a4",
+  "source_market_cap_crore": 5943.2264,
+  "source_net_liquid_after_all_book_liabilities_crore": 5173.34,
+  "source_illustrative_selected_operating_cash_run_rate_crore": 190.68,
+  "historical_dividends_since_fy2014_15": "NONE_IN_FY2015_FY2026",
+  "historical_five_year_buyback_issuer_note": "NONE_IN_LAST_FIVE_YEARS_TO_FY2026",
+  "controlling_shareholder": "RELIANCE_RETAIL_VENTURES_PROMOTER_GROUP",
+  "reported_promoter_group_2026_sep_pct": 74.14,
+  "scenarios": [
+    {
+      "name": "immediate_hypothetical_distribution",
+      "years_without_common_shareholder_distribution": 0,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "three_year_cash_retention",
+      "years_without_common_shareholder_distribution": 3,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "five_year_cash_retention",
+      "years_without_common_shareholder_distribution": 5,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "ten_year_cash_retention",
+      "years_without_common_shareholder_distribution": 10,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "five_year_growth_5pct",
+      "years_without_common_shareholder_distribution": 5,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0.05,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "five_year_growth_5pct_higher_exit_multiple",
+      "years_without_common_shareholder_distribution": 5,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0.05,
+      "terminal_franchise_cash_multiple": 8
+    },
+    {
+      "name": "five_year_lower_required_return",
+      "years_without_common_shareholder_distribution": 5,
+      "illustrative_net_treasury_yield": 0.06,
+      "illustrative_equity_hurdle": 0.1,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    },
+    {
+      "name": "five_year_higher_portfolio_return",
+      "years_without_common_shareholder_distribution": 5,
+      "illustrative_net_treasury_yield": 0.1,
+      "illustrative_equity_hurdle": 0.12,
+      "illustrative_cash_generation_growth": 0,
+      "terminal_franchise_cash_multiple": 6
+    }
+  ],
+  "assumption_notes": [
+    "Zero dividend/repurchase dates are historical FY26 disclosures; the non-distribution scenarios do NOT forecast no future dividends.",
+    "₹5,173.34cr is gross liquid assets minus all reported book liabilities, NOT demonstrated unrestricted distributable cash, and actual tax/transaction cost missing.",
+    "₹190.68cr annual is 2× H1 cash after selected PPE/intangible/lease, NOT source-verified sustainable owner cash, may include working-capital and treasury-income effects.",
+    "Treasury reinvestment rates 6/10%, equity hurdle 10/12%, cash-growth 0/5%, terminal franchise multiples 6/8× and hold period 0/3/5/10 years are independent STRESS assumptions, not economic estimates or calibrated probabilities.",
+    "At each hypothetical year operating cash is retained and invested, not paid out; avoid both discounting distributed FCF and counting the same cash accumulation at terminal.",
+    "Terminal value is discounted from the assumed horizon, with no taxes on disposing investments, no capex growth, and no intermediate shareholder distributions.",
+    "Does not model company takeover premiums, taxes on fund marks, holding company owner rights or capital allocation choices not yet observed."
+  ],
+  "promotion_prohibited": {
+    "historical_h002_h003_hg009_retroactive_change": false,
+    "source_raw_bytes_archived": false,
+    "source_first_retrieved_utc": null,
+    "investment_approved": false,
+    "calibrated_scenario_probabilities": null,
+    "target_price_recommendation": null
+  }
+}
