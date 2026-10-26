@@ -116,11 +116,7 @@ def evaluate(packet: dict) -> dict:
         raise ValueError("rating citation changed")
     capex = positive(rating["planned_FY27_capex_crore_approx"], "FY27 planned capex")
     accrual = positive(rating["estimated_fy26_operating_cashflow_crore_approx"], "FY26 cash")
-    if (
-        packet["unresolved"]["FY27_Q2_results_original_verified"] is not False
-        or packet["unresolved"]["economic_parent_owner_cash_crore"] is not None
-        if "economic_parent_owner_cash_crore" in packet["unresolved"] else False
-    ):
+    if packet["unresolved"]["FY27_Q2_results_original_verified"] is not False:
         raise ValueError("unknown FY27 results cannot be backfilled")
     return {
         "issuer": packet["symbol"],
