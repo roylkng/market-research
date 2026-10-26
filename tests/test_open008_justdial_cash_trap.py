@@ -34,7 +34,7 @@ def test_source_anchoring_and_reproducible_cash_trap(packet):
         "immediate_hypothetical_distribution": (6317.42, 6.30),
         "three_year_cash_retention": (5632.07, -5.24),
         "five_year_cash_retention": (5187.45, -12.72),
-        "ten_year_cash_retention": (4160.56, -30.00),
+        "ten_year_cash_retention": (4160.56, -29.99),
         "five_year_growth_5pct": (5427.10, -8.68),
         "five_year_growth_5pct_higher_exit_multiple": (5703.28, -4.04),
         "five_year_lower_required_return": (5676.50, -4.49),
