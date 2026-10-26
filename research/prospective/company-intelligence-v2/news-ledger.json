@@ -14244,9 +14244,123 @@
         "SNAPSHOT_CAPTURED": 7
       },
       "started_at": "2026-10-26T08:08:58.869991+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "captured_at": "2026-10-26T09:21:00.978754+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 6
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 3,
+        "SNAPSHOT_CAPTURED": 6
+      },
+      "discovery_status": "DISCOVERY_DEGRADED",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 5
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "009b57f15cb36e14fa956b2e585b69b23f279eb8532c2c63c0adf0aa2ed77689",
+      "identity_session": "2026-10-23",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "4a6d253e75e9f97c0977367c71715081cd8cd5a5fe1850eb2e9260325e489d3c",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 3,
+        "DOCUMENT_CAPTURED": 5,
+        "SNAPSHOT_CAPTURED": 6
+      },
+      "started_at": "2026-10-26T09:20:07.113703+00:00"
     }
   ],
-  "ledger_sha256": "5cd9afaa115f7a0fddf53dfaa2b7296ec256dae199d9455cb15b66f72e910b36",
+  "ledger_sha256": "9224b69159de79a7b5ca3a9b10306285be4a94678e90dee65b28eab66b315756",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1016895,6 +1017009,2658 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "978c70aa1a1c0e5cfbda97c120b8c53912e0bba3f35dae4fc97465838fbe7f31",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:12.308179+00:00",
+      "item_id": "0a7c01747c01cd355493f3e71bb709aef4aaf9276350c00282ceeb532730aab0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1414c39a43007a2c0504f066c961fa0ab43d0907aaf518fd37501d7eadac7744",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "14:31 IST",
+        "value": null
+      },
+      "resource_key": "prn:302919182",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "fd57d59d7c8084e54ae3aaac6f6b40809184bca37f4ed4d059eafbb36e6b4384",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:12.308179+00:00",
+      "item_id": "f1de4ef35cd1c11f618d4c682bfab1079c20905ef1e2375cd2a2bd6f194d20dc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4def8e0c7f14844f3fbb7dd63bb77c3f068f375aa864571eb7677c588858d838",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "14:13 IST",
+        "value": null
+      },
+      "resource_key": "prn:302919169",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "d7055ef462038d8e25949d77fc655c91aba7764290c3eec257a4a849dc455c79",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:12.308179+00:00",
+      "item_id": "25bbf33642be7c675d1f8d8a550370bd35875c56220af48dc8ec544d00b98ad1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "95a2d325496e81b18de2ee2ba33dada9769d58c6a32012ff0317ffd26c877ce9",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "14:27 IST",
+        "value": null
+      },
+      "resource_key": "prn:302919175",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "39836efc1dd56a592e6390c3f17d99ab15d20568a14bed324169359fba210973",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "45eb031ac8fbbab6361a4ee4e0a1ec49d5305e080eb1b7e046c63f04c0dbcf97",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0b2558549656036e2129b94998a5850ea199bfec9a388800ce222e33eac85ac0",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 12:31 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917869",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "58fa59bbbe5a3843992aa2c4c810781e1e2aa1bc825d192a6026b317f6dd3dd4",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "3894032cfc23733430d8ed4885da08f73c3f3c65d229892071923d57c9e843ab",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4f62815d04a5721c109d67e146858337fe2c0b35007f6c6513770f2be576238f",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 10:21 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917772",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "ca830e2f951413e6b3b5717352d2d3dcaa2ac26b7b92f5d6fb8baf1f9c1c8653",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "210f0840d93b5e1f1e0f9ce4ef799c78d2cc94b6f3000e105f222fc2b2342314",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "58cf028804047578832da69206584004dd9661e98521df3e43ed48471800e4b7",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 15:09 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917960",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "a8198ea71f9f9d1652e3c60414acb9504e041a0178e0429e00c66a1d630186a7",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "6caff54594b0c901a37f68ce8e09b76aac6763319f3d386ce086102a375359f9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6b4a2a4a7650d2cbfd41f4e8e28cc62a92a54d034c9ff5486fb2134b129bef47",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 14:30 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917932",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "c9edecb12a7eab91af4ed3c973fe4917fd6da496f30c398e0e7c9a5fc62dfd9d",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "0e954b66d4beea63768bf64241aa2049f932a5e5aa0ea3d649655aa2f4a7981e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8b440fbba308106b3fb02e4367b276adaeb6c4cdfa123601bb8cb31b77de4d13",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 12:15 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917865",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "46f9c6c282b1ceab5c4565c856a20ffdf14fe8aea4e2640a1627a0962bf7ed2f",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "eef381edc20bc889aae5d0a630f61f12b4bb3ff886b6ba5bc5381f3236611ee6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c4f2d0d99795bbec64d4373533bd39c0b2215c9b12b6406737326fb586f9224c",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 13:07 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917663",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "36254279f9c4e0e49aa5c31393150cfec5329f75f4ab5f42b4fa35bc7fc31066",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "5aa336a97d4865c3ad701e4f75e7b8d3a66ff9fc196af45acde447d23c62409a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e714fbfe54147ae6753e1ff72116dfee7ba4e350258d7f56046be788fbc348d3",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 11:49 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917845",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "43990a20bf4c8cede1f4b41a97e77eab84d5f1fb6addda5444a8ed91389c7e61",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "0d512804f09d9ae2e69fe217253773560e597e3b4772987eaa8a2b625a2a9a34",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e90346957398eda4c59e0306914a2555ae71f3361f5b6abd30a6e99c4456e449",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 15:42 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917987",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "d118d2a7fde665f30f1e48beb10d7011cd820a226a74b0a64ee50ef457c2893a",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "f90ffbef9e919d4eab856fe7e1bf1e2591fbd7a2acc2c005503afae533080797",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eecea9f36c2a9139d45fd688046a7ee2326be78453d8dfb75beef4df8d0ea0ee",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 13:00 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302915547",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "7eea272affb2ee0b40393352a672506cdd68af31629469d27df28a277a53316e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:17.810576+00:00",
+      "item_id": "b63004620a2dc12e5c837063247a2e95b1eed5cc5640836f24adccbd8695ac66",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GTPL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f6724f5f31c8540c109d66ef20759c30d9b88f2cb4bbba1ac3d3b73b59d2d2d4",
+      "publication": {
+        "precision": "DAY_UPPER_BOUND",
+        "raw": "23 Oct, 2026, 15:39 IST",
+        "value": "2026-10-23T18:29:59.999999+00:00"
+      },
+      "resource_key": "prn:302917984",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "1e1858276d2566f538da904d9daf1c31e0b8bd665236d1796242a8adea74704a",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Gravita India Limited has informed the Exchange about Acquisition |SUBJECT: Acquisition",
+      "event_context_sha256": "ddaa3eda14e683127b0119becc1269da702e85837247089905cdfe607b712b3e",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "dcc8ef1c8b1be4d2f792284e7770c48ab8b59d1092b53cd563867c3872ea2544",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GRAVITA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "032ea06725ac81c66750f7312c3e3f1f46dec5524c71b5f38b4b34abcca5050d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:36:15",
+        "value": "2026-10-26T09:06:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GRAVITA_26102026143422_IntimationFINAL26102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "61cf3a63b2173c8978e0b9348e25b1f8d55da6dcb723a8fee3a36f59919b1ea0",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Supreme Industries Limited has informed the Exchange regarding Outcome of Board Meeting held on 26-Oct-2026 for Dividend |SUBJECT: Outcome of Board Meeting-XBRL",
+      "event_context_sha256": "4bddc76e18666d5f482aafeaabb5be3bc9a3fd88cc102dc4c5d2c97140ba56ff",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "4206a793d69508f183c667b6aefe6634c5f647cd2c853696684fe78738c591f6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SUPREMEIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "04cd9521cf688755bd541b9c86a5e15c5cf8e9fa44f872c9bf98b6c67116a677",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:43:42",
+        "value": "2026-10-26T08:13:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/OUTCOME_322_WebXMLFile_20261026_134342048.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5531d848fdad989552df00caf7ca5721cb79d3b140d89c58bba44aa147bdf88d",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "GRAVITA INDIA LIMITED has informed the Exchange regarding Acquisition (including agreement to acquire) |SUBJECT: Acquisition (including agreement to acquire)-XBRL",
+      "event_context_sha256": "748155a73f4588bbafc6a1e6180796e68c2418baec411ab5a3f54fe15e7e9a3e",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "12d4a6de57f46ccc4db1417ed4d74a2e0903daf42dbf31efd844d12a79ea9797",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GRAVITA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "096d858b011d408fdcb7e8b79d1bf568f4106b10fa16e67e216f35feefd915fa",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:42:31",
+        "value": "2026-10-26T09:12:31+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_Restructuring_3733_WebXMLFile_20261026_144230934.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "61cf3a63b2173c8978e0b9348e25b1f8d55da6dcb723a8fee3a36f59919b1ea0",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "LT Foods Limited has informed the Exchange regarding a press release dated October 26, 2026, titled \"Please find enclosed herewith copy of Press Release on DAAWAT\u00ae Rozana champions everyday meal consistency in new campaign with Celebrity Chef Ranveer Brar . \". |SUBJECT: Press Release",
+      "event_context_sha256": "3c8c67783c0a5c15e0a5f81ba0fac9eea9767be9b9c7169ee78f5086d37fd4f2",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "9cebd8f0b8bdac62f7c4736a27afebb7ec620beee6fe1857e2308ef6c371b341",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LTFOODS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "129d6db883bc74bfb45937722c9b3ddde5f8b958397b0ecd8108e40c8cd86aca",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:37:15",
+        "value": "2026-10-26T09:07:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/532783_26102026143656_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "110953be9dbb703ea8ce0cf1cb092c9ca1fe61d13e30e6bfc6e0c1bf76d63181",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Eris Lifesciences Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "9cafb51c57def422514d197d850d31d9cc3c500314d15c61546bf644688cfd24",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "fb597a69764e77ecad0817471b3b10d7dd278c29a7b334de887b11979f79107f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ERIS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "12a669edab931e6b23c84a367daa303ad18bb758dae6263c3b32199247a84e8f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:49:20",
+        "value": "2026-10-26T08:19:20+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ERIS_26102026134804_Signedoutcome.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3466d0e180ae95a8ea284f270273415963bbdaf8f809afc21db5e7c4a32bf78e",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Financial Results Updates |SUBJECT: Financial Results Updates",
+      "event_context_sha256": "6da76fe1d4cd5ee7d7b239f0a23102e66e18f558a2292425525f68f793d6ea78",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "b9f9b36854614f895cbb77c50332d265525cba98ee65b971bdd6a4dbc34787f0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "DHANBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1462cc1caba9b9fa401f842cf09b46d93e826b8bbbc9c5ce9b33c9ac9e06b4fd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:04:13",
+        "value": "2026-10-26T08:34:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/DHANBANK_26102026140355_ResultSep2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a6ac771ca79e30d0d989d59dd43510bf78b5b0d668ae96c4f3adda7c69b94843",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "ITAXIS : Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Technology ETF as on October 23, 2026 is Rs. 353.8795. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "727b8d52f11d9c2e97e0eb24579f34aabf023b5ea4e1318326923b6fec6b0689",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "8f1638192529b5884741cf705d953398d62cf063704a9270b0ef48d5b8418b8a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "15140dcf995fc3f33caa77d114e89eac3b06f4e60c8311fd97d59eecf43dfb58",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "d5da7f32b6ba6648fa9deaefea253783a28ba91c0bff484e4f34bb83ca089aa3",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e2f476431f87955e8d95ed8275a9635c52c79e7d8195f8962b2481fd76cdde3e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Lumax Industries Limited has informed the Exchange about Extension of the term of Mr. Raajesh Kumar Gupta as the Company Secretary (Key Managerial Personnel designated as Senior Management Personnel) of the Company for a period of One (1) year with effect from January O 1, 202 7 consequent to attaining the age of Superannuation on December 3 1, 2026 based on the recommendation of the Nomination & Remuneration Committee. |SUBJECT: Change in Management",
+      "event_context_sha256": "7334009fe634a8854bc85bc62ba555ecf7608cb75ac7ce2ffc185e69983b5f28",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "a2cda08e71bec28cf9257630ef4dd0cb2f5a2a932abccf5ac20cf64e8b71655b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LUMAXIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "19d7845760c936045d43a8879a5d34eeed79be53475e4444a42d63cef0b05c16",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:28:43",
+        "value": "2026-10-26T08:58:43+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LUMAXIND_26102026142059_LILOutcome26102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e90bd2ec002800626cfad8abddbbeb14a091c25c8769fd9b7dc45e2933c90400",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Disclosure under Regulation 30(5) of SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 |SUBJECT: Updates",
+      "event_context_sha256": "d523cf51cd9250b1b65d06ef1abd38c468b2d34667e29e0538f8f93adb080aa3",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "f2e840eb63a52375f45839bfabf845acf1b66b20130efcb0da348b79aac046af",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1ea42621a963b55d151698b3da06e3a4caaaa74456278a825ec1655a78b0a208",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:22:08",
+        "value": "2026-10-26T08:52:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/RAVITA_26102026142056_Reg_30_5__Details_of_KMP.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "fe06af23de04cc867602b44e07fd34cdeb34a404e1ed2cfa90376768fecc2f41",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "KAJARIA CERAMICS LIMITED has informed the Exchange about Audio Recording/Video Recording |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "1a9a43fc9bcedb8f459a311f1c8d65d720c2e4bb81a1a3ed5dbad3270d3c1f4c",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "88dd069b1d04e8fd236652638833c472b39cb16173108c0f82038ef0231037df",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KAJARIACER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2107189c74818228749a9ecc7c753da3278d19178f6e5f0d45253c02399e5ca9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:51:22",
+        "value": "2026-10-26T08:21:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_689_WebXMLFile_20261026_135120284.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c340e3717194a2df06423f010bc1d469b9edbdcccb78de1f7799e9d29602e497",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "LMW LIMITED has informed the Exchange about Transcripts - earnings or quarterly calls |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "04d295b80f0ade17f57a52fdbca1a9f8ccdfb60640e84d58844c4bf5292afc51",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "25dcbae6f17b088bdf3d7507f982053645bb5043ca940d9e5da892ca8125d15e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2504fb2900006d278d9b6603a91020800d8db14bff0cc48852f8e49ce9954dce",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:42:24",
+        "value": "2026-10-26T09:12:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_135_WebXMLFile_20261026_144222244.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "11017a55d003df8a79bef7571ab4291b4222ab5803a512bebce9ee5d5fc42fc8",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Disclosure under Regulation 52(4) |SUBJECT: Disclosure under Regulation 52(4)",
+      "event_context_sha256": "d728c0940ade5f1d6c47cb59dda2fd72bdc6f01cf80f94efb840cfa25d91e369",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "4c7a5231a3dd966a2a5e60d8b452c4a44163e62a029a742918470feab24c82c5",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "27f369382148e99933133aa30a6b26cd806165fa5298586c6723f7ce4747c43b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:36:09",
+        "value": "2026-10-26T09:06:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026143602_Intimation_52_4_.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Lumax Industries Limited has submitted to the Exchange, the Outcome of the Board Meeting held on Monday, October 26, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "483a122d314c44df3148148045b0c8c3e67818850c957d9670e611854fad912d",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "e59afee7094445c91cc87baddef8aba12b284be623ede5d22f6b4acbd096b501",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LUMAXIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "27f86a4378609e854e51ee6e9b36ffafd9544282c73209b65326b3d7f53c8e4c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:18:47",
+        "value": "2026-10-26T08:48:47+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LUMAXIND_26102026141652_LILOutcome26102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e90bd2ec002800626cfad8abddbbeb14a091c25c8769fd9b7dc45e2933c90400",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "VALUEAXIS : Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Nifty500 Value 50 ETF as on October 23, 2026 is Rs. 29.6967. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "63c68f4f6ca24ad2ee767102041f718fd4076816bc2c1b7622167f68ae397a13",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "eed51de030d9c74f611b0fc49e3c6754ca04fb6824d4b66e0c026185db9e6472",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "285e06be8155473590f6714944ab694fdd59f520db74775829f26e3530db257a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "71a23bcc710a836bb417d03a8efdb707b0e5fb1a23bbb09652dcc17047f01b3b",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9b4d0c04b9d2d8c46882578a92d4bd8f77c2a2811808ea7adb7aa76aa47d5a43",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Banking ETF as on October 23, 2026 is Rs. 560.3584. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "80f8c30519a1e8db9a143edb4ff09cbfde366212a73350cac875ef70a5ca0a5d",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0f010a38ea5fbbc7351173adf10d1b11cb46ac7768c95fd73eec4473f913c6b1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "29d1c134471c74f6413a80343dcb5433682ee2fe4b39e047d6e1fa6c64b9374d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "596f114a445f1b9143cb8ad2978792293b8abad3974c078ad6c970b4f4b58509",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "61e23ee20010913edaab29dc2f1d3cd113cbdf3814a17649e9323002502fe714",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "a0ad4c24579cc04f7136fae6023f73c2d5c414ea8382d793009bd3db92ea01ae",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "BAJAJ-AUTO"
+        ],
+        "panel_symbols": [
+          "BAJAJ-AUTO"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3afcdb9444ca6216457c5ed30f2df21098a6b70458ee8bd0c0ff0af40d610bc4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:04:47",
+        "value": "2026-10-26T08:34:47+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/BAJAJAUTOCREDIT_26102026140329_Outcome_BM_26102026_W.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "50368873b591c26470ddbab37fa3a2e93af1e20580ba5c4f7dddca22d7c46290",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "E2E Networks Limited has informed the Exchange about Capacity addition |SUBJECT: Capacity addition",
+      "event_context_sha256": "834823496fed7016f578123d8332118af8f64aea49a36856a1e917310ec0e9b3",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "ef1018a66f6467b7dd01f64622f778e09961e0a49872a8d5991c958fd5ccd58c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3e0c54eb370e11ba5d15ed02df524c1a541538c97d4d6e3b24c59861abede890",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:19:55",
+        "value": "2026-10-26T08:49:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/E2E_26102026141943_Capacity_Addition__1_.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "55ec4566f4eac4ddb1e04e422723bfc2722ddec7fc746d46c9ee98f94576e7bd",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Intimation of the Investor Earnings Call under Regulation 30 of SEBI (Listing Obligationsand Disclosure Requirements) Regulations, 2015 |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "d5bec9d452df52be6ef8895e9fb25e5ef2ee3602780e0d0b26a3e62357a24062",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "352d4556bc7a19994865286c621a4408736adc2b89e24452beae52ec04199c45",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SYRMA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "42caa0c124c7cb2d72d715ae5006f7b12f7c784e85e32540bdbb7d25465ccd49",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:06:14",
+        "value": "2026-10-26T08:36:14+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SYRMASGS_26102026140548_SyrmaSGSInvestorCallIntimationSeptember302026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d5dc3adc5cc30585b43479464473f8385b333464f0ddec69ea3cefe82245ac98",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "POLICY_REGULATION",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Annual Disclosure 2024-25 |SUBJECT: Annual Disclosure",
+      "event_context_sha256": "b0e6ddac880ffd098126648ad383b0c886b6c604272a8de0883a72a9f56b1a40",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "af8ff554c6abe34485cff5d33922036753506fa9c380dc10c9ce9de7c68c95a7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "44d684368eb6e31c352f0e37c331ec6e1fa28c8e87d0380b83cb73f63b22420f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:56:00",
+        "value": "2026-10-26T08:26:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/500003753_26102026135623_Renewal2024to25.zip",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "06c6232d011bb52731f9d59263e270511f8a6d9bd3e507effbef5234c56771f9",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Financial Results Updates |SUBJECT: Financial Results Updates",
+      "event_context_sha256": "6da76fe1d4cd5ee7d7b239f0a23102e66e18f558a2292425525f68f793d6ea78",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "5d163123a4b894a6159d1c7a87bdb7b719e042a11f71c8112e0221a238857915",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4def48ff50e4369c8d68691cd8286f1beb02971c67162966259a1cabdc53e110",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:14:15",
+        "value": "2026-10-26T08:44:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026141402_Outcome.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "ITC Hotels Limited has informed the Exchange regarding ' Unaudited Financial Results - Media Statement and Presentation'. |SUBJECT: Updates",
+      "event_context_sha256": "3652f7d2a1bf35e795fe6bba59fcb2a87d37f1ea546e2d95b36879f4744adc93",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "b8eeb8ce5615c03ab6ba7e46531b2c9de43b3e5be50ca335f399aeebd955403f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ITCHOTELS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4ec113522ed3d08a0f03326389d8fe561af9b0de5f2c5fb68382d2300da9d755",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:36:23",
+        "value": "2026-10-26T09:06:23+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ITCHOTELS12_26102026143508_Disclosure_Media_Release.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "15994276b6bd0b11f88a5b2dded68a56e484697985fe27729ae8eb7a4d3408ac",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Indian Overseas Bank has informed the Exchange regarding a press release dated October 26, 2026, titled \"Press Release regarding Financial Results of the Bank for the quarter and half year ended 30.09.2026\". |SUBJECT: Press Release",
+      "event_context_sha256": "68de040c1951302b91e6ac38358875029ba6547f53770e04490376173f6e7ff3",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "111fbb85df66d0e00ff676ef795fa686397427e88d727578a1a4cd614e42bb8e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "51c0dc4c148ce716919bc97cbffc57afbda178cecbc5093d41dd676507398772",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:07:15",
+        "value": "2026-10-26T08:37:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/IOB_26102026140657_iobpressrelease.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ff492f9a589602b89fac4bfd5f85dee9392c9d2944956d9c6629e711b88f4317",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "KRYSTAL INTEGRATED SERVICES LIMITED has informed the Exchange about Board Meeting to be held on 02-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "83c5a9cdec2c0efc22913373e03c121afdcbdfd5a935bb131346d89619e01db9",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "6069557c05be8130cb8202d819f8a4f3c288068bdad0a29ed232365da1965ee2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "56372a963e9a503e750926b349202ab283eab5d30596442f4dfa982fd8e06f7a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:46:56",
+        "value": "2026-10-26T09:16:56+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_22605_WebXMLFile_20261026_144655970.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7629ba84ec39a2d363853acd8386a153cc06a2f55dcd92d0a71073de621ed27b",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Attached Statement of Assets and Liabilities and Cash Flow statement as on September 30, 2026 which were missed to attached in the Board Meeting outcome filed earlier. |SUBJECT: Updates",
+      "event_context_sha256": "5d471d7e5263541f6c5f95707d7291234b7a905e15dbd8f47d69cfe81d7483e0",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0ec75cfdfa98788f3eaa4c6315940f3ea86c527e6dfbb1f6c73f7ae2969821d5",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "59213dbe74805883089ea520a03e58371a6e8fbdc929d77370c722ba48dfcdba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:44:08",
+        "value": "2026-10-26T08:14:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PNGSREVA_26102026134231_Covering_letter_with_Financial_Results_S.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "1c21b8f1d65e5f8be30e628af2aae14f44142298aa5e3fdbdeab816836dbd1e8",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "GUJARAT ALKALIES AND CHEMICALS LIMITED has informed the Exchange about Closure of Trading Window |SUBJECT: Trading Window-XBRL",
+      "event_context_sha256": "3c40af6f65195f941c1b477d455d1ae011ae894af3f638022544853d43f28f0f",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "bea0fdbad048afd55f6713d6b857ee99065aa5637e052fd6a58da013d8e7cb89",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5b57a0b4c0e924cf4888d0335d7df34cc2e95a26a2d9583ae1932b5c70c2357b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:50:03",
+        "value": "2026-10-26T08:20:03+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CLOSURE_TRADING_WINDOW_1080_WebXMLFile_20261026_135002339.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "bd957a23f7c552ca3e6685acf9b8ec4336073aa18e9596484af1e287806dd9bd",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Ather Energy Limited has informed the Exchange that the Board at the meeting held today has considered and approved proposals for the enhancement of manufacturing capacity at the Companys factories located at Hosur, Tamil Nadu and Chhatrapati Sambhajinagar, Maharashtra (Factory 3.0- under construction). |SUBJECT: Capacity addition",
+      "event_context_sha256": "1fa698203deb4762a750db03626a5beef93cfb573441b6a9466b38e45a77d3fc",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "aadc58155d133523bf6be7e00a60176d4afd10554d6535cadc22d60fe8eb4aae",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ATHERENERG"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "613944aae9011eeb51fe00d080d8cba890d4aa7a8e4596b7bfc3033fb61b87c5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:37:37",
+        "value": "2026-10-26T09:07:37+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ATHERENERGY_26102026143153_CapacityAdditionsigned.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e5692b43feda59c0f16b49eb0996fb5144a701756ea9c8cd451e2331358815fd",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "NIFTYAXIS : Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - AXIS NIFTY ETF as on October 23, 2026 is Rs. 250.5068. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "40a01683d2702d17a2feb676c697c09e4abceea6bf308757f33b381bfa04c1ba",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "04095cb79bcdadb132f6f70ff7e3cbaca3083f5550dbe2e148a335ecf978ed36",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6309559fa1415c110876786323f92fa8fac73b6f9c2c8d5619da1926da8be379",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "e9d010f12f19cab10e253c18bb10bac1b262fc4a8a3f7d2f00b46f1885de28c6",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "785fe85a3b46690942cce9134d1297e166e1f4ca51736b48bfb63d1c535498d1",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "LINDE INDIA LIMITED has informed the Exchange about Board Meeting to be held on 03-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "1ad78320b7f8fdea4ab0c863b6a586a1ecd0f650ebc638e00dbd6bd4d269a2c0",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "937d8e4695f25637d37a0e36b6967c2f8a18f590b20b451b60cdd23c88124568",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LINDEINDIA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "63f02bc494af118d56b6932b7f365091964768b6bb581b44aa5e9e8059af13ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:09:13",
+        "value": "2026-10-26T08:39:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_218_WebXMLFile_20261026_140912211.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c1ff31d090b793a0b8ce2d9b43275f7ac18b6bc39b6d82050ff73457f185dd2d",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "SRM Contractors Limited has informed the Exchange regarding a press release dated October 26, 2026, titled \"Bagging of Contract - Intimation under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015.\". |SUBJECT: Press Release",
+      "event_context_sha256": "c0d785a57e6deb375baf2fd659e5a691d8ec63228fe46fab5e34193c94f7dab6",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "35cba31afba7cd376fe19a46ab0cef709579c5fb472f79528610e4c778f99bf9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SRM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "64860a7a6f227ac12bb499610ad70f8f544f9bf51491f5c563d7478e1f0c5909",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:30:25",
+        "value": "2026-10-26T09:00:25+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SRMCONTRACT_26102026143013_Tender_Intimations_PRESS_RELEASE_26-10-2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "87f3f09ca21085063fb209b29b9c604dfbf191e4f40be251dc8f70bc31989a9e",
+      "topics": [
+        "ORDER_CUSTOMER",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Indian Overseas Bank has informed the Exchange regarding 'Security Cover Certificate as on 30.09.2026'. |SUBJECT: Updates",
+      "event_context_sha256": "d6f476455a96018f4429f84854c2ae30ed3d17cb09e78bd9b47901d78f41e9cb",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "7474b71c5ba118d884746757f7e16967fbc5d5b95d4334925aeb3087a8e33ae4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "653f1ed1681f93468cff69af83422aee13cdeb54fd576992f48f2f423cc2432a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:59:25",
+        "value": "2026-10-26T08:29:25+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/IOB_26102026135901_FINALSECURITYCOVERFORUPLAD.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ff492f9a589602b89fac4bfd5f85dee9392c9d2944956d9c6629e711b88f4317",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "SOBHA LIMITED has informed the Exchange about Transcripts - earnings or quarterly calls |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "0e68ce4e91a82836f190840d85e5b3f0f34ae38e0110ca7fd8225ff31ecf0fd2",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0a1c35c8f3c62e4ba7522130a3a6663d89a6297d7dde778f13194a5d4af70c61",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SOBHA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "65f6746a10812e69fab63071ca92bff04fbf045b6b092f3ecf1b663dce20ae3c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:23:05",
+        "value": "2026-10-26T08:53:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_2476_WebXMLFile_20261026_142303096.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7ef478750cde65f38d0170ddc609e1b95f717c72ed120517c92ce1628f9d5559",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Fiem Industries Limited has informed the Exchange about Board Meeting to be held on 12-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "405f3804193acba3f920f57be92e0e2ba5fbe0df96071bb2dd62c03870732f27",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "557173f21231bf326430e1359d8e334edbba3457ddca51fa81cc1bc0926379db",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "FIEMIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6c7560f55926ff68ca00ab3ca1dc4b2c1db962484453d45a834f9643f01b8cd5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:00:47",
+        "value": "2026-10-26T08:30:47+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_2449_WebXMLFile_20261026_140046646.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ce01f9550f3d3152d94c8cb41b1cb464ce4eea3940b6ea04ddf0ce0f8145e2c9",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Statement of deviation/variation in use of Issue proceeds |SUBJECT: Statement of deviation/variation in use of Issue proceeds",
+      "event_context_sha256": "dfe3d9de9d5e881f6ccfccb84a54d88611e73d21b6cb1320e19ce04ed6fffb98",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "42b6dc24cc9648c6f9e35c593da92a59da83cb2c8308b8f8bc29b0e5a06d8f29",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6cde309ca40c9a2a70266984fb04d94b3732d3a8570c98b450973fb9efffd748",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:50:06",
+        "value": "2026-10-26T08:20:06+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/IOB_26102026134931_FINALSDVFORUPLOAD.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ff492f9a589602b89fac4bfd5f85dee9392c9d2944956d9c6629e711b88f4317",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Sakar Healthcare Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "3e5747adfbd2849f2e4478f022aebd8ec62ade6ab8203ad3cfe8f5554d8c8e7d",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "45021efca8647974741b3812b0761c3ebca74340489ec25c00bc4d060f3ffa02",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAKAR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6dfa42fd7f80e37102243dfa010814cf7b6bda0487594dec169cb43a9e7c7a66",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:04:02",
+        "value": "2026-10-26T08:34:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SAKAR_26102026140341_Announcement_-_Investor_Presentation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e849a7fd10a24fcabfc47b5a7f32488e8caeb4ba0276e9f2451cd5b64586fb4c",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "In continuation of our earlier disclosures, we wish to inform you that the Company has successfully repaid the entire outstanding fund-based borrowings availed from Banks and Financial Institutions in accordance with the agreed settlement terms, thereby fully discharging its payment obligations in respect of such facilities.Consequently, the Company is now debt-free in respect of fund-based borrowings from Banksand Financial Institutions, as on the date of this disclosure. |SUBJECT: Disclosure of material issue",
+      "event_context_sha256": "83cc9a4738cfa34ac96629df15eee64e51dfe18c139ab5a44c3452ca08ddb5a1",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "5d213e09e21e7bee5ae967ea75bcefe75d7a199ecac62ef62ff2df98a8706c86",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GAYAPROJ"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7840cb4aebdd438d55ed1cf384c7cfe359b1906ed37df8e3423742f6d868d335",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:12:08",
+        "value": "2026-10-26T08:42:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GAYAPROJ_26102026141032_Repayment_to_Banks_and_FIs.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "bda81185e15d4aa5e14d0bc4138c88ad9b274a19eb934dbe88aae24fde95277a",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "JBM Auto Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "ab14f55bbaa5ebcb1769430606d3fbdcbf39b83664c2f535b56f990e6ea9518b",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0435297fb4295159b207d02b9857ba2273a75a9ed83ead8db44ff79af481ae9a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "JBMA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7916b8c7945104d1a687f7eb6c6f710e75714dba045f350a97481ba7494ce7e3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:44:02",
+        "value": "2026-10-26T09:14:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/JBMA_26102026144316_outcomeBM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9d09c6b7d6c9f3591af2b17ab03261ab91c99bae468a50d48cc1b99e5d15b42e",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Nifty Energy ETF as on October 23, 2026 is Rs. 17.298. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "531a4f44cb5c14a422ae2c459f5789acabb05b0097c670af1e73e26f9ab1d3c8",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "6c8775977c1a0480efe576efbb408d34515f4485d9d29a8dcb6a7aca89029504",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7a6f68af417582e2c3749eef174819393922d4859e60c6dcf25d7c25b104f78a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "84f799f026e9faedf51c7db419cc69f2c4603f52381512769e94f5f12eae4d1f",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a4abfa169abd74b5cf309e15d9d811eaaa59191410288b859cee47a34fc6f282",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "GOLDAXIS : Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Gold ETF as on October 23, 2026 is Rs. 116.9345. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "ffd2a9ed725adf12b0881aa89f7b824698447e8e83b23840a0bd89f58a153e1a",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "5c5f220554856662475728ef9bc2e7948798cf92905c56e38c33ea0a4c300bd9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7cb6ffcaea49ecfc0acd15753726f26bd2838511c475db4bf0c279b7d6ba8e07",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "946c72d318cc37ed38df150d89910485e5d430fbfe05a9df3d9907eb204207c7",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b970abbf0af08972d6fe781b63747424eeed0216a5bc198a069d26e23a2398d6",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Security Cover |SUBJECT: Security Cover",
+      "event_context_sha256": "f5dac2b8c30e4f3a6e8161e3a04858ee0374f61ea834d9705e75a4746107326a",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "a368ae64f34c8cd6f2de0b7b596118b330c3ea3a95e6cce901e9c1c7a7f4e0aa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AEGISVOPAK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7eff0af9c60127e5754f285ed6eea68867a825c81de3b5865a15a01aca0fba68",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:57:51",
+        "value": "2026-10-26T08:27:51+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/AVTL_26102026135701_AVTL_BM_Outcome_26102026_s.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b6c8fbc5081764a19b45cb7ce92371bafeb9107fca3c6e33aa7854c9559dabf7",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Tata Communications Limited has informed the Exchange about Capacity addition (Sub-para 3-Para B) |SUBJECT: Capacity addition (Sub-para 3-Para B)",
+      "event_context_sha256": "6de6e8803d0334d9aec0926b28a6d1f5c5cc0b42fdec19b6b38cee597ecefadb",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "48f2b9a9b41988b360680f3e609a9391a14e91ce65d05f655fedca6d7e67a4a4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TATACOMM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7f5cb3361f158dc7ca8ac847d1395639b1c870940bdfdda951c283cb4891e7d9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:15:27",
+        "value": "2026-10-26T08:45:27+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_641_WebXMLFile_20261026_141526557.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "722a969eb887086f81224620423551c5d932d9e37bf4e58db7c7caeb0d975a34",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Ather Energy Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "5213f85243b9394e981148a49479f203a7c60cb38f3036bc5cc9a6c5ea33a65f",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "16976fb54b2651700e76f9ffc6cc7de77dee2d12f6077a2eb3c6eff6380e01df",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ATHERENERG"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7f898672c49e69e4654373300835902751dd8088fd36b2d448179325eaca9d22",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:27:42",
+        "value": "2026-10-26T08:57:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ATHERENERGY_26102026142521_Tofileresultsigned.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e5692b43feda59c0f16b49eb0996fb5144a701756ea9c8cd451e2331358815fd",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "LMW Limited has informed the Exchange about the transcript of the Analyst /Investor Meeting held on 22nd October 2026. |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "6f67155c51b4c30f0a8ff4ded9fd066d2965b3444c0504620779ccb97a8b2838",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "354e3e73d5b30729b51ab26758f7ea7f8bac0e2d2d9149bbe99fc9bec43015be",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8713d6b5eab32443ac99213d8f1efe3854840b40e25e9eda55cad03648f81815",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:38:29",
+        "value": "2026-10-26T09:08:29+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LAXMIMACH_26102026143735_Transcript.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "11017a55d003df8a79bef7571ab4291b4222ab5803a512bebce9ee5d5fc42fc8",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Healthcare ETF as on October 23, 2026 is Rs. 156.5496. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "7c9dd6bcb16e4230f3c4c85327ae1b308407c641ea8e0bd31260948037ba59a1",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "f17928d40a4db8737f3679146a9c1df3614c47e19410c6110afa7235ce7ae9ea",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "88edb5d3811a63e45125357fc5e165c04014e71d3746740da4044ee6d2d4e035",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "a94f439ac27db8d69aca8d833e82275a85e53583f4e50da690006b415a99f1a1",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8341e1a53431cf848e703a51d90ac58aa45d05cb665233f3f944c4a5e093e3c9",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Marushika Technology Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "20a77c552f8bfaa9abc7b079ebe63608ed30d5ee1dbce21f30828aa471433b30",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "5f139fe0801893c99636aad8947238950bd2bdd5c45df2092fe57bb28f90c91a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "89e74d5f049795f97e0f9c2d076caa6360bcfcc67c8a1210128ecac72506bd99",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:28:48",
+        "value": "2026-10-26T08:58:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MARUSHIKA_26102026142832_Prior_Intimation_Con_call_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "dfafb268b6ce409ef0b431301ada33ab51fb63563cc8790d1f48fd61720063e9",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "2d4a2b0a5c1b7661fb487c8936a4771e52fbc2e480790e382aeabcc333529329",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AEGISVOPAK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8a473c61fd264c0b77a07de67c43547148578a38d5d977e5cdc8048fde6d1d8d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:55:36",
+        "value": "2026-10-26T08:25:36+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/AVTL_26102026135254_AVTL_BM_Outcome_26102026_s.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b6c8fbc5081764a19b45cb7ce92371bafeb9107fca3c6e33aa7854c9559dabf7",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Statement of utilization of issue proceeds |SUBJECT: Statement of utilization of issue proceeds",
+      "event_context_sha256": "d5bedbd909a06e7df042654bdf441b244fcc8eb10fa1af26f098185270931186",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "838be65a8b18a8326f6569ece66d663f78c4681bf86b026131be2ec3103496a8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8e55f6b70f41e69cbcc59de9d00b97fbec391ad16d5322652f8e4b77c23af04b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:32:00",
+        "value": "2026-10-26T09:02:00+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026143154_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "UNO MINDA LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "fcf86372f22f123ff22a28af78d27bcdccb55d6d65bb1cbb423b05f5fb46f8d4",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "c3ed269f66c4dcf641dae6dee2e9539506e4e067afb94029efbf5f8b94b81f60",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "UNOMINDA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8f2eb035a75d3e7ac8cd1ee9cc44c8a1feec33f830bde36d6c6ec3a856946f83",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:42:12",
+        "value": "2026-10-26T08:12:12+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_2518_WebXMLFile_20261026_134210786.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "533cc210344e260a483b42436ff74f72eedeb507d881771c185dd1a7c0d29b9a",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Disclosure Under Regulation 51 |SUBJECT: Disclosure Under Regulation 51",
+      "event_context_sha256": "c7527af44a51f45076ac7afa705d4de82c8d8ebf4394a14e39ec12733da9d8a0",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "ad95757daa17463f447b9b9240fa776faf54f45969e52c333bf0f64d5bbbf500",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9142589c3c1fa9b1b3d469a66d024a0ceeaf769c177acf79f641838d7303921e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:15:46",
+        "value": "2026-10-26T08:45:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026141517_Outcome.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Consumption ETF as on October 23, 2026 is Rs. 110.5467. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "503aa49e02cb95fa46e1d6c9dc00f0bf5c40cbc37f2bbc2d63c6323d4b701d91",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "752a09cf5e855225acd3a4cec94a722a59ee7d9cd2f11d36c0f46e5f6e3e2b28",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "92ac3c182c9fbcbf641eecb9c6bc9bce8e07debdd49463c1e596ad495f5e6e83",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "abe3704f09b956c60090c95fbf01958fcf05a7daac3e83e0298209bc7a6a7634",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "517ddb1b838aaa7a525590216f4f828cfd7790cba78a92f2d68149551970503e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Dhanlaxmi Bank Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "f7f6116649aaa0c5441be3a79b478b5d2f6212fad06144379c44c2a1e9b973fa",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "8ca890ba80f893c1311da12a5d06e49374f5b0616813d26ac98c04ae7087778b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "DHANBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9b00288560649d11aa7b2a1e7097183ba31a129fce9c977802c0842f3f706580",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:02:50",
+        "value": "2026-10-26T08:32:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/DHANBANK_26102026140123_ResultSep2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "a6ac771ca79e30d0d989d59dd43510bf78b5b0d668ae96c4f3adda7c69b94843",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Security Cover |SUBJECT: Security Cover",
+      "event_context_sha256": "f5dac2b8c30e4f3a6e8161e3a04858ee0374f61ea834d9705e75a4746107326a",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "993842f40533020b6c04ee11ede47d8e797e6249426efea3ecda1ac6defdf6ac",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9bd07bfc15fb947616fcc744e71cff9aa1d42e48e27c73318e9ce9b1625b72ca",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:30:48",
+        "value": "2026-10-26T09:00:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026143043_Intimation_Security_Cover.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - Axis Silver ETF as on October 23, 2026 is Rs. 191.9263. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "e58834f325d60d0b3d8323593980fe2da142f47ef0846a2bcc5673ec9f099ce7",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "cf5d3dbd13ba684caabb3b1bbb9892e287c95c090d560a29adbf6e0ad9e9d22f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9d0fd934059e139da3c4dddf9df9be8fc2dbbd9a204594c8baf11c73137cd7e4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "bc8df21f87719ee0b6f7bae82cf553d14333577596e47900bdc15b531090e9a3",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c70634b48988d6f1c3dade1d7ef9c1f2dd3e2d101758eed17bf4bc02dd2e5a12",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Eris Lifesciences Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "4ec6eb11a3bc8110f5a44601caebd86fb4a48fa66b1f01d97b9e0c3eedb0ff94",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "d32fffc2984f6b9d46cc2065245d416c6284e5a6957e9fc9283550d23bd797e9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ERIS"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9d8c96e9a6ca61f034cfaedaf2689697e498f852c93f33b93f51f1e16e122692",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:55:39",
+        "value": "2026-10-26T08:25:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ERIS_26102026135457_Presentationsigned.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3466d0e180ae95a8ea284f270273415963bbdaf8f809afc21db5e7c4a32bf78e",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Tamilnad Mercantile Bank Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "e8fbfbd69cfe48668ca209cb130d960c4a9a5d6e358ab480af504a27b9377747",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "8b7db50e0bce67cd7c3637575e79a9b6381a58f78e3b69adfd7010f2492428f8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9e084372aa4ab969ac83f06ab1177a5796fe758b7370060ecd2d323f1397dd1f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:49:33",
+        "value": "2026-10-26T08:19:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/9659523378_26102026134907_82.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "536d031cd257d22b8d2dddba1b44d98d85a9098953bb26107048c50b3c3931f7",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "HI-GREEN CARBON LIMITED has informed the Exchange about Board Meeting to be held on 29-Oct-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Half Yearly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "0e2524af9ab5ee3424accaadfb86b0845f8eefc263717f54406e68c737d71e78",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0886901747ae17653316fcb36d8a982992e5ab0a695517dcc591c6ecf90d3c3a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a6b6408fed2b700cefbc861b1a9e6e60d7e7e3ea4ba77fdb4f15ed20855b189c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:47:39",
+        "value": "2026-10-26T08:17:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_22223_WebXMLFile_20261026_134738118.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "46a114de67032fb56edc3c14249d1bec1f53c7b743eea88cdadc274f438ebe6c",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Tamilnad Mercantile Bank Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "e71afabe39fd568436868d190b371aebe9c031fe5018e329a5eb156a7aca8a59",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "fab32f05e43985dd210f3181d82594d770db713aa0cfe3e86c5b577763927f62",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b3cbea4c414553fee62c0e0c7a332375a459ef4763ca3b2795f1f0dfdcea1690",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:36:11",
+        "value": "2026-10-26T09:06:11+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/9659523378_26102026143541_83.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "536d031cd257d22b8d2dddba1b44d98d85a9098953bb26107048c50b3c3931f7",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Disclosure under Regulation 23(9) |SUBJECT: Disclosure under Regulation 23(9)",
+      "event_context_sha256": "794fda240b5cff5899c82090e03c9eb34fe8446a1e516b203eee52bf7f98618f",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "7d0bfd09fd949d6b35d6f092a1b447f15a158dd350dc06f5c73b49c7aa1fecdc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b411a9a5c8b84571370ce3e043e46888e8869683be821e16298af5d7aaa50676",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:32:43",
+        "value": "2026-10-26T09:02:43+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026143237_Intimation_RPT.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Asset/Liability management Statement |SUBJECT: Asset/Liability management Statement",
+      "event_context_sha256": "bd2f15f072a5494c4a1bee8789400513b51628409a4ec9b8aae942adc8cb09f7",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "169b3f3d6a4f10e75f8318c07780c330d734ffc4cf39408657a5488b52bfb2fb",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PIRAMALFIN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bc9ac612846449e40991b5bc2b3b680106245e7694d39586147e99d7be1ae9d3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:43:13",
+        "value": "2026-10-26T09:13:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PiramalFin_26102026144145_ALM_Statement_Final_Sep_2026_sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e4672bf2829c498497dec5baed873c671e968b02e60deee30b0a44194810962e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "SDD COMPLIANCE CERTIFICATE FOR THE QUARTER ENDED 30 SEPTEMBER 2026 |SUBJECT: Structural Digital Database",
+      "event_context_sha256": "43b86e20fa2e30ff0e46c5479eb643d3e550b421cd473f6a0e3fa1fe8f4f5648",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "47d922359de295235f06e361067424c1d4b1c9f4f48011db43bea045b62ac098",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bdf5e2cd21b111c83638adc10337a1d67b93b2b08645ea4bcc1efd94fde17eea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:17:01",
+        "value": "2026-10-26T08:47:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/AHIMSA_26102026141650_SDD_Certificate.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8041472e0990930be46b17e4afe7023fd3eef77bffc5bab6e152fb1c2adef162",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Audio Recording of Conference Call |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "2abb4135dde276447dce16348eee6ae270d98c376f131519cb0f49e53c21386c",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "ab1b034a2f488c55eddb5a22f02cb5bdae10dc99e5222cea70a0835b464adee9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "KAJARIACER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "be1e6d567b2c44db480e400b0aedffab42c987728a4fe56b7a0cab83a0700ac3",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:47:24",
+        "value": "2026-10-26T08:17:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KAJARIACER_26102026134213_Recording_Con_Call.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c340e3717194a2df06423f010bc1d469b9edbdcccb78de1f7799e9d29602e497",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Syrma SGS Technology Limited has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "249d56f53131c4ff1a9be004250ec34b58195d193c38aca3611b10dd773105eb",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "434eb7977fb913b1535683517dbe88fd445ced12e825e02c274b3382a37c8167",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SYRMA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c07cc6f937ae3e49be531a85c5e0faf3b115daa9e9189dc7e38600d061524b68",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:03:50",
+        "value": "2026-10-26T08:33:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_20274_WebXMLFile_20261026_140348304.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d5dc3adc5cc30585b43479464473f8385b333464f0ddec69ea3cefe82245ac98",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Cyber Media Research & Services Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "77b1f6e65630c990dae5614b7dceb8eb3b4283bef68181f9583f4dc51dfa5fd8",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "b2619262f9916eb0b3f7efd843d772804173c5f2ace6bc53cb0806448379cd45",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c0bf7c989bfd1740c1f8de850a72d9d36bd6634652ef006b56f653cfd55acfcb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:31:29",
+        "value": "2026-10-26T09:01:29+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CMRSL_26102026143017_ufr300926.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "eeddc4ef22a70eda69fba76e115a20f5f72533d0545d2dd63cef92fe9b43e479",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Sakar Healthcare Limited has informed the Exchange regarding a press release dated October 26, 2026, titled \"Press Release - Consolidated and Standalone Unaudited Financial Results for the quarter and half year ended September 30, 2026\". |SUBJECT: Press Release",
+      "event_context_sha256": "dfb2205c025941984864c9e6b340e5912a46f1516e0b28afa4fb982c28e9aded",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "a842f3893c4d2bb71603780dbe0bb016581be197ace3034d103889dac8661d60",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAKAR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c0dc323689bf46d78e5e2f9b1a15308c196211075cb1080257d82c20ff39f37c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:00:19",
+        "value": "2026-10-26T08:30:19+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SAKAR_26102026135800_Announcement_-_Media_Release1.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e849a7fd10a24fcabfc47b5a7f32488e8caeb4ba0276e9f2451cd5b64586fb4c",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "BGR Energy Systems Limited has informed the Exchange regarding ''R.eceipt of request for Reclassification from the Promoters to the Public category in accordance with Regulation 31A of SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 |SUBJECT: Updates",
+      "event_context_sha256": "cd85d9da98023ed0500fec5757f7a66c42e12b1ee7d55540abc6946f86208c4d",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "2d8c2e9a00e71de3fd2069fca39dbb52a485ed23a7879e1c55a4aa5257b5511b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c144c6320f24970a795dea4874727c86e10dbc36968be90ae94a8f4d153509ac",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:05:36",
+        "value": "2026-10-26T08:35:36+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BGRENERGY_26102026140423_BGRReceiptofLetterIntimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0d683faf650b82785effcb78201920056bafe147862fe866c23f35c80f2e2946",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Axis Asset Management Company Limited has informed the Exchange that the Net Asset Value (per unit) of Axis Mutual Fund - AXIS S&P BSE SENSEX ETF as on October 23, 2026 is Rs. 75.9841. |SUBJECT: Declaration of NAV",
+      "event_context_sha256": "9a76bd381098fbcb7ef19123efb25282c0fbcea9a417d65bfe4bbf2e98713f46",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "e1ff36ff2c5ad98606e440a43c2976af933831a8a15653f65e37ed5249b84b9b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c6bc14cdee24cc478f079485eeaf04be83397f2dc413c9687ecbcb8fa5507bec",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:00",
+        "value": "2026-10-26T08:18:00+00:00"
+      },
+      "resource_key": "65846f14201aa2afd0fa0fc1b86c8df68d9f38d0d111cf8797f7eabf9aa0875b",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c96c531e9a36b990d8d8f8db7bf9e990bb3b8c45cfdce97f36e590366c70f6e6",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "JHS SVENDGAARD LABORATORIES LIMITED has informed the Exchange about Board Meeting to be held on 02-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "a9e76d95a42ec39aaab224c116293e8394a255f9414a54ec06767331ca7f280d",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "919650714e0a1bfbf538a93adfe37b39c9d3172aac98dc065c2900583fa3a9ae",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c8f9095fba4767a23e3e7f31ea7691d7d1f9db0540fe986f7dfb4ee13ce3d7f2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:39:44",
+        "value": "2026-10-26T08:09:44+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_2452_WebXMLFile_20261026_133943608.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b8c091a410cc0c03b3f7720de4811c6a34f71e9e4bc98510565489af1a50f996",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Lloyds Metals And Energy Limited has submitted the Exchange a copy Srutinizers report of Postal Ballot. Further, the company has informed the Exchange regarding voting results. |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "4f2cfb2439b15d12348bcb753fcfa2dadaf9dc27f2da6655d081111b8db1ccc6",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "c2d0d594a47ef4c3a0db82a19f4672d0160ad3a6642537d2c9030988eea12d4e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c93fc8c903c42c73754dd21973d59390a5b7e1b701422a99da0f522dac7e197d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:41:13",
+        "value": "2026-10-26T08:11:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/LLOYDSME_26102026133756_20261026_Postal_Ballot_Result_Initimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ad32dc70a3b05dcd4810c1ac1c48ed5a702cbf3c092f6434dc76accd6d086925",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Asset/Liability management Statement |SUBJECT: Asset/Liability management Statement",
+      "event_context_sha256": "bd2f15f072a5494c4a1bee8789400513b51628409a4ec9b8aae942adc8cb09f7",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "9a9897a6474d17af1c1d116133f77c7d96e5732cc0a27193c0b4cdd617e6492f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PIRAMALFIN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d2e9e8ab5bc661fda1e907401765d59690a3282eaa99af486356999a182b48ad",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:43:13",
+        "value": "2026-10-26T09:13:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PiramalFin_26102026144105_ALM_Statement_Final_Sep_2026_sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e4672bf2829c498497dec5baed873c671e968b02e60deee30b0a44194810962e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Avantel Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "dd41d5864c832b7b7148659315beac3af33d602117af7c4561bc54c7fa7f6237",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "dc7887172d87aed80da5b320c5035e0d5b6dfc6fe4768f4ff9fab79f87820d22",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "AVANTEL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d85b806ac3cba1d91eed2f2bf8d21fc2523cd7124793a5dd4bfa57d99b5532c4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:46:32",
+        "value": "2026-10-26T09:16:32+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/AVANTEL_26102026144452_Outcome26102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "923585b04b54837549899ad8d023e463b13c33d99ec7f60abd66c4dd11caba29",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Viaz Tyres Limited has informed the Exchange regarding Notice of Postal Ballot |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "3d6fa8edde659187a0b9a8793877b5f4c3e0aad4835336806c3b543bb63e34c9",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "1696d7c182561e1c089728d09a2ec881a31acfc4f106a8adc943e623667cf995",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d8bd9eb5bd163391a53eaeb4da84f9db1f7f3562f9864d16ce0586140b5a2647",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:46:14",
+        "value": "2026-10-26T09:16:14+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VIAZTYRES_26102026144542_NSE_Postal_Ballot_Intimation-_VIAZ_Migration.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9f45020505c46bf18756f815e2c847ec702704b6df77cd0ec5d62c7ea7550393",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Tata Communications Limited has informed the Exchange regarding a press release dated October 26, 2026, titled \"Press Release - Tata Communications to Build India s AI Super Highway\". |SUBJECT: Press Release",
+      "event_context_sha256": "9eef02802ffce23f7209b09700923ab2a12943fb6b7b1156805e3006c4cf12e0",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "cab164c7f9d37b3d5081d18a26c8c3567d9556b658977ac2b0b5cd307f4aba16",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TATACOMM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d8e746ec5eb4d8a4573e647a4c98edd12ce506b73bd889b561baac9ae6b9ce70",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:07:54",
+        "value": "2026-10-26T08:37:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TATACOMM_26102026140740_18543a.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "722a969eb887086f81224620423551c5d932d9e37bf4e58db7c7caeb0d975a34",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "UNO MINDA LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "fcf86372f22f123ff22a28af78d27bcdccb55d6d65bb1cbb423b05f5fb46f8d4",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "23d2e8d1265ba7a32a2d70b9054af5b958df639e817082db46568d39b535bfa9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "UNOMINDA"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "dab4fa9482cfba3dabec9bb513dce8ddcb602cb82992e89104ac13c25e9fed68",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:41:39",
+        "value": "2026-10-26T08:11:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_2518_WebXMLFile_20261026_134137241.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "533cc210344e260a483b42436ff74f72eedeb507d881771c185dd1a7c0d29b9a",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Indian Overseas Bank has informed the Exchange about statement of deviation(s) or variation(s) under Reg. 32 |SUBJECT: Statement of deviation(s) or variation(s) under Reg. 32",
+      "event_context_sha256": "c3b49da02db0f9fd639e92b356220347b4c6fbb331ca06e1c148e4e6af07d0af",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "c9c941e800abda594fe7e5ddd87b65154e18decd8d27c54d9a9421c1088305d8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "dc9a1bd68ebb3321933be98167915adf8ee9f944fb54b0b4ae43ab8e0c9c4bbe",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:48:17",
+        "value": "2026-10-26T08:18:17+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/IOB_26102026134750_FINALSDVFORUPLOAD.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ff492f9a589602b89fac4bfd5f85dee9392c9d2944956d9c6629e711b88f4317",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Record Date Updates |SUBJECT: Record Date Updates",
+      "event_context_sha256": "f57b7ae824467327bab43f048a50a41de06341bc4d23f44b177386fc6fed5fc2",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "37afb0329f4c03068ab371eb9fe1e3c28475a2a2d9a87e3d23159ca4b127a330",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "dcf19894b8ac373e8bf10606c8e169c31fe034602e246185d861c512c9f3abff",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:58:58",
+        "value": "2026-10-26T08:28:58+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/HIFSIL_26102026135734_RecordDateIntimationCP_29102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0eb7bb054a422a6f30a55dbdef72e07e8caba080aca5817da8c80707f0ef0231",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Macpower CNC Machines Limited has informed the Exchange regarding the financial results for the quarter and half year ended September 30, 2026 |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "cfce234d60bbce7578e46a57f177ed431c2398881fb4a08b908a18d98fd370d5",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "7255a6f2ce9261dcd6d9b1b36c09766fde6d8dbdf5323f1c725274053adb6b36",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MACPOWER"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e0b40f0ef2ff2262c7f138566964fe5ebd23d4694852ac82f0402c7f392aaf0c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:47:30",
+        "value": "2026-10-26T08:17:30+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MACPOWER_26102026134717_Outcome_of_BM_26102026_Results_Q2FY27.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "67e1eb7d85f317001f1c8d5e60afa09fc62891ae8a4ef5e218637c08520b5196",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Lumax Industries Limited has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "a865eca951aa8e3e54a77966d1f9822f342bae8eb7c23027a31e29edfb411bfd",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "8adb71d429c738b205a8474c8f12550b9a2b38a211eed0a6a7d0260e964b23af",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "LUMAXIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e0c439bb68f83b9e9be29f16ecdc521a5fb0f55b17d0f8f8a697bc36a013ac30",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:34:05",
+        "value": "2026-10-26T09:04:05+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_162_WebXMLFile_20261026_143404326.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e90bd2ec002800626cfad8abddbbeb14a091c25c8769fd9b7dc45e2933c90400",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "InfoBeans Techno. Ltd. has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "dec594b39ce01e1aa89f06894eaa9734b7ce0bb70f5dbec3d42c3d73616358af",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0384aff0b6211db972e3e71ab301c275b130c47c91d744263f3b210655289cbc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INFOBEAN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e2071b17f56e76723baeedcebddf8474bc0f5757160d019b8b492af6a0d0c698",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:28:59",
+        "value": "2026-10-26T08:58:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/INFOBEAN_26102026142839_Earnings_Call_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "50ceed308dddea215e7d221a0dc61136febe3485ce8bd3049717e652cb28fa6e",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Confirmation of Redemption/Payment of Interest and Principal |SUBJECT: Confirmation of Redemption/Payment of Interest and Principal",
+      "event_context_sha256": "a34b75bf42f5022e5ce8f92dac202ea43b9107c965a95e27b86b86b8bd47dcc5",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "78488d91269208991ed840f3df0bdc59d44e9e5b1324bc665cb63163ef424a28",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IIFL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e39d02959469b3fea7d2d0f2745aa28c4582b28771f2c6e7eec7827a2838c7c6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:42:54",
+        "value": "2026-10-26T09:12:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/IIFL_26102026144043_CP_Redemption_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "94ba66f10c8571a8ccd7852dd9cf8182a8f7563bbeb771f59c4ed08db9852d5e",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Godrej Properties Limited has informed the Exchange regarding a press release dated October 26, 2026, titled \"Press Release\". |SUBJECT: Press Release",
+      "event_context_sha256": "77a130f30a6cb4ab58dd6207aaca736ac4b966867dbb06bf552f696b918da121",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "c9bd0464d6928997a137645e98a3cd5c73e83ee982e96e293eb9da63c3056e81",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GODREJPROP"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e3e9882b100ab2de47dc1d27535ae68abcf059ccdc52e8ca886a6393b41d7f25",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:38:13",
+        "value": "2026-10-26T09:08:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/GODREJPROP_26102026143741_SEIntimationPressRelease26102026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "2c9bf142906699accfd1f1f0ce80707428c6683c225cc65ef36aab6e59fdfa9c",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Security Cover |SUBJECT: Security Cover",
+      "event_context_sha256": "f5dac2b8c30e4f3a6e8161e3a04858ee0374f61ea834d9705e75a4746107326a",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "f1cbe48d5109e14b1da45ff2642ab55e205cab5329285b567f59a70dc037e1b3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "IOB"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e4a11bf5ce7cab3e27603f2b5e2f878df017c873e34f6f9ba247b88dba83d4ff",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 13:57:41",
+        "value": "2026-10-26T08:27:41+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/IOB_26102026135652_FINALSECURITYCOVERFORUPLAD.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ff492f9a589602b89fac4bfd5f85dee9392c9d2944956d9c6629e711b88f4317",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "1d8b049cba28e7e9e01237fc6498a0bfcecfbb239e712a6d6171105948c2a5aa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e694f9ad28e37be9e0f34bcdfef7ccf312cb851439b6becf2e5dcfaa53b59217",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:14:48",
+        "value": "2026-10-26T08:44:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/TIL671_26102026141441_Outcome.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5417e3864d6ba221fdefe6fee0b9d272f9f0080ea94550c37b93e6d1ac8136b5",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "Dynamic Services & Security Limited has informed the Exchange with copy of minutes of Annual General Meeting held on September 30, 2026 |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "92afb40629c1291e4487c820a39b06678ded8c55af2d54313c3d262284e016d7",
+      "first_seen_at": "2026-10-26T09:20:33.450958+00:00",
+      "item_id": "0b165dd201d8e9763a3ccceafc283592759357c8e652cef9cd6e917bf2e6674a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f7f9dbfd4e86a14740a440f0b24e94a6c57f4a76b774458622668bb435b25016",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "26-Oct-2026 14:45:50",
+        "value": "2026-10-26T09:15:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/DYNAMIC_26102026144249_Minutes_AGM_2025-2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "9d22f0def1217eebc041875b620f1008044eebe44bc61283848348a30d35a1a4",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:52.137078+00:00",
+      "item_id": "ba0e8a3aef65dffdcf4ac92fbe470b1eec4cf3e9f0abb04638c82b8e7ff94967",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TATACOMM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "06662c2512375d7c2e2511b17aeb1805075c32ae35267f9dfd187e6866549316",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 14:00:55 +0530",
+        "value": "2026-10-26T08:30:55+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/tata-communications-investment-ai-data-centre-connectivity-11792998942621.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "5ba9adf6743c8d6e4bc73daa9b59b3a4591fc23f7b2e67f3e1064fb196ce8d75",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:52.137078+00:00",
+      "item_id": "3906c4b8582b28d85501cc8fea25a609eb7f6bdcf91f04b256ca1928b9a5ce82",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "94691127095849d119ea710628e4cd072015cd93cb29228cb653c83830a4a6fd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 14:09:03 +0530",
+        "value": "2026-10-26T08:39:03+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/indian-private-equity-pe-venture-capital-vc-funds-gp-commitment-11792993027855.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "a8bd9f7b0be572898ba98395877e289ff473bd238fec86f917f7af64bfa7fe94",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:52.137078+00:00",
+      "item_id": "3475f9be60cb0cd447c27bca03f8bf69c087d285d18a848f530c8ca5ad9c5979",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b7d00f88d49eb9acfb247e41918becab0843a30456de9cdf2078e1f1f9c7a83a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 14:25:13 +0530",
+        "value": "2026-10-26T08:55:13+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/ey-supreme-court-employee-secondment-tax-dispute-11792999424921.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "d8510eea511999d160642648c9257d26a37d7ae4319384aad14b64aa50a19239",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:52.137078+00:00",
+      "item_id": "6af54ae6f58b50bc470b8f68792ee87f469f4d33648d1705d38f05b30279f02c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e1e3dd3d18ce947c2e5b8bd996d074c030be4bd4352a6d2c41985804a616dad8",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 13:59:40 +0530",
+        "value": "2026-10-26T08:29:40+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/unacademys-gaurav-munjal-roman-saini-plan-rs-700-crore-fund-focused-on-ai-deeptech-startups-report-11793002549422.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "ad51e4c2440096d4a763bc674c19a374cea06f6165f1aa5af3e296e8cef8c183",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:54.631626+00:00",
+      "item_id": "9c3016d0322e86c9a3d4af502b8eee916c9714fad36dd5e281db7b27d1574997",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "06adc94e1f595fe4b37bb28726e3165e3ca67e00bfec9571dda9ada8f97446bf",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 13:46:33 +0530",
+        "value": "2026-10-26T08:16:33+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/multibagger-stock-sakar-healthcare-rises-4-5-after-q2-results-2026-up-500-in-5-years-will-rally-continue-11792998905646.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "9c20b31716ca748435a0006b95b0995b763362fe616a3161ed474af77db4c192",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:54.631626+00:00",
+      "item_id": "8683cf76ad9f3ffa56e74ca768bb5860cf000be3f6d8613f62c5ee422f210c49",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1c4c208e12b8e32467fd48f2498809ac45926fee965c9e333ed4378630eb573b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 14:35:00 +0530",
+        "value": "2026-10-26T09:05:00+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/commodities/why-is-gold-price-under-pressure-ahead-of-dhanteras-diwali-what-should-interested-buyers-do-expertss-views-target-11793002314682.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "651a488d9efb239f89eaca201ff0deba691de9f50f12791a5ad501537d3623d0",
+      "topics": []
+    },
+    {
+      "capture_id": "f9170c12bf23a3bfb77c077b1b5289aa33182f22c649a87e597b703ab71e811c",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-10-26T09:20:54.631626+00:00",
+      "item_id": "1e363e057507b11ce7d7d18a4571a69d74e1d62c82a93b38b207da115815ffd3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TMCV"
+        ],
+        "panel_symbols": [
+          "TMCV"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2fa94895bdd967e20454d243f7fd85756eb4f20793a9b79e0040303a3160d7ba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Mon, 26 Oct 2026 14:16:33 +0530",
+        "value": "2026-10-26T08:46:33+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/mark-to-market/tata-motors-commercial-vehicles-q2-results-margin-pressure-11792998314361.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "8694d742a8ce00dcfe80ecb507e91d248c803dc9c75481c7d27744bf1f9bdc3e",
       "topics": []
     }
   ],
