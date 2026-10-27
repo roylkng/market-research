@@ -114,7 +114,7 @@ def test_promoter_buyback_no_false_cash_recommendation(packet,field,value):
 @pytest.mark.parametrize(("field","value"),[
     ("shares_original_FY26",30000000),
     ("fy26_source_scope","AUDITED_STANDALONE_INR_LAKH"),
-    ("fy27_Q2_results_board_date","2026-10-27"),
+    ("FY27_Q2_results_board_date","2026-10-27"),
     ("noncurrent_investments_accessible_cash_verified",True),
     ("latest_legal_current_shares_after_FY26_verified",True),
     ("normalized_parent_owner_cash_crore",100),
