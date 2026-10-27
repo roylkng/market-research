@@ -35,6 +35,9 @@ def test_gandhi_sebi_completed_buyback_and_denominator(packet):
     assert x["gross_cash_paid_to_promoters_crore"] == 76.02336
     assert x["gross_cash_paid_to_nonpromoters_crore"] == 2.10564
     assert x["fy26_proforma_earnings_per_new_share_inr"] == 60.5857
+    assert x["fy27_Q1_mtm_in_other_income_crore"] == 9.3212
+    assert x["fy27_Q1_mtm_gain_as_pct_of_PBT"] == 25.81
+    assert x["fy27_Q1_PBT_ex_only_FVTPL_gain_crore"] == 26.7996
     assert x["historical_earnings_to_new_cap_multiple"] == 13.77
 
 
@@ -99,6 +102,7 @@ def test_cannot_mutate_time_source_claims_or_buy_state(packet,outer_key,value):
     ("buyback_price_inr",834.15),
     ("sustaining_normalized_owner_cash_crore",53.09),
     ("capital_distribution_fairness_verified",True),
+    ("fy27_Q1_FVTPL_gain_lakh",4500),
 ])
 def test_promoter_buyback_no_false_cash_recommendation(packet,field,value):
     changed = copy.deepcopy(packet)
