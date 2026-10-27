@@ -59,6 +59,24 @@ Two petitions **W.P.(C) 15145/2026 and 15147/2026**, associated with NHAI's thre
 
 Quarterly results scheduled **28 October 2026** are not yet available at this 27 October morning source boundary. In particular, do not fabricate post-sale project order intake or quarterly collections.
 
+## 4. Subsequent Q1 FY27 results show a second nonrecurring-earnings trap
+
+The *original issuer-signed 8-Aug-2026* Q1 press release, faithfully reproduced at https://financialfilings.com/filings/pnc-infratech-limited/earnings-release/2026/52671313/ , discloses in its **own starred footnotes** that a **₹217 crore Agra Bypass arbitration award** received from NHAI is included in FY27 Q1 EBITDA and **₹176 crore net of tax** included in FY27 Q1 PAT. The comparative Q1 FY26 consolidated PAT ₹431 crore includes **₹278 crore after-tax gain from HAM asset monetization**. Both years have material single-occurrence income.
+
+| Explicit published Q1 comparison, ₹ crore | Q1 FY27 | Q1 FY26 |
+|---|---:|---:|
+| Consolidated revenue | 1,688 | 1,423 |
+| Consolidated reported EBITDA | **524** | 367 |
+| Consolidated reported PAT | **332** | 431 |
+| Specific exceptional / monetization item included in PAT | **176** arbitration after tax | **278** HAM sale after tax |
+| Consolidated PAT excluding **only** named items | **156** | **153** |
+
+**₹156 crore versus ₹153 crore is just +1.96%**, not the strong trend suggested by a glance at either reported Q1 EBITDA or raw YoY PAT. This is an intentionally narrow comparison, **not** a fully normalized operating earnings series: the remaining businesses are different after asset sales, other unusual items and cost/tax allocation could be material, and reported FY26 Q1 consolidated PAT may include effects not removed by this one adjustment. For standalone operations, FY27 Q1 reported EBITDA **₹375 crore includes ₹217 crore award**, leaving **₹158 crore** after stripping that item; standalone PAT ₹271 crore includes ₹176 crore net, leaving ₹95 crore, again not stable run-rate forecasts.
+
+The same signed press says **five FY27 orders totaling ₹4,259 crore** had been obtained **as at August 8, before September debarment**. These orders require award validity and project status checks after the legal dispute; they are not proof of new post-stay bids.
+
+Another signed primary filing, **25-Sep-2026 credit-rating update** https://nsearchives.nseindia.com/corporate/PNCINFRA_25092026165911_CreditRatingIntimation25092026.pdf , states long-term facilities ₹1,700 crore **CARE AA+ still on Rating Watch with Negative Implications**, whereas ₹5,000 crore short-term facilities **CARE A1+ were removed from the negative watch**. These are credit-facility rated limits, **not the same as gross consolidated book borrowings**. Headlines declaring an unqualified company-wide credit upgrade are misleading. No changes to the court's interim-only legal status.
+
 ## Decision: SOURCE-VERIFIED FALSE-YIELD + CATALYST WATCH, NOT BUY
 
 PNC looks potentially inexpensive on price/book and unnormalized profits and has an actual court-related event. But large receivable release, infrastructure-SPV debt, financial interests, onetime road-asset monetization and interim legal process make the enormous cashflow 'bargain' **uninvestable on the current evidence**. Avoid a false choice between optimistic headline CFO and a deliberately harsh ₹48cr residual: neither is sustainable parent FCFE.
