@@ -135,7 +135,7 @@ def verify(data: dict) -> dict:
         "Nucleus_21052026150516_OUTCOME.pdf"
     ):
         raise ValueError("Nucleus original cash evidence altered")
-    if nuc["fy27_Q2_results_board_date"] != "2026-10-31":
+    if nuc["FY27_Q2_results_board_date"] != "2026-10-31":
         raise ValueError("upcoming financial decision cannot be backfilled")
     if nuc["latest_legal_current_shares_after_FY26_verified"] is not False:
         raise ValueError("must not invent a new 2026 share count")
