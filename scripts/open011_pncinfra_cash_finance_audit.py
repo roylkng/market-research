@@ -172,6 +172,47 @@ def audit(data: dict, baseline: dict) -> dict:
         or legal["interim_debarment_stay_valid_till_next_hearing"] is not True
     ):
         raise ValueError("false event date, results, or court finality")
+    q1 = data["Q1_FY27_disclosed"]
+    if (q1["period_ended"] != "2026-06-30"
+        or q1["source_signed_issuer_date"] != "2026-08-08"
+        or q1["source_issuer_signed_press_transcription"] !=
+        "https://financialfilings.com/filings/pnc-infratech-limited/"
+        "earnings-release/2026/52671313/"):
+        raise ValueError("Q1 source release and accounting period not verified")
+    q1_award = value(q1,"NHAI_Agra_Bypass_arbitration_award_in_Q1_EBITDA_crore")
+    q1_after_tax_award = value(
+        q1,"NHAI_Agra_Bypass_arbitration_award_in_Q1_PAT_after_tax_crore"
+    )
+    prior_disposal = value(
+        q1,"prior_year_Q1_PAT_asset_monetisation_after_tax_crore"
+    )
+    if (q1_award != 217 or q1_after_tax_award != 176
+        or prior_disposal != 278):
+        raise ValueError("original unusual Q1 earnings footnotes changed")
+    q1_group_ebitda = value(q1,"consolidated_EBITDA_reported_crore")
+    q1_group_PAT = value(q1,"consolidated_PAT_crore")
+    q1_prior_PAT = value(q1,"consolidated_PAT_prior_year_crore")
+    standalone_ebitda = value(q1,"standalone_EBITDA_reported_crore")
+    standalone_PAT = value(q1,"standalone_PAT_reported_crore")
+    if min(q1_group_ebitda,q1_group_PAT,q1_prior_PAT,standalone_ebitda,standalone_PAT)<=0:
+        raise ValueError("Q1 reported earnings denominators missing")
+    if (q1_award>=standalone_ebitda or
+        q1_after_tax_award>=standalone_PAT or
+        prior_disposal>=q1_prior_PAT):
+        raise ValueError("nonrecurring gain exceeds Q1 reported results")
+    rating=data["credit_25sep2026"]
+    if (rating["long_term_rating"]!="CARE AA+ (RWN)"
+        or rating["long_term_still_on_negative_watch"] is not True
+        or rating["short_term_rating"]!="CARE A1+"
+        or rating["short_term_removed_negative_watch"] is not True
+        or rating["long_term_bank_facilities_crore"]!=1700
+        or rating["short_term_bank_facilities_crore"]!=5000):
+        raise ValueError("September CARE long-term rating watch falsely cleared")
+    if rating["issuer_source"] != (
+        "https://nsearchives.nseindia.com/corporate/"
+        "PNCINFRA_25092026165911_CreditRatingIntimation25092026.pdf"
+    ):
+        raise ValueError("CARE issuer source reference changed")
     if data["risk_stresses"] != {
         "static_hold_debt_receivable_reversal_only": True,
         "cash_finance_interest_and_leases_belong_outside_indirect_CFO": True,
@@ -210,6 +251,22 @@ def audit(data: dict, baseline: dict) -> dict:
         "asset_sale_gain_not_treated_as_recurring":True,
         "court_debarment_stay_is_interim":True,
         "court_next_hearing":legal["next_hearing_scheduled"],
+        "Q1_FY27_group_PAT_reported_crore":r4(q1_group_PAT),
+        "Q1_FY27_group_PAT_ex_arbitration_crore_not_normalized":r4(
+            q1_group_PAT-q1_after_tax_award),
+        "Q1_FY26_group_PAT_ex_10_HAM_asset_sale_crore_not_normalized":r4(
+            q1_prior_PAT-prior_disposal),
+        "Q1_underlying_PAT_comparison_pct_only_selected_gains_removed":round(
+            ((q1_group_PAT-q1_after_tax_award) /
+             (q1_prior_PAT-prior_disposal)-1)*100,2),
+        "Q1_FY27_group_EBITDA_ex_arbitration_crore":r4(
+            q1_group_ebitda-q1_award),
+        "Q1_FY27_standalone_EBITDA_ex_arbitration_crore":r4(
+            standalone_ebitda-q1_award),
+        "Q1_FY27_standalone_PAT_ex_arbitration_crore":r4(
+            standalone_PAT-q1_after_tax_award),
+        "CARE_AA_plus_still_on_negative_watch":True,
+        "CARE_A1_plus_removed_from_negative_watch":True,
         "Q2_FY27_real_data_available":False,
         "is_stock_selection_alpha":False,
         "is_investment_approved":False,
