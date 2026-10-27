@@ -27,6 +27,8 @@ def test_original_RRVL_raise_against_open007_share_market_evidence(original):
     assert r["name"] == "JUSTDIAL"
     assert r["original_2021_injection_crore"] == 2164.88
     assert r["original_issue_share_count"] == 21177636
+    assert r["April_2024_original_Reg32_funds_utilised_crore"] == 0
+    assert r["April_2024_filing_includes_general_corporate_purposes"] is True
     assert r["current_net_book_liquid_after_all_liabilities_crore"] == 5173.34
     assert r["october_26_market_cap_crore"] == 5943.2264
     assert r["annual_report_does_not_independently_verify_current_2026_09_remaining_balance"]
@@ -94,6 +96,19 @@ def test_2021_transaction_price_and_share_count_must_match_original(original):
         changed = copy.deepcopy(original)
         changed["source_2021_raise"][key] = value
         with pytest.raises(ValueError):
+            MODULE.audit(changed)
+
+
+def test_company_reg32_objects_and_nil_usage_can_not_be_mutated(original):
+    for key, value in (
+        ("source_filing_amount_utilised_asof_2024_03_31_crore", 100),
+        ("source_filing_no_deviation_reported", False),
+        ("source_filing_quarter_end", "2026-09-30"),
+        ("source_original_signed_MSEI_pdf_page_index", 0),
+    ):
+        changed = copy.deepcopy(original)
+        changed["source_2021_raise"][key] = value
+        with pytest.raises(ValueError, match="Reg32"):
             MODULE.audit(changed)
 
 
