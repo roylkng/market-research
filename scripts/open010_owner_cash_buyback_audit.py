@@ -116,6 +116,11 @@ def verify(data: dict) -> dict:
                        "fy26_current_investment_lakh",
                        "fy26_cash_equivalent_lakh","fy26_other_bank_lakh")
     ) / 100
+    q1_gain = n(g,"fy27_Q1_FVTPL_gain_lakh")
+    q1_other = n(g,"fy27_Q1_other_income_lakh")
+    q1_pbt = n(g,"fy27_Q1_PBT_lakh")
+    if q1_gain > q1_other or q1_other > q1_pbt or q1_pbt == 0:
+        raise ValueError("Q1 investment valuation gains cannot exceed parent totals")
     buyback_cr = bought * buyback_offer / 10_000_000
     promoter_cash_cr = promoter_accepted * buyback_offer / 10_000_000
     nonpromoter_cash_cr = nonpromoter_accepted * buyback_offer / 10_000_000
@@ -202,6 +207,9 @@ def verify(data: dict) -> dict:
             "gross_cash_paid_to_promoters_crore":round(promoter_cash_cr,5),
             "gross_cash_paid_to_nonpromoters_crore":round(nonpromoter_cash_cr,5),
             "fy26_earnings_crore":round(earnings_g,4),
+            "fy27_Q1_mtm_in_other_income_crore":round(q1_gain/100,4),
+            "fy27_Q1_mtm_gain_as_pct_of_PBT":round(q1_gain/q1_pbt*100,2),
+            "fy27_Q1_PBT_ex_only_FVTPL_gain_crore":round((q1_pbt-q1_gain)/100,4),
             "fy26_proforma_earnings_per_new_share_inr":round(
                 earnings_g*10_000_000/outstanding,4),
             "historical_earnings_to_new_cap_multiple":round(
