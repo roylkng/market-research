@@ -186,6 +186,9 @@ def evaluate(p: dict) -> dict:
             (revenue_q / old_q - 1)*100, 2
         ),
         "Q2_company_operating_EBITDA_crore": ebitda,
+        "Q2_group_EBITDA_YoY_pct_from_rounded_source": round(
+            (ebitda / ebitda_old - 1) * 100, 2
+        ),
         "Q2_company_EBITDA_margin_pct": round(
             ebitda / revenue_q * 100, 2
         ),
