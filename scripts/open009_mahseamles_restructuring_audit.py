@@ -30,7 +30,7 @@ def positive(data: dict, key: str, *, allow_zero: bool = False) -> float:
 
 
 def analyze(d: dict) -> dict:
-    if d["schema"] != "OPEN009-20261027-MAHSEAMLES-DEMGER-OWNER-CASH-v1":
+    if d["schema"] != "OPEN009-20261027-MAHSEAMLES-DEMERGER-OWNER-CASH-v1":
         raise ValueError("protocol changed")
     if d["scope"] != "POSTHOC_INDEPENDENT_COMPANY_UNDERWRITING_NOT_HG009_ALPHA":
         raise ValueError("research cannot become retroactive HG009 alpha")
@@ -73,7 +73,7 @@ def analyze(d: dict) -> dict:
         raise ValueError("corporate scheme dates changed")
     if (scheme["MSTL_shares_per_5_MAHSEAMLES"],
         scheme["USL_shares_per_5_MAHSEAMLES"]) != (1, 1):
-        raise ValueError("original demger ratios corrupted")
+        raise ValueError("original demerger ratios corrupted")
     for k in (
         "company_describes_share_exchange_as_value_neutral",
     ):
