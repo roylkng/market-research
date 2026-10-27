@@ -27,6 +27,7 @@ def test_growth_matched_to_exact_consolidated_accounting_basis(study):
     assert report["Q2_FY27_group_revenue_crore"] == 436.9164
     assert report["Q2_revenue_YoY_pct_recomputed_from_rounded_source"] == 42.69
     assert report["Q2_company_operating_EBITDA_crore"] == 176.0
+    assert report["Q2_group_EBITDA_YoY_pct_from_rounded_source"] == 84.68
     assert report["Q2_company_EBITDA_margin_pct"] == 40.28
     assert report["Q2_company_group_PAT_crore"] == 123.1
     assert report["Q2_group_PAT_YoY_pct_from_rounded_source"] == 71.21
