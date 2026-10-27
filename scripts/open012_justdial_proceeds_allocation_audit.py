@@ -52,6 +52,8 @@ def baseline(d: dict) -> dict:
         "JUSTDIAL", "INE599M01018"
     ):
         raise ValueError("OPEN007 original issuer mismatch")
+    if p["FY26_dividend"] != "NONE_DECLARED_AFTER_FY2014_15_UP_TO_FY2025_26":
+        raise ValueError("historical dividend source changed")
     if (
         p["q2_date"] != "2026-09-30"
         or p["price_date"] != "2026-10-26"
