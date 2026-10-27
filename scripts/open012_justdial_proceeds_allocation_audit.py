@@ -92,6 +92,7 @@ def audit(d: dict) -> dict:
         "annual_report_2026_source_text_inspected": True,
         "annual_2026_pdf_raw_bytes_in_git": False,
         "annual_2026_report_first_seen_utc": None,
+        "MSEI_april2024_original_pdf_visually_checked": True,
         "reliance_2021_pdf_sha256_in_git": None,
     }:
         raise ValueError("missing inspection or fabricated source custody")
@@ -105,6 +106,21 @@ def audit(d: dict) -> dict:
         or fund["transaction_date"] != "2021-09-01"
     ):
         raise ValueError("2021 original source and timing changed")
+    if (
+        fund["source_original_signed_MSEI_apr2024_Reg32"]
+        != "https://www.msei.in/MeetingAnnouncement/JUSTDIAL/Company%20Update/2024417/17042024_JUSTDIAL_03.pdf"
+        or fund["source_original_signed_MSEI_pdf_page_index"] != 1
+        or fund["source_filing_quarter_end"] != "2024-03-31"
+        or fund["source_filing_no_deviation_reported"] is not True
+        or fund["source_filing_amount_utilised_asof_2024_03_31_crore"] != 0
+        or fund["source_filing_object_categories"] != [
+            "CAPITAL_EXPENDITURE", "WORKING_CAPITAL",
+            "ACQUISITION_OF_SHARES_ASSETS_OR_BUSINESSES",
+            "GENERAL_CORPORATE_PURPOSES",
+        ]
+        or fund["source_filing_is_company_reported_original_objects_not_original_2021_offer_text"] is not True
+    ):
+        raise ValueError("April 2024 company Reg32 proceeds-use evidence changed")
     if (
         fund["fy26_company_says_funds_pending_utilization_in_funds_or_deposits"] is not True
         or fund["fy26_company_says_no_deviation_from_original_objects"] is not True
@@ -192,6 +208,8 @@ def audit(d: dict) -> dict:
         "as_of": d["record_date"],
         "price_date": p["price_date"],
         "original_2021_injection_crore": original_raise,
+        "April_2024_original_Reg32_funds_utilised_crore": 0,
+        "April_2024_filing_includes_general_corporate_purposes": True,
         "original_issue_share_count": issued,
         "current_net_book_liquid_after_all_liabilities_crore": round(net_liquid,2),
         "october_26_market_cap_crore": round(market,4),
