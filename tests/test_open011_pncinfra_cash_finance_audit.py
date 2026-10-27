@@ -95,6 +95,34 @@ def test_no_false_owner_cash_capital_or_legal_clearance(
         MODULE.audit(changed, baseline)
 
 
+def test_latest_signed_q1_does_not_annualize_arbitration_or_asset_sales(
+    original, baseline
+):
+    report = MODULE.audit(original, baseline)
+    assert report["Q1_FY27_group_PAT_reported_crore"] == 332
+    assert report["Q1_FY27_group_PAT_ex_arbitration_crore_not_normalized"] == 156
+    assert report["Q1_FY26_group_PAT_ex_10_HAM_asset_sale_crore_not_normalized"] == 153
+    assert report["Q1_underlying_PAT_comparison_pct_only_selected_gains_removed"] == 1.96
+    assert report["Q1_FY27_group_EBITDA_ex_arbitration_crore"] == 307
+    assert report["Q1_FY27_standalone_EBITDA_ex_arbitration_crore"] == 158
+    assert report["Q1_FY27_standalone_PAT_ex_arbitration_crore"] == 95
+    assert report["CARE_AA_plus_still_on_negative_watch"] is True
+    assert report["CARE_A1_plus_removed_from_negative_watch"] is True
+
+
+def test_cannot_upgrade_rating_or_invent_ongoing_arbitration(
+    original, baseline
+):
+    altered = copy.deepcopy(original)
+    altered["credit_25sep2026"]["long_term_still_on_negative_watch"] = False
+    with pytest.raises(ValueError, match="rating watch"):
+        MODULE.audit(altered, baseline)
+    altered = copy.deepcopy(original)
+    altered["Q1_FY27_disclosed"]["NHAI_Agra_Bypass_arbitration_award_in_Q1_EBITDA_crore"] = 0
+    with pytest.raises(ValueError, match="Q1 earnings footnotes"):
+        MODULE.audit(altered, baseline)
+
+
 def test_original_100_report_and_xml_sha_cannot_drift(original, baseline):
     corrupted = copy.deepcopy(baseline)
     corrupted["company_cashflow_classification_rows"] = [
