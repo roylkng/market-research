@@ -11,7 +11,6 @@ import json
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT = ROOT / "research/broad-discovery/OPEN015_PNC_Q2_H1_ISSUER_CASH_INPUT_20261029.json"
 RUPEE_CRORE_IN_LAKH = Decimal(100)
