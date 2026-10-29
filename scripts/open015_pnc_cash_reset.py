@@ -8,13 +8,13 @@ from __future__ import annotations
 
 import argparse
 import json
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT = ROOT / "research/broad-discovery/OPEN015_PNC_Q2_H1_ISSUER_CASH_INPUT_20261029.json"
-RUPEE_CRORE_IN_LAKH = Decimal("100")
+RUPEE_CRORE_IN_LAKH = Decimal(100)
 
 
 def dec(obj: dict, name: str) -> Decimal:
@@ -90,7 +90,7 @@ def verify(data: dict) -> dict:
     for k,expected in expected_g.items():
         if dec(g,k) != Decimal(expected):
             raise ValueError(f"Signed consolidated statement value changed: {k}")
-    wc = sum((dec(g,k) for k in wc_fields),Decimal("0"))
+    wc = sum((dec(g,k) for k in wc_fields),Decimal(0))
     if (dec(g,"before_working_capital") + wc
           != dec(g,"cash_from_operations_pre_tax")):
         raise ValueError("Issuer H1 cash after working capital not reconciled")
@@ -177,12 +177,12 @@ def verify(data: dict) -> dict:
     }:
         raise ValueError("Original experiment and research control invalid")
 
-    shares = (dec(b,"paidup_equity_capital") * Decimal("100000")
+    shares = (dec(b,"paidup_equity_capital") * Decimal(100000)
               / dec(b,"face_value_per_share_inr"))
     if shares != shares.to_integral_value():
         raise ValueError("Issued shares cannot be fractional")
     price = dec(q,"quote_inr")
-    market_cap_crore = shares * price / Decimal("10000000")
+    market_cap_crore = shares * price / Decimal(10000000)
     debt = dec(b,"noncurrent_borrowings") + dec(b,"current_borrowings")
     cash_bank = dec(b,"cash_equivalents") + dec(b,"other_bank_balances")
     receivables = (dec(b,"noncurrent_trade_receivables")
