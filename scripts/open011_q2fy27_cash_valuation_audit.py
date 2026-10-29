@@ -99,7 +99,7 @@ def evaluate(p: dict) -> dict:
     if face != 5:
         raise ValueError("Acutaas paid-up share face value changed")
     # INR lakh / INR per share -> count shares, not crore shares.
-    share_count = int(round(a_shares * 100_000 / face))
+    share_count = round(a_shares * 100_000 / face)
     if share_count != 81_871_200:
         raise ValueError("Acutaas issuer share-capital denominator altered")
     a_cap = share_count * amount(a["quote_inr"], "Acutaas price") / 10_000_000
