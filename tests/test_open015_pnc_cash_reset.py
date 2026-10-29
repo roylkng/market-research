@@ -1,8 +1,8 @@
 """OPEN015 PNC: mutation tests for issuer custody, period, source and cash."""
 import copy
-from decimal import Decimal
 import importlib.util
 import json
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -69,17 +69,17 @@ def test_no_fabricated_primary_source_backdating_or_new_units(packet,field,value
 
 
 @pytest.mark.parametrize(("section","field","value"),[
-    ("consolidated_cash_flow_H1_lakh","trade_receivables_change",Decimal("0")),
+    ("consolidated_cash_flow_H1_lakh","trade_receivables_change",Decimal(0)),
     ("consolidated_cash_flow_H1_lakh","net_after_tax_CFO",Decimal("459296.51")),
     ("consolidated_cash_flow_H1_lakh","before_working_capital",Decimal("459296.51")),
-    ("consolidated_cash_flow_H1_lakh","direct_tax_paid",Decimal("0")),
-    ("standalone_cash_flow_H1_lakh","net_after_tax_CFO",Decimal("60000")),
-    ("consolidated_balance_20260930_lakh","current_investments",Decimal("0")),
-    ("consolidated_balance_20260930_lakh","current_trade_receivables",Decimal("0")),
+    ("consolidated_cash_flow_H1_lakh","direct_tax_paid",Decimal(0)),
+    ("standalone_cash_flow_H1_lakh","net_after_tax_CFO",Decimal(60000)),
+    ("consolidated_balance_20260930_lakh","current_investments",Decimal(0)),
+    ("consolidated_balance_20260930_lakh","current_trade_receivables",Decimal(0)),
     ("consolidated_balance_20260930_lakh","paidup_equity_capital",Decimal("51307.8")),
     ("consolidated_income_lakh","Q2_reported_PAT",Decimal("33193.29")),
-    ("consolidated_income_lakh","H1_one_time_Agra_Bypass_Vivad_se_Vishwas_III_settlement_revenue",Decimal("0")),
-    ("as_of_quote","quote_inr",Decimal("300")),
+    ("consolidated_income_lakh","H1_one_time_Agra_Bypass_Vivad_se_Vishwas_III_settlement_revenue",Decimal(0)),
+    ("as_of_quote","quote_inr",Decimal(300)),
 ])
 def test_issuer_cash_face_denominator_and_nonrecurring_revenue_are_pinned(
         packet, section, field, value):
