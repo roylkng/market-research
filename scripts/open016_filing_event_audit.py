@@ -72,16 +72,14 @@ def replay(packet: dict) -> dict:
         or c["statement_scope"] != "UNAUDITED_LIMITED_REVIEW_CONSOLIDATED_INR_LAKH"
         or c["quarter_ended"] != "2026-09-30"
         or c["period_h1_ended"] != "2026-09-30"
-        or c["source_NSE_named_attachment"] != (
-            "CRIZAC0301_30102026165203_Outcome_of_the_BM.pdf"
-        )
+        or c["source_NSE_named_attachment"] is not None
         or c["source_issuer_original_url"] != (
             "https://www.crizac.com/investors_file/stock-exchange-intimation/"
             "FY26-27/outcome-of-the-bm-for-quarter-ended-september-30-2026.pdf"
         )
-        or c["source_released_time"] != "2026-10-30T16:58:00+05:30"
+        or c["source_released_time"] != "2026-10-30T16:57:00+05:30"
         or c["source_released_clock_basis"] != (
-            "mirror_approximate_broadcast_not_primary_exchange_atomic_receipt"
+            "third_party_mirror_publication_time_not_primary_exchange_legal_release"
         )
         or c["price_clock"] != "2026-10-30T15:29:00+05:30"
         or c["q2_meeting_end_local"] != "2026-10-30T16:40:00+05:30"
