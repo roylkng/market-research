@@ -13,11 +13,20 @@ from datetime import UTC, date, datetime
 from typing import Any
 
 from marketlab.h021 import PRIMARY_MIN_ANALYST_COUNT
+from marketlab.h021_calendar_supersession import (
+    BASE_GIT_BLOB,
+    NOV08_AMENDMENT_SHA256,
+    NOV08_EFFECTIVE_FROM,
+    NOV08_SHA256,
+    NOV08_VERSION,
+    expected_calendar_git_blob,
+    validate_effective_h021_calendar,
+)
 
 RULE_ID = "H021-P005-GENERIC-ENTRY-INTENT-v1"
 EXPECTED_PRIMARY_SIGNAL = "28-35 day same-period consensus EPS revision"
 EXPECTED_UNIVERSE_GIT_BLOB = "8026e81faee3e913d2fba1dba72d60603b69fa07"
-EXPECTED_CALENDAR_GIT_BLOB = "9ac614820a67b0f7b20d8170d15b84df3c996b62"
+EXPECTED_CALENDAR_GIT_BLOB = BASE_GIT_BLOB
 
 
 def _utc(value: object, description: str) -> datetime:
@@ -93,8 +102,12 @@ def build_future_h021_intent(
     if manifest.get("live_capital_allowed") is not False:
         raise ValueError("manifest cannot authorize capital")
 
-    if calendar.get("version") != "NSE-CM-FY27Q2-v1":
-        raise ValueError("not the frozen official 2026 calendar")
+    # The original v1 is retained for all observations before the reviewed
+    # Nov 2 effective week. Only source-pinned H021-P023 may supersede it.
+    if current_date >= NOV08_EFFECTIVE_FROM:
+        validate_effective_h021_calendar(calendar, capture_date_ist=current_day)
+    elif calendar.get("version") != "NSE-CM-FY27Q2-v1":
+        raise ValueError("not the frozen original official 2026 calendar")
     sessions = calendar.get("sessions")
     if not isinstance(sessions, list) or not sessions:
         raise TypeError("NSE calendar sessions missing")
@@ -219,7 +232,7 @@ def build_future_h021_intent(
             "capture_manifest_raw_sha256": manifest_raw_sha256,
             "source_version": comparison["source_version"],
             "universe_git_blob_sha": EXPECTED_UNIVERSE_GIT_BLOB,
-            "calendar_git_blob_sha": EXPECTED_CALENDAR_GIT_BLOB,
+            "calendar_git_blob_sha": expected_calendar_git_blob(current_day),
         },
         "universe_symbol_count": 100,
         "eligible_count": len(eligible),
@@ -251,5 +264,9 @@ def build_future_h021_intent(
         "portfolio_eligibility_allowed": False,
         "live_capital_allowed": False,
     }
+    if current_date >= NOV08_EFFECTIVE_FROM:
+        packet["source"]["effective_calendar_version"] = NOV08_VERSION
+        packet["source"]["effective_calendar_sha256"] = NOV08_SHA256
+        packet["source"]["official_calendar_amendment_sha256"] = NOV08_AMENDMENT_SHA256
     packet["packet_sha256"] = _sha(packet)
     return packet
