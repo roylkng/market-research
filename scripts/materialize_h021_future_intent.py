@@ -13,8 +13,11 @@ from pathlib import Path
 from typing import Any
 
 from marketlab.h021_first_entry_intent import git_blob_sha
+from marketlab.h021_calendar_supersession import (
+    expected_calendar_git_blob,
+    validate_effective_h021_calendar,
+)
 from marketlab.h021_future_intent import (
-    EXPECTED_CALENDAR_GIT_BLOB,
     EXPECTED_UNIVERSE_GIT_BLOB,
     build_future_h021_intent,
 )
@@ -41,14 +44,15 @@ def main() -> None:
     manifest, manifest_raw = _load_json(args.manifest)
     calendar, calendar_raw = _load_json(args.calendar)
     universe, universe_raw = _load_json(args.universe)
-    if git_blob_sha(calendar_raw) != EXPECTED_CALENDAR_GIT_BLOB:
-        raise ValueError("official frozen NSE calendar blob hash mismatch")
-    if git_blob_sha(universe_raw) != EXPECTED_UNIVERSE_GIT_BLOB:
-        raise ValueError("official frozen U001 universe blob hash mismatch")
-
     current_day = comparison.get("current_capture_date_ist")
     if not isinstance(current_day, str) or current_day <= "2026-10-09":
         raise ValueError("the first H021-P003 cohort may not be replaced by future P005")
+    validate_effective_h021_calendar(calendar, capture_date_ist=current_day)
+    if git_blob_sha(calendar_raw) != expected_calendar_git_blob(current_day):
+        raise ValueError("official reviewed NSE calendar blob hash mismatch")
+    if git_blob_sha(universe_raw) != EXPECTED_UNIVERSE_GIT_BLOB:
+        raise ValueError("official frozen U001 universe blob hash mismatch")
+
     expected_basename = f"{current_day}-primary-entry-intent-v2.json"
     if args.out.name != expected_basename:
         raise ValueError("output name does not match sealed H021 comparison date")
