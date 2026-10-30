@@ -174,3 +174,49 @@ def test_rejects_unresolved_muhurat_as_possible_next_market_open() -> None:
             comp, manifest, calendar, universe,
             when="2026-11-07T01:00:00Z",
         )
+
+
+NOV08_CALENDAR = Path(
+    "research/prospective/calendars/FY27-Q2-2026-09-06/"
+    "NSE-CM-FY27Q2-v2-Nov08-Muhurat.json"
+)
+
+
+def _nov08_future_fixture() -> tuple[dict, dict, dict, dict]:
+    comparison, manifest, _calendar, universe = _base()
+    comparison["prior_capture_date_ist"] = "2026-10-09"
+    comparison["current_capture_date_ist"] = "2026-11-08"
+    comparison["capture_interval_days"] = 30
+    for row in comparison["revision_observations"]:
+        row["prior_capture_date"] = "2026-10-09"
+        row["current_capture_date"] = "2026-11-08"
+    manifest["capture_date_ist"] = "2026-11-08"
+    manifest["logical_capture_id"] = "2026-11-08-full-u001-v1"
+    manifest["captured_at_utc"] = "2026-11-08T13:10:00Z"
+    calendar = json.loads(NOV08_CALENDAR.read_text(encoding="utf-8"))
+    return comparison, manifest, calendar, universe
+
+
+def test_future_intent_uses_only_reviewed_nov08_calendar_from_effective_week() -> None:
+    comparison, manifest, calendar, universe = _nov08_future_fixture()
+    intent = _build(
+        comparison, manifest, calendar, universe, when="2026-11-08T13:20:00Z"
+    )
+    assert intent["planned_entry"]["session_date_ist"] == "2026-11-09"
+    assert intent["source"]["calendar_git_blob_sha"] == "fd151df6ad8fcee88fff6d9c3ac700c0d38c9153"
+    assert intent["source"]["effective_calendar_sha256"] == calendar["sha256"]
+    assert intent["source"]["official_calendar_amendment_sha256"] == (
+        "618f143a76696cae500dec137db834c040fb861851998e2257d8f53bcc43f783"
+    )
+    assert intent["return_outcomes_opened"] is False
+    assert intent["live_capital_allowed"] is False
+
+
+def test_future_intent_refuses_old_calendar_or_tampered_nov08_source() -> None:
+    comp, manifest, amended, universe = _nov08_future_fixture()
+    old_calendar = json.loads(CALENDAR.read_text(encoding="utf-8"))
+    with pytest.raises(ValueError, match="version/digest"):
+        _build(comp, manifest, old_calendar, universe, when="2026-11-08T13:20:00Z")
+    amended["supersession"]["original_circular_pdf_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="provenance"):
+        _build(comp, manifest, amended, universe, when="2026-11-08T13:20:00Z")
