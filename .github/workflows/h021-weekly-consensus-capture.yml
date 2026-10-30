@@ -1,5 +1,5 @@
 name: H021 weekly consensus capture
-# Reviewed Nov 8 Muhurat calendar supersession pending in this branch.
+# Nov 8 special-session supersession is source-pinned and effective from Nov 2.
 
 on:
   workflow_dispatch:
@@ -11,6 +11,13 @@ on:
     - cron: '45 12 * * 1-5'
     - cron: '15 13 * * 1-5'
     - cron: '45 13 * * 1-5'
+    # Sunday runs are date-gated, and cannot seal on non-session Sundays.
+    # The early attempt is intentionally protected by the 18:15 IST gate;
+    # it also rescues a delayed GitHub cron that would otherwise cross midnight.
+    - cron: '15 11 * * 0'
+    - cron: '45 12 * * 0'
+    - cron: '15 13 * * 0'
+    - cron: '45 13 * * 0'
 
 permissions:
   contents: write
@@ -61,11 +68,15 @@ jobs:
           print(datetime.now(ZoneInfo('Asia/Kolkata')).date().isoformat())
           PY
           )"
+          CALENDAR="research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+          if [[ "$CAPTURE_DATE" > "2026-11-01" ]]; then
+            CALENDAR="research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v2-Nov08-Muhurat.json"
+          fi
           WORK="reports/h021-weekly-acquisition/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
           mkdir -p "$WORK"
           python scripts/check_h021_weekly_session.py \
             --capture-date "$CAPTURE_DATE" \
-            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --calendar "$CALENDAR" \
             --out "$WORK/session-decision.json"
           STATE="$(python - "$WORK/session-decision.json" <<'PY'
           import json
@@ -83,6 +94,7 @@ jobs:
               echo "H021 weekly capture already anchored on origin/main: ${CAPTURE_PATH}"
             fi
           fi
+          echo "calendar_path=$CALENDAR" >> "$GITHUB_OUTPUT"
           echo "capture_date=$CAPTURE_DATE" >> "$GITHUB_OUTPUT"
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
           echo "work_dir=$WORK" >> "$GITHUB_OUTPUT"
@@ -187,7 +199,7 @@ jobs:
             --comparison "research/prospective/h021/comparisons/${CAPTURE_DATE}-primary-revision-v1.json" \
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --batches research/prospective/h021/capture-batches-v1.json \
-            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --calendar "${{ steps.gate.outputs.calendar_path }}" \
             --out "research/prospective/ae001-h021/expectations/${CAPTURE_DATE}-v1.json"
 
       - name: Freeze next H021 research-only cohort before next open
@@ -203,7 +215,7 @@ jobs:
           python scripts/materialize_h021_future_intent.py \
             --comparison "research/prospective/h021/comparisons/$CAPTURE_DATE-primary-revision-v1.json" \
             --manifest "research/prospective/h021/captures/$CAPTURE_DATE-full-u001-v1.manifest.json" \
-            --calendar research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json \
+            --calendar "${{ steps.gate.outputs.calendar_path }}" \
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --out "research/prospective/h021/intents/$CAPTURE_DATE-primary-entry-intent-v2.json"
 
@@ -232,6 +244,8 @@ jobs:
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v2-Nov08-Muhurat.json"
+            "src/marketlab/h021_calendar_supersession.py"
             "scripts/check_h021_weekly_session.py"
             "scripts/acquire_h021_weekly_capture.py"
             "scripts/seal_h021_capture.py"
@@ -305,6 +319,8 @@ jobs:
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
+            "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v2-Nov08-Muhurat.json"
+            "src/marketlab/h021_calendar_supersession.py"
             "scripts/check_h021_weekly_session.py"
             "scripts/acquire_h021_weekly_capture.py"
             "scripts/seal_h021_capture.py"
