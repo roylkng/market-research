@@ -57,6 +57,12 @@ def test_oswal_award_scale_cash_risk_and_parent_standalone_receivables(evidence)
     assert x["FY26_group_CFO_crore"] == -77.076
     assert x["FY26_group_PPE_cash_outflow_crore"] == 134.889
     assert x["FY26_selected_CFO_after_PPE_crore_NOT_FCFE"] == -211.965
+    assert x["FY26_supplier_credit_within_borrowings_crore"] == 56.601
+    assert x["FY26_group_warranty_provision_crore"] == 24.854
+    assert x["FY26_parent_Walso_related_purchases_crore"] == 132.161
+    assert x["FY26_parent_Walso_payable_crore"] == 37.607
+    assert x["FY26_parent_group_intragroup_guarantee_crore"] == 70.51
+    assert x["no_duplicate_supplier_credit_or_guarantee_on_group_debt"] is True
     assert x["FY26_standalone_trade_receivables_crore"] == 1101.929
     assert x["FY25_standalone_trade_receivables_crore"] == 615.094
     assert x["FY26_standalone_trade_receivables_growth_pct"] == 79.15
@@ -111,6 +117,11 @@ def test_crizac_decline_cannot_turn_into_admitted_owner_catalyst(
 
 @pytest.mark.parametrize(("field","invalid"),[
     ("FY26_CONSOLIDATED_after_tax_CFO_million",770.76),
+    ("FY26_CONSOLIDATED_supplier_finance_already_within_current_borrowings_million",0),
+    ("FY26_CONSOLIDATED_warranty_provision_million",0),
+    ("FY26_STANDALONE_parent_guarantee_to_Oswal_Solar_million",0),
+    ("supplier_finance_can_be_added_to_reported_borrowings_again",True),
+    ("intragroup_guarantee_is_new_consolidated_debt",True),
     ("price_close_date","2026-10-30"),
     ("FY26_standalone_trade_receivables_million",100),
     ("order_solar_pumps",20000),
