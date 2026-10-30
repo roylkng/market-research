@@ -28,7 +28,9 @@ def test_crizac_q2_decline_earnings_and_tax_cross_checks(evidence):
     assert x["q2_revenue_qoq_pct"] == -48.98
     assert x["q2_PBT_yoy_pct"] == -38.08
     assert x["q2_PAT_yoy_pct"] == -25.04
-    assert x["h1_revenue_yoy_pct"] == -18.48
+    assert x["h1_revenue_yoy_pct"] == -18.27
+    assert x["h1_revenue_cross_quarter_reconciled"] is True
+    assert x["original_pdf_H1_line_and_PAT_scope_still_unverified"] is True
     assert x["h1_PAT_yoy_pct"] == -12.48
     assert x["h1_CFO_crore_not_owner_FCFE"] == 126.9221
     assert x["h1_UK_deferred_tax_asset_crore"] == 12.701
@@ -87,6 +89,10 @@ def test_cannot_upgrade_source_or_retrofit_study(evidence,field,invalid):
 
 @pytest.mark.parametrize(("field","invalid"),[
     ("q2_PAT_lakh",float("nan")),
+    ("h1_revenue_lakh",30307.85),
+    ("q1_revenue_lakh",20041.32),
+    ("press_release_PAT_vs_group_accounting_PAT_reconciliation_verified",True),
+    ("source_company_press_release_filed_local","2026-10-30T15:00:00+05:30"),
     ("source_released_time","2026-10-30T15:00:00+05:30"),
     ("share_count_from_dividend_consistency",180000000),
     ("source_NSE_named_attachment","fiction.pdf"),
