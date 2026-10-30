@@ -99,6 +99,31 @@ def replay(packet: dict) -> dict:
         or c["dividend_payment_deadline"] != "2026-11-27"
     ):
         raise ValueError("issuer share denominator or dividend changed")
+    # The same BSE transcription vendor printed 30,307.85 lakh H1 revenue,
+    # which cannot equal its reported Q1 20,121.32 + Q2 10,266.53.
+    # Preserve the discrepancy as provisional evidence; do not silently
+    # prefer an un-reconciled annualisation or mark raw PDF authenticated.
+    if (
+        c["h1_revenue_source_status"] !=
+        "RECONCILED_Q1_PLUS_Q2_30387_85_LAKH_THIRD_PARTY_H1_30307_85_CONFLICTS_PENDING_ORIGINAL_PDF"
+        or c["source_company_signed_exchange_press_release_text_mirror"] !=
+        "https://bazaarwatch.com/announcement/261768/crizac-limited-press-release"
+        or c["source_company_press_release_filed_local"] !=
+        "2026-10-30T17:52:00+05:30"
+        or measure(c, "press_release_PAT_million_rounded") != 369
+        or c["press_release_PAT_vs_group_accounting_PAT_reconciliation_verified"] is not False
+    ):
+        raise ValueError("unresolved original-vs-transcription or PAT scope")
+    h1_rev = measure(c, "h1_revenue_lakh")
+    if (abs(measure(c, "q1_revenue_lakh")
+                + measure(c, "q2_revenue_lakh") - h1_rev) > 0.01
+        or abs(h1_rev - 30387.85) > 0.01):
+        raise ValueError("H1 consolidated revenue must reconcile to both quarters")
+    if abs(measure(c,"q1_revenue_lakh") + measure(c,"q2_revenue_lakh")
+           - 30387.85) > 0.01:
+        raise ValueError("source Q1 or Q2 misreported")
+    if abs(measure(c,"q2_PAT_lakh")/100 - measure(c,"press_release_PAT_million_rounded")/10) < .01:
+        raise ValueError("issuer press PAT rounded different from group PAT, scopes unresolved")
     crizac_cash = measure(c, "h1_after_tax_operating_cash_lakh") / 100
     crizac_pat = measure(c, "h1_PAT_lakh") / 100
     crizac_mcap = shares_c * measure(c, "price_nse_close_2026_10_30_inr") / 1e7
@@ -187,6 +212,8 @@ def replay(packet: dict) -> dict:
                 measure(c,"q2_PAT_lakh"),measure(c,"q2_prior_PAT_lakh")),2),
             "h1_revenue_yoy_pct":round(pct(
                 measure(c,"h1_revenue_lakh"),measure(c,"h1_prior_revenue_lakh")),2),
+            "h1_revenue_cross_quarter_reconciled":True,
+            "original_pdf_H1_line_and_PAT_scope_still_unverified":True,
             "h1_PAT_yoy_pct":round(pct(
                 measure(c,"h1_PAT_lakh"),measure(c,"h1_prior_PAT_lakh")),2),
             "h1_CFO_crore_not_owner_FCFE":round(crizac_cash,4),
