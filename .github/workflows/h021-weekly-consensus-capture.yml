@@ -106,12 +106,31 @@ jobs:
         run: |
           set -euo pipefail
           WORK="${{ steps.gate.outputs.work_dir }}"
+          CONFIG="research/prospective/h021/weekly-acquisition-v1.json"
+          if [[ "${{ steps.gate.outputs.capture_date }}" > "2026-11-01" ]]; then
+            CONFIG="research/prospective/h021/weekly-acquisition-v2-Nov08.json"
+          fi
+          # Config metadata must identify the exact calendar already
+          # source-validated by the post-close gate.
+          python - "$CONFIG" "${{ steps.gate.outputs.calendar_path }}" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          config = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          calendar_path = Path(sys.argv[2])
+          calendar = json.loads(calendar_path.read_text(encoding="utf-8"))
+          if config.get("calendar_path") != str(calendar_path):
+              raise SystemExit("H021 acquisition metadata/calendar gate mismatch")
+          pinned = config.get("calendar_sha256")
+          if pinned is not None and pinned != calendar.get("sha256"):
+              raise SystemExit("H021 acquisition calendar SHA differs from reviewed gate")
+          PY
           python scripts/acquire_h021_weekly_capture.py \
             --capture-date "${{ steps.gate.outputs.capture_date }}" \
             --universe research/prospective/universes/FY27-Q2-2026-09-06.json \
             --batches research/prospective/h021/capture-batches-v1.json \
             --anchor research/prospective/h021/captures/2026-09-11-full-u001-v1.json.gz \
-            --config research/prospective/h021/weekly-acquisition-v1.json \
+            --config "$CONFIG" \
             --out-draft "$WORK/capture-draft.json" \
             --out-evidence "$WORK/source-evidence.json"
 
@@ -240,6 +259,7 @@ jobs:
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
+            "research/prospective/h021/weekly-acquisition-v2-Nov08.json"
             "research/prospective/ae001-h021"
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
@@ -315,6 +335,7 @@ jobs:
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
             "research/prospective/h021"
+            "research/prospective/h021/weekly-acquisition-v2-Nov08.json"
             "research/prospective/ae001-h021"
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
