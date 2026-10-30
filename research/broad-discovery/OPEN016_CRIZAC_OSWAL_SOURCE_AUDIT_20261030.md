@@ -72,6 +72,16 @@ The issuer's receivable note says **₹98.362cr gross** has experienced signific
 
 If **10%** of standalone March net receivables were hypothetically impaired, gross pre-tax book/earnings hit would be **₹110.193cr**, **4.61% of ~₹2,392cr** equity value **before taxes or lender effects**. This is **not an expected-credit-loss forecast** or proof debtors are bad. A larger haircut or funding stress also affects working capital and ability to execute new awards.
 
+### Source-note hidden commitments and related-party cash routing
+
+The [issuer FY26 audited annual report, reproduced as text](https://financialfilings.com/filings/oswal-pumps-limited/annual-report/2026/59465028/), discloses **₹56.601cr supplier credit** within **consolidated current borrowings**, with 0–90-day payment maturities (note 22.2). The explanatory paragraph ambiguously says the facility sits in *other current financial liabilities*, while its numerical statement expressly says **presented within borrowings**. This is a **classification inconsistency**, not evidence of additional ₹56.601cr hidden borrowing. Do **not** add the supplier-credit figure twice to consolidated debt or subtract it twice from equity. Resolve the original signed balance-sheet tie-out to the loan ledger and bank confirmations.
+
+The group also carried **₹24.854cr March 2026 aggregate warranty provisions** (note 20.1), against actual expected product service obligations. A **five-year repair, maintenance and RMS** requirement on the new 10,000-pump order makes gross billing **particularly unsuitable as owner cash**.
+
+FY26 **parent standalone** related-party note 39.8 records **₹132.161cr purchases** from **Walso Solar Solution** and **₹37.607cr payable** at March 2026. Walso was then an associate and became a **51%-owned subsidiary 8 June 2026**. Subsequent FY27 consolidation may eliminate part of intra-group revenue or purchases, changing group-versus-standalone comparisons. This does not by itself prove abusive transfer pricing. It establishes a **material procurement channel requiring related-party fairness and audited consolidation**.
+
+Separately, standalone Section 186 note 40 records a **₹70.510cr parental corporate guarantee** for Oswal Solar Energy borrowings outstanding at March 2026. It is a disclosed *intragroup contingent commitment*, **not automatically a second ₹70.510cr group debt charge**. Warranty and guarantee claims require scenario testing, and guarantees can move losses to the parent under subsidiary stress.
+
 **Important counterevidence:** FY26 group CFO improved from a more negative ₹142cr in FY25. Management reports Q4FY26 positive CFO of ~₹170.6cr and April26 collections ~₹116.4cr from nodal agencies. This supports some ability to collect, but **April cash cannot be moved retrospectively into FY26 CFO**. It must be verified against bank receipts and offset by fresh FY27 receivables.
 
 **Earmarked money:** Annual report lists **₹271.34cr unutilized IPO proceeds** earmarked for manufacturing/solar expansion and general-corporate purposes, predominantly in deposits. Treat neither as excess shareholder cash nor deduct it mechanically against equity market value. FY26 group net debt reference **₹134.6cr** is a separate measure. Planned solar module expansion to 1,570 MW and long warranty obligations require *incremental investment*.
