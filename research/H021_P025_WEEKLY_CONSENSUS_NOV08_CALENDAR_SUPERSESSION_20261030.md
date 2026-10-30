@@ -55,7 +55,13 @@ per-security executable closing price or any future outcome.
   ordinary GitHub scheduling delays have a safer same-day opportunity.
 - November 9 is not the final session in its own calendar week.
 - The AE001 expectations panel and H021 future-intent generator receive
-  the **same** versioned effective calendar as the capture gate. The
+  the **same** versioned effective calendar as the capture gate.
+- The source-acquisition v1 configuration is not changed. A separate
+  `weekly-acquisition-v2-Nov08.json` differs only in calendar provenance
+  (`calendar_path`, canonical SHA, reviewed amendment SHA). The collector
+  validates that this config matches the gate's selected calendar and
+  records it in its source-evidence receipt. EPS provider/fiscal-period and
+  all other source parameters are identical to frozen v1. The
   source-pinned future-intent path switches to the v2 Git blob on/after
   November 2 without rewriting any earlier intent.
 
