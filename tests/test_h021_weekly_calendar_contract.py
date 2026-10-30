@@ -219,3 +219,24 @@ def test_workflow_uses_effective_calendar_and_idempotent_sunday_gate() -> None:
         assert f"cron: '{cron}'" in workflow
     assert 'STATE="ALREADY_CAPTURED"' in workflow
     assert 'cancel-in-progress: false' in workflow
+
+
+def test_versioned_acquisition_config_does_not_change_eps_source_policy() -> None:
+    base_path = Path("research/prospective/h021/weekly-acquisition-v1.json")
+    v2_path = Path("research/prospective/h021/weekly-acquisition-v2-Nov08.json")
+    base = json.loads(base_path.read_text(encoding="utf-8"))
+    v2 = json.loads(v2_path.read_text(encoding="utf-8"))
+    amended = _nov08_calendar()
+    assert base["calendar_path"] == str(CALENDAR_PATH)
+    assert v2["calendar_path"] == str(NOV08_CALENDAR_PATH)
+    assert v2["calendar_sha256"] == amended["sha256"]
+    assert v2["calendar_supersession_source_sha256"] == NOV08_AMENDMENT_SHA256
+    for key in ("calendar_path", "calendar_sha256", "calendar_supersession_source_sha256"):
+        v2.pop(key, None)
+        base.pop(key, None)
+    assert v2 == base
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    assert "research/prospective/h021/weekly-acquisition-v2-Nov08.json" in workflow
+    assert 'if config.get("calendar_path") != str(calendar_path)' in workflow
+    assert 'if pinned is not None and pinned != calendar.get("sha256")' in workflow
+    assert '--config "$CONFIG"' in workflow
