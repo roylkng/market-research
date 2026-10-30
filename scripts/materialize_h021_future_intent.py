@@ -12,11 +12,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from marketlab.h021_first_entry_intent import git_blob_sha
 from marketlab.h021_calendar_supersession import (
     expected_calendar_git_blob,
     validate_effective_h021_calendar,
 )
+from marketlab.h021_first_entry_intent import git_blob_sha
 from marketlab.h021_future_intent import (
     EXPECTED_UNIVERSE_GIT_BLOB,
     build_future_h021_intent,
