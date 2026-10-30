@@ -169,7 +169,9 @@ def test_rejects_unresolved_muhurat_as_possible_next_market_open() -> None:
     manifest["capture_date_ist"] = "2026-11-06"
     manifest["logical_capture_id"] = "2026-11-06-full-u001-v1"
     manifest["captured_at_utc"] = "2026-11-06T13:00:00Z"
-    with pytest.raises(ValueError, match="unresolved NSE special session"):
+    # A 6-Nov observation is rejected even earlier now: the reviewed v2
+    # calendar is mandatory from Nov 2, so the unamended v1 cannot be used.
+    with pytest.raises(ValueError, match="version/digest"):
         _build(
             comp, manifest, calendar, universe,
             when="2026-11-07T01:00:00Z",
