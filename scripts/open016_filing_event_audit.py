@@ -171,6 +171,22 @@ def replay(packet: dict) -> dict:
         "owner_parent_cash_verified","value_ready"
     )):
         raise ValueError("Oswal gross contract cannot be owner earnings")
+    # March26 original consolidated note 22.2 counts supplier credit inside
+    # "Borrowings" (Rs 566.01mn). Narrative elsewhere references "other
+    # financial liabilities", so these must not be additive without a full
+    # consolidated debt classification reconciliation. Intragroup guarantees
+    # likewise are not a second consolidated borrowing.
+    if (
+        abs(measure(o,"FY26_CONSOLIDATED_supplier_finance_already_within_current_borrowings_million") - 566.01) > 0.005
+        or abs(measure(o,"FY26_CONSOLIDATED_warranty_provision_million") - 248.54) > 0.005
+        or abs(measure(o,"FY26_STANDALONE_Walso_related_goods_purchase_million") - 1321.61) > 0.005
+        or abs(measure(o,"FY26_STANDALONE_Walso_related_payable_million") - 376.07) > 0.005
+        or abs(measure(o,"FY26_STANDALONE_parent_guarantee_to_Oswal_Solar_million") - 705.10) > 0.005
+        or o["Walso_became_majority_owned_date"] != "2026-06-08"
+        or o["supplier_finance_can_be_added_to_reported_borrowings_again"] is not False
+        or o["intragroup_guarantee_is_new_consolidated_debt"] is not False
+    ):
+        raise ValueError("Oswal original financing/related party note modified or double counted")
     if measure(o,"FY26_CONSOLIDATED_after_tax_CFO_million",allow_negative=True) >= 0:
         raise ValueError("negative operating cash flow concealed")
     if measure(o,"FY25_CONSOLIDATED_after_tax_CFO_million",allow_negative=True) >= 0:
@@ -242,6 +258,17 @@ def replay(packet: dict) -> dict:
             "FY26_group_PPE_cash_outflow_crore":round(annual_capex_o,4),
             "FY26_selected_CFO_after_PPE_crore_NOT_FCFE":round(
                 annual_cfo_o-annual_capex_o,4),
+            "FY26_supplier_credit_within_borrowings_crore":round(
+                measure(o,"FY26_CONSOLIDATED_supplier_finance_already_within_current_borrowings_million")/10,4),
+            "FY26_group_warranty_provision_crore":round(
+                measure(o,"FY26_CONSOLIDATED_warranty_provision_million")/10,4),
+            "FY26_parent_Walso_related_purchases_crore":round(
+                measure(o,"FY26_STANDALONE_Walso_related_goods_purchase_million")/10,4),
+            "FY26_parent_Walso_payable_crore":round(
+                measure(o,"FY26_STANDALONE_Walso_related_payable_million")/10,4),
+            "FY26_parent_group_intragroup_guarantee_crore":round(
+                measure(o,"FY26_STANDALONE_parent_guarantee_to_Oswal_Solar_million")/10,4),
+            "no_duplicate_supplier_credit_or_guarantee_on_group_debt":True,
             "FY26_standalone_trade_receivables_crore":round(annual_net_rcv,4),
             "FY25_standalone_trade_receivables_crore":round(old_net_rcv,4),
             "FY26_standalone_trade_receivables_growth_pct":round(
