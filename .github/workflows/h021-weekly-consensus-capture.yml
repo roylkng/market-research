@@ -226,9 +226,13 @@ jobs:
             "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
-            "research/prospective/h021"
-            "research/prospective/ae001-h021"
-            "research/prospective/dr001-h021"
+            # A generated H021 future-cohort/source-packet is NOT a frozen acquisition input.
+            # Pin only immutable configuration and capture/comparison history. A change to
+            # any underlying frozen script, protocol, universe, or calendar still fails closed.
+            "research/prospective/h021/capture-batches-v1.json"
+            "research/prospective/h021/weekly-acquisition-v1.json"
+            "research/prospective/h021/captures"
+            "research/prospective/h021/comparisons"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
             "scripts/check_h021_weekly_session.py"
@@ -299,9 +303,13 @@ jobs:
             "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
-            "research/prospective/h021"
-            "research/prospective/ae001-h021"
-            "research/prospective/dr001-h021"
+            # A generated H021 future-cohort/source-packet is NOT a frozen acquisition input.
+            # Pin only immutable configuration and capture/comparison history. A change to
+            # any underlying frozen script, protocol, universe, or calendar still fails closed.
+            "research/prospective/h021/capture-batches-v1.json"
+            "research/prospective/h021/weekly-acquisition-v1.json"
+            "research/prospective/h021/captures"
+            "research/prospective/h021/comparisons"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
             "research/prospective/calendars/FY27-Q2-2026-09-06/NSE-CM-FY27Q2-v1.json"
             "scripts/check_h021_weekly_session.py"
