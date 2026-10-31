@@ -28,11 +28,7 @@ def _critical_path_blocks() -> list[list[str]]:
 
 def test_h021_guard_excludes_generated_future_cohort_packets() -> None:
     blocks = _critical_path_blocks()
-    forbidden_broad_paths = {
-        "research/prospective/h021",
-        "research/prospective/ae001-h021",
-        "research/prospective/dr001-h021",
-    }
+    forbidden_broad_paths = {"research/prospective/h021"}
     required = {
         ".github/workflows/h021-weekly-consensus-capture.yml",
         "research/H021_PROSPECTIVE_PROTOCOL_V1.md",
@@ -42,6 +38,9 @@ def test_h021_guard_excludes_generated_future_cohort_packets() -> None:
         "research/prospective/h021/weekly-acquisition-v1.json",
         "research/prospective/h021/captures",
         "research/prospective/h021/comparisons",
+        "research/prospective/h021/intents",
+        "research/prospective/ae001-h021",
+        "research/prospective/dr001-h021",
         "research/prospective/universes/FY27-Q2-2026-09-06.json",
         "scripts/acquire_h021_weekly_capture.py",
         "scripts/seal_h021_capture.py",
