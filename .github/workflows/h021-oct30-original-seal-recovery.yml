@@ -1,0 +1,62 @@
+name: H021 recover original Oct30 machine seal once (not a collector)
+
+on:
+  push:
+    branches:
+      - fix/h021-oct30-unrelated-future-packets-race-20261031
+    paths:
+      - scripts/recover_h021_oct30_original_seal.py
+      - .github/workflows/h021-oct30-original-seal-recovery.yml
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: h021-oct30-original-artifact-preservation
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact recovery branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install frozen H021 comparator
+        run: python -m pip install -e ".[dev]"
+
+      - name: Confirm no original Oct30 capture already exists on main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if git cat-file -e "origin/main:research/prospective/h021/captures/2026-10-30-full-u001-v1.manifest.json" 2>/dev/null; then
+            echo "::error::Original Oct30 capture already anchored on main. Refuse duplicate recovery."
+            exit 1
+          fi
+
+      - name: Validate and retain original Actions workflow artifact only
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/recover_h021_oct30_original_seal.py
+
+      - name: Commit recovered original bytes on review branch only
+        run: |
+          set -euo pipefail
+          git config user.name "marketlab-research-bot"
+          git config user.email "marketlab-research-bot@users.noreply.github.com"
+          git add research/prospective/h021/captures/2026-10-30-full-u001-v1.json.gz \
+                  research/prospective/h021/captures/2026-10-30-full-u001-v1.manifest.json \
+                  research/prospective/h021/captures/2026-10-30-full-u001-v1.md \
+                  research/prospective/h021/comparisons/2026-10-30-primary-revision-v1.json \
+                  reports/h021-weekly-acquisition/recovered-2026-10-30-run-41104775260
+          git commit -m "H021: preserve original Oct30 machine seal and EPS comparison [skip ci]"
+          git push origin HEAD:fix/h021-oct30-unrelated-future-packets-race-20261031
