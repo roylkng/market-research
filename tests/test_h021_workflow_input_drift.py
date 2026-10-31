@@ -11,7 +11,6 @@ import re
 import subprocess
 from pathlib import Path
 
-
 WORKFLOW = Path(__file__).resolve().parents[1] / ".github/workflows/h021-weekly-consensus-capture.yml"
 
 
