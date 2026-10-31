@@ -4,6 +4,7 @@ Only frozen H021 inputs and immutable capture/comparison histories belong in
 the source-drift guard. Generated future-cohort/source packets and other
 downstream materializations are not acquisition-rule changes.
 """
+
 from __future__ import annotations
 
 import re
