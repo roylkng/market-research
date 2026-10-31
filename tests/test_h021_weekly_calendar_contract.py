@@ -6,6 +6,17 @@ from pathlib import Path
 
 import pytest
 
+from marketlab.calendar_snapshot import load_calendar_snapshot
+from marketlab.h021_calendar_supersession import (
+    BASE_GIT_BLOB,
+    BASE_SHA256,
+    NOV08_AMENDMENT_SHA256,
+    NOV08_GIT_BLOB,
+    NOV08_SHA256,
+    expected_calendar_git_blob,
+    expected_calendar_path,
+    validate_effective_h021_calendar,
+)
 from marketlab.h021_stockanalysis_acquisition import (
     BEFORE_POST_CLOSE_WINDOW,
     CAPTURE,
@@ -129,3 +140,103 @@ def test_post_close_gate_rejects_naive_clock() -> None:
             _frozen_calendar(),
             observed_at_utc=datetime(2026, 10, 9, 13, 0, tzinfo=UTC).replace(tzinfo=None),
         )
+
+
+NOV08_CALENDAR_PATH = Path(
+    "research/prospective/calendars/FY27-Q2-2026-09-06/"
+    "NSE-CM-FY27Q2-v2-Nov08-Muhurat.json"
+)
+
+
+def _nov08_calendar() -> dict:
+    payload = json.loads(NOV08_CALENDAR_PATH.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    return payload
+
+
+def test_source_pinned_calendar_supersession_preserves_frozen_original() -> None:
+    original = _frozen_calendar()
+    amended = _nov08_calendar()
+    assert original["version"] == "NSE-CM-FY27Q2-v1"
+    assert original["sha256"] == BASE_SHA256
+    assert original["unresolved_special_dates"] == ["2026-11-08"]
+    assert not any(row["session_date"] == "2026-11-08" for row in original["sessions"])
+    assert load_calendar_snapshot(CALENDAR_PATH).sha256 == BASE_SHA256
+    assert load_calendar_snapshot(NOV08_CALENDAR_PATH).sha256 == NOV08_SHA256
+    assert amended["supersession"]["immutable_base_calendar_sha256"] == BASE_SHA256
+    assert amended["supersession"]["reviewed_h021_source_amendment_sha256"] == NOV08_AMENDMENT_SHA256
+    assert amended["supersession"]["individual_CAS_price_basis_verified"] is False
+    assert amended["holidays"] == original["holidays"]
+    assert len(amended["sessions"]) == len(original["sessions"]) + 1
+    assert expected_calendar_git_blob("2026-10-30") == BASE_GIT_BLOB
+    assert expected_calendar_git_blob("2026-11-08") == NOV08_GIT_BLOB
+    assert expected_calendar_path("2026-10-30") == str(CALENDAR_PATH)
+    assert expected_calendar_path("2026-11-08") == str(NOV08_CALENDAR_PATH)
+    validate_effective_h021_calendar(original, capture_date_ist="2026-10-30")
+    validate_effective_h021_calendar(amended, capture_date_ist="2026-11-08")
+
+
+def test_november_calendar_weekly_final_session_and_clock() -> None:
+    original = _frozen_calendar()
+    amended = _nov08_calendar()
+    assert weekly_session_decision("2026-10-30", original).state == CAPTURE
+    assert weekly_session_decision("2026-11-06", amended).state == NOT_FINAL_SESSION
+    assert weekly_session_decision("2026-11-08", amended).state == CAPTURE
+    assert weekly_session_decision("2026-11-09", amended).state == NOT_FINAL_SESSION
+    assert post_close_weekly_session_decision(
+        "2026-11-08", amended,
+        observed_at_utc=datetime(2026, 11, 8, 11, 45, tzinfo=UTC),
+    ).state == BEFORE_POST_CLOSE_WINDOW
+    assert post_close_weekly_session_decision(
+        "2026-11-08", amended,
+        observed_at_utc=datetime(2026, 11, 8, 13, 0, tzinfo=UTC),
+    ).state == CAPTURE
+    with pytest.raises(ValueError, match="unresolved NSE special-session"):
+        weekly_session_decision("2026-11-06", original)
+
+
+def test_calendar_supersession_rejects_drift_and_retroactive_use() -> None:
+    original = _frozen_calendar()
+    amended = _nov08_calendar()
+    with pytest.raises(ValueError, match="version/digest"):
+        validate_effective_h021_calendar(amended, capture_date_ist="2026-10-30")
+    with pytest.raises(ValueError, match="version/digest"):
+        validate_effective_h021_calendar(original, capture_date_ist="2026-11-08")
+    amended["supersession"]["individual_CAS_price_basis_verified"] = True
+    with pytest.raises(ValueError, match="provenance"):
+        validate_effective_h021_calendar(amended, capture_date_ist="2026-11-08")
+
+
+def test_workflow_uses_effective_calendar_and_idempotent_sunday_gate() -> None:
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    assert "NSE-CM-FY27Q2-v1.json" in workflow
+    assert "NSE-CM-FY27Q2-v2-Nov08-Muhurat.json" in workflow
+    assert 'if [[ "$CAPTURE_DATE" > "2026-11-01" ]]' in workflow
+    assert '--calendar "$CALENDAR"' in workflow
+    assert 'echo "calendar_path=$CALENDAR" >> "$GITHUB_OUTPUT"' in workflow
+    assert workflow.count('--calendar "${{ steps.gate.outputs.calendar_path }}"') == 2
+    for cron in ("15 11 * * 0", "45 12 * * 0", "15 13 * * 0", "45 13 * * 0"):
+        assert f"cron: '{cron}'" in workflow
+    assert 'STATE="ALREADY_CAPTURED"' in workflow
+    assert 'cancel-in-progress: false' in workflow
+
+
+def test_versioned_acquisition_config_does_not_change_eps_source_policy() -> None:
+    base_path = Path("research/prospective/h021/weekly-acquisition-v1.json")
+    v2_path = Path("research/prospective/h021/weekly-acquisition-v2-Nov08.json")
+    base = json.loads(base_path.read_text(encoding="utf-8"))
+    v2 = json.loads(v2_path.read_text(encoding="utf-8"))
+    amended = _nov08_calendar()
+    assert base["calendar_path"] == str(CALENDAR_PATH)
+    assert v2["calendar_path"] == str(NOV08_CALENDAR_PATH)
+    assert v2["calendar_sha256"] == amended["sha256"]
+    assert v2["calendar_supersession_source_sha256"] == NOV08_AMENDMENT_SHA256
+    for key in ("calendar_path", "calendar_sha256", "calendar_supersession_source_sha256"):
+        v2.pop(key, None)
+        base.pop(key, None)
+    assert v2 == base
+    workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+    assert "research/prospective/h021/weekly-acquisition-v2-Nov08.json" in workflow
+    assert 'if config.get("calendar_path") != str(calendar_path)' in workflow
+    assert 'if pinned is not None and pinned != calendar.get("sha256")' in workflow
+    assert '--config "$CONFIG"' in workflow
