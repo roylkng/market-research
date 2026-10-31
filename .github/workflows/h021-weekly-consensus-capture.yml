@@ -226,7 +226,14 @@ jobs:
             "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
-            "research/prospective/h021"
+            # A generated H021 future-cohort/source-packet is NOT a frozen acquisition input.
+            # Pin H021 configuration, capture/comparison/intent histories, and all staged
+            # AE001/DR001 paths. Any rule drift or overlapping anchor still fails closed.
+            "research/prospective/h021/capture-batches-v1.json"
+            "research/prospective/h021/weekly-acquisition-v1.json"
+            "research/prospective/h021/captures"
+            "research/prospective/h021/comparisons"
+            "research/prospective/h021/intents"
             "research/prospective/ae001-h021"
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
@@ -299,7 +306,14 @@ jobs:
             "research/dr001/dr001-pre-h021-evidence-2026-10-04-v1.json"
             "research/company-dossiers/2026-10-03/dr001-tier-a-v1.json"
             "registry/ae001_h021_expectations_family.yaml"
-            "research/prospective/h021"
+            # A generated H021 future-cohort/source-packet is NOT a frozen acquisition input.
+            # Pin H021 configuration, capture/comparison/intent histories, and all staged
+            # AE001/DR001 paths. Any rule drift or overlapping anchor still fails closed.
+            "research/prospective/h021/capture-batches-v1.json"
+            "research/prospective/h021/weekly-acquisition-v1.json"
+            "research/prospective/h021/captures"
+            "research/prospective/h021/comparisons"
+            "research/prospective/h021/intents"
             "research/prospective/ae001-h021"
             "research/prospective/dr001-h021"
             "research/prospective/universes/FY27-Q2-2026-09-06.json"
