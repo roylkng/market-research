@@ -52,7 +52,9 @@ def test_h021_guard_excludes_generated_future_cohort_packets() -> None:
 
 def test_git_diff_pathspec_ignores_generated_future_packets_but_detects_rule_drift(tmp_path: Path) -> None:
     paths = _critical_path_blocks()[0]
-    assert paths == _critical_path_blocks()[1]
+    # Git pathspec membership is order-independent; both guards must pin the same paths.
+    assert len(paths) == len(set(paths)), "duplicate protected path"
+    assert set(paths) == set(_critical_path_blocks()[1])
 
     def git(*args: str) -> str:
         result = subprocess.run(
