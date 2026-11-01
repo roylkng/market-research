@@ -246,6 +246,8 @@ def main() -> None:
         "capture_date_ist": args.capture_date,
         "started_at_utc": started_at_utc,
         "acquisition_contract_path": ACQUISITION_CONTRACT_PATH,
+        "acquisition_config_calendar_path": config.get("calendar_path"),
+        "acquisition_config_calendar_sha256": config.get("calendar_sha256"),
         "anchor_path": str(args.anchor),
         "universe_path": str(args.universe),
         "batch_spec_path": str(args.batches),
