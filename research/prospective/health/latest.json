@@ -1,9 +1,8 @@
 {
   "after_market_close": true,
   "as_of_date": "2026-11-04",
-  "blocker_count": 4,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
@@ -51,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 13,
+      "eligible_session_count": 14,
       "expected_latest_session": "2026-11-03",
-      "latest_eligible_session": "2026-11-02",
-      "ledger_sha256": "643f9f24ff1c2123351607513cff99021fa538b8c31f39aa4cde24b20a429843",
-      "state": "STALE"
+      "latest_eligible_session": "2026-11-04",
+      "ledger_sha256": "29cca3826a8a0ec851c3847b32cf45dc0fa88a76dbaca5282158c756b80d9906",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 246,
@@ -75,13 +74,13 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 9,
-      "decision_ledger_sha256": "88e45f4386c3d198efe0b647ddab0ca7d58d62dd07bfe7a3412f4c288a2013ee",
-      "latest_readiness_session": "2026-11-02",
-      "mature_outcome_fraction": 0.8888888888888888,
+      "decision_count": 10,
+      "decision_ledger_sha256": "338820c49a65528bc39fba23ad9cf594fea1efbdee9940a8c9c92a20e744b78e",
+      "latest_readiness_session": "2026-11-04",
+      "mature_outcome_fraction": 0.8,
       "outcome_count": 8,
       "outcome_ledger_sha256": "d22142824a6adfdd898d0e30d88b02884d1bcc1619777cfe940b09daaa585f72",
-      "readiness_sha256": "63b816c43426ab1d1d8675501658653d8f1dac20753d92eb34bdce4c3545a928",
+      "readiness_sha256": "b4f8ff5525f306918a17a3e927852a2ce6e4585913f0c4caba2ce6260a1500f9",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -205,5 +204,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "f2184cefbbed8949784dc83a02a3850aabffbb19ca0bf45c1c45c2f074629733"
+  "summary_sha256": "e2cca483b994733c440b32865255545821b37e64fb9c23e3c39d77c3135271b1"
 }
