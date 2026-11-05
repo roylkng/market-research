@@ -19983,9 +19983,119 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-05T17:35:33.305156+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "captured_at": "2026-11-05T17:42:00.698224+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 2
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "786376fb2ac82733f8582989a89ae0270cee84635676405e7461b9afef0d6a96",
+      "identity_session": "2026-11-04",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "dafb2cf0d4f6ad342c6e16fe35c43650c26775229ff1767895cc00e259f83a39",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 2,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-05T17:41:20.590305+00:00"
     }
   ],
-  "ledger_sha256": "ad666eee8348d462f660e27858d23c56e4c6572e94be00bfa95493bf93c6df02",
+  "ledger_sha256": "6b43bf5daa706e0af3e59bffed8cc50f34fbcc1c84d8d808c8a001cb16daf731",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1579210,6 +1579320,245 @@
       "source_id": "mint-markets",
       "title_sha256": "93641114a8292d55e7125d5d7b348b2000a3e292504ec7682b455270a90d6ea8",
       "topics": []
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-05T17:41:27.092439+00:00",
+      "item_id": "048d47672d7779ef583f5912539b8312c15fbf1485634eb31d97900da39650ee",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9d3a1d8fd2ab22568118d55292c45bc927339e5620c79958555a06eca0b597f0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 5 Nov 2026 17:36:00 +0000",
+        "value": "2026-11-05T17:36:00+00:00"
+      },
+      "resource_key": "prn:302931132",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "fe1d6fc6c8fa4c86895aa558f72f7b0fe6825a35d09e103205224615e37de267",
+      "topics": []
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-05T17:41:27.092439+00:00",
+      "item_id": "68c392071d2e41063e49cce8026e3661df9720bf090c5479a0598c8bcc365ac3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c7dd4a08e1f0e3ce1b0453533dcc2bb8c207ba1764dfd143fd015fe4cc9a17ba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 5 Nov 2026 17:38:00 +0000",
+        "value": "2026-11-05T17:38:00+00:00"
+      },
+      "resource_key": "prn:302931134",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "912a6f914caccc85e4a3c786cd226feb66807ef7d1ce8b753ca01619d27468cf",
+      "topics": []
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "Sai Life Sciences Limited has informed the Exchange regarding Allotment of 108005 Shares. |SUBJECT: ESOP/ESOS/ESPS",
+      "event_context_sha256": "6297fd9e096faf52ea472689dc6351411c1170b4cfcceffbd7f7ed762ffd1469",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "d923d23b80339435a0c31423ecad87582ac5afbc3a5155671da4650836fc6589",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SAILIFE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "072ea8aec209fa3b1db33bd309d8f0dff45a2ed36136f3174d9c7dffbc2ba581",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:05:57",
+        "value": "2026-11-05T17:35:57+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SAILIFE_05112026230549_Stx_Outcome_of_BM_05112026_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6a55f4f057a7863c45473fbb3f14b2d165de39dae59e04a58927654b05a72858",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "ARABIAN PETROLEUM LIMITED has informed the Exchange about Awarding of order(s)/contract(s)-(Sub-para 4-Para B) |SUBJECT: Awarding of order(s)/contract(s)-(Sub-para 4-Para B)",
+      "event_context_sha256": "8d969baf068465e82df35d12bb9d133474c9f15c54f2d744140aaf70d3e01928",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "e501046ee985b8e3cc21fa94a3ee3fab4a3b3d15a294777106feed8e681d6fcd",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0bccefe1376c7754e69476ad69cb8bcfa6bc1f9c33609c050d520c1d8a7fbb7e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:09:21",
+        "value": "2026-11-05T17:39:21+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_20857_WebXMLFile_20261105_230920504.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e608297610b2a848fbe920e71143ec8e1d9df013426c27ab868cc6c6a0926218",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "Modi Naturals Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "1ef555237074703d290f43f438d94eeec87dbee3c629a25509a5b408d7c9a86b",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "caedb0f791949c351feb3eb4bdb29f8ec337c61fbdff1e6a24627d40958faa3b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MODINATUR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5ed82c2ba3880544a1c3e106c4aa29a3c3617768e45975c31f503b15be787476",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:09:28",
+        "value": "2026-11-05T17:39:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MODINATURALS_05112026230832_Final_outcome_sep_qtr.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d5dee65e6da803c749a5cc20c734be733fcbb671a9dacd8b6ef66df550d6620a",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "Cambridge Technology Enterprises Limited has informed the Exchange about Board Meeting to be held on 12-Nov-2026 to inter-alia consider and approve the Unaudited Financial results of the Company for the Quarterly ended September 2026 . |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "2cf507359c2ec0064961526ef41434917f060ccfbeb6007daf8aa8ad4db4158c",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "e8951d341423efab26af0e70e89798d3b5d63b2b24a0a219dc379de6edf350de",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9e777ea74a850f445b71e1e2024f734f142edfa02682f91149d65344f238a956",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:09:59",
+        "value": "2026-11-05T17:39:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_2522_WebXMLFile_20261105_230958879.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "999e5b76720b1fc6ef0cc9f7c35426e4c08f80a0681023b72b0b10a8e7901b59",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "MOLBIO DIAGNOSTICS LIMITED has informed the Exchange about Audio Recording/Video Recording |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "1116d4c41f3a5238b7200e20f9a49d0d503de0263d02cf72171c08d57029671f",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "cf12f5a49ce65f064e7d153f729dd4231a06e54f7a7fb5ed3fa71376033c9c8b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MOLBIO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "aefbf2fde64ddd875c5050e074a3b1d55b202930971375eb4f719e52d40d6754",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:08:04",
+        "value": "2026-11-05T17:38:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_26787_WebXMLFile_20261105_230801501.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "201e59593df8d62cb67a50b160ee9fb26f47609cfbea0cac1c15a74cd2c0e184",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "Molbio Diagnostics Limited has informed the Exchange about Link of Recording of Earnings Call held on November 05,2026 for the quarter and half year ended September30, 2026. |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "a022c5ce694fc4a3d42087c144a3c0d866163e8449207e588dff7104622fed9f",
+      "first_seen_at": "2026-11-05T17:41:27.357984+00:00",
+      "item_id": "68790428dffef75f09d0e9c8c332745306d7b2762d84d259921369a64c66304c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MOLBIO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fda6b5a1a20d14ecfa745da8dd74510f78360ee1ba91ab07660f6e19ed9a868c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "05-Nov-2026 23:05:34",
+        "value": "2026-11-05T17:35:34+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MOLBIO_05112026230157_Intimation_of_Audio_recording_Signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "201e59593df8d62cb67a50b160ee9fb26f47609cfbea0cac1c15a74cd2c0e184",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "557dea0492e1c3b6823724f48986b68e42f36978632f3ae296845c1254e0d713",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-05T17:41:56.876243+00:00",
+      "item_id": "8e184d905e96e18475e397fd1c1c40d60937d2fa5d7a72ba53bb5d53e355ebe7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2f73cd49d5ccd23202a941da01abe954a09a93873e5b38b63828aad5579f6696",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 05 Nov 2026 23:02:20 +0530",
+        "value": "2026-11-05T17:32:20+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/jio-launches-voice-only-plans-from-147-how-do-prices-compare-with-airtel-and-vi-11793897722541.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "7f1787ee5ba0f7bf9952d44edcc2ebbdcdce4bc64fe3347093c6a61e137cd0ac",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
     }
   ],
   "schema_version": 1
