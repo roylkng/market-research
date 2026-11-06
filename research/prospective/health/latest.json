@@ -1,8 +1,9 @@
 {
   "after_market_close": true,
   "as_of_date": "2026-11-06",
-  "blocker_count": 3,
+  "blocker_count": 4,
   "blockers": [
+    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
@@ -51,18 +52,18 @@
     },
     "SC001": {
       "eligible_session_count": 15,
-      "expected_latest_session": "2026-11-05",
+      "expected_latest_session": "2026-11-06",
       "latest_eligible_session": "2026-11-05",
       "ledger_sha256": "80e44e5f8040b899064e03c6a0b1ad0d822c7c7f7aef6a7e1758863c340644cb",
-      "state": "HEALTHY"
+      "state": "STALE"
     },
     "SC002": {
-      "attempt_count": 270,
+      "attempt_count": 271,
       "eligible_before_1830_session_count": 0,
-      "late_ready_session_count": 20,
-      "latest_ready_session": "2026-11-03",
-      "ledger_sha256": "5244a64332db22d2b4f0c23e504e3eb93e4efda611ff294d462c8e42e6756d34",
-      "ready_session_count": 20,
+      "late_ready_session_count": 21,
+      "latest_ready_session": "2026-11-06",
+      "ledger_sha256": "35bbc1692bcb2209a55a8a638426dff9bf18d42e1b06c51ab8e53f25dd7c0fef",
+      "ready_session_count": 21,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
@@ -170,7 +171,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "5244a64332db22d2b4f0c23e504e3eb93e4efda611ff294d462c8e42e6756d34",
+        "source_ledger_sha256": "35bbc1692bcb2209a55a8a638426dff9bf18d42e1b06c51ab8e53f25dd7c0fef",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -202,9 +203,9 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-11-05",
+  "latest_expected_market_session": "2026-11-06",
   "live_capital_allowed": false,
-  "sc001_source_cutoff_passed": false,
+  "sc001_source_cutoff_passed": true,
   "schema_version": 1,
-  "summary_sha256": "9db049d93c6d524e968e20053ef2770ab13ca9bffd50994837c205e50f9b6b4d"
+  "summary_sha256": "00f2a75f1b5eead0642e2b0e45bd9d1ff239ee52a816fbac8380220bcbf9051a"
 }
