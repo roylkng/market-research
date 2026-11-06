@@ -554,11 +554,12 @@ def label_episode(
                 raise AlphaContractError(
                     "HG006 D002 P1 censored state carries terminal evidence"
                 )
-        elif track["terminal_state"] == PRIMARY_CONFLICT:
-            if terminal_date is not None or not track["terminal_evidence"]:
-                raise AlphaContractError(
-                    "HG006 D002 P1 conflict state evidence invalid"
-                )
+        elif track["terminal_state"] == PRIMARY_CONFLICT and (
+            terminal_date is not None or not track["terminal_evidence"]
+        ):
+            raise AlphaContractError(
+                "HG006 D002 P1 conflict state evidence invalid"
+            )
 
     return {
         "episode_id": episode["episode_id"],
