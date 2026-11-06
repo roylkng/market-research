@@ -20652,9 +20652,123 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-06T16:54:07.492748+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "3ab223ddede70d35e20f0309bfed2caa8d68d65d8113699ce2eab746090785dd",
+      "captured_at": "2026-11-06T16:59:18.094636+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 6
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "3b0abdcb89fdc7a7fb57a26b38c01b0df555f9a1b2463b9be5b55eebc22088e2",
+      "identity_session": "2026-11-05",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "14586a833797f6751ddd3c7c48bfd9d966fe9b9bd5775b8dc047435360a728fd",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 6,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-06T16:58:25.436615+00:00"
     }
   ],
-  "ledger_sha256": "b93abc576323c2a3ba7195c0a4dd7351a07359948956c626f6c16f7d7d64f4cc",
+  "ledger_sha256": "07a2d5808b067004823427d68dc4bf7e65b0396a2800b5aa73e696393a692682",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1656613,6 +1656727,112 @@
       "source_id": "mint-markets",
       "title_sha256": "ea45c0f7a3769974d05692eed10d3767289b26d6b6f66d66a7f92006f19ab4cd",
       "topics": []
+    },
+    {
+      "capture_id": "3ab223ddede70d35e20f0309bfed2caa8d68d65d8113699ce2eab746090785dd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-06T16:58:33.009027+00:00",
+      "item_id": "3b2ba62807b13e2cc8372ec783b9b447112e36ed672dbcff2c4601564c133282",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0e46318fa9e94144ae2c52777764e95b5d4be56f3195bbb1a20eb6ae492634dc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 6 Nov 2026 16:54:00 +0000",
+        "value": "2026-11-06T16:54:00+00:00"
+      },
+      "resource_key": "prn:302932207",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "1cd7576469ab10655a174b260cdf21ea9db02b7384c3a2605926ddba5e365111",
+      "topics": []
+    },
+    {
+      "capture_id": "3ab223ddede70d35e20f0309bfed2caa8d68d65d8113699ce2eab746090785dd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-06T16:58:33.009027+00:00",
+      "item_id": "d8f70d879372328e2489ab304066bb96b9320bd51fdf96cc90dfcc681c0dffa8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "34ed8941233c991e39a041d43b355e1fcb11fb619604f94a4654ad9ee3862f47",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 6 Nov 2026 16:55:00 +0000",
+        "value": "2026-11-06T16:55:00+00:00"
+      },
+      "resource_key": "prn:302932103",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "becfea3bcb8415e0ff4017d96238e17ed6545346d6e48278c002b13ac405dd3e",
+      "topics": []
+    },
+    {
+      "capture_id": "3ab223ddede70d35e20f0309bfed2caa8d68d65d8113699ce2eab746090785dd",
+      "event_context": "Intimation under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 |SUBJECT: General Updates",
+      "event_context_sha256": "1a1e703a9a04d22c64a1bcba315b0993a0ef668aff3a0dc68462fbf0e7dfe6cc",
+      "first_seen_at": "2026-11-06T16:58:33.694157+00:00",
+      "item_id": "96f014434f53bd5c58ccadc66bf7716f5010b544a7e310d79cb1d077e9f3ddd0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "VIKRAN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b05182b93b654abefa3d5aa67cff35f31b94319905fb359e159364337b13c30b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "06-Nov-2026 22:26:52",
+        "value": "2026-11-06T16:56:52+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/VIKRAN123_06112026222638_Intimation_of_Warning_Letter_-_SEBI.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c51145e8eb477fad7ab3f639a684489a0374297112aa874246a9a4d64dcc5b68",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "3ab223ddede70d35e20f0309bfed2caa8d68d65d8113699ce2eab746090785dd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-06T16:59:09.298299+00:00",
+      "item_id": "eb0f53766cf3e78d9a687535676c15027bf53ea8f7f2bf159c740c9aa58ae0a6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "TATAPOWER"
+        ],
+        "panel_symbols": [
+          "TATAPOWER"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "107b1c280f8f18a68c51d08cbaccb3395257c400c62aec88fd24934e3f558910",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 06 Nov 2026 22:24:04 +0530",
+        "value": "2026-11-06T16:54:04+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/tata-power-commissions-300-mw-solar-project-in-karnataka-to-cut-1-lakh-tonnes-of-carbon-emissions-yearly-11793982901002.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "c88b5fdc8bf063f354cf7ac371a383e0f1d2098eb78e02c4854557d026f0bac4",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
     }
   ],
   "schema_version": 1
