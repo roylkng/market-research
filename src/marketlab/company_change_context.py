@@ -17,6 +17,7 @@ from urllib.parse import urlencode, urlsplit
 from zoneinfo import ZoneInfo
 
 from marketlab.company_change import ChangeError, canonical_hash, finite, timestamp
+from marketlab.company_change_context_quality import guarded_periods, resolve_xml_identity
 from marketlab.company_change_pipeline import fetch_original, project_html
 from marketlab.company_change_prices import archive_close, quote_session
 from marketlab.company_change_store import EvidenceStore, loads_unique, writable_workspace
@@ -114,6 +115,8 @@ def parse_actions(payload, symbol: str, start: str, end: str) -> dict:
 
 
 def number(period: dict | None, field: str) -> float | None:
+    if period and field in period.get("context_quality", {}).get("withheld_fields", []):
+        return None
     fact = period.get("facts", {}).get(field) if period else None
     if fact is None:
         return None
@@ -169,6 +172,7 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
             raise ChangeError("historical evidence unavailable at cutoff")
         if day(p["period_start"]) > day(p["period_end"]) or day(p["period_end"]) > cutoff.date():
             raise ChangeError("invalid financial period")
+    periods = guarded_periods(periods)
     current_options = [p for p in periods if p["period_end"] == current_end]
     # Same-end overlapping source periods are selected explicitly, never added.
     ends = sorted({(p["period_start"], p["period_end"]) for p in current_options})
@@ -200,6 +204,11 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
                    "sources": [period_refs(p) for p in (annual, interim, prior)],
                    "basis": "REPORTED_CROSS_DOCUMENT_NOT_NORMALIZED_OR_RESTATEMENT_RECONCILED"}
     blockers = []
+    checks = [{"period_start": p["period_start"], "period_end": p["period_end"],
+               "source_url": p["source_url"], "raw_sha256": p["raw_sha256"],
+               **p["context_quality"]["attribution"]} for p in periods]
+    if annual and annual["context_quality"]["withheld_fields"]:
+        blockers.append("Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.")
     if not current_options:
         blockers.append("No parsed financial evidence for the current anchor period.")
     eps = number(annual, "diluted_eps")
@@ -242,6 +251,7 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
             "A single year-ago comparison does not establish multi-year seasonality or sustainable growth."]
     return {"identity": identity, "as_of": as_of, "current_period_end": current_end,
             "year_ago_comparisons": comparisons, "reported_ttm_flows": ttm,
+            "accounting_checks": checks,
             "annual_evidence": period_refs(annual) if annual else None,
             "reported_annual_diluted_eps": eps, "quote": quote, "corporate_actions": actions,
             "price_over_reported_annual_eps": ratio, "reverse_hurdle_scenarios": scenarios,
@@ -249,10 +259,17 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
             "live_capital_allowed": False, "validated_predictive_edge": False}
 
 
-def parse_document(raw: bytes, url: str, identity: dict, known_at: str, published_at: str) -> list:
+def parse_document(raw: bytes, url: str, identity: dict, known_at: str, published_at: str,
+                   *, store=None, fetcher=fetch_original) -> list:
+    resolution = None
+    source_identity = dict(identity)
     if urlsplit(url).path.lower().endswith(".xml"):
         from marketlab.company_change_financials import extract_financials
-        periods = extract_financials(raw, identity, known_at)["periods"]
+        if store is not None:
+            source_identity, resolution = resolve_xml_identity(raw, identity, published_at, store, fetcher=fetcher)
+            if resolution:
+                known_at = max(timestamp(known_at), timestamp(resolution["observed_at"])).isoformat()
+        periods = extract_financials(raw, source_identity, known_at)["periods"]
     else:
         tables, _ = project_html(raw)
         selectors = set()
@@ -279,7 +296,8 @@ def parse_document(raw: bytes, url: str, identity: dict, known_at: str, publishe
                             "facts": {mapping.get(k, k): v for k, v in statement["facts"].items()}})
     digest = hashlib.sha256(raw).hexdigest()
     return [{**p, "identity": identity, "source_url": url, "raw_sha256": digest,
-             "known_at": known_at, "published_at": published_at} for p in periods]
+             "known_at": known_at, "published_at": published_at,
+             "source_identity": source_identity, "identity_resolution": resolution} for p in periods]
 
 
 def discover_history(client, store, identity: dict, current_end: str) -> tuple[list, list]:
@@ -348,7 +366,7 @@ def refresh_one(store, client, anchor: dict, *, max_documents=4, fetcher=fetch_o
         if not published:
             raise ChangeError("current filing publication time is unknown")
         periods.extend(parse_document(store.read_blob(anchor["raw_sha256"]), anchor["url"], identity,
-                                      store.clock(), published))
+                                      store.clock(), published, store=store, fetcher=fetcher))
     except (ValueError, TypeError, KeyError, OSError) as exc:
         errors.append({"stage": "current_document", "reason": str(exc)})
     try:
@@ -358,7 +376,7 @@ def refresh_one(store, client, anchor: dict, *, max_documents=4, fetcher=fetch_o
                 raw, final_url = fetcher(item["url"], HOSTS)
                 cap = store.capture(raw, {"identity": identity, **item, "final_url": final_url, "lane": VERSION,
                                           "origin": "HTTP_RESPONSE_BYTES"})
-                periods.extend(parse_document(raw, item["url"], identity, store.clock(), item["published_at"]))
+                periods.extend(parse_document(raw, item["url"], identity, store.clock(), item["published_at"], store=store, fetcher=fetcher))
                 receipts.append({"url": item["url"], "raw_sha256": cap["raw_sha256"], "observed_at": cap["captured_at"]})
             except (ValueError, TypeError, KeyError, OSError) as exc:
                 errors.append({"stage": "historical_document", "url": item["url"], "reason": str(exc)})
@@ -395,7 +413,7 @@ def refresh_one(store, client, anchor: dict, *, max_documents=4, fetcher=fetch_o
         card["price_over_reported_annual_eps"] = None
         card["reverse_hurdle_scenarios"] = []
     card.update(source_receipts=receipts, retrieval_errors=errors, anchor_sha256=anchor["raw_sha256"],
-                financial_periods=periods, evidence_mode="OBSERVED_NOW_HISTORICAL_RECONSTRUCTION")
+                financial_periods=guarded_periods(periods), evidence_mode="OBSERVED_NOW_HISTORICAL_RECONSTRUCTION")
     card["card_sha256"] = canonical_hash(card)
     return card
 
