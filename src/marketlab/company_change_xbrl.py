@@ -19,11 +19,11 @@ CONCEPTS = {
     'pretax_exceptional_items': ('ExceptionalItemsBeforeTax',),
     'tax_expense': ('TaxExpense', 'TotalTaxExpense'),
     'reported_pat': ('ProfitLossForPeriod',),
-    'owner_pat': ('ProfitLossAttributableToOwnersOfParent',),
-    'noncontrolling_pat': ('ProfitLossAttributableToNonControllingInterests',),
+    'owner_pat': ('ProfitLossAttributableToOwnersOfParent', 'ProfitOrLossAttributableToOwnersOfParent'),
+    'noncontrolling_pat': ('ProfitLossAttributableToNonControllingInterests', 'ProfitOrLossAttributableToNonControllingInterests'),
     'basic_eps': ('BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations',),
     'diluted_eps': ('DilutedEarningsLossPerShareFromContinuingAndDiscontinuedOperations',),
-    'paid_up_capital': ('PaidupEquityShareCapital', 'EquityShareCapital'),
+    'paid_up_capital': ('PaidupEquityShareCapital', 'EquityShareCapital', 'PaidUpValueOfEquityShareCapital'),
     'face_value': ('FaceValueOfEquityShareCapital',),
 }
 
@@ -134,8 +134,14 @@ def extract_xbrl(raw: bytes, item: dict) -> list[dict]:
         fingerprint = canonical_hash({k: (v['value'], v['unit']) for k, v in extracted.items()})
         if key in records and records[key]['facts_sha256'] != fingerprint:
             raise ChangeError('conflicting XBRL contexts for identical period and scope')
+        warnings = []
+        if {'owner_pat', 'noncontrolling_pat', 'reported_pat'} <= extracted.keys():
+            residual = extracted['owner_pat']['value'] + extracted['noncontrolling_pat']['value'] - extracted['reported_pat']['value']
+            if abs(residual) > max(0.02, abs(extracted['reported_pat']['value']) * 0.001):
+                warnings.append('Reported owner plus minority profit does not reconcile with group profit. Review the issuer filing before using attributable earnings.')
         records.setdefault(key, {'selector': selector, 'facts': extracted, 'facts_sha256': fingerprint,
-                                 'context_id': cid, 'bridge': earnings_bridge({'facts': extracted})})
+                                 'context_id': cid, 'warnings': warnings,
+                                 'bridge': earnings_bridge({'facts': extracted})})
     if not records:
         raise ChangeError('no supported undimensioned XBRL financial context')
     if not any(r['selector']['period_end'] == item['period_end'] for r in records.values()):
@@ -161,6 +167,7 @@ def persist_xbrl(store, raw: bytes, item: dict, final_url: str) -> list[dict]:
             **{k: item[k] for k in ('symbol', 'isin', 'url')}, 'kind': 'earnings_quality',
             'source_id': source_id, 'identity': identity, 'selector': selector,
             'facts': record['facts'], 'facts_sha256': record['facts_sha256'], 'bridge': record['bridge'],
+            'warnings': record['warnings'],
             'requires_review': True, 'evidence_mode': 'HISTORICAL_RECONSTRUCTION', 'source_document': None,
             'blockers': ['Reported XBRL values require semantic and accounting review.',
                          'Sustainable owner earnings and current diluted shares are not automatically established.']})

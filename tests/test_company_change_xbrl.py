@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from test_company_change_discovery import CLOCK, END, MASTER, START, Client, filing
 
 from marketlab.company_change import ChangeError
 from marketlab.company_change_discovery import candidate, discover, drain, security_master
 from marketlab.company_change_store import EvidenceStore
 from marketlab.company_change_xbrl import extract_xbrl
-from test_company_change_discovery import CLOCK, END, MASTER, START, Client, filing
 
 
 def xml():
@@ -85,3 +85,13 @@ def test_paginated_discovery_and_repeat_detection(tmp_path):
     with EvidenceStore(tmp_path / 'repeat', clock=lambda: CLOCK) as store:
         result = discover(store, Repeated(), start=START, end=END)
         assert 'repeated' in result['errors'][0]['reason']
+
+
+def test_live_taxonomy_owner_alias_and_reconciliation_warning():
+    raw = xml().replace(b'ProfitLossAttributableToOwnersOfParent', b'ProfitOrLossAttributableToOwnersOfParent')
+    raw = raw.replace(b'unitRef="rupees" xsi:nil="true"/>', b'unitRef="rupees">0</x:ProfitOrLossAttributableToOwnersOfParent>')
+    raw = raw.replace(b'</xbrli:xbrl>', b'<x:ProfitOrLossAttributableToNonControllingInterests contextRef="annual" unitRef="rupees">0</x:ProfitOrLossAttributableToNonControllingInterests></xbrli:xbrl>')
+    result = extract_xbrl(raw, item())[0]
+    assert result['facts']['owner_pat']['value'] == 0
+    assert result['warnings']
+    assert result['bridge']['normalized_owner_eps'] is None
