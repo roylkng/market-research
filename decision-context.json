@@ -1,0 +1,2322 @@
+{
+  "engine": "CC001-DECISION-CONTEXT-v1",
+  "as_of": "2026-11-07T20:07:59.229796+00:00",
+  "policy": {
+    "years": 5,
+    "price_return_hurdle": 0.15,
+    "exit_pe_assumption": 15.0,
+    "eps_growth_scenarios": [
+      0.1,
+      0.15,
+      0.2
+    ],
+    "retained_eps_fractions": [
+      0.8,
+      1.0
+    ],
+    "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+  },
+  "cards": [
+    {
+      "identity": {
+        "symbol": "AAKASH",
+        "isin": "INE087Z01024",
+        "scope": "STANDALONE"
+      },
+      "context_observed_at": "2026-11-07T18:52:19.674713+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "ad0efc8bbf5d66fb45b2ee00c05547cf4a555b6cb6a551c6cb6ccfd380702070",
+      "source_review_status": "UNREVIEWED",
+      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
+      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751189_02112026052144_WEB.xml",
+        "raw_sha256": "e0f61c682a8ef318769e668a40630ea74bc7713150b2049310343679c13c41c4",
+        "known_at": "2026-11-07T18:52:13.447352+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.12949065188174824,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 7.77,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AAKASH",
+          "isin": "INE087Z01024",
+          "scope": "STANDALONE"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 82,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "235",
+          "ISIN": "INE087Z01024",
+          "TckrSymb": "AAKASH",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AAKASH EXPLORATION SER L",
+          "OpnPric": "7.65",
+          "HghPric": "7.80",
+          "LwPric": "7.57",
+          "ClsPric": "7.77",
+          "LastPric": "7.79",
+          "PrvsClsgPric": "7.77",
+          "UndrlygPric": "",
+          "SttlmPric": "7.77",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "22536",
+          "TtlTrfVal": "174112.93",
+          "TtlNbOfTxsExctd": "220",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AAKASH"
+      },
+      "reported_annual_diluted_eps": 0.35,
+      "reported_reference_pe": 22.2,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 18.0038,
+        "specified_capex_crore": 35.5897,
+        "cfo_less_specified_capex_crore": -17.5859,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": {
+        "required_eps_growth_at_full_reported_eps": 0.24379894307233374,
+        "rows": [
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 6.764142000000001,
+            "price_consistent_with_hurdle": 3.362974036654046,
+            "price_cagr_at_observed_price": -0.027346084371096646
+          },
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 8.455177500000003,
+            "price_consistent_with_hurdle": 4.203717545817558,
+            "price_cagr_at_observed_price": 0.017045405164356486
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 8.447700187499995,
+            "price_consistent_with_hurdle": 4.199999999999999,
+            "price_cagr_at_observed_price": 0.01686545724839883
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 10.559625234374996,
+            "price_consistent_with_hurdle": 5.25,
+            "price_cagr_at_observed_price": 0.06327474176273618
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 10.450943999999996,
+            "price_consistent_with_hurdle": 5.195966218705249,
+            "price_cagr_at_observed_price": 0.06107699886789453
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 13.063679999999996,
+            "price_consistent_with_hurdle": 6.494957773381562,
+            "price_cagr_at_observed_price": 0.10950407836111609
+          }
+        ],
+        "policy": {
+          "years": 5,
+          "price_return_hurdle": 0.15,
+          "exit_pe_assumption": 15.0,
+          "eps_growth_scenarios": [
+            0.1,
+            0.15,
+            0.2
+          ],
+          "retained_eps_fractions": [
+            0.8,
+            1.0
+          ],
+          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+        },
+        "limits": [
+          "Price-only outcomes, excluding dividends, tax and transaction costs.",
+          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
+          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
+        ]
+      },
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751189_02112026052144_WEB.xml",
+          "raw_sha256": "e0f61c682a8ef318769e668a40630ea74bc7713150b2049310343679c13c41c4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751189_02112026052144_WEB.xml",
+          "raw_sha256": "e0f61c682a8ef318769e668a40630ea74bc7713150b2049310343679c13c41c4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1566767_06112025042158_WEB.xml",
+          "raw_sha256": "6093a40d9bc43280752c26e7c201a553d23d0d85a2b9a157c30a8588844cbc4a",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1566767_06112025042158_WEB.xml",
+          "raw_sha256": "6093a40d9bc43280752c26e7c201a553d23d0d85a2b9a157c30a8588844cbc4a",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665968_12052026045328_WEB.xml",
+          "raw_sha256": "afda7e728294a5f4502c0243cf9651d7b9c276e41558d86d2f244e9f83c5b4e4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665968_12052026045328_WEB.xml",
+          "raw_sha256": "afda7e728294a5f4502c0243cf9651d7b9c276e41558d86d2f244e9f83c5b4e4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1438639_14052025053911_WEB.xml",
+          "raw_sha256": "574c9f4ddc05f0691cb0ec4653665d273c720d53580e03406ea2f8879783ff16",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1438639_14052025053911_WEB.xml",
+          "raw_sha256": "574c9f4ddc05f0691cb0ec4653665d273c720d53580e03406ea2f8879783ff16",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1711793_11082026052105_WEB.xml",
+          "raw_sha256": "8202ddea2001165a19914a2149f19b2cdf12ad20939f4a1a5d68f9b0bac6ca50",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [],
+      "observations": [
+        "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665968_12052026045328_WEB.xml",
+        "raw_sha256": "afda7e728294a5f4502c0243cf9651d7b9c276e41558d86d2f244e9f83c5b4e4",
+        "known_at": "2026-11-07T18:52:15.695916+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "08ea5996df1806167848c93db97484e9eb0e3fb11085162d9d92032f4b8ba7bb"
+    },
+    {
+      "identity": {
+        "symbol": "AARTIIND",
+        "isin": "INE769A01020",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T20:07:48.988920+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "0ff760d3545374e26a3bf08fa188b82480e4e6f8c5ee6bc72876651ab7f31e0e",
+      "source_review_status": "UNREVIEWED",
+      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
+      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751719_03112026023650_WEB.xml",
+        "raw_sha256": "55eb0434b45a4af3811157f037d097972698ef58101129d4a949b2eb4c79a8a2",
+        "known_at": "2026-11-07T20:07:42.746197+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.6035752118644069,
+      "reported_owner_profit_growth_yoy": 1.1686577181208055,
+      "quote": {
+        "price": 444.05,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AARTIIND",
+          "isin": "INE769A01020",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 88,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "7",
+          "ISIN": "INE769A01020",
+          "TckrSymb": "AARTIIND",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AARTI INDUSTRIES LTD",
+          "OpnPric": "443.30",
+          "HghPric": "448.00",
+          "LwPric": "435.05",
+          "ClsPric": "444.05",
+          "LastPric": "441.20",
+          "PrvsClsgPric": "443.30",
+          "UndrlygPric": "",
+          "SttlmPric": "443.85",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "456814",
+          "TtlTrfVal": "201459280.75",
+          "TtlNbOfTxsExctd": "20178",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AARTIIND"
+      },
+      "reported_annual_diluted_eps": 11.55,
+      "reported_reference_pe": 38.44588744588744,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 622.12,
+        "specified_capex_crore": 1044.26,
+        "cfo_less_specified_capex_crore": -422.14,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": {
+        "required_eps_growth_at_full_reported_eps": 0.3881920936386838,
+        "rows": [
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 223.21668600000007,
+            "price_consistent_with_hurdle": 110.97814320958352,
+            "price_cagr_at_observed_price": -0.12851692659958502
+          },
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 279.02085750000015,
+            "price_consistent_with_hurdle": 138.72267901197944,
+            "price_cagr_at_observed_price": -0.08874282903872222
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 278.7741061874999,
+            "price_consistent_with_hurdle": 138.6,
+            "price_cagr_at_observed_price": -0.0889040596268389
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 348.4676327343749,
+            "price_consistent_with_hurdle": 173.25,
+            "price_cagr_at_observed_price": -0.0473220485404825
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 344.88115199999993,
+            "price_consistent_with_hurdle": 171.46688521727324,
+            "price_cagr_at_observed_price": -0.049291192654092764
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 431.1014399999999,
+            "price_consistent_with_hurdle": 214.33360652159155,
+            "price_cagr_at_observed_price": -0.005901268042242669
+          }
+        ],
+        "policy": {
+          "years": 5,
+          "price_return_hurdle": 0.15,
+          "exit_pe_assumption": 15.0,
+          "eps_growth_scenarios": [
+            0.1,
+            0.15,
+            0.2
+          ],
+          "retained_eps_fractions": [
+            0.8,
+            1.0
+          ],
+          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+        },
+        "limits": [
+          "Price-only outcomes, excluding dividends, tax and transaction costs.",
+          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
+          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
+        ]
+      },
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751719_03112026023650_WEB.xml",
+          "raw_sha256": "55eb0434b45a4af3811157f037d097972698ef58101129d4a949b2eb4c79a8a2",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.06,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751719_03112026023650_WEB.xml",
+          "raw_sha256": "55eb0434b45a4af3811157f037d097972698ef58101129d4a949b2eb4c79a8a2",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1567524_06112025114211_WEB.xml",
+          "raw_sha256": "eeaf33d58c4ab1637e6e877614c6832831449598511aa3006a3bc1a448996860",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 1.5,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1567524_06112025114211_WEB.xml",
+          "raw_sha256": "eeaf33d58c4ab1637e6e877614c6832831449598511aa3006a3bc1a448996860",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "WITHIN_REPORTED_ROUNDING",
+          "residual_crore": 0.5,
+          "tolerance_crore": 1.05,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1663432_04052026081323_WEB.xml",
+          "raw_sha256": "4e954cbf51452c6c9709994440988e39772b6b17fea4a020a48507c20f22810f",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1663432_04052026081323_WEB.xml",
+          "raw_sha256": "4e954cbf51452c6c9709994440988e39772b6b17fea4a020a48507c20f22810f",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1480543_11072025100752_WEB.xml",
+          "raw_sha256": "4fceb819c4fd1ef942ddb4753cc53551aae1ff6b5c5d41d70bd93d371ca9f729",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1480543_11072025100752_WEB.xml",
+          "raw_sha256": "4fceb819c4fd1ef942ddb4753cc53551aae1ff6b5c5d41d70bd93d371ca9f729",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1705642_30072026080720_WEB.xml",
+          "raw_sha256": "3a0259e67eeb6c02ea70fe73c40477ffdc1754bb3dd754b08d7823e2ec7c0713",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -155.0,
+          "tolerance_crore": 1.5,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        }
+      ],
+      "blockers": [],
+      "observations": [
+        "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review.",
+        "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1663432_04052026081323_WEB.xml",
+        "raw_sha256": "4e954cbf51452c6c9709994440988e39772b6b17fea4a020a48507c20f22810f",
+        "known_at": "2026-11-07T20:07:45.319776+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "b8cec9dc681d1f7255970aa29f1c8e11d99367f5cf188f3d5122cd45ee1e0bd8"
+    },
+    {
+      "identity": {
+        "symbol": "AEROPLANE",
+        "isin": "INE05TO01019",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T19:05:25.158722+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "a006a323cb9a6b95ad32b87442eed38552db238149317110eb82dbfd44a0c8ca",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751571_02112026111803_WEB.xml",
+        "raw_sha256": "8c5f184c9c199d842d6c3ab5defa36f811047d4354cd6a42c4a0f3eb2d83bd7f",
+        "known_at": "2026-11-07T19:05:19.577172+00:00"
+      },
+      "reported_revenue_growth_yoy": null,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 238.71,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AEROPLANE",
+          "isin": "INE05TO01019",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 237,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "761670",
+          "ISIN": "INE05TO01019",
+          "TckrSymb": "AEROPLANE",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AMIR CHAND JAG KUM (E) L",
+          "OpnPric": "240.00",
+          "HghPric": "241.26",
+          "LwPric": "233.00",
+          "ClsPric": "238.71",
+          "LastPric": "238.50",
+          "PrvsClsgPric": "242.50",
+          "UndrlygPric": "",
+          "SttlmPric": "238.69",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "715597",
+          "TtlTrfVal": "169814816.14",
+          "TtlNbOfTxsExctd": "10558",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AEROPLANE"
+      },
+      "reported_annual_diluted_eps": null,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "MISSING_INPUT",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751571_02112026111803_WEB.xml",
+          "raw_sha256": "8c5f184c9c199d842d6c3ab5defa36f811047d4354cd6a42c4a0f3eb2d83bd7f",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751571_02112026111803_WEB.xml",
+          "raw_sha256": "8c5f184c9c199d842d6c3ab5defa36f811047d4354cd6a42c4a0f3eb2d83bd7f",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1707303_03082026111214_WEB.xml",
+          "raw_sha256": "d2351172e1948140217f459e45eb1e1733e631327a6219f865e86c4a3c7c71e4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [
+        "No supported full-year financial period. Interim earnings were not annualized.",
+        "Positive reported annual diluted EPS is missing.",
+        "Historical/price retrieval has unresolved errors. Partial evidence is retained."
+      ],
+      "observations": [],
+      "annual_evidence": null,
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "462dfe1203b1a0535418023d77cdcc1cd0440e5676cdaeaa776ee01083f594dd"
+    },
+    {
+      "identity": {
+        "symbol": "AIAENG",
+        "isin": "INE212H01026",
+        "scope": "STANDALONE"
+      },
+      "context_observed_at": "2026-11-07T20:07:54.765150+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "cfaf1e62aa838b66fe20d6a37dba524939c76159e72c4a59a9bf255e1f88df1e",
+      "source_review_status": "UNREVIEWED",
+      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
+      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751859_03112026045131_WEB.xml",
+        "raw_sha256": "aac97e7a52ce3609e97550c53a13da97837badedcbfea28a4ea901045251316e",
+        "known_at": "2026-11-07T20:07:49.131438+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.07258035722852996,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 3113.6,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AIAENG",
+          "isin": "INE212H01026",
+          "scope": "STANDALONE"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 173,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "13086",
+          "ISIN": "INE212H01026",
+          "TckrSymb": "AIAENG",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AIA ENGINEERING LIMITED",
+          "OpnPric": "3202.20",
+          "HghPric": "3202.30",
+          "LwPric": "3086.00",
+          "ClsPric": "3113.60",
+          "LastPric": "3105.00",
+          "PrvsClsgPric": "3202.20",
+          "UndrlygPric": "",
+          "SttlmPric": "3113.65",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "110090",
+          "TtlTrfVal": "341820834.40",
+          "TtlNbOfTxsExctd": "23656",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AIAENG"
+      },
+      "reported_annual_diluted_eps": 136.84,
+      "reported_reference_pe": 22.753580824320373,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 563.4301,
+        "specified_capex_crore": 112.7761,
+        "cfo_less_specified_capex_crore": 450.654,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": {
+        "required_eps_growth_at_full_reported_eps": 0.2499410729102085,
+        "rows": [
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 2644.586260800001,
+            "price_consistent_with_hurdle": 1314.8267633592563,
+            "price_cagr_at_observed_price": -0.03212564299716891
+          },
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 3305.7328260000013,
+            "price_consistent_with_hurdle": 1643.5334541990703,
+            "price_cagr_at_observed_price": 0.012047709621006542
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 3302.809410449999,
+            "price_consistent_with_hurdle": 1642.0800000000002,
+            "price_cagr_at_observed_price": 0.01186864595750503
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 4128.511763062499,
+            "price_consistent_with_hurdle": 2052.6000000000004,
+            "price_cagr_at_observed_price": 0.05804987824014307
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 4086.0205055999995,
+            "price_consistent_with_hurdle": 2031.4743353360755,
+            "price_cagr_at_observed_price": 0.05586293491217931
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 5107.525631999999,
+            "price_consistent_with_hurdle": 2539.3429191700943,
+            "price_cagr_at_observed_price": 0.1040520468592796
+          }
+        ],
+        "policy": {
+          "years": 5,
+          "price_return_hurdle": 0.15,
+          "exit_pe_assumption": 15.0,
+          "eps_growth_scenarios": [
+            0.1,
+            0.15,
+            0.2
+          ],
+          "retained_eps_fractions": [
+            0.8,
+            1.0
+          ],
+          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+        },
+        "limits": [
+          "Price-only outcomes, excluding dividends, tax and transaction costs.",
+          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
+          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
+        ]
+      },
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751859_03112026045131_WEB.xml",
+          "raw_sha256": "aac97e7a52ce3609e97550c53a13da97837badedcbfea28a4ea901045251316e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751859_03112026045131_WEB.xml",
+          "raw_sha256": "aac97e7a52ce3609e97550c53a13da97837badedcbfea28a4ea901045251316e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1567938_07112025042959_WEB.xml",
+          "raw_sha256": "b11f3b839ebba15149c45370a07138b159645bbc0b9c2567f00ee1eff3483253",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1567938_07112025042959_WEB.xml",
+          "raw_sha256": "b11f3b839ebba15149c45370a07138b159645bbc0b9c2567f00ee1eff3483253",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673458_26052026074810_WEB.xml",
+          "raw_sha256": "5dbe6e7f4b3579142a738a782c8c0f770a2973ac7b85946628d7c9d563cda140",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673458_26052026074810_WEB.xml",
+          "raw_sha256": "5dbe6e7f4b3579142a738a782c8c0f770a2973ac7b85946628d7c9d563cda140",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1449220_23052025071051_WEB.xml",
+          "raw_sha256": "36594bd7516e8cb338d1d3403ee300df80346287fede333e56077ab95c1462d3",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1449220_23052025071051_WEB.xml",
+          "raw_sha256": "36594bd7516e8cb338d1d3403ee300df80346287fede333e56077ab95c1462d3",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1712741_12082026054949_WEB.xml",
+          "raw_sha256": "83f3e950381dac69c0886736d82917126370ad1486c916f320ff553eefca0090",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [],
+      "observations": [],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673458_26052026074810_WEB.xml",
+        "raw_sha256": "5dbe6e7f4b3579142a738a782c8c0f770a2973ac7b85946628d7c9d563cda140",
+        "known_at": "2026-11-07T20:07:50.167559+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "7a63f397be9ea9a6a6741ac03bf844a38aa5ea27215a89eefa7fd52317106841"
+    },
+    {
+      "identity": {
+        "symbol": "AJMERA",
+        "isin": "INE298G01035",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T20:07:59.013022+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "a5b118eeaa9db925616c44dac89b41d6577e7dabfe2d5907c9fb97ba3530ce3c",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751778_03112026035734_WEB.xml",
+        "raw_sha256": "d8971feeff44b4deb20e3492f3ae739f233a8e09bbfff0cb93299ba69c2670ea",
+        "known_at": "2026-11-07T20:07:54.769372+00:00"
+      },
+      "reported_revenue_growth_yoy": null,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 129.51,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AJMERA",
+          "isin": "INE298G01035",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 181,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "17307",
+          "ISIN": "INE298G01035",
+          "TckrSymb": "AJMERA",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AJMERA REALTY & INF I LTD",
+          "OpnPric": "132.40",
+          "HghPric": "132.52",
+          "LwPric": "128.70",
+          "ClsPric": "129.51",
+          "LastPric": "129.60",
+          "PrvsClsgPric": "132.45",
+          "UndrlygPric": "",
+          "SttlmPric": "129.50",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "208650",
+          "TtlTrfVal": "27214234.46",
+          "TtlNbOfTxsExctd": "3507",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AJMERA"
+      },
+      "reported_annual_diluted_eps": 7.61,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "MISSING_INPUT",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751778_03112026035734_WEB.xml",
+          "raw_sha256": "d8971feeff44b4deb20e3492f3ae739f233a8e09bbfff0cb93299ba69c2670ea",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -88.06,
+          "tolerance_crore": 0.015,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751778_03112026035734_WEB.xml",
+          "raw_sha256": "d8971feeff44b4deb20e3492f3ae739f233a8e09bbfff0cb93299ba69c2670ea",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -45.01,
+          "tolerance_crore": 0.015,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1686186_29062026064845_WEB.xml",
+          "raw_sha256": "732710ccbe2fdde464fa3ab7103ffaac92a1c2a9070805d780b44781c0dc57c6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -149.79,
+          "tolerance_crore": 0.015,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1686186_29062026064845_WEB.xml",
+          "raw_sha256": "732710ccbe2fdde464fa3ab7103ffaac92a1c2a9070805d780b44781c0dc57c6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -55.6,
+          "tolerance_crore": 0.015,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1707791_04082026061119_WEB.xml",
+          "raw_sha256": "ec2d6c330c315d153e9c665a9d56d8e8b2d2b55c2fa0cbb5c2e1e2ae2ec2428d",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.015,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.",
+        "Historical/price retrieval has unresolved errors. Partial evidence is retained."
+      ],
+      "observations": [
+        "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1686186_29062026064845_WEB.xml",
+        "raw_sha256": "732710ccbe2fdde464fa3ab7103ffaac92a1c2a9070805d780b44781c0dc57c6",
+        "known_at": "2026-11-07T20:07:55.631585+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "66351f7ab6acfec7707cfbf40e4478fba398d2c6bd8cde6a6692006d724bbd46"
+    },
+    {
+      "identity": {
+        "symbol": "AKUMS",
+        "isin": "INE09XN01023",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T18:52:23.895587+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "ebd1f688dc6b6dc45f5b367a2c50ebb5f99bcfd05b04599fb333286a1726b822",
+      "source_review_status": "UNREVIEWED",
+      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
+      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751469_02112026082351_WEB.xml",
+        "raw_sha256": "186adf0d0b33f47be00481e75ea74b64ebb834fd0f7d57860a6070418c182425",
+        "known_at": "2026-11-07T18:52:19.677173+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.22896879938008263,
+      "reported_owner_profit_growth_yoy": 1.0416754589575858,
+      "quote": {
+        "price": 734.95,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "AKUMS",
+          "isin": "INE09XN01023",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 192,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "24715",
+          "ISIN": "INE09XN01023",
+          "TckrSymb": "AKUMS",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AKUMS DRUGS AND PHARMA L",
+          "OpnPric": "735.00",
+          "HghPric": "749.45",
+          "LwPric": "732.00",
+          "ClsPric": "734.95",
+          "LastPric": "732.45",
+          "PrvsClsgPric": "744.60",
+          "UndrlygPric": "",
+          "SttlmPric": "734.81",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "130509",
+          "TtlTrfVal": "96569988.85",
+          "TtlNbOfTxsExctd": "13886",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AKUMS"
+      },
+      "reported_annual_diluted_eps": 16.67,
+      "reported_reference_pe": 44.088182363527295,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 284.72,
+        "specified_capex_crore": 272.691,
+        "cfo_less_specified_capex_crore": 12.029,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": {
+        "required_eps_growth_at_full_reported_eps": 0.42673733951196713,
+        "rows": [
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 322.16642040000016,
+            "price_consistent_with_hurdle": 160.17364911720847,
+            "price_cagr_at_observed_price": -0.1520612247744081
+          },
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 402.7080255000002,
+            "price_consistent_with_hurdle": 200.21706139651056,
+            "price_cagr_at_observed_price": -0.1133616784483199
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 402.35189178749994,
+            "price_consistent_with_hurdle": 200.04000000000002,
+            "price_cagr_at_observed_price": -0.113518553173245
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 502.93986473437485,
+            "price_consistent_with_hurdle": 250.05,
+            "price_cagr_at_observed_price": -0.0730599365596073
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 497.7635327999999,
+            "price_consistent_with_hurdle": 247.4764481880472,
+            "price_cagr_at_observed_price": -0.07497588157208168
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 622.2044159999998,
+            "price_consistent_with_hurdle": 309.34556023505894,
+            "price_cagr_at_observed_price": -0.03275819467089458
+          }
+        ],
+        "policy": {
+          "years": 5,
+          "price_return_hurdle": 0.15,
+          "exit_pe_assumption": 15.0,
+          "eps_growth_scenarios": [
+            0.1,
+            0.15,
+            0.2
+          ],
+          "retained_eps_fractions": [
+            0.8,
+            1.0
+          ],
+          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+        },
+        "limits": [
+          "Price-only outcomes, excluding dividends, tax and transaction costs.",
+          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
+          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
+        ]
+      },
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751469_02112026082351_WEB.xml",
+          "raw_sha256": "186adf0d0b33f47be00481e75ea74b64ebb834fd0f7d57860a6070418c182425",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751469_02112026082351_WEB.xml",
+          "raw_sha256": "186adf0d0b33f47be00481e75ea74b64ebb834fd0f7d57860a6070418c182425",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1573596_13112025051201_WEB.xml",
+          "raw_sha256": "a4bbda3e6be375dcf943c6c3c40c32d3687d068ddb563cde3a38a6cd378d36b1",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1573596_13112025051201_WEB.xml",
+          "raw_sha256": "a4bbda3e6be375dcf943c6c3c40c32d3687d068ddb563cde3a38a6cd378d36b1",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1667126_14052026054156_WEB.xml",
+          "raw_sha256": "930428a66ffc6ffd4d58041ebdaa6e7d9c98862a54fd14b9e3262d247d2e8385",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1667126_14052026054156_WEB.xml",
+          "raw_sha256": "930428a66ffc6ffd4d58041ebdaa6e7d9c98862a54fd14b9e3262d247d2e8385",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1451424_26052025070748_WEB.xml",
+          "raw_sha256": "3853f7a4492ac06696cf90b2bc7f122af467c26140074d5c1566c986ac78921c",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1451424_26052025070748_WEB.xml",
+          "raw_sha256": "3853f7a4492ac06696cf90b2bc7f122af467c26140074d5c1566c986ac78921c",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1710509_08082026060259_WEB.xml",
+          "raw_sha256": "90962040016509bde530ed7fea5d71f24cf32c42612e9726b5b1e04542c43c62",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.006,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [],
+      "observations": [],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1667126_14052026054156_WEB.xml",
+        "raw_sha256": "930428a66ffc6ffd4d58041ebdaa6e7d9c98862a54fd14b9e3262d247d2e8385",
+        "known_at": "2026-11-07T18:52:20.637121+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "6336cd9332bf2bfe4947c252b0236c6ac1dbbe02b11767b218690d8aa5eb959c"
+    },
+    {
+      "identity": {
+        "symbol": "ALANKIT",
+        "isin": "INE914E01040",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T18:52:28.161474+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "5fcefd45df940b95eee06e2ae2eb548046601b365cd747cd26a767bd2d589854",
+      "source_review_status": "UNREVIEWED",
+      "category": "CASH_BASIS_REVIEW",
+      "next_decisive_check": "Resolve the source cash-purchase sign convention before interpreting cash coverage or owner cash.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751359_02112026065725_WEB.xml",
+        "raw_sha256": "a1ffa07ea2e234a9aa8eb592e50e1a79ece688f8abb263798d6666704c4de692",
+        "known_at": "2026-11-07T18:52:23.898043+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.0008052901004915736,
+      "reported_owner_profit_growth_yoy": 0.32751289815469353,
+      "quote": {
+        "price": 7.89,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "ALANKIT",
+          "isin": "INE914E01040",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 193,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "9921",
+          "ISIN": "INE914E01040",
+          "TckrSymb": "ALANKIT",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "ALANKIT LIMITED",
+          "OpnPric": "7.64",
+          "HghPric": "8.88",
+          "LwPric": "7.62",
+          "ClsPric": "7.89",
+          "LastPric": "7.85",
+          "PrvsClsgPric": "7.65",
+          "UndrlygPric": "",
+          "SttlmPric": "7.88",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "232558",
+          "TtlTrfVal": "1845508.68",
+          "TtlNbOfTxsExctd": "697",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ALANKIT"
+      },
+      "reported_annual_diluted_eps": 0.7,
+      "reported_reference_pe": 11.271428571428572,
+      "reported_trailing_cash": {
+        "status": "NEGATIVE_DERIVED_PURCHASES",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": {
+        "required_eps_growth_at_full_reported_eps": 0.0861139234678483,
+        "rows": [
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 13.528284000000003,
+            "price_consistent_with_hurdle": 6.725948073308092,
+            "price_cagr_at_observed_price": 0.11386649788235559
+          },
+          {
+            "eps_growth_assumption": 0.1,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 16.910355000000006,
+            "price_consistent_with_hurdle": 8.407435091635117,
+            "price_cagr_at_observed_price": 0.16470286649211463
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 16.89540037499999,
+            "price_consistent_with_hurdle": 8.399999999999999,
+            "price_cagr_at_observed_price": 0.16449679324064426
+          },
+          {
+            "eps_growth_assumption": 0.15,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 21.119250468749993,
+            "price_consistent_with_hurdle": 10.5,
+            "price_cagr_at_observed_price": 0.21764390587811966
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 0.8,
+            "terminal_price": 20.901887999999992,
+            "price_consistent_with_hurdle": 10.391932437410498,
+            "price_cagr_at_observed_price": 0.21512708859893315
+          },
+          {
+            "eps_growth_assumption": 0.2,
+            "retained_reported_eps_fraction": 1.0,
+            "terminal_price": 26.127359999999992,
+            "price_consistent_with_hurdle": 12.989915546763124,
+            "price_cagr_at_observed_price": 0.2705849452641249
+          }
+        ],
+        "policy": {
+          "years": 5,
+          "price_return_hurdle": 0.15,
+          "exit_pe_assumption": 15.0,
+          "eps_growth_scenarios": [
+            0.1,
+            0.15,
+            0.2
+          ],
+          "retained_eps_fractions": [
+            0.8,
+            1.0
+          ],
+          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
+        },
+        "limits": [
+          "Price-only outcomes, excluding dividends, tax and transaction costs.",
+          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
+          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
+        ]
+      },
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751359_02112026065725_WEB.xml",
+          "raw_sha256": "a1ffa07ea2e234a9aa8eb592e50e1a79ece688f8abb263798d6666704c4de692",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "WITHIN_REPORTED_ROUNDING",
+          "residual_crore": -0.0001,
+          "tolerance_crore": 0.00015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751359_02112026065725_WEB.xml",
+          "raw_sha256": "a1ffa07ea2e234a9aa8eb592e50e1a79ece688f8abb263798d6666704c4de692",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "WITHIN_REPORTED_ROUNDING",
+          "residual_crore": 0.0001,
+          "tolerance_crore": 0.00015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1572580_12112025065123_WEB.xml",
+          "raw_sha256": "12e9143ec1010a64aa8c12709ec770adfcb6991fa9ebf1dc4ff39ceb392be78c",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.00015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1572580_12112025065123_WEB.xml",
+          "raw_sha256": "12e9143ec1010a64aa8c12709ec770adfcb6991fa9ebf1dc4ff39ceb392be78c",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.00015,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673346_26052026064759_WEB.xml",
+          "raw_sha256": "650b60c754077d87ad4f59699ba89fa8a6f7e0524662ab8637efcff47d00d1d1",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673346_26052026064759_WEB.xml",
+          "raw_sha256": "650b60c754077d87ad4f59699ba89fa8a6f7e0524662ab8637efcff47d00d1d1",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1447967_22052025093615_WEB.xml",
+          "raw_sha256": "beeeb0d9ec2f6970139a768db440ce549a6c81af833e7c373ace1fa493faa85b",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -0.0002,
+          "tolerance_crore": 0.00015,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1447967_22052025093615_WEB.xml",
+          "raw_sha256": "beeeb0d9ec2f6970139a768db440ce549a6c81af833e7c373ace1fa493faa85b",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "WITHIN_REPORTED_ROUNDING",
+          "residual_crore": -0.0003,
+          "tolerance_crore": 0.0006,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1710109_07082026065413_WEB.xml",
+          "raw_sha256": "03241d8f9bb029799b2f49d6fab5bde592720d0beef2e6c0188464ff1c692d14",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.0006,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [],
+      "observations": [
+        "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1673346_26052026064759_WEB.xml",
+        "raw_sha256": "650b60c754077d87ad4f59699ba89fa8a6f7e0524662ab8637efcff47d00d1d1",
+        "known_at": "2026-11-07T18:52:24.765098+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "4c35b35e331212cc7913e93f815b719843ab70ba7be477f31a31e7ce9f764d6a"
+    },
+    {
+      "identity": {
+        "symbol": "ARE&M",
+        "isin": "INE885A01032",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T19:05:30.207789+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "85bc2be95f46d75b306f00326557205e63e6f701cee6e1ba0d86724a6dc70993",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751508_02112026085848_WEB.xml",
+        "raw_sha256": "d2ead7812422c23953327c316ff851a0f800b4d5601d0e8d94164cd6378f7977",
+        "known_at": "2026-11-07T19:05:25.160182+00:00"
+      },
+      "reported_revenue_growth_yoy": 0.211870823080619,
+      "reported_owner_profit_growth_yoy": -0.22178159486958693,
+      "quote": {
+        "price": 728.25,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "ARE&M",
+          "isin": "INE885A01032",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 225,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "100",
+          "ISIN": "INE885A01032",
+          "TckrSymb": "ARE&M",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "AMARA RAJA ENERGY MOB LTD",
+          "OpnPric": "737.00",
+          "HghPric": "737.45",
+          "LwPric": "723.70",
+          "ClsPric": "728.25",
+          "LastPric": "728.00",
+          "PrvsClsgPric": "736.45",
+          "UndrlygPric": "",
+          "SttlmPric": "728.27",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "316359",
+          "TtlTrfVal": "230677299.50",
+          "TtlNbOfTxsExctd": "18501",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ARE%26M"
+      },
+      "reported_annual_diluted_eps": 48.95,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 1234.52,
+        "specified_capex_crore": 1506.65,
+        "cfo_less_specified_capex_crore": -272.13,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751508_02112026085848_WEB.xml",
+          "raw_sha256": "d2ead7812422c23953327c316ff851a0f800b4d5601d0e8d94164cd6378f7977",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751508_02112026085848_WEB.xml",
+          "raw_sha256": "d2ead7812422c23953327c316ff851a0f800b4d5601d0e8d94164cd6378f7977",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1568082_07112025051952_WEB.xml",
+          "raw_sha256": "ce6c8a4abbad9109c8c11698eddaca96d3d17a04fc3d6614ebfb76cc81a02afe",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1568082_07112025051952_WEB.xml",
+          "raw_sha256": "ce6c8a4abbad9109c8c11698eddaca96d3d17a04fc3d6614ebfb76cc81a02afe",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "EXACT",
+          "residual_crore": 0.0,
+          "tolerance_crore": 0.51,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1672758_25052026091118_WEB.xml",
+          "raw_sha256": "9775a7f09f77856fdc2dddd34b69347697bca2c468a2818e16ea5d5cead768aa",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -895.77,
+          "tolerance_crore": 1.005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1672758_25052026091118_WEB.xml",
+          "raw_sha256": "9775a7f09f77856fdc2dddd34b69347697bca2c468a2818e16ea5d5cead768aa",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -314.33,
+          "tolerance_crore": 1.005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2024-04-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1457792_29052025081400_WEB.xml",
+          "raw_sha256": "ccf12e9e965621fe3a21e5e652f77a91ec825caaf2b88af551856496e58913e4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -944.67,
+          "tolerance_crore": 1.005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-01-01",
+          "period_end": "2025-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1457792_29052025081400_WEB.xml",
+          "raw_sha256": "ccf12e9e965621fe3a21e5e652f77a91ec825caaf2b88af551856496e58913e4",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -161.57,
+          "tolerance_crore": 1.005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1711340_10082026073914_WEB.xml",
+          "raw_sha256": "7a2df44021a47f929774118bb1ec82da068ce83a4f75cffda164cda846298a15",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -190.94,
+          "tolerance_crore": 1.005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        }
+      ],
+      "blockers": [
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review."
+      ],
+      "observations": [
+        "Reported revenue rose but owner-attributable profit fell in the matching year-ago comparison.",
+        "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review.",
+        "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1672758_25052026091118_WEB.xml",
+        "raw_sha256": "9775a7f09f77856fdc2dddd34b69347697bca2c468a2818e16ea5d5cead768aa",
+        "known_at": "2026-11-07T19:05:26.221035+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "3a8b4bcc44e58d1b7bbc48e0ce6ac1396337225ad9bc7c5a6f75cb383cd81c4e"
+    },
+    {
+      "identity": {
+        "symbol": "ARFIN",
+        "isin": "INE784R01023",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-07T19:05:34.664676+00:00",
+      "evaluated_at": "2026-11-07T20:07:59.229796+00:00",
+      "input_context_sha256": "d41f0656f4bbb1f278e74bbd17397e4411d3515fe6d60a665e3b0a6647561fa2",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751690_03112026015440_WEB.xml",
+        "raw_sha256": "555ad97d4e68b7b68242bfc774f056eb2e9da72a1c0ef383552b5efed551b906",
+        "known_at": "2026-11-07T19:05:30.210170+00:00"
+      },
+      "reported_revenue_growth_yoy": 1.094420840102484,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 94.15,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-06",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-07T18:52:18.562387+00:00",
+        "identity": {
+          "symbol": "ARFIN",
+          "isin": "INE784R01023",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "339e3f07bb00acb27d0200ea5bfa748de71d9b3f779b956d1069f2168c8c9904",
+        "csv_sha256": "5b9904e9e8d9d918c2550aca80560e816b3e571d507200f3613ea0ab410edb5f",
+        "source_line": 300,
+        "source_row": {
+          "TradDt": "2026-11-06",
+          "BizDt": "2026-11-06",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "758700",
+          "ISIN": "INE784R01023",
+          "TckrSymb": "ARFIN",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "ARFIN INDIA LIMITED",
+          "OpnPric": "95.00",
+          "HghPric": "96.90",
+          "LwPric": "92.15",
+          "ClsPric": "94.15",
+          "LastPric": "92.70",
+          "PrvsClsgPric": "95.32",
+          "UndrlygPric": "",
+          "SttlmPric": "94.16",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "1087525",
+          "TtlTrfVal": "102522914.66",
+          "TtlNbOfTxsExctd": "3882",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261106_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          },
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261107_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ARFIN"
+      },
+      "reported_annual_diluted_eps": 0.92,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "REPORTED_FLOW_DIAGNOSTIC",
+        "cfo_crore": 71.2487,
+        "specified_capex_crore": 8.5424,
+        "cfo_less_specified_capex_crore": 62.7063,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751690_03112026015440_WEB.xml",
+          "raw_sha256": "555ad97d4e68b7b68242bfc774f056eb2e9da72a1c0ef383552b5efed551b906",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -10.0438,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751690_03112026015440_WEB.xml",
+          "raw_sha256": "555ad97d4e68b7b68242bfc774f056eb2e9da72a1c0ef383552b5efed551b906",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -5.9693,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1571411_11112025062931_WEB.xml",
+          "raw_sha256": "f862001694b16702dbf671bf779f5df2c9b56fdb067cfc6147988fbfc985af2e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -3.5356,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-07-01",
+          "period_end": "2025-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1571411_11112025062931_WEB.xml",
+          "raw_sha256": "f862001694b16702dbf671bf779f5df2c9b56fdb067cfc6147988fbfc985af2e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -2.4546,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665520_11052026044404_WEB.xml",
+          "raw_sha256": "bb3cc283b66feeae34acf040bfd9a77bd32aa5e67d39d6ef66451f38f5f01a5b",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -15.4513,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-01-01",
+          "period_end": "2026-03-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665520_11052026044404_WEB.xml",
+          "raw_sha256": "bb3cc283b66feeae34acf040bfd9a77bd32aa5e67d39d6ef66451f38f5f01a5b",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -6.8243,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-06-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1711577_11082026020720_WEB.xml",
+          "raw_sha256": "5c0593619498a6dfbb74799d368667f5e985c57d79730d69514650a1704e8f95",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -4.0745,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-04-01",
+          "period_end": "2025-12-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1615505_31012026014448_WEB.xml",
+          "raw_sha256": "425bf514c0916dcc42d3dd7dfb8fdde3ca213937fd290338dc6f7724d768ccf6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -8.6269,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        },
+        {
+          "period_start": "2025-10-01",
+          "period_end": "2025-12-31",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1615505_31012026014448_WEB.xml",
+          "raw_sha256": "425bf514c0916dcc42d3dd7dfb8fdde3ca213937fd290338dc6f7724d768ccf6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "FAIL",
+          "residual_crore": -5.0913,
+          "tolerance_crore": 0.01005,
+          "withheld_fields": [
+            "owner_pat",
+            "minority_pat"
+          ]
+        }
+      ],
+      "blockers": [
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review."
+      ],
+      "observations": [
+        "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
+      ],
+      "annual_evidence": {
+        "period_start": "2025-04-01",
+        "period_end": "2026-03-31",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1665520_11052026044404_WEB.xml",
+        "raw_sha256": "bb3cc283b66feeae34acf040bfd9a77bd32aa5e67d39d6ef66451f38f5f01a5b",
+        "known_at": "2026-11-07T19:05:31.258336+00:00"
+      },
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "3364b6f6f28a7f2dfdf1ebe649d77a334135cafb7f6145a933938669036922b3"
+    }
+  ],
+  "counts": {
+    "context_cards": 9,
+    "issuers": 9,
+    "categories": {
+      "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE": 4,
+      "EVIDENCE_BLOCKED": 4,
+      "CASH_BASIS_REVIEW": 1
+    }
+  },
+  "live_capital_allowed": false,
+  "validated_predictive_edge": false,
+  "report_sha256": "f3bb047eb5bd400ceed6e6fdef973453e62d6d71b796b1f95387dd3fbe8cfc32"
+}
