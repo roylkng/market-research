@@ -18,7 +18,9 @@ CONCEPTS = {
     'pbt': ('ProfitBeforeTax',),
     'pretax_exceptional_items': ('ExceptionalItemsBeforeTax',),
     'tax_expense': ('TaxExpense', 'TotalTaxExpense'),
-    'reported_pat': ('ProfitLossForPeriod',),
+    # Non-Ind-AS group profit is explicit BEFORE minority interest.
+    # Do not alias the after-minority ProfitLossForThePeriod to group profit.
+    'reported_pat': ('ProfitLossForPeriod', 'ProfitLossForPeriodBeforeMinorityInterest'),
     'owner_pat': ('ProfitLossAttributableToOwnersOfParent', 'ProfitOrLossAttributableToOwnersOfParent'),
     'noncontrolling_pat': ('ProfitLossAttributableToNonControllingInterests', 'ProfitOrLossAttributableToNonControllingInterests'),
     'basic_eps': ('BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations',),
