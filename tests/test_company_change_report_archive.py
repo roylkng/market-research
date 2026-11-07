@@ -10,7 +10,12 @@ import yaml
 
 from marketlab.company_change import ChangeError, canonical_hash
 from marketlab.company_change_checkpoint import checkpoint, restore
-from marketlab.company_change_report_archive import archive_reports, main, restore_reports, verify_part
+from marketlab.company_change_report_archive import (
+    archive_reports,
+    main,
+    restore_reports,
+    verify_part,
+)
 from marketlab.company_change_store import EvidenceStore
 
 
@@ -129,7 +134,8 @@ def test_history_cannot_be_recursively_checkpointed_with_workspace(tmp_path):
     assert (root / 'reports/run.json').exists()
 
 
-@pytest.mark.parametrize('filename', ['../outside.json', '/reports/x.json', 'blobs/a.json', 'reports/x.py'])
+@pytest.mark.parametrize('filename', ['../outside.json', '/reports/x.json', 'blobs/a.json', 'reports/x.py',
+                                      'reports/./x.json', 'reports//x.json'])
 def test_untrusted_archive_paths_are_not_restored(tmp_path, filename):
     archive_path = tmp_path / 'malformed.zip'
     raw = b'content'
@@ -185,3 +191,12 @@ def test_history_is_persisted_and_uncheckpointed_state_remains_recoverable():
     assert recovery['with']['path'].endswith('/cc001-workspace')
     persisted = next(s for s in steps if s.get('uses') == 'actions/upload-artifact@v4' and s.get('name') != recovery['name'])
     assert 'report-history' in persisted['with']['path']
+
+
+def test_oversized_receipt_is_rejected_before_json_loading(tmp_path, monkeypatch):
+    import marketlab.company_change_report_archive as module
+    receipt = tmp_path / 'receipt.json'
+    receipt.write_text('not-json' * 100)
+    monkeypatch.setattr(module, 'MANIFEST_LIMIT', 10)
+    with pytest.raises(ChangeError, match='receipt size'):
+        restore_reports(receipt, tmp_path / 'restore')

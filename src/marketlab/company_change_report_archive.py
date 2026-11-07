@@ -35,8 +35,10 @@ def digest(path: Path) -> str:
 
 
 def report_path(name: str) -> PurePosixPath:
+    if not isinstance(name, str):
+        raise ChangeError("report path must be a string")
     path = PurePosixPath(name)
-    if (not isinstance(name, str) or "\\" in name or path.is_absolute()
+    if (path.as_posix() != name or "\\" in name or path.is_absolute()
             or ".." in path.parts or len(path.parts) < 2 or path.parts[0] != "reports"
             or path.suffix not in {".json", ".html"}):
         raise ChangeError("archive member is not a generated JSON/HTML report")
@@ -188,6 +190,8 @@ def archive_reports(workspace: Path, destination: Path) -> dict:
 
 
 def restore_reports(receipt_path: Path, destination: Path) -> dict:
+    if receipt_path.is_symlink() or not receipt_path.is_file() or receipt_path.stat().st_size > MANIFEST_LIMIT:
+        raise ChangeError("invalid report-history receipt size or type")
     receipt = loads_unique(receipt_path.read_bytes())
     if receipt.get("format") != FORMAT or canonical_hash({k: v for k, v in receipt.items() if k != "receipt_sha256"}) != receipt.get("receipt_sha256"):
         raise ChangeError("report-history receipt integrity failure")
@@ -199,7 +203,8 @@ def restore_reports(receipt_path: Path, destination: Path) -> dict:
         raise ChangeError("report restoration requires an empty destination")
     checked_files = {}
     for part in receipt["parts"]:
-        if part["filename"] != part["sha256"] + ".zip":
+        if (not re.fullmatch(r"[0-9a-f]{64}", str(part["sha256"]))
+                or part["filename"] != part["sha256"] + ".zip"):
             raise ChangeError("unsafe report-history part reference")
         verified = verify_part(receipt_path.parent / part["filename"], part["sha256"])
         for name, value in verified["files"].items():
