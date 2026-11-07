@@ -10,6 +10,8 @@ on:
       - 'src/marketlab/company_change_discovery.py'
       - 'src/marketlab/company_change_xbrl.py'
       - 'src/marketlab/company_change_comparisons.py'
+      - 'src/marketlab/company_change_financials.py'
+      - 'src/marketlab/company_change_underwriting.py'
 permissions:
   contents: write
 concurrency:
@@ -72,6 +74,11 @@ jobs:
             comparison_ok=false
           fi
           export CC_COMPARISON_OK="$comparison_ok"
+          underwriting_ok=true
+          if ! python -m marketlab.company_change_underwriting --workspace "$CC_WORKSPACE" --output-prefix "$CC_STATE/cash-underwriting"; then
+            underwriting_ok=false
+          fi
+          export CC_UNDERWRITING_OK="$underwriting_ok"
           python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
           python - <<'PY'
           import json, os
@@ -79,6 +86,7 @@ jobs:
           from marketlab.company_change_discovery import coverage
           from marketlab.company_change_store import EvidenceStore
           business = json.loads(Path(os.environ['CC_STATE'], 'business-changes.json').read_text()) if os.environ['CC_COMPARISON_OK'] == 'true' else None
+          underwriting = json.loads(Path(os.environ['CC_STATE'], 'cash-underwriting.json').read_text()) if os.environ['CC_UNDERWRITING_OK'] == 'true' else None
           with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
               snapshot = store.snapshot()
               latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
@@ -87,6 +95,9 @@ jobs:
                         'business_change_status': 'SUCCESS' if business else 'FAILED',
                         'business_change_counts': business['counts'] if business else None,
                         'business_change_sha256': business['report_sha256'] if business else None,
+                        'cash_underwriting_status': 'SUCCESS' if underwriting else 'FAILED',
+                        'cash_underwriting_counts': underwriting['counts'] if underwriting else None,
+                        'cash_underwriting_sha256': underwriting['report_sha256'] if underwriting else None,
                         'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
                         'source_commit': os.environ['GITHUB_SHA'], 'live_capital_allowed': False,
                         'model_endpoint_configured': False, 'validated_predictive_edge': False}
@@ -99,11 +110,15 @@ jobs:
           if [ -f "$CC_STATE/business-changes.json" ] && [ -f "$CC_STATE/business-changes.html" ]; then
             git -C "$CC_STATE" add business-changes.json business-changes.html
           fi
+          if [ -f "$CC_STATE/cash-underwriting.json" ] && [ -f "$CC_STATE/cash-underwriting.html" ]; then
+            git -C "$CC_STATE" add cash-underwriting.json cash-underwriting.html
+          fi
           if ! git -C "$CC_STATE" diff --cached --quiet; then
             git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
             git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
           fi
           test "$comparison_ok" = true
+          test "$underwriting_ok" = true
       - uses: actions/upload-artifact@v4
         if: always() && steps.state.outputs.ready == 'true'
         with:
@@ -115,6 +130,8 @@ jobs:
             ${{ runner.temp }}/cc001-state/research-desk.html
             ${{ runner.temp }}/cc001-state/business-changes.json
             ${{ runner.temp }}/cc001-state/business-changes.html
+            ${{ runner.temp }}/cc001-state/cash-underwriting.json
+            ${{ runner.temp }}/cc001-state/cash-underwriting.html
           retention-days: 14
           if-no-files-found: error
       - name: Surface partial intake failures after retaining evidence
