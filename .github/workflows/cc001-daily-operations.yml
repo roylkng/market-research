@@ -12,6 +12,8 @@ on:
       - 'src/marketlab/company_change_comparisons.py'
       - 'src/marketlab/company_change_financials.py'
       - 'src/marketlab/company_change_underwriting.py'
+      - 'src/marketlab/company_change_context.py'
+      - 'src/marketlab/company_change_prices.py'
 permissions:
   contents: write
 concurrency:
@@ -79,6 +81,11 @@ jobs:
             underwriting_ok=false
           fi
           export CC_UNDERWRITING_OK="$underwriting_ok"
+          context_ok=true
+          if ! python -m marketlab.company_change_context --workspace "$CC_WORKSPACE" --limit 3 --output-prefix "$CC_STATE/price-context"; then
+            context_ok=false
+          fi
+          export CC_CONTEXT_OK="$context_ok"
           python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
           python - <<'PY'
           import json, os
@@ -87,6 +94,7 @@ jobs:
           from marketlab.company_change_store import EvidenceStore
           business = json.loads(Path(os.environ['CC_STATE'], 'business-changes.json').read_text()) if os.environ['CC_COMPARISON_OK'] == 'true' else None
           underwriting = json.loads(Path(os.environ['CC_STATE'], 'cash-underwriting.json').read_text()) if os.environ['CC_UNDERWRITING_OK'] == 'true' else None
+          context = json.loads(Path(os.environ['CC_STATE'], 'price-context.json').read_text()) if os.environ['CC_CONTEXT_OK'] == 'true' else None
           with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
               snapshot = store.snapshot()
               latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
@@ -98,6 +106,9 @@ jobs:
                         'cash_underwriting_status': 'SUCCESS' if underwriting else 'FAILED',
                         'cash_underwriting_counts': underwriting['counts'] if underwriting else None,
                         'cash_underwriting_sha256': underwriting['report_sha256'] if underwriting else None,
+                        'price_context_status': 'SUCCESS' if context else 'FAILED',
+                        'price_context_issuers': len(context['cards']) if context else None,
+                        'price_context_sha256': context['report_sha256'] if context else None,
                         'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
                         'source_commit': os.environ['GITHUB_SHA'], 'live_capital_allowed': False,
                         'model_endpoint_configured': False, 'validated_predictive_edge': False}
@@ -113,12 +124,16 @@ jobs:
           if [ -f "$CC_STATE/cash-underwriting.json" ] && [ -f "$CC_STATE/cash-underwriting.html" ]; then
             git -C "$CC_STATE" add cash-underwriting.json cash-underwriting.html
           fi
+          if [ -f "$CC_STATE/price-context.json" ] && [ -f "$CC_STATE/price-context.html" ]; then
+            git -C "$CC_STATE" add price-context.json price-context.html
+          fi
           if ! git -C "$CC_STATE" diff --cached --quiet; then
             git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
             git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
           fi
           test "$comparison_ok" = true
           test "$underwriting_ok" = true
+          test "$context_ok" = true
       - uses: actions/upload-artifact@v4
         if: always() && steps.state.outputs.ready == 'true'
         with:
@@ -132,6 +147,8 @@ jobs:
             ${{ runner.temp }}/cc001-state/business-changes.html
             ${{ runner.temp }}/cc001-state/cash-underwriting.json
             ${{ runner.temp }}/cc001-state/cash-underwriting.html
+            ${{ runner.temp }}/cc001-state/price-context.json
+            ${{ runner.temp }}/cc001-state/price-context.html
           retention-days: 14
           if-no-files-found: error
       - name: Surface partial intake failures after retaining evidence

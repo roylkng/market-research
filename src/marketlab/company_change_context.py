@@ -11,13 +11,15 @@ import html
 import json
 import re
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 from zoneinfo import ZoneInfo
 
 from marketlab.company_change import ChangeError, canonical_hash, finite, timestamp
 from marketlab.company_change_pipeline import fetch_original, project_html
-from marketlab.company_change_store import EvidenceStore, loads_unique
+from marketlab.company_change_prices import archive_close, quote_session
+from marketlab.company_change_store import EvidenceStore, loads_unique, writable_workspace
 from marketlab.company_change_tables import PERIOD, extract_statement
 
 VERSION = "CC001-CONTEXT-v1"
@@ -155,6 +157,11 @@ def select_period(periods: list, start: str, end: str, preferred_sha: str = "") 
 def build_card(identity: dict, periods: list, current_end: str, quote: dict | None,
                actions: dict | None, as_of: str) -> dict:
     cutoff = timestamp(as_of)
+    if (set(identity) != {"symbol", "isin", "scope"}
+            or not re.fullmatch(r"[A-Z0-9&._-]{1,30}", str(identity["symbol"]))
+            or not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{9}[0-9]", str(identity["isin"]))
+            or identity["scope"] not in {"STANDALONE", "CONSOLIDATED"}):
+        raise ChangeError("invalid research identity")
     for p in periods:
         if p["identity"] != identity:
             raise ChangeError("cross-issuer or cross-scope history")
@@ -186,7 +193,8 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
             for field in FLOW_FIELDS + CAPEX:
                 a, b, c = number(annual, field), number(interim, field), number(prior, field)
                 fields[field] = {"annual": a, "current_interim": b, "prior_interim": c,
-                    "value": finite(a + b - c, field) if a is not None and b is not None and c is not None else None}
+                    "value": finite(Decimal(str(a)) + Decimal(str(b)) - Decimal(str(c)), field)
+                    if a is not None and b is not None and c is not None else None}
             ttm = {"start": (day(prior["period_end"]) + timedelta(days=1)).isoformat(), "end": current_end,
                    "fields": fields, "formula": "ANNUAL + CURRENT_INTERIM - PRIOR_INTERIM",
                    "sources": [period_refs(p) for p in (annual, interim, prior)],
@@ -204,18 +212,19 @@ def build_card(identity: dict, periods: list, current_end: str, quote: dict | No
         blockers.append("No verified dated exchange price.")
     else:
         if (quote["identity"] != identity or timestamp(quote["observed_at"]) > cutoff
-                or timestamp(quote["quoted_at"]) > timestamp(quote["observed_at"])):
+                or quote.get("quoted_at") is not None and timestamp(quote["quoted_at"]) > timestamp(quote["observed_at"])):
             raise ChangeError("quote identity or information clock mismatch")
-        if (cutoff - timestamp(quote["quoted_at"])).total_seconds() > 7 * 86400:
+        if (cutoff.astimezone(IST).date() - quote_session(quote)).days > 7:
             blockers.append("Exchange observation is more than seven calendar days old.")
     if actions is not None and actions.get("observed_at") and timestamp(actions["observed_at"]) > cutoff:
         raise ChangeError("corporate actions unavailable at cutoff")
     if actions is None:
         blockers.append("Corporate-action response unavailable. Share-price/EPS comparison withheld.")
     elif annual and (actions["start_exclusive"] > annual["period_end"] or
-                     quote and actions["end_inclusive"] < timestamp(quote["quoted_at"]).astimezone(IST).date().isoformat()):
+                     quote and actions["end_inclusive"] < quote_session(quote).isoformat()):
         blockers.append("Corporate-action window does not cover the annual EPS date through the price.")
-    elif actions.get("share_basis_changes_or_unknown_actions"):
+    elif annual and any(annual["period_end"] < change["ex_date"] <= actions["end_inclusive"]
+                        for change in actions.get("share_basis_changes_or_unknown_actions", [])):
         blockers.append("Share-basis change or unclassified corporate action requires reconciliation.")
     if not blockers:
         ratio = quote["price"] / eps
@@ -361,7 +370,12 @@ def refresh_one(store, client, anchor: dict, *, max_documents=4, fetcher=fetch_o
         cap = retain_json(store, payload, raw, client.QUOTE_ENDPOINT.url + "?" + urlencode({"symbol": identity["symbol"]}))
         quote = {**parse_quote(payload, identity, cap["captured_at"]), "raw_sha256": cap["raw_sha256"]}
     except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
-        errors.append({"stage": "quote", "reason": str(exc)})
+        primary_error = str(exc)
+        try:
+            quote = archive_close(store, identity)
+            quote["primary_quote_endpoint_error"] = primary_error
+        except (ValueError, TypeError, KeyError, RuntimeError, OSError) as fallback:
+            errors.append({"stage": "quote", "reason": primary_error, "archive_error": str(fallback)})
     try:
         start = min((p["period_end"] for p in periods), default=year_ago(current_end))
         end = timestamp(store.clock()).astimezone(IST).date().isoformat()
@@ -375,6 +389,11 @@ def refresh_one(store, client, anchor: dict, *, max_documents=4, fetcher=fetch_o
     except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
         errors.append({"stage": "corporate_actions", "reason": str(exc)})
     card = build_card(identity, periods, current_end, quote, actions, store.clock())
+    card["anchor_review_status"] = anchor.get("review_status", "UNREVIEWED")
+    if card["anchor_review_status"] == "REJECT":
+        card["blockers"].append("Current anchor extraction has been rejected. Reconcile before interpreting price/earnings.")
+        card["price_over_reported_annual_eps"] = None
+        card["reverse_hurdle_scenarios"] = []
     card.update(source_receipts=receipts, retrieval_errors=errors, anchor_sha256=anchor["raw_sha256"],
                 financial_periods=periods, evidence_mode="OBSERVED_NOW_HISTORICAL_RECONSTRUCTION")
     card["card_sha256"] = canonical_hash(card)
@@ -396,9 +415,9 @@ def render_report(report: dict) -> str:
                             for s in card["reverse_hurdle_scenarios"])
         gaps = "".join(f"<li>{esc(x)}</li>" for x in card["blockers"] + card["limitations"])
         cards.append(f"<article><div class='tag'>RESEARCH ONLY / {esc(card['identity']['scope'])}</div><h2>{esc(card['identity']['symbol'])}</h2>"
-            f"<div class='numbers'><div><b>₹{fmt(quote['price'] if quote else None)}</b><span>Last traded observation</span></div>"
+            f"<div class='numbers'><div><b>₹{fmt(quote['price'] if quote else None)}</b><span>Dated exchange price observation</span></div>"
             f"<div><b>{fmt(card['price_over_reported_annual_eps'])}×</b><span>Price / reported annual diluted EPS</span></div></div>"
-            f"<p>Quote timestamp: {esc(quote['quoted_at'] if quote else 'Unavailable')}</p>"
+            f"<p>Quote timestamp: {esc((quote.get('quoted_at') or quote.get('session_date') + ' (official close, date only)') if quote else 'Unavailable')}</p>"
             f"<h3>Reported year-ago comparisons</h3><table><tr><th>Current period</th><th>Revenue change</th><th>Evidence basis</th></tr>{rows_}</table>"
             f"<h3>What would a 15% price return require?</h3><p>Five-year sensitivity using unnormalized annual EPS. No forecast is implied.</p>"
             f"<table><tr><th>Assumed exit P/E</th><th>Required EPS growth/year</th></tr>{scenarios}</table>"
@@ -452,6 +471,7 @@ def main(argv=None) -> int:
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--symbols", nargs="*")
     parser.add_argument("--limit", type=int, default=3)
+    parser.add_argument("--output-prefix", type=Path)
     args = parser.parse_args(argv)
     from marketlab.nse import NSEClient
     with EvidenceStore(args.workspace) as store:
@@ -466,6 +486,9 @@ def main(argv=None) -> int:
             target = folder / f"{report['report_sha256']}.{suffix}"
             with target.open("xb") as stream:
                 stream.write(payload.encode())
+            if args.output_prefix:
+                writable_workspace(args.output_prefix.parent)
+                args.output_prefix.with_suffix("." + suffix).write_text(payload, encoding="utf-8")
         print("CC001_CONTEXT=" + json.dumps({"hash": report["report_sha256"], "failures": report["failures"],
             "cards": [{k: c[k] for k in ("identity", "quote", "reported_annual_diluted_eps", "price_over_reported_annual_eps", "blockers", "retrieval_errors")}
                       for c in report["cards"]]}))

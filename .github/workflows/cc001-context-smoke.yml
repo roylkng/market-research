@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'src/marketlab/company_change_context.py'
-      - 'tests/test_company_change_context.py'
+      - 'src/marketlab/company_change_prices.py'
+      - 'tests/test_company_change_context*.py'
+      - 'tests/test_company_change_prices.py'
       - '.github/workflows/cc001-context-smoke.yml'
 permissions:
   contents: read
@@ -28,10 +30,11 @@ jobs:
       - name: Preserve exact implementation and test sources with the evidence
         if: always()
         run: |
-          mkdir -p /tmp/cc001-context/implementation/src/marketlab /tmp/cc001-context/implementation/tests /tmp/cc001-context/implementation/data/fixtures
-          cp src/marketlab/company_change*.py src/marketlab/nse.py /tmp/cc001-context/implementation/src/marketlab/
+          mkdir -p /tmp/cc001-context/implementation/src/marketlab /tmp/cc001-context/implementation/tests /tmp/cc001-context/implementation/data/fixtures /tmp/cc001-context/implementation/.github/workflows
+          cp src/marketlab/*.py /tmp/cc001-context/implementation/src/marketlab/
           cp tests/test_company_change*.py /tmp/cc001-context/implementation/tests/
           cp data/fixtures/company_change*.json /tmp/cc001-context/implementation/data/fixtures/
+          cp .github/workflows/cc001*.yml /tmp/cc001-context/implementation/.github/workflows/
           cp pyproject.toml /tmp/cc001-context/implementation/
           git rev-parse HEAD > /tmp/cc001-context/implementation/source-commit.txt
       - uses: actions/upload-artifact@v4
