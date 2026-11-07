@@ -483,7 +483,7 @@ def economic_features(snapshot: dict) -> dict:
         if result["review_status"] != "ACCEPT":
             continue
         facts = {key: value["value"] for key, value in result["facts"].items()}
-        def ratio(numerator, denominator):
+        def ratio(numerator, denominator, facts=facts):
             n, d = facts.get(numerator), facts.get(denominator)
             return n / d if isinstance(n, (int, float)) and isinstance(d, (int, float)) and d > 0 else None
         values = {"cc_pbt_margin": ratio("pbt", "revenue"),
@@ -518,6 +518,15 @@ def record_decision(store: EvidenceStore, specification: dict) -> dict:
         blockers.append("Latest extraction has not been accepted by a reviewer.")
     if result["source_document"] is None:
         blockers.append("Table facts do not yet establish normalized owner earnings and diluted shares.")
+    # Company-level decisions must include capital events in the persistent state,
+    # not just the selected earnings document. An unreviewed issuance cannot be
+    # silently ignored to preserve an otherwise attractive stale EPS denominator.
+    issues = [r for r in snapshot["active"] if r["kind"] == "capital_allocation"
+              and r["symbol"] == result["symbol"] and r["isin"] == result["isin"]
+              and r["selector"]["period_end"] >= result["selector"]["period_start"]
+              and r["facts"].get("status", {}).get("value") != "CANCELLED"]
+    if issues:
+        blockers.append("Reconcile normalized EPS to the capital events in company history.")
     if blockers:
         card = {"disposition": "WAIT", "symbol": result["symbol"], "blockers": blockers,
                 "assumptions": specification, "extraction_id": result["extraction_id"],

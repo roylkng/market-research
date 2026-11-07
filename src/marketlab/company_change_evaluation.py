@@ -177,7 +177,7 @@ def run_abc(dataset: dict, spec: dict) -> dict:
             continue
         folds.append({"fold": fold_no, "status": "EVALUATED", "train": len(train), "test": len(test)})
         for arm, feature_names in names.items():
-            def example(row, target):
+            def example(row, target, feature_names=feature_names):
                 label = labels.get(row["id"])
                 return ModelExample(symbol=row["symbol"], isin=row["isin"],
                     feature_session=timestamp(row["decision_at"]).date().isoformat(),
