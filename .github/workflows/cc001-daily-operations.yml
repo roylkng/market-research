@@ -9,6 +9,7 @@ on:
       - '.github/workflows/cc001-daily-operations.yml'
       - 'src/marketlab/company_change_discovery.py'
       - 'src/marketlab/company_change_xbrl.py'
+      - 'src/marketlab/company_change_comparisons.py'
 permissions:
   contents: write
 concurrency:
@@ -66,17 +67,26 @@ jobs:
           set -euo pipefail
           test -f "$CC_WORKSPACE/evidence.sqlite3"
           python -m marketlab.company_change_app --workspace "$CC_WORKSPACE" --export "$CC_STATE/research-desk.html"
+          comparison_ok=true
+          if ! python -m marketlab.company_change_comparisons --workspace "$CC_WORKSPACE" --output-prefix "$CC_STATE/business-changes"; then
+            comparison_ok=false
+          fi
+          export CC_COMPARISON_OK="$comparison_ok"
           python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
           python - <<'PY'
           import json, os
           from pathlib import Path
           from marketlab.company_change_discovery import coverage
           from marketlab.company_change_store import EvidenceStore
+          business = json.loads(Path(os.environ['CC_STATE'], 'business-changes.json').read_text()) if os.environ['CC_COMPARISON_OK'] == 'true' else None
           with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
               snapshot = store.snapshot()
               latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
                         'extraction_versions': len(snapshot['history']), 'recorded_at': snapshot['as_of'],
                         'unreviewed': sum(r['review_status'] == 'UNREVIEWED' for r in snapshot['active']),
+                        'business_change_status': 'SUCCESS' if business else 'FAILED',
+                        'business_change_counts': business['counts'] if business else None,
+                        'business_change_sha256': business['report_sha256'] if business else None,
                         'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
                         'source_commit': os.environ['GITHUB_SHA'], 'live_capital_allowed': False,
                         'model_endpoint_configured': False, 'validated_predictive_edge': False}
@@ -86,10 +96,14 @@ jobs:
           git -C "$CC_STATE" config user.name marketlab-research-bot
           git -C "$CC_STATE" config user.email marketlab-research-bot@users.noreply.github.com
           git -C "$CC_STATE" add STATE_FORMAT workspace.zip checkpoint.json latest.json research-desk.html
+          if [ -f "$CC_STATE/business-changes.json" ] && [ -f "$CC_STATE/business-changes.html" ]; then
+            git -C "$CC_STATE" add business-changes.json business-changes.html
+          fi
           if ! git -C "$CC_STATE" diff --cached --quiet; then
             git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
             git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
           fi
+          test "$comparison_ok" = true
       - uses: actions/upload-artifact@v4
         if: always() && steps.state.outputs.ready == 'true'
         with:
@@ -99,6 +113,8 @@ jobs:
             ${{ runner.temp }}/cc001-state/checkpoint.json
             ${{ runner.temp }}/cc001-state/latest.json
             ${{ runner.temp }}/cc001-state/research-desk.html
+            ${{ runner.temp }}/cc001-state/business-changes.json
+            ${{ runner.temp }}/cc001-state/business-changes.html
           retention-days: 14
           if-no-files-found: error
       - name: Surface partial intake failures after retaining evidence
