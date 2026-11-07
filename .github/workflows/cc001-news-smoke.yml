@@ -24,7 +24,11 @@ jobs:
           git show FETCH_HEAD:workspace.zip > /tmp/cc001-news-input.zip
           python -m marketlab.company_change_checkpoint restore --workspace /tmp/cc001-news --archive /tmp/cc001-news-input.zip
       - name: Read bounded originals across disclosure families
-        run: python -m marketlab.company_change_news --workspace /tmp/cc001-news --limit 12 --output-prefix /tmp/cc001-news/reports/news-inbox
+        run: python -m marketlab.company_change_news --workspace /tmp/cc001-news --limit 7 --output-prefix /tmp/cc001-news/reports/news-inbox
+      - name: Replay four source-bound assisted development reviews
+        run: python -m marketlab.company_change_news_review --workspace /tmp/cc001-news --package data/fixtures/company_change_news_development_reviews.json --reviewer assistant-source-review --output /tmp/cc001-news/reports/reviewed-events.json
+      - name: Connect the newly read SEAMEC award to dated financial and price evidence
+        run: python -m marketlab.company_change_context --workspace /tmp/cc001-news --symbols SEAMECLTD --limit 1 --output-prefix /tmp/cc001-news/reports/event-price-context
       - name: Retain exact implementation alongside source evidence
         if: always()
         run: |

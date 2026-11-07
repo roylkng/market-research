@@ -90,7 +90,7 @@ python -m marketlab.company_change_news \
 ```
 
 The isolated live-source workflow restores a copy of the persisted state and
-reads at most 12 attachments across disclosure families. It cannot push state
+reads at most seven attachments across disclosure families. It cannot push state
 or use model credentials. It retains exact code, original bytes and output for
 replay. Completed reading is not independent semantic validation.
 
@@ -107,3 +107,44 @@ Primary sources consulted:
   without exchange verification of their adequacy, accuracy or veracity.
 - SEBI circular dated 13 July 2023 on disclosure of material events. It is a
   historical source-format reference, not a statement of current legal compliance.
+
+## Explicit assisted semantic review
+
+`company_change_news_review` validates and admits an explicitly supplied review
+package. An interpretation must reference the exact original URL, symbol, ISIN,
+raw hash and text hash, with exact offset-bound quotations for event, stage and
+economic actor. Missing evidence, wrong sources and additional forecast fields
+are rejected. Atomic imports and deterministic identities make replay auditable.
+The output retains who supplied the review and when. It is an assisted research
+interpretation, not independently verified ground truth. No financial extraction,
+source review, trading approval or frozen experiment is changed.
+
+The four checked development cases are SEAMEC, Dhruv, Vikran and Prestige. They
+were selected after inspecting their text and rendered original PDF pages. They
+are seen development cases, not a blind evaluation set. The fixture is replayed
+only in the read-only source smoke, not automatically applied to all new news.
+Quoted source spans prevent fabricated evidence but do not themselves prove that
+the interpretation is correct. Independent labels remain a separate requirement.
+
+SEAMEC distinguishes an issuer-specific USD work award from consortium totals,
+commencement and earnings. Dhruv separates incorporation from operations and
+flags conflicting payment statements. Vikran distinguishes an outlook change
+from a letter-grade downgrade. Prestige retains conflicting completion language
+as UNRESOLVED instead of selecting the more optimistic sentence.
+
+`review_packet` exports a provider-neutral evidence/schema packet. It does not
+call a model, approve the response, send data externally or configure billing.
+The running semantic path remains explicit assisted review until a provider and
+its measured error rate are established.
+
+The existing daily workflow now adds up to four announcement reads and persists
+news-inbox.json/html. Its existing 40 financial-document batch, three-context
+rotation, cadence and active storage cap remain unchanged. Partial news failures
+are surfaced after checkpointing. Latest news status/hash are cleared on failure,
+not populated from an older successful report.
+
+The first live experiment planned twelve documents but reached its byte-budget
+reserve after seven successful reads, so it correctly reported partial completion.
+The reviewed smoke is explicitly seven documents. It does not enlarge the cap or
+claim that the five deferred documents were read. It also connects SEAMEC to the
+existing historical/price module without converting the award into forecast profit.

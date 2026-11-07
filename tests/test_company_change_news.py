@@ -19,7 +19,6 @@ from marketlab.company_change_news import (
     retained_index,
     route,
     run,
-    setup,
     triage,
 )
 from marketlab.company_change_store import EvidenceStore
@@ -250,6 +249,6 @@ def test_workflow_bounds_and_source_preservation():
     source = Path(__file__).resolve().parents[1] / ".github/workflows/cc001-news-smoke.yml"
     text_ = source.read_text()
     assert "contents: read" in text_
-    assert "--limit 12" in text_
+    assert "--limit 7" in text_
     assert "push origin" not in text_
     assert "CC001_MODEL_API_KEY" not in text_
