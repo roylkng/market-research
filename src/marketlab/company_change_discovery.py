@@ -73,6 +73,7 @@ def publication_clock(row: dict) -> datetime:
                 continue
     if not clocks:
         raise ChangeError("no usable exchange publication timestamp")
+    # A revised document must not inherit the earlier publication clock.
     return max(clocks)
 
 
@@ -139,7 +140,7 @@ def candidate(row: dict, identities: dict, start: date, end: date, seen: str, la
     item["id"] = canonical_hash(identity)
     if lane == "announcements":
         item["initial_state"] = "NEEDS_SEMANTIC_MAPPING"
-    elif parsed.path.lower().endswith((".html", ".htm")):
+    elif parsed.path.lower().endswith((".html", ".htm", ".xml")):
         item["initial_state"] = "PENDING"
     else:
         item["initial_state"] = "UNSUPPORTED_FORMAT"
@@ -147,7 +148,11 @@ def candidate(row: dict, identities: dict, start: date, end: date, seen: str, la
 
 
 def discover(store: EvidenceStore, client, *, start: date, end: date) -> dict:
-    """Reuse NSE discovery with exact bytes and exclusions, not a claimed census."""
+    """Read the existing NSE client, preserving exact discovery bytes and exclusions.
+
+    NSE current-response coverage is not asserted to be a complete historical
+    census. No source or event is silently promoted into a frozen experiment.
+    """
     setup_queue(store)
     if start > end or (end - start).days > 30:
         raise ChangeError("discovery window must contain at most 31 calendar days")
@@ -157,28 +162,46 @@ def discover(store: EvidenceStore, client, *, start: date, end: date) -> dict:
     sources, exclusions, accepted, errors = [], [], {}, []
     for lane in ("financials", "announcements"):
         try:
-            if lane == "financials":
-                payload, raw = client._json_get_with_raw(client.INTEGRATED_FILING_ENDPOINT, params={
-                    "index": "equities", "period": "Quarterly",
-                    "from_date": start.strftime("%d-%m-%Y"), "to_date": end.strftime("%d-%m-%Y")})
-            else:
-                payload, raw = client.corporate_announcements_with_raw(
-                    from_date=start.strftime("%d-%m-%Y"), to_date=end.strftime("%d-%m-%Y"))
-            raw_hash = store.put_blob(raw)
-            if canonical_hash(loads_unique(raw)) != canonical_hash(payload):
-                raise ChangeError("discovery bytes do not match the parsed payload")
-            seen = timestamp(store.clock()).isoformat()
-            rows = rows_from_payload(payload)
-            sources.append({"lane": lane, "raw_sha256": raw_hash, "observed_at": seen,
-                            "returned_rows": len(rows), "response_keys": sorted(payload) if isinstance(payload, dict) else []})
-            for index, row in enumerate(rows):
-                try:
-                    item = candidate(row, identities, start, end, seen, lane)
-                    accepted.setdefault(item["id"], item)
-                except (ChangeError, TypeError, ValueError) as exc:
-                    exclusions.append({"lane": lane, "row": index, "reason": str(exc),
-                                       "row_sha256": canonical_hash(row)})
-        except Exception as exc:
+            page, page_hashes, total_seen = 1, set(), 0
+            while True:
+                if lane == "financials":
+                    payload, raw = client._json_get_with_raw(client.INTEGRATED_FILING_ENDPOINT, params={
+                        "index": "equities", "period": "Quarterly", "page": page, "size": 200,
+                        "from_date": start.strftime("%d-%m-%Y"), "to_date": end.strftime("%d-%m-%Y")})
+                else:
+                    payload, raw = client.corporate_announcements_with_raw(
+                        from_date=start.strftime("%d-%m-%Y"), to_date=end.strftime("%d-%m-%Y"))
+                raw_hash = store.put_blob(raw)
+                if canonical_hash(loads_unique(raw)) != canonical_hash(payload):
+                    raise ChangeError("discovery bytes do not match the parsed payload")
+                seen = timestamp(store.clock()).isoformat()
+                rows = rows_from_payload(payload)
+                page_hash = canonical_hash(rows)
+                if page_hash in page_hashes and rows:
+                    raise ChangeError("pagination repeated a page instead of advancing")
+                page_hashes.add(page_hash)
+                total_seen += len(rows)
+                total = payload.get("totalCount") if isinstance(payload, dict) else None
+                sources.append({"lane": lane, "raw_sha256": raw_hash, "observed_at": seen,
+                    "returned_rows": len(rows), "requested_page": page, "source_total": total,
+                    "response_keys": sorted(payload) if isinstance(payload, dict) else []})
+                for index, row in enumerate(rows):
+                    try:
+                        item = candidate(row, identities, start, end, seen, lane)
+                        accepted.setdefault(item["id"], item)
+                    except (ChangeError, TypeError, ValueError) as exc:
+                        exclusions.append({"lane": lane, "page": page, "row": index,
+                            "reason": str(exc), "row_sha256": canonical_hash(row)})
+                if lane != "financials" or total is None:
+                    break
+                if type(total) is not int or total < 0:
+                    raise ChangeError("invalid pagination total")
+                if total_seen >= total:
+                    break
+                if not rows or page >= 50:
+                    raise ChangeError("financial pagination incomplete at bounded page limit")
+                page += 1
+        except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
             errors.append({"lane": lane, "error_type": type(exc).__name__, "reason": str(exc)[:600]})
     observed = timestamp(store.clock()).isoformat()
     with store.transaction():
@@ -213,7 +236,7 @@ def selectors_from_document(raw: bytes, item: dict) -> list[dict]:
             raise ChangeError("unaligned original period headers")
         for begin, finish, scope in zip(headers["start"], headers["end"], headers["scope"], strict=True):
             begin, finish, scope = parse_day(begin).isoformat(), parse_day(finish).isoformat(), scope.upper()
-            if finish == item["period_end"] and scope == item["scope"]:
+            if finish <= item["period_end"] and scope == item["scope"]:
                 selectors.add((begin, finish, scope))
     if not selectors:
         raise ChangeError("no original-document column matches the discovery period and scope")
@@ -239,24 +262,29 @@ def drain(store: EvidenceStore, *, limit: int = 20, fetcher=fetch_original) -> d
         item = loads_unique(row["payload"])
         try:
             raw, final_url = fetcher(item["url"], ARCHIVE_HOSTS)
+            # Retain unsupported originals too, before parsing their layout.
             digest = store.put_blob(raw)
-            selectors = selectors_from_document(raw, item)
-            outputs = []
-            for selector in selectors:
-                spec = {"source_id": "discovery-" + item["id"] + "-" + selector["period_start"],
-                    "url": item["url"], "symbol": item["symbol"], "isin": item["isin"],
-                    "kind": "earnings_quality", "event_key": selector["period_start"] + "/" + selector["period_end"],
-                    **selector, "published_at": item["published_at"], "format": "html", "extractor": "statement", "rights": "INTERNAL_RESEARCH"}
-                capture = store.capture(raw, {"spec": spec, "origin": "HTTP_RESPONSE_BYTES",
-                    "final_url": final_url, "discovery_row_sha256": item["discovery_row_sha256"],
-                    "publication_time_verified": False})
-                result = process_capture(store, capture, spec)
-                outputs.append({"source_id": spec["source_id"], "extraction_id": result["extraction_id"],
-                    "symbol": item["symbol"], "raw_sha256": digest, "facts": len(result["facts"]), "selector": selector,
-                    "origin": "HTTP_RESPONSE_BYTES"})
+            if urlsplit(item["url"]).path.lower().endswith(".xml"):
+                from marketlab.company_change_xbrl import persist_xbrl
+                outputs = persist_xbrl(store, raw, item, final_url)
+            else:
+                selectors = selectors_from_document(raw, item)
+                outputs = []
+                for selector in selectors:
+                    spec = {"source_id": "discovery-" + item["id"] + "-" + selector["period_start"],
+                        "url": item["url"], "symbol": item["symbol"], "isin": item["isin"],
+                        "kind": "earnings_quality", "event_key": selector["period_start"] + "/" + selector["period_end"],
+                        **selector, "published_at": item["published_at"], "format": "html", "extractor": "statement", "rights": "INTERNAL_RESEARCH"}
+                    capture = store.capture(raw, {"spec": spec, "origin": "HTTP_RESPONSE_BYTES",
+                        "final_url": final_url, "discovery_row_sha256": item["discovery_row_sha256"],
+                        "publication_time_verified": False})
+                    result = process_capture(store, capture, spec)
+                    outputs.append({"source_id": spec["source_id"], "extraction_id": result["extraction_id"],
+                        "symbol": item["symbol"], "raw_sha256": digest, "facts": len(result["facts"]), "selector": selector,
+                        "origin": "HTTP_RESPONSE_BYTES"})
             successes.extend(outputs)
             state, detail = "EXTRACTED", json.dumps({"raw_sha256": digest, "records": outputs})
-        except Exception as exc:
+        except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
             state, detail = "FAILED", f"{type(exc).__name__}: {exc}"[:800]
             failures.append({"source_id": item["id"], "symbol": item["symbol"], "reason": detail})
         with store.transaction():
@@ -288,6 +316,7 @@ def main(argv=None) -> int:
     parser.add_argument("--days", type=int, default=7)
     parser.add_argument("--limit", type=int, default=20)
     parser.add_argument("--fetch", action="store_true")
+    parser.add_argument("--require-documents", type=int, default=0)
     parser.add_argument("--retry-failed", action="store_true")
     args = parser.parse_args(argv)
     try:
@@ -316,8 +345,8 @@ def main(argv=None) -> int:
             compact["discovery"] = ({k: v for k, v in receipt.items() if k != "exclusions"} if receipt else None)
             compact["artifacts"] = paths
             print("CC001_DISCOVERY=" + json.dumps(compact, allow_nan=False))
-        return 1 if processed["failures"] or (receipt and receipt["errors"]) else 0
-    except Exception as exc:
+        return 1 if processed["failures"] or (receipt and receipt["errors"]) or processed["attempted_documents"] < args.require_documents else 0
+    except (ValueError, TypeError, KeyError, RuntimeError, OSError) as exc:
         print(f"CC001 discovery: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 2
 

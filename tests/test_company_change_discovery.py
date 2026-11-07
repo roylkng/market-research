@@ -160,7 +160,7 @@ def test_failed_intake_budget_no_silent_removal(tmp_path):
 
 def test_unsupported_format_not_treated_as_extracted(tmp_path):
     with EvidenceStore(tmp_path, clock=lambda: CLOCK) as store:
-        discover(store, Client(financial=[{**filing(), 'xbrl': 'https://nsearchives.nseindia.com/a.xml'}]), start=START, end=END)
+        discover(store, Client(financial=[{**filing(), 'xbrl': 'https://nsearchives.nseindia.com/a.pdf'}]), start=START, end=END)
         assert coverage(store)['counts'] == {'UNSUPPORTED_FORMAT': 1}
         assert drain(store)['attempted_documents'] == 0
 
@@ -204,6 +204,5 @@ def test_selector_requires_discovery_scope(raw_html):
 
 @pytest.mark.parametrize('limit', [0, 101, True, 1.5])
 def test_fetch_limits(tmp_path, limit):
-    with EvidenceStore(tmp_path, clock=lambda: CLOCK) as store:
-        with pytest.raises(ChangeError, match='budget'):
-            drain(store, limit=limit)
+    with EvidenceStore(tmp_path, clock=lambda: CLOCK) as store, pytest.raises(ChangeError, match='budget'):
+        drain(store, limit=limit)
