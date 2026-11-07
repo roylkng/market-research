@@ -16,6 +16,7 @@ on:
       - 'src/marketlab/company_change_prices.py'
       - 'src/marketlab/company_change_context_quality.py'
       - 'src/marketlab/company_change_decisions.py'
+      - 'src/marketlab/company_change_report_archive.py'
 permissions:
   contents: write
 concurrency:
@@ -67,6 +68,7 @@ jobs:
         continue-on-error: true
         run: python -m marketlab.company_change_discovery --workspace "$CC_WORKSPACE" --days 7 --limit 40 --fetch
       - name: Export research desk and checkpoint durable state
+        id: export_state
         if: always() && steps.state.outputs.ready == 'true'
         shell: bash
         run: |
@@ -93,7 +95,9 @@ jobs:
             decision_ok=false
           fi
           export CC_DECISION_OK="$decision_ok"
-          python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
+          python -m marketlab.company_change_report_archive archive --workspace "$CC_WORKSPACE" --history "$CC_STATE/report-history"
+          python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json.tmp"
+          mv "$CC_STATE/checkpoint.json.tmp" "$CC_STATE/checkpoint.json"
           python - <<'PY'
           import json, os
           from pathlib import Path
@@ -129,6 +133,9 @@ jobs:
           git -C "$CC_STATE" config user.name marketlab-research-bot
           git -C "$CC_STATE" config user.email marketlab-research-bot@users.noreply.github.com
           git -C "$CC_STATE" add STATE_FORMAT workspace.zip checkpoint.json latest.json research-desk.html
+          if [ -d "$CC_STATE/report-history" ]; then
+            git -C "$CC_STATE" add report-history
+          fi
           if [ -f "$CC_STATE/business-changes.json" ] && [ -f "$CC_STATE/business-changes.html" ]; then
             git -C "$CC_STATE" add business-changes.json business-changes.html
           fi
@@ -166,6 +173,15 @@ jobs:
             ${{ runner.temp }}/cc001-state/price-context.html
             ${{ runner.temp }}/cc001-state/decision-context.json
             ${{ runner.temp }}/cc001-state/decision-context.html
+            ${{ runner.temp }}/cc001-state/report-history
+          retention-days: 14
+          if-no-files-found: error
+      - name: Preserve uncheckpointed workspace on export failure
+        if: always() && steps.state.outputs.ready == 'true' && steps.export_state.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc001-uncheckpointed-recovery
+          path: ${{ runner.temp }}/cc001-workspace
           retention-days: 14
           if-no-files-found: error
       - name: Surface partial intake failures after retaining evidence
