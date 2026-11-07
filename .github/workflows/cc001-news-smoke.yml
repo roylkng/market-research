@@ -1,0 +1,48 @@
+name: CC001 original announcement reader
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change_news*.py'
+      - 'tests/test_company_change_news*.py'
+      - '.github/workflows/cc001-news-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  verify-original-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Restore copy of existing research state
+        run: |
+          git fetch --depth=1 origin cc001-state
+          git show FETCH_HEAD:workspace.zip > /tmp/cc001-news-input.zip
+          python -m marketlab.company_change_checkpoint restore --workspace /tmp/cc001-news --archive /tmp/cc001-news-input.zip
+      - name: Read bounded originals across disclosure families
+        run: python -m marketlab.company_change_news --workspace /tmp/cc001-news --limit 7 --output-prefix /tmp/cc001-news/reports/news-inbox
+      - name: Replay four source-bound assisted development reviews
+        run: python -m marketlab.company_change_news_review --workspace /tmp/cc001-news --package data/fixtures/company_change_news_development_reviews.json --reviewer assistant-source-review --output /tmp/cc001-news/reports/reviewed-events.json
+      - name: Connect the newly read SEAMEC award to dated financial and price evidence
+        run: python -m marketlab.company_change_context --workspace /tmp/cc001-news --symbols SEAMECLTD --limit 1 --output-prefix /tmp/cc001-news/reports/event-price-context
+      - name: Retain exact implementation alongside source evidence
+        if: always()
+        run: |
+          mkdir -p /tmp/cc001-news/implementation/src/marketlab /tmp/cc001-news/implementation/tests /tmp/cc001-news/implementation/data/fixtures /tmp/cc001-news/implementation/workflows
+          cp src/marketlab/*.py /tmp/cc001-news/implementation/src/marketlab/
+          cp tests/test_company_change*.py /tmp/cc001-news/implementation/tests/
+          cp data/fixtures/company_change*.json /tmp/cc001-news/implementation/data/fixtures/
+          cp .github/workflows/cc001*.yml /tmp/cc001-news/implementation/workflows/
+          cp pyproject.toml /tmp/cc001-news/implementation/
+          git rev-parse HEAD > /tmp/cc001-news/implementation/source-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-original-announcement-evidence
+          path: /tmp/cc001-news
+          retention-days: 14
+          if-no-files-found: error

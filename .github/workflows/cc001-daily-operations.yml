@@ -17,6 +17,7 @@ on:
       - 'src/marketlab/company_change_context_quality.py'
       - 'src/marketlab/company_change_decisions.py'
       - 'src/marketlab/company_change_report_archive.py'
+      - 'src/marketlab/company_change_news.py'
 permissions:
   contents: write
 concurrency:
@@ -95,6 +96,11 @@ jobs:
             decision_ok=false
           fi
           export CC_DECISION_OK="$decision_ok"
+          news_ok=true
+          if ! python -m marketlab.company_change_news --workspace "$CC_WORKSPACE" --limit 4 --output-prefix "$CC_STATE/news-inbox"; then
+            news_ok=false
+          fi
+          export CC_NEWS_OK="$news_ok"
           python -m marketlab.company_change_report_archive archive --workspace "$CC_WORKSPACE" --history "$CC_STATE/report-history"
           python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json.tmp"
           mv "$CC_STATE/checkpoint.json.tmp" "$CC_STATE/checkpoint.json"
@@ -107,6 +113,7 @@ jobs:
           underwriting = json.loads(Path(os.environ['CC_STATE'], 'cash-underwriting.json').read_text()) if os.environ['CC_UNDERWRITING_OK'] == 'true' else None
           context = json.loads(Path(os.environ['CC_STATE'], 'price-context.json').read_text()) if os.environ['CC_CONTEXT_OK'] == 'true' else None
           decision = json.loads(Path(os.environ['CC_STATE'], 'decision-context.json').read_text()) if os.environ['CC_DECISION_OK'] == 'true' else None
+          news = json.loads(Path(os.environ['CC_STATE'], 'news-inbox.json').read_text()) if os.environ['CC_NEWS_OK'] == 'true' else None
           with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
               snapshot = store.snapshot()
               latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
@@ -118,6 +125,9 @@ jobs:
                         'cash_underwriting_status': 'SUCCESS' if underwriting else 'FAILED',
                         'cash_underwriting_counts': underwriting['counts'] if underwriting else None,
                         'cash_underwriting_sha256': underwriting['report_sha256'] if underwriting else None,
+                        'news_reader_status': 'SUCCESS' if news else 'FAILED',
+                        'news_reader_coverage': news['coverage'] if news else None,
+                        'news_reader_sha256': news['report_sha256'] if news else None,
                         'decision_context_status': 'SUCCESS' if decision else 'FAILED',
                         'decision_context_counts': decision['counts'] if decision else None,
                         'decision_context_sha256': decision['report_sha256'] if decision else None,
@@ -148,6 +158,9 @@ jobs:
           if [ -f "$CC_STATE/decision-context.json" ] && [ -f "$CC_STATE/decision-context.html" ]; then
             git -C "$CC_STATE" add decision-context.json decision-context.html
           fi
+          if [ -f "$CC_STATE/news-inbox.json" ] && [ -f "$CC_STATE/news-inbox.html" ]; then
+            git -C "$CC_STATE" add news-inbox.json news-inbox.html
+          fi
           if ! git -C "$CC_STATE" diff --cached --quiet; then
             git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
             git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
@@ -156,6 +169,7 @@ jobs:
           test "$underwriting_ok" = true
           test "$context_ok" = true
           test "$decision_ok" = true
+          test "$news_ok" = true
       - uses: actions/upload-artifact@v4
         if: always() && steps.state.outputs.ready == 'true'
         with:
@@ -174,6 +188,8 @@ jobs:
             ${{ runner.temp }}/cc001-state/decision-context.json
             ${{ runner.temp }}/cc001-state/decision-context.html
             ${{ runner.temp }}/cc001-state/report-history
+            ${{ runner.temp }}/cc001-state/news-inbox.json
+            ${{ runner.temp }}/cc001-state/news-inbox.html
           retention-days: 14
           if-no-files-found: error
       - name: Preserve uncheckpointed workspace on export failure
