@@ -252,7 +252,7 @@ def drain(store: EvidenceStore, *, limit: int = 20, fetcher=fetch_original) -> d
     stale = (timestamp(now) - timedelta(minutes=30)).isoformat()
     with store.transaction():
         store.db.execute("UPDATE cc_discovery_queue SET state='FAILED',detail='interrupted processing lease' WHERE state='PROCESSING' AND updated_at < ?", (stale,))
-        queue = store.db.execute("SELECT * FROM cc_discovery_queue WHERE state='PENDING' OR (state='FAILED' AND attempts < 3) ORDER BY attempts,first_seen,published_at,id LIMIT ?", (limit,)).fetchall()
+        queue = store.db.execute("SELECT * FROM cc_discovery_queue WHERE state='PENDING' OR (state='FAILED' AND attempts < 3) ORDER BY first_seen,published_at,attempts,id LIMIT ?", (limit,)).fetchall()
     successes, failures = [], []
     for row in queue:
         with store.transaction():
