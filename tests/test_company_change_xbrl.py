@@ -10,7 +10,6 @@ from marketlab.company_change_discovery import candidate, discover, drain, secur
 from marketlab.company_change_store import EvidenceStore
 from marketlab.company_change_xbrl import extract_xbrl
 
-
 MASTER = b'SYMBOL,SERIES,ISIN NUMBER\nKRBL,EQ,INE001B01026\n'
 START, END = date(2026, 11, 1), date(2026, 11, 7)
 CLOCK = '2026-11-07T10:00:00Z'
