@@ -1,12 +1,42 @@
 from __future__ import annotations
 
+import json
+from datetime import date
+
 import pytest
-from test_company_change_discovery import CLOCK, END, MASTER, START, Client, filing
 
 from marketlab.company_change import ChangeError
 from marketlab.company_change_discovery import candidate, discover, drain, security_master
 from marketlab.company_change_store import EvidenceStore
 from marketlab.company_change_xbrl import extract_xbrl
+
+
+MASTER = b'SYMBOL,SERIES,ISIN NUMBER\nKRBL,EQ,INE001B01026\n'
+START, END = date(2026, 11, 1), date(2026, 11, 7)
+CLOCK = '2026-11-07T10:00:00Z'
+
+
+def filing():
+    return {'symbol': 'KRBL', 'consolidated': 'Consolidated', 'qe_Date': '31-Mar-2026',
+            'type': 'Integrated Filing- Financials', 'broadcast_Date': '06-Nov-2026 17:30:00',
+            'xbrl': 'https://nsearchives.nseindia.com/test.xml'}
+
+
+class Client:
+    INTEGRATED_FILING_ENDPOINT = 'endpoint'
+
+    def __init__(self, financial=None):
+        self.financial = [filing()] if financial is None else financial
+
+    def all_equity_csv(self):
+        return MASTER
+
+    def _json_get_with_raw(self, endpoint, *, params):
+        payload = {'data': self.financial}
+        return payload, json.dumps(payload).encode()
+
+    def corporate_announcements_with_raw(self, **kwargs):
+        return [], b'[]'
 
 
 def xml():
