@@ -10,7 +10,14 @@ from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-from marketlab.company_change import ChangeError, canonical_hash, finite, public_url, strict_keys, timestamp
+from marketlab.company_change import (
+    ChangeError,
+    canonical_hash,
+    finite,
+    public_url,
+    strict_keys,
+    timestamp,
+)
 from marketlab.company_change_financials import extract_financials
 from marketlab.company_change_store import EvidenceStore, loads_unique, now_utc, writable_workspace
 
