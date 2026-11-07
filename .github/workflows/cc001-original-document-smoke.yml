@@ -1,0 +1,51 @@
+name: CC001 original-document smoke
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change*.py'
+      - 'tests/test_company_change*.py'
+      - 'data/cc001/**'
+      - '.github/workflows/cc001-original-document-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  original-document-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install existing project dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Capture and extract three original NSE HTML documents
+        run: >-
+          python -m marketlab.company_change_pipeline
+          data/cc001/original-intake.json
+          --workspace /tmp/cc001-intake --fetch --require-extracted 3
+      - name: Publish compact verification evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('/tmp/cc001-intake/reports')
+          for file in sorted(root.glob('*.json')):
+              report = json.loads(file.read_text())
+              rows = [{'symbol': r['symbol'], 'raw_sha256': r['raw_sha256'],
+                       'known_at': r['known_at'], 'extraction_id': r['extraction_id'],
+                       'facts': {k: {'value': v['value'], 'unit': v['unit']} for k, v in r['facts'].items()}}
+                      for r in report['snapshot']['active']]
+              print('CC001_VERIFIED=' + json.dumps({'report_sha256': report['report_sha256'],
+                                                   'rows': rows, 'failures': report['failures']}))
+          PY
+      - name: Preserve original bytes, SQLite state and research inbox
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cc001-original-document-evidence
+          path: /tmp/cc001-intake
+          retention-days: 14
+          if-no-files-found: warn
