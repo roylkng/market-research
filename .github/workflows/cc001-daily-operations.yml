@@ -14,6 +14,8 @@ on:
       - 'src/marketlab/company_change_underwriting.py'
       - 'src/marketlab/company_change_context.py'
       - 'src/marketlab/company_change_prices.py'
+      - 'src/marketlab/company_change_context_quality.py'
+      - 'src/marketlab/company_change_decisions.py'
 permissions:
   contents: write
 concurrency:
@@ -86,6 +88,11 @@ jobs:
             context_ok=false
           fi
           export CC_CONTEXT_OK="$context_ok"
+          decision_ok=true
+          if ! python -m marketlab.company_change_decisions --workspace "$CC_WORKSPACE" --output-prefix "$CC_STATE/decision-context"; then
+            decision_ok=false
+          fi
+          export CC_DECISION_OK="$decision_ok"
           python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
           python - <<'PY'
           import json, os
@@ -95,6 +102,7 @@ jobs:
           business = json.loads(Path(os.environ['CC_STATE'], 'business-changes.json').read_text()) if os.environ['CC_COMPARISON_OK'] == 'true' else None
           underwriting = json.loads(Path(os.environ['CC_STATE'], 'cash-underwriting.json').read_text()) if os.environ['CC_UNDERWRITING_OK'] == 'true' else None
           context = json.loads(Path(os.environ['CC_STATE'], 'price-context.json').read_text()) if os.environ['CC_CONTEXT_OK'] == 'true' else None
+          decision = json.loads(Path(os.environ['CC_STATE'], 'decision-context.json').read_text()) if os.environ['CC_DECISION_OK'] == 'true' else None
           with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
               snapshot = store.snapshot()
               latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
@@ -106,6 +114,9 @@ jobs:
                         'cash_underwriting_status': 'SUCCESS' if underwriting else 'FAILED',
                         'cash_underwriting_counts': underwriting['counts'] if underwriting else None,
                         'cash_underwriting_sha256': underwriting['report_sha256'] if underwriting else None,
+                        'decision_context_status': 'SUCCESS' if decision else 'FAILED',
+                        'decision_context_counts': decision['counts'] if decision else None,
+                        'decision_context_sha256': decision['report_sha256'] if decision else None,
                         'price_context_status': 'SUCCESS' if context else 'FAILED',
                         'price_context_issuers': len(context['cards']) if context else None,
                         'price_context_sha256': context['report_sha256'] if context else None,
@@ -127,6 +138,9 @@ jobs:
           if [ -f "$CC_STATE/price-context.json" ] && [ -f "$CC_STATE/price-context.html" ]; then
             git -C "$CC_STATE" add price-context.json price-context.html
           fi
+          if [ -f "$CC_STATE/decision-context.json" ] && [ -f "$CC_STATE/decision-context.html" ]; then
+            git -C "$CC_STATE" add decision-context.json decision-context.html
+          fi
           if ! git -C "$CC_STATE" diff --cached --quiet; then
             git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
             git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
@@ -134,6 +148,7 @@ jobs:
           test "$comparison_ok" = true
           test "$underwriting_ok" = true
           test "$context_ok" = true
+          test "$decision_ok" = true
       - uses: actions/upload-artifact@v4
         if: always() && steps.state.outputs.ready == 'true'
         with:
@@ -149,6 +164,8 @@ jobs:
             ${{ runner.temp }}/cc001-state/cash-underwriting.html
             ${{ runner.temp }}/cc001-state/price-context.json
             ${{ runner.temp }}/cc001-state/price-context.html
+            ${{ runner.temp }}/cc001-state/decision-context.json
+            ${{ runner.temp }}/cc001-state/decision-context.html
           retention-days: 14
           if-no-files-found: error
       - name: Surface partial intake failures after retaining evidence
