@@ -6,7 +6,14 @@ import json
 import pytest
 
 from marketlab.company_change import ChangeError, canonical_hash
-from marketlab.company_change_decisions import POLICY, build_report, decision_context, load_latest, sensitivity, trailing_cash
+from marketlab.company_change_decisions import (
+    POLICY,
+    build_report,
+    decision_context,
+    load_latest,
+    sensitivity,
+    trailing_cash,
+)
 from marketlab.company_change_store import EvidenceStore
 
 NOW = '2026-11-08T00:00:00Z'

@@ -8,6 +8,7 @@ import io
 import re
 from datetime import date, datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 from marketlab.company_change import ChangeError, finite, timestamp
 from marketlab.company_change_financials import _parsed
@@ -36,10 +37,9 @@ def attribution_check(period: dict) -> dict:
         finite(fact["value"], key)
         value = Decimal(str(fact.get("decimal_value", fact["value"])))
         finite(value, key)
-        if value != Decimal(str(fact["value"])):
-            # Float conversion of an exact decimal can round its last digits.
-            if float(value) != finite(fact["value"], key):
-                raise ChangeError("attribution decimal and exposed value disagree")
+        # Float conversion of an exact decimal can round its last digits.
+        if value != Decimal(str(fact["value"])) and float(value) != finite(fact["value"], key):
+            raise ChangeError("attribution decimal and exposed value disagree")
         amounts.append(value)
         error = fact.get("rounding_error")
         if error is not None:
@@ -101,7 +101,8 @@ def direct_symbol_change(raw: bytes, old: str, new: str, published_at: str,
         raise ChangeError("exact historical symbol mapping is absent or ambiguous")
     selected = matches[0]
     effective = date.fromisoformat(selected["effective_date"])
-    if not published.date() < effective <= observed.date():
+    local_zone = ZoneInfo("Asia/Kolkata")
+    if not published.astimezone(local_zone).date() < effective <= observed.astimezone(local_zone).date():
         raise ChangeError("historical symbol dates do not cover source publication and observation")
     return {**selected, "source_url": SYMBOL_CHANGES_URL,
             "registry_sha256": hashlib.sha256(raw).hexdigest(),

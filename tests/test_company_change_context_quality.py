@@ -159,3 +159,12 @@ def test_decision_workflow_preserves_checkpoint_before_failure():
     assert text.index('push origin HEAD:refs/heads/cc001-state') < text.index('test "$decision_ok" = true')
     assert '--limit 40' in text and '--limit 3 --output-prefix' in text
     assert "- cron: '47 14 * * *'" in text
+
+
+def test_symbol_change_uses_exchange_local_effective_date():
+    # 19:00 UTC is already the next exchange calendar date in India.
+    with pytest.raises(ChangeError, match="dates"):
+        direct_symbol_change(REGISTRY, 'OLD', 'NEW', '2026-07-19T19:00:00Z', NOW)
+    result = direct_symbol_change(REGISTRY, 'OLD', 'NEW', '2026-07-19T10:00:00Z',
+                                  '2026-07-19T19:00:00Z')
+    assert result['effective_date'] == '2026-07-20'
