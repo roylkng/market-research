@@ -202,18 +202,27 @@ class EvidenceStore:
             if canonical_hash(result) != digest:
                 raise ChangeError("extraction record integrity failure")
             result["result_sha256"] = digest
-            self.get_capture(result["capture_id"])
+            capture = self.get_capture(result["capture_id"])
+            metadata = capture["metadata"]
+            published = metadata.get("published_at") or metadata.get("spec", {}).get("published_at")
+            result["issuer_published_at"] = timestamp(published).isoformat() if published else None
             reviews = [dict(r) for r in self.db.execute(
                 "SELECT * FROM reviews WHERE extraction_id=? ORDER BY recorded_at,id", (row["id"],))
                 if timestamp(r["recorded_at"]) <= cutoff]
             result["review"] = reviews[-1] if reviews else None
             previous = active.get(row["event_key"])
-            result["supersedes_extraction_id"] = previous["extraction_id"] if previous else None
-            result["changed"] = bool(previous and previous["facts_sha256"] != result["facts_sha256"])
+            stale = bool(previous and result["issuer_published_at"] and previous.get("issuer_published_at")
+                         and timestamp(result["issuer_published_at"]) < timestamp(previous["issuer_published_at"]))
+            result["supersedes_extraction_id"] = previous["extraction_id"] if previous and not stale else None
+            result["changed"] = bool(previous and not stale and previous["facts_sha256"] != result["facts_sha256"])
             result["review_status"] = reviews[-1]["verdict"] if reviews else "UNREVIEWED"
+            result["older_source_observed_late"] = stale
             history.append(result)
-            # Even a rejected revision is shown, rather than resurrecting an old approved view.
-            active[row["event_key"]] = result
+            # Retried old documents must not displace a later issuer revision. This
+            # preserves observation clocks without mistaking receipt order for event order.
+            # A rejected newest revision remains visible instead of reviving old approval.
+            if not stale:
+                active[row["event_key"]] = result
         result = {"as_of": cutoff.isoformat(), "active": list(active.values()), "history": history,
                   "live_capital_allowed": False, "trained_predictor": False}
         result["snapshot_sha256"] = canonical_hash(result)

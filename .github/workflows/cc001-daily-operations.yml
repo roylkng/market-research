@@ -1,0 +1,102 @@
+name: CC001 daily research operations
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '47 14 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cc001-daily-operations.yml'
+permissions:
+  contents: write
+concurrency:
+  group: cc001-pilot-state
+  cancel-in-progress: false
+jobs:
+  refresh-research-workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      CC_WORKSPACE: ${{ runner.temp }}/cc001-workspace
+      CC_STATE: ${{ runner.temp }}/cc001-state
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install existing dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Restore only the dedicated pilot state branch
+        id: state
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          git ls-remote --exit-code --heads origin cc001-state > "$RUNNER_TEMP/cc001-remote-ref"
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            git fetch --depth=1 origin cc001-state
+            git worktree add --detach "$CC_STATE" FETCH_HEAD
+            test "$(cat "$CC_STATE/STATE_FORMAT")" = 'CC001-PILOT-STATE-v1'
+            python -m marketlab.company_change_checkpoint restore --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip"
+          elif [ "$status" -eq 2 ]; then
+            git worktree add --detach "$CC_STATE" HEAD
+            git -C "$CC_STATE" checkout --orphan cc001-state
+            git -C "$CC_STATE" rm -rf .
+            printf '%s\n' 'CC001-PILOT-STATE-v1' > "$CC_STATE/STATE_FORMAT"
+            mkdir -p "$CC_WORKSPACE"
+          else
+            echo 'Unable to read state branch. Refusing to reinitialize an unknown workspace.' >&2
+            exit 1
+          fi
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+      - name: Discover and process a bounded batch of original disclosures
+        id: intake
+        continue-on-error: true
+        run: python -m marketlab.company_change_discovery --workspace "$CC_WORKSPACE" --days 7 --limit 40 --fetch
+      - name: Export research desk and checkpoint durable state
+        if: always() && steps.state.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f "$CC_WORKSPACE/evidence.sqlite3"
+          python -m marketlab.company_change_app --workspace "$CC_WORKSPACE" --export "$CC_STATE/research-desk.html"
+          python -m marketlab.company_change_checkpoint save --workspace "$CC_WORKSPACE" --archive "$CC_STATE/workspace.zip" > "$CC_STATE/checkpoint.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from marketlab.company_change_discovery import coverage
+          from marketlab.company_change_store import EvidenceStore
+          with EvidenceStore(Path(os.environ['CC_WORKSPACE'])) as store:
+              snapshot = store.snapshot()
+              latest = {'coverage': coverage(store), 'active_period_records': len(snapshot['active']),
+                        'extraction_versions': len(snapshot['history']), 'recorded_at': snapshot['as_of'],
+                        'unreviewed': sum(r['review_status'] == 'UNREVIEWED' for r in snapshot['active']),
+                        'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
+                        'source_commit': os.environ['GITHUB_SHA'], 'live_capital_allowed': False,
+                        'model_endpoint_configured': False, 'validated_predictive_edge': False}
+          Path(os.environ['CC_STATE'], 'latest.json').write_text(json.dumps(latest, indent=2) + '\n')
+          print('CC001_OPERATIONS=' + json.dumps(latest))
+          PY
+          git -C "$CC_STATE" config user.name marketlab-research-bot
+          git -C "$CC_STATE" config user.email marketlab-research-bot@users.noreply.github.com
+          git -C "$CC_STATE" add STATE_FORMAT workspace.zip checkpoint.json latest.json research-desk.html
+          if ! git -C "$CC_STATE" diff --cached --quiet; then
+            git -C "$CC_STATE" commit -m "CC001: persist bounded research workspace [skip ci]"
+            git -C "$CC_STATE" push origin HEAD:refs/heads/cc001-state
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.state.outputs.ready == 'true'
+        with:
+          name: cc001-daily-workspace
+          path: |
+            ${{ runner.temp }}/cc001-state/workspace.zip
+            ${{ runner.temp }}/cc001-state/checkpoint.json
+            ${{ runner.temp }}/cc001-state/latest.json
+            ${{ runner.temp }}/cc001-state/research-desk.html
+          retention-days: 14
+          if-no-files-found: error
+      - name: Surface partial intake failures after retaining evidence
+        if: steps.intake.outcome == 'failure'
+        run: exit 1

@@ -1,0 +1,42 @@
+name: CC001 broad discovery smoke
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change*.py'
+      - 'tests/test_company_change*.py'
+      - '.github/workflows/cc001-discovery-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  discover-and-process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Discover exchange-wide disclosures and process eight originals
+        run: python -m marketlab.company_change_discovery --workspace /tmp/cc001-discovery --days 7 --limit 8 --require-documents 8 --fetch
+      - name: Print source and coverage evidence
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          for f in Path('/tmp/cc001-discovery/reports').glob('*.json'):
+              r = json.loads(f.read_text())
+              d = r['discovery'] or {}
+              print('CC001_COVERAGE=' + json.dumps({'hash': r['report_sha256'], 'coverage': r['coverage'], 'responses': d.get('source_responses'), 'errors': d.get('errors'), 'exclusion_counts': dict(Counter(e['reason'] for e in d.get('exclusions', []))), 'failures': r['failures'], 'successes': r['successes']}))
+              for row in r['snapshot']['active']:
+                  print('CC001_FACTS=' + json.dumps({'symbol': row['symbol'], 'url': row['url'], 'raw_sha256': row['raw_sha256'], 'selector': row['selector'], 'facts': {k: {'value': v['value'], 'unit': v['unit']} for k, v in row['facts'].items()}}))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-broad-discovery-evidence
+          path: /tmp/cc001-discovery
+          retention-days: 14
