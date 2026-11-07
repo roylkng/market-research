@@ -10,9 +10,19 @@ from pathlib import Path
 import pytest
 
 from marketlab.company_change import (
-    ChangeError, SourceDocument, analyze_bundle, canonical_hash, contract_bridge,
-    extract_event, extraction_request, finite, from_nse_announcement, main,
-    render_html, timestamp, write_report,
+    ChangeError,
+    SourceDocument,
+    analyze_bundle,
+    canonical_hash,
+    contract_bridge,
+    extract_event,
+    extraction_request,
+    finite,
+    from_nse_announcement,
+    main,
+    render_html,
+    timestamp,
+    write_report,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -311,8 +321,8 @@ def add_proposals(source):
     for field, label in mapping.items():
         line = next(line for line in source["text"].splitlines() if line.startswith(label + ":"))
         start = source["text"].index(line)
-        proposals[field] = dict(start=start, end=start + len(line), quote=line,
-                                literal=line.split(": ", 1)[1])
+        proposals[field] = {"start": start, "end": start + len(line), "quote": line,
+                            "literal": line.split(": ", 1)[1]}
     source["proposed_facts"] = proposals
     source["proposed_facts_at"] = "2026-11-06T12:00:00+05:30"
 
@@ -364,8 +374,9 @@ def test_extraction_prompt_has_no_execution_and_preserves_text(bundle):
 
 
 def test_existing_nse_canonical_adapter(bundle):
-    row = dict(symbol="DEMOGROW", seq_id="123", exchange_published_at_utc="2026-11-06T04:30:00Z",
-               desc="Financial results", attchmntText="Results", attchmntFile="https://example.invalid/source.txt")
+    row = {"symbol": "DEMOGROW", "seq_id": "123", "exchange_published_at_utc": "2026-11-06T04:30:00Z",
+           "desc": "Financial results", "attchmntText": "Results",
+           "attchmntFile": "https://example.invalid/source.txt"}
     row["announcement_id"] = canonical_hash(row)
     s = prospective(single(bundle))["sources"][0]
     reserved = {"source_id", "symbol", "published_at", "url", "authority", "text", "text_sha256"}
@@ -422,7 +433,7 @@ def test_duplicate_json_keys_rejected(tmp_path):
 
 def test_module_entrypoint():
     result = subprocess.run([sys.executable, "-m", "marketlab.company_change", "--help"],
-                            capture_output=True, text=True)
+                            check=False, capture_output=True, text=True)
     assert result.returncode == 0
     assert "--extract-prompts" in result.stdout
 

@@ -14,7 +14,7 @@ import math
 import re
 import sys
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
@@ -31,8 +31,8 @@ UNITS = {"crore": Decimal(1), "lakh": Decimal("0.01"),
          "million": Decimal("0.1"), "billion": Decimal(100),
          "rupees": Decimal("0.0000001")}
 NUM = r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})+,\d{3}|\d+)(?:\.\d+)?"
-MONEY = re.compile(rf"(?:INR|₹)\s*({NUM})\s*(crore|lakh|million|billion|rupees)", re.I)
-SHARES = re.compile(rf"({NUM})\s*(crore|lakh|million|billion)?\s*shares", re.I)
+MONEY = re.compile(rf"(?:INR|₹)\s*({NUM})\s*(crore|lakh|million|billion|rupees)", re.IGNORECASE)
+SHARES = re.compile(rf"({NUM})\s*(crore|lakh|million|billion)?\s*shares", re.IGNORECASE)
 COUNTS = {None: Decimal(1), "crore": Decimal(10_000_000),
           "lakh": Decimal(100_000), "million": Decimal(1_000_000),
           "billion": Decimal(1_000_000_000)}
@@ -53,12 +53,12 @@ def canonical_hash(value: Any) -> str:
 
 def timestamp(value: str) -> datetime:
     try:
-        result = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except (AttributeError, ValueError) as exc:
+        result = datetime.fromisoformat(value)
+    except (TypeError, ValueError) as exc:
         raise ChangeError("timestamp must be ISO-8601") from exc
     if result.tzinfo is None or result.utcoffset() is None:
         raise ChangeError("timestamp must include a timezone")
-    return result.astimezone(timezone.utc)
+    return result.astimezone(UTC)
 
 
 def finite(value: Any, name: str, *, minimum: float | None = None,
@@ -240,7 +240,7 @@ def _field(source: SourceDocument, key: str, unit: str = "money") -> dict | None
         matches = []
         for number, line in enumerate(source.text.splitlines(), 1):
             for label in LABELS[key]:
-                match = re.fullmatch(rf"\s*{re.escape(label)}\s*:\s*(.*?)\s*", line, re.I)
+                match = re.fullmatch(rf"\s*{re.escape(label)}\s*:\s*(.*?)\s*", line, re.IGNORECASE)
                 if match:
                     matches.append((number, line, match.group(1)))
         if not matches:
@@ -262,12 +262,12 @@ def _field(source: SourceDocument, key: str, unit: str = "money") -> dict | None
             value = Decimal(match[1].replace(",", "")) * COUNTS[
                 match[2].lower() if match[2] else None]
         elif unit == "years":
-            match = re.fullmatch(rf"({NUM})\s+years?", literal, re.I)
+            match = re.fullmatch(rf"({NUM})\s+years?", literal, re.IGNORECASE)
             if not match:
                 raise ChangeError(f"{key}: explicit years required")
             value = Decimal(match[1].replace(",", ""))
         elif unit == "price":
-            match = re.fullmatch(rf"(?:INR|₹)\s*({NUM})\s+per share", literal, re.I)
+            match = re.fullmatch(rf"(?:INR|₹)\s*({NUM})\s+per share", literal, re.IGNORECASE)
             if not match:
                 raise ChangeError(f"{key}: explicit INR per share required")
             value = Decimal(match[1].replace(",", ""))
@@ -720,7 +720,7 @@ def write_report(report: dict, output: Path) -> tuple[Path, Path]:
     """Content-addressed outputs, idempotent replay, no overwrite of different bytes."""
     protected = {"hypotheses", "registry", "experiments", "prospective"}
     parts = output.resolve().parts
-    if protected.intersection(parts) or any(re.fullmatch(r"h[g]?0\d+", p, re.I) for p in parts):
+    if protected.intersection(parts) or any(re.fullmatch(r"h[g]?0\d+", p, re.IGNORECASE) for p in parts):
         raise ChangeError("outputs must not be written into frozen experiment namespaces")
     output.mkdir(parents=True, exist_ok=True)
     digest = report.get("report_sha256")
