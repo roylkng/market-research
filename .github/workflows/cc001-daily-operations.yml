@@ -16,11 +16,13 @@ jobs:
   refresh-research-workspace:
     runs-on: ubuntu-latest
     timeout-minutes: 18
-    env:
-      CC_WORKSPACE: ${{ runner.temp }}/cc001-workspace
-      CC_STATE: ${{ runner.temp }}/cc001-state
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize runner workspace paths
+        shell: bash
+        run: |
+          printf 'CC_WORKSPACE=%s/cc001-workspace\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          printf 'CC_STATE=%s/cc001-state\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
