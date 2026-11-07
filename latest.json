@@ -1,66 +1,77 @@
 {
   "coverage": {
     "counts": {
-      "EXTRACTED": 274,
+      "EXTRACTED": 312,
       "FAILED": 3,
       "NEEDS_SEMANTIC_MAPPING": 6404,
-      "PENDING": 1314
+      "PENDING": 1276
     },
     "total_discovered": 7995,
-    "last_discovery_at": "2026-11-07T20:07:24.256529+00:00",
+    "last_discovery_at": "2026-11-07T20:58:56.101667+00:00",
     "unsupported_in_denominator": true,
     "live_capital_allowed": false
   },
-  "active_period_records": 522,
-  "extraction_versions": 530,
-  "recorded_at": "2026-11-07T20:08:01.551111+00:00",
-  "unreviewed": 522,
+  "active_period_records": 598,
+  "extraction_versions": 606,
+  "recorded_at": "2026-11-07T20:59:36.462461+00:00",
+  "unreviewed": 598,
   "business_change_status": "SUCCESS",
   "business_change_counts": {
-    "issuers": 152,
-    "scope_cards": 268,
+    "issuers": 175,
+    "scope_cards": 306,
     "attention": {
-      "REPORTED_DETERIORATION_REVIEW": 64,
-      "REPORTED_IMPROVEMENT_REVIEW": 90,
-      "NO_THRESHOLD_CROSSED": 47,
-      "MIXED_REPORTED_CHANGE": 25,
-      "ACCOUNTING_REVIEW_REQUIRED": 25,
+      "REPORTED_DETERIORATION_REVIEW": 78,
+      "REPORTED_IMPROVEMENT_REVIEW": 102,
+      "NO_THRESHOLD_CROSSED": 53,
+      "MIXED_REPORTED_CHANGE": 28,
+      "ACCOUNTING_REVIEW_REQUIRED": 28,
       "INSUFFICIENT_COMPARISON": 17
     },
-    "derived_quarters": 251
+    "derived_quarters": 289
   },
-  "business_change_sha256": "f5cacef7eb2b235256354b6d6f50ee571e54c35700bd7aeca9b9be4c02451f4b",
+  "business_change_sha256": "47a42ac309b250996c563713d71f46215d811666f1b1d45901ca6ec8ad30ae79",
   "cash_underwriting_status": "SUCCESS",
   "cash_underwriting_counts": {
-    "issuers": 152,
-    "scope_cards": 268,
-    "analyzed": 268,
+    "issuers": 175,
+    "scope_cards": 306,
+    "analyzed": 306,
     "failed": 0,
     "dispositions": {
-      "REINVESTMENT_FUNDING_REVIEW": 32,
-      "RECONCILE_SOURCE_FIRST": 82,
-      "CASH_COVERED_SPECIFIED_CAPEX": 101,
-      "CASH_CONSUMPTION_REVIEW": 48,
+      "REINVESTMENT_FUNDING_REVIEW": 38,
+      "RECONCILE_SOURCE_FIRST": 93,
+      "CASH_COVERED_SPECIFIED_CAPEX": 117,
+      "CASH_CONSUMPTION_REVIEW": 53,
       "CASH_EVIDENCE_INCOMPLETE": 5
     }
   },
-  "cash_underwriting_sha256": "40f248a439876c914fd80abe8cdc3dc937f37dd560b30e14c6d61be4abc7a435",
+  "cash_underwriting_sha256": "083900556814bbfc1bff79085a03c6346f87d72d47b9ec2c76f45bb043f1f1c8",
+  "news_reader_status": "SUCCESS",
+  "news_reader_coverage": {
+    "announcements_in_received_queue": 6404,
+    "original_attachments_read": 4,
+    "distinct_document_hashes": 4,
+    "identity_or_evidence_blocked": 1277,
+    "readings_remaining": 6400,
+    "verified_economic_events": 0,
+    "coverage_class": "RECEIVED_QUEUE_NOT_MARKET_CENSUS"
+  },
+  "news_reader_sha256": "d341aa4c32b7365bc348036c9ba3887d657bb6a26cf668c0f61a0083103bcded",
   "decision_context_status": "SUCCESS",
   "decision_context_counts": {
-    "context_cards": 9,
-    "issuers": 9,
+    "context_cards": 12,
+    "issuers": 12,
     "categories": {
-      "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE": 4,
-      "EVIDENCE_BLOCKED": 4,
+      "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE": 6,
+      "EVIDENCE_BLOCKED": 5,
       "CASH_BASIS_REVIEW": 1
     }
   },
-  "decision_context_sha256": "f3bb047eb5bd400ceed6e6fdef973453e62d6d71b796b1f95387dd3fbe8cfc32",
-  "price_context_status": "FAILED",
-  "price_context_issuers": null,
-  "price_context_sha256": null,
-  "run_url": "https://github.com/roylkng/market-research/actions/runs/42409443612",
-  "source_commit": "db8021ce1355e6a6daa4fb1b7f5eb4da7cf7e135",
+  "decision_context_sha256": "f3c3202c2c007781fb802d38d88178384626ff65852c329fd6f0dd3658f6196f",
+  "price_context_status": "SUCCESS",
+  "price_context_issuers": 3,
+  "price_context_sha256": "5f58898f60a8ed854da3f6fef3e1987d9e7c79279b2b865adee95b4fb5cf28c8",
+  "run_url": "https://github.com/roylkng/market-research/actions/runs/42413571891",
+  "source_commit": "ae354b7c803ec24528193075096e3e60ca5316a9",
   "live_capital_allowed": false,
   "model_endpoint_configured": false,
   "validated_predictive_edge": false
