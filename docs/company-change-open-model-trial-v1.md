@@ -88,3 +88,22 @@ Primary configuration sources:
 - https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF
 - https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/raw/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf
 - https://github.com/ggml-org/llama.cpp/tree/053b1539c02617eff744f89525ee57497c3c1fbe
+
+## First actual trial and provider portability correction
+
+Run 42456016191 executed all four real model requests. The model produced four
+ABSTAIN responses, with zero emitted events. Source-based recall on these four
+known-positive development cases was therefore 0/4. The run artifact
+13608230026, SHA f4f2b896e8aa46cc51f59823d034ddec94736c7b9706b689f523e2a52159fc00,
+retains that result. It is not overwritten by a later experiment.
+
+Review found a provider-portability omission in the existing worker: its JSON
+schema was supplied only in response_format. llama.cpp constrains decoding with
+that schema but does not inject it into the model prompt. The corrected worker
+also describes the same schema in its system message, and explicitly separates
+event detection from forecasting an earnings effect. This is not an automatic
+repair retry, a weaker quote validator, a changed gold label or a different model.
+A subsequent pinned run measures the correction on the same four sources.
+No improved accuracy is assumed until the actual retained responses are scored.
+
+Reference: https://github.com/ggml-org/llama.cpp/blob/master/grammars/README.md#json-schemas--gbnf

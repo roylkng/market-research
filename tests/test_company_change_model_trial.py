@@ -224,3 +224,18 @@ def test_isolated_read_only_workflow_executes_actual_local_worker_without_daily_
     assert "unset CC001_MODEL_API_KEY" in text
     assert "cases_with_generated_tokens" in text
     assert workflow["jobs"]["actual-inference-measurement"]["timeout-minutes"] <= 30
+
+
+def test_output_contract_is_visible_to_model_without_case_labels():
+    from marketlab.company_change_semantics import make_payload, schema
+
+    reading = {"symbol": "TEST", "isin": "INE000A01001", "url": "https://issuer.example/source",
+               "raw_sha256": "a" * 64, "text_sha256": "b" * 64, "text": "original source only"}
+    request = make_payload(reading, "model", 1024)
+    system = request["messages"][0]["content"]
+    assert json.dumps(schema(), sort_keys=True) in system
+    assert "Event detection does not require a known profit impact" in system
+    assert all(name not in system for name in ("SEAMEC", "DHRUV", "VIKRAN", "PRESTIGE"))
+    source_message = json.loads(request["messages"][1]["content"])
+    assert source_message["untrusted_document"] == reading["text"]
+    assert set(source_message) == {"source", "untrusted_document"}
