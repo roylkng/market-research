@@ -1,0 +1,120 @@
+name: CC001 anchored evidence model comparison
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change_anchors.py'
+      - 'src/marketlab/company_change_anchor_trial.py'
+      - 'tests/test_company_change_anchors.py'
+      - 'data/cc001/anchored-model-trial.json'
+      - '.github/workflows/cc001-anchored-model-trial.yml'
+permissions:
+  contents: read
+jobs:
+  compare-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        model: [small, large]
+    env:
+      MODEL_KEY: ${{ matrix.model }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Build pinned CPU runtime and verify every official model shard
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$RUNNER_TEMP/cc001-anchors"
+          mkdir -p "$BASE/results" "$BASE/runtime" "$BASE/model"
+          python - <<'PY'
+          import json, os, shlex
+          from pathlib import Path
+          from marketlab.company_change_anchor_trial import validate_pin
+          p=json.load(open('data/cc001/anchored-model-trial.json'))
+          validate_pin(p)
+          m=p['models'][os.environ['MODEL_KEY']]
+          base=Path(os.environ['RUNNER_TEMP'])/'cc001-anchors'
+          variables={'RUNTIME_COMMIT':p['runtime_commit'],'MODEL_REPOSITORY':m['repository'],
+              'MODEL_REVISION':m['revision'],'MODEL_ALIAS':m['alias'],'MODEL_FIRST':m['files'][0]['filename'],
+              'CONTEXT':p['context_tokens'],'TOKENS':p['max_output_tokens'],'THREADS':p['threads']}
+          (base/'pin.env').write_text('\n'.join(k+'='+shlex.quote(str(v)) for k,v in variables.items())+'\n')
+          (base/'files.tsv').write_text('\n'.join(f['filename']+'\t'+f['sha256'] for f in m['files'])+'\n')
+          PY
+          source "$BASE/pin.env"
+          git -C "$BASE/runtime" init
+          git -C "$BASE/runtime" fetch --depth=1 https://github.com/ggml-org/llama.cpp.git "$RUNTIME_COMMIT"
+          git -C "$BASE/runtime" checkout --detach FETCH_HEAD
+          test "$(git -C "$BASE/runtime" rev-parse HEAD)" = "$RUNTIME_COMMIT"
+          cmake -S "$BASE/runtime" -B "$BASE/runtime/build" -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_CUDA=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON
+          cmake --build "$BASE/runtime/build" --config Release --target llama-server -j 2
+          while IFS=$'\t' read -r file sha; do
+            curl --fail --location --max-time 300 --retry 2 "https://huggingface.co/$MODEL_REPOSITORY/resolve/$MODEL_REVISION/$file" --output "$BASE/model/$file"
+            printf '%s  %s\n' "$sha" "$BASE/model/$file" | sha256sum --check
+          done < "$BASE/files.tsv"
+      - name: Restore isolated state and the same four source documents
+        run: |
+          BASE="$RUNNER_TEMP/cc001-anchors"
+          git fetch --depth=1 origin cc001-state
+          git show FETCH_HEAD:workspace.zip > "$BASE/input.zip"
+          python -m marketlab.company_change_checkpoint restore --workspace "$BASE/evidence" --archive "$BASE/input.zip"
+          python scripts/cc001_execution_replay.py --workspace "$BASE/evidence" --package data/fixtures/company_change_news_development_reviews.json
+      - name: Run four real generations and score only after sealing predictions
+        timeout-minutes: 18
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$RUNNER_TEMP/cc001-anchors"
+          source "$BASE/pin.env"
+          unset CC001_MODEL_API_KEY
+          export CC001_ALLOW_LOCAL_MODEL=1
+          export CC001_MODEL_URL=http://127.0.0.1:18766/v1/chat/completions
+          export CC001_MODEL_NAME="$MODEL_ALIAS"
+          "$BASE/runtime/build/bin/llama-server" -m "$BASE/model/$MODEL_FIRST" --alias "$MODEL_ALIAS" --host 127.0.0.1 --port 18766 --ctx-size "$CONTEXT" --parallel 1 --threads "$THREADS" --threads-batch "$THREADS" --seed 42 --n-predict "$TOKENS" --no-context-shift --jinja > "$BASE/results/server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          ready=false
+          for i in $(seq 1 90); do
+            if curl --fail --silent http://127.0.0.1:18766/health > "$BASE/results/health.json"; then ready=true; break; fi
+            kill -0 "$SERVER_PID"
+            sleep 1
+          done
+          test "$ready" = true
+          python -m marketlab.company_change_anchor_trial run --workspace "$BASE/evidence" --pin data/cc001/anchored-model-trial.json --model-key "$MODEL_KEY" --model-dir "$BASE/model" --server "$BASE/runtime/build/bin/llama-server" --runtime-commit "$RUNTIME_COMMIT" --fixture data/fixtures/company_change_news_development_reviews.json --output "$BASE/results/trial"
+          python -m marketlab.company_change_anchor_trial score --fixture data/fixtures/company_change_news_development_reviews.json --output "$BASE/results/trial"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          s=json.loads((Path(os.environ['RUNNER_TEMP'])/'cc001-anchors/results/trial/score.json').read_text())
+          assert s['cases_with_generated_tokens']==s['planned_cases']==4, 'Runtime measurement incomplete'
+          assert s['production_model_approved'] is False
+          print('CC001_ANCHORED_RESULT='+json.dumps(s))
+          PY
+      - name: Retain evidence and tested code, not weights or binaries
+        if: always()
+        run: |
+          BASE="$RUNNER_TEMP/cc001-anchors"
+          mkdir -p "$BASE/results/implementation/src/marketlab" "$BASE/results/implementation/tests" "$BASE/results/implementation/data/fixtures" "$BASE/results/implementation/data/cc001" "$BASE/results/implementation/workflows"
+          cp src/marketlab/*.py "$BASE/results/implementation/src/marketlab/"
+          cp tests/test_company_change*.py "$BASE/results/implementation/tests/"
+          cp data/fixtures/company_change*.json "$BASE/results/implementation/data/fixtures/"
+          cp data/cc001/*model-trial.json "$BASE/results/implementation/data/cc001/"
+          cp .github/workflows/cc001*.yml "$BASE/results/implementation/workflows/"
+          cp pyproject.toml "$BASE/results/implementation/"
+          git rev-parse HEAD > "$BASE/results/implementation/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-anchored-${{ matrix.model }}-evidence
+          path: |
+            ${{ runner.temp }}/cc001-anchors/results
+            ${{ runner.temp }}/cc001-anchors/evidence
+          retention-days: 14
+          if-no-files-found: error
