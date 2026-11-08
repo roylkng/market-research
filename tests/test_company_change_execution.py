@@ -78,6 +78,8 @@ class Session:
         if self.fail:
             raise requests.Timeout('private provider details must not be retained')
         return Response(self.raw, self.status)
+    def close(self):
+        pass
 
 
 def review_case(store):
@@ -138,7 +140,7 @@ def test_one_configured_call_reused_without_repeat_or_financial_mutation(tmp_pat
                                   'extra_forecast', 'duplicate_event', 'abstain_events', 'bad_field', 'two_choices'])
 def test_bad_provider_responses_fail_without_retry(tmp_path, fault):
     with EvidenceStore(tmp_path, clock=lambda: NOW) as store:
-        reading, event, response = example(store)
+        reading, _event, response = example(store)
         if fault == 'truncated':
             response['choices'][0]['finish_reason'] = 'length'
         elif fault == 'refusal':
@@ -353,3 +355,45 @@ def test_workflow_is_read_only_and_never_calls_model():
     assert '--execute' not in workflow
     assert 'push origin' not in workflow
     assert 'company_change_event_bridge' in workflow
+
+
+@pytest.mark.parametrize('body', [[], None, {'choices':[None]}, {'choices':[{'message':None}]}])
+def test_nonobject_provider_envelopes_are_rejected(tmp_path, body):
+    with EvidenceStore(tmp_path, clock=lambda: NOW) as store:
+        reading, _, _ = example(store)
+        with pytest.raises(ChangeError):
+            validate_response(json.dumps(body).encode(), reading)
+
+
+def test_cli_advances_to_unattempted_readings_without_rebilling(tmp_path, monkeypatch):
+    import marketlab.company_change_semantics as module
+    root = tmp_path/'workspace'
+    with EvidenceStore(root, clock=lambda: NOW) as store:
+        reading, _, response = example(store)
+        second = copy.deepcopy(reading)
+        second['text'] += ' A separate source record follows.'
+        second['text_sha256'] = hashlib.sha256(second['text'].encode()).hexdigest()
+        capture = store.capture(b'separate original bytes', {'url':'https://issuer.example/second.pdf'})
+        second.update(capture_id=capture['id'], raw_sha256=capture['raw_sha256'], url='https://issuer.example/second.pdf')
+        second['reading_sha256'] = canonical_hash({k:v for k,v in second.items() if k != 'reading_sha256'})
+        store.db.execute('INSERT INTO cc_news_readings VALUES (?,?,?,?,?)',
+            (second['reading_sha256'], 'candidate2', 'recipe', NOW, json.dumps(second)))
+        store.db.commit()
+    client = Session(json.dumps(response).encode())
+    monkeypatch.setattr(module, 'model_config', lambda: CONFIG)
+    monkeypatch.setattr(module.requests, 'Session', lambda: client)
+    ids = []
+    for index in range(3):
+        out = tmp_path/f'run-{index}.json'
+        assert main(['--workspace',str(root),'--output',str(out),'--execute','--limit','1']) == 0
+        payload = json.loads(out.read_text())
+        ids.extend(r['reading_sha256'] for r in payload['attempts'])
+    assert len(client.calls) == 2 and len(set(ids)) == 2
+    assert json.loads(out.read_text())['attempts'] == []
+
+
+def test_same_source_inr_cannot_be_fx_converted_twice():
+    amount = {'currency':'INR','amount_units':'10000000','amount_scope':'ISSUER_SCOPE'}
+    with pytest.raises(ChangeError, match='converted again'):
+        finite_contract(amount, scenario())
+    assert finite_contract(amount, scenario(fx_inr_per_currency_unit=1))['attributed_contract_crore'] == 1
