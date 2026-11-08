@@ -1,0 +1,82 @@
+name: CC001 separate event facts and assisted research
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change_event_facts.py'
+      - 'src/marketlab/company_change_fact_desk.py'
+      - 'tests/test_company_change_event_facts.py'
+      - 'data/fixtures/company_change_fact_*.json'
+      - '.github/workflows/cc001-fact-review-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  verify-source-facts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Restore isolated research state
+        run: |
+          git fetch --depth=1 origin cc001-state
+          git show FETCH_HEAD:workspace.zip > /tmp/cc001-facts-input.zip
+          python -m marketlab.company_change_checkpoint restore --workspace /tmp/cc001-facts --archive /tmp/cc001-facts-input.zip
+      - name: Revalidate four original disclosures without model inference
+        run: python scripts/cc001_execution_replay.py --workspace /tmp/cc001-facts --package data/fixtures/company_change_news_development_reviews.json
+      - name: Capture dated SEAMEC price and financial context
+        run: python -m marketlab.company_change_context --workspace /tmp/cc001-facts --symbols SEAMECLTD --limit 1 --output-prefix /tmp/cc001-facts/reports/company-context
+      - name: Admit explicit assisted facts and export their decision implications
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.company_change_model_trial import table_counts
+          from marketlab.company_change_store import EvidenceStore
+          with EvidenceStore(Path('/tmp/cc001-facts')) as store:
+              before=table_counts(store)
+          Path('/tmp/cc001-facts/reports/before-facts.json').write_text(json.dumps(before))
+          PY
+          python -m marketlab.company_change_fact_desk --workspace /tmp/cc001-facts --package data/fixtures/company_change_fact_reviews.json --reviewer assistant-source-review-seen-development --plans data/fixtures/company_change_fact_scenarios.json --output-prefix /tmp/cc001-facts/reports/fact-desk
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from marketlab.company_change_model_trial import table_counts
+          from marketlab.company_change_store import EvidenceStore
+          base=Path('/tmp/cc001-facts')
+          report=json.loads((base/'reports/fact-desk.json').read_text())
+          assert report['counts']=={'source_events':4,'conflicted_source_events':2,'observed_dimensions':20,'finite_scenario_cases':7}
+          with EvidenceStore(base) as store:
+              assert table_counts(store)==json.loads((base/'reports/before-facts.json').read_text())
+              assert store.db.execute('SELECT COUNT(*) FROM cc_event_fact_reviews').fetchone()[0]==4
+          by={d['state']['source']['symbol']:d for d in report['dossiers']}
+          assert by['DHRUV']['state']['facts']['payment']['status']=='CONFLICT'
+          assert by['PRESTIGE']['state']['facts']['completion']['status']=='CONFLICT'
+          assert by['SEAMECLTD']['state']['facts']['legal_recipient']['value']=='CONSORTIUM'
+          assert by['SEAMECLTD']['state']['amounts'][0]['owner']['value']=='ISSUER_SCOPE'
+          assert report['model_called'] is False and report['buy_approved'] is False
+          print('CC001_FACT_DESK='+json.dumps({'counts':report['counts'],'report_sha256':report['report_sha256']}))
+          PY
+      - name: Retain original evidence and exact implementation
+        if: always()
+        run: |
+          BASE=/tmp/cc001-facts/implementation
+          mkdir -p "$BASE/src/marketlab" "$BASE/tests" "$BASE/data/fixtures" "$BASE/data/cc001" "$BASE/workflows" "$BASE/scripts"
+          cp src/marketlab/*.py "$BASE/src/marketlab/"
+          cp tests/test_company_change*.py "$BASE/tests/"
+          cp data/fixtures/company_change*.json "$BASE/data/fixtures/"
+          cp data/cc001/*model-trial.json "$BASE/data/cc001/"
+          cp .github/workflows/cc001*.yml "$BASE/workflows/"
+          cp scripts/cc001_execution_replay.py "$BASE/scripts/"
+          cp pyproject.toml "$BASE/"
+          git rev-parse HEAD > "$BASE/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-assisted-fact-evidence
+          path: /tmp/cc001-facts
+          retention-days: 14
+          if-no-files-found: error
