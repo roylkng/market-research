@@ -1,0 +1,2129 @@
+{
+  "ae001_same_day_eod_1830_compatible": false,
+  "ae001_same_day_eod_cutoff_utc": "2026-11-08T13:00:00Z",
+  "calendar_sha256": "d3de65ceb2038f8ea96d455afb272a9d72f4a411af7d76d6b5bf1941c2bb5266",
+  "calendar_version": "NSE-CM-FY27Q2-v2-Nov08-Muhurat",
+  "capture_interval_days": 30,
+  "comparison_path": "research/prospective/h021/comparisons/2026-11-08-primary-revision-v1.json",
+  "current_capture": {
+    "capture_date_ist": "2026-11-08",
+    "captured_at_utc": "2026-11-08T17:11:10.400595+00:00",
+    "logical_capture_id": "2026-11-08-full-u001-v1",
+    "manifest_sha256": "aed6aed5e67a8d5b971ae3aec38944e443f8a248e723d3f5d8ccd479ff6694b4",
+    "payload_gzip_sha256": "19d8eb4b8d0fd6f8a4523d462cb1637437db32c1b1046bc3f4f0f8786b64f688",
+    "payload_uncompressed_sha256": "1582b8227f877a9c0708e049fbf743d0761daf1121a524e3ed3bf033cbaa3ab7"
+  },
+  "current_capture_path": "research/prospective/h021/captures/2026-11-08-full-u001-v1.json.gz",
+  "earliest_execution_open_utc": "2026-11-09T03:45:00Z",
+  "earliest_execution_session": "2026-11-09",
+  "evidence_class": "PROSPECTIVE_SOURCE_ONLY_DERIVED_FEATURE",
+  "feature_definitions": [
+    {
+      "availability_lag_sessions": 0,
+      "description": "H021 28-35 day consensus EPS revision, populated only when the frozen H021 primary signal is eligible.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_primary_eps_revision_30d_pct",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "Tie-aware percentile rank of eligible H021 primary EPS revision within the frozen U001 cross-section.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_primary_eps_revision_rank_pct",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "H021 same-period change in revenue-growth forecast, percentage points.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_revenue_growth_change_pp",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "H021 same-period change in profit-growth estimate, percentage points.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_profit_growth_change_pp",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "H021 same-period target-price revision percentage.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_target_price_revision_pct",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "Minimum explicit analyst count across prior/current H021 captures.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_min_analyst_count",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "One when analyst count is at least five in both H021 captures, else zero.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_primary_coverage_flag",
+      "version": "v1"
+    },
+    {
+      "availability_lag_sessions": 0,
+      "description": "One only when the frozen H021 primary signal reason is ELIGIBLE.",
+      "family": "expectations",
+      "lookback_sessions": 0,
+      "name": "h021_primary_signal_available_flag",
+      "version": "v1"
+    }
+  ],
+  "feature_known_at_utc": "2026-11-08T17:11:10.400595Z",
+  "feature_set_sha256": "e6ba77a8af6092eca271fb28063d36696f94d6b456ec0084aaff9243952e4e2a",
+  "h021_comparison_sha256": "7d01954900373a272fb6f4a212e8d3a61196ab94c1888976137035dbce6d18a6",
+  "live_capital_allowed": false,
+  "outcomes_attached": false,
+  "panel_id": "AE001-H021-EXPECTATIONS-v1",
+  "panel_sha256": "d5c1557a879d59527f24a9df12e6b2c1e1b99f870822fa08d90ac1be41e339a4",
+  "primary_signal_available_count": 96,
+  "primary_signal_reason_counts": {
+    "ANALYST_COVERAGE_LT_5": 3,
+    "ELIGIBLE": 96,
+    "EPS_REVISION_UNAVAILABLE": 1
+  },
+  "primary_top_decile_symbols": [
+    "IOC",
+    "GAIL",
+    "SWIGGY",
+    "LAURUSLABS",
+    "ADANIENSOL",
+    "JSWSTEEL",
+    "ONGC",
+    "TVSMOTOR",
+    "VEDL",
+    "RELIANCE"
+  ],
+  "prior_capture": {
+    "capture_date_ist": "2026-10-09",
+    "captured_at_utc": "2026-10-09T14:47:53.575624+00:00",
+    "logical_capture_id": "2026-10-09-full-u001-v1",
+    "manifest_sha256": "3c5045492503f3c89855722f65d26cf3694e1444b864a9f7512d27c80b50a3e2",
+    "payload_gzip_sha256": "ea544111637702627f5dda06e68e9ac046e8da6bbd8c278b0805f01acc8e40f2",
+    "payload_uncompressed_sha256": "71516e28f75308488380d45ddc8e801f869472fecb798eaaf4425f3d0e6c6d1d"
+  },
+  "prior_capture_path": "research/prospective/h021/captures/2026-10-09-full-u001-v1.json.gz",
+  "row_count": 100,
+  "rows": [
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE117A01022",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ABB",
+      "universe_rank": 89,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.012773023374612613,
+        "h021_primary_eps_revision_rank_pct": 0.5052631578947369,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.05000000000000071,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE931S01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ADANIENSOL",
+      "universe_rank": 72,
+      "values": {
+        "h021_min_analyst_count": 6.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 13.719219699392404,
+        "h021_primary_eps_revision_rank_pct": 0.9578947368421052,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -2.3699999999999974,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE423A01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ANALYST_COVERAGE_LT_5",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ADANIENT",
+      "universe_rank": 37,
+      "values": {
+        "h021_min_analyst_count": 1.0,
+        "h021_primary_coverage_flag": 0.0,
+        "h021_primary_eps_revision_30d_pct": null,
+        "h021_primary_eps_revision_rank_pct": null,
+        "h021_primary_signal_available_flag": 0.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 4.859999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE364U01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ADANIGREEN",
+      "universe_rank": 79,
+      "values": {
+        "h021_min_analyst_count": 9.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.206997084548091,
+        "h021_primary_eps_revision_rank_pct": 0.18947368421052632,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -3.259999999999998,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE742F01042",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ADANIPORTS",
+      "universe_rank": 20,
+      "values": {
+        "h021_min_analyst_count": 22.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.5199561746752197,
+        "h021_primary_eps_revision_rank_pct": 0.8,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.240000000000002,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE814H01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ADANIPOWER",
+      "universe_rank": 38,
+      "values": {
+        "h021_min_analyst_count": 11.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 6.128550074738404,
+        "h021_primary_eps_revision_rank_pct": 0.8736842105263158,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 4.41,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE702C01027",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "APLAPOLLO",
+      "universe_rank": 85,
+      "values": {
+        "h021_min_analyst_count": 20.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.3673157693776092,
+        "h021_primary_eps_revision_rank_pct": 0.7684210526315789,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.6600000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE437A01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "APOLLOHOSP",
+      "universe_rank": 36,
+      "values": {
+        "h021_min_analyst_count": 26.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.6932308050798142,
+        "h021_primary_eps_revision_rank_pct": 0.5789473684210527,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.3500000000000014,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE208A01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ASHOKLEY",
+      "universe_rank": 69,
+      "values": {
+        "h021_min_analyst_count": 33.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.1747430249632762,
+        "h021_primary_eps_revision_rank_pct": 0.3157894736842105,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.21999999999999886,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE021A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ASIANPAINT",
+      "universe_rank": 25,
+      "values": {
+        "h021_min_analyst_count": 30.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.247019988996878,
+        "h021_primary_eps_revision_rank_pct": 0.29473684210526313,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.5899999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE406A01037",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "AUROPHARMA",
+      "universe_rank": 75,
+      "values": {
+        "h021_min_analyst_count": 24.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.9992505620784353,
+        "h021_primary_eps_revision_rank_pct": 0.631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.7399999999999984,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE917I01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BAJAJ-AUTO",
+      "universe_rank": 19,
+      "values": {
+        "h021_min_analyst_count": 36.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 6.427053410868999,
+        "h021_primary_eps_revision_rank_pct": 0.8842105263157894,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.340000000000002,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE263A01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BEL",
+      "universe_rank": 16,
+      "values": {
+        "h021_min_analyst_count": 20.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.7360672975814886,
+        "h021_primary_eps_revision_rank_pct": 0.5894736842105263,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.4400000000000013,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE465A01025",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BHARATFORG",
+      "universe_rank": 63,
+      "values": {
+        "h021_min_analyst_count": 22.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -7.019089574155646,
+        "h021_primary_eps_revision_rank_pct": 0.09473684210526316,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.16999999999999815,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE397D01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BHARTIARTL",
+      "universe_rank": 2,
+      "values": {
+        "h021_min_analyst_count": 30.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.9872611464968317,
+        "h021_primary_eps_revision_rank_pct": 0.6210526315789474,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.02999999999999936,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE257A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ANALYST_COVERAGE_LT_5",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BHEL",
+      "universe_rank": 52,
+      "values": {
+        "h021_min_analyst_count": 2.0,
+        "h021_primary_coverage_flag": 0.0,
+        "h021_primary_eps_revision_30d_pct": null,
+        "h021_primary_eps_revision_rank_pct": null,
+        "h021_primary_signal_available_flag": 0.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -2.4499999999999993,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE323A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ANALYST_COVERAGE_LT_5",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BOSCHLTD",
+      "universe_rank": 86,
+      "values": {
+        "h021_min_analyst_count": 4.0,
+        "h021_primary_coverage_flag": 0.0,
+        "h021_primary_eps_revision_30d_pct": null,
+        "h021_primary_eps_revision_rank_pct": null,
+        "h021_primary_signal_available_flag": 0.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.0,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE029A01011",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BPCL",
+      "universe_rank": 50,
+      "values": {
+        "h021_min_analyst_count": 15.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -27.39255014326647,
+        "h021_primary_eps_revision_rank_pct": 0.021052631578947368,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 8.379999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE216A01030",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "BRITANNIA",
+      "universe_rank": 57,
+      "values": {
+        "h021_min_analyst_count": 26.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.0179010179010128,
+        "h021_primary_eps_revision_rank_pct": 0.35789473684210527,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.4900000000000002,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE067A01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "CGPOWER",
+      "universe_rank": 55,
+      "values": {
+        "h021_min_analyst_count": 18.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 3.8537549407114735,
+        "h021_primary_eps_revision_rank_pct": 0.8315789473684211,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.030000000000001137,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE059A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "CIPLA",
+      "universe_rank": 39,
+      "values": {
+        "h021_min_analyst_count": 34.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.9076376554174175,
+        "h021_primary_eps_revision_rank_pct": 0.1368421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -1.3100000000000005,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE522F01014",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "COALINDIA",
+      "universe_rank": 30,
+      "values": {
+        "h021_min_analyst_count": 19.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.5276779295470888,
+        "h021_primary_eps_revision_rank_pct": 0.28421052631578947,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.38,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE591G01025",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "COFORGE",
+      "universe_rank": 46,
+      "values": {
+        "h021_min_analyst_count": 31.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.4645776566757585,
+        "h021_primary_eps_revision_rank_pct": 0.6947368421052632,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.8599999999999994,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE298A01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "CUMMINSIND",
+      "universe_rank": 47,
+      "values": {
+        "h021_min_analyst_count": 11.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -2.7658662092624353,
+        "h021_primary_eps_revision_rank_pct": 0.21052631578947367,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -1.3900000000000006,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE361B01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "DIVISLAB",
+      "universe_rank": 24,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 5.152300712896962,
+        "h021_primary_eps_revision_rank_pct": 0.8526315789473684,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 3.5,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE935N01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "DIXON",
+      "universe_rank": 58,
+      "values": {
+        "h021_min_analyst_count": 26.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -4.349307290483761,
+        "h021_primary_eps_revision_rank_pct": 0.12631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 5.020000000000003,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE271C01023",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "DLF",
+      "universe_rank": 78,
+      "values": {
+        "h021_min_analyst_count": 20.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.8481518481518577,
+        "h021_primary_eps_revision_rank_pct": 0.25263157894736843,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -10.979999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE192R01011",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "DMART",
+      "universe_rank": 56,
+      "values": {
+        "h021_min_analyst_count": 12.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -9.255079006772016,
+        "h021_primary_eps_revision_rank_pct": 0.08421052631578947,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.9700000000000006,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE089A01031",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "DRREDDY",
+      "universe_rank": 44,
+      "values": {
+        "h021_min_analyst_count": 34.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.8426326577089638,
+        "h021_primary_eps_revision_rank_pct": 0.6,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.16000000000000014,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE066A01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "EICHERMOT",
+      "universe_rank": 27,
+      "values": {
+        "h021_min_analyst_count": 28.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.1821461167369263,
+        "h021_primary_eps_revision_rank_pct": 0.6736842105263158,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.6899999999999977,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE758T01015",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ETERNAL",
+      "universe_rank": 8,
+      "values": {
+        "h021_min_analyst_count": 30.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -38.92215568862275,
+        "h021_primary_eps_revision_rank_pct": 0.010526315789473684,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 7.13000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE061F01013",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "FORTIS",
+      "universe_rank": 71,
+      "values": {
+        "h021_min_analyst_count": 18.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.6193812025685834,
+        "h021_primary_eps_revision_rank_pct": 0.16842105263157894,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.0300000000000011,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE129A01019",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GAIL",
+      "universe_rank": 73,
+      "values": {
+        "h021_min_analyst_count": 8.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 49.06166219839141,
+        "h021_primary_eps_revision_rank_pct": 0.9894736842105263,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 3.79,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE935A01035",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GLENMARK",
+      "universe_rank": 91,
+      "values": {
+        "h021_min_analyst_count": 7.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.8680337149326922,
+        "h021_primary_eps_revision_rank_pct": 0.37894736842105264,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.6799999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE776C01039",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GMRAIRPORT",
+      "universe_rank": 96,
+      "values": {
+        "h021_min_analyst_count": 7.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -16.279069767441868,
+        "h021_primary_eps_revision_rank_pct": 0.042105263157894736,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -3.4800000000000004,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE102D01028",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GODREJCP",
+      "universe_rank": 93,
+      "values": {
+        "h021_min_analyst_count": 30.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -2.545297670405522,
+        "h021_primary_eps_revision_rank_pct": 0.22105263157894736,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.2899999999999991,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE047A01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GRASIM",
+      "universe_rank": 21,
+      "values": {
+        "h021_min_analyst_count": 8.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.0030706243602916,
+        "h021_primary_eps_revision_rank_pct": 0.6421052631578947,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.020000000000010232,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE200A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "GVT&D",
+      "universe_rank": 61,
+      "values": {
+        "h021_min_analyst_count": 17.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 3.817534778388887,
+        "h021_primary_eps_revision_rank_pct": 0.8210526315789474,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.9700000000000024,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE066F01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HAL",
+      "universe_rank": 34,
+      "values": {
+        "h021_min_analyst_count": 13.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.7410900761301575,
+        "h021_primary_eps_revision_rank_pct": 0.4,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.0,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE860A01027",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HCLTECH",
+      "universe_rank": 17,
+      "values": {
+        "h021_min_analyst_count": 34.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.4390243902439046,
+        "h021_primary_eps_revision_rank_pct": 0.7789473684210526,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.5699999999999985,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE158A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HEROMOTOCO",
+      "universe_rank": 45,
+      "values": {
+        "h021_min_analyst_count": 33.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.4852030282174846,
+        "h021_primary_eps_revision_rank_pct": 0.4421052631578947,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 3.2299999999999986,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE038A01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HINDALCO",
+      "universe_rank": 15,
+      "values": {
+        "h021_min_analyst_count": 28.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 3.7174721189591198,
+        "h021_primary_eps_revision_rank_pct": 0.8105263157894737,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.5500000000000007,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE094A01015",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HINDPETRO",
+      "universe_rank": 97,
+      "values": {
+        "h021_min_analyst_count": 10.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -99.04761904761905,
+        "h021_primary_eps_revision_rank_pct": 0.0,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 14.929999999999998,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE030A01027",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "HINDUNILVR",
+      "universe_rank": 11,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.6486712701402109,
+        "h021_primary_eps_revision_rank_pct": 0.5684210526315789,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.01,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE669E01016",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "IDEA",
+      "universe_rank": 84,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.0,
+        "h021_primary_eps_revision_rank_pct": 0.48947368421052634,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.22000000000000064,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE053A01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "INDHOTEL",
+      "universe_rank": 51,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.7576898932831098,
+        "h021_primary_eps_revision_rank_pct": 0.7052631578947368,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.4399999999999995,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE646L01027",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "INDIGO",
+      "universe_rank": 26,
+      "values": {
+        "h021_min_analyst_count": 18.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -22.371519601052782,
+        "h021_primary_eps_revision_rank_pct": 0.031578947368421054,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.2900000000000027,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE121J01017",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "INDUSTOWER",
+      "universe_rank": 68,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.0679957280170904,
+        "h021_primary_eps_revision_rank_pct": 0.3473684210526316,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.5699999999999994,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE009A01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "INFY",
+      "universe_rank": 4,
+      "values": {
+        "h021_min_analyst_count": 46.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.1494252873563204,
+        "h021_primary_eps_revision_rank_pct": 0.3368421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.10999999999999943,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE242A01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "IOC",
+      "universe_rank": 64,
+      "values": {
+        "h021_min_analyst_count": 15.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 53.23590814196242,
+        "h021_primary_eps_revision_rank_pct": 1.0,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.109999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE154A01025",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ITC",
+      "universe_rank": 6,
+      "values": {
+        "h021_min_analyst_count": 10.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -4.482758620689653,
+        "h021_primary_eps_revision_rank_pct": 0.11578947368421053,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -6.84,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE749A01030",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "JINDALSTEL",
+      "universe_rank": 81,
+      "values": {
+        "h021_min_analyst_count": 30.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.7860368183396997,
+        "h021_primary_eps_revision_rank_pct": 0.14736842105263157,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 3.609999999999996,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE121E01018",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "JSWENERGY",
+      "universe_rank": 100,
+      "values": {
+        "h021_min_analyst_count": 20.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.9036144578313143,
+        "h021_primary_eps_revision_rank_pct": 0.3684210526315789,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.990000000000002,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE019A01038",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "JSWSTEEL",
+      "universe_rank": 22,
+      "values": {
+        "h021_min_analyst_count": 32.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 12.606665593302214,
+        "h021_primary_eps_revision_rank_pct": 0.9473684210526315,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 4.550000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE947Q01028",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "LAURUSLABS",
+      "universe_rank": 41,
+      "values": {
+        "h021_min_analyst_count": 12.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 17.121391854487953,
+        "h021_primary_eps_revision_rank_pct": 0.968421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.260000000000002,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE670K01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "LODHA",
+      "universe_rank": 98,
+      "values": {
+        "h021_min_analyst_count": 17.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.2227591205605357,
+        "h021_primary_eps_revision_rank_pct": 0.7578947368421053,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.03999999999999915,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE018A01030",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "LT",
+      "universe_rank": 3,
+      "values": {
+        "h021_min_analyst_count": 25.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.917214280875279,
+        "h021_primary_eps_revision_rank_pct": 0.7157894736842105,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.11000000000000121,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE214T01019",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "LTM",
+      "universe_rank": 83,
+      "values": {
+        "h021_min_analyst_count": 34.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -2.5115375273257134,
+        "h021_primary_eps_revision_rank_pct": 0.23157894736842105,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.6799999999999997,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE326A01037",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "LUPIN",
+      "universe_rank": 65,
+      "values": {
+        "h021_min_analyst_count": 34.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.5957980558168763,
+        "h021_primary_eps_revision_rank_pct": 0.43157894736842106,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.27000000000000135,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE101A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "M&M",
+      "universe_rank": 5,
+      "values": {
+        "h021_min_analyst_count": 29.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.714075382803292,
+        "h021_primary_eps_revision_rank_pct": 0.4105263157894737,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.5500000000000007,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE196A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "MARICO",
+      "universe_rank": 82,
+      "values": {
+        "h021_min_analyst_count": 37.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.4134275618374437,
+        "h021_primary_eps_revision_rank_pct": 0.6842105263157895,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.9300000000000015,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE585B01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "MARUTI",
+      "universe_rank": 12,
+      "values": {
+        "h021_min_analyst_count": 40.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -12.422440260214263,
+        "h021_primary_eps_revision_rank_pct": 0.06315789473684211,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.0000000000000018,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE027H01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "MAXHEALTH",
+      "universe_rank": 40,
+      "values": {
+        "h021_min_analyst_count": 24.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.16051364365972098,
+        "h021_primary_eps_revision_rank_pct": 0.4631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -1.259999999999998,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE775A01035",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "MOTHERSON",
+      "universe_rank": 43,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.18832391713747842,
+        "h021_primary_eps_revision_rank_pct": 0.5263157894736842,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.4499999999999993,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE139A01034",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "NATIONALUM",
+      "universe_rank": 99,
+      "values": {
+        "h021_min_analyst_count": 12.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.179621848739499,
+        "h021_primary_eps_revision_rank_pct": 0.7368421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.4000000000000004,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE663F01032",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "NAUKRI",
+      "universe_rank": 66,
+      "values": {
+        "h021_min_analyst_count": 17.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.085452695829093,
+        "h021_primary_eps_revision_rank_pct": 0.7263157894736842,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.45999999999999996,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE239A01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "NESTLEIND",
+      "universe_rank": 29,
+      "values": {
+        "h021_min_analyst_count": 33.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.3719200371919973,
+        "h021_primary_eps_revision_rank_pct": 0.5368421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.5800000000000018,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE733E01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "NTPC",
+      "universe_rank": 13,
+      "values": {
+        "h021_min_analyst_count": 10.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -10.819165378670792,
+        "h021_primary_eps_revision_rank_pct": 0.07368421052631578,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -11.05,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE388Y01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "NYKAA",
+      "universe_rank": 76,
+      "values": {
+        "h021_min_analyst_count": 23.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -2.3809523809523836,
+        "h021_primary_eps_revision_rank_pct": 0.24210526315789474,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.28999999999999915,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE213A01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ONGC",
+      "universe_rank": 35,
+      "values": {
+        "h021_min_analyst_count": 5.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 12.593890836254396,
+        "h021_primary_eps_revision_rank_pct": 0.9368421052631579,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.5600000000000023,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE262H01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "PERSISTENT",
+      "universe_rank": 54,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.6286978158695082,
+        "h021_primary_eps_revision_rank_pct": 0.15789473684210525,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.1400000000000006,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE211B01039",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "PHOENIXLTD",
+      "universe_rank": 92,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.4452139500370933,
+        "h021_primary_eps_revision_rank_pct": 0.5578947368421052,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.3800000000000008,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE318A01026",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "PIDILITIND",
+      "universe_rank": 67,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.6613644397313498,
+        "h021_primary_eps_revision_rank_pct": 0.2631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.370000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE455K01017",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "POLYCAB",
+      "universe_rank": 77,
+      "values": {
+        "h021_min_analyst_count": 29.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 7.038512616201853,
+        "h021_primary_eps_revision_rank_pct": 0.8947368421052632,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.09,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE752E01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "POWERGRID",
+      "universe_rank": 23,
+      "values": {
+        "h021_min_analyst_count": 8.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.6681514476614803,
+        "h021_primary_eps_revision_rank_pct": 0.42105263157894735,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.09000000000000075,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE07Y701011",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "POWERINDIA",
+      "universe_rank": 87,
+      "values": {
+        "h021_min_analyst_count": 20.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.16648168701443034,
+        "h021_primary_eps_revision_rank_pct": 0.45263157894736844,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.4299999999999997,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE944F01028",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "RADICO",
+      "universe_rank": 94,
+      "values": {
+        "h021_min_analyst_count": 16.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.8638665475126484,
+        "h021_primary_eps_revision_rank_pct": 0.6105263157894737,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.9299999999999997,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE002A01018",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "RELIANCE",
+      "universe_rank": 1,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 7.2447859495060385,
+        "h021_primary_eps_revision_rank_pct": 0.9052631578947369,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 8.280000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE003A01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "EPS_REVISION_UNAVAILABLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SIEMENS",
+      "universe_rank": 95,
+      "values": {
+        "h021_min_analyst_count": null,
+        "h021_primary_coverage_flag": 0.0,
+        "h021_primary_eps_revision_30d_pct": null,
+        "h021_primary_eps_revision_rank_pct": null,
+        "h021_primary_signal_available_flag": 0.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": null,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE343H01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SOLARINDS",
+      "universe_rank": 62,
+      "values": {
+        "h021_min_analyst_count": 11.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 5.312066080393074,
+        "h021_primary_eps_revision_rank_pct": 0.8631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.819999999999993,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE647A01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SRF",
+      "universe_rank": 90,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.3863891312476664,
+        "h021_primary_eps_revision_rank_pct": 0.5473684210526316,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 4.58,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE044A01036",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SUNPHARMA",
+      "universe_rank": 10,
+      "values": {
+        "h021_min_analyst_count": 33.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -2.995981001096093,
+        "h021_primary_eps_revision_rank_pct": 0.2,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.040000000000000924,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE040H01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SUZLON",
+      "universe_rank": 60,
+      "values": {
+        "h021_min_analyst_count": 13.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -14.689265536723163,
+        "h021_primary_eps_revision_rank_pct": 0.05263157894736842,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.129999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE00H001014",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "SWIGGY",
+      "universe_rank": 88,
+      "values": {
+        "h021_min_analyst_count": 26.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 17.451523545706383,
+        "h021_primary_eps_revision_rank_pct": 0.9789473684210527,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.4699999999999989,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE192A01025",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TATACONSUM",
+      "universe_rank": 48,
+      "values": {
+        "h021_min_analyst_count": 26.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.2084592145015005,
+        "h021_primary_eps_revision_rank_pct": 0.30526315789473685,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.200000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE245A01021",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TATAPOWER",
+      "universe_rank": 53,
+      "values": {
+        "h021_min_analyst_count": 21.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.0,
+        "h021_primary_eps_revision_rank_pct": 0.48947368421052634,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.05999999999999872,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE081A01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TATASTEEL",
+      "universe_rank": 14,
+      "values": {
+        "h021_min_analyst_count": 31.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.2026431718061623,
+        "h021_primary_eps_revision_rank_pct": 0.7473684210526316,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -0.33000000000000007,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE467B01029",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TCS",
+      "universe_rank": 7,
+      "values": {
+        "h021_min_analyst_count": 40.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.006488871585241807,
+        "h021_primary_eps_revision_rank_pct": 0.47368421052631576,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.0600000000000005,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE669C01036",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TECHM",
+      "universe_rank": 28,
+      "values": {
+        "h021_min_analyst_count": 36.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.164445594514174,
+        "h021_primary_eps_revision_rank_pct": 0.3263157894736842,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.33,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE280A01028",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TITAN",
+      "universe_rank": 9,
+      "values": {
+        "h021_min_analyst_count": 12.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 2.5014212620807275,
+        "h021_primary_eps_revision_rank_pct": 0.7894736842105263,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 6.530000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE1TAE01010",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TMCV",
+      "universe_rank": 32,
+      "values": {
+        "h021_min_analyst_count": 10.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 4.432717678100273,
+        "h021_primary_eps_revision_rank_pct": 0.8421052631578947,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 5.030000000000001,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE155A01022",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TMPV",
+      "universe_rank": 49,
+      "values": {
+        "h021_min_analyst_count": 23.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -1.6280752532561449,
+        "h021_primary_eps_revision_rank_pct": 0.2736842105263158,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.19000000000000128,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE685A01028",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TORNTPHARM",
+      "universe_rank": 42,
+      "values": {
+        "h021_min_analyst_count": 27.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -5.011862396204025,
+        "h021_primary_eps_revision_rank_pct": 0.10526315789473684,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.0799999999999983,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE849A01020",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TRENT",
+      "universe_rank": 33,
+      "values": {
+        "h021_min_analyst_count": 10.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 0.09606147934677622,
+        "h021_primary_eps_revision_rank_pct": 0.5157894736842106,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 1.379999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE494B01023",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "TVSMOTOR",
+      "universe_rank": 31,
+      "values": {
+        "h021_min_analyst_count": 37.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 8.141574656898154,
+        "h021_primary_eps_revision_rank_pct": 0.9263157894736842,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 7.29,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE481G01011",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "ULTRACEMCO",
+      "universe_rank": 18,
+      "values": {
+        "h021_min_analyst_count": 36.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -3.363986947493336,
+        "h021_primary_eps_revision_rank_pct": 0.17894736842105263,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.7799999999999994,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE854D01024",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "UNITDSPR",
+      "universe_rank": 80,
+      "values": {
+        "h021_min_analyst_count": 12.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.1043412033511002,
+        "h021_primary_eps_revision_rank_pct": 0.6631578947368421,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": -1.2700000000000014,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE200M01039",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "VBL",
+      "universe_rank": 59,
+      "values": {
+        "h021_min_analyst_count": 22.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 1.090188305252715,
+        "h021_primary_eps_revision_rank_pct": 0.6526315789473685,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 5.449999999999999,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE205A01025",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "VEDL",
+      "universe_rank": 74,
+      "values": {
+        "h021_min_analyst_count": 7.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": 7.390963698093489,
+        "h021_primary_eps_revision_rank_pct": 0.9157894736842105,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 2.2300000000000004,
+        "h021_target_price_revision_pct": null
+      }
+    },
+    {
+      "current_data_state": "PARTIAL",
+      "feature_session": "2026-11-08",
+      "isin": "INE075A01022",
+      "known_at_utc": "2026-11-08T17:11:10.400595Z",
+      "primary_signal_reason": "ELIGIBLE",
+      "prior_data_state": "PARTIAL",
+      "symbol": "WIPRO",
+      "universe_rank": 70,
+      "values": {
+        "h021_min_analyst_count": 35.0,
+        "h021_primary_coverage_flag": 1.0,
+        "h021_primary_eps_revision_30d_pct": -0.7490636704119868,
+        "h021_primary_eps_revision_rank_pct": 0.3894736842105263,
+        "h021_primary_signal_available_flag": 1.0,
+        "h021_profit_growth_change_pp": null,
+        "h021_revenue_growth_change_pp": 0.29000000000000004,
+        "h021_target_price_revision_pct": null
+      }
+    }
+  ],
+  "schema_version": 1,
+  "source_hypothesis": "H021",
+  "source_version": "H021-public-stockanalysis-spgi-plus-trendlyne-secondary-v1",
+  "universe_git_blob_sha": "8026e81faee3e913d2fba1dba72d60603b69fa07",
+  "universe_path": "research/prospective/universes/FY27-Q2-2026-09-06.json",
+  "universe_payload_sha256": "cbe8a8042351ab6b3eb21dc796161a926559442f15314e21598fe5538877edbb"
+}
