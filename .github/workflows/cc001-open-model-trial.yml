@@ -1,0 +1,108 @@
+name: CC001 actual local model measurement
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/marketlab/company_change_model_trial.py'
+      - 'tests/test_company_change_model_trial.py'
+      - 'data/cc001/open-model-trial.json'
+      - '.github/workflows/cc001-open-model-trial.yml'
+permissions:
+  contents: read
+jobs:
+  actual-inference-measurement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Build immutable local CPU runtime and verify official model weights
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$RUNNER_TEMP/cc001-open-model"
+          mkdir -p "$BASE/results" "$BASE/runtime" "$BASE/model"
+          python - <<'PY' > "$BASE/pin.env"
+          import json, shlex
+          from marketlab.company_change_model_trial import validate_pin
+          p=json.load(open('data/cc001/open-model-trial.json'))
+          validate_pin(p)
+          for k in ('model_repository','model_revision','model_filename','model_sha256','runtime_commit','server_alias','context_tokens','max_output_tokens','threads','port'):
+              print(k.upper()+'='+shlex.quote(str(p[k])))
+          PY
+          source "$BASE/pin.env"
+          git -C "$BASE/runtime" init
+          git -C "$BASE/runtime" fetch --depth=1 https://github.com/ggml-org/llama.cpp.git "$RUNTIME_COMMIT"
+          git -C "$BASE/runtime" checkout --detach FETCH_HEAD
+          test "$(git -C "$BASE/runtime" rev-parse HEAD)" = "$RUNTIME_COMMIT"
+          cmake -S "$BASE/runtime" -B "$BASE/runtime/build" -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DGGML_CUDA=OFF -DLLAMA_CURL=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_BUILD_SERVER=ON
+          cmake --build "$BASE/runtime/build" --config Release --target llama-server -j 2
+          curl --fail --location --max-time 300 --retry 2 "https://huggingface.co/$MODEL_REPOSITORY/resolve/$MODEL_REVISION/$MODEL_FILENAME" --output "$BASE/model/$MODEL_FILENAME"
+          printf '%s  %s\n' "$MODEL_SHA256" "$BASE/model/$MODEL_FILENAME" | sha256sum --check
+          python -m marketlab.company_change_model_trial certify --pin data/cc001/open-model-trial.json --model "$BASE/model/$MODEL_FILENAME" --server "$BASE/runtime/build/bin/llama-server" --runtime-commit "$RUNTIME_COMMIT" --output "$BASE/results/runtime-receipt.json"
+      - name: Restore isolated evidence and replay only the four declared development sources
+        run: |
+          BASE="$RUNNER_TEMP/cc001-open-model"
+          git fetch --depth=1 origin cc001-state
+          git show FETCH_HEAD:workspace.zip > "$BASE/input.zip"
+          python -m marketlab.company_change_checkpoint restore --workspace "$BASE/evidence" --archive "$BASE/input.zip"
+          python scripts/cc001_execution_replay.py --workspace "$BASE/evidence" --package data/fixtures/company_change_news_development_reviews.json
+      - name: Execute four real model requests and retain failures without automatic repair
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="$RUNNER_TEMP/cc001-open-model"
+          source "$BASE/pin.env"
+          unset CC001_MODEL_API_KEY
+          export CC001_ALLOW_LOCAL_MODEL=1
+          export CC001_MODEL_URL="http://127.0.0.1:$PORT/v1/chat/completions"
+          export CC001_MODEL_NAME="$SERVER_ALIAS"
+          "$BASE/runtime/build/bin/llama-server" -m "$BASE/model/$MODEL_FILENAME" --alias "$SERVER_ALIAS" --host 127.0.0.1 --port "$PORT" --ctx-size "$CONTEXT_TOKENS" --parallel 1 --threads "$THREADS" --threads-batch "$THREADS" --seed 42 --n-predict "$MAX_OUTPUT_TOKENS" --no-context-shift --jinja > "$BASE/results/server.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          ready=false
+          for i in $(seq 1 90); do
+            if curl --fail --silent "http://127.0.0.1:$PORT/health" > "$BASE/results/health.json"; then ready=true; break; fi
+            kill -0 "$SERVER_PID"
+            sleep 1
+          done
+          test "$ready" = true
+          curl --fail --silent "http://127.0.0.1:$PORT/v1/models" > "$BASE/results/models.json"
+          python -m marketlab.company_change_model_trial run --workspace "$BASE/evidence" --pin data/cc001/open-model-trial.json --receipt "$BASE/results/runtime-receipt.json" --fixture data/fixtures/company_change_news_development_reviews.json --output "$BASE/results/trial"
+          python -m marketlab.company_change_model_trial score --predictions "$BASE/results/trial/predictions.json" --fixture data/fixtures/company_change_news_development_reviews.json --output "$BASE/results/trial"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'cc001-open-model/results/trial/score.json'
+          s=json.loads(p.read_text())
+          assert s['cases_with_generated_tokens']==s['planned_cases']==4, 'Runtime measurement incomplete'
+          assert s['production_model_approved'] is False
+          print('CC001_ACTUAL_INFERENCE='+json.dumps(s))
+          PY
+      - name: Preserve evidence and exact implementation, excluding model weights and binaries
+        if: always()
+        run: |
+          BASE="$RUNNER_TEMP/cc001-open-model"
+          mkdir -p "$BASE/results/implementation/src/marketlab" "$BASE/results/implementation/tests" "$BASE/results/implementation/data/fixtures" "$BASE/results/implementation/data/cc001" "$BASE/results/implementation/workflows" "$BASE/results/implementation/scripts"
+          cp src/marketlab/*.py "$BASE/results/implementation/src/marketlab/"
+          cp tests/test_company_change*.py "$BASE/results/implementation/tests/"
+          cp data/fixtures/company_change*.json "$BASE/results/implementation/data/fixtures/"
+          cp data/cc001/open-model-trial.json "$BASE/results/implementation/data/cc001/"
+          cp .github/workflows/cc001*.yml "$BASE/results/implementation/workflows/"
+          cp scripts/cc001_execution_replay.py "$BASE/results/implementation/scripts/"
+          cp pyproject.toml "$BASE/results/implementation/"
+          git rev-parse HEAD > "$BASE/results/implementation/source-commit.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-actual-local-model-evidence
+          path: |
+            ${{ runner.temp }}/cc001-open-model/results
+            ${{ runner.temp }}/cc001-open-model/evidence
+          retention-days: 14
+          if-no-files-found: error
