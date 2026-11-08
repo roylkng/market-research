@@ -1,0 +1,96 @@
+[
+  {
+    "source_raw_sha256": "3e3b1665051129c9e7be0da4a7cff7082ea19b6506ee2b43a98db3d8ae7f6eba",
+    "amount": {
+      "literal": "USD 26.14 million",
+      "amount_scope": "ISSUER_SCOPE"
+    },
+    "scenarios": [
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 1,
+        "after_tax_cash_margin": 0.05,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "5% cash margin, full incremental"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 1,
+        "after_tax_cash_margin": 0.1,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "10% cash margin, full incremental"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 1,
+        "after_tax_cash_margin": 0.15,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "15% cash margin, full incremental"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 0.5,
+        "after_tax_cash_margin": 0.1,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "Half already in baseline"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 1,
+        "after_tax_cash_margin": 0.1,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 20,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "20 crore working capital for a year"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 1,
+        "after_tax_cash_margin": 0.1,
+        "additional_capex_crore": 10,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "10 crore additional investment"
+      },
+      {
+        "fx_inr_per_currency_unit": 85,
+        "issuer_fraction": 1,
+        "not_in_baseline_fraction": 0,
+        "after_tax_cash_margin": 0.1,
+        "additional_capex_crore": 0,
+        "working_capital_crore": 0,
+        "working_capital_recovery_fraction": 1,
+        "cash_receipt_months": 12,
+        "discount_rate": 0.15,
+        "name": "Fully already in baseline"
+      }
+    ],
+    "rationale": "Seen-development sensitivity only. INR 85 per USD is a hypothetical conversion input, not an observed exchange rate. Cash margins, twelve-month receipt, fifteen-percent discount rate and zero investment in the first three cases are unvalidated assumptions. The other cases show baseline overlap, investment and financing sensitivities. No probability, company fair value or per-share value is asserted."
+  }
+]
