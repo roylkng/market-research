@@ -1,0 +1,44 @@
+{
+  "attempt_id": "H021-P024-ORIGINAL-NOV08-SOURCE-ATTEMPT-v1",
+  "benchmark_excess_returns_opened": false,
+  "captured_result": "SOURCE_COMPLETE_NOT_ECONOMIC_RETURN",
+  "github_run_attempt": "1",
+  "github_run_id": "42503533517",
+  "live_capital_allowed": false,
+  "original_source_receipts": {
+    "index": {
+      "byte_count": 15581,
+      "captured_at_utc": "2026-11-08T17:10:21.588464Z",
+      "error": null,
+      "http_status": 200,
+      "sha256": "6c9a4ff82fc00d57740d4fd53417c3e30e79be78719efd9c737bfc68ab78f940",
+      "status": "OK",
+      "url": "https://archives.nseindia.com/content/indices/ind_close_all_08112026.csv"
+    },
+    "udiff": {
+      "byte_count": 195856,
+      "captured_at_utc": "2026-11-08T17:10:19.945903Z",
+      "error": null,
+      "http_status": 200,
+      "sha256": "d49e1ed2aca12d887cc4164902bebb968a891b58edabb5f5a5c84e3b0fedcf73",
+      "status": "OK",
+      "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261108_F_0000.csv.zip"
+    }
+  },
+  "originals_retained": [
+    {
+      "original_sha256": "d49e1ed2aca12d887cc4164902bebb968a891b58edabb5f5a5c84e3b0fedcf73",
+      "relative_path": "raw/sha256/d49e1ed2aca12d887cc4164902bebb968a891b58edabb5f5a5c84e3b0fedcf73.zip",
+      "source": "udiff"
+    },
+    {
+      "original_sha256": "6c9a4ff82fc00d57740d4fd53417c3e30e79be78719efd9c737bfc68ab78f940",
+      "relative_path": "raw/sha256/6c9a4ff82fc00d57740d4fd53417c3e30e79be78719efd9c737bfc68ab78f940.csv",
+      "source": "index"
+    }
+  ],
+  "recorded_at_utc": "2026-11-08T17:10:21.589173Z",
+  "schema_version": 1,
+  "session_date_ist": "2026-11-08",
+  "source_observation_packet_sha256": "5be5f0d718ab2f50d32c80f84b61bd7a59bc71ca4cd0bfca8949604a060cefcf"
+}
