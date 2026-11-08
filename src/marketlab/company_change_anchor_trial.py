@@ -114,7 +114,7 @@ def one_attempt(store: EvidenceStore, reading: dict, model: str, max_tokens: int
     try:
         if session is None:
             client.trust_env = False
-        with client.post(ENDPOINT, json=payload, stream=True, timeout=(10, 240),
+        with client.post(ENDPOINT, json=payload, stream=True, timeout=(10, 360),
                          allow_redirects=False) as response:
             chunks, size = [], 0
             for chunk in response.iter_content(65536):

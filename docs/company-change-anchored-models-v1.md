@@ -44,7 +44,7 @@ model's two original GGUF shards are separately verified and loaded together.
 
 Both arms use four CPU threads, one slot, a 16,384-token context and a maximum
 1,024-token output. No GPU or provider API is provisioned. Each job is limited to
-30 minutes and each source request has a 240-second transport timeout. Requests
+30 minutes and each source request has a 360-second transport timeout. Requests
 are reserved durably before execution. A repeated identical request is not retried,
 including failed or interrupted requests. No repair prompt is issued.
 
@@ -93,3 +93,25 @@ https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF
 https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF
 Runtime schema constraints are documented at:
 https://github.com/ggml-org/llama.cpp/blob/master/grammars/README.md
+
+## First paired result and bounded runtime correction
+
+Run 42461533145 is retained. The 1.5B arm produced four complete responses,
+three source-reference-valid documents and zero exact category/stage/actor
+matches. Real source locations did not prevent wrong commissioning and credit
+interpretations. Artifact 13609514871 has SHA-256
+f43ff034aa7e8f1b6dfdc1050350324b13c3f213036711ea89653aadfba86051.
+
+The 7B arm retained three complete responses and one transport timeout on the
+longer Dhruv document at 240.101 seconds. One of four fixed classification triples
+matched. Its improved SEAMEC/Vikran readings still omitted material qualifications,
+and Prestige's completion contradiction was not resolved. Artifact 13609608931
+has SHA-256 b59907060de3267713e5e13983f8a3b4e91a04d9596f7a49c0a2698e4414a18b.
+The failed case remains in the denominator. It is not a completed semantic result.
+
+The measured larger model processed about 14 prompt tokens per second, and its
+first response took 239.442 seconds. The shared per-request deadline is therefore
+raised from 240 to 360 seconds for a separately recorded measurement. The prompt,
+models, source texts, labels, token limits, validators and overall 30-minute job
+cap remain unchanged. This is not an automatic repair retry or model promotion.
+Both first-arm artifacts remain retained regardless of later results.
