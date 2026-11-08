@@ -81,7 +81,13 @@ def make_payload(reading: dict, model: str, max_tokens: int) -> dict:
     if type(max_tokens) is not int or not 256 <= max_tokens <= 8192:
         raise ChangeError("output-token limit must be 256..8192")
     return {"model": model, "temperature": 0, "max_tokens": max_tokens,
-        "messages": [{"role": "system", "content": SYSTEM},
+        "messages": [{"role": "system", "content": SYSTEM +
+            "\nReturn only the JSON object described below. The schema is provided in the "
+            "prompt because output-constrained runtimes need not expose it to the model. "
+            "Event detection does not require a known profit impact or investment recommendation. "
+            "PROPOSED means supported events are listed, not approved investments. "
+            "ABSTAIN means no supported event can be identified.\n" +
+            json.dumps(schema(), sort_keys=True)},
                      {"role": "user", "content": json.dumps({
                          "source": {k: reading[k] for k in sorted(SOURCE_KEYS)},
                          "untrusted_document": reading["text"]}, ensure_ascii=False)}],
