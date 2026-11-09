@@ -98,3 +98,49 @@ def test_original_pins_and_no_interim_eps_annualization():
     assert len(M['PINS']) == 10
     assert all(len(h) == 64 for h in M['PINS'].values())
     assert 'WAIT_NO_FRESH_PURCHASE_AT_REFERENCE_PRICE' in src
+
+
+def test_invalid_numeric_type_is_distinct_from_invalid_numeric_value():
+    for value in (True, [], None, {}):
+        with pytest.raises(TypeError, match='numeric value'):
+            M['number'](value)
+    for value in ('not-a-number', '', 'NaN', 'Infinity'):
+        with pytest.raises(ValueError):
+            M['number'](value)
+
+
+def test_return_hurdle_is_invertible_without_a_probability_claim():
+    case = M['scenario'](100, '.12', 12, '1526.60')
+    required = case['required_starting_eps_for_growth_case']
+    expected = Decimal('1526.60') / 12 * (Decimal(115) / 112) ** 5
+    assert required == pytest.approx(float(expected))
+    revised = M['scenario'](required, '.12', 12, '1526.60')
+    assert revised['price_cagr_at_reference'] == pytest.approx(.15)
+    assert not revised['probability_assigned']
+
+
+def test_cross_format_lease_difference_is_retained_not_substituted():
+    annual = M['ElementTree'].fromstring(b'<root><PaymentsOfLeaseLiabilitiesClassifiedAsFinancingActivities contextRef="FourD" unitRef="INR">0</PaymentsOfLeaseLiabilitiesClassifiedAsFinancingActivities></root>')
+    current = M['ElementTree'].fromstring(b'<root><ExceptionalItemsBeforeTax contextRef="FourD" unitRef="INR">424300000</ExceptionalItemsBeforeTax></root>')
+    audit = []
+    checks = M['source_reconciliations']('Lease rental payment (368.04) (108.51)', annual, current, audit)
+    assert checks[0]['pdf_value_crore'] == '3.6804'
+    assert checks[0]['xml_value_crore'] == '0'
+    assert checks[0]['status'] == 'UNRESOLVED_SOURCE_DIFFERENCE'
+    assert checks[1]['absolute_difference_crore'] == '15.12'
+    assert checks[0]['period_end'] == '2026-03-31'
+    assert checks[1]['period_end'] == '2026-09-30'
+    assert annual[0].text == '0'
+    assert len(audit) == 2
+
+
+def test_wrong_annual_cash_page_does_not_establish_lease_reconciliation():
+    root = M['ElementTree'].fromstring(b'<root/>')
+    with pytest.raises(ValueError, match='lease payment evidence'):
+        M['source_reconciliations']('Lease rental payment (99) (368)', root, root, [])
+
+
+def test_missing_financial_period_is_a_validation_error():
+    root = M['root_xml'](xml())
+    with pytest.raises(ValueError, match='scope mismatch'):
+        M['period'](root, 'FourD', '2025-04-01', '2026-03-31', [], 'test')

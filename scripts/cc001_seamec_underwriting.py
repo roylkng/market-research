@@ -13,7 +13,7 @@ import json
 import math
 import re
 import zipfile
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -56,8 +56,11 @@ def canon(value):
 
 def number(value):
     if isinstance(value, bool) or not isinstance(value, (str, int, float, Decimal)):
-        raise ValueError('numeric value required')
-    result = D(str(value))
+        raise TypeError('numeric value required')
+    try:
+        result = D(str(value))
+    except InvalidOperation as exc:
+        raise ValueError('invalid numeric text') from exc
     if not result.is_finite():
         raise ValueError('nonfinite input')
     return result
@@ -76,6 +79,7 @@ def scenario(eps, growth, multiple, price, years=5, hurdle='0.15'):
             'entry_price_meeting_hurdle': float(future / (1 + hurdle) ** years),
             'required_eps_growth_at_reference': math.pow(float(price * (1 + hurdle) ** years / (eps * multiple)), 1 / years) - 1,
             'terminal_value_change_from_reference': float(future / price - 1),
+            'required_starting_eps_for_growth_case': float(price / multiple * ((1 + hurdle) / (1 + growth)) ** years),
             'dividends_taxes_costs_included': False, 'probability_assigned': False}
 
 
@@ -117,8 +121,8 @@ def fact(root, tag, context, records, source):
 
 def period(root, context, start, end, records, source):
     context_node = root.find(f"{X}context[@id='{context}']")
-    if (context_node is None or context_node.find(f'{X}period/{X}startDate').text != start
-            or context_node.find(f'{X}period/{X}endDate').text != end
+    if (context_node is None or context_node.findtext(f'{X}period/{X}startDate') != start
+            or context_node.findtext(f'{X}period/{X}endDate') != end
             or context_node.find(f'{X}scenario') is not None
             or text_fact(root, 'NatureOfReportStandaloneConsolidated', context).text != 'Consolidated'):
         raise ValueError('period or accounting scope mismatch')
@@ -128,6 +132,42 @@ def period(root, context, start, end, records, source):
     if abs(result['pbt_before_exception'] + result['exceptional_gain'] - result['pbt']) > D('.02'):
         raise ValueError('PBT bridge fails disclosed rounding')
     return result
+
+
+
+def source_reconciliations(annual_lease_page, annual_xml, current_xml, records):
+    """Expose a cross-format discrepancy, do not choose a convenient value.
+
+    The caller has checked the exact original-document hashes. The annual
+    lease figure is read from printed page 169, PDF page 171, current-year
+    column. It is not the H1 FY27 lease figure or a reason to overwrite XML.
+    """
+    match = re.search(r'Lease rental payment\s*\(368\.04\)', annual_lease_page)
+    if not match:
+        raise ValueError('audited lease payment evidence unavailable')
+    annual_lease = D('368.04') / 100
+    tagged_lease = fact(annual_xml, 'PaymentsOfLeaseLiabilitiesClassifiedAsFinancingActivities',
+                        'FourD', records, 'fy26_xml')
+    sale_gain = fact(current_xml, 'ExceptionalItemsBeforeTax', 'FourD', records, 'h1fy27_xml')
+    # Exact, source-pinned PDF transcription, independently rendered for review.
+    cash_gain_adjustment = D('27.31')
+    return [
+        {'issue': 'FY26_LEASE_PAYMENTS_PDF_VS_XML', 'status': 'UNRESOLVED_SOURCE_DIFFERENCE',
+         'period_start': '2025-04-01', 'period_end': '2026-03-31',
+         'pdf_value_crore': str(annual_lease), 'xml_value_crore': str(tagged_lease),
+         'absolute_difference_crore': str(abs(annual_lease - tagged_lease)),
+         'pdf_source': 'annual_fy26', 'pdf_page': 171, 'printed_page': 169,
+         'pdf_row': 'Lease rental payment', 'pdf_raw_lakh': '368.04',
+         'xml_source': 'fy26_xml',
+         'calculation_effect': 'Annual lease-adjusted owner cash is withheld. H1 FY27 uses its own 0.99 crore figure.'},
+        {'issue': 'H1_VESSEL_GAIN_VS_CASH_FLOW_ADJUSTMENT', 'status': 'UNRESOLVED_SOURCE_DIFFERENCE',
+         'period_start': '2026-04-01', 'period_end': '2026-09-30',
+         'exceptional_gain_crore': str(sale_gain), 'cash_flow_deduction_crore': str(cash_gain_adjustment),
+         'absolute_difference_crore': str(abs(sale_gain - cash_gain_adjustment)),
+         'pdf_source': 'board_results_20261103', 'note_pdf_page': 10, 'cash_flow_pdf_page': 12,
+         'cash_flow_row': 'Gain on sale of fixed asset', 'pdf_raw_lakh': '(2,731)',
+         'calculation_effect': 'Reported cash is retained, not certified as reconciled normalized owner cash.'},
+    ]
 
 
 def verify_price(workspace, quote):
@@ -217,7 +257,10 @@ def build(workspace):
             lenses.append({'label': name, 'pretax_removed_crore': float(removed),
                            'assumed_tax_benefit_fraction': float(tax), 'eps': float(eps),
                            'reference_pe': float(price / eps),
+                           'assumed_parent_attribution_fraction_of_removed_pretax': 1.0,
                            'scope': 'SENSITIVITY_NOT_VERIFIED_NORMALIZED_OWNER_EARNINGS'})
+    reconciliation = source_reconciliations(annual.pages[170].extract_text(),
+        roots['fy26_xml'], current, records)
     cases = [dict(name=n, **scenario(e, g, m, price)) for n, e, g, m in (
         ('Stress', 80, 0, 10), ('Conservative base', 100, '.12', 12),
         ('Optimistic', 120, '.18', 15), ('Generous cross-check', 115, '.15', 12))]
@@ -247,11 +290,14 @@ def build(workspace):
         'q2_exception_share_of_pbt': float(periods['Q2FY27']['exceptional_gain'] / periods['Q2FY27']['pbt']),
         'q2_pbt_ex_exception_and_other_income_crore': float(periods['Q2FY27']['pbt_before_exception'] - periods['Q2FY27']['other_income']),
         'h1_cash_crore': {k: str(v) for k, v in cash.items()},
+        'source_reconciliations': reconciliation,
+        'normalized_owner_cash_verified': False,
         'earnings_sensitivities': lenses, 'valuation_scenarios': cases, 'finite_order_sensitivity': order,
         'source_assertions': {
             'princess': '8 November filing confirms departure from Mumbai at 07:06 to commence PRP-X. Not proof of accepted billable work or collected cash.',
             'anant': 'Taken over from HAL on 14 October. Chartered back to HAL for ONGC IMR, about USD55m over1225 days, excluding GST. Related-party transaction. Onhire filing says21 October22:00.',
             'tax': 'Annual policy applies tonnage-based taxation to shipping income, not a universal25% corporate tax on all earnings.',
+            'lease_reconciliation': 'FY26 audited cash-flow PDF page 171 shows 3.6804 crore lease payment, while annual XML tags zero. Unresolved, not overwritten. H1 FY27 is a separate period with 0.99 crore.',
             'cash_reconciliation': 'Q2/H1 results note reports42.43cr exceptional sale gain. H1 cash-flow statement shows27.31cr gain-on-fixed-assets adjustment. The15.12cr difference is not reconciled here.',
             'deposit_restrictions': 'FY26 annual note16 identifies UAE term deposits pledged against overdraft facilities. Do not assume all bank balances are freely distributable.'},
         'external_primary_reference': {'publisher': 'CRISIL Ratings', 'date': '2026-10-13',
@@ -266,7 +312,7 @@ def build(workspace):
         'live_capital_allowed': False, 'model_called': False,
         'limits': ['Scenarios are analyst assumptions, not probabilities or price targets.',
                    'Other income contains recurring interest as well as variable items. Removing all of it is a stricter sensitivity, not an accounting correction.',
-                   'The0% and25% tax benefits are hypothetical removal assumptions, not the actual tax on the sale.',
+                   'The 0% and 25% tax benefits and full parent attribution of removals are explicit sensitivities, not the actual transaction tax/allocation.',
                    'Five-year outcomes exclude dividends, taxes, costs, dilution and execution slippage.',
                    'Working-capital-stripped cash less full purchases is not normalized maintenance free cash flow.',
                    'No surplus cash is added separately to an earnings valuation that already contains its income.']}
