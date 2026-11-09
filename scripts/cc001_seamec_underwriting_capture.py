@@ -23,6 +23,12 @@ from marketlab.nse import NSEClient
 IDENTITY = {"symbol": "SEAMECLTD", "isin": "INE497B01018", "scope": "CONSOLIDATED"}
 HOSTS = {"nsearchives.nseindia.com", "archives.nseindia.com", "seamec.in", "www.seamec.in"}
 FILES = {
+    "annual_fy26": "https://seamec.in/upload/01-09-2026SEAMEC%20LIMITED_ANNUAL%20REPORT%202025-26_2MB.pdf",
+    "board_results_20261103": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_03112026160546_OutcomeofBoardMeetingBSENSE03112026.pdf",
+    "board_results_fy26": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_18052026184817_OutcomeofBM18May2026.pdf",
+    "anant_takeover": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_14102026160821_NSEBSETakeoverofVesselSEAMECANANT14102026.pdf",
+    "anant_charter": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_21102026170338_NSEBSECharterwithHALforSEAMECANANT2102026.pdf",
+    "credit_revision": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_14102026124556_NSEBSECreditRating14102026.pdf",
     "commencement_20261108": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_08112026134330_BSENSECommencementPRPXSEAMECPRINCESS08112026.pdf",
     "award_20261107": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_07112026190157_BSENSELOAconsortiumPOSHSEAMECPRPX07112026.pdf",
     "presentation_20261103": "https://nsearchives.nseindia.com/corporate/SEAMECLTD_03112026174156_BSENSEIntimationofInvestorPResentation03112026.pdf",
@@ -47,7 +53,7 @@ def selected_disclosures(rows: list) -> list[dict]:
                 continue
             url = row.get("attchmntFile", "")
             label = " ".join(str(row.get(k, "")) for k in ("desc", "attchmntText"))
-            if re.search(pattern, label, re.I) and url.endswith(".pdf") and url not in seen:
+            if re.search(pattern, label, re.IGNORECASE) and isinstance(url, str) and url.endswith(".pdf") and url not in seen:
                 result.append({"url": url, "row_sha256": canonical_hash(row), "row": row})
                 seen.add(url)
                 if len(result) >= 12:
