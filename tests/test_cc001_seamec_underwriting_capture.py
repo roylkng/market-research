@@ -29,7 +29,7 @@ def test_duplicate_or_already_listed_documents_not_fetched_twice():
 
 
 def test_malformed_rows_and_unsupported_formats_not_selected():
-    assert MODULE['selected_disclosures']([None, 'bad', {'symbol': 'SEAMECLTD', 'desc': 'annual report', 'attchmntFile': 'https://nsearchives.nseindia.com/a.exe'}]) == []
+    assert MODULE['selected_disclosures']([None, 'bad', {'symbol': 'SEAMECLTD', 'desc': 'annual report', 'attchmntFile': None}, {'symbol': 'SEAMECLTD', 'desc': 'annual report', 'attchmntFile': 'https://nsearchives.nseindia.com/a.exe'}]) == []
 
 
 def test_read_only_case_capture_does_not_activate_production_or_inference():
