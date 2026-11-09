@@ -246,3 +246,24 @@ def test_exploration_reservation_cannot_be_filled_with_more_growth_cues():
     picked = report['next_diligence_batch']
     assert sum(c['lane'] == 'CASH_SUPPORTED_SEQUENTIAL_CUE' for c in picked) == 3
     assert sum(c['lane'] != 'CASH_SUPPORTED_SEQUENTIAL_CUE' for c in picked) == 2
+
+
+def test_unfinished_screen_is_resumed_not_mistaken_for_a_closed_case():
+    value = inputs()
+    card = value['cash-underwriting']['cards'][8]
+    legacy = record(card, resume_underwriting=True)
+    report = M['build'](value, [legacy], NOW)
+    batch = report['next_diligence_batch']
+    assert len(batch) == 5
+    assert batch[0]['symbol'] == card['symbol']
+    assert batch[0]['existing_company_memo'] and batch[0]['resume_underwriting']
+    assert sum(c['lane'] == 'CASH_SUPPORTED_SEQUENTIAL_CUE' for c in batch) == 2
+    assert report['funnel']['explicit_unfinished_cases'] == 1
+    assert not batch[0]['buy_approved']
+
+
+def test_resume_marker_cannot_turn_a_full_memo_into_a_false_open_screen():
+    value = inputs()
+    legacy = record(value['cash-underwriting']['cards'][0], resume_underwriting=True, case_depth='FULL_UNDERWRITING')
+    with pytest.raises(ChangeError, match='unfinished preliminary'):
+        M['build'](value, [legacy], NOW)

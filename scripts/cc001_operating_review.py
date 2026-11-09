@@ -20,7 +20,8 @@ POLICY = {
     'version': 'CC001-DECISION-FIRST-REVIEW-v1',
     'interpretation': 'DILIGENCE_ALLOCATION_NOT_ALPHA_OR_BUY_RANKING',
     'maximum_live_cases': 5,
-    'cash_cue_slots': 3,
+    'unfinished_case_slots': 1,
+    'maximum_cash_cue_slots': 3,
     'exploration_slots': 2,
     'daily_financial_document_budget': 40,
     'daily_announcement_budget': 4,
@@ -113,6 +114,10 @@ def build(inputs: dict, decisions: list, as_of: str) -> dict:
             raise ChangeError('duplicate or capital-enabled carried-forward decision')
         if record.get('case_depth') not in {'FULL_UNDERWRITING', 'PRELIMINARY_SCREEN'}:
             raise ChangeError('case depth must distinguish full underwriting from a screen')
+        if type(record.get('resume_underwriting', False)) is not bool:
+            raise ChangeError('unfinished-case marker must be explicit Boolean')
+        if record.get('resume_underwriting') and record['case_depth'] != 'PRELIMINARY_SCREEN':
+            raise ChangeError('only an unfinished preliminary case can use the resume slot')
         if not isinstance(record.get('reviewed_source_hashes'), list) or not record['reviewed_source_hashes']:
             raise ChangeError('reviewed filing hashes required')
         memo_issuers[key] = record
@@ -164,15 +169,23 @@ def build(inputs: dict, decisions: list, as_of: str) -> dict:
             'source_url': card['source_url'], 'raw_sha256': card['raw_sha256'],
             'source_review_status': card['financial_fact_review'], 'gaps': gaps,
             'context_observed_at': context['context_observed_at'] if context else None,
-            'existing_company_memo': carried, 'reopened_for_new_filing': bool(previous_case and not carried), 'buy_approved': False,
+            'existing_company_memo': carried, 'resume_underwriting': bool(previous_case and previous_case.get('resume_underwriting')),
+            'reopened_for_new_filing': bool(previous_case and not carried), 'buy_approved': False,
         })
     def priority(card):
         known = card['context_observed_at']
         return (known is not None, timestamp(known).timestamp() if known else 0,
                 canonical_hash([POLICY['version'], card['isin'], card['raw_sha256']]))
-    eligible = [c for c in candidates if not c['existing_company_memo'] and c['source_review_status'] != 'REJECT']
+    resumable = sorted((c for c in candidates if c['resume_underwriting']
+                        and c['source_review_status'] != 'REJECT'
+                        and c['lane'] != 'ACCOUNTING_RECONCILIATION'), key=priority)
+    selected = resumable[:POLICY['unfinished_case_slots']]
+    used = {c['isin'] for c in selected}
+    eligible = [c for c in candidates if not c['existing_company_memo']
+                and c['source_review_status'] != 'REJECT' and c['isin'] not in used]
     cues = sorted((c for c in eligible if c['lane'] == 'CASH_SUPPORTED_SEQUENTIAL_CUE'), key=priority)
-    selected = cues[:POLICY['cash_cue_slots']]
+    cue_slots = POLICY['maximum_live_cases'] - POLICY['exploration_slots'] - len(selected)
+    selected += cues[:min(POLICY['maximum_cash_cue_slots'], cue_slots)]
     used = {c['isin'] for c in selected}
     # Reserve breadth. Accounting-problem cases stay visible but do not consume
     # the ordinary exploratory slots. No source omission becomes a stock rejection.
@@ -206,7 +219,8 @@ def build(inputs: dict, decisions: list, as_of: str) -> dict:
                    'identity_blocked_announcements': news['coverage']['identity_or_evidence_blocked'],
                    'carried_forward_company_decisions': len(journal),
                    'full_underwriting_memos': sum(r['case_depth'] == 'FULL_UNDERWRITING' for r in journal),
-                   'preliminary_screens': sum(r['case_depth'] == 'PRELIMINARY_SCREEN' for r in journal), 'new_buy_decisions': 0},
+                   'preliminary_screens': sum(r['case_depth'] == 'PRELIMINARY_SCREEN' for r in journal),
+                   'explicit_unfinished_cases': sum(r.get('resume_underwriting', False) for r in journal), 'new_buy_decisions': 0},
         'capacity_lower_bounds_no_new_arrivals': {
             'news_processing_runs': math.ceil(news['coverage']['readings_remaining'] / POLICY['daily_announcement_budget']),
             'financial_processing_runs': math.ceil(counts.get('PENDING', 0) / POLICY['daily_financial_document_budget']),
@@ -233,7 +247,7 @@ def render(report):
     f, h = report['funnel'], report['health']
     names = ''.join(f"<tr><td>{esc(c['symbol'])}</td><td>{esc(c['lane'].replace('_', ' '))}</td><td>{esc(c['gaps'][0])}</td></tr>" for c in report['next_diligence_batch'])
     journal = ''.join(f"<p><b>{esc(d['symbol'])}: {esc(d['disposition'])}</b> ({esc(d['case_depth'].replace('_', ' ').lower())}) at its {esc(d['price_date'])} reference. This is a carried-forward case, not a new buy signal.</p>" for d in report['carried_forward_decisions'])
-    return '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MarketLab operating review</title><style>*{box-sizing:border-box}body{margin:0;background:#f4f5f2;color:#203938;font:16px system-ui}main{max-width:1100px;margin:auto;padding:30px 22px}h1{font-size:clamp(28px,4vw,44px)}.banner{background:#203938;color:white;padding:24px;border-radius:12px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}.metric{background:white;padding:18px;border:1px solid #cbd6cf}.metric b{display:block;font-size:30px}table{width:100%;table-layout:fixed;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:12px 6px;border-bottom:1px solid #ccd8d1;overflow-wrap:anywhere;font-size:13px}.panel{padding:22px;background:white;border:1px solid #ccd8d1;margin-top:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}summary{cursor:pointer;font-weight:600}.muted{font-size:12px;color:#526961}</style><main><h1>Research output, not pipeline activity</h1><div class="banner"><b>Attention allocation is not an investment score.</b><p>The next batch asks which source gaps to resolve. It does not turn sequential growth, a cash surplus or a valid parser into a buy recommendation.</p></div>''' + f'''<div class="metrics"><div class="metric"><b>{f['financial_issuers']}</b>issuers in received reports</div><div class="metric"><b>{f['retained_price_contexts']}</b>retained price contexts</div><div class="metric"><b>{f['full_underwriting_memos']}</b>completed underwriting memo</div><div class="metric"><b>0</b>new buy decisions</div></div><div class="panel"><h2>Operating blockers</h2><p>Saved state: {esc(report['snapshot_recorded_at'])}. Snapshot age at this review: {report['snapshot_age_hours']:.1f} hours.</p><p>News state: {esc(h['news_status'])}. Storage deferral recorded: {h['news_storage_blocked']}.</p><p>{f['unread_announcements']:,} unread announcements at four per run imply {report['capacity_lower_bounds_no_new_arrivals']['news_processing_runs']:,} runs without new arrivals. {f['same_source_yoy_revenue_available_issuers']}/{f['financial_issuers']} have same-source year-ago revenue in the broad cash report.</p></div><div class="panel"><h2>Next diligence batch</h2><p>Three cash-supported sequential cues plus two breadth slots. Unknown industry, seasonality, price and earnings quality still need review.</p><table><tr><th>Issuer</th><th>Attention lane</th><th>First missing check</th></tr>{names}</table></div><div class="panel"><h2>Decision record</h2>{journal}</div><details class="panel"><summary>Audit inputs and limitations</summary><pre>{esc(json.dumps({k:report[k] for k in ('input_hashes','lane_counts','capacity_lower_bounds_no_new_arrivals','limits')},indent=2))}</pre></details><p class="muted">Evaluated {esc(report['evaluated_at'])}. Report hash {esc(report['report_sha256'])}. No network, source mutation, production switch or portfolio order.</p></main></html>'''
+    return '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MarketLab operating review</title><style>*{box-sizing:border-box}body{margin:0;background:#f4f5f2;color:#203938;font:16px system-ui}main{max-width:1100px;margin:auto;padding:30px 22px}h1{font-size:clamp(28px,4vw,44px)}.banner{background:#203938;color:white;padding:24px;border-radius:12px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0}.metric{background:white;padding:18px;border:1px solid #cbd6cf}.metric b{display:block;font-size:30px}table{width:100%;table-layout:fixed;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:12px 6px;border-bottom:1px solid #ccd8d1;overflow-wrap:anywhere;font-size:13px}.panel{padding:22px;background:white;border:1px solid #ccd8d1;margin-top:20px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}summary{cursor:pointer;font-weight:600}.muted{font-size:12px;color:#526961}</style><main><h1>Research output, not pipeline activity</h1><div class="banner"><b>Attention allocation is not an investment score.</b><p>The next batch asks which source gaps to resolve. It does not turn sequential growth, a cash surplus or a valid parser into a buy recommendation.</p></div>''' + f'''<div class="metrics"><div class="metric"><b>{f['financial_issuers']}</b>issuers in received reports</div><div class="metric"><b>{f['retained_price_contexts']}</b>retained price contexts</div><div class="metric"><b>{f['full_underwriting_memos']}</b>completed underwriting memo</div><div class="metric"><b>0</b>new buy decisions</div></div><div class="panel"><h2>Operating blockers</h2><p>Saved state: {esc(report['snapshot_recorded_at'])}. Snapshot age at this review: {report['snapshot_age_hours']:.1f} hours.</p><p>News state: {esc(h['news_status'])}. Storage deferral recorded: {h['news_storage_blocked']}.</p><p>{f['unread_announcements']:,} unread announcements at four per run imply {report['capacity_lower_bounds_no_new_arrivals']['news_processing_runs']:,} runs without new arrivals. {f['same_source_yoy_revenue_available_issuers']}/{f['financial_issuers']} have same-source year-ago revenue in the broad cash report.</p></div><div class="panel"><h2>Next diligence batch</h2><p>An unfinished case first, then cash-supported sequential cues and two breadth slots. Unknown industry, seasonality, price and earnings quality still need review.</p><table><tr><th>Issuer</th><th>Attention lane</th><th>First missing check</th></tr>{names}</table></div><div class="panel"><h2>Decision record</h2>{journal}</div><details class="panel"><summary>Audit inputs and limitations</summary><pre>{esc(json.dumps({k:report[k] for k in ('input_hashes','lane_counts','capacity_lower_bounds_no_new_arrivals','limits')},indent=2))}</pre></details><p class="muted">Evaluated {esc(report['evaluated_at'])}. Report hash {esc(report['report_sha256'])}. No network, source mutation, production switch or portfolio order.</p></main></html>'''
 
 
 def main(argv=None):
