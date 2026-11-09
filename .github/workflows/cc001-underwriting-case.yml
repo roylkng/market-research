@@ -1,0 +1,29 @@
+name: CC001 SEAMEC investment underwriting sources
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/cc001_seamec_underwriting_capture.py'
+      - 'tests/test_cc001_seamec_underwriting_capture.py'
+      - '.github/workflows/cc001-underwriting-case.yml'
+permissions:
+  contents: read
+jobs:
+  capture-company-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Capture issuer filings and dated price without altering production state
+        run: python scripts/cc001_seamec_underwriting_capture.py --workspace /tmp/cc001-seamec-underwriting
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-seamec-underwriting-originals
+          path: /tmp/cc001-seamec-underwriting
+          retention-days: 14
+          if-no-files-found: error
