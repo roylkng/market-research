@@ -51,10 +51,10 @@
     },
     "SC001": {
       "eligible_session_count": 16,
-      "expected_latest_session": "2026-11-06",
+      "expected_latest_session": "2026-11-09",
       "latest_eligible_session": "2026-11-09",
       "ledger_sha256": "753fc97dca015ae2cc6378074a24310528aacbde864f7abe9d9a3439379c8184",
-      "state": "AHEAD_OF_EXPECTED_CALENDAR"
+      "state": "HEALTHY"
     },
     "SC002": {
       "attempt_count": 286,
@@ -67,10 +67,10 @@
     },
     "SC003": {
       "additional_ready_sessions_needed": 0,
-      "distinct_target_session_count": 14,
-      "ledger_sha256": "c7c9415428425267b570b3ef9f3895d043197779487e938cdc14d49ed1113442",
+      "distinct_target_session_count": 15,
+      "ledger_sha256": "5a18b9cd751f9f5b13a37c0299c065b2b05a05c8957b84fb8a207f4718c83e01",
       "minimum_ready_sessions": 3,
-      "ready_before_preopen_cutoff_session_count": 14,
+      "ready_before_preopen_cutoff_session_count": 15,
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
@@ -92,7 +92,7 @@
       "candidate_trial_id": "AE001-T012",
       "live_capital_allowed": false,
       "minimum_ready_sessions_for_successor_freeze": 3,
-      "ready_target_session_count": 14,
+      "ready_target_session_count": 15,
       "ready_target_sessions": [
         "2026-10-01",
         "2026-10-05",
@@ -107,15 +107,16 @@
         "2026-10-27",
         "2026-11-02",
         "2026-11-04",
-        "2026-11-05"
+        "2026-11-05",
+        "2026-11-09"
       ],
       "schema_version": 1,
-      "source_ledger_sha256": "c7c9415428425267b570b3ef9f3895d043197779487e938cdc14d49ed1113442",
+      "source_ledger_sha256": "5a18b9cd751f9f5b13a37c0299c065b2b05a05c8957b84fb8a207f4718c83e01",
       "source_timing_sessions_may_be_backfilled_as_predictions": false,
       "state": "READY_TO_FREEZE_SUCCESSOR_TRIAL",
       "successor_trial_frozen": false,
       "successor_trial_registration_permitted": true,
-      "summary_sha256": "c8980d0312830ecabc7c0ece9710fd60930062bbf8c42ac521536df38eff11cf",
+      "summary_sha256": "c8817d2c30b8e9326dacbb860b0b6491ac008dc6187bc6ad8c5c3c3c047ca610",
       "uses_return_or_alpha_outcomes": false
     },
     "T006": {
@@ -202,9 +203,9 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-11-06",
+  "latest_expected_market_session": "2026-11-09",
   "live_capital_allowed": false,
-  "sc001_source_cutoff_passed": false,
+  "sc001_source_cutoff_passed": true,
   "schema_version": 1,
-  "summary_sha256": "ff1f4fac52a6e9862d241a93b2b2c6fc9e63aefd79d9edf22310625854f52d5c"
+  "summary_sha256": "91fad2e776b12c555bc63d6ab8ec38ac97c375e7dd8e1a55309ff5fb79735ce8"
 }
