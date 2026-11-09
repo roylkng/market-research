@@ -1,9 +1,8 @@
 {
   "after_market_close": true,
   "as_of_date": "2026-11-09",
-  "blocker_count": 4,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
@@ -51,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 15,
+      "eligible_session_count": 16,
       "expected_latest_session": "2026-11-06",
-      "latest_eligible_session": "2026-11-05",
-      "ledger_sha256": "8a78578c09e806e7882d05870d5f6db67441cd33053931238255e4ef2b2c8d4d",
-      "state": "STALE"
+      "latest_eligible_session": "2026-11-09",
+      "ledger_sha256": "753fc97dca015ae2cc6378074a24310528aacbde864f7abe9d9a3439379c8184",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 286,
@@ -75,13 +74,13 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 11,
-      "decision_ledger_sha256": "2d2c6331caab05cd12fdc249b54db958123b12cd08cb1b72d5d22d66a110144c",
-      "latest_readiness_session": "2026-11-05",
-      "mature_outcome_fraction": 0.8181818181818182,
+      "decision_count": 12,
+      "decision_ledger_sha256": "a18a59e54e85266bb7fed820ec83f99b16f2d530e48af5623fab9e7e29a0139e",
+      "latest_readiness_session": "2026-11-09",
+      "mature_outcome_fraction": 0.75,
       "outcome_count": 9,
       "outcome_ledger_sha256": "9e1352f82e2af66fcee005d338f5f8799937bb7619813b468cdb35df652ebb14",
-      "readiness_sha256": "a3c08ceecfeaec2f898f8b88875db82c371685057e50fd5630931468dbfe053b",
+      "readiness_sha256": "15e31ce5026d3a0872ced61645c56db5ea9ec65b1f6845979e8e8882aa61e666",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -207,5 +206,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "5c1f496df490417038b2a21a9c543be76927fd9071b178480bc397d61811f3eb"
+  "summary_sha256": "daf176b3e60c0cbd8b0a9278012583141cfae6b024336cc4ee5dc7adad3b9466"
 }
