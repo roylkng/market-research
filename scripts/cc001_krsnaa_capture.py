@@ -23,6 +23,8 @@ IDENTITY = {"symbol": "KRSNAA", "isin": "INE08LI01020", "scope": "CONSOLIDATED"}
 HOSTS = {"nsearchives.nseindia.com", "archives.nseindia.com", "krsnaadiagnostics.com",
          "www.krsnaadiagnostics.com", "www.icra.in", "icra.in"}
 FILES = {
+    "annual_fy26": "https://nsearchives.nseindia.com/corporate/KRSNAA_05092026190440_543328_Final.pdf",
+    "tax_appeal_20260909": "https://nsearchives.nseindia.com/corporate/KRSNAA_09092026225637_543328.pdf",
     "h1fy27_results": "https://nsearchives.nseindia.com/corporate/KRSNAA_02112026150758_543328_1_.pdf",
     "h1fy27_presentation": "https://nsearchives.nseindia.com/corporate/KRSNAA_02112026184753_543328.pdf",
     "h1fy27_transcript": "https://nsearchives.nseindia.com/corporate/KRSNAA_07112026191611_543328_Signed__1_.pdf",
