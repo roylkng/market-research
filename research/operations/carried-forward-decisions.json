@@ -58,32 +58,66 @@
     "workflow_state": "PRICE_OR_EVIDENCE_WATCH"
   },
   {
-    "decision_id": "KRSNAA-20261107-PR585-SCREEN",
+    "decision_id": "KRSNAA-20261110-PR601",
     "symbol": "KRSNAA",
     "isin": "INE08LI01020",
-    "disposition": "RESEARCH_ONLY",
-    "case_depth": "PRELIMINARY_SCREEN",
-    "decision_published_at": "2026-11-07T20:12:11Z",
+    "disposition": "WAIT",
+    "case_depth": "FULL_UNDERWRITING",
+    "decision_published_at": "2026-11-10T05:40:15Z",
     "evidence_class": "HISTORICAL_CARRY_FORWARD_NOT_PROSPECTIVE_ENTRY",
-    "reference_price_inr": 475.0,
-    "price_date": "2026-11-06",
+    "reference_price_inr": 493.6,
+    "price_date": "2026-11-09",
     "horizon_years": 5,
     "working_price_return_hurdle": 0.15,
-    "source_memo": "https://github.com/roylkng/market-research/pull/585",
-    "source_merge_commit": "69770f1d8d88f3b861261fff0dba48c59d2729f0",
-    "source_report_sha256": "e810ee5ada36bcd5ab445bccf3413aa6c6fcb10e7e1fa9ce790b1e2891aeb8fb",
+    "source_memo": "research/company_cases/krsnaa/2026-11-10.md",
+    "source_memo_publication_commit": "51e923161e43b1f45340b8fb6d66fcc9628075eb",
+    "calculation_code_blob_sha": "0ea0ab8bedc88c3cd1946853efecf5afe90409e6",
     "reviewed_source_hashes": [
-      "6390b2d760447563ce52711231c5d4053d8fbe9e5040af4f50a3c9c894f3d2ed"
+      "6390b2d760447563ce52711231c5d4053d8fbe9e5040af4f50a3c9c894f3d2ed",
+      "dd45961fd84c1e74fc7a970f99e6dad7a5905b0e54e905213031790c8610a8f8",
+      "994103a9bec0ea6d2d5623ab3e28040018eec303b9fcef47ba1b7add113addd5"
     ],
-    "reason": "Establish expansion funding, investment returns and sustainable cash conversion before considering entry.",
+    "reason": "Growth has not yet translated into proportionate recurring per-share earnings or collections. The conservative case does not meet the return hurdle at the dated close.",
     "reopen_conditions": [
-      "A materially different filing, normalized-earnings evidence or qualifying dated price justifies full underwriting."
+      "Actual Q3 collections and ending receivables improve without simply shifting funding to suppliers.",
+      "New sites produce recurring post-financing per-share earnings and a reconciled funding/dilution path.",
+      "A newly observed price or stronger supported earnings case meets a downside-aware return hurdle."
     ],
     "prospective_entry_price": null,
     "outcome_status": "NOT_SCORED_NO_BACKDATED_ENTRY",
     "live_capital_allowed": false,
-    "resume_underwriting": true,
-    "workflow_state": "INCOMPLETE_UNDERWRITING"
+    "resume_underwriting": false,
+    "workflow_state": "DATED_WAIT",
+    "prior_research_records": [
+      {
+        "decision_id": "KRSNAA-20261107-PR585-SCREEN",
+        "symbol": "KRSNAA",
+        "isin": "INE08LI01020",
+        "disposition": "RESEARCH_ONLY",
+        "case_depth": "PRELIMINARY_SCREEN",
+        "decision_published_at": "2026-11-07T20:12:11Z",
+        "evidence_class": "HISTORICAL_CARRY_FORWARD_NOT_PROSPECTIVE_ENTRY",
+        "reference_price_inr": 475.0,
+        "price_date": "2026-11-06",
+        "horizon_years": 5,
+        "working_price_return_hurdle": 0.15,
+        "source_memo": "https://github.com/roylkng/market-research/pull/585",
+        "source_merge_commit": "69770f1d8d88f3b861261fff0dba48c59d2729f0",
+        "source_report_sha256": "e810ee5ada36bcd5ab445bccf3413aa6c6fcb10e7e1fa9ce790b1e2891aeb8fb",
+        "reviewed_source_hashes": [
+          "6390b2d760447563ce52711231c5d4053d8fbe9e5040af4f50a3c9c894f3d2ed"
+        ],
+        "reason": "Establish expansion funding, investment returns and sustainable cash conversion before considering entry.",
+        "reopen_conditions": [
+          "A materially different filing, normalized-earnings evidence or qualifying dated price justifies full underwriting."
+        ],
+        "prospective_entry_price": null,
+        "outcome_status": "NOT_SCORED_NO_BACKDATED_ENTRY",
+        "live_capital_allowed": false,
+        "resume_underwriting": true,
+        "workflow_state": "INCOMPLETE_UNDERWRITING"
+      }
+    ]
   },
   {
     "decision_id": "UPL-20261107-PR585-SCREEN",

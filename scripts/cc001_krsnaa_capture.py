@@ -8,6 +8,7 @@ import argparse
 import io
 import json
 import re
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -15,7 +16,7 @@ from pypdf import PdfReader
 
 from marketlab.company_change import ChangeError, canonical_hash
 from marketlab.company_change_pipeline import fetch_original
-from marketlab.company_change_prices import archive_close
+from marketlab.company_change_prices import parse_bhavcopy
 from marketlab.company_change_store import EvidenceStore
 from marketlab.nse import NSEClient
 
@@ -127,7 +128,14 @@ def capture(workspace: Path) -> dict:
                     seen.add(item["url"])
             quote = None
             try:
-                quote = archive_close(store, IDENTITY)
+                session = date(2026, 11, 9)
+                url = "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261109_F_0000.csv.zip"
+                raw, final_url = fetch_original(url, HOSTS)
+                cap = store.capture(raw, {"url": url, "final_url": final_url,
+                    "origin": "HTTP_RESPONSE_BYTES", "case": "KRSNAA-20261110"})
+                quote = parse_bhavcopy(raw, IDENTITY, session, cap["captured_at"])
+                quote["source_url"] = url
+                quote["coverage"] = "EXPLICIT_2026_11_09_HISTORICAL_REFERENCE_NOT_CURRENT_EXECUTABLE_PRICE"
             except (ValueError, KeyError, TypeError, RuntimeError, OSError) as exc:
                 errors.append({"stage": "price", "reason": str(exc)[:400]})
             report = {"case": "KRSNAA-20261110", "identity": IDENTITY, "observed_at": store.clock(),
