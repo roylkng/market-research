@@ -1,0 +1,37 @@
+name: CC001 next four company evaluation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/cc001_next_batch*.py'
+      - 'tests/test_cc001_next_batch*.py'
+      - 'research/company_cases/next-four/**'
+      - '.github/workflows/cc001-next-batch.yml'
+permissions:
+  contents: read
+jobs:
+  capture-four-cases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Capture original statements, disclosures and dated prices
+        run: python scripts/cc001_next_batch_capture.py --workspace /tmp/cc001-next-four
+      - name: Retain exact implementation
+        if: always()
+        run: |
+          mkdir -p /tmp/cc001-next-four/implementation/scripts /tmp/cc001-next-four/implementation/tests /tmp/cc001-next-four/implementation/workflows
+          cp scripts/cc001_next_batch*.py /tmp/cc001-next-four/implementation/scripts/
+          cp .github/workflows/cc001-next-batch.yml /tmp/cc001-next-four/implementation/workflows/
+          git rev-parse HEAD > /tmp/cc001-next-four/implementation/source-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-next-four-originals
+          path: /tmp/cc001-next-four
+          retention-days: 14
+          if-no-files-found: error
