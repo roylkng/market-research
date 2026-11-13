@@ -99,7 +99,7 @@ def report() -> dict:
     require(last["original_clock_amendment_sha256"] == calendar["amendment_sha256"], "Muhurat clock mismatch")
     require(last["special_session_date_ist"] == dates[-1], "wrong NSE endpoint")
     require(last["original_stock_and_index_row_coverage_complete"], "Muhurat source coverage incomplete")
-    require(last["benchmark"]["basis"] == "ORIGINAL_NSE_PRICE_INDEX_NOT_TRI", "Muhurat index basis changed")
+    require(last["benchmark"]["basis"] == "ORIGINAL_UNADJUSTED_NIFTY500_INDEX_ONLY", "Muhurat index basis changed")
     require(last["selected_original_stocks"] == len(selected), "Muhurat stock count changed")
 
     sessions: list[dict] = []
