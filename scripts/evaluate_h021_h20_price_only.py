@@ -67,7 +67,7 @@ def report() -> dict:
     require(comparison["prior_capture_date_ist"] == "2026-09-11", "wrong revision prior")
     require(28 <= comparison["capture_interval_days"] <= 35, "revision window changed")
     require(intent["source"]["comparison_git_blob_sha"] == source_blobs[str(COMPARISON)], "comparison blob changed")
-    require(intent["source"]["universe_git_blob_sha"] == UNIVERSE_SHA, "universe changed")
+    require(comparison["universe_git_blob_sha"] == UNIVERSE_SHA, "universe changed")
     for manifest in (prior, current):
         require(manifest["source_version"] == SOURCE_VERSION, "source version changed")
         require(manifest["universe_git_blob_sha"] == UNIVERSE_SHA, "source universe changed")
