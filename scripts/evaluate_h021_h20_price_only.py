@@ -254,7 +254,7 @@ def report() -> dict:
         "provenance": {
             "h021_prospective_contract": "research/H021_PROSPECTIVE_PROTOCOL_V1.md",
             "h021_comparison_contract": "research/H021_COMPARISON_CONTRACT_V1.md",
-            "original_input_git_blob_shas": dict(sorted(source_blobs.items())),
+            "original_input_git_blob_shas": dict(sorted((k, v) for k, v in source_blobs.items()\n                                                  if "/daily-prices/" not in k)),\n            "interim_official_daily_price_source_paths": [\n                str(BASE / f"daily-prices/{day}-v1.json") for day in dates[1:-1]\n            ],
             "original_2026_11_08_udiff_sha256": last["original_udiff_source_receipt"]["sha256"],
             "original_2026_11_08_nifty500_csv_sha256": last["original_index_source_receipt"]["sha256"],
             "original_2026_10_12_udiff_sha256": first["source_receipts"]["udiff"]["raw_sha256"],
