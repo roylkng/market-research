@@ -21,8 +21,9 @@ def test_h021_h20_source_only_report_reproduces_from_sealed_originals() -> None:
         cwd=ROOT,
         text=True,
         capture_output=True,
-        check=True,
+        check=False,
     )
+    assert run.returncode == 0, run.stderr
     assert "H021 H20 source-only artifact verified" in run.stdout
 
 
