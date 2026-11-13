@@ -1,9 +1,8 @@
 {
   "after_market_close": true,
   "as_of_date": "2026-11-13",
-  "blocker_count": 4,
+  "blocker_count": 3,
   "blockers": [
-    "SC001_STALE",
     "SC002_SAME_DAY_FUTURES_TIMING",
     "T006_SOURCE_TIMING",
     "T012_FUTURE_CALENDAR_EXTENSION_REQUIRED"
@@ -43,7 +42,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "950d6e522ea6cf216af442b710131b4b5dd73657331eed83d9d0328e65d01992",
+      "ledger_sha256": "87ea9d9da0c8ce4420bed2ca7cb1147d29cd85a5097a0e064f8095b61b6dc232",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -51,11 +50,11 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 16,
+      "eligible_session_count": 17,
       "expected_latest_session": "2026-11-12",
-      "latest_eligible_session": "2026-11-09",
-      "ledger_sha256": "79f0557b9e350e5ceef8b1d533ad285b4c9845e20bd72b7500d4d23cc27cd4f3",
-      "state": "STALE"
+      "latest_eligible_session": "2026-11-13",
+      "ledger_sha256": "fd86759f706e4324da379cde3f080f2bd7dc186d331a89659cd185398d5804d6",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
       "attempt_count": 334,
@@ -75,13 +74,13 @@
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 12,
-      "decision_ledger_sha256": "a18a59e54e85266bb7fed820ec83f99b16f2d530e48af5623fab9e7e29a0139e",
-      "latest_readiness_session": "2026-11-09",
-      "mature_outcome_fraction": 1.0,
+      "decision_count": 13,
+      "decision_ledger_sha256": "b618fda605b202d63c2c8928bb632cbbc884c77bd95cebe362b7e18b8fa442de",
+      "latest_readiness_session": "2026-11-13",
+      "mature_outcome_fraction": 0.9230769230769231,
       "outcome_count": 12,
       "outcome_ledger_sha256": "f1288b96bafd938e782d895d891652817c40d8d6d250f36a3454a6128e03414d",
-      "readiness_sha256": "15e31ce5026d3a0872ced61645c56db5ea9ec65b1f6845979e8e8882aa61e666",
+      "readiness_sha256": "3d864fb0e502574265d5999fa8fb8e2f53ba96ac9228e63bff9d48e422519f02",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -208,5 +207,5 @@
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "a72b208deeb76044c86190881099f10cf47a9242e6adc522fe26a9544b41fbd7"
+  "summary_sha256": "b0ee1e017458a3f7092fa30eb88c83fb8f3d92bd1aeb2bae55c3263591c61edf"
 }
