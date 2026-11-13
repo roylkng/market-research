@@ -24030,9 +24030,121 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-13T17:20:55.176771+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "2715fac3aa913628b31af21fc3a8613cb7e578d6d31633713fbfde2520cac2cd",
+      "captured_at": "2026-11-13T17:25:42.470440+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 4
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "b28a71c49f757ceff661093fd308ef6e49740ea583c9fb214f836a3b011e0652",
+      "identity_session": "2026-11-12",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "f8dcb41c43102a2df4f24f771835e79a8b41b714f87db60a936eb0d2f9a8bc28",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 4,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-13T17:24:55.171864+00:00"
     }
   ],
-  "ledger_sha256": "0783e67792a8cbe6e3d41dd9077495b3d2e74735e488152494eafe72bcd4f014",
+  "ledger_sha256": "212c611d6bbb225d7f6872822a0c85705ea7e8517ac3d66817a81c269d424fd6",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1881287,6 +1881399,112 @@
       "source_id": "mint-markets",
       "title_sha256": "f1216ed921aca7f0f471ed47ea3d862af69ecaec1dfc5031835de8d75f079738",
       "topics": []
+    },
+    {
+      "capture_id": "2715fac3aa913628b31af21fc3a8613cb7e578d6d31633713fbfde2520cac2cd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-13T17:25:03.288789+00:00",
+      "item_id": "d52511a4ef0f3fabe39baabcbd2e3edc0797bfa1cd61075eaffe4cf30af69884",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a69925b1aef8a176e3907e753fa17351cd418558d70db6c08f736fca035f6670",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 13 Nov 2026 17:20:00 +0000",
+        "value": "2026-11-13T17:20:00+00:00"
+      },
+      "resource_key": "prn:302939180",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "48eaf292c30bf45b75d3ad070cf047cf7b3ed947abcc3d3ce8301a87027bae8a",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "2715fac3aa913628b31af21fc3a8613cb7e578d6d31633713fbfde2520cac2cd",
+      "event_context": "Maan Aluminium Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "f66f5d198adad87330aece887368fdafb975b1fbf60b7001536a3278964ecfa7",
+      "first_seen_at": "2026-11-13T17:25:04.180702+00:00",
+      "item_id": "a36c1d689084739612e53731af3a71f1263fcb2d1b7a75b07351fe4b1e618274",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MAANALU"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "30f48ef062d1cd24f150c2b9df1a20086b81698dfff24044c2131753be7d2b86",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "13-Nov-2026 22:53:23",
+        "value": "2026-11-13T17:23:23+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MAANALU_13112026225257_lettermerged.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8bcca54874eb469480f5f6c061eb2886050a00845a8bb56ed1f4996eaba40529",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "2715fac3aa913628b31af21fc3a8613cb7e578d6d31633713fbfde2520cac2cd",
+      "event_context": "Vertis Infrastructure Trust has informed regarding the Valuation Report for assets as at September 30, 2026. |SUBJECT: Disclosure of Valuation report",
+      "event_context_sha256": "b6eadcbfda7d2c727978bc5abcc7683cebc3b5c2260f6541d963dad6c309edcb",
+      "first_seen_at": "2026-11-13T17:25:04.180702+00:00",
+      "item_id": "df0fefda09d6f50f7a9a365d951fbe50473c8649bd566943dd660fb3d86b67d2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "88b6beb57a1a8afa3b59e6e58eba3d7397a8404ccdfd55619ad97183d531a5fc",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "13-Nov-2026 22:52:53",
+        "value": "2026-11-13T17:22:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HIGHWAYS_13112026225235_Valuation_Report_Intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "408988b425b5b3afa69105508985f1f02f8bd20e7b1add5fdc1f973d4411f502",
+      "topics": []
+    },
+    {
+      "capture_id": "2715fac3aa913628b31af21fc3a8613cb7e578d6d31633713fbfde2520cac2cd",
+      "event_context": "Madhucon Projects Limited has submitted to the Exchange, the financial results for the period ended September 30, 2026. |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "5a5d46362e14e37b22ea0a9a95051e9f201946c89227b958fa7e58d5841424b3",
+      "first_seen_at": "2026-11-13T17:25:04.180702+00:00",
+      "item_id": "8567a6e45e9f73cfa86e7d38fc8b366df617e8c619a6100206faf185cdab3fe4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MADHUCON"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ac74e183714b355aaefa75d7e6cd510aff2a220063641fc2a009b2c81b319cea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "13-Nov-2026 22:53:49",
+        "value": "2026-11-13T17:23:49+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MADHUCON_13112026224225_OutcomeBOD13112026MR.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "2ff86ee33254ba1d839ad8f9831dafb5e0562aa54049584920c72ccd6a7c0438",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
     }
   ],
   "schema_version": 1
