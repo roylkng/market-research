@@ -1,6 +1,6 @@
 {
-  "after_market_close": true,
-  "as_of_date": "2026-11-13",
+  "after_market_close": false,
+  "as_of_date": "2026-11-14",
   "blocker_count": 3,
   "blockers": [
     "SC002_SAME_DAY_FUTURES_TIMING",
@@ -51,18 +51,18 @@
     },
     "SC001": {
       "eligible_session_count": 17,
-      "expected_latest_session": "2026-11-12",
+      "expected_latest_session": "2026-11-13",
       "latest_eligible_session": "2026-11-13",
       "ledger_sha256": "fd86759f706e4324da379cde3f080f2bd7dc186d331a89659cd185398d5804d6",
-      "state": "AHEAD_OF_EXPECTED_CALENDAR"
+      "state": "HEALTHY"
     },
     "SC002": {
-      "attempt_count": 334,
+      "attempt_count": 335,
       "eligible_before_1830_session_count": 0,
-      "late_ready_session_count": 21,
-      "latest_ready_session": "2026-11-06",
-      "ledger_sha256": "9179f3d8decdf94ecad48e12d34e25d2efede2e1cfa09ec653c212aa175e1279",
-      "ready_session_count": 21,
+      "late_ready_session_count": 22,
+      "latest_ready_session": "2026-11-13",
+      "ledger_sha256": "235c1542efbca13fc61b15835f3d0d210e5101322d8071c943de981aec09f162",
+      "ready_session_count": 22,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
@@ -171,7 +171,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "9179f3d8decdf94ecad48e12d34e25d2efede2e1cfa09ec653c212aa175e1279",
+        "source_ledger_sha256": "235c1542efbca13fc61b15835f3d0d210e5101322d8071c943de981aec09f162",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -203,9 +203,9 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-11-12",
+  "latest_expected_market_session": "2026-11-13",
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "716285bab2ac0454caada76fed55be4f1b3bbb2a9c3da82dca137aedf58880dd"
+  "summary_sha256": "c7dae68ed3b50213bd5d4a46a96d4a7d05d5f703d2fa189026ca4addc3433927"
 }
