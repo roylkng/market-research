@@ -9,6 +9,8 @@
 - The RHP says 661,836,300 shares, approximately 10%, are sold by **Coal India**, entirely **OFS**, not a fresh issue. 6,618,363,000 implied existing shares × ₹136 implies **₹90,009.74 crore equity capitalization** and **₹9,000.97 crore gross 10% OFS at the cap before discounts/offer expenses**. Press reports an approximately ₹8,981.12 crore offer after employee-discount treatment, not the same as gross multiplication. Proceeds accrue to Coal India as selling shareholder, **not MCL**, and are **not automatically distributed to Coal India's minority owners**. Completion and final allocation remain unverified.
 - No MCL traded post-listing price exists as of 2026-11-16. Price band is not a post-listing closing price or guaranteed allotment. Compare prospective direct MCL exposure with existing parent Coal India, other coal/power equities, diversified India equity and cash separately; there is no automatic whole-market cash decision.
 
+**Original-text navigation:** RHP printed pp. 24–25 (contingent-liability table), 35–36 (state-utility receivables), 41–42 (board/exemption risk), 55–56 (CAG levy observation and issuer response), 88–91 (owner PAT and cash-flow summary). The page numbers identify locations in the PDF text, **not successful page-screenshot verification**.
+
 ## What the original RHP actually supports (consolidated unless specified)
 
 | Metric | Original RHP amount | Normalized reading / constraint |
