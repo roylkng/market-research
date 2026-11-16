@@ -1,6 +1,6 @@
 # Investment research: persistent handoff
 
-Last substantive checkpoint: 15 November 2026.
+Last substantive checkpoint: 16 November 2026.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
 
 ## Read first
@@ -18,6 +18,10 @@ Purpose: retain the user's whole investment objective across sessions, not only 
 Find timely Indian investment opportunities by connecting future customer needs, company leadership and capability, stakeholder preference, capital discipline, cash per share and expectations in the price. Consider market-wide participation separately from individual-stock selection. A good CEO, a large order, a cheap P/E or a strong market alone is not enough.
 
 The user explicitly asked that leadership, team depth, values, reputation, perceived value and the historical drivers of enduring businesses join the financial and market analysis. This update records that as a continuing research requirement, not a one-off essay.
+
+## 16 November live discovery: new coal subsidiary IPO case
+
+**Mahanadi Coalfields:** New [dated IPO assessment](mahanadi-coalfields-ipo-2026-11-16.md), researched from its 13 Nov original RHP text and 16 Nov independently corroborated **secondary** price-band reports. The upper ₹136 band implies about ₹90,010 crore equity value at about 8.43x FY26 parent-attributable profit, but IPO cash goes to selling holder Coal India, not MCL. Source text documents sharply improved H1 CFO with working-capital effects, ₹12,513.29 crore reported unprovided contingencies, a separately disputed CAG ₹31,227.80 crore potential levy reference (not additive without reconciliation), ₹2,432.04 crore delayed state-utility receivables and absence of independent directors with a pending-exemption-status question. **RESEARCH_ONLY_NOT_BUY**. The original PDF was text-inspected but neither page-rendered nor byte archived; current ₹129–136 price range remains secondary-corroborated until admitted from original exchange/issuer announcement. No listed MCL close exists. No frozen experiments or capital authority changed.
 
 ## Current state, without pretending this is a new recommendation
 
