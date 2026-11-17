@@ -28,3 +28,16 @@ Append material changes. Do not erase old dated judgments. This journal is an as
 **Boundaries:** No frozen experiment, cohort, label, outcome, source-state branch, daily budget, schedule, model endpoint, broker setting or paid service changed. The update is documentation and structured research memory, not an unattended execution system.
 
 Subsequent updates must name the prior entry or case they change, link evidence, distinguish observation from interpretation, state the decision impact and leave a concrete next check.
+
+## 2026-11-17 | Discovery funnel reset and priced four-name screening
+
+**Trigger:** Months of research operations produced no dependable capital-ready BUY candidate. The user required the actual broad-market discovery process to operate continuously and to expose the failure point instead of accumulating tooling.
+
+**What changed:** Sourced and ranked a *limited* four-name decision pass using issuer original NSE and published corporate data plus 16 Nov NSE closes, with no claim of full NSE/BSE enumeration. **GESHIP**: Sep group NAV INR2,224/share, Nov16 close INR1,532.90 (31.07% mechanical discount), but 11 Nov call warns vessel values elevated and INR250/share Jan2026 mark subtraction is not a floor. Confirmed original buyback cap INR1,530, not a guaranteed price floor above INR1,530. **Datamatics**: H1 consolidated CFO INR190.41cr, purchased PPE INR37.70cr, acquisition-of-control cash INR210.30cr, versus improving Q2 EBITDA. Mechanical TTM owner PAT INR226.35cr and observed 18.71x owner P/E, before normalized extraordinary costs and contingent consideration diligence. **NRAIL**: profit recovery but ~INR0.57cr traded on Nov16 and debt/cash original outstanding. **BALAMINES**: H1 volume -14.25%, group CFO INR54.46cr versus capex INR99.38cr despite higher PAT. No BUY.
+
+**Current research statuses:** GESHIP and DATAMATICS UNDERWRITE_PRIORITY, NRAIL WATCH_EVIDENCE, BALAMINES DEPRIORITIZED_WATCH. Every one remains NOT_BUY. Dated primary source links, source/price clocks, model-free return arithmetic, downside/reopen gates and non-promotable illustrative scenarios are in [17 Nov discovery cases](discovery-decisions-2026-11-17.md) and [structured queue](discovery-decision-board-2026-11-17.json).
+
+**Process correction:** New discovery-watch prompt ranks actual opportunities, focuses original-reader budget on per-share economics, forces decisions or explicit blocker, tracks misses and opportunity cost, retains broad universe discovery beyond all current favorites. It was updated in-place with same daily schedule, no new automation. Report the next materially changed case, not another document count or promise of future BUY.
+
+**Evidence ceiling:** Public source originals reviewed as web text/PDF screenshot where technically possible. NRAIL underlying cash-flow PDF and BALAMINES transcript screenshots not completed. No local code tests, issuer PDF bytes, SHA, independent vessels valuer, portfolio weights, fill or real-capital transaction obtained. Main/other open PRs must be reconciled before merging; no frozen cohort states touched.
+
