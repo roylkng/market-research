@@ -3,6 +3,12 @@
 Last substantive checkpoint on main before this branch: 15 November 2026. Branch discovery checkpoint: 17 November 2026.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
 
+## 17 November evening: new first-party cases beyond the favourites
+
+**Read [FDC and SHEEL primary-source decision closures](discovery-delta-2026-11-17-evening-fdc-sheel.md) and the appended journal entry before counting any tender premium or SME contract as investable value.** **FDC** 16 Nov signed letter fixes 13 Nov record date and approximate small/general buyback entitlements (4/57 and 10/773). Promoters intend to tender. Fresh post-record-date purchases have no newly acquired tender entitlement, hence **PASS_NEW_TENDER_ENTRY** even though gross nominal premium looks large. **SHEEL** 17 Nov presentation advertises ₹35.92cr in differently staged project wins, but its 13 Nov original results show H1 CFO −₹5.26cr, PPE cash spend ₹7.05cr, receivables ₹66.29cr and borrowing ₹19.79cr. **PASS_NEW_MONEY / WATCH_EVIDENCE** despite nominal discount to book. SME ₹58.30 price is an intraday secondary 17 Nov 12:16 observation, **not official close**.
+
+**Neither case is BUY_AT_PRICE.** Original issuer PDF text and critical page screenshots were inspected but source bytes/hashes could not be archived due failed container DNS. FDC's ₹379.40 reference is a 16 Nov closing price, before the 16 Nov 17:10 final-letter publication. Earlier DATAMATICS/GESHIP priority and their original dated prices remain unmodified. Broad Nifty exposure, single-name risk and cash alternatives are distinct decisions. Two new issuers, three original PDF reads, two decision closures, zero full-cycle capital-ready underwritings or buy calls from this incremental pass. Separate PR #619/#618/#611/#602 remain open and not merged. This handoff exists in **open PR #620**, not yet main.
+
 ## Later 17 November update: historical reconstruction and cash reconciliation
 
 Read [six historical reconstructions](historical-replay-2026-11-17.md) and the [structured superseding decision update](discovery-decision-update-2026-11-17-replay.json) before using the earlier ranking. **Datamatics is now first underwriting priority, GESHIP second. Neither is a capital-ready BUY.** The original discovery board below remains an earlier snapshot, not the final priority order.
