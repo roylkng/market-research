@@ -25414,9 +25414,124 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-17T18:44:03.786849+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "captured_at": "2026-11-17T18:48:02.182926+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 7
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "2bb2797549576fb056f9b739823c19697671e6e3c59ecf730844d0111381fb9f",
+      "identity_session": "2026-11-17",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "f1ab520a513e4db706ceb9ed4ff4f2f6f4792067d41b49622b41164f448025c4",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 7,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-17T18:47:23.223946+00:00"
     }
   ],
-  "ledger_sha256": "abbdbff01a8fe3d131d72fd622ca009d929abf889c58c7e75432fbdecfb6e976",
+  "ledger_sha256": "2f9970352527578e89b1c28d32b35b36da26a661f96da204d0b4e2970d633181",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -1968193,6 +1968308,373 @@
       "title_sha256": "f4359ddb3b5915319c8b6239d5602b9b81520c4e6b93ea5f6ade74534c08cc41",
       "topics": [
         "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "ONESOURCE SPECIALTY PHARMA LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "7ad5c74f9c5a9225f799259f92766ae0292a4dfd0ac5c4d22909ef04f25f0859",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "04961581b3046e40c50a8c94981e37d013c4b151d8f8018bc1f4207054932183",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "01a6707b961d8783f54732b84f213d63fa3d2c25fab37d27024d88b5a205c3b2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:44:01",
+        "value": "2026-11-17T17:14:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_25055_WebXMLFile_20261117_224359727.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3b21283c6d3b2b9cb6e79c8d469c3710171411343793bdb394990e16425f161d",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Teerth Gopicon Limited has informed the Exchange about reasons for Delayed/Non-submission of Financial Results |SUBJECT: Reasons for Delayed/Non-submission of Financial Results",
+      "event_context_sha256": "6e3995a91643f4bc90fb6bdb01b5744f2d8f3f5f7fd0368815dbc716cbe137f6",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "d31864d84c4cc13987d47fde2b205b01b73ec5ad71f51659cb38412b9113cfa1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "151a93231313a47798d36ea935c9875cdfb5a3d73d795c3794700afce69efab0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:18:18",
+        "value": "2026-11-17T16:48:18+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TEERTHGOPICON_17112026221753_NSE_Reply_.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "25a26e2c98986b9a32b01df18123d133ccf7d27843e2f5ef4838e4a8e35b10f2",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "UCO Bank has informed the Exchange regarding 'Establishment of Medium Term Note(MTN) Programme USD 1.00 Billion'. |SUBJECT: Updates",
+      "event_context_sha256": "d3b3a9997566ed60e75387d2487693c656fda57a619078d0c87aa70f1d2d478e",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "bc71516f3880806431805b14c55471f099ec5aa2ef13a7b59f51071f76450df6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "UCOBANK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "16839ffc49f8363b4fb4af594c940bc9cab3905c5aef66dd8cae1e9067057941",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:50:32",
+        "value": "2026-11-17T17:20:32+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/UCOBANK_17112026225018_NSEBSEMTNEST17112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "29a6df9c63cf7af2b3ab8daef481a9739da185ba1f2b39e6579ccef08bb0f6c7",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Party Cruisers Limited has informed the exchange regarding dispatch of First call notice to the eligible shareholders holding partly paid up equity shares as on 13.11.2026 |SUBJECT: Updates",
+      "event_context_sha256": "08529fe57212e22a73ba3bcaffc0a3b9d1517fa738eea4b848a9c386ba2e6ae4",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "acfb2499d135ffee0b9bc386af17720a75bf2fc762781e3e4950ba42b20c9703",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3e685a9f3e33d42d5bc28433962c18070e2898ab796a9e88694035900ff77e0b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:46:52",
+        "value": "2026-11-17T17:16:52+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PARTYCRUISERS_17112026224636_Intimation_Dispatch_of_notice_final.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "cbc91f22ce1065ea040ab63b5156043caef70ad2df4e04e8f1a9b1b6333aaf6d",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Senores Pharmaceuticals Limited is pleased to announce that the manufacturing facility of our subsidiary company, Ratnatris Pharmaceuticals Private Limited located at Mehsana, Gujarat has been awarded with the prestigious Pharmaceutical Inspection Co-operation Scheme ( PIC/S ) Good Manufacturing Practices ( GMP ) certification by the State Service of Ukraine on Medicines and Drugs Control ( SMDC ) |SUBJECT: General Updates",
+      "event_context_sha256": "761bcad7179318ca2fab55e74a1271541583dd427a83946c2761aee04fedd3ce",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "49f90ed036a5be58db8d78f26f198388fd0a993d331ddaf3ef4a89c6984e398d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SENORES"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4c406427623f8df30427fd07e7d48176021294b76260b81e307a6a890894e748",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:27:02",
+        "value": "2026-11-17T16:57:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SENORES_17112026222647_intimation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6f91972350f762cac44db9f41941e9d4026f23b75a440e60019c2b0b057b69af",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Cadsys (India) Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "36de5e78a7bcffedf6459ba2df7949a279b8296f56a3fd186f896aacf444b372",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "5e4b7d6e2374f950819b9cbaa738e20d472a8b4d16880f1f409e5c92246814ac",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "54afdfbc26b491ddb1af461c893f63dc26ac2aa632aecb4aef14861c2871bb82",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 23:09:44",
+        "value": "2026-11-17T17:39:44+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CADSYS_17112026230920_CADSYS_Investor_Presentation_H1_FY2026-27.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "319dcd8ee7717a24ea94d0e20858c1163363ad64f997f9fa7acac8955a44b390",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Update on USFDA inspection at InvaGen manufacturing facility in Hauppauge, Long Island, NewYork, USA |SUBJECT: General Updates",
+      "event_context_sha256": "9b326c1ff06eae3fa183818288de430daba1fe4a292bc858f172bbf6b6424bb9",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "e1e04ce75824b75c8600bb804045b5e82dc4d0dbfbec188f15cba73dc33a17f3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "CIPLA"
+        ],
+        "panel_symbols": [
+          "CIPLA"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "586b7a959404028e08c0e674afa8f1821371e133ac1968b078367d7aa0eef2ae",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 23:17:52",
+        "value": "2026-11-17T17:47:52+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CIPLA_17112026231432_SEIntimationUSFDAInvagenNAI17112026signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "27339835e17ece1b94f4563e4cb428cd84760c5851cba3fc56d77803109db5b7",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Onesource Specialty Pharma Limited has informed the Exchange about Resignation of Director/KMP/SMP |SUBJECT: Resignation of Director/KMP/SMP",
+      "event_context_sha256": "486d4d91ba560929a5702f537e9e83ddf11f2b9e5aded82a3f2f7f190df8f35a",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "4fcdfe39998df7e726d904764675a004890c496eee31859aea60918ee65789e1",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "602fc1654c56c84636b3dc82a78e0cb4c1890ccf5ecaab99d52520a9ec22316d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:44:04",
+        "value": "2026-11-17T17:14:04+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ONESOURCE_ROID_104991_KMP_Doc.zip",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3b21283c6d3b2b9cb6e79c8d469c3710171411343793bdb394990e16425f161d",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Monolithisch India Limited has informed the Exchange regarding a press release dated 0 , |SUBJECT: Press Release",
+      "event_context_sha256": "1bcdf19a35efd4d469e01c719f3166c625d237edd38b2ea65a790a2c204c29f2",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "eaa142d0a92388f46c756a85660b09dce958036557d69d720e49e588e136380b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "60c69f2a4dafca8ab2927ee275e661bee3c9ec536a95760bbba5969f1a882c0f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:33:23",
+        "value": "2026-11-17T17:03:23+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MONOLITHISCH_17112026223313_Monolith_17112026_allotment_of_2nd_Quartzite_stone_block.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "711aae2b47360f70c8c7c3a518b2839b96f6885f2bfa1d4cba266dc43f770d40",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "ABC Industries India Limited has informed the Exchange about Notice of Shareholders Meeting for Postal Ballot |SUBJECT: Notice Of Shareholders Meetings-XBRL",
+      "event_context_sha256": "643d52915297820c41485db31e6963718c51db6de950564a88c7b74471622f14",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "fa12c3bef07c1f53ae517f7af8c3a4ffbfb155dd03cb5718cd39cfdb59da03ff",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ABCIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "65f9421a266184a7b0961b4ce3a4a95fb4fe1e3ac5ad98d65e35a1d5c6ab6899",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:22:27",
+        "value": "2026-11-17T16:52:27+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/NOTICE_OF_SHAREHOLDERS_MEETINGS_19522_WebXMLFile_20261117_222225701.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "0b59970feff1a30ce740f37044e58faeff679a7ae16e98757cc4e201f64b34e8",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "ArMee Infotech Limited has informed the Exchange about Bagging/Receiving of orders/contracts |SUBJECT: Bagging/Receiving of orders/contracts",
+      "event_context_sha256": "c0f036081daa8e312dd93e97f4d27341b81033e6f9e53cec51cb48d349914cfc",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "0112d0c519c5b359792e57186077fd8d94372640ef3fb097b13f3f30c634961a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ARMEE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6e0caab8010c887eda5c6ed97e49bbe52da75e5536ae878178f04e9c15877612",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:48:47",
+        "value": "2026-11-17T17:18:47+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ARMEEINFOTECH_17112026224614_Intimation_Reg_30__MSEDCL_Project_135_MW.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3483fd11e9dde7f67b9cbeb3504e797cfa4e50c04a22652f7f43cd330bfdf808",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Bandhan Bank Limited has informed the Exchange about Update on Analysts / Institutional Investors Meets held on November 17, 2026. |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "458f64c986b18976bd0e1ca6d5f55c88b5ec46b077d4dae12d502387acb4be29",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "ffe1b5cff96e1cad5c787a21aa813d5f0c54560871542161baedc76550e6813d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "BANDHANBNK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7acc906b537c267a2dcbd49b7c8afd86d4307ee6efd0725790ad24621a25b4a2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 21:53:57",
+        "value": "2026-11-17T16:23:57+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BANDHANBNK_17112026214519_SE_Disclosure_Investors_Conferences_Outcome_17112026_sd.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "11b8437e6e37cb95f024d2d75242ea89f0a9cb61834471c9686d60151ed1e5d2",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Ekalavya Foundation has informed the Exchange regarding 'Documents for Renewal of SSE Registration'. |SUBJECT: Updates",
+      "event_context_sha256": "89586f42839bc71a24b11b2c9829d961327f9ac921c47d93436032dd56ef458c",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "ba3b9b500c333b3bf050f7fd3b67696a11e85685de2f0ebb18f05794a93bae76",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "df8361532ae098bbd8943c18a80d3511ae3888b8acfbdf4215a5b561179870ef",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 22:48:15",
+        "value": "2026-11-17T17:18:15+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/EF-SE_17112026224024_Ekalavya_Foundation_SSE_Registration_Renewal_Documents_2026_1.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "topics": []
+    },
+    {
+      "capture_id": "c429a7a08569d927e3cf518c5c66f1d70f0ad3d034640ec93a8675eb96a5bece",
+      "event_context": "Teamtech Formwork Solutions Limited has informed regarding Disclosure of material issue that \"the subsidiary has been incorporated as a Limited Liability Company Sole Proprietorship Company (L.L.C S.P.C), bearing Registry No. 6877694, under the trade name TEAMTECH FORMWORK SOLUTIONS CONSTRUCTION AND BUILDING EQUIPEMENTS L.L.C S.P.C . |SUBJECT: Disclosure of material issue",
+      "event_context_sha256": "0afa6ec95d5633de5744b49f0c93f5e1cb5a8975fd9b69175996a72e7b26b7d8",
+      "first_seen_at": "2026-11-17T18:47:33.318461+00:00",
+      "item_id": "364d9f66ad58592e42bc7b4f5e6dbff8fce83a255b2f29e7ed31bb742da4ed98",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "fa3b5b908ec6b96476dc4827e3ce51166c650cb8506140b45a191d88b2073bb6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "17-Nov-2026 23:10:47",
+        "value": "2026-11-17T17:40:47+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TEAMTECH_17112026230653_IntimateNSE.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "da2e80196b0582fe35ee3fd3afc64b49f7b81cb1d858c94bde80589e3dfe1dc2",
+      "topics": [
+        "POLICY_REGULATION"
       ]
     }
   ],
