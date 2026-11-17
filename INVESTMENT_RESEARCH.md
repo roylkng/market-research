@@ -1,5 +1,7 @@
 # Start here for current investment research
 
+**17 November broad discovery reset:** [Sourced ranked decision cases](research/integrated/discovery-decisions-2026-11-17.md) and [structured queue](research/integrated/discovery-decision-board-2026-11-17.json) promote GESHIP and DATAMATICS for deep cash/downside underwriting, NRAIL evidence/lateral liquidity review and BALAMINES deprioritization. All remain NO_NEW_BUY. This is a focused sample, not a full NSE/BSE screen. Separate open PR #619 holds TD/WABAG/Xpro refresh and #618 holds Mahanadi IPO.
+
 The durable assisted-research handoff is [research/integrated/README.md](research/integrated/README.md).
 
 The governing research method is [Integrated investment framework v1](docs/integrated-investment-framework-v1.md). It connects market and sector conditions, customer demand, competition, leadership, integrity, team depth, stakeholder reputation, capital allocation, owner economics, valuation, timing and opportunity cost.
