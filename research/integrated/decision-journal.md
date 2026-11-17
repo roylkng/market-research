@@ -28,3 +28,18 @@ Append material changes. Do not erase old dated judgments. This journal is an as
 **Boundaries:** No frozen experiment, cohort, label, outcome, source-state branch, daily budget, schedule, model endpoint, broker setting or paid service changed. The update is documentation and structured research memory, not an unattended execution system.
 
 Subsequent updates must name the prior entry or case they change, link evidence, distinguish observation from interpretation, state the decision impact and leave a concrete next check.
+
+## 2026-11-17 | Original Yanbu event and owner-value screen update
+
+**Trigger:** Continue investment decision review after context window, revisit the November 15 integrated candidate handoff with latest issuer/exchange evidence and the 16 November NSE close.
+
+**New primary evidence:** WABAG's 14 Nov customer-side Yanbu cancellation, the company's 5 Nov backlog slide and 6 Nov precommencement procurement statement (16 Nov published transcript), its earlier 2025 original call reconciliation of inclusive-VAT INR2,332 crore versus ex-VAT INR2,038 crore, and the archived issuer copy of Dec 2024 first cancellation. TD Power's 12 Nov consolidated cash/result/share-split/QIP disclosures and Xpro's 2026 H1 group financials were also inspected as web-rendered original documents; EOD closes are independently source-linked in the assessment.
+
+**Material corrections:** The issuer's ex-VAT comparable Yanbu value is *conditional* about 10.1% of WABAG's Sept 30 INR20,207.1 crore backlog (not the superficial 11.5% headline). The same project was cancelled earlier in Dec 2024, so customer-procurement finality is a recurring issue without implying management fraud. A TD pre-Aug24 split high cannot be directly compared to Nov16 post-split price; correcting the pre-split high cuts naive ~60% fall to ~20.5%. Post-Oct QIP share denominator raises the need for real per-share return, not just PAT acceleration. Xpro standalone earnings momentum must not be substituted for consolidated PBT/cash and financing.
+
+**Research-only decision changes:** WABAG to WATCH_CONTRACT_LOSS_AND_COST_EXPOSURE, TDPOWERSYS to WATCH_VALUATION_AND_CAPITAL_RETURNS, XPROINDIA to WATCH_RAMP_RETURN_ON_CAPITAL. All **NO_NEW_BUY** pending precise unquantified risks/valuation. No stock recommendation, target-price approval, management integrity verdict or all-market cash recommendation.
+
+**Sources, economic steps, next decisive checks:** [17 Nov decision refresh](decision-review-2026-11-17.md) with issuer URLs, fiscal/unit denominator, numerical assumptions and project-state gates. No actual contracts, cost-recovery terms, independently reconciled revised order book, direct management or customer interview, source bytes/SHA or executed fills were obtained. The 2024 original corporate notice was checked as an issuer PDF archived by a third party. Do not overstate provenance.
+
+**Status limits:** MCL IPO PR #618, H021 price-only diagnostic PR #611 remain open and #602 four-name acquisition remains draft. This update does not change frozen H/PF experiment outcomes, automated research schedule, production acceptance or live broker settings.
+
