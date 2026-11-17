@@ -41,3 +41,16 @@ Subsequent updates must name the prior entry or case they change, link evidence,
 
 **Evidence ceiling:** Public source originals reviewed as web text/PDF screenshot where technically possible. NRAIL underlying cash-flow PDF and BALAMINES transcript screenshots not completed. No local code tests, issuer PDF bytes, SHA, independent vessels valuer, portfolio weights, fill or real-capital transaction obtained. Main/other open PRs must be reconciled before merging; no frozen cohort states touched.
 
+## 2026-11-17 | Historical reconstruction, missed recovery and current cash correction
+
+**Trigger:** The user asked to reconstruct decisions from old information, check subsequent performance and improve current confidence.
+
+**Completed:** Six GESHIP/DATAMATICS checkpoints using issuer disclosures available by16Nov2022/2023/2024. Next-session opening-reference to one-year closing-reference raw changes: GESHIP +29.47%, +36.31%, +2.10%; Datamatics +94.64%, -12.29%, +67.28%. Reconstructed BUY_CANDIDATE cases are GESHIP2022/2023 and Datamatics2022. Datamatics2024 remains WATCH_RECOVERY despite its subsequent gain. It is a preserved false negative, not relabelled as a successful buy. A separate matched-close Nifty500 price-index comparison avoids mixing benchmark closing marks with stock opening marks.
+
+**Validity:** Retrospective judgments, not a blind backtest, historical forecasts, independent samples or proof of alpha. Dates/horizons were recorded before detailed outcome retrieval but purchase rules and judgments were not. Model memory, current-survivor selection and visible outcomes preclude clean out-of-sample interpretation. Dividends, full corporate actions, full-path drawdown, original exchange price bytes and actual fills remain unresolved.
+
+**Correction to preceding cash interpretation:** Datamatics' INR210.30cr line includes subsidiary/acquisition and NCI investment, not necessarily all new control acquisitions. Its4Nov call filed9Nov attributes the quarterly net-cash decline mainly to the final TNQTech acquisition tranche. H1 CFO minus selected PPE, lease principal and interest is INR127.99cr, before acquisition investment, not normalized distributable owner FCF. At the retained INR716.35 price, doubled H1 EPS implies14.52x versus18.71x mechanical trailing earnings. These denominators differ and neither establishes fair value. The earlier INR648 scenario is not an approved buy threshold.
+
+**Decision effect:** Datamatics first, GESHIP second for underwriting. Both remain research-only. GESHIP's historical persistent NAV discount requires normal-cycle cash and asset stress, not assumed convergence to full NAV. New operating requirement: recovery queue and explicit reopening events for WAIT, while tracking missed gains as well as avoided losses.
+
+**Persistence and evidence:** [Historical reconstruction](historical-replay-2026-11-17.md) and [structured superseding update](discovery-decision-update-2026-11-17-replay.json). A local evaluator checked six date-ordered rows and four mathematical assertions, arithmetic only. Original financial pages and selected screenshots were inspected. Source-byte downloads failed due container network/DNS limitations, so no original PDF hash claimed. No frozen experiment, model weights, source state, automation schedule or live-capital setting changed.
