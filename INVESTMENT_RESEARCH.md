@@ -1,5 +1,7 @@
 # Start here for current investment research
 
+**17 November 2026 update:** [Dated investment decision refresh](research/integrated/decision-review-2026-11-17.md) supersedes affected historical price/risk interpretations for TD Power Systems, VA Tech WABAG and Xpro India. It includes Yanbu's ex-VAT backlog reconciliation, repeat cancellation, post-QIP TD Power share-count valuation and Xpro group cash. All three remain WATCH / NO_NEW_BUY research states. The 15 November framework and source register are preserved.
+
 The durable assisted-research handoff is [research/integrated/README.md](research/integrated/README.md).
 
 The governing research method is [Integrated investment framework v1](docs/integrated-investment-framework-v1.md). It connects market and sector conditions, customer demand, competition, leadership, integrity, team depth, stakeholder reputation, capital allocation, owner economics, valuation, timing and opportunity cost.
