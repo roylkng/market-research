@@ -3,6 +3,14 @@
 Last substantive checkpoint on main before this branch: 15 November 2026. Branch discovery checkpoint: 17 November 2026.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
 
+## Later 17 November update: historical reconstruction and cash reconciliation
+
+Read [six historical reconstructions](historical-replay-2026-11-17.md) and the [structured superseding decision update](discovery-decision-update-2026-11-17-replay.json) before using the earlier ranking. **Datamatics is now first underwriting priority, GESHIP second. Neither is a capital-ready BUY.** The original discovery board below remains an earlier snapshot, not the final priority order.
+
+The reconstructed2022/2023/2024 decisions include a major miss: Datamatics2024 looked weak but subsequently rose67.28% on the raw opening-to-closing reference measure. Preserve that false negative and implement explicit reopening events for WAIT. These six seen cases are **not a blind backtest**, independent observations, a validated win rate or prospective alpha. No model weights were retrained.
+
+Datamatics'4Nov call filed9Nov explains the quarterly cash reduction mainly as the final TNQTech acquisition tranche. Its cash after selected PPE/lease/interest is INR127.99cr before acquisition/NCI investment. At the retained16Nov price, doubled H1 EPS implies14.52x, versus18.71x mechanical trailing earnings. Neither is normalized fair value. GESHIP's persistent historical NAV discounts mean discount closure cannot be assumed. Full source references, arithmetic, provenance ceilings and current remaining questions are in the linked audit. Existing frozen experiments and other PRs remain untouched.
+
 ## Discovery conversion checkpoint: 17 November 2026
 
 **Read [17 Nov priced discovery cases](discovery-decisions-2026-11-17.md) and [structured decision board](discovery-decision-board-2026-11-17.json).** Based on 16 Nov NSE closing prices, promote **Great Eastern Shipping (GESHIP)** and **Datamatics** to urgent source-backed underwriting; **N R Agarwal Industries** needs first-party cash/debt and liquidity review; **Balaji Amines** is deprioritized because H1 profit gains accompany falling volumes and poor post-capex cash. None is a BUY. This is a focused real-world sample, **not** a full-universe scan or validated outperformance result.
