@@ -1,7 +1,15 @@
 # Investment research: persistent handoff
 
-Last substantive checkpoint: 15 November 2026.
+Last substantive checkpoint on main before this branch: 15 November 2026. Branch discovery checkpoint: 17 November 2026.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
+
+## Discovery conversion checkpoint: 17 November 2026
+
+**Read [17 Nov priced discovery cases](discovery-decisions-2026-11-17.md) and [structured decision board](discovery-decision-board-2026-11-17.json).** Based on 16 Nov NSE closing prices, promote **Great Eastern Shipping (GESHIP)** and **Datamatics** to urgent source-backed underwriting; **N R Agarwal Industries** needs first-party cash/debt and liquidity review; **Balaji Amines** is deprioritized because H1 profit gains accompany falling volumes and poor post-capex cash. None is a BUY. This is a focused real-world sample, **not** a full-universe scan or validated outperformance result.
+
+The desk's failure was **conversion**, not absence of documents: the 10 Nov audit recorded thousands of announcement candidates but just four original reads in its sampled batch and one completed full company memo in its decision register. Going forward publish new company cases, cash and margin-of-safety gates, dated price, downside, explicit WATCH_PRICE/WATCH_EVIDENCE/PASS or evidence-backed BUY_AT_PRICE, plus the reasons rejected. This separate event-driven discovery mandate stays independent of prospective H/PF/HG experiments and paid/live capital. The existing daily NSE Opportunity Watch task was updated in-place to require these outcomes while retaining its schedule.
+
+**Parallel PRs:** The 17 Nov TD/WABAG/Xpro reassessment is open as #619, 16 Nov Mahanadi IPO as #618, H021 H20 diagnostic as #611, four-name capture draft as #602. They are not presumed merged. When merging, preserve all dated append-only journal and handoff entries; do not overwrite the other branches' work.
 
 ## Read first
 
