@@ -1,7 +1,18 @@
 # Investment research: persistent handoff
 
-Last substantive checkpoint: 15 November 2026.
+Last substantive checkpoint: 17 November 2026. Prior integrated baseline: 15 November 2026.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
+
+## Material update: 17 November 2026 (supersedes affected review states only)
+
+**Read [17 November decision refresh](decision-review-2026-11-17.md) before using the 15 November candidate priorities.** New first-party issuer evidence changed the order of work:
+
+- **WABAG first for immediate risk review:** 14 Nov Saudi customer cancelled Yanbu, after 6 Nov management described substantial engineering and initiated procurement ahead of formal commencement. Order backlog included Yanbu on 30 Sep. Management's Aug 2025 call reconciles INR2,332 crore inclusive of VAT to INR2,038 crore ex-VAT, so the comparable maximum illustrative share of INR20,207.1 crore order book is **about 10.1% if fully unexecuted**, not the superficial 11.5% headline. Cancellation followed a previous 2024 cancellation and a 2025 re-award. Sunk costs, claims and updated backlog not disclosed. **NO_NEW_BUY** pending underwriting; no wrongdoing alleged.
+- **TD Power:** INR635.45 on 16 Nov, split-adjusted drawdown from older INR1,597.70 pre-split high about 20.5%, not 60%. After October INR600 crore QIP, 321,448,795 shares; mechanical group TTM PAT approx INR338.55 crore, implied 60.3x at observed price. Strong growth but valuation, cash-conversion quality and deployment need proof. **WATCH, NO_NEW_BUY**.
+- **Xpro:** standalone H1 headline growth is not consolidated owner cash growth. H1 group PBT decreased 2% and cash from operations INR12.5 crore versus investing outflow INR68.9 crore with INR360 crore CWIP. **WATCH, NO_NEW_BUY**.
+- **Market alternatives:** 16 Nov Nifty 50 +0.58%, Nifty 500 +0.08%, Midcap 100 -0.51%, Smallcap 100 -1.10%. Do not infer diversified opportunities from the leading index alone.
+
+Open PR #618 contains a separate Mahanadi Coalfields IPO case (not merged); #611 contains H021 non-economic H20 diagnostic (not merged); #602 is a draft four-name source-capture PR (not complete underwriting). Preserve prior journal and experiments. Proceed with WABAG exposure reconciliation, then TD funding/owner economics, Xpro ramp, **and new broad-universe candidate screens**. No live-capital release.
 
 ## Read first
 
