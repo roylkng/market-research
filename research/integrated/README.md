@@ -1,6 +1,19 @@
 # Investment research: persistent handoff
 
-Last substantive checkpoint on main before this branch: 15 November 2026. Branch discovery checkpoint: 17 November 2026.
+## 18 November: completed priced decisions and frozen-cohort audit
+
+**Start with [18 November discovery review](discovery-upgrade-2026-11-18.md) and its [dated decision register](discovery-upgrade-2026-11-18/decision_register.json).** Official 18 November NSE closes were verified from original bytes. Datamatics is now a completed price-dependent candidate, with base modeled return 9.0–10.45% at ₹703.65 and a conditional reference around ₹600. Its TNQ acquisition and tax/financing cash bridge are substantially resolved. Cosmo First is a new bounded WATCH_PRICE case at ₹824.90, with a conditional ₹650–700 range. GESHIP is PASS_CURRENT_PRICE at ₹1,530.60, dynamically reopening around ₹1,150–1,200 or with improved economics. Sandesh is PASS_CURRENT_PRICE at ₹987.15, with a conditional ₹750–850 asset-case range and material source/allocation issues. CMSINFO is WATCH_EVIDENCE at ₹205.35, with a specific cash-capex/collections bridge that can reopen it at the same price. None of these levels is an order or proven floor. A 15% user hurdle has not been assumed.
+
+The [HG009 read-only audit](discovery-upgrade-2026-11-18/replay/replay_audit_2026-11-18.md) independently reproduced the frozen 300-identity H20 source-price endpoint. Observed means are selected −0.696827%, one-lane +0.662482%, zero-lane +0.029559%, with 98/100 observable in each arm. Nifty 500 price index +8.214063% is context, not a matched alpha estimate. Six original slots remain null. Forty original source hashes and 5,623 packet rows were checked. Actions, dividends and costs are not cleared. The old opportunity-lane count is not validated expected-return ranking. Frozen contracts and ledgers remain untouched.
+
+All 196 retained issuers were repriced, with 21 initial attention passes. The financial snapshot is still 8 November and its imported financial facts remain unreviewed. The original signed Cosmo statement corrects a swapped interest/dividend tag: H1 cash after selected uses is ₹81.60cr, not ₹145.36cr. Sandesh's signed fair-value/cash discrepancy remains explicitly unresolved. [Primary overrides](discovery-upgrade-2026-11-18/breadth/primary_review_overrides.json) must accompany the raw screen. Do not treat matching cash totals as semantic validation.
+
+[Four actual prior WAIT judgments](discovery-upgrade-2026-11-18/replay/dated_decision_followthrough.md) now retain early reference-price follow-through, including Xpro +5.62%. Their reference prices preceded publication, so these are not executable post-decision returns. Preserve adverse-to-WAIT outcomes as well as favorable ones.
+
+Next research hours go to unfinished or new cases, with the N R Agarwal cash/funding review still outstanding. Reopen these five only for changed price/evidence. Publish company-specific conclusions even where nondecisive framework lenses remain unknown. Preserve broader market/portfolio opportunity cost as a separate decision. This work is maintained on `research/discovery-reset-20261117` in **PR #620**, open and not merged at writing. Other open PRs, including #619 and #621, retain their independent status. The existing daily watch continues through its updated research prompt, with no schedule or capital-authority change.
+
+
+Last substantive checkpoint on main before this branch: 15 November 2026. Branch discovery checkpoint: 18 November 2026. Earlier dated entries follow.
 Purpose: retain the user's whole investment objective across sessions, not only whichever accounting, model or repository task was most recent.
 
 ## 17 November evening: new first-party cases beyond the favourites

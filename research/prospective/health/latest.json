@@ -1,6 +1,6 @@
 {
-  "after_market_close": false,
-  "as_of_date": "2026-11-17",
+  "after_market_close": true,
+  "as_of_date": "2026-11-18",
   "blocker_count": 3,
   "blockers": [
     "SC002_SAME_DAY_FUTURES_TIMING",
@@ -17,24 +17,24 @@
       "summary_sha256": "63e9f3fa9f4692e8126dd01ae924d66aef615074e5c2e89d11b1f391b39f9381"
     },
     "RM001_C002": {
-      "forecast_entry_count": 16,
-      "forecast_ledger_sha256": "569da8ffcbf03b140e75e032ae4fab312261bc750610e0ff11afb993e2a27d24",
+      "forecast_entry_count": 18,
+      "forecast_ledger_sha256": "ed9affc1205f896aa78340246d0df0cd396b1d2f209908e82decf0069017785b",
       "minimum_evaluated_dates": 20,
-      "outcome_entry_count": 15,
-      "outcome_ledger_sha256": "ecc18a7f1a6b6d3d66db5f77dc6cb815ed04b516a674615927b21c54f63c3ace",
-      "scored_outcome_count": 8,
-      "sealed_forecast_count": 16,
+      "outcome_entry_count": 17,
+      "outcome_ledger_sha256": "4c6de353df1e8da42045b503112899693944b1ae7d6b71558bcef5987f96870c",
+      "scored_outcome_count": 10,
+      "sealed_forecast_count": 18,
       "start_date": "2026-10-05",
       "state": "PROSPECTIVE_ACCUMULATION"
     },
     "RM001_SC001_SIZE": {
       "additional_ready_sessions_needed": 0,
-      "distinct_target_session_count": 17,
-      "ledger_sha256": "ef337854e82468713efaf54fee5c86d0ea3283f3124facc7c6b516b66de255a6",
+      "distinct_target_session_count": 18,
+      "ledger_sha256": "9a79fb1052463d05b7fc450cb1a4ede67bfe691d5ba07ad0a7791ab82262a758",
       "minimum_ready_sessions": 3,
       "prospective_size_source_timing_ready": true,
       "prospective_size_use_enabled": false,
-      "ready_before_cutoff_session_count": 17,
+      "ready_before_cutoff_session_count": 18,
       "start_date": "2026-10-02",
       "state": "READY_FOR_PROSPECTIVE_SIZE_USE_DESIGN"
     },
@@ -42,7 +42,7 @@
       "additional_ready_sessions_needed": 3,
       "historical_backfill_allowed": false,
       "industry_factor_enabled": false,
-      "ledger_sha256": "c4fc780d61ea8d2e5b3db9b16ad239b5c4917a3ab2d095415c209c25deb8f893",
+      "ledger_sha256": "9fcd265decfc815306d291f398bfc707078500622120ffff225030c50177e6da",
       "minimum_ready_sessions": 3,
       "prospective_industry_source_ready": false,
       "ready_before_cutoff_session_count": 0,
@@ -50,37 +50,37 @@
       "state": "WAITING_FOR_INDUSTRY_TIMING_EVIDENCE"
     },
     "SC001": {
-      "eligible_session_count": 18,
-      "expected_latest_session": "2026-11-16",
-      "latest_eligible_session": "2026-11-16",
-      "ledger_sha256": "b9af9e62dd1a8e8e98f4de9dda9eb6bdb3105379494f8b012cfce124ecba0ea8",
-      "state": "HEALTHY"
+      "eligible_session_count": 20,
+      "expected_latest_session": "2026-11-17",
+      "latest_eligible_session": "2026-11-18",
+      "ledger_sha256": "2c380e4d8d18635a77ab1840f09ecb49f9f00a17cd934500d70ef07ed8bd2dc7",
+      "state": "AHEAD_OF_EXPECTED_CALENDAR"
     },
     "SC002": {
-      "attempt_count": 358,
+      "attempt_count": 370,
       "eligible_before_1830_session_count": 0,
       "late_ready_session_count": 22,
       "latest_ready_session": "2026-11-13",
-      "ledger_sha256": "1b608eca3e737cf281e1c243461c64968d18e34e71e3daa121e0f5a111ed771c",
+      "ledger_sha256": "686f7d13c895b98c9aef39400b7cdad07669be2b76902bfd0ecdc9138e83315d",
       "ready_session_count": 22,
       "state": "BLOCKED_SAME_DAY_FUTURES_TIMING"
     },
     "SC003": {
       "additional_ready_sessions_needed": 0,
-      "distinct_target_session_count": 17,
-      "ledger_sha256": "b6bc20e089e17fec8957309b5dba5e86aee90baef33ec570e0a7064fb0de511b",
+      "distinct_target_session_count": 18,
+      "ledger_sha256": "19ec8efbeebe7e76e9b15063fc2b58591efcccf1bbdc9a364604c7778c4863b7",
       "minimum_ready_sessions": 3,
-      "ready_before_preopen_cutoff_session_count": 17,
+      "ready_before_preopen_cutoff_session_count": 18,
       "state": "READY_FOR_SUCCESSOR_DESIGN"
     },
     "T004": {
-      "decision_count": 14,
-      "decision_ledger_sha256": "e3b34ccaf1b2dadc18b61c1a0d7d5fd04984de526db08179e0b1fa9f0212dce6",
-      "latest_readiness_session": "2026-11-16",
-      "mature_outcome_fraction": 1.0,
-      "outcome_count": 14,
-      "outcome_ledger_sha256": "c3784d0875e38f99a7fbd2d235b7f6ca0131950d447716e2a2b20bf65d07dba0",
-      "readiness_sha256": "9dabfbaf25661efaa83ea5c144e3159371d23600a2bb69ed828a00943552903c",
+      "decision_count": 16,
+      "decision_ledger_sha256": "e7ee8f7a099c25671db8555c00f1ea37618ca88e887950516d86160e80807992",
+      "latest_readiness_session": "2026-11-18",
+      "mature_outcome_fraction": 0.9375,
+      "outcome_count": 15,
+      "outcome_ledger_sha256": "a82e401cae643794c10db879a43a7150dc6f108a1e1287c9e0a43fbcee46ad92",
+      "readiness_sha256": "b3f36910aeeaca53966d19bf92d3706d4f1b739b69150f1112acfbd4e31a4abf",
       "readiness_state": "SEALED",
       "state": "ACTIVE"
     },
@@ -92,7 +92,7 @@
       "candidate_trial_id": "AE001-T012",
       "live_capital_allowed": false,
       "minimum_ready_sessions_for_successor_freeze": 3,
-      "ready_target_session_count": 17,
+      "ready_target_session_count": 18,
       "ready_target_sessions": [
         "2026-10-01",
         "2026-10-05",
@@ -110,15 +110,16 @@
         "2026-11-05",
         "2026-11-09",
         "2026-11-13",
-        "2026-11-16"
+        "2026-11-16",
+        "2026-11-17"
       ],
       "schema_version": 1,
-      "source_ledger_sha256": "b6bc20e089e17fec8957309b5dba5e86aee90baef33ec570e0a7064fb0de511b",
+      "source_ledger_sha256": "19ec8efbeebe7e76e9b15063fc2b58591efcccf1bbdc9a364604c7778c4863b7",
       "source_timing_sessions_may_be_backfilled_as_predictions": false,
       "state": "READY_TO_FREEZE_SUCCESSOR_TRIAL",
       "successor_trial_frozen": false,
       "successor_trial_registration_permitted": true,
-      "summary_sha256": "428916cb5dc79502e42bc0fa79ecd226bdd03740eee1f4b33cc28bed70ee2272",
+      "summary_sha256": "5a62495b70981b303b310172e028a5b5796f3b4c80c4a4df78f09ee36ae0ff2c",
       "uses_return_or_alpha_outcomes": false
     },
     "T006": {
@@ -173,7 +174,7 @@
             "session_date": "2026-10-07"
           }
         ],
-        "source_ledger_sha256": "1b608eca3e737cf281e1c243461c64968d18e34e71e3daa121e0f5a111ed771c",
+        "source_ledger_sha256": "686f7d13c895b98c9aef39400b7cdad07669be2b76902bfd0ecdc9138e83315d",
         "start_session": "2026-09-30",
         "state": "ACCUMULATING_EVIDENCE"
       },
@@ -182,8 +183,8 @@
     "T012": {
       "calendar_last_session": "2026-12-31",
       "calendar_minimum_60_session_shortfall": 8,
-      "decision_count": 12,
-      "decision_ledger_sha256": "b5ed69c2372c7c234e1d41ff22037693ba18d731e835813ea13c77d3a1d54311",
+      "decision_count": 13,
+      "decision_ledger_sha256": "a9a30af9d69d287c58e94c85c2f824accc4d486e665f6fd12a1be86c5bc188b0",
       "first_eligible_feature_session": "2026-10-15",
       "forward_calendar_extension_not_backfillable": true,
       "forward_only_calendar_extension_required": true,
@@ -205,9 +206,9 @@
     }
   },
   "health_id": "MARKETLAB-PROSPECTIVE-HEALTH-v1",
-  "latest_expected_market_session": "2026-11-16",
+  "latest_expected_market_session": "2026-11-17",
   "live_capital_allowed": false,
   "sc001_source_cutoff_passed": false,
   "schema_version": 1,
-  "summary_sha256": "ec1edfb0fcbae8f3fed1aa8a8751813f5946a5c248e44ece5a8e152747565962"
+  "summary_sha256": "934e8a93da5efee765f10d2f7a47f05271b685f2c86478bdee6deef09a671f00"
 }
