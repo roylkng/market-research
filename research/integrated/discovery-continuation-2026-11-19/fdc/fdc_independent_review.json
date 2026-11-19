@@ -1,0 +1,127 @@
+{
+  "company": "FDC",
+  "review_date": "2026-11-19",
+  "reference_price": 373.9,
+  "reference_date": "2026-11-18",
+  "review_conclusion": "WATCH_PRICE_SURVIVES_ACCOUNTING_CORRECTION",
+  "author_files_modified": false,
+  "correction_implemented": "21.93cr September current tax liability separately deducted from starting treasury",
+  "direct_double_count_found": false,
+  "checks": {
+    "ttm_pat": 313.25160000000005,
+    "ttm_core_ebitda": 380.1079,
+    "ttm_core_margin": 0.1660350535040225,
+    "ttm_cfo": 453.6519,
+    "ttm_capex": 260.4527,
+    "ttm_cash_after_capex_finance_leases": 183.79950000000002,
+    "ttm_pre_working_capital_cash": 384.93799999999993,
+    "ttm_working_capital_source": 154.13570000000004,
+    "h1_doubled_pat": 363.1,
+    "pre_shares": 162810084,
+    "post_shares": 160410084,
+    "buyback_cash": 120.0,
+    "refund_credit": 54.0975,
+    "current_tax_liability_deducted": 21.93,
+    "ttm_wc_neutral_selected_cash_diagnostic": 29.66379999999998
+  },
+  "independent_scenario_reproduction": {
+    "downside": {
+      "starting_treasury": 880.4005000000002,
+      "terminal_treasury": 1063.9783226846785,
+      "terminal_share_value": 207.6312989155921,
+      "irr": -0.09390952265067792,
+      "pv8": 161.27392340563492,
+      "pv10": 147.87663467820258,
+      "pv12": 135.83945610416802,
+      "pv15": 119.99022683065445
+    },
+    "working": {
+      "starting_treasury": 990.624,
+      "terminal_treasury": 1862.7909490439351,
+      "terminal_share_value": 427.93969734290573,
+      "irr": 0.040053812336599326,
+      "pv8": 311.21211754068185,
+      "pv10": 284.6708169107336,
+      "pv12": 260.848357912179,
+      "pv15": 229.52243711954117
+    },
+    "upside": {
+      "starting_treasury": 1051.7581,
+      "terminal_treasury": 2500.529416734818,
+      "terminal_share_value": 716.5418248333619,
+      "irr": 0.14943975051918013,
+      "pv8": 507.6298761388793,
+      "pv10": 463.87003174979463,
+      "pv12": 424.6089556677868,
+      "pv15": 373.008700665387
+    }
+  },
+  "difference_from_final_author_output": {
+    "downside": {
+      "irr": 0.0,
+      "terminal_price": 0.0,
+      "pv10": 0.0
+    },
+    "working": {
+      "irr": -2.220446049250313e-16,
+      "terminal_price": -1.1368683772161603e-13,
+      "pv10": -1.1368683772161603e-13
+    },
+    "upside": {
+      "irr": 0.0,
+      "terminal_price": 0.0,
+      "pv10": 0.0
+    }
+  },
+  "favourable_no_portfolio_haircut_no_operating_or_claim_buffers": {
+    "starting_treasury": 1150.8475,
+    "terminal_treasury": 2057.7273353516216,
+    "terminal_share_value": 440.0920746403135,
+    "irr": 0.04568798455328882,
+    "pv8": 319.482821333312,
+    "pv10": 292.2164871005541,
+    "pv12": 267.74394315155314,
+    "pv15": 235.56431639037942
+  },
+  "favourable_case_caveat": "This deliberately releases all100cr operating/claims buffers and portfolio haircut. Not a claim all balances are distributable. Current tax deduction and other assumptions remain.",
+  "remaining_assumptions": [
+    "8% working revenue growth, terminal18x core owner cash and fixed futurecapex are analyst assumptions, not forecasts.",
+    "Treasury return4% aftertax and future allocation are assumptions. Retainedcore cash and treasury yield counted once.",
+    "TTM cash includes154.14cr workingcapital source. It is not recurring operatingcash.",
+    "Employee exceptional charge normalization does not prove amount unpaid. Additional settlement stress is conditional, not a second base charge.",
+    "Buyback fully executed state is conditional. No tender premium to new buyer.",
+    "Current tax assets are excluded and later refund orders credited once at75%, not verified receipt."
+  ],
+  "source_receipts": [
+    {
+      "file": "decision_inputs.json",
+      "bytes": 5341,
+      "sha256": "1e69754ef5f323b62988466d7390b18382ed545f881f95279ec526c1873879db"
+    },
+    {
+      "file": "calculate_fdc.py",
+      "bytes": 5110,
+      "sha256": "a9ec88452910d87ba23141113cf030c618f0ce1d80d15a46f77ff93d0b63b432"
+    },
+    {
+      "file": "decision_calculations.json",
+      "bytes": 30250,
+      "sha256": "1d88b911dd993bdf15c5660d9eb0bf30cca3a6fd6dd13cc4a519506c674afa46"
+    },
+    {
+      "file": "h1_results.pdf",
+      "bytes": 5247716,
+      "sha256": "cc94631f1a9626f417ea6364a6bdcd999bd207b445a2b4dcc69ab3d12041e902"
+    },
+    {
+      "file": "annual26.pdf",
+      "bytes": 4837910,
+      "sha256": "2cffc3738725e21f40d081e649646c22dabe3b84e2725357a2eb0b84a76aeea7"
+    },
+    {
+      "file": "offer.pdf",
+      "bytes": 1699730,
+      "sha256": "f52e9df52a90456d09fbb923456631738e95b723b58e446dce5ae25dd6f30c31"
+    }
+  ]
+}
