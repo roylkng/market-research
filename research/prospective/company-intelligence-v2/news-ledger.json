@@ -26759,9 +26759,125 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-19T18:34:06.973077+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "captured_at": "2026-11-19T18:43:06.436860+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 8
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "d05c39d1e6510cc2539141e57f3e548617b2892354f5cd765258faccffedaa4d",
+      "identity_session": "2026-11-19",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "15f2c0b11ed3901d0a95a0047d5caf5175879df382500861d05c915fcac3496a",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 8,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-19T18:42:38.132405+00:00"
     }
   ],
-  "ledger_sha256": "10d84c37f58f43415b574259cc15fb1ef3df541c2b40447f19bdc48863dfb5ff",
+  "ledger_sha256": "0227abed26173f05a77c24e8ceee50d1ebca97e668db309d17396e78b0c216bd",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -2049510,6 +2049626,229 @@
       "source_id": "mint-companies",
       "title_sha256": "3e49cc735bad41ad37a2ecf5559ac48233d257277defa07f5d1db245e36e76b4",
       "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "7f724e89353a9a250058aa8d927264b9f319fbcf13fad0cc0f623841613b17fa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "46eb237cf7382c8889a87fe1b7fbbbc2dafac6651b2e48e4498d96fd9e66b54c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:35:00 +0000",
+        "value": "2026-11-19T18:35:00+00:00"
+      },
+      "resource_key": "prn:302945650",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "8f5044fd7d02d17be3db4869385c0cd34eff4584db192c9a4c76f3ef248b41b0",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "3e32a12d908c9949abbd38f68cab764fabc1a6a91d1dd2a0620984c36c7a62ab",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "4ab9fd6ef75f40c87a2527918bce98a7a088e6bb8b893f81f38f3816f5af2986",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:32:00 +0000",
+        "value": "2026-11-19T18:32:00+00:00"
+      },
+      "resource_key": "prn:302945971",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "da8d0f8a637bc1d19bbbe307d5c88d83f17c09257d6095ddbee123ecfac1936d",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "5f48bcd9159953d080bf13487a53030dbb2010270a6b6ae8f7682dde867493e9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b2bc272974dd24cd0d29e6ecc986b7911b13a6e8d362208b0e52dab81712990d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:37:00 +0000",
+        "value": "2026-11-19T18:37:00+00:00"
+      },
+      "resource_key": "prn:302945976",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "fd143cbfc5515c1811e2b7d6344ec6e705906021fc3fa801550244339b0b21f2",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "8c7a7da6d80adbad0b029d159737bfcad5d34628e20b84a00e9d534440f7bc8d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b41fd02c7a4676d56ad870ea8ed9f836e30fdb9eb4671405d7ca0088cae2b48e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:32:00 +0000",
+        "value": "2026-11-19T18:32:00+00:00"
+      },
+      "resource_key": "prn:302945970",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "80c208c7d95a67d7af337f9130874e1f29f5f46bee18930f38c11ab1ec276dba",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "0308ee2f1cbd5e9968ea82f31432f2c3d9e48bb9863710e65fbde9c4ddf5c6cf",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bb6ba56d98edcbe550e0cee3a811b14720a47ba0c07073a410d93949a23d5d81",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:32:00 +0000",
+        "value": "2026-11-19T18:32:00+00:00"
+      },
+      "resource_key": "prn:302945969",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "cd9cf0a25d349ca8955c6fa5c0bc698bd4f8b639dc0d713f4bedcdc7085b2a0a",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "c1b6facce94a63fa9701692382f5b7ffe1ca5818cfc9e20046096f01aae19d6d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e0bb65e60e2db2a261a32164c9d511f27ec862d83c537fb06a223540093bc7dd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:38:00 +0000",
+        "value": "2026-11-19T18:38:00+00:00"
+      },
+      "resource_key": "prn:302945977",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "ef2bc5a40a0d183c69abe00a7e92c26ca7ab4fb3d53f548f1bef8fa7f84da195",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:45.227422+00:00",
+      "item_id": "470676521555ba4ee7abbf6e65e2483b149a104fcb4a6804101b1d4952445dad",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f40ef8555c47797722ebd126f82969840bcb429d20842307a061baa2a24d7496",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Thu, 19 Nov 2026 18:40:00 +0000",
+        "value": "2026-11-19T18:40:00+00:00"
+      },
+      "resource_key": "prn:302945761",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "e781b56b7ff5ff19a4dac025453bd95367169b5c4c6d432ce31b5838eba6b8e1",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:53.558557+00:00",
+      "item_id": "4cd9702376368f983ea5e1ececa4688036d87fda4b5d0b5a38c355217b3d54e3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d72aab13382c40a9a1e59e965adecfab606126daa3975a93e1222b375bba7a91",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 00:04:09 +0530",
+        "value": "2026-11-19T18:34:09+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/anthropic-ipo-jackpot-ceo-dario-amodeis-237-3-million-shares-at-83-apiece-now-carry-a-19-7-billion-valuation-11795112083821.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "589df67578955f87e7c8c282c24591c1016dd0b71d77e05ce3dbccdbeaa6f096",
+      "topics": []
+    },
+    {
+      "capture_id": "40a290c6870b3b8abe79c997ddc36be606eba6d0f673db2c7033b68e1d173bfd",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-19T18:42:55.070105+00:00",
+      "item_id": "fe761c8b497386782cc936a7e4b09356a18dcca0778c4393acb8bc93e3e43294",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "51c8abe332f1d36a25879100bb7733e53bdb7a18e4f8484f093cebd186ea9203",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 00:11:08 +0530",
+        "value": "2026-11-19T18:41:08+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/oil-prices-inch-up-as-tanker-disruptions-offset-surplus-supply-outlook-11795113669203.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "dcb6a705c4625234d9a81128e382f6453379be40ba6e573acd89b1c64e929eec",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
     }
   ],
   "schema_version": 1
