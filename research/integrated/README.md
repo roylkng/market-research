@@ -1,5 +1,14 @@
 # Investment research: persistent handoff
 
+## 19 November post-close: new Medi Assist investigation, do not confuse buyback headline with owner cash
+
+**New bounded decision outside the earlier 19 Nov lineup:** [MEDIASSIST original-source case](discovery-continuation-2026-11-19/mediassist/mediassist_review_2026-11-19.md) with [incremental decision register](discovery-continuation-2026-11-19/mediassist/decision_delta.json). **WATCH_EVIDENCE** at the **19 Nov 2026 reported NSE ₹279.80 close (broker secondary, official final file not archived)**. October 30 original signed consolidated H1 financials: owner PAT ₹49.202cr, after-tax CFO ₹40.145cr, selected PPE/intangible/development/capital-advance spending ₹26.806cr and lease paid ₹11.817cr, leaving **₹1.522cr** before another ₹7.622cr NCI acquisition. Trailing owner PAT ₹106.748cr is not owner cash, despite ~19.58× mechanical reported multiple. Cash/client renewal and acquisition-ROIC evidence is needed before price underwriting.
+
+**Tender deadline distinction:** 30 Oct original buyback up to 1,159,199 shares at ₹425 (≤₹49.266cr), **20 Nov record date**, promoter group intends not to tender. A 51.89% per-accepted-share nominal premium versus ₹279.80 does **not** imply position-level arbitrage, with a hypothetical flat ~1.55% fraction giving ~0.805% gross before repricing and costs. 19 Nov research was completed **after the closing session**, not before the cum-entitlement deadline. **PASS_NEW_TENDER_ENTRY_AFTER_19_NOV_CLOSE**, with actual category entitlement and acceptance unknown. Original issuer PDFs were web-visual-inspected, no original-byte SHA custody, unlike morning's archived original price.
+
+Broader secondary-only screens from 19 Nov: Brahmaputra Infrastructure reported **₹3.12cr/year outgoing 30-year lease**, not revenue; Coal India proposed **1,200 TPA** rare-earth magnet capacity, not INR order value; DBL/Aurionpro orders and IIFL Capital change of control lack the first-party and priced owner-cash bridge required for promotion. Six leads, one issuer first-party financials deeply reviewed, one new decision, zero buy and zero complete normalized owner-cash underwritings in this incremental pass. Existing 18/earlier 19 Nov judgments, immutable experiments, prior review dates, and other open PRs remain unaffected. This is no all-market cash call.
+
+
 ## 19 November: Epigral leads the new batch, funding and cash cases closed
 
 **Start with [19 November continuation](discovery-continuation-2026-11-19.md) and its [dated register](discovery-continuation-2026-11-19/decision_register.json).** This adds Epigral, completes N R Agarwal's unfinished funding review, values FDC's business beyond the prior tender decision, updates Krsnaa's ageing and amortization economics, and bounds Petronet's capital-allocation question. It is targeted discovery, not a full current market census. Official original 18 November closes are the retained price reference.
