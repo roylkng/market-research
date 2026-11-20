@@ -1,5 +1,10 @@
 # Investment research: persistent handoff
 
+## 20 November evening: eClerx cash valuation and governance-event reconciliation
+
+**New completed priced case:** [eClerx original-cash assessment](discovery-continuation-2026-11-20/eclerx/eclerx_review_2026-11-20.md) sets **ECLERX PASS_CURRENT_PRICE / WATCH_PRICE_AND_INCENTIVE_EVIDENCE** at the **19 Nov NSE official ₹1,468.80** reference. Original May FY26 and October H1 FY27 signed consolidated cash-flow pages produce **₹630.759cr TTM cash after reported capex, lease principal and financing interest**, before acquisitions/future equity awards. **₹241.166cr TTM net employee-trust share funding** is a separate diagnostic, not an automatic recurring deduction alongside modeled dilution. A **17 Nov postal ballot** partially reproduced from issuer filing proposes a conditional CEO **18% Section 198 profits remuneration ceiling in ESOP-exercise years**; it is **not approved or booked remuneration** and the full original notice is not independently retrieved. An intentionally optimistic 6% cash growth, 12× year-five multiple and ₹400cr usable treasury model returns **0.84% annually** at the reference. No BUY. The prior 20 Nov CMS, R Systems, Medi Assist, Accelya and Cosmo verdicts below remain unchanged. Only one additional original-financials issuer was fully priced, with KAMAHOLD/SUKHJITS/DALBHARAT buyback agendas triaged, not independently valued. No official 20 Nov close or new SHA claim. PR #620 stays unmerged.
+
+
 ## 20 November: CMS and R Systems are concrete conditional candidates
 
 **Read [the completed cash decisions](discovery-continuation-2026-11-20.md), [full synthesis](discovery-continuation-2026-11-20/README.md) and [dated register](discovery-continuation-2026-11-20/decision_register.json) before older unfinished-work priorities.** Four funded five-year models use original 19 November NSE closes. Two are newly assessed companies, two close existing investigations. The price references precede publication and are not assumed trades.
