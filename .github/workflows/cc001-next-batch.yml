@@ -1,0 +1,77 @@
+name: CC001 next four company evaluation
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/cc001_next_batch*.py'
+      - 'tests/test_cc001_next_batch*.py'
+      - 'research/company_cases/next-four/**'
+      - '.github/workflows/cc001-next-batch.yml'
+permissions:
+  contents: read
+jobs:
+  capture-four-cases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+      - name: Capture original statements, disclosures and dated prices
+        run: python scripts/cc001_next_batch_capture.py --workspace /tmp/cc001-next-four
+      - name: Retrieve complete statements and original annual notes for source review
+        run: python scripts/cc001_next_batch_supplements.py --workspace /tmp/cc001-next-four
+      - name: Expose retained primary-source facts for interrupted research review
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          base=Path('/tmp/cc001-next-four')
+          path=base/'capture-manifest.json'
+          if not path.exists():
+              raise SystemExit('Capture manifest unavailable, no source facts asserted')
+          manifest=json.loads(path.read_text())
+          for s in manifest['sources']:
+              print('SOURCE_RECORD='+json.dumps({k:s[k] for k in ('name','url','path','raw_sha256')}))
+          for c in manifest['companies']:
+              seen=set()
+              for p in c['financial_periods']:
+                  key=(p['period_start'],p['period_end'],p['raw_sha256'])
+                  if key in seen:
+                      continue
+                  seen.add(key)
+                  print('FINANCIAL_PERIOD='+json.dumps({'identity':c['identity'],'start':p['period_start'],'end':p['period_end'],'raw_sha256':p['raw_sha256'],'facts':p['facts']}))
+          used=0
+          for path in sorted(base.rglob('*.pages.json')):
+              name=path.name
+              pages=json.loads(path.read_text())
+              for page in pages:
+                  text=page['text']
+                  full=('full_results' in name or '_results_' in name or 'regulatory' in name)
+                  audit=('annual' in name and page['page']<65 and re.search(r'basis for qualified|basis of qualified|material uncertainty|redemption of preference|going concern',text,re.I))
+                  if (full or audit) and used+len(text)<=120000:
+                      print('SOURCE_PAGE='+json.dumps({'file':str(path.relative_to(base)),'page':page['page'],'text':text}))
+                      used+=len(text)
+          index=base/'supplements/NRAIL_annual_index.html'
+          if index.exists():
+              from bs4 import BeautifulSoup
+              soup=BeautifulSoup(index.read_bytes(),'html.parser')
+              print('NRAIL_INDEX_LINKS='+json.dumps([{'href':a.get('href'),'text':a.get_text(' ',strip=True)} for a in soup.find_all('a',href=True) if re.search(r'pdf|2026|2025',a['href']+' '+a.get_text(),re.I)]))
+          PY
+      - name: Retain exact implementation
+        if: always()
+        run: |
+          mkdir -p /tmp/cc001-next-four/implementation/scripts /tmp/cc001-next-four/implementation/tests /tmp/cc001-next-four/implementation/workflows
+          cp scripts/cc001_next_batch*.py /tmp/cc001-next-four/implementation/scripts/
+          cp .github/workflows/cc001-next-batch.yml /tmp/cc001-next-four/implementation/workflows/
+          git rev-parse HEAD > /tmp/cc001-next-four/implementation/source-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cc001-next-four-originals
+          path: /tmp/cc001-next-four
+          retention-days: 14
+          if-no-files-found: error
