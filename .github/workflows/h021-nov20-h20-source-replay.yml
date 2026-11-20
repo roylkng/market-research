@@ -1,0 +1,68 @@
+name: H021 independently replay newly matured H20 sources Nov 20
+
+on:
+  push:
+    branches:
+      - research/h021-nov20-h20-source-only-20261120
+    paths:
+      - .github/workflows/h021-nov20-h20-source-replay.yml
+      - scripts/evaluate_h021_nov20_h20_price_only.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: h021-nov20-h20-source-replay
+  cancel-in-progress: false
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout frozen source tree
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Verify source-replay implementation and pre-entry intent tests
+        run: |
+          set -euo pipefail
+          ruff check scripts/evaluate_h021_nov20_h20_price_only.py
+          pytest -q tests/test_h021_future_intent.py tests/test_h021_cohort_source.py tests/test_h021_daily_prices.py tests/test_pf001_marketdata.py
+      - name: Generate both frozen EPS-only H20 source diagnostics
+        run: |
+          set -euo pipefail
+          python scripts/evaluate_h021_nov20_h20_price_only.py --write | tee /tmp/h021-h20-nov20-summary.jsonl
+          python scripts/evaluate_h021_nov20_h20_price_only.py --verify
+      - name: Seal new immutable reports on review branch only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name marketlab-research-bot
+          git config user.email marketlab-research-bot@users.noreply.github.com
+          git add research/prospective/h021/outcomes/2026-10-16-h20-source-only-diagnostic-v1.json
+          git add research/prospective/h021/outcomes/2026-10-23-h20-source-only-diagnostic-v1.json
+          if git diff --cached --quiet; then
+            echo "No new outcome files, existing reports verified"
+            exit 0
+          fi
+          git commit -m "H021: seal Oct 16 and Oct 23 H20 source-only evidence [skip ci]"
+          git push origin HEAD:research/h021-nov20-h20-source-only-20261120
+      - name: Preserve independent logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h021-h20-nov20-review
+          path: |
+            /tmp/h021-h20-nov20-summary.jsonl
+            research/prospective/h021/outcomes/2026-10-16-h20-source-only-diagnostic-v1.json
+            research/prospective/h021/outcomes/2026-10-23-h20-source-only-diagnostic-v1.json
+          if-no-files-found: ignore
+          retention-days: 90
