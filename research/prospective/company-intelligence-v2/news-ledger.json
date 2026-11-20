@@ -27332,9 +27332,123 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-20T15:42:16.356288+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "captured_at": "2026-11-20T17:58:28.722164+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "SNAPSHOT_CAPTURED": 7
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "discovery_status": "DISCOVERY_CAPTURE_COMPLETE",
+      "document_status_counts": {
+        "DOCUMENT_CAPTURED": 6
+      },
+      "full_market_coverage": false,
+      "identity_raw_sha256": "d05c39d1e6510cc2539141e57f3e548617b2892354f5cd765258faccffedaa4d",
+      "identity_session": "2026-11-19",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "f23700e93d26253a520e2579facb4d045127f0a80c5734ace037bd453b427215",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "DOCUMENT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED",
+          "SNAPSHOT_CAPTURED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 1,
+        "DOCUMENT_CAPTURED": 6,
+        "SNAPSHOT_CAPTURED": 8
+      },
+      "started_at": "2026-11-20T17:57:53.950065+00:00"
     }
   ],
-  "ledger_sha256": "07937062b069b3acfa7497bfcf20f544cfaeb8c9311b01f02ec6c59877a5bc38",
+  "ledger_sha256": "0b52163abda73e7031e5e0a66e7ea006662c78c50d0092fede7d109cc6e00f70",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -2086136,6 +2086250,2066 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "b0c798858a09ee567285ac8c37aa6b3a577ed81d043d7a01d29861e97ce83f36",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:57:56.470959+00:00",
+      "item_id": "1be55625182cdbac326fef37df2b0e7efb72ba83b298aeaffeaffeb5b238b7e9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1881013578e2049d637f7c7eb26750fcfa95ca1c2a83573316609e9a9b02bb9b",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "22:15 IST",
+        "value": null
+      },
+      "resource_key": "prn:302947004",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "a116a6cf37229d2a57dfcbd7c60dd3eb86af41f6a521be13f8a07e7c323b02c9",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:57:56.470959+00:00",
+      "item_id": "120601985c2a00fb81fa022a98d934b2254cad829993bc660edf1762bde2aca3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1bb879a66baeb6283a3ef317aaae85948f91b056fdda8c534224080feffa6736",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "22:00 IST",
+        "value": null
+      },
+      "resource_key": "prn:302947091",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "1d0eabfb3831a41de10d19ae16d82d90ec84340c4ab7f2c4117bde586bc0ccc5",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:57:56.470959+00:00",
+      "item_id": "8cc48e5241686a016f4225447155e5ba7e55eb9aeb564e5e5d925e7edc3b9919",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6186d6ecb2f104c16480b89e928dbf62c161d9c65bbc4f4ffb319ba2c09197ac",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "22:03 IST",
+        "value": null
+      },
+      "resource_key": "prn:302947176",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "ea0a3f76fc5013753de6145ce1d36bc84906fc0b1c3bb3884bd2eee165eb94dc",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:57:56.470959+00:00",
+      "item_id": "cd64aaf9f622396e1fb1124d17133a2d2429df37dc3e1b06b4c8e32177a7daf4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eac9d75fde1efffa2882da7ad13bf2a5c5b579c1d18e86351b77116ee67a9850",
+      "publication": {
+        "precision": "UNKNOWN",
+        "raw": "22:47 IST",
+        "value": null
+      },
+      "resource_key": "prn:302937287",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-india-list",
+      "title_sha256": "7e414a9b483424b66ca2cfcb73956fd2f49a54a75d5516a28b582d1c85a93c2d",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "8463089e2428f6d7fa2355dfa40584f9c154da53a9ce4456daf69a9157d04106",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0063f90860b2b40476bf9e9c1fd64b6a9b7cef282f816ce21e3e9e544f38610b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:30:00 +0000",
+        "value": "2026-11-20T17:30:00+00:00"
+      },
+      "resource_key": "prn:302946740",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2f0bd45cfbc00b7db91df426afe5f7143c46cb54aa8abcb818f2c52713c4cd96",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "181d19e54b917c28e6275f41d8736fc7b980dfde003bf839907f1c9bfcfea214",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "015e0734434e4f144625f9ed60aa7e30377c55a5bae63ce67c8937ecfd72bd79",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:25:00 +0000",
+        "value": "2026-11-20T17:25:00+00:00"
+      },
+      "resource_key": "prn:302947221",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "1d88829419c86cc799bead2e031e3422b6da7bd44861e3afc44456093e24db13",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "c5f1a1413bac8263cc74379c8d1611da62877b37f7fb66aef0402405895a80e0",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1136fb37845bbd918e753e3f08e3b0a4d3a5c110f0bec3fc6da50f7a9122f78f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:01:00 +0000",
+        "value": "2026-11-20T17:01:00+00:00"
+      },
+      "resource_key": "prn:302947128",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "efb8a921558667e966963adb8be33f6cfed018c86072dc18e32a4af7d5f521ce",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "20337b11d798ad72d75a574b852da5e4d0ac6cb76b1d2f1405fd4ef9eb48185b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "144db87189efc6803ed91d7952935c2e438470692da46c02826b5996335705f0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:43:00 +0000",
+        "value": "2026-11-20T17:43:00+00:00"
+      },
+      "resource_key": "prn:302947112",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "6f44c35fff23b1a23cbf7f60f58756b7cf49ebbe2f28c34f75300bcdb7164583",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "1deb657ee333131250a18e1727afb2c182b4a0d4623c2d2c6c8fb39bb7346c4c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "187de698a26fff71ce55c2b56132472b9eaba039ab9874035f22df4ecd85f8f1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:30:00 +0000",
+        "value": "2026-11-20T17:30:00+00:00"
+      },
+      "resource_key": "prn:302946359",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "220fe160dd67fb135b7a1dfaec2d3687feb96f13e9304bf8360b6e4887204916",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "b98531b2e0276e7a1e61bd6248c6171b1579a567046162447021c082f85b2612",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "31ae122b69c37242bb3d3eb91f45932e54930eadd7f3ba76c252b4e23f01fb8f",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:49:00 +0000",
+        "value": "2026-11-20T17:49:00+00:00"
+      },
+      "resource_key": "prn:302947223",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "e3af167833d722ebaf108d87f705be6461f8d81d02a8414bb20286d01f9dc133",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "3c7b3911862f2b5446d8edf2f0ecc3b2c463988a03047d340be5cf5442e0bf04",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3ae4bf0767403158963a457154863475b19adf06a1e4eda79f450a811724aed0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:43:00 +0000",
+        "value": "2026-11-20T17:43:00+00:00"
+      },
+      "resource_key": "prn:302947222",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "380675e8454e15ce973f88fc9927509eb76d43def2d9e97554cef46c0eb52954",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "47f8a164727c46265210191d311e7d6336736ab36733d0dcf1ae724000af08ab",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3f3a42828d8cc8f9ea4a1a8b56530f3d1fd2de889f14da5e788c75b43ad29be1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:13:00 +0000",
+        "value": "2026-11-20T17:13:00+00:00"
+      },
+      "resource_key": "prn:302947213",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "d10e300f55e7696e3cf6af117345978fdd45787c89ca078c4241c9a8c0ace574",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "578f80be62a233e48985b9e9a33e3ba8249852b8f5aa67112cc472364ce6857b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "410d6f6efd7d55bfffcd5ec06b7af9ad5e76295179ee13737ee8bf570a950ce6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:30:00 +0000",
+        "value": "2026-11-20T17:30:00+00:00"
+      },
+      "resource_key": "prn:302947220",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "2e6d72db977b304faa7c4c7d6a134ccc94fc388ae9adc5d9ec3f8b3aa248b554",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "65e56020314097125c92c1313dbe7708180c65234db5cab6f623936010753677",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "55436cd09d8fccc3decf1571e109c6e6f54f9af136f63fa0a87cd296a2d2f9ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:01:00 +0000",
+        "value": "2026-11-20T17:01:00+00:00"
+      },
+      "resource_key": "prn:302943418",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "079297b095eabbff0389de57cb603f24d9e06af3798dd4468be55a83e5fe8bae",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "be8ef1a04fcb891b5bc79c1b2f99333ccf7a16a147aa382ebbb81163ebc7bff2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "67cefa517ddaed0c8484e73574543abc43f99ff3f10c5652c6340036b0393129",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:37:00 +0000",
+        "value": "2026-11-20T17:37:00+00:00"
+      },
+      "resource_key": "prn:302945351",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "a6fac31a87229aa107c919535fbe1a7e39f9e359e7d87120a38bd968fd504998",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "ca40a087c1a9d36161ba4770f5cb9f17a99f5c960ab2389065f1470d36576a4c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6fb4adee4d74c2e7446ec772285a3808f4486b0b904267f3dda0ec191ce3e8ab",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:00:00 +0000",
+        "value": "2026-11-20T17:00:00+00:00"
+      },
+      "resource_key": "prn:302946288",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "5e1ab2bb244c24cc51eafce6dc31962afff418da14e50a85b6ce22de1d4cd12f",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "74b87ba16c3453811d2491e40af7f1fd3c194153e258f53ef0875104ecd08236",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "7011d56a0dd3beff8cd5c2af40d678a8a5c9c1cb36de2015935bb5e8bb123e55",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:23:00 +0000",
+        "value": "2026-11-20T17:23:00+00:00"
+      },
+      "resource_key": "prn:302947219",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "494936d13c1cf2d3454a92ae2db69ba766109f47d7c0d0718e4889eb467f3c76",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "6502815962eb4809a356521470ece506341da6b3aa5bca9ff90aa2534fefcd99",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "754bd2c8034152f8bbb1812acc415e00db94cbcfdfbce64a00a2f715f281c3cb",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:00:00 +0000",
+        "value": "2026-11-20T17:00:00+00:00"
+      },
+      "resource_key": "prn:302947072",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "961ef527043656a34863a9360daf21a5f4501073ebdf61a8642578ec04fbb7d4",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "70dcce1aa6d510a0988730beca18e58e261a680114a1d9c5a08d0f02cba1d776",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "817b2c7e69abae8ebe2f63f9543fbce857df0e4378e124227aa3ea4608448921",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:18:00 +0000",
+        "value": "2026-11-20T17:18:00+00:00"
+      },
+      "resource_key": "prn:853211440",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "72839d967140beaa446b7a6045114d5c0650aa056ac838bf082217236db6c911",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "1316c9495cd14f54014e9e8f7109b1951d4554cc51b5577153a4b44be07babf6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8d04ed659f34ed5942e51a84dec81de779418b163dfcba9b874affda95af0f3b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:53:00 +0000",
+        "value": "2026-11-20T17:53:00+00:00"
+      },
+      "resource_key": "prn:302947099",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "b8c7c8f358912c3c35b523320ad24627844a2d4c08d159e248a358dee836feb5",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "636349412c33929466a18ae60c8ee35d1db3d4f490a664d5a40fc6d13703f56b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "904450abf042c713a2cf355e41cdf9c9205b6dabddfe37720978a1464225a666",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:14:00 +0000",
+        "value": "2026-11-20T17:14:00+00:00"
+      },
+      "resource_key": "prn:302947214",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "cc5ffc4860c6878fa0df29efebd1cfce6e9428a0ad934877ef9b6f9ddb74b3fc",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "4991506e17dbb65f729b92399c70c6debbd40e36717f2df494e9091427fed84b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "97df4f824939815159c7b6c40ccdaa0f591ba27209c0518965c42856e8636030",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:01:00 +0000",
+        "value": "2026-11-20T17:01:00+00:00"
+      },
+      "resource_key": "prn:302937245",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "7e414a9b483424b66ca2cfcb73956fd2f49a54a75d5516a28b582d1c85a93c2d",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "9883bb7cfd7f6d8d759c54002b243c05c7dc0b6dc41775ae916bd15b9d2e21e4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a5454346a7757605f87d3d7925c4aeea9add5baf51818b7f87ac8f7a07aa8ad1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:55:00 +0000",
+        "value": "2026-11-20T17:55:00+00:00"
+      },
+      "resource_key": "prn:302947225",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "14618b33a69f4714a11369edbe9871f13a11090bd5db6742d6b7fc95069c17db",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:00.959339+00:00",
+      "item_id": "444a5cff54a07e3d1799ed50e51bb5dde983b535e8c8d20bf06a7351ac1bec80",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a9fa36ea18a80673d0ccb6e0748b1234168a3ec819c37ad550f914049b25e026",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 17:18:00 +0000",
+        "value": "2026-11-20T17:18:00+00:00"
+      },
+      "resource_key": "prn:302947217",
+      "source_class": "ISSUER_DISTRIBUTION",
+      "source_id": "prn-global-rss",
+      "title_sha256": "72839d967140beaa446b7a6045114d5c0650aa056ac838bf082217236db6c911",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Siemens Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "55ab857ee67b294fa9b40450d54eb9e9a81f356ce39484fba5ed1789cf5ac3fd",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "3b1cb3448fbf25c9fd55c9b961e79030906429c3607d439f965bd48350635d5a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SIEMENS"
+        ],
+        "panel_symbols": [
+          "SIEMENS"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "006e2046950eb3b113f51d6dffbdbac9ce6c863fea3dd048877861706e0bc91b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:15:44",
+        "value": "2026-11-20T15:45:44+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SIEMENS57_20112026211523_Intimation25112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "f9e49ad64b56575d83526c13f086357b6bffa5ae313112f5e6e80ca176a1be23",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Shipping Corporation Of India Limited has informed the Exchange regarding Change in Director(s) of the company. |SUBJECT: Change in Director(s)",
+      "event_context_sha256": "fb13bb90db9cefbdac0e4b7b3457806613a06bf7210794dc30449304e8b67169",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "9d0b1e59d59637248034f2cfae1d2be015a95aba95983779e14edfeced2baa9c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "019ad3de570f119e70078940309ee2ccd5c840cdd24160bac856e7aa43859871",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:11:48",
+        "value": "2026-11-20T15:41:48+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SCI1_20112026210346_Extension_of_additional_chargeSD.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "07a5ac2b1f9306be1bf866227966e98a0ef9f6d56f1c2bce73606bdb9d4b1a9f",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Indusind Bank Limited has informed the Exchange about General Updates |SUBJECT: General Updates",
+      "event_context_sha256": "0a01ad815bdafd1424a1806d2f3074388b5c573a3059d6f679c519c2b86b542b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "10f621b98356ab6f771ad0d5640c34d273bd90479daf2a9b6789ff3bdb1e510b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INDUSINDBK"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0ca82ebb7aab35135bbad178c3927ccaa68888100749f62effbf968374d3dec6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:44:11",
+        "value": "2026-11-20T17:14:11+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/INDUSINDBK2_20112026224352_SEIntimation_SE.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "ccc42812859c1dcc50964c6fe3682482637d27c8d83d657f4bc6d08e398cbec7",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Star Health and Allied Insurance Company Limited has informed the Exchange about the disclosure under Regulation 30 of SEBI (Listing Obligations and Disclosure Requirements) Regulations 2015 |SUBJECT: General Updates",
+      "event_context_sha256": "5503cd2495444c60e1579695c76fe2469b22f12f995a56d4a9cc4b7f03d578d4",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "d209259727bf3ea65a75f6ff44e317a943e50a2fd6f7b5e99b7bc4837201400b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0d26224fba3c8055780d3dfc18b458c6905399211f58cd1ae096aaa273bdb882",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:44:28",
+        "value": "2026-11-20T16:14:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/STARHEALTH_20112026214329_SE_Letter_-_20112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b3f68ef691866b0e93e3ce86a0e3ff2b744b6e1b820895bb9360ca01c4b5ca02",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "c5f48b615f86b2ea94e302dff6456e2f9b568727bc4df74195fca37513f04e0f",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "0f1acbf464fecdeaaa930fa7094ec51d8722d3fcbb0d1c9dcd5a78a1350595a2",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:34:16",
+        "value": "2026-11-20T16:04:16+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026213340_2026_11_20_Utilisation_of_Issue_proceeds_Deviations-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "KALYAN JEWELLERS INDIA LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "dbff96f5ab0fec1004247614b1c9a102ce3f13053fc37e24f072f35e2811ff58",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "8632ed1bfa2722069747e61f9145a5dd2460b9d1094624500f6c7ea0b6dc1f20",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "11e20e285577a21f49324385fea9e0034e5976de1d2594a85a7736e728fa2e58",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:00:39",
+        "value": "2026-11-20T16:30:39+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_18647_WebXMLFile_20261120_220037535.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "488bf377c5f94f385891dd99819c1d870db2ff925e139387af647d3d0deb0c29",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Security Cover |SUBJECT: Security Cover",
+      "event_context_sha256": "f5dac2b8c30e4f3a6e8161e3a04858ee0374f61ea834d9705e75a4746107326a",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "89ef15536ef3a5ed7af9b9704fa7c3a10f641108c0d83dc232492ec8d739d3f9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "14a22bfd0acd083bbf62ed39d0304df52b08f155550e428712c86201e0be56dd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:54:19",
+        "value": "2026-11-20T16:24:19+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026215323_2026_11_2026_Security_Cover-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "INDIAMART INTERMESH LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "928986e581174dc9988051502e4903532594e7f8f5df324abdea9626ce11016e",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "465d5977e488638ebcdb526161f4c4cfe4abda6a6974ad3911796d2241e9af2b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INDIAMART"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1bc7024272bda2ce2e24aea323b008c98bf93efa41265a0884a10c609c6ebd36",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:53:55",
+        "value": "2026-11-20T16:23:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_17528_WebXMLFile_20261120_215354273.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3272777c3ef03a4ae71ce899cbb04005fb903326256b75fc3dc9cccbb755436b",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Indiamart Intermesh Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "a63f0cf194dfc2a9c114dcb266ce89a8236da8b659390dc9c5df652345dd7f18",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "0e1e5494d65b5c0d8502cdfed086c71c475c572063a43aa159e76e2076436cb6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "INDIAMART"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "25c38e499fdc0de754954d542a6adf4f6b49844619a8604d01215d0ef6675c99",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:52:01",
+        "value": "2026-11-20T16:22:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/INDIAMART_20112026215148_InvestorMeetDisclosure_20112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3272777c3ef03a4ae71ce899cbb04005fb903326256b75fc3dc9cccbb755436b",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Ortin Global Ltd has informed the Exchange about Board Meeting to be held on 28-Nov-2026 to consider and approve Fund raising/Increase in authorised capital. |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "ba3106e776b80e8365f901e30b2c999bd7bd17c629399fbad6a5610cf1aa70b5",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "38c58d60de31f6e67496e891c41fbe8506e88c5daf21e7d0438c1b36af0d80ea",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ORTINGLOBE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "2e4e3041ccd76d6e2e637ca5bb9ed134ace89a42cd364bd707ce1445d44134bf",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:02:58",
+        "value": "2026-11-20T17:32:58+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_19310_WebXMLFile_20261120_230257429.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3fc64606eec642b0f3e0d7a548f819490ec1bd41d43520b37f5790461c1715f1",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Acme Solar Holdings Limited has informed the Exchange about Commissioning of Battery Energy Storage Systems (BESS) Project |SUBJECT: Commencement of commercial production/operations",
+      "event_context_sha256": "27608037444aeb9d1852c3d3616096eea7ea3c127ae33d36136bd275e9f2a061",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "8b3c7b12134601df39d2a44bc0a714ec4047548d4b67bc68f8c02b381d6e0154",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ACMESOLAR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "35bc7372d778c0c64befb8c9c3a888a0a6f38893429dfa9fb2861889ffad08ea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:53:59",
+        "value": "2026-11-20T16:23:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ACMECS_20112026215210_IntimationTATA.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6d33dcdb2baf467096ce559d8a484073639a1a1899062772104f71f2dda01179",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Acme Solar Holdings Limited has informed the Exchange about an update on commissioning of Battery Energy Storage System (BESS) Project |SUBJECT: Commencement of commercial production/operations",
+      "event_context_sha256": "5d22e3953eaa39728cf7ce1cd3768ecabdd8b7bf8fc9dd9e3fc868f8cbcde921",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "42afe7b30b17436c8e2e630ca96241a20b032ab3726e7895cf6fe2e5f4578d4d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ACMESOLAR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "385ad647d2b840994aec15ffe97201e0df6b7ef2e9e2e9f63dfb54fd104247dd",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:58:53",
+        "value": "2026-11-20T16:28:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ACMECS_20112026215804_IntimationNHPC.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "6d33dcdb2baf467096ce559d8a484073639a1a1899062772104f71f2dda01179",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Capital Infra Trust has informed the Exchange regarding 'Transcript of Earnings Conference Call held on Monday, November 16, 2026'. |SUBJECT: Updates",
+      "event_context_sha256": "44fe977b8fe84bf2aae3f3c664d894fa6a823e005723835853d69c0fe47a6873",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "240fdb372e01779dc8df787111026baa054e75de7a8b18be2d17e63de89981ec",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "3dbdb2c1711dd39c295691d779b0469a5135caec2c07254ace69da4096c9db2b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:28:18",
+        "value": "2026-11-20T15:58:18+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CAPINVIT_20112026212809_SE_EarningConferencecallQ2.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c72c573eebaf1f323790d210032d35598f3193f8282499b071db3ac2427794c0",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Sahasra Electronic Solutions Limited has informed the Exchange about Investor Presentation |SUBJECT: Investor Presentation",
+      "event_context_sha256": "1ff87d90712a1e490e8ad736551b95c75f9e29431d12fe75c618cdd03e184a28",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "020bfe5d444e69527b8867c4648f5195a71d54e9ebfd40ba123ed1e4e5783a11",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "41520591b873ea0287bc095b451128193d7ea37dd27079425ab92ad59ad36409",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:10:57",
+        "value": "2026-11-20T17:40:57+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SAHASRA_20112026231032_Final_investor_presentation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "71579863013f12e020d70c756324706bb283c86cc5f250f7aa767bec3a221065",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "WATERWAYS LEISURE TOURISM LIMITED has informed the Exchange about Change in Directors/KMP/SMP/Auditor/RTA |SUBJECT: Change in Directors/KMP/SMP/Auditor/RTA",
+      "event_context_sha256": "0d92f49204e63b5968acdf6fd2055cc11b28a8bc7212d76dfa4e14a6806b3412",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "1e62c75c85b3ce6fb8b4a0b5f3e5d8381e89eaedcf5e38d1935cb065dcf04f63",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "462e225f448f15b34a4526d6ee24388f0f02f05ba791037a60278ad1b48a3207",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:23:08",
+        "value": "2026-11-20T16:53:08+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/CIM_26336_WebXMLFile_20261120_222307397.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5428b25d92b2ed9b459ec073209098fa16a2647a1f2424ca0cbf3d4fec56f245",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Magnum Ventures Limited has informed the Exchange regarding 'Proceedings of meetings convened as per the directions of Hon ble National Company Law Tribunal, Allahabad Bench ( NCLT ) in the matter of Scheme of Arrangement '. |SUBJECT: Updates",
+      "event_context_sha256": "7bb7ec2a0bfd6a14cb3b20153f61f267e2a36d6c6a997c6b0e4680db7de1e2a7",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "5f4a985870f70c809fe8cd3de9510ee6f7064240519a891ebfc9110071835650",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MAGNUM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "57cec75cef35ffc2bf8b4fdf6ccc4fcf947c2d16c3ff141f6622fbb1f30f26b1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:28:24",
+        "value": "2026-11-20T15:58:24+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MAGNUM_20112026212815_Proceedings.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8ee6b67a4537ec72e3e162a02742ea5b3e900b050a3bad1cbb7d2bbb5a72f0fd",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "SIEMENS LIMITED has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "58b82a8bc0f8a0ff10cd3121accef338d719753ebaf27840df34c53fcf4dcb9d",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "c54cee5e65f9679a0cf3506f13fda34c13beaf5d6cb0007e105835b42b894e9a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SIEMENS"
+        ],
+        "panel_symbols": [
+          "SIEMENS"
+        ],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5831b1989e721c9217b99294c1da5e2fa4e0cd98d8d2435bcd62ade8739afc71",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:32:59",
+        "value": "2026-11-20T16:02:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_619_WebXMLFile_20261120_213257358.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "f9e49ad64b56575d83526c13f086357b6bffa5ae313112f5e6e80ca176a1be23",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "SRF Limited has informed the Exchange about Action(s) taken or orders passed |SUBJECT: Action(s) taken or orders passed",
+      "event_context_sha256": "76222350ac952d862452e7a9e823572369b0b9cdc9a6df3966dece106b324e7c",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "8f83cbecd2cc46a868cfca8565a55c1cd5918285ddf00d6f406b6492d1c105df",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "58d0326d170dd9b8e6ebf172ec13bf3fe4f5900e2fdeae6c9223e759e53d3533",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:05:52",
+        "value": "2026-11-20T17:35:52+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ekta_maheshwari_20112026230138_PenaltyIntimationRodtepNov2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "df0ae7be74ed23a700779cd815def0282649ce7b073beb9dcf359d7b4b9dc5e0",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Suntech Infra Solutions Limited has informed the Exchange regarding a revised press release dated November 20, 2026, titled \"Revised Press Release under Regulation 30 of the SEBI (Listing Obligations and DisclosureRequirements) Regulations, 2015\". |SUBJECT: Press Release (Revised)",
+      "event_context_sha256": "c94aa0f0a51ffb8d323aa099c7c26d6396515ba4a0e501a9b6c2457eb43bf84c",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "c23c1a1ed050a935de694d7dfb3068beeaeafcb0a27d6d8a1a8a71c3ce877260",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5a8e14b21882b76e600e4d70540241f41ac7a9bb4e6329c142a6aad67fbbd8ff",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:27:55",
+        "value": "2026-11-20T15:57:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SUNTECH_20112026212705_Revised_Press_Release.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "78791e0b77ac4948f38e78fbf59c8daf641a3877f608844ac36f1fa636bf1b27",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Waterways Leisure Tourism Limited has informed the Exchange about Resignation of Director/KMP/SMP |SUBJECT: Resignation of Director/KMP/SMP",
+      "event_context_sha256": "cedb085bfa802368e330e396cae0fbd4c2075f2dc64f9b8ff0f6b8de690cad01",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "c6f27f78a0b42b286da6e3ebf8d4123dad1970ebe4cf90ce3f1268b2ec2df6d3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5aeda38a8ab2d4cdb927a16a8b0809ae2eb2d0f45cf1c4938d993810e506f557",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:23:11",
+        "value": "2026-11-20T16:53:11+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/CORDELIA_ROID_105113_KMP_Doc.zip",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5428b25d92b2ed9b459ec073209098fa16a2647a1f2424ca0cbf3d4fec56f245",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Pennar Industries Limited has informed the Exchange about Transcript |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "9af111c4b349b4c583ec2b532d4611f02a8495b1cc1d0f941416ebd2bd10e87d",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "610afd301c91ffbb897fb24d83b3ebdae03540480e109c2c2e56a48b6b9c8705",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "PENIND"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "5e6f9ab4b42e7368297ea12f09c3b607f5b46cc35d813e553663d3a27e076b5e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:15:02",
+        "value": "2026-11-20T15:45:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PENIND_20112026211333_TranscriptoftheQ2FY27Resultsconferencecall20112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b32ce4d5b19ed199fd34f11740846736e51a0b4ec45c5a6c2e3c1a361ed148a1",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "TAC Infosec Limited has informed the Exchange regarding a press release titled \"Cyberscope Partners with Ment Tech to Strength Web3 Security and Blockchain Technology Capabilities\". |SUBJECT: Press Release",
+      "event_context_sha256": "7c532484fb72f9a85d4e79bf31d5aeea68075b77fe10f96b751d562b1434c11b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "f1159f3abd603f9ea6739c4af506d494e305e8daa4f5e866e7b7d3d19f6d6b6e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "617427da9b4f4b9e1f5cf62d2561a58bdc6d2f212a7f74ef62d99af9c031950e",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:23:10",
+        "value": "2026-11-20T15:53:10+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TAC_20112026212208_Press_Release.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e49bd978a0e5be5325726b4438d3d96fb85a39d281204c30a1c479ca68b10ac6",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Statement of deviation/variation in use of Issue proceeds |SUBJECT: Statement of deviation/variation in use of Issue proceeds",
+      "event_context_sha256": "dfe3d9de9d5e881f6ccfccb84a54d88611e73d21b6cb1320e19ce04ed6fffb98",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "bef1a31e72bbd1d582500e8403b7d5d7dbe13e5e6f3415c853a03a8b7002020c",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "61dca26ee64db45815226bd18eb5e1e5a1b0aa55ff22d3e3ba7d75e16dda0c45",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:51:54",
+        "value": "2026-11-20T16:21:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026215138_2026_11_20_Deviations-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Bedmutha Industries Limited has informed the Exchange about Bagging/Receiving of orders/contractswe wish to inform you that the Company has received an international order today, November 20, 2026, from the Department of Local Infrastructure Development, Ministry of Physical Infrastructure and Transport / Ministry of Infrastructure Development, Government of Nepal, for the supply of Steel Wire Ropes under International Tender No. ICB/TB/WR-2026/27 (Package-2). The total value of the order is USD 2,132,515 (equivalent to approximately INR 19.80 Crores at current exchange rates), exclusive of Customs Duty, VAT, and GST |SUBJECT: Bagging/Receiving of orders/contracts",
+      "event_context_sha256": "10c8f012232546a00c80c5b0400e9af71ba141eef2f9e298841dae3982485430",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "4105f31afcdb6328228b39a13c53ce7156b4e57880a4d3768877ddbbce9a0fa9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "62f3c82b1372871b6c512abb4cce77011eb3b95e00bd657b02d31994b5df7e81",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:25:01",
+        "value": "2026-11-20T16:55:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/BEDMUTHA_20112026222123_BIL_BSE_NSE_Nepal_ORDER.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d9e4033bed21d983ee3cc8ca04b424e0e834a948f90960ed32dfb8e3a1328aab",
+      "topics": [
+        "ORDER_CUSTOMER",
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Statement of utilization of issue proceeds |SUBJECT: Statement of utilization of issue proceeds",
+      "event_context_sha256": "d5bedbd909a06e7df042654bdf441b244fcc8eb10fa1af26f098185270931186",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "7c5739ebf3532499fff1e99f60a86e1960468767959c5ed6fe15b6fdb9539171",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6801c5193ac9e61dba378be8882676023da1026739298e3fbd68e7ad9b2c3b44",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:47:16",
+        "value": "2026-11-20T16:17:16+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026214638_2026_11_20_Utilisation_of_Issue_proceeds_Deviations-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Updates |SUBJECT: Updates",
+      "event_context_sha256": "0abe3941db03fa0b7589faf84013f0c863124cfdcf46f49e9f5c9e3b1b92267f",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "e589549e3e637d21a49b801d4759fb4d7cb1416c72c3918c793bbd9ec2089f8d",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "MAGNUM"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "689e6419697ea48d3b5307b1d14101197706982629089f30be4a55ac56a0a53d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:34:16",
+        "value": "2026-11-20T16:04:16+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/MAGNUM_20112026213400_Proceedings.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "8ee6b67a4537ec72e3e162a02742ea5b3e900b050a3bad1cbb7d2bbb5a72f0fd",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "SS Retail Limited has informed the Exchange about Transcript |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "b48552fcb51e9295b4afa550a146fc3e5b370a5c4a771235ba1372b21a2aa48b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "ee2ab9ee459104da2b0725213821f140849879472f13ec1149a452efddf85ac9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SSRETAIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "6d970f1bb4253e3e5ee149f2f1498c9200119af66dfc621260f9ae6261397071",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:39:07",
+        "value": "2026-11-20T16:09:07+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SSRETAIL_20112026213852_InvestorCallTranscript16112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "3000f8a304c21f0ececcfed6e2632947f3ab5a45ce2c3eb5685228a238a8d8ad",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Zetwerk Manufacturing Businesses Limited has informed the Exchange about Notice of Shareholders Meeting for Postal Ballot |SUBJECT: Notice Of Shareholders Meetings-XBRL",
+      "event_context_sha256": "d0b370d1589925a61190e7b703facf3e3f2f8c44801bb2a1264516895de0bf01",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "f9cc256632a89c0263067d64656d5de76d2e70bd0d022c5fd35b7eebf7d3aa20",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "79903bf5bb97b79301cf60062718b60688f569e1d6ed5f9de6a79691f7358d0c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:06:35",
+        "value": "2026-11-20T17:36:35+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/NOTICE_OF_SHAREHOLDERS_MEETINGS_28277_WebXMLFile_20261120_230634591.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "73d90fb9f9fcb5b5cb7249867be22c4450821fde57d6bb897f33a35a6d9f60b2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Ennature Bio Pharma Limited has informed the Exchange about Credit Rating- New |SUBJECT: Credit Rating- New",
+      "event_context_sha256": "6f614a0cd798403c81c84de7b0b837c9021ba8ee71ed6ada0e3ad32919a25556",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "0bf2baa4b441c19224f72e86960e3010528b4f5e4db4ba92ab6f12111fbbc547",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "ENNATURE"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "84b9c69ebf5904bcaf4584ad2cfd0fde13637879b68d3d887c8fefca89b804c5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:01:25",
+        "value": "2026-11-20T16:31:25+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ENNATURE_20112026220017_Regulation_30-credit_rating.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b21ba393e7cd1e08d1f4a0d7bf3b65a73be4ba7f212c493dd5a1c180d940e88b",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Kirloskar Oil Engines Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "c336a1a68c55f7bfeacb81bfe4fbeef9c222ef0a33b0d52cff2d4b3a16f39654",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "02d99ac2b7936b33da5864c4ff9444f5d2d8d5417e4e8d40cf8f721f7b7a93e4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8d9e0a89022f97850d039f78a2de621bf77b98d73669b4dd8ccfe5be58149a58",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:01:22",
+        "value": "2026-11-20T16:31:22+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KIRLOSENG_20112026214815_SE_Intimation_26Nov26.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "15749dc0575545c8c83f5af9cd64a6e29a0eab5b6a2b1acbd96f0838aa615195",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "1b7f172f07b8e8672579b821273b3a042e5105d1f1025da4ff305f7ce3fca8e8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "94bbd2a5930b1201e0e26fafb921acc82be91f85530cbe66b87b41718c12d437",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:29:40",
+        "value": "2026-11-20T15:59:40+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026212701_2026_11_20_Outcome_BM_Financial_Results-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Kalyan Jewellers India Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "fb87e53a827d75f75d4dfb5e44dca45cb1e5a4d59cb9f978a99cad9417aef723",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "6471efcdf203884c2f9b23e2889188e0633d728071a5a0120e818bf82e09b18a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "98bddcb25653c612d65e725075bcd683d52a1aeac44ceb6fa61cfd78af1029d9",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:59:09",
+        "value": "2026-11-20T16:29:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/KALYANKJIL_20112026215836_IM.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "488bf377c5f94f385891dd99819c1d870db2ff925e139387af647d3d0deb0c29",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Osel Devices Limited has informed the Exchange about Transcript |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "c6d6d2c1137539836e187acaf6fc9c17902a55403aff3e7c74cc0ea155208d44",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "466b90612c578417feac83099608f250262b78c30d445c4b3cbe751fcd8609b8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a06bdbb23053f61fc92c38e61ed130794a5751e82ffe909fe7b78ef3cf6180e6",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:44:28",
+        "value": "2026-11-20T16:14:28+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/OSEL_20112026214408_Transcript.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "25013ad7ed272d22c9c9809bafbeb6a00e08c78f3054bbce205b6fbd28e20014",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "SRF Limited has informed the Exchange about Action(s) taken or orders passed (sub-para 20) |SUBJECT: Actions initiated/taken or orders passed-XBRL",
+      "event_context_sha256": "5effb4f1530cf2f08f20239dfd443c4c47f5c249429f967877342d7c9ca80bfb",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "2abdf2495c76473a0b136b28bcc9bf0a33b0b64aae43273ea8e795ee2d069dc8",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a161319a1442083f9af0c5f35c981d346ef4008789bd1b471cb120ff0add5632",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:07:49",
+        "value": "2026-11-20T17:37:49+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/AIATOP_323_WebXMLFile_20261120_230747464.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "df0ae7be74ed23a700779cd815def0282649ce7b073beb9dcf359d7b4b9dc5e0",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "ACCELYA SOLUTIONS INDIA LIMITED has informed the Exchange about Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B) |SUBJECT: Pendency of any litigation(s) or dispute(s)-(Sub-para 8-Para B)",
+      "event_context_sha256": "a345c6dc83934d48424ad7ec07831a70dad574e3d362d9cb78a2f52ee86af71b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "164e21927e65439aa506a2a091d4c348e72a2a183a6901c98181be53ef2f44e4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a5b59504d178203d1bb58c1d84e27328ae6805c410dace99c7f7a8b093b332a4",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:45:02",
+        "value": "2026-11-20T16:15:02+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_PARA_B_1834_WebXMLFile_20261120_214501580.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "50233b0970b7fffd38af84150611aef22f509c3a5ac4247dd6ffbe50dcbecbb4",
+      "topics": [
+        "GOVERNANCE_RISK"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "JM Financial Limited has informed the Exchange regarding Acquisition (including agreement to acquire) |SUBJECT: Acquisition (including agreement to acquire)-XBRL",
+      "event_context_sha256": "db022a6c6d795c69a961ed16450652afbb01899066f6fa69be03c0f635e379ef",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "3e379f666247fca04b7790ca461cc4c524537f0ef79d3d9494c77f09ab1f0675",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "JMFINANCIL"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "a8ac577834513b4294ff231d409636641b91f66c32c0d5c702f6ce76cff87b2a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:34:29",
+        "value": "2026-11-20T16:04:29+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/REG30_Restructuring_2447_WebXMLFile_20261120_213428568.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "d7e5a90a93d2872d8158c69ebaceda1a50440f52791dfadb39820eefbbba9b03",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Outcome of Board Meeting |SUBJECT: Outcome of Board Meeting",
+      "event_context_sha256": "8658398be9931786a16413ad0c48f749cd4870b7f14a262109306712cad2045b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "083e524e3fce48a44be6470cbb982d53656ec6c8d3d508dd0ae100a4d906c4ea",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ba5c313578e550ab42fc6d6e2cbd18489bfb6784ac3dd5732c38f2fdf18e1f89",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:39:09",
+        "value": "2026-11-20T16:09:09+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/content/debt/WDM/PRISMA_20112026213819_2026_11_2026_Security_Cover-signed.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "023269f287118b497e4fed7840c8fa84f0acb77c63d3535fc222c5c1d5df5ac2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Housing & Urban Development Corporation Limited has informed the Exchange regarding Change in Director(s) of the company. |SUBJECT: Change in Director(s)",
+      "event_context_sha256": "21fe0a723daa97ed180b0cfbb49ccea0a532111ebe4705d81e2ca8793f12d92b",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "03766b1b977779d6c84ac79f56dabb7c689077eb84c15da4a51eefe9daf4fee6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bd98fbf7e2e8416e6d841c16118d2cc27469838d739397385774b863df101267",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:57:33",
+        "value": "2026-11-20T16:27:33+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/HUDCO_20112026215718_Baldeo_Purushartha_Cessation.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "540deeb06b97ea34757c1eaaf052cf8135b368b57500fbf51f2f4aeddf65ad2a",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "RUNWAL ENTERPRISES LIMITED has informed the Exchange about Transcripts - earnings or quarterly calls |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "d980baabb3f05bfcc881c6127956eef16464a9d68b8244d232ca97879d3fb975",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "307b100e99294febda54150c8758afd04ac109c4456efb85c2cb2b5603f3b63a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "RUNWALENTR"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "bf64a6dbf9543019af74345bc8639396609025cbc43cbe707b0f2abcac9ac084",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:48:01",
+        "value": "2026-11-20T17:18:01+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_25798_WebXMLFile_20261120_224759379.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "1fa809b6ad440874093e5e17284ec4a893c0d5b331ca833d9ace3d08352dfda7",
+      "topics": [
+        "CAPACITY_INVESTMENT",
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Zetwerk Manufacturing Businesses Limited has informed the Exchange regarding Notice of Postal Ballot |SUBJECT: Shareholders meeting",
+      "event_context_sha256": "3afdd1587c76cdd307277ae145531eccd7777d3e017a93500ac9010a077590da",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "5777775c706d207658178bb3c0dae477e887b31505279f61f8ba1e6f101fffe5",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ca6fd44abc5c65cb772ef67e3f247e5237f7416e6945884e3f29fb71a13b09b1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:01:54",
+        "value": "2026-11-20T17:31:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/ZETWERK_20112026230147_Zetwerk_-_Postal_Ballot_Notice.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "73d90fb9f9fcb5b5cb7249867be22c4450821fde57d6bb897f33a35a6d9f60b2",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Sasken Technologies Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "fa68bb9990f7f2f474540ff5a2c448a55a8272216f0f674d3e8d472901187eb2",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "22279944f9e4e0db4fe14827a36d636e5c62ee931e55e5b989a106902fdb975a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SASKEN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ce790673ba782dc91c9f562cee74aa008b5e35c5f0b70db1d3e2e7588400012a",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:20:53",
+        "value": "2026-11-20T16:50:53+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SASKEN_20112026222042_Ltr_to_SE_Investor_meeting_Nov_20_2026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "60af5386eb2dea370c65e5777e0d881fa19ef9d3546c4a2dd0ad48d9d30fedf4",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "TAC Infosec Limited has informed the Exchange regarding a press release dated November 16, 2026, titled \"Cyberscope Partners with Crystal Intelligence to strengthen Digital Asset Security and Blockchain Intelligence\". |SUBJECT: Press Release",
+      "event_context_sha256": "bcd6b187bcfe0e1548a8188da7ae76e69a4dece0edba9de3b9fb99ae32d95855",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "0bb497c857ffe97f99f7e560c1fa05b26a647323299844c4137aac82c5453fb4",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d525d25abb03984f6fe4dafda84729cb35a8b901e7238bd9dc7d080969be2319",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:28:42",
+        "value": "2026-11-20T15:58:42+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/TAC_20112026212832_Press_Release_crystal.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "e49bd978a0e5be5325726b4438d3d96fb85a39d281204c30a1c479ca68b10ac6",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Kirloskar Oil Engines Limited has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "36198fa1c8ee7f993a82a370a830866e8f16274fbc2ca6a2086bccdad5181c65",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "05a8513f9f52700c33fdaed6213fe88746535830eddcfd1d51ebaa672683d7f6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "dabf0954eddc214e16fb112d0ac79b5f57961a460d7e9ae62b992f0e491bce30",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:05:54",
+        "value": "2026-11-20T16:35:54+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_3845_WebXMLFile_20261120_220553077.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "15749dc0575545c8c83f5af9cd64a6e29a0eab5b6a2b1acbd96f0838aa615195",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Greaves Cotton Limited has informed the Exchange about Schedule of Analysts or Institutional Investors Meet |SUBJECT: Analyst/Investor Meet Para A-XBRL",
+      "event_context_sha256": "addbb460f980b1db9f0501a4a34046c72b6ac7af7df506d743b0959236fc5bb4",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "cbd5cbc09479b10f1aedc49f2230c791523f74b05c17c622130356fc0e19443e",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "GREAVESCOT"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "df645d0d5f2d43b0c89b4a74418da7bc3303d98b0e0951fb1e0878ce2c0b4563",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:07:55",
+        "value": "2026-11-20T16:37:55+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/SAIIM_1203_WebXMLFile_20261120_220752450.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "5d1ba71a75fb6d24c958a845c83b81f6b244d49eca7355c4960f8dd0b797e8fa",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "STAR HEALTH AND ALLIED INSURANCE COMPANY LIMITED has informed the Exchange about Action(s) taken or orders passed (sub-para 20) |SUBJECT: Actions initiated/taken or orders passed-XBRL",
+      "event_context_sha256": "465daef9ae589cc6d9e2b0468cd2ebf8612a2d35863470176b713f025411769a",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "0f78587e77cfdaec810749297ade7f485968955e00c1bd0f5368ab695dddfcbe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e52fe57cd925505cd6530880a011d36402e30dc5d2d73dd6548b0ceaa14aa989",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 21:48:50",
+        "value": "2026-11-20T16:18:50+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/AIATOP_19799_WebXMLFile_20261120_214849062.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b3f68ef691866b0e93e3ce86a0e3ff2b744b6e1b820895bb9360ca01c4b5ca02",
+      "topics": [
+        "ORDER_CUSTOMER"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Shalimar Paints Limited has informed the Exchange regarding Outcome of QIP Committee Meeting held on November 20, 2026 towards Allotment of Equity Shares. |SUBJECT: Committee Meeting Updates",
+      "event_context_sha256": "e1edc4e0e87630c0c78dcff696e6e5c2adb69aa0fa8174a0dd3eaa6c27a16c4a",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "ffb471f0ec7690d9d80017b20e04b7c9bb35a408b124c85ca79bfc5c8bfd4503",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e5b687c46e8c39aa626e95f4623449bccac7e8832c0ba0585be06131a0a98cea",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:17:59",
+        "value": "2026-11-20T17:47:59+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SHALPAINTS_20112026231740_BSENSENov20Allotment.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7f853ebbff95b66404b743ca11b9452f549b626da53fde21caacb9e823cf8fc9",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Star Health and Allied Insurance Company Limited has informed the Exchange about disclosure under Regulation 30 of SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015 |SUBJECT: General Updates",
+      "event_context_sha256": "30b2c9423473617a6e219149f3772e8149c632bb92773053a97dd5db5efb4991",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "5b00bfef9ba0bfb57fe53e207db64ad4e36bcd848ef365c7cc0f4a6679b8bbb3",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eafba92823e335100976c6cc8043fc4fafba3f211d79dbe947f2a9323be0769d",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:16:38",
+        "value": "2026-11-20T16:46:38+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/STARHEALTH_20112026221349_SE_Letter_-_20112026R.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "b3f68ef691866b0e93e3ce86a0e3ff2b744b6e1b820895bb9360ca01c4b5ca02",
+      "topics": [
+        "POLICY_REGULATION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Shalimar Paints Limited has informed the Exchange regarding Outcome of QIP Committee Meeting held on November 20, 2026. |SUBJECT: Committee Meeting Updates",
+      "event_context_sha256": "1ea29e57000a8678e06453f75c2c059f221a1ab079033409f40ecacd53412a5d",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "56ff954b98ade6fda9eec5697d1b3f74a1e59cedc91c97848cb52d7a5d04464b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f286b256b6992f33054741aebdc3ddc9db0495e5b064adb2a19defe1be9588b0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:40:56",
+        "value": "2026-11-20T17:10:56+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SHALPAINTS_20112026224025_BSENSENov20.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7f853ebbff95b66404b743ca11b9452f549b626da53fde21caacb9e823cf8fc9",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Shalimar Paints Limited has informed the Exchange regarding allotment of 51948051 securities pursuant to Qualified Institution Placement at its meeting held on November 20, 2026 |SUBJECT: Allotment of Securities",
+      "event_context_sha256": "a35148c295dad4f32817a632905b7ec9f9d31ce611fe2001ac378501994c652d",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "c04dffb667e3123d50e6b2d156088c373e848b9f6952a0b2a3f2cbe68693ea94",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f2bff7e4a2832a2bc4c02876dad7f7fabc64ccebf635fea3504251984a8d8e02",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 23:23:13",
+        "value": "2026-11-20T17:53:13+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/SHALPAINTS_20112026232249_BSENSENov20Allotment.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "7f853ebbff95b66404b743ca11b9452f549b626da53fde21caacb9e823cf8fc9",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "Prince Pipes And Fittings Limited has informed the Exchange about Schedule of meet |SUBJECT: Analysts/Institutional Investor Meet/Con. Call Updates",
+      "event_context_sha256": "e7e97c8b002779fffb818bd3e6579a66544c28a82fa0ce0d5d15e30a8d84f227",
+      "first_seen_at": "2026-11-20T17:58:01.501723+00:00",
+      "item_id": "75d384adee186ac019fa8e8569848abac7ca3c4d8f83ae1d54c9e480c02f6139",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "f3f19323541b8701e641f5b793b99089839a924bcf3afb266ef38bdbee5fcc3c",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "20-Nov-2026 22:27:16",
+        "value": "2026-11-20T16:57:16+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/PRINCEPIPE_20112026222639_InvestorCall_26112026.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "c0b0bc61037dd1514b1b7fbdb0b0d0ebdc1083babb970573d035b6e7e73c7dd0",
+      "topics": [
+        "CAPACITY_INVESTMENT"
+      ]
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:20.217751+00:00",
+      "item_id": "874d90c5f5b6d337d68df1dc7c14c4e4860ca885af84c3d20d3f32ce33155e2a",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9ccb371342d14082cbafd5bf4ea52f0f45b25893c4117f90973d6cec705cf8ef",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 22:32:27 +0530",
+        "value": "2026-11-20T17:02:27+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/amazon-prime-india-head-abhinav-agarwal-quits-after-16-years-why-he-left-and-what-s-next-for-him-11795189332842.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "43fbfcdae42aa6c3e04798fe97507a00ef2d3c03ebe28a6959e8244745276093",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:20.217751+00:00",
+      "item_id": "528e6fc0d0c17162ad02eb37deb144f774092aafbfc783d2754179aa8cac013b",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "b530eeac4ef3e9a3e132afa6086877a88de41b7082e61cdb35a7f90e595adaa7",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 22:51:34 +0530",
+        "value": "2026-11-20T17:21:34+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/people/who-is-jay-mehta-meet-juhi-chawla-s-husband-selling-half-of-his-45-kkr-stake-for-400-million-11795193603052.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "1e1aa1e47d028f7800d4b7e289fe202efd43811ef841ae65d48f82e5c3b4db54",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:20.217751+00:00",
+      "item_id": "3fa1475e5ff45fd8b6e2aa39c0fbb575dde7c8155118c299b0fbf812064d51e6",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "e03562f6abfc1f407646a7c0f50afcbf20e43c35f70b292ba3e87821bfe45bd1",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 21:58:13 +0530",
+        "value": "2026-11-20T16:28:13+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/tukaram-mundhes-fda-suspends-licences-of-blinkit-chaayos-5-spice-among-6-mumbai-establishments-what-inspection-found-11795188506556.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "6cadaa02721a0d63840ea2fda7f4bf94133c16532ae8f2c190890b71cad77793",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:21.625990+00:00",
+      "item_id": "dee77497f7a8301ebb2b88d3c2a276a0fabd32bf3382d1bdf89560c47ea774d9",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "JAGRAN"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "1d11e18aec76c5f86d3b2e72d409e0cc4370b05a29104aeebc35aacb60f81437",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 22:32:19 +0530",
+        "value": "2026-11-20T17:02:19+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/smallcap-dividend-stars-5-stocks-under-rs-100-with-high-dividend-yield-jagran-prakashan-radiant-cash-and-more-11795193828075.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "6c7645705db64b961e81880f0a9c62cdae556e14a92346f8650d435ffe1c2266",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:21.625990+00:00",
+      "item_id": "e7ce71b1b33e577e55416e09ce229d62ad44318591d95e4d784ac61e117299aa",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "9dab608f95c4cfa7e99ce001bc00179659ec356bbc4b2d5de2c9fdc3a674c183",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 21:28:10 +0530",
+        "value": "2026-11-20T15:58:10+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/gold-prices-near-14-month-low-what-does-sharp-price-crash-mean-for-titan-kalyan-pc-jeweller-other-jewellery-stocksg-11795184261882.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "954da82d19c5b16af46d43e8b4744b3694ab03bc94c4830c4f704c49ba9df061",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:21.625990+00:00",
+      "item_id": "737edd724ee422b64bdffb5abc58f0423d698d38390f5ac08bdf18274c00e261",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "eaf2da081aede3dab1d71e8b7fa1e5afb4da6ceddc019108784e3311cd1ed825",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 21:56:49 +0530",
+        "value": "2026-11-20T16:26:49+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/pulse-of-the-street-dalal-street-extends-winning-run-as-global-markets-slide-11795181421343.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "b67bcb613a6da872fbbc35944bafa5a8be231c5bd51bfbfb881ac9062adb0813",
+      "topics": []
+    },
+    {
+      "capture_id": "5921905225ec0cd796b0a3b82a66ffe2e9a45b9f4901427cf18a3c4b16b4cd2a",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-20T17:58:21.625990+00:00",
+      "item_id": "a6762311b51977a18f14ed110bd4e6f221850154dced873ceec9fd1bfe5fda35",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "ece2bdd882ce668c9ceb948030ac9ff436bab238f3b5d9cda9626d6959074a8b",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Fri, 20 Nov 2026 15:18:42 +0530",
+        "value": "2026-11-20T09:48:42+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/ai-trade-rethink-will-indian-largecaps-get-first-dibs-on-fpi-flows-11795149045459.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "f090598e84ceb3a687ed0ac89466834d4f23ee331c673e1852b73005314021d3",
       "topics": []
     }
   ],
