@@ -1,0 +1,30 @@
+{
+  "decision_date": "2026-11-20",
+  "scope": "Deterministic rerun of final four funded calculators. This checks reproducibility, not future returns.",
+  "checks": [
+    {
+      "calculator": "cms/calculate_cms.py",
+      "exit_code": 0,
+      "output_unchanged": true,
+      "result_sha256": "0ec600a4f08bf3fc3f4e9bf72dc0b58a056a7c8ea1df140008663bbcc9c62fbe"
+    },
+    {
+      "calculator": "mediassist/calculate_mediassist.py",
+      "exit_code": 0,
+      "output_unchanged": true,
+      "result_sha256": "5e1ebdc920a42f8f172ea91e3cb59fa9480ff41fec56cfd3d930e3dc4e38e9ee"
+    },
+    {
+      "calculator": "fresh/rsystems_model.py",
+      "exit_code": 0,
+      "output_unchanged": true,
+      "result_sha256": "cb89d33f1a7a4a0dcf1bfa23ef0ea47374607a57f3f5c10d79b04f46f9cddf03"
+    },
+    {
+      "calculator": "accelya/calculate_accelya.py",
+      "exit_code": 0,
+      "output_unchanged": true,
+      "result_sha256": "986caa987099bf72d7e06ec8334a1edbd07375a9f8a006b747da8d53089cad17"
+    }
+  ]
+}
