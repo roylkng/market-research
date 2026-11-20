@@ -28,3 +28,17 @@ Append material changes. Do not erase old dated judgments. This journal is an as
 **Boundaries:** No frozen experiment, cohort, label, outcome, source-state branch, daily budget, schedule, model endpoint, broker setting or paid service changed. The update is documentation and structured research memory, not an unattended execution system.
 
 Subsequent updates must name the prior entry or case they change, link evidence, distinguish observation from interpretation, state the decision impact and leave a concrete next check.
+
+## 2026-11-18 | CAPLIPOINT adverse original FDA state versus weaker cash despite price fall
+
+**Trigger:** 16 Nov US FDA OAI classification communicated for Caplin Steriles Gummidipoondi, published **17 Nov** in signed issuer NSE disclosure, and 18 Nov post-disclosure price down to secondary NSE-linked close **₹2,085.30**. First inspected in this review; not a recycled prior watchlist name.
+
+**New evidence:** Primary issuer PDF visually checked 18 Nov, original financial results (12 Nov) cash-flow/earnings/segment pages visually checked. FDA primary official guidance identifies OAI as unacceptable cGMP compliance, with possible approval/certificate delays. Issuer says no current material impact and operations continue, **not** that FDA remediation is completed. No verified import ban or actual lost sales. H1 group owner PAT **₹355.01cr**, net CFO **₹205.25cr**, selected PPE including CWIP **₹134.46cr**, proxy **₹70.79cr** versus **₹159.86cr** prior; trade receivable and inventory cash absorb **₹186.34cr** combined. TTM diluted EPS mechanically **₹90.41**, current P/E **~23.06x** using secondary 18 Nov close. Capital structure includes **₹74.58cr equity-nature instruments** requiring share-claim check.
+
+**Decision change:** **NEW WATCH_EVIDENCE; NOT BUY_AT_PRICE**. Material adverse regulatory status plus declining after-capex cash is not overturned merely by a ~17.26% price decline vs secondary 11 Nov. No issuer-USFDA customer/ANDA exposure map, maintenance-versus-growth capex split, durable owner free cash, US FDA public facility confirmation or fully diluted rights bridge. Flat-price 3-year terminal 18x/15x PE *assumptions* require 8.62%/15.42% annual diluted EPS growth, respectively, **not a forecast or target**.
+
+**Broader discovery:** T T Ltd 16 Nov board disapproval of proposed buyback only secondary-transcribed, so PASS_CATALYST_ONLY with primary-pdf limit. Sukhjit 20 Nov agenda not approval. Bounded funnel, no exhaustive market scan or full through-cycle underwriting claim, no investment eligibility and no prospective returns.
+
+**Source status:** Signed original NSE PDF and original issuer financial report **visual/text inspection**, FDA primary page text, **no retained original bytes/hash**; secondary Dhan NSE quote timestamp 18 Nov 15:57, not NSE raw official closing archive. Sources/links and full ten-lens assessment in [dated case](caplin-point-oai-decision-2026-11-18.md).
+
+**Next decisive check:** FDA public facility enforcement/reclassification and affected products, customer revenue/approvals, next-period collections and parent-distributable owner free cash. Prior #620/#619/#618/#611 remain open not merged. No new buy, orders, portfolio policy or frozen H002/H003/H019/H020/H021/HG/AE/PF or production acceptance changes.
