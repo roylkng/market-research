@@ -19,7 +19,7 @@
 | PPE, software/intangibles and CWIP purchase | (119.122) | (52.488) | (103.948) | **(170.582)** |
 | Full principal repayment of leases | (54.235) | (23.948) | (30.291) | **(60.578)** |
 | Financing-classified cash interest | (42.724) | (20.487) | (30.054) | **(52.291)** |
-| **CFO after those selected economic uses** | **657.385** | **279.085** | **212.458** | **630.759** |
+| **CFO after those selected economic uses** | **657.385** | **239.084** | **212.458** | **630.759** |
 
 The TTM residual is **not** automatically distributable owner cash or normalized maintenance FCF. It includes **growth investment as a deduction**, but does not include acquisition spending, future employee-trust equity acquisition, cash collateral/restrictions or the economic cost of future equity awards. FY27 H1 outflows are disproportionately concentrated in the rising capital-expenditure line. The operating statement includes **noncash share-based-payment addbacks**. **TTM stock-compensation expense approximately ₹39.406cr** is a competing economic owner claim, not additive free cash.
 
