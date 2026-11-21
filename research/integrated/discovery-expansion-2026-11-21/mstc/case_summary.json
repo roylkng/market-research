@@ -1,0 +1,96 @@
+{
+  "symbol": "MSTCLTD",
+  "name": "MSTC",
+  "price": 656.55,
+  "condition_price": 500,
+  "status": "Pass at current price",
+  "decision": "PASS_CURRENT_PRICE_CONDITIONAL_REOPEN",
+  "case_file": "mstc/README.md",
+  "output_file": "mstc/outputs.json",
+  "scenario_keys": [
+    "adverse",
+    "base",
+    "favorable"
+  ],
+  "pattern": "Digital auctions and platform extensions",
+  "base_assumptions": "8% revenue growth, 61% pre-working-capital cash margin, ₹30cr after-tax float income and ₹250cr usable opening treasury. All retained cash is counted.",
+  "condition": "Around ₹500 with the franchise and liability assessment intact, or materially stronger core growth at today’s price.",
+  "key_fact": "₹2,271.73cr gross bank balances reduce to ₹432.48cr after recognized financial claims, before other obligations and buffers. Older CAG comments are now incorporated.",
+  "risk": "Counterparty cash ownership, float income rights, legacy claims, accounting policy and auction cannibalization.",
+  "historical": "The earlier 50% payout table left the retained half ambiguous. The same old assumptions give 2.91% without and 5.41% with retained cash credited once.",
+  "sources": [
+    "https://nsearchives.nseindia.com/corporate/MSTCLTD_12112026174610_SE782.pdf",
+    "https://www.mstcindia.co.in/MSTC_Static_Pages/frontpage/MSTC_Annual_Report_2025-26%28English-Version%29.pdf",
+    "https://nsearchives.nseindia.com/corporate/MSTCLTD_19112026162210_SE786.pdf"
+  ],
+  "isin": "INE255X01014",
+  "scenarios": [
+    {
+      "name": "Adverse",
+      "key": "adverse",
+      "annualized_return": -0.10606626193155971,
+      "terminal_price": 331.66284040255124,
+      "dividends": [
+        3.120522989801138,
+        10.287010619288742,
+        12.274267477383303,
+        12.526850422099765,
+        12.78463108179834
+      ],
+      "cashflows": [
+        -656.55,
+        3.120522989801138,
+        10.287010619288742,
+        12.274267477383303,
+        12.526850422099765,
+        344.4474714843496
+      ],
+      "return_at_condition_price": -0.054167759024025985
+    },
+    {
+      "name": "Base",
+      "key": "base",
+      "annualized_return": 0.05053327539284724,
+      "terminal_price": 742.6139621026567,
+      "dividends": [
+        12.02653137393807,
+        16.906418824689766,
+        18.41889472244082,
+        20.05236853469144,
+        21.81642133426192
+      ],
+      "cashflows": [
+        -656.55,
+        12.02653137393807,
+        16.906418824689766,
+        18.41889472244082,
+        20.05236853469144,
+        764.4303834369186
+      ],
+      "return_at_condition_price": 0.11227336752884065
+    },
+    {
+      "name": "Favorable",
+      "key": "favorable",
+      "annualized_return": 0.17377197322772442,
+      "terminal_price": 1302.5348693221576,
+      "dividends": [
+        16.31840811735476,
+        20.70641564449779,
+        23.736443219786114,
+        27.204497553931134,
+        31.175197846532743
+      ],
+      "cashflows": [
+        -656.55,
+        16.31840811735476,
+        20.70641564449779,
+        23.736443219786114,
+        27.204497553931134,
+        1333.7100671686903
+      ],
+      "return_at_condition_price": 0.24287464539510106
+    }
+  ],
+  "condition_price_change": -0.23844337826517392
+}

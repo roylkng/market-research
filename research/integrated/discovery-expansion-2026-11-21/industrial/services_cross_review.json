@@ -1,0 +1,120 @@
+{
+  "reviewed_at_utc": "2026-11-21T18:32:37.275489+00:00",
+  "reviewer": "fresh_industrial_discovery",
+  "scope": "Narrow cash, treasury retention, share-compensation and dilution review. Does not revalidate all issuer sources or business forecasts.",
+  "reviewed_files": {
+    "newgen_calculator.py": "252259a6127df90f72494a0334223c2786f21b8b31ea4dcb9a237c9b3f980f68",
+    "nucleus_calculator.py": "ab7dda5a84fdac5187c084995801640388185bca628f26ac46396dcf402e1c9c",
+    "newgen_inputs.json": "184dcff414ec52389403eb37a68175dcb012b9a33b7f67a565118dd330fb6f6c",
+    "nucleus_inputs.json": "a24f25db092de4f6ae9dcc9a848da7b09bbeb35fc5f00b34380e6749a65fddec",
+    "newgen_outputs.json": "9391a826a4e6cbc5109619fbb0640419938c8b2863f160939c8af2006c8f720e",
+    "nucleus_outputs.json": "9e65534bdfd0c569a1ddb1aba2915637ce0d598c07730499b7c594c9cbc2bfec"
+  },
+  "results": {
+    "newgen": {
+      "scenarios": {
+        "downside": {
+          "reproduced_irr": -0.07147187069702116,
+          "published_irr": -0.07147187069702116,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": 1.1368683772161603e-13,
+          "irr_npv_residual": 1.3988810110276972e-14,
+          "opening_available_treasury": 802.058088,
+          "opening_operating_wc": 392.1701999999999,
+          "closing_available_treasury": 1324.0555378607196,
+          "closing_shares_crore": 15.214814878309353,
+          "funding_gap": 0.0
+        },
+        "base": {
+          "reproduced_irr": 0.08253458042607587,
+          "published_irr": 0.08253458042607587,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": 0.0,
+          "irr_npv_residual": -3.241851231905457e-13,
+          "opening_available_treasury": 884.69549,
+          "opening_operating_wc": 392.1701999999999,
+          "closing_available_treasury": 1800.9589092448964,
+          "closing_shares_crore": 14.841920891826776,
+          "funding_gap": 0.0
+        },
+        "upside": {
+          "reproduced_irr": 0.1888089476960867,
+          "published_irr": 0.1888089476960867,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": 2.2737367544323206e-13,
+          "irr_npv_residual": -1.4832579608992091e-13,
+          "opening_available_treasury": 899.69549,
+          "opening_operating_wc": 392.1701999999999,
+          "closing_available_treasury": 2122.2869784277364,
+          "closing_shares_crore": 14.841920891826776,
+          "funding_gap": 0.0
+        }
+      },
+      "core_other_income_excluded": true,
+      "terminal_multiple_excludes_treasury_interest": true
+    },
+    "nucleus": {
+      "scenarios": {
+        "downside": {
+          "reproduced_irr": -0.11295035982477991,
+          "published_irr": -0.11295035982477991,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": 1.4921397450962104e-13,
+          "irr_npv_residual": -1.687538997430238e-13,
+          "opening_available_treasury": 719.5684,
+          "opening_operating_wc": -66.48999999999998,
+          "closing_available_treasury": 679.4932982345819,
+          "closing_shares_crore": 2.6325306,
+          "funding_gap": 0.0
+        },
+        "base": {
+          "reproduced_irr": 0.07771579428214215,
+          "published_irr": 0.07771579428214215,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": -5.684341886080802e-14,
+          "irr_npv_residual": -1.2878587085651816e-13,
+          "opening_available_treasury": 767.227,
+          "opening_operating_wc": -66.48999999999998,
+          "closing_available_treasury": 961.2037485393105,
+          "closing_shares_crore": 2.6325306,
+          "funding_gap": 0.0
+        },
+        "upside": {
+          "reproduced_irr": 0.23735174791853952,
+          "published_irr": 0.23735174791853952,
+          "difference": 0.0,
+          "cash_rollforward_residual_crore": 5.684341886080802e-14,
+          "irr_npv_residual": 4.831690603168681e-13,
+          "opening_available_treasury": 777.227,
+          "opening_operating_wc": -66.48999999999998,
+          "closing_available_treasury": 1146.1019921747231,
+          "closing_shares_crore": 2.6325306,
+          "funding_gap": 0.0
+        }
+      },
+      "core_other_income_excluded": true,
+      "terminal_multiple_excludes_treasury_interest": true
+    }
+  },
+  "material_failures": [],
+  "economic_checks": [
+    "Historical other income removed from core operating EBIT before separate treasury yield is added",
+    "Own-treasury return is included once annually and accumulates only in undistributed cash",
+    "Terminal operating value uses funded operating cash and excludes treasury interest",
+    "Terminal equity includes retained cash once",
+    "NEWGEN begins with full reported diluted claims and future annual dilution without an additional SBC cash charge",
+    "Historical negative NEWGEN SBC credit is subtracted in the core-cash normalization rather than treated as continuing income",
+    "NUCLEUS includes employee trust holdings in full paid-up share count and funds future award purchases in cash, with zero added dilution",
+    "All modeled cash lease principal and interest is subtracted after D&A addback. Opening lease liabilities are not also deducted",
+    "Positive/negative working-capital changes and operating liquidity buffers are explicitly funded"
+  ],
+  "remaining_limits": [
+    "NUCLEUS broad INR942.1cr issuer treasury metric is not a verified unrestricted liquidation floor",
+    "NUCLEUS customer prepayments produce negative working capital. Their continuing availability is an operating assumption, with modeled transition losses, not proof that all gross cash is immediately distributable",
+    "NEWGEN future dilution and NUCLEUS cash award budgets are scenario assumptions. Changes in compensation design require model revision",
+    "Forecast operating tax may conservatively omit tax deductions associated with equity or cash share compensation. This review found no material optimistic tax treatment from that choice",
+    "No independent probability or business-moat validation performed"
+  ],
+  "conclusion": "No material arithmetic or cash/treasury/SBC double-counting issue found in the reviewed versions. The uncertainty is predominantly economic and source composition, not mechanical retention accounting.",
+  "mutations_to_reviewed_case_files": false
+}

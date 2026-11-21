@@ -1,0 +1,28 @@
+{
+  "as_of": "2026-11-21",
+  "scope": "Targeted accounting convention check, not new primary financial underwriting",
+  "mstc": {
+    "finding": "AMBIGUOUS_RETAINED_CASH_FUNDING_USE",
+    "old_g10_15x_return": 0.029145524361008035,
+    "bounded_cash_retention_return": 0.054078770009742594,
+    "retained_cash_crore": 646.9012800800002,
+    "note": "Old IRR reproduces. Add-back is valid only if future extra spending does not consume the retained half. New funded MSTC model remains separate."
+  },
+  "eclerx": {
+    "finding": "NO_RETENTION_OMISSION",
+    "all_five_published_rows_reproduced": true,
+    "decision_change": false
+  },
+  "cams": {
+    "finding": "NO_RETENTION_OMISSION",
+    "distribution_fraction": 1.0,
+    "decision_change": false
+  },
+  "source_originals_changed": false,
+  "primary_sources_newly_authenticated": false,
+  "note": "README.md",
+  "calculator": "calculate.py",
+  "inputs": "inputs.json",
+  "outputs": "outputs.json",
+  "receipts": "source_artifact_receipt.json"
+}

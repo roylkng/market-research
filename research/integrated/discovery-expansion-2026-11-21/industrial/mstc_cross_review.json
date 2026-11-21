@@ -1,0 +1,59 @@
+{
+  "reviewed_at_utc": "2026-11-21T18:30:48.712764+00:00",
+  "reviewer": "fresh_industrial_discovery",
+  "subject": "MSTC funded valuation",
+  "scope": "Narrow independent economic and arithmetic review, no opinion on final court outcomes or full source coverage",
+  "files_read": [
+    "../mstc/inputs.json",
+    "../mstc/calculate.py",
+    "../mstc/outputs.json",
+    "../mstc/README.md"
+  ],
+  "primary_extracts_read": [
+    "MSTC H1FY27 consolidated balance sheet, cash flow and note5 disputed SCB claim",
+    "FY26 annual reported borrowings and accrued interest references"
+  ],
+  "checks": [
+    "Reproduced adverse, base and favorable IRRs",
+    "Reconciled retained treasury to opening treasury plus available owner cash less distributions",
+    "Confirmed all recognized interest income removed from original pre-working-capital operating bridge before distinct float and own-treasury income added",
+    "Confirmed refundable counterparty principal is not counted as shareholder treasury",
+    "Confirmed accumulated retained owner cash included once at exit, while own-treasury interest is excluded from operating terminal multiple",
+    "Confirmed normalized forecast tax replaces actual historical cash-tax timing",
+    "Confirmed recognized borrowing and accrued interest are reserved once in opening owner-cash bridge",
+    "Confirmed liability-writeback removal from operating cash is not deducted again as an operating expense",
+    "Confirmed initial reserve for refundable old remittances is a different ownership question from removal of nonrecurring writeback earnings"
+  ],
+  "material_arithmetic_failures": [],
+  "reproduced_returns": {
+    "adverse": -0.10606626193155971,
+    "base": 0.05053327539284724,
+    "favorable": 0.17377197322772442
+  },
+  "max_abs_irr_npv_residual": 3.81e-13,
+  "max_abs_cash_rollforward_residual_crore": 2.28e-13,
+  "float_income_translation": {
+    "assumed_pretax_yield": 0.055,
+    "assumed_tax": 0.2517,
+    "implied_average_eligible_float_crore": {
+      "15": 364.4624785878294,
+      "30": 728.9249571756588,
+      "40": 971.8999429008784
+    },
+    "march_emd_and_customer_deposits_crore": 683.1811,
+    "caveat": "Average balance and rights to invest or retain interest across all contracts are not verified. September end balance is not assumed to be the annual average."
+  },
+  "remaining_material_uncertainties": [
+    "Additional court interest or other unreserved claims beyond frozen recognized amounts are stress assumptions, not resolved legal estimates",
+    "Average eligible float and contractual interest rights",
+    "New-platform spending and operating returns"
+  ],
+  "conclusion": "No material arithmetic or treasury/float double-counting blocker found to the stated bounded current-price conclusion. Scenario assumptions remain uncertain.",
+  "mutations_to_reviewed_case": false,
+  "reviewed_file_sha256": {
+    "inputs.json": "f675f788e78857d18c0b30ce08b09fdf2ecc76e2c40627190d2d809d3521855d",
+    "calculate.py": "f2f70e87a27c944d6d06415b29468555bc47a8febcdea93f398c338a1e22f60b",
+    "outputs.json": "63c4dbcf72698b730276039e9d6a4d9f0791d834c760b2fd426d672073301477",
+    "README.md": "eaea613519c822ac9a17e47cece788b7ce0c7982060b2f6d88777c302cb8aef9"
+  }
+}
