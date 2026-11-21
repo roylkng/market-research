@@ -1,0 +1,177 @@
+{
+  "decision_date": "2026-11-20",
+  "price_date": "2026-11-19",
+  "price": 279.8,
+  "currency": "INR",
+  "financial_unit": "INR crore",
+  "horizon_years": 5,
+  "price_status": "ORIGINAL_NSE_BHAVCOPY_OBTAINED_BY_ROOT",
+  "security": {
+    "symbol": "MEDIASSIST",
+    "series": "EQ",
+    "isin": "INE456Z01021"
+  },
+  "reported": {
+    "fy26": {
+      "owner_pat": 87.889,
+      "revenue": 904.767,
+      "ebitda_core": 174.607,
+      "cfo": 117.72,
+      "pre_wc_cash": 171.784,
+      "capex": 55.922,
+      "lease_cash": 23.341,
+      "interest_cash_ex_lease": 14.268,
+      "tax_cash": 26.412
+    },
+    "h1fy26": {
+      "owner_pat": 30.343,
+      "revenue": 423.103,
+      "ebitda_core": 81.73,
+      "cfo": -13.049,
+      "pre_wc_cash": 89.068,
+      "capex": 26.744,
+      "lease_cash": 9.674,
+      "interest_cash_ex_lease": 9.02,
+      "tax_cash": 40.466
+    },
+    "h1fy27": {
+      "owner_pat": 49.202,
+      "revenue": 478.029,
+      "ebitda_core": 97.246,
+      "cfo": 40.145,
+      "pre_wc_cash": 102.375,
+      "capex": 26.806,
+      "lease_cash": 11.817,
+      "interest_cash_ex_lease": 0,
+      "tax_cash": 26.538
+    },
+    "sep26": {
+      "cash_equivalents": 50.302,
+      "other_bank_balances": 63.459,
+      "current_investments": 115.586,
+      "current_tax_liability": 10.456,
+      "contract_liabilities": 321.676,
+      "income_tax_assets": 89.831,
+      "trade_receivables": 358.918
+    },
+    "mar26": {
+      "restricted_current_bank_deposits": 14.515,
+      "defined_benefit_obligation": 50.425,
+      "defined_benefit_assets": 1.374,
+      "option_count": 1266877
+    },
+    "issued_shares": 74701842,
+    "h1_option_exercises": 92415,
+    "buyback_shares": 1159199,
+    "buyback_cash": 49.2659575,
+    "q2_revenue_seed": {
+      "india_tpa": 219.6,
+      "platform_hba": 11.2,
+      "international": 10.7
+    },
+    "tax_bta_adjustment_fy26": 32.868,
+    "gross_reported_cash_and_equivalents_deck": 268.3,
+    "paramount_acquisition": {
+      "equity_price": 412.44,
+      "announced_ev": 311.8,
+      "acquired_current_investments": 102.913,
+      "acquired_cash": 18.196,
+      "acquired_borrowings": 4.993,
+      "acquired_noncurrent_investments": 4.023,
+      "consideration_net_cash_cf": 401.85,
+      "goodwill": 219.62,
+      "customer_relationship_asset": 137.5
+    }
+  },
+  "common_assumptions": {
+    "tax_rate": 0.25,
+    "cash_tax_depreciation_rate": 0.04,
+    "cash_treasury_yield_after_tax": 0.03,
+    "payout_ratio": 0.5,
+    "buyback_full_completion_assumed": true,
+    "buyback_transaction_cost": 1.0,
+    "pending_september_dividend_per_share": 2.0,
+    "use_full_remaining_options_no_exercise_proceeds": true,
+    "legacy_gratuity_full_deduction": true,
+    "credit_noncurrent_assets_and_income_tax_assets": false,
+    "forecast_period_convention": "Five annual rolling years after research reference. Q2 annualized revenue is a scenario seed, not seasonally adjusted issuer forecast. Model assumes no additional M&A, no new financing, and no value for future option subscription cash.",
+    "payout_convention": "50% annual modeled owner cash and treasury interest as cash-equivalent distributions. Issuer policy is 50% cumulative adjusted FCF over rolling five years, not annual guaranteed dividends. No buyback entitlement credited to new buyer.",
+    "cash_cost_convention": "EBITDA includes future compensation and credit-loss costs with no addback. Future lease cash and all modeled capex are deducted. Existing options diluted without proceeds is a conservative sensitivity. Existing unfunded gratuity reserved once in opening equity cash, future service compensation remains an operating expense."
+  },
+  "scenarios": {
+    "downside": {
+      "growth": {
+        "india_tpa": 0,
+        "platform_hba": 0.1,
+        "international": 0
+      },
+      "ebitda_margins": [
+        0.18,
+        0.18,
+        0.175,
+        0.175,
+        0.175
+      ],
+      "capex_rate": 0.06,
+      "lease_cash_rate": 0.028,
+      "incremental_working_capital_rate": 0.2,
+      "initial_cash_collection_loss": 25,
+      "minority_leakage_rate": 0.005,
+      "operating_cash_reserve": 60,
+      "exit_multiple": 10
+    },
+    "working": {
+      "growth": {
+        "india_tpa": 0.06,
+        "platform_hba": 0.3,
+        "international": 0.1
+      },
+      "ebitda_margins": [
+        0.21,
+        0.215,
+        0.22,
+        0.22,
+        0.22
+      ],
+      "capex_rate": 0.055,
+      "lease_cash_rate": 0.025,
+      "incremental_working_capital_rate": 0.1,
+      "initial_cash_collection_loss": 0,
+      "minority_leakage_rate": 0.005,
+      "operating_cash_reserve": 40,
+      "exit_multiple": 14
+    },
+    "upside": {
+      "growth": {
+        "india_tpa": 0.1,
+        "platform_hba": 0.4,
+        "international": 0.15
+      },
+      "ebitda_margins": [
+        0.22,
+        0.225,
+        0.23,
+        0.235,
+        0.24
+      ],
+      "capex_rate": 0.05,
+      "lease_cash_rate": 0.023,
+      "incremental_working_capital_rate": 0.05,
+      "initial_cash_collection_loss": 0,
+      "minority_leakage_rate": 0.005,
+      "operating_cash_reserve": 25,
+      "exit_multiple": 18
+    }
+  },
+  "assumption_rationale": {
+    "growth": "Working core6% recovers above current Q2 IndiaTPA1.2% yet below retained-book7-8% management claim. Platform30% below69.8% H1 and94.8%Q2 but from4.6% Q2 share. International10% abovecurrent7.7% Q2. All are assumptions, not company guidance.",
+    "margin": "Working21-22% assumes recovery from20.4%Q2 toward issuer22-23%core goal. Upside24% requires richer platformmix and delivery, not already earned margin.",
+    "capex": "Working5.5% all-inclusive PPE/software/development cash is near TTM5.83% revenue. No unsupported maintenance-only addback. Upside5% still substantial ongoing spending.",
+    "tax": "25% cash tax applied to EBITDA less cash leases and assumed deductible depreciable assets4%revenue. Does not treat PPA customer relationship amortization or FY26 tax credit as permanent cash shelter. Tax depreciation remains scenario, tested2-6%.",
+    "exit": "14x sustainable owner cash is 7.14% terminal cash yield. Issuer FY26 goodwill impairment uses14.65% posttaxdiscount and5%terminalgrowth, equivalent10.88x next cash. Working14x requires lower future risk than that accounting exercise and is tested10-18x. No verified peer-based premium is claimed.",
+    "treasury": "Start from visible Sepcurrentcash/investments229.347. Remove priorMarch14.515restricted-depositproxy, currenttax10.456, declaredSepdividend, plannedbuyback+cost, operatingreserve, and49.051legacyunfundeddefinedbenefitproxy. Do not deduct designatedunspentraise42.026again because fullfuturecapexalreadyfunded. Unidentifiednoncurrentliquidity/taxrefundassetsgetnovalue inbase. Sensitivities release deductions to quantify caution cost."
+  },
+  "probability": null,
+  "live_capital": "DISABLED",
+  "actual_outcomes": null
+}

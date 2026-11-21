@@ -1,0 +1,418 @@
+{
+  "as_of": "2026-11-21",
+  "model_classification": "CONDITIONAL_REVERSE_VALUATION_NOT_FULLY_FUNDED_FORECAST",
+  "market_cap_crore": 60044.6442323,
+  "ttm_pat_crore": 1377.12,
+  "ttm_revenue_crore": 25604.789999999994,
+  "ttm_eps_on_current_shares": 328.86402996418605,
+  "ttm_pe": 43.60160641941153,
+  "fy26_pe_on_current_shares": 61.46258609347651,
+  "sep26_price_to_book": 7.047303210394555,
+  "cash_residuals": [
+    {
+      "period": "FY25",
+      "cfo_to_pat": 1.5723000121758188,
+      "after_gross_ppe_interest_and_lease_principal": 491.58999999999986,
+      "definition": "Residual before asset-disposal proceeds, dividends, acquisitions and debt principal. All PPE spending is retained, without an invented maintenance/growth split."
+    },
+    {
+      "period": "FY26",
+      "cfo_to_pat": 0.9904292016828228,
+      "after_gross_ppe_interest_and_lease_principal": -57.85999999999994,
+      "definition": "Residual before asset-disposal proceeds, dividends, acquisitions and debt principal. All PPE spending is retained, without an invented maintenance/growth split."
+    },
+    {
+      "period": "H1FY27",
+      "cfo_to_pat": -0.9429711412330565,
+      "after_gross_ppe_interest_and_lease_principal": -1534.47,
+      "definition": "Residual before asset-disposal proceeds, dividends, acquisitions and debt principal. All PPE spending is retained, without an invented maintenance/growth split."
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "profit_reset",
+      "normalised_start_pat": 976.93,
+      "pat_growth": 0.08,
+      "exit_pe": 20,
+      "starting_profit_basis": "Stress sensitivity anchored to reported FY26 PAT. This does not assert FY26 is the true sustainable normal.",
+      "years": 5,
+      "irr": -0.13403180572587553,
+      "terminal_pat": 1435.4306780682246,
+      "terminal_price": 6753.861386514225,
+      "cumulative_dividends": 292.8529976805794,
+      "stable_roe_implied_by_retention": 0.09999999999999999,
+      "cashflows_per_share": [
+        -14339.0,
+        50.24129825817444,
+        54.09830719723669,
+        58.25141752045427,
+        62.7233608395719,
+        6821.400000379367
+      ]
+    },
+    {
+      "name": "lower_growth",
+      "normalised_start_pat": 1200,
+      "pat_growth": 0.08,
+      "exit_pe": 20,
+      "starting_profit_basis": "Preserves the prior downside-row assumptions under a more accurate lower-growth label. Starting profit remains above FY26 actual.",
+      "years": 5,
+      "irr": -0.09725983722824144,
+      "terminal_pat": 1763.1936921600006,
+      "terminal_price": 8296.022912406283,
+      "cumulative_dividends": 359.7223928190306,
+      "stable_roe_implied_by_retention": 0.09999999999999999,
+      "cashflows_per_share": [
+        -14339.0,
+        61.7132833568519,
+        66.45099304626127,
+        71.5524152442295,
+        77.045472047625,
+        8378.983141530345
+      ]
+    },
+    {
+      "name": "working",
+      "normalised_start_pat": 1400,
+      "pat_growth": 0.15,
+      "exit_pe": 25,
+      "years": 5,
+      "irr": 0.035940889664262676,
+      "terminal_pat": 2815.900062499999,
+      "terminal_price": 16561.404698062524,
+      "cumulative_dividends": 513.3979966238039,
+      "stable_roe_implied_by_retention": 0.18749999999999997,
+      "cashflows_per_share": [
+        -14339.0,
+        76.66542145411385,
+        87.90153008198499,
+        100.78440637515725,
+        115.5554011280467,
+        16693.895935647026
+      ]
+    },
+    {
+      "name": "upside",
+      "normalised_start_pat": 1800,
+      "pat_growth": 0.2,
+      "exit_pe": 30,
+      "years": 5,
+      "irr": 0.17877485823005668,
+      "terminal_pat": 4478.975999999999,
+      "terminal_price": 31611.122208528723,
+      "cumulative_dividends": 760.0250710153596,
+      "stable_roe_implied_by_retention": 0.25,
+      "cashflows_per_share": [
+        -14339.0,
+        102.85547226141983,
+        123.05739453011347,
+        147.22719186055448,
+        176.14419763974618,
+        31821.86302325225
+      ]
+    },
+    {
+      "name": "profit_reset",
+      "normalised_start_pat": 976.93,
+      "pat_growth": 0.08,
+      "exit_pe": 20,
+      "starting_profit_basis": "Stress sensitivity anchored to reported FY26 PAT. This does not assert FY26 is the true sustainable normal.",
+      "years": 10,
+      "irr": -0.03150102913664726,
+      "terminal_pat": 2109.1185975857047,
+      "terminal_price": 9776.113958868933,
+      "cumulative_dividends": 716.7533584783814,
+      "stable_roe_implied_by_retention": 0.09999999999999999,
+      "cashflows_per_share": [
+        -14339.0,
+        50.24129825817444,
+        54.09830719723669,
+        58.25141752045427,
+        62.7233608395719,
+        67.53861386514225,
+        72.72353237722197,
+        78.30649548095688,
+        84.31806093662357,
+        90.79113241431054,
+        9873.875098457622
+      ]
+    },
+    {
+      "name": "lower_growth",
+      "normalised_start_pat": 1200,
+      "pat_growth": 0.08,
+      "exit_pe": 20,
+      "starting_profit_basis": "Preserves the prior downside-row assumptions under a more accurate lower-growth label. Starting profit remains above FY26 actual.",
+      "years": 10,
+      "irr": -0.010885242344247426,
+      "terminal_pat": 2590.7099967273457,
+      "terminal_price": 12008.369842918857,
+      "cumulative_dividends": 880.4152090467669,
+      "stable_roe_implied_by_retention": 0.09999999999999999,
+      "cashflows_per_share": [
+        -14339.0,
+        61.7132833568519,
+        66.45099304626127,
+        71.5524152442295,
+        77.045472047625,
+        82.96022912406283,
+        89.32906027316837,
+        96.18682462115838,
+        103.57105741859527,
+        111.52217548562604,
+        12128.453541348046
+      ]
+    },
+    {
+      "name": "working",
+      "normalised_start_pat": 1400,
+      "pat_growth": 0.15,
+      "exit_pe": 25,
+      "years": 10,
+      "irr": 0.09319572131538767,
+      "terminal_pat": 5663.780829991069,
+      "terminal_price": 32815.70254953384,
+      "cumulative_dividends": 1530.6737805254088,
+      "stable_roe_implied_by_retention": 0.18749999999999997,
+      "cashflows_per_share": [
+        -14339.0,
+        76.66542145411385,
+        87.90153008198499,
+        100.78440637515725,
+        115.5554011280467,
+        132.4912375845002,
+        151.90919563526944,
+        174.17305581312053,
+        199.69991444176324,
+        228.96799761518224,
+        33078.22816993011
+      ]
+    },
+    {
+      "name": "upside",
+      "normalised_start_pat": 1800,
+      "pat_growth": 0.2,
+      "exit_pe": 30,
+      "years": 10,
+      "irr": 0.19130669514552812,
+      "terminal_pat": 11145.125560319995,
+      "terminal_price": 77489.25382027772,
+      "cumulative_dividends": 2623.096405502627,
+      "stable_roe_implied_by_retention": 0.25,
+      "cashflows_per_share": [
+        -14339.0,
+        102.85547226141983,
+        123.05739453011347,
+        147.22719186055448,
+        176.14419763974618,
+        210.74081472352484,
+        252.13257992844447,
+        301.6541335135926,
+        360.9022534559433,
+        431.78734212076984,
+        78005.84884574624
+      ]
+    }
+  ],
+  "reverse_valuation": [
+    {
+      "years": 5,
+      "required_return": 0.08,
+      "exit_pe": 20,
+      "required_pat_growth": 0.2523675050482871
+    },
+    {
+      "years": 5,
+      "required_return": 0.08,
+      "exit_pe": 25,
+      "required_pat_growth": 0.1989101042266216
+    },
+    {
+      "years": 5,
+      "required_return": 0.08,
+      "exit_pe": 30,
+      "required_pat_growth": 0.15679557441315095
+    },
+    {
+      "years": 5,
+      "required_return": 0.1,
+      "exit_pe": 20,
+      "required_pat_growth": 0.2755594958825146
+    },
+    {
+      "years": 5,
+      "required_return": 0.1,
+      "exit_pe": 25,
+      "required_pat_growth": 0.22111214319378114
+    },
+    {
+      "years": 5,
+      "required_return": 0.1,
+      "exit_pe": 30,
+      "required_pat_growth": 0.1782177146800611
+    },
+    {
+      "years": 5,
+      "required_return": 0.12,
+      "exit_pe": 20,
+      "required_pat_growth": 0.2987514867167421
+    },
+    {
+      "years": 5,
+      "required_return": 0.12,
+      "exit_pe": 25,
+      "required_pat_growth": 0.2433141821609407
+    },
+    {
+      "years": 5,
+      "required_return": 0.12,
+      "exit_pe": 30,
+      "required_pat_growth": 0.19963985494697123
+    },
+    {
+      "years": 5,
+      "required_return": 0.15,
+      "exit_pe": 20,
+      "required_pat_growth": 0.3335394729680833
+    },
+    {
+      "years": 5,
+      "required_return": 0.15,
+      "exit_pe": 25,
+      "required_pat_growth": 0.27661724061168014
+    },
+    {
+      "years": 5,
+      "required_return": 0.15,
+      "exit_pe": 30,
+      "required_pat_growth": 0.23177306534733633
+    },
+    {
+      "years": 10,
+      "required_return": 0.08,
+      "exit_pe": 20,
+      "required_pat_growth": 0.1607168399275153
+    },
+    {
+      "years": 10,
+      "required_return": 0.08,
+      "exit_pe": 25,
+      "required_pat_growth": 0.13611860692755318
+    },
+    {
+      "years": 10,
+      "required_return": 0.08,
+      "exit_pe": 30,
+      "required_pat_growth": 0.1162981262016386
+    },
+    {
+      "years": 10,
+      "required_return": 0.1,
+      "exit_pe": 20,
+      "required_pat_growth": 0.18221159622246919
+    },
+    {
+      "years": 10,
+      "required_return": 0.1,
+      "exit_pe": 25,
+      "required_pat_growth": 0.15715784038917457
+    },
+    {
+      "years": 10,
+      "required_return": 0.1,
+      "exit_pe": 30,
+      "required_pat_growth": 0.13697031372389123
+    },
+    {
+      "years": 10,
+      "required_return": 0.12,
+      "exit_pe": 20,
+      "required_pat_growth": 0.2037063525174233
+    },
+    {
+      "years": 10,
+      "required_return": 0.12,
+      "exit_pe": 25,
+      "required_pat_growth": 0.17819707385079597
+    },
+    {
+      "years": 10,
+      "required_return": 0.12,
+      "exit_pe": 30,
+      "required_pat_growth": 0.15764250124614365
+    },
+    {
+      "years": 10,
+      "required_return": 0.15,
+      "exit_pe": 20,
+      "required_pat_growth": 0.23594848695985393
+    },
+    {
+      "years": 10,
+      "required_return": 0.15,
+      "exit_pe": 25,
+      "required_pat_growth": 0.20975592404322774
+    },
+    {
+      "years": 10,
+      "required_return": 0.15,
+      "exit_pe": 30,
+      "required_pat_growth": 0.1886507825295224
+    }
+  ],
+  "sector_plan": [
+    {
+      "metric": "Transmission line length",
+      "unit": "lakh circuit km",
+      "baseline": 5.09,
+      "baseline_date": "2026-06-30",
+      "target": 6.48,
+      "target_year": 2032,
+      "years_for_cagr": 6,
+      "classification": "OBSERVED_BASELINE_AND_POLICY_TARGET",
+      "implied_capacity_cagr": 0.041061063728716096
+    },
+    {
+      "metric": "Transmission transformation capacity",
+      "unit": "GVA",
+      "baseline": 1478,
+      "baseline_date": "2026-06-30",
+      "target": 2345,
+      "target_year": 2032,
+      "years_for_cagr": 6,
+      "classification": "OBSERVED_BASELINE_AND_POLICY_TARGET",
+      "implied_capacity_cagr": 0.07996928029688988
+    },
+    {
+      "metric": "Inter-regional transmission capacity",
+      "unit": "GW",
+      "baseline": 120,
+      "baseline_date": "2026-06-30",
+      "target": 168,
+      "target_year": 2032,
+      "years_for_cagr": 6,
+      "classification": "OBSERVED_BASELINE_AND_POLICY_TARGET",
+      "implied_capacity_cagr": 0.05768092640521627
+    },
+    {
+      "metric": "Distribution transformer capacity",
+      "unit": "GVA",
+      "baseline": 895,
+      "baseline_date": "2026-03-31",
+      "target": 1631,
+      "target_year": 2035,
+      "years_for_cagr": 9,
+      "classification": "OBSERVED_BASELINE_AND_POLICY_TARGET",
+      "implied_capacity_cagr": 0.06895393849030085
+    }
+  ],
+  "powergrid_comparator": {
+    "approx_ttm_eps": 17.419999999999995,
+    "approx_ttm_pe": 15.442020665901268,
+    "fy26_pe": 15.703444249854059,
+    "price_to_book": 2.3436138700121973,
+    "fy26_announced_dividend_reference_yield": 0.03345724907063197,
+    "caution": "Reported rounded per-share inputs, no modeled project returns, dividend-payment confirmation or full capital-change sweep."
+  },
+  "gvtandd_fy26_earnings_multiple_reference": 87.93604651162791
+}

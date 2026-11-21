@@ -1,0 +1,138 @@
+{
+  "research_date": "2026-11-19",
+  "company": "EPIGRAL",
+  "reference_price": 944.3,
+  "price_date": "2026-11-18",
+  "verdict": "AGREE_WITH_WATCH_PRICE_WITH_EXPLICIT_FUNDING_AND_REVENUE_CONVENTION_CAVEATS",
+  "original_scenarios_reproduced_exactly": [
+    "downside",
+    "working",
+    "upside"
+  ],
+  "direct_double_count_found": false,
+  "reviewed_input_sha256": "0b221ded1b9dc10bf75c554532285acb01111076004a42faa9a522bb7c96a33b",
+  "material_findings": [
+    "Net debt, dividends and retained cash reconcile without direct double counting.",
+    "The remaining 312cr and FY28 400cr capex envelopes are used once, not added to a separate 600cr program.",
+    "H2 FY27 needs about 235.25cr and FY28 74.86cr gross incremental/replacement funding under the working assumptions. This is modeled financing, not verified committed drawdowns.",
+    "Captive ECH/chlorotoluene requires an explicit external revenue versus internal transfer convention. This is not proof of EBITDA overstatement.",
+    "Working PV at12 exceeds current price by0.24%. Margin and exit-multiple assumptions matter more than rounding or interest timing.",
+    "The 13.98cr tax timing reserve is not the entire25.30cr September current tax liability. Full liability cash stress is reported separately.",
+    "7x is an analyst multiple, not a verified historical floor or a promised market valuation."
+  ],
+  "gross_funding": [
+    {
+      "period_end": "2027-03-31",
+      "indicative_existing_term_principal": 57.64,
+      "modeled_net_debt_change": 177.60720916499997,
+      "gross_replacement_and_incremental_funding": 235.24720916499996,
+      "caveat": "Assumes unchanged cash and no asset-sale proceeds or equity. This is not a verified loan draw schedule."
+    },
+    {
+      "period_end": "2028-03-31",
+      "indicative_existing_term_principal": 115.28,
+      "modeled_net_debt_change": -40.42371732745562,
+      "gross_replacement_and_incremental_funding": 74.85628267254438,
+      "caveat": "Assumes unchanged cash and no asset-sale proceeds or equity. This is not a verified loan draw schedule."
+    }
+  ],
+  "checks": {
+    "working_pv12_price_headroom": 2.2896719450768614,
+    "working_pv12_price_headroom_fraction": 0.0024247293710439877,
+    "first_year_duration": 0.36413415468856947,
+    "final_year_duration": 5.366187542778919,
+    "working_terminal_post_lease_ev_multiple": 7.0,
+    "terminal_after_tax_capex_wc_cash_to_ev": 0.09370745696336788,
+    "terminal_cash_yield_if_maintenance_equals_235_depreciation": 0.07086336787142042,
+    "current_tax_catchup": 13.979999999999997,
+    "renewable_ocd_remaining": 13.810000000000002,
+    "original_derivative_total_march": 27.71,
+    "first_period_extra_reserves": 80.9,
+    "ttm_pat": 284.88,
+    "h1_selected_cash": 24.730000000000004,
+    "h1_selected_cash_after_spv": 19.420000000000005,
+    "h1_cashflow_identity": -4.160000000000004,
+    "ttm_selected_cash": 6.699999999999976
+  },
+  "scenarios": {
+    "downside": {
+      "pv12": 268.3358164560886,
+      "irr": -0.11409036232102426,
+      "peak_net_debt": 1153.4996570735727,
+      "terminal_cash": 0
+    },
+    "working": {
+      "pv12": 946.5896719450768,
+      "irr": 0.12050944160523669,
+      "peak_net_debt": 741.6672091649999,
+      "terminal_cash": 1236.3050093873278
+    },
+    "upside": {
+      "pv12": 1347.3777423387326,
+      "irr": 0.197176233792011,
+      "peak_net_debt": 700.20379392,
+      "terminal_cash": 1837.1051701569654
+    },
+    "working_average_debt_interest": {
+      "pv12": 949.7274286581335,
+      "irr": 0.12120593337894248,
+      "peak_net_debt": 744.5370422933981,
+      "terminal_cash": 1261.1721596055188
+    },
+    "working_core_margin_0.18": {
+      "pv12": 795.7203254097078,
+      "irr": 0.08453314989150662,
+      "peak_net_debt": 812.3343556352693,
+      "terminal_cash": 786.1448461872994
+    },
+    "working_core_margin_0.19": {
+      "pv12": 846.4513712640137,
+      "irr": 0.09721437562247759,
+      "peak_net_debt": 775.3040677026943,
+      "terminal_cash": 939.6953087790987
+    },
+    "working_core_margin_0.20": {
+      "pv12": 896.6192109610521,
+      "irr": 0.10915290396739541,
+      "peak_net_debt": 753.2658591649999,
+      "terminal_cash": 1088.7822857034764
+    },
+    "working_extra_100cr_wc_once_fy28": {
+      "pv12": 932.3153858013101,
+      "irr": 0.11731676679739811,
+      "peak_net_debt": 801.2434918375444,
+      "terminal_cash": 1123.1793434243025
+    },
+    "working_extra_150cr_capex_fy28": {
+      "pv12": 925.1401490959996,
+      "irr": 0.11569668540277112,
+      "peak_net_debt": 851.2434918375443,
+      "terminal_cash": 1066.314613198543
+    },
+    "working_new_downstream_sales_25pct_lower": {
+      "pv12": 907.0305090936799,
+      "irr": 0.1115612559917375,
+      "peak_net_debt": 741.6672091649999,
+      "terminal_cash": 1167.7932444253904
+    },
+    "working_later_capex_100_115_130_150": {
+      "pv12": 927.4619083131244,
+      "irr": 0.11622203915231932,
+      "peak_net_debt": 741.6672091649999,
+      "terminal_cash": 1084.714871887328
+    },
+    "working_pay_full_september_current_tax_liability": {
+      "pv12": 944.8710458578541,
+      "irr": 0.12012715019693421,
+      "peak_net_debt": 752.987209165,
+      "terminal_cash": 1222.6846630736597
+    }
+  },
+  "reviewer_files": [
+    "independent_review.md",
+    "review_epigral.py",
+    "epigral_independent_input_snapshot.json",
+    "epigral_independent_calculations.json"
+  ],
+  "author_files_modified": false
+}

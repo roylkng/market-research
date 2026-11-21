@@ -1,0 +1,68 @@
+{
+  "as_of": "2026-11-21",
+  "original_files_rehashed": 21,
+  "manifest_hashes_match": true,
+  "visual_checks": [
+    {
+      "file": "apar_ar_fy26.pdf",
+      "pdf_page": 198,
+      "finding": "Supplier-finance balance 5013.78 verified against rendered note 28; FY25 comparative 4079.83."
+    },
+    {
+      "file": "apar_ar_fy26.pdf",
+      "pdf_page": 186,
+      "finding": "Cash-flow columns and CFO/interest/PPE/lease amounts visually checked."
+    },
+    {
+      "file": "apar_h1fy27.pdf",
+      "pdf_page": 6,
+      "finding": "Consolidated versus standalone balance-sheet columns visually checked."
+    },
+    {
+      "file": "apar_h1fy27.pdf",
+      "pdf_page": 7,
+      "finding": "Consolidated H1 CFO negative 862.63 and investment/funding columns visually checked."
+    }
+  ],
+  "arithmetic_checks": [
+    "calculate.py executed successfully",
+    "Current share count and price multiplication reconciled",
+    "TTM PAT bridged from FY26 plus current H1 less prior H1",
+    "Each scenario IRR solves NPV to below INR0.000001 per share",
+    "Cash residual retains financing-classified cash interest and lease principal",
+    "No probabilities or universally imposed hurdle rate",
+    "Policy capacity CAGR labeled as target arithmetic, not revenue forecasts",
+    "Added distinct FY26-anchored profit-reset sensitivity. Prior lower-growth numerical assumptions preserved, working and upside outputs unchanged."
+  ],
+  "not_verified": [
+    "Full current corporate-action sweep for comparators",
+    "POWERGRID final dividend payment confirmation",
+    "APAR future funded annual cash/debt/capex model",
+    "APAR complete regulatory/related-party forensic review",
+    "Independent employee/team culture evidence",
+    "Historical stock returns and point-in-time purchase simulation"
+  ],
+  "historical_classification": "HISTORICAL_MECHANISM_STUDY, not blind replay or independent holdout",
+  "frozen_protocols_modified": false,
+  "shared_handoff_edits": false,
+  "review_corrections": [
+    {
+      "date": "2026-11-21",
+      "original_scenario_label": "downside",
+      "new_label": "lower_growth",
+      "original_assumptions_preserved": true,
+      "added_sensitivity": {
+        "name": "profit_reset",
+        "start_pat_crore": 976.93,
+        "pat_growth": 0.08,
+        "exit_pe": 20,
+        "payout": 0.2,
+        "annual_share_dilution": 0.003,
+        "irr_5y": -0.13403180572587553,
+        "irr_10y": -0.03150102913664726
+      },
+      "interpretation": "FY26 PAT anchors a stress, not a claimed normal or worst possible outcome. INR1400cr remains an assumed normalized working start.",
+      "calculation_rerun": "calculate.py completed and all eight conditional IRR residual checks passed."
+    }
+  ]
+}

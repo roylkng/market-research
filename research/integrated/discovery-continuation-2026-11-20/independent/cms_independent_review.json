@@ -1,0 +1,318 @@
+{
+  "scope": "Separate arithmetic reproduction with explicit adverse scenarios, not prospective validation",
+  "all_three_scenarios_reproduced": true,
+  "scenarios": {
+    "downside": {
+      "result": {
+        "irr": -0.07175010822365352,
+        "terminal_price": 126.57540436968706,
+        "cashflows": [
+          3.4021169387492107,
+          3.3684326126229807,
+          3.335081794676219,
+          3.3020611828477406,
+          129.8447718774571
+        ],
+        "rows": [
+          {
+            "period": 1,
+            "owner_cash": 94.01952,
+            "cash_balance": 160.63852000000003,
+            "shares_cr": 16.166404915
+          },
+          {
+            "period": 2,
+            "owner_cash": 170.4168752,
+            "cash_balance": 276.0553952,
+            "shares_cr": 16.328068964150003
+          },
+          {
+            "period": 3,
+            "owner_cash": 169.71602315199985,
+            "cash_balance": 390.77141835199984,
+            "shares_cr": 16.491349653791502
+          },
+          {
+            "period": 4,
+            "owner_cash": 168.90169320751997,
+            "cash_balance": 504.67311155951984,
+            "shares_cr": 16.65626315032942
+          },
+          {
+            "period": 5,
+            "owner_cash": 167.96828644167528,
+            "cash_balance": 617.6413980011951,
+            "shares_cr": 16.822825781832712
+          }
+        ],
+        "pv_12_percent": 83.87267382723923,
+        "minimum_cash": 160.63852000000003
+      },
+      "absolute_differences": {
+        "irr": 0.0,
+        "terminal_price": 0.0,
+        "cashflows": 0.0,
+        "owner_cash": 0.0
+      }
+    },
+    "working": {
+      "result": {
+        "irr": 0.12507948247669576,
+        "terminal_price": 330.6415706994462,
+        "cashflows": [
+          5.59479746236641,
+          5.78964115508564,
+          5.991270449043847,
+          6.19992165871204,
+          337.05741002786465
+        ],
+        "rows": [
+          {
+            "period": 1,
+            "owner_cash": 262.7802,
+            "cash_balance": 369.3992,
+            "shares_cr": 16.0863732075
+          },
+          {
+            "period": 2,
+            "owner_cash": 291.758236,
+            "cash_balance": 567.557436,
+            "shares_cr": 16.166805073537496
+          },
+          {
+            "period": 3,
+            "owner_cash": 309.42050392,
+            "cash_balance": 779.6339399200001,
+            "shares_cr": 16.247639098905182
+          },
+          {
+            "period": 4,
+            "owner_cash": 328.1643326896001,
+            "cash_balance": 1006.5605126096002,
+            "shares_cr": 16.328877294399707
+          },
+          {
+            "period": 5,
+            "owner_cash": 348.055955565472,
+            "cash_balance": 1249.3291977750723,
+            "shares_cr": 16.410521680871703
+          }
+        ],
+        "pv_12_percent": 209.07087799167317,
+        "minimum_cash": 369.3992
+      },
+      "absolute_differences": {
+        "irr": 0.0,
+        "terminal_price": 0.0,
+        "cashflows": 0.0,
+        "owner_cash": 0.0
+      }
+    },
+    "upside": {
+      "result": {
+        "irr": 0.22105077747907254,
+        "terminal_price": 502.6938294991546,
+        "cashflows": [
+          6.216441624851567,
+          6.556644897853395,
+          6.9154662604224875,
+          7.293924612982922,
+          510.38692411583315
+        ],
+        "rows": [
+          {
+            "period": 1,
+            "owner_cash": 344.68611999999996,
+            "cash_balance": 441.30512,
+            "shares_cr": 16.0863732075
+          },
+          {
+            "period": 2,
+            "owner_cash": 361.6711388,
+            "cash_balance": 696.9762588,
+            "shares_cr": 16.166805073537496
+          },
+          {
+            "period": 3,
+            "owner_cash": 395.31334161200004,
+            "cash_balance": 979.929600412,
+            "shares_cr": 16.247639098905182
+          },
+          {
+            "period": 4,
+            "owner_cash": 432.05812233788,
+            "cash_balance": 1292.88612274988,
+            "shares_cr": 16.328877294399707
+          },
+          {
+            "period": 5,
+            "owner_cash": 472.1886374057613,
+            "cash_balance": 1638.8270641556414,
+            "shares_cr": 16.410521680871703
+          }
+        ],
+        "pv_12_percent": 309.94227227134394,
+        "minimum_cash": 441.30512
+      },
+      "absolute_differences": {
+        "irr": 0.0,
+        "terminal_price": 0.0,
+        "cashflows": 0.0,
+        "owner_cash": 0.0
+      }
+    }
+  },
+  "challenges": {
+    "consistent_200_capex_then_sales_growth": {
+      "irr": 0.10820374865888038,
+      "terminal_price": 305.01960338014374,
+      "cashflows": [
+        5.59479746236641,
+        5.78964115508564,
+        5.991270449043847,
+        6.19992165871204,
+        311.43544270856216
+      ],
+      "rows": [
+        {
+          "period": 1,
+          "owner_cash": 262.7802,
+          "cash_balance": 369.3992,
+          "shares_cr": 16.0863732075
+        },
+        {
+          "period": 2,
+          "owner_cash": 269.23323600000003,
+          "cash_balance": 545.032436,
+          "shares_cr": 16.166805073537496
+        },
+        {
+          "period": 3,
+          "owner_cash": 285.54400392,
+          "cash_balance": 733.2324399199999,
+          "shares_cr": 16.247639098905182
+        },
+        {
+          "period": 4,
+          "owner_cash": 302.8552426896001,
+          "cash_balance": 934.8499226096001,
+          "shares_cr": 16.328877294399707
+        },
+        {
+          "period": 5,
+          "owner_cash": 321.22832016547204,
+          "cash_balance": 1150.7909723750722,
+          "shares_cr": 16.410521680871703
+        }
+      ],
+      "pv_12_percent": 194.53228563835665,
+      "minimum_cash": 369.3992
+    },
+    "joint_stress_245margin_250capex_10xexit_25finance": {
+      "irr": -0.010731751547276513,
+      "terminal_price": 164.47824641225463,
+      "cashflows": [
+        5.59479746236641,
+        5.78964115508564,
+        5.991270449043847,
+        6.19992165871204,
+        170.89408574067306
+      ],
+      "rows": [
+        {
+          "period": 1,
+          "owner_cash": 167.20139999999998,
+          "cash_balance": 273.8204,
+          "shares_cr": 16.0863732075
+        },
+        {
+          "period": 2,
+          "owner_cash": 169.41970799999996,
+          "cash_balance": 349.64010799999994,
+          "shares_cr": 16.166805073537496
+        },
+        {
+          "period": 3,
+          "owner_cash": 181.24166423999992,
+          "cash_balance": 433.53777223999987,
+          "shares_cr": 16.247639098905182
+        },
+        {
+          "period": 4,
+          "owner_cash": 193.79476262880007,
+          "cash_balance": 526.0947748688,
+          "shares_cr": 16.328877294399707
+        },
+        {
+          "period": 5,
+          "owner_cash": 207.12421130102393,
+          "cash_balance": 627.9317157698239,
+          "shares_cr": 16.410521680871703
+        }
+      ],
+      "pv_12_percent": 114.78534535564211,
+      "minimum_cash": 273.8204
+    },
+    "75percent_terminal_cash_credit": {
+      "irr": 0.11264469840198743,
+      "terminal_price": 311.60912886014586,
+      "cashflows": [
+        5.59479746236641,
+        5.78964115508564,
+        5.991270449043847,
+        6.19992165871204,
+        318.0249681885643
+      ],
+      "rows": [
+        {
+          "period": 1,
+          "owner_cash": 262.7802,
+          "cash_balance": 369.3992,
+          "shares_cr": 16.0863732075
+        },
+        {
+          "period": 2,
+          "owner_cash": 291.758236,
+          "cash_balance": 567.557436,
+          "shares_cr": 16.166805073537496
+        },
+        {
+          "period": 3,
+          "owner_cash": 309.42050392,
+          "cash_balance": 779.6339399200001,
+          "shares_cr": 16.247639098905182
+        },
+        {
+          "period": 4,
+          "owner_cash": 328.1643326896001,
+          "cash_balance": 1006.5605126096002,
+          "shares_cr": 16.328877294399707
+        },
+        {
+          "period": 5,
+          "owner_cash": 348.055955565472,
+          "cash_balance": 1249.3291977750723,
+          "shares_cr": 16.410521680871703
+        }
+      ],
+      "pv_12_percent": 198.27135936215186,
+      "minimum_cash": 369.3992
+    }
+  },
+  "ttm_selected_cash_after_net_customer_financing_cr": 143.80199999999982,
+  "material_interpretations": [
+    "The 12.5% working case requires first-year \u20b9200cr capex, then 6.5% of sales. Keeping \u20b9200cr growing with sales gives 10.8%.",
+    "Existing and future full lease cash is charged. Do not subtract the entire lease balance again at exit.",
+    "Opening free treasury excludes the operating reserve and loan book. Retained cash is credited only once.",
+    "The March option exercise test is a sensitivity. Existing options and future grants are not independently forecast.",
+    "Combining customer financing with operating cash neutralizes a presentation benefit. It must not be claimed as verified customer cash collection.",
+    "Cash capex around \u20b9250cr instead of \u20b9200cr materially weakens the case. No arbitrary 15% hurdle is needed to identify that risk."
+  ],
+  "not_verified": [
+    "Future capex mix and amounts",
+    "Recoverability of aged receivables",
+    "Terminal market multiple",
+    "Independent customer corroboration",
+    "Investment outperformance"
+  ]
+}

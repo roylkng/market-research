@@ -1,0 +1,35 @@
+{
+  "as_of": "2026-11-18",
+  "classification": "DATED_PRIMARY_SOURCE_REVIEW_OVERRIDES_NOT_A_REWRITE_OF_IMPORTED_FACTS",
+  "items": [
+    {
+      "symbol": "COSMOFIRST",
+      "raw_screen_cash_after_selected_uses_cr": 145.36,
+      "signed_statement_cash_after_selected_uses_cr": 81.6,
+      "signed_inputs_cr": {
+        "cfo": 256.42,
+        "ppe_cash": 90.4,
+        "interest_paid": 74.14,
+        "lease_principal": 6.01,
+        "lease_interest": 4.27
+      },
+      "difference_reason": "Issuer structured filing swaps dividend and interest labels. Signed statement governs. Raw routing still passes positive cash, but valuation must use corrected inputs.",
+      "primary_source": "https://www.cosmofirst.com/public/uploads/images/63da6a9c3c48.pdf",
+      "review_status": "SIGNED_CASH_PAGE_CHECKED_BY_COMPANY_REVIEWER"
+    },
+    {
+      "symbol": "SANDESH",
+      "signed_reported_cfo_cr": 354.5338,
+      "cash_source_status": "MATERIAL_SIGN_AND_INVESTMENT_ROLLFORWARD_RECONCILIATION_REQUIRED",
+      "reason": "Positive fair-value adjustment in signed CFO conflicts with P&L gain description. Do not silently substitute a hypothesized restatement or use raw positive cash as owner cash.",
+      "primary_source": "https://nsearchives.nseindia.com/corporate/SANDESH_1_03112026192711_Outcome_of_BM__03-11-2026.pdf",
+      "review_status": "SIGNED_BALANCE_AND_CASH_PAGES_VISUALLY_CHECKED_BY_COMPANY_REVIEWER"
+    },
+    {
+      "symbol": "HYBRIDFIN",
+      "routing_override": "SECTOR_SPECIFIC_REVIEW_REQUIRED",
+      "reason": "NBFC-template detection alone is incomplete sector classification. Do not infer industrial owner cash for a financial-services issuer merely from a non-NBFC filing template. No return verdict from this routing correction."
+    }
+  ],
+  "universe_limitation": "21 is the initial mechanical attention count. These overrides are not evidence that all196 financial statements were reviewed. All other imported facts remain unreviewed."
+}

@@ -1,0 +1,1320 @@
+{
+  "classification": "INDEPENDENT_REVIEW_AND_ASSUMPTION_STRESSES_NOT_A_FORECAST",
+  "reviewed_input_sha256": "0b221ded1b9dc10bf75c554532285acb01111076004a42faa9a522bb7c96a33b",
+  "verdict": "AGREE_WITH_WATCH_PRICE_WITH_EXPLICIT_FUNDING_AND_REVENUE_CONVENTION_CAVEATS",
+  "direct_double_count_found": false,
+  "checks": {
+    "working_pv12_price_headroom": 2.2896719450768614,
+    "working_pv12_price_headroom_fraction": 0.0024247293710439877,
+    "first_year_duration": 0.36413415468856947,
+    "final_year_duration": 5.366187542778919,
+    "working_terminal_post_lease_ev_multiple": 7.0,
+    "terminal_after_tax_capex_wc_cash_to_ev": 0.09370745696336788,
+    "terminal_cash_yield_if_maintenance_equals_235_depreciation": 0.07086336787142042,
+    "current_tax_catchup": 13.979999999999997,
+    "renewable_ocd_remaining": 13.810000000000002,
+    "original_derivative_total_march": 27.71,
+    "first_period_extra_reserves": 80.9,
+    "ttm_pat": 284.88,
+    "h1_selected_cash": 24.730000000000004,
+    "h1_selected_cash_after_spv": 19.420000000000005,
+    "h1_cashflow_identity": -4.160000000000004,
+    "ttm_selected_cash": 6.699999999999976
+  },
+  "gross_funding": [
+    {
+      "period_end": "2027-03-31",
+      "indicative_existing_term_principal": 57.64,
+      "modeled_net_debt_change": 177.60720916499997,
+      "gross_replacement_and_incremental_funding": 235.24720916499996,
+      "caveat": "Assumes unchanged cash and no asset-sale proceeds or equity. This is not a verified loan draw schedule."
+    },
+    {
+      "period_end": "2028-03-31",
+      "indicative_existing_term_principal": 115.28,
+      "modeled_net_debt_change": -40.42371732745562,
+      "gross_replacement_and_incremental_funding": 74.85628267254438,
+      "caveat": "Assumes unchanged cash and no asset-sale proceeds or equity. This is not a verified loan draw schedule."
+    }
+  ],
+  "cases": {
+    "downside": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1400,
+          "post_lease_ebitda": 220.0,
+          "interest": 29.613149999999997,
+          "cash_tax": 25.267370145,
+          "available_before_dividends": -380.78052014499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 944.8405201449999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 2850,
+          "post_lease_ebitda": 448.0,
+          "interest": 99.20825461522499,
+          "cash_tax": 37.45088231334787,
+          "available_before_dividends": -208.65913692857282,
+          "dividends": 0.0,
+          "opening_net_debt": 944.8405201449999,
+          "closing_net_debt": 1153.4996570735727
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 2900,
+          "post_lease_ebitda": 452.0,
+          "interest": 121.11746399272513,
+          "cash_tax": 27.909134313031082,
+          "available_before_dividends": 142.97340169424382,
+          "dividends": 0.0,
+          "opening_net_debt": 1153.4996570735727,
+          "closing_net_debt": 1010.5262553793289
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 3020,
+          "post_lease_ebitda": 467.0,
+          "interest": 106.10525681482953,
+          "cash_tax": 34.2047068597074,
+          "available_before_dividends": 186.69003632546304,
+          "dividends": 0.0,
+          "opening_net_debt": 1010.5262553793289,
+          "closing_net_debt": 823.8362190538658
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 3170,
+          "post_lease_ebitda": 484.0,
+          "interest": 86.5028030006559,
+          "cash_tax": 42.159044484734906,
+          "available_before_dividends": 210.3381525146092,
+          "dividends": 0.0,
+          "opening_net_debt": 823.8362190538658,
+          "closing_net_debt": 613.4980665392566
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 500.0,
+          "interest": 64.41729698662193,
+          "cash_tax": 50.48666634846726,
+          "available_before_dividends": 240.0960366649108,
+          "dividends": 0.0,
+          "opening_net_debt": 613.4980665392566,
+          "closing_net_debt": 373.40202987434577
+        }
+      ],
+      "terminal_ev": 2500.0,
+      "terminal_debt": 373.40202987434577,
+      "terminal_cash": 0,
+      "terminal_equity": 2126.5979701256542,
+      "terminal_price": 492.93741657378695,
+      "pv10": 295.5771608385076,
+      "pv12": 268.3358164560886,
+      "pv15": 232.84975745394138,
+      "irr": -0.11409036232102426,
+      "peak_net_debt": 1153.4996570735727,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          0
+        ],
+        [
+          2.3655030800821355,
+          0
+        ],
+        [
+          3.3648186173853527,
+          0
+        ],
+        [
+          4.3641341546885695,
+          0
+        ],
+        [
+          5.366187542778919,
+          492.93741657378695
+        ]
+      ]
+    },
+    "working": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -177.60720916499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 741.6672091649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 63.041712779025,
+          "cash_tax": 106.2069008935194,
+          "available_before_dividends": 61.994386327455516,
+          "dividends": 21.570669,
+          "opening_net_debt": 741.6672091649999,
+          "closing_net_debt": 701.2434918375443
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 59.60569680619127,
+          "cash_tax": 115.88124611388166,
+          "available_before_dividends": 426.5130570799271,
+          "dividends": 21.570669,
+          "opening_net_debt": 701.2434918375443,
+          "closing_net_debt": 296.3011037576172
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 25.185593819397464,
+          "cash_tax": 136.50053603565766,
+          "available_before_dividends": 482.8138701449449,
+          "dividends": 21.570669,
+          "opening_net_debt": 296.3011037576172,
+          "closing_net_debt": -164.94209738732764
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.0,
+          "cash_tax": 152.78189999999998,
+          "available_before_dividends": 540.2181,
+          "dividends": 21.570669,
+          "opening_net_debt": -164.94209738732764,
+          "closing_net_debt": -683.5895283873277
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 574.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -683.5895283873277,
+          "closing_net_debt": -1236.3050093873278
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1236.3050093873278,
+      "terminal_equity": 7364.805009387328,
+      "terminal_price": 1707.134120269364,
+      "pv10": 1041.943986485399,
+      "pv12": 946.5896719450768,
+      "pv15": 822.3283721499495,
+      "irr": 0.12050944160523669,
+      "peak_net_debt": 741.6672091649999,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1712.134120269364
+        ]
+      ]
+    },
+    "upside": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1650,
+          "post_lease_ebitda": 375.5,
+          "interest": 22.562399999999997,
+          "cash_tax": 66.18139391999999,
+          "available_before_dividends": -136.14379392,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 700.20379392
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3500,
+          "post_lease_ebitda": 797.0,
+          "interest": 56.0163035136,
+          "cash_tax": 136.16559640562687,
+          "available_before_dividends": 137.0471000807732,
+          "dividends": 21.570669,
+          "opening_net_debt": 700.20379392,
+          "closing_net_debt": 584.7273628392268
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 4100,
+          "post_lease_ebitda": 902.5,
+          "interest": 46.77818902713814,
+          "cash_tax": 160.01117982186932,
+          "available_before_dividends": 508.7106311509925,
+          "dividends": 21.570669,
+          "opening_net_debt": 584.7273628392268,
+          "closing_net_debt": 97.58740068823424
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 978.0,
+          "interest": 7.806992055058739,
+          "cash_tax": 187.56508009974172,
+          "available_before_dividends": 611.1279278451996,
+          "dividends": 21.570669,
+          "opening_net_debt": 97.58740068823424,
+          "closing_net_debt": -491.96985815696536
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 5000,
+          "post_lease_ebitda": 1052.5,
+          "interest": 0.0,
+          "cash_tax": 207.02325,
+          "available_before_dividends": 663.97675,
+          "dividends": 21.570669,
+          "opening_net_debt": -491.96985815696536,
+          "closing_net_debt": -1134.3759391569654
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 5200,
+          "post_lease_ebitda": 1088.0,
+          "interest": 0.0,
+          "cash_tax": 214.7001,
+          "available_before_dividends": 724.2999,
+          "dividends": 21.570669,
+          "opening_net_debt": -1134.3759391569654,
+          "closing_net_debt": -1837.1051701569654
+        }
+      ],
+      "terminal_ev": 8704.0,
+      "terminal_debt": 0,
+      "terminal_cash": 1837.1051701569654,
+      "terminal_equity": 10541.105170156965,
+      "terminal_price": 2443.3885592878382,
+      "pv10": 1483.4199009177405,
+      "pv12": 1347.3777423387326,
+      "pv15": 1170.1142406714098,
+      "irr": 0.197176233792011,
+      "peak_net_debt": 700.20379392,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          2448.3885592878382
+        ]
+      ]
+    },
+    "working_average_debt_interest": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 27.80768714873471,
+          "cash_tax": 51.26935514466347,
+          "available_before_dividends": -180.47704229339817,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 744.5370422933981
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 61.51922118911084,
+          "cash_tax": 106.5901120267008,
+          "available_before_dividends": 63.13366678418839,
+          "dividends": 21.570669,
+          "opening_net_debt": 744.5370422933981,
+          "closing_net_debt": 702.9740445092098
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 41.98226881535022,
+          "cash_tax": 120.31706293917634,
+          "available_before_dividends": 439.70066824547337,
+          "dividends": 21.570669,
+          "opening_net_debt": 702.9740445092098,
+          "closing_net_debt": 284.8440452637364
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 7.264851170312531,
+          "cash_tax": 141.01118696043233,
+          "available_before_dividends": 496.22396186925516,
+          "dividends": 21.570669,
+          "opening_net_debt": 284.8440452637364,
+          "closing_net_debt": -189.80924760551875
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.0,
+          "cash_tax": 152.78189999999998,
+          "available_before_dividends": 540.2181,
+          "dividends": 21.570669,
+          "opening_net_debt": -189.80924760551875,
+          "closing_net_debt": -708.4566786055188
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 574.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -708.4566786055188,
+          "closing_net_debt": -1261.1721596055188
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1261.1721596055188,
+      "terminal_equity": 7389.672159605519,
+      "terminal_price": 1712.8982322257875,
+      "pv10": 1045.4002870005372,
+      "pv12": 949.7274286581335,
+      "pv15": 825.0511763556425,
+      "irr": 0.12120593337894248,
+      "peak_net_debt": 744.5370422933981,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1717.8982322257875
+        ]
+      ]
+    },
+    "working_core_margin_0.18": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 275.0,
+          "interest": 23.97255,
+          "cash_tax": 40.530609164999994,
+          "available_before_dividends": -212.40315916499998,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 776.463159165
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 586.0,
+          "interest": 65.999368529025,
+          "cash_tax": 80.5441589412444,
+          "available_before_dividends": -14.300527470269401,
+          "dividends": 21.570669,
+          "opening_net_debt": 776.463159165,
+          "closing_net_debt": 812.3343556352693
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 638.0,
+          "interest": 69.0484202289979,
+          "cash_tax": 87.83111262836123,
+          "available_before_dividends": 343.1204671426409,
+          "dividends": 21.570669,
+          "opening_net_debt": 812.3343556352693,
+          "closing_net_debt": 490.7845574926284
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 689.0,
+          "interest": 41.71668738687342,
+          "cash_tax": 106.28870978472395,
+          "available_before_dividends": 392.99460282840255,
+          "dividends": 21.570669,
+          "opening_net_debt": 490.7845574926284,
+          "closing_net_debt": 119.36062366422583
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 732.0,
+          "interest": 10.145653011459196,
+          "cash_tax": 123.7997391370157,
+          "available_before_dividends": 454.05460785152513,
+          "dividends": 21.570669,
+          "opening_net_debt": 119.36062366422583,
+          "closing_net_debt": -313.1233151872993
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 769.0,
+          "interest": 0.0,
+          "cash_tax": 134.40779999999998,
+          "available_before_dividends": 494.59220000000005,
+          "dividends": 21.570669,
+          "opening_net_debt": -313.1233151872993,
+          "closing_net_debt": -786.1448461872994
+        }
+      ],
+      "terminal_ev": 5383.0,
+      "terminal_debt": 0,
+      "terminal_cash": 786.1448461872994,
+      "terminal_equity": 6169.1448461873,
+      "terminal_price": 1429.9845883749133,
+      "pv10": 875.7584444454574,
+      "pv12": 795.7203254097078,
+      "pv15": 691.410736137151,
+      "irr": 0.08453314989150662,
+      "peak_net_debt": 812.3343556352693,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1434.9845883749133
+        ]
+      ]
+    },
+    "working_core_margin_0.19": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 290.5,
+          "interest": 23.97255,
+          "cash_tax": 44.431959164999995,
+          "available_before_dividends": -200.80450916499998,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 764.864509165
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 619.0,
+          "interest": 65.013483279025,
+          "cash_tax": 89.09840625866941,
+          "available_before_dividends": 11.131110462305628,
+          "dividends": 21.570669,
+          "opening_net_debt": 764.864509165,
+          "closing_net_debt": 775.3040677026943
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 672.0,
+          "interest": 65.90084575472902,
+          "cash_tax": 97.1811571235347,
+          "available_before_dividends": 370.9179971217362,
+          "dividends": 21.570669,
+          "opening_net_debt": 775.3040677026943,
+          "closing_net_debt": 425.9567395809581
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 723.5,
+          "interest": 36.20632286438144,
+          "cash_tax": 116.35931853503519,
+          "available_before_dividends": 422.9343586005833,
+          "dividends": 21.570669,
+          "opening_net_debt": 425.9567395809581,
+          "closing_net_debt": 24.593049980374747
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 767.0,
+          "interest": 2.0904092483318535,
+          "cash_tax": 134.63674399219485,
+          "available_before_dividends": 486.2728467594733,
+          "dividends": 21.570669,
+          "opening_net_debt": 24.593049980374747,
+          "closing_net_debt": -440.1091277790985
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 804.5,
+          "interest": 0.0,
+          "cash_tax": 143.34314999999998,
+          "available_before_dividends": 521.1568500000001,
+          "dividends": 21.570669,
+          "opening_net_debt": -440.1091277790985,
+          "closing_net_debt": -939.6953087790987
+        }
+      ],
+      "terminal_ev": 5631.5,
+      "terminal_debt": 0,
+      "terminal_cash": 939.6953087790987,
+      "terminal_equity": 6571.195308779099,
+      "terminal_price": 1523.1783744813615,
+      "pv10": 931.639685712546,
+      "pv12": 846.4513712640137,
+      "pv15": 735.432856920617,
+      "irr": 0.09721437562247759,
+      "peak_net_debt": 775.3040677026943,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1528.1783744813615
+        ]
+      ]
+    },
+    "working_core_margin_0.20": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 306.0,
+          "interest": 23.97255,
+          "cash_tax": 48.333309164999996,
+          "available_before_dividends": -189.205859165,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 753.2658591649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 652.0,
+          "interest": 64.027598029025,
+          "cash_tax": 97.6526535760944,
+          "available_before_dividends": 36.56274839488054,
+          "dividends": 21.570669,
+          "opening_net_debt": 753.2658591649999,
+          "closing_net_debt": 738.2737797701193
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 706.0,
+          "interest": 62.75327128046015,
+          "cash_tax": 106.53120161870818,
+          "available_before_dividends": 398.71552710083165,
+          "dividends": 21.570669,
+          "opening_net_debt": 738.2737797701193,
+          "closing_net_debt": 361.12892166928765
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 758.0,
+          "interest": 30.69595834188945,
+          "cash_tax": 126.42992728534642,
+          "available_before_dividends": 452.8741143727641,
+          "dividends": 21.570669,
+          "opening_net_debt": 361.12892166928765,
+          "closing_net_debt": -70.17452370347645
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 802.0,
+          "interest": 0.0,
+          "cash_tax": 143.9724,
+          "available_before_dividends": 514.0276,
+          "dividends": 21.570669,
+          "opening_net_debt": -70.17452370347645,
+          "closing_net_debt": -562.6314547034765
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 840.0,
+          "interest": 0.0,
+          "cash_tax": 152.27849999999998,
+          "available_before_dividends": 547.7215,
+          "dividends": 21.570669,
+          "opening_net_debt": -562.6314547034765,
+          "closing_net_debt": -1088.7822857034764
+        }
+      ],
+      "terminal_ev": 5880.0,
+      "terminal_debt": 0,
+      "terminal_cash": 1088.7822857034764,
+      "terminal_equity": 6968.782285703476,
+      "terminal_price": 1615.3375413862864,
+      "pv10": 986.90054435934,
+      "pv12": 896.6192109610521,
+      "pv15": 778.966252721901,
+      "irr": 0.10915290396739541,
+      "peak_net_debt": 753.2658591649999,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1620.3375413862864
+        ]
+      ]
+    },
+    "working_extra_100cr_wc_once_fy28": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -177.60720916499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 741.6672091649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 63.041712779025,
+          "cash_tax": 106.2069008935194,
+          "available_before_dividends": -38.00561367254454,
+          "dividends": 21.570669,
+          "opening_net_debt": 741.6672091649999,
+          "closing_net_debt": 801.2434918375444
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 68.10569680619128,
+          "cash_tax": 113.74179611388163,
+          "available_before_dividends": 420.1525070799271,
+          "dividends": 21.570669,
+          "opening_net_debt": 801.2434918375444,
+          "closing_net_debt": 402.66165375761733
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 34.226240569397476,
+          "cash_tax": 134.22500524868263,
+          "available_before_dividends": 476.0487541819198,
+          "dividends": 21.570669,
+          "opening_net_debt": 402.66165375761733,
+          "closing_net_debt": -51.81643142430245
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.0,
+          "cash_tax": 152.78189999999998,
+          "available_before_dividends": 540.2181,
+          "dividends": 21.570669,
+          "opening_net_debt": -51.81643142430245,
+          "closing_net_debt": -570.4638624243025
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 574.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -570.4638624243025,
+          "closing_net_debt": -1123.1793434243025
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1123.1793434243025,
+      "terminal_equity": 7251.679343424303,
+      "terminal_price": 1680.9120160863586,
+      "pv10": 1026.2205805417072,
+      "pv12": 932.3153858013101,
+      "pv15": 809.941788389715,
+      "irr": 0.11731676679739811,
+      "peak_net_debt": 801.2434918375444,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1685.9120160863586
+        ]
+      ]
+    },
+    "working_extra_150cr_capex_fy28": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -177.60720916499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 741.6672091649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 63.041712779025,
+          "cash_tax": 106.2069008935194,
+          "available_before_dividends": -88.00561367254443,
+          "dividends": 21.570669,
+          "opening_net_debt": 741.6672091649999,
+          "closing_net_debt": 851.2434918375443
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 72.35569680619128,
+          "cash_tax": 112.67207111388164,
+          "available_before_dividends": 416.97223207992704,
+          "dividends": 21.570669,
+          "opening_net_debt": 851.2434918375443,
+          "closing_net_debt": 455.84192875761727
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 38.74656394439747,
+          "cash_tax": 133.08723985519515,
+          "available_before_dividends": 472.6661962004073,
+          "dividends": 21.570669,
+          "opening_net_debt": 455.84192875761727,
+          "closing_net_debt": 4.746401557209982
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.4034441323628485,
+          "cash_tax": 152.68035311188424,
+          "available_before_dividends": 539.9162027557529,
+          "dividends": 21.570669,
+          "opening_net_debt": 4.746401557209982,
+          "closing_net_debt": -513.599132198543
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 574.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -513.599132198543,
+          "closing_net_debt": -1066.314613198543
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1066.314613198543,
+      "terminal_equity": 7194.814613198543,
+      "terminal_price": 1667.730985348332,
+      "pv10": 1018.3169166860587,
+      "pv12": 925.1401490959996,
+      "pv15": 803.7154405671553,
+      "irr": 0.11569668540277112,
+      "peak_net_debt": 851.2434918375443,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1672.730985348332
+        ]
+      ]
+    },
+    "working_new_downstream_sales_25pct_lower": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550.0,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -177.60720916499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 741.6672091649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300.0,
+          "post_lease_ebitda": 685.0,
+          "interest": 63.041712779025,
+          "cash_tax": 106.2069008935194,
+          "available_before_dividends": 61.994386327455516,
+          "dividends": 21.570669,
+          "opening_net_debt": 741.6672091649999,
+          "closing_net_debt": 701.2434918375443
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3587.5,
+          "post_lease_ebitda": 731.25,
+          "interest": 59.60569680619127,
+          "cash_tax": 113.67887111388166,
+          "available_before_dividends": 419.96543207992704,
+          "dividends": 21.570669,
+          "opening_net_debt": 701.2434918375443,
+          "closing_net_debt": 302.84872875761727
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 3862.5,
+          "post_lease_ebitda": 773.25,
+          "interest": 25.74214194439747,
+          "cash_tax": 131.51522787259515,
+          "available_before_dividends": 467.99263018300746,
+          "dividends": 21.570669,
+          "opening_net_debt": 302.84872875761727,
+          "closing_net_debt": -143.5732324253902
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4100.0,
+          "post_lease_ebitda": 809.0,
+          "interest": 0.0,
+          "cash_tax": 145.7343,
+          "available_before_dividends": 519.2657,
+          "dividends": 21.570669,
+          "opening_net_debt": -143.5732324253902,
+          "closing_net_debt": -641.2682634253903
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4300.0,
+          "post_lease_ebitda": 840.5,
+          "interest": 0.0,
+          "cash_tax": 152.40435,
+          "available_before_dividends": 548.09565,
+          "dividends": 21.570669,
+          "opening_net_debt": -641.2682634253903,
+          "closing_net_debt": -1167.7932444253904
+        }
+      ],
+      "terminal_ev": 5883.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1167.7932444253904,
+      "terminal_equity": 7051.29324442539,
+      "terminal_price": 1634.4632714973725,
+      "pv10": 998.3687932995219,
+      "pv12": 907.0305090936799,
+      "pv15": 788.0007091615236,
+      "irr": 0.1115612559917375,
+      "peak_net_debt": 741.6672091649999,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1639.4632714973725
+        ]
+      ]
+    },
+    "working_later_capex_100_115_130_150": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -177.60720916499997,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 741.6672091649999
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 63.041712779025,
+          "cash_tax": 106.2069008935194,
+          "available_before_dividends": 61.994386327455516,
+          "dividends": 21.570669,
+          "opening_net_debt": 741.6672091649999,
+          "closing_net_debt": 701.2434918375443
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 59.60569680619127,
+          "cash_tax": 115.88124611388166,
+          "available_before_dividends": 401.5130570799271,
+          "dividends": 21.570669,
+          "opening_net_debt": 701.2434918375443,
+          "closing_net_debt": 321.3011037576172
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 27.310593819397468,
+          "cash_tax": 135.96567353565766,
+          "available_before_dividends": 451.2237326449449,
+          "dividends": 21.570669,
+          "opening_net_debt": 321.3011037576172,
+          "closing_net_debt": -108.35195988732768
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.0,
+          "cash_tax": 152.78189999999998,
+          "available_before_dividends": 500.21810000000005,
+          "dividends": 21.570669,
+          "opening_net_debt": -108.35195988732768,
+          "closing_net_debt": -586.9993908873278
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 519.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -586.9993908873278,
+          "closing_net_debt": -1084.714871887328
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1084.714871887328,
+      "terminal_equity": 7213.214871887328,
+      "terminal_price": 1671.996096154303,
+      "pv10": 1020.8743799670019,
+      "pv12": 927.4619083131244,
+      "pv15": 805.7301588321783,
+      "irr": 0.11622203915231932,
+      "peak_net_debt": 741.6672091649999,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1676.996096154303
+        ]
+      ]
+    },
+    "working_pay_full_september_current_tax_liability": {
+      "rows": [
+        {
+          "date": "2027-03-31",
+          "revenue": 1550,
+          "post_lease_ebitda": 321.5,
+          "interest": 23.97255,
+          "cash_tax": 52.23465916499999,
+          "available_before_dividends": -188.92720916500002,
+          "dividends": 0.0,
+          "opening_net_debt": 564.06,
+          "closing_net_debt": 752.987209165
+        },
+        {
+          "date": "2028-03-31",
+          "revenue": 3300,
+          "post_lease_ebitda": 685.0,
+          "interest": 64.003912779025,
+          "cash_tax": 105.9647151535194,
+          "available_before_dividends": 61.27437206745566,
+          "dividends": 21.570669,
+          "opening_net_debt": 752.987209165,
+          "closing_net_debt": 713.2835060975442
+        },
+        {
+          "date": "2029-03-31",
+          "revenue": 3650,
+          "post_lease_ebitda": 740.0,
+          "interest": 60.62909801829126,
+          "cash_tax": 115.62365602879608,
+          "available_before_dividends": 425.74724595291264,
+          "dividends": 21.570669,
+          "opening_net_debt": 713.2835060975442,
+          "closing_net_debt": 309.1069291446316
+        },
+        {
+          "date": "2030-03-31",
+          "revenue": 4000,
+          "post_lease_ebitda": 792.5,
+          "interest": 26.274088977293687,
+          "cash_tax": 136.22656180441518,
+          "available_before_dividends": 481.9993492182912,
+          "dividends": 21.570669,
+          "opening_net_debt": 309.1069291446316,
+          "closing_net_debt": -151.32175107365958
+        },
+        {
+          "date": "2031-03-31",
+          "revenue": 4300,
+          "post_lease_ebitda": 837.0,
+          "interest": 0.0,
+          "cash_tax": 152.78189999999998,
+          "available_before_dividends": 540.2181,
+          "dividends": 21.570669,
+          "opening_net_debt": -151.32175107365958,
+          "closing_net_debt": -669.9691820736597
+        },
+        {
+          "date": "2032-03-31",
+          "revenue": 4550,
+          "post_lease_ebitda": 875.5,
+          "interest": 0.0,
+          "cash_tax": 161.21384999999998,
+          "available_before_dividends": 574.28615,
+          "dividends": 21.570669,
+          "opening_net_debt": -669.9691820736597,
+          "closing_net_debt": -1222.6846630736597
+        }
+      ],
+      "terminal_ev": 6128.5,
+      "terminal_debt": 0,
+      "terminal_cash": 1222.6846630736597,
+      "terminal_equity": 7351.18466307366,
+      "terminal_price": 1703.9769751864583,
+      "pv10": 1040.0508861676208,
+      "pv12": 944.8710458578541,
+      "pv15": 820.8370256988904,
+      "irr": 0.12012715019693421,
+      "peak_net_debt": 752.987209165,
+      "cashflows": [
+        [
+          0.36413415468856947,
+          0
+        ],
+        [
+          1.3661875427789185,
+          5
+        ],
+        [
+          2.3655030800821355,
+          5
+        ],
+        [
+          3.3648186173853527,
+          5
+        ],
+        [
+          4.3641341546885695,
+          5
+        ],
+        [
+          5.366187542778919,
+          1708.9769751864583
+        ]
+      ]
+    }
+  },
+  "stress_caveats": {
+    "downstream_sales": "25% lower new downstream sales is a business stress, not an accounting correction for captive feedstock. Working capital is unchanged, deliberately conservative.",
+    "maintenance": "Higher later capex is a stress, not a demonstrated recurring replacement requirement. Operating repair expenses remain in margins.",
+    "average_interest": "Assumes linear within-period debt movement and is a sensitivity, not a precise daily financing schedule.",
+    "terminal_cash": "Already accumulated after investments, taxes and dividends. It is counted once in terminal equity and never simultaneously paid out as FCF."
+  }
+}
