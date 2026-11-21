@@ -1,0 +1,29 @@
+{
+  "as_of": "2026-11-21",
+  "financial_identity_checks": "PASS",
+  "reverse_price_reconstruction": "PASS",
+  "pdf_cash_page_visual_checks": [
+    "CAMS H1 consolidated cash PDF p9",
+    "CAMS FY26 consolidated cash PDF p305, printed302",
+    "CAMS FY26 audit-trail/back-up note PDF p380, printed377"
+  ],
+  "original_count": 13,
+  "sha256_rechecked": true,
+  "source_citation_map": "Source IDs follow source_manifest array and README register.",
+  "known_limitations": [
+    "Current issued share count is verified to 30 September, not independently to 20 November. A 0.5% annual dilution allowance is an assumption.",
+    "Reported CFO includes SBC add-back. Share dilution is modeled instead of also deducting the same SBC amount as cash. No future option exercise proceeds are credited.",
+    "Zero working-capital movement is a diagnostic, not a sustainable funded-growth assumption.",
+    "All PPE and software capex is retained. Acquisitions and joint venture investments are separate capital-allocation uses, not included in recurring selected cash.",
+    "INR650cr treasury credit is provisional. It is below INR875.10cr gross treasury and allows for the already-earned dividend, buffers and other claims. It is not an audited free-cash number.",
+    "Annual future cash is assumed distributable only after all future reinvestment and taxes. Growth feasibility is not established by this reverse calculation.",
+    "Opening treasury is credited once. All modeled annual owner cash is distributed and is not added again to terminal cash.",
+    "Lease payments are deducted annually. The entire lease liability is not also subtracted from opening equity value.",
+    "Terminal multiple, discount rate and growth assumptions are sensitivities, not forecasts or a universal hurdle.",
+    "Rolling rounded reported EPS sums are approximate because weighted share counts can differ between periods.",
+    "This is not a blind point-in-time replay or a demonstrated source of alpha.",
+    "KFin and CDSL receive a bounded comparison, not full funded valuation. NSDL price is not inferred."
+  ],
+  "raw_originals_directory": "/workspace/scratch/2db776c8c1e9/work/market-research/work/nov21/financial_infrastructure/originals",
+  "verification_scope": "Reproduced cash bridge, reverse valuation identities, split-aware share bridge, visual checks of key PDF cash and audit-note pages, hashes of all retained original bytes. No assertion of funded forward cash-flow feasibility."
+}
