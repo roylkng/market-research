@@ -21,3 +21,5 @@ The [dated journal](research/integrated/decision-journal.md) records what change
 Root [AGENTS.md](AGENTS.md) instructs future repository-working research sessions to read this context and persist material evidence and decision changes. This is a working protocol, not a new scheduled background process.
 
 The repository's original README and all frozen experiments remain intact. This assisted layer does not modify H003, authorize live capital, certify investment alpha or silently activate a provider. Supported investment judgments should be delivered promptly while missing evidence is confined to the claims it affects.
+
+Latest market checkpoint: [23 November intraday review, dated share quotes, six entry-price sensitivities and APL transaction economics](research/integrated/market-review-2026-11-23/README.md). Preserve prior dated cases and distinguish primary index data from secondary share quotes.

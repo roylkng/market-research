@@ -1,0 +1,209 @@
+{
+  "classification": "ENTRY_PRICE_ONLY_SENSITIVITY_NOT_FORECAST_ROLL_FORWARD",
+  "statement": "Latest quoted entry prices are substituted at the original model time zero while every subsequent cashflow amount, timing and scenario assumption stays fixed. This is a price-only diagnostic, not an updated forecast, actual realized return, or recommendation. No elapsed days are advanced. Both R Systems alternatives sell at the same five-year horizon. They differ in whether the terminal multiple capitalizes year-five or year-six cash.",
+  "source_repository_commit": "706d3666a5bafe25c161edf6238585f0afd97a25",
+  "cashflows_and_timing_frozen": true,
+  "all_original_rates_reproduced": true,
+  "results": [
+    {
+      "id": "cms_working",
+      "symbol": "CMSINFO",
+      "label": "CMS working scenario, original investment schedule",
+      "reference_price": 204.6,
+      "observed_price": 206.12,
+      "observed_at_ist": "2026-11-23T13:15:00+05:30",
+      "price_change_from_model_reference_pct": 0.7429130009775298,
+      "published_annualized_return": 0.12507948247669576,
+      "reproduced_annualized_return": 0.12507948247669576,
+      "repriced_annualized_return": 0.12333728923643206,
+      "return_change_percentage_points": -0.17421932402637008,
+      "timing_convention": "equal_annual_periods",
+      "time_periods_years": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "repriced_cashflows_per_share": [
+        -206.12,
+        5.59479746236641,
+        5.78964115508564,
+        5.991270449043847,
+        6.19992165871204,
+        337.05741002786465
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-continuation-2026-11-20/cms/decision_calculations.json#scenarios.working.cashflows_per_share",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    },
+    {
+      "id": "cms_capex_200_grows",
+      "symbol": "CMSINFO",
+      "label": "CMS capex starts at INR200cr and grows with sales",
+      "reference_price": 204.6,
+      "observed_price": 206.12,
+      "observed_at_ist": "2026-11-23T13:15:00+05:30",
+      "price_change_from_model_reference_pct": 0.7429130009775298,
+      "published_annualized_return": 0.10820374865888038,
+      "reproduced_annualized_return": 0.10820374865888038,
+      "repriced_annualized_return": 0.10648531012843654,
+      "return_change_percentage_points": -0.17184385304438443,
+      "timing_convention": "equal_annual_periods",
+      "time_periods_years": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "repriced_cashflows_per_share": [
+        -206.12,
+        5.59479746236641,
+        5.78964115508564,
+        5.991270449043847,
+        6.19992165871204,
+        311.43544270856216
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-continuation-2026-11-20/cms/decision_calculations.json#sensitivities.cash_capex_200_then_grows_with_sales.cashflows_per_share",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    },
+    {
+      "id": "rsystems_base_year6_cash",
+      "symbol": "RSYSTEMS",
+      "label": "R Systems five-year exit capitalizing year-six cash",
+      "reference_price": 242.5,
+      "observed_price": 238.55,
+      "observed_at_ist": "2026-11-23T13:10:00+05:30",
+      "price_change_from_model_reference_pct": -1.628865979381433,
+      "published_annualized_return": 0.10591035855776931,
+      "reproduced_annualized_return": 0.10591035855776931,
+      "repriced_annualized_return": 0.10975800898162891,
+      "return_change_percentage_points": 0.38476504238595943,
+      "timing_convention": "actual_days_over_365_25",
+      "time_periods_years": [
+        0.0,
+        0.999315537303217,
+        2.001368925393566,
+        3.0006844626967832,
+        4.0,
+        4.999315537303217
+      ],
+      "repriced_cashflows_per_share": [
+        -238.55,
+        9.094128658428069,
+        6.535021428138724,
+        7.381110512596608,
+        8.262623684325211,
+        360.5229238522952
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-continuation-2026-11-20/fresh/rsystems_model_results.json#scenarios.base.cashflows_per_share",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    },
+    {
+      "id": "rsystems_base_year5_cash",
+      "symbol": "RSYSTEMS",
+      "label": "R Systems five-year exit capitalizing year-five cash",
+      "reference_price": 242.5,
+      "observed_price": 238.55,
+      "observed_at_ist": "2026-11-23T13:10:00+05:30",
+      "price_change_from_model_reference_pct": -1.628865979381433,
+      "published_annualized_return": 0.09607690935190905,
+      "reproduced_annualized_return": 0.09607690935190905,
+      "repriced_annualized_return": 0.09989396570886966,
+      "return_change_percentage_points": 0.3817056356960613,
+      "timing_convention": "actual_days_over_365_25",
+      "time_periods_years": [
+        0.0,
+        0.999315537303217,
+        2.001368925393566,
+        3.0006844626967832,
+        4.0,
+        4.999315537303217
+      ],
+      "repriced_cashflows_per_share": [
+        -238.55,
+        9.094128658428069,
+        6.535021428138724,
+        7.381110512596608,
+        8.262623684325211,
+        343.95784826415104
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-continuation-2026-11-20/fresh/rsystems_model_results.json#scenarios.base.annual_ledger[].distribution_per_share + sensitivity.base_terminal_12x_year5_cash.terminal_price",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    },
+    {
+      "id": "pixtrans_base",
+      "symbol": "PIXTRANS",
+      "label": "PIX Transmissions five-year base scenario",
+      "reference_price": 1698.7,
+      "observed_price": 1683.5,
+      "observed_at_ist": "2026-11-23T13:09:00+05:30",
+      "price_change_from_model_reference_pct": -0.8948019073409141,
+      "published_annualized_return": 0.07797876630365941,
+      "reproduced_annualized_return": 0.07797876630365941,
+      "repriced_annualized_return": 0.0799363123307465,
+      "return_change_percentage_points": 0.1957546027087087,
+      "timing_convention": "equal_annual_periods",
+      "time_periods_years": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "repriced_cashflows_per_share": [
+        -1683.5,
+        9.0,
+        9.0,
+        9.0,
+        9.0,
+        2429.091853622216
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-expansion-2026-11-21/report_data.json#companies[symbol=PIXTRANS].scenarios[key=base].cashflows",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    },
+    {
+      "id": "powergrid_base",
+      "symbol": "POWERGRID",
+      "label": "POWERGRID five-year base scenario",
+      "reference_price": 269,
+      "observed_price": 265.55,
+      "observed_at_ist": "2026-11-23T12:49:00+05:30",
+      "price_change_from_model_reference_pct": -1.2825278810408847,
+      "published_annualized_return": 0.06189752229068135,
+      "reproduced_annualized_return": 0.06189752229068135,
+      "repriced_annualized_return": 0.06482618310840371,
+      "return_change_percentage_points": 0.29286608177223616,
+      "timing_convention": "equal_annual_periods",
+      "time_periods_years": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "repriced_cashflows_per_share": [
+        -265.55,
+        9.01959105457881,
+        9.421777400842426,
+        9.932674225256577,
+        10.55444074541192,
+        318.0575694363742
+      ],
+      "source_cashflow_pointer": "research/integrated/discovery-expansion-2026-11-21/report_data.json#companies[symbol=POWERGRID].scenarios[key=base].cashflows",
+      "original_rate_reproduced": true,
+      "future_cashflows_unchanged": true
+    }
+  ],
+  "input_sha256": "d588b52db7429e4f70c6981f4ca5d13e484f5608a62dd50beec3b6a6d56feab6",
+  "calculator_sha256": "4e70918f0e12e9f99b114891c38e33d737ebc4fc870af49c2b62c0a3e4fb59f0"
+}

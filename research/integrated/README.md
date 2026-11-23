@@ -1,5 +1,15 @@
 # Investment research: persistent handoff
 
+## 23 November intraday: market, price sensitivities and APL transaction
+
+Read [the dated market review](market-review-2026-11-23/README.md), [source-separated snapshot](market-review-2026-11-23/snapshot.json) and [entry-price sensitivity](market-review-2026-11-23/repricing/results.json). Primary NSE at 13:14 IST: Nifty 50 is 25,464.75, down 1.30% today but up 12.68% from 23 October. Banks fall 2.36%, metals fall 3.63%, IT rises 1.92%. Nifty 50 breadth is 12 advances and 38 declines. Published 20 November P/E: Nifty 50 21.02x, Midcap 150 28.21x, Smallcap 250 32.14x, IT 19.04x, Bank 14.29x. Broaden company comparisons to established IT services and selected banks without mechanically equating sector multiples or changing portfolio policy.
+
+Five separately timestamped secondary share quotes are verified. Entry-only repricing keeps all original future cash and timing fixed: CMS Rs206.12 gives 10.6-12.3%, R Systems Rs238.55 gives 10.0-11.0%, PIX Rs1,683.50 gives 8.0%, POWERGRID Rs265.55 gives 6.5%. MPS Rs2,108.20 preserves the 22 November cash/ROIC watch. These are sensitivities, not forecast roll-forwards or new BUYs. CMS/RSYS model reference closes are 19 November, PIX/POWERGRID 20 November. The primary index feed and secondary share sources must remain distinct.
+
+**APLAPOLLO new bounded transaction review:** original presentation PDF page 9, printed slide 8, confirms Rs28,000cr acquisition, 24.8x projected FY27 EBITDA and expected initial Rs280bn debt before long-term capitalization. Separate promoter-share sale proceeds do not fund APL. The limited 26% open offer at Rs2,301.40 is not a universal exit. Prioritize financing, dilution and acquired cash per existing share. Detailed Public Statement due on or before 1 December per announcement. NEWGEN's Rs17.46cr three-year CreditAccess order is dated 20 November, not a new 23 November event or collection repair. NSE equities are closed 24 November per official circular.
+
+Seven originals captured, with source receipts and portable repricing inputs. Five quote pages verified, not a complete exchange-announcement census. Earlier cases, review dates, frozen experiments, automation settings and main branch are unchanged. Existing PR #620 remains the research publication route.
+
 ## 22 November: two additional priced cash decisions
 
 Read [the new complete ROTO/MPS original-source cash investigation](priced-discovery-2026-11-22.md) before reopening the 21 November expansion's unfinished-case flags. The work reuses the **original 20 November NSE EQ close rows** already captured/rehashed in the earlier 21 November price archive, not a new CSV capture. It does **not** change previous decisions or prices.
