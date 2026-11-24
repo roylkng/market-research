@@ -1,5 +1,12 @@
 # Investment research: persistent handoff
 
+## 24 November: Redington funding economics and missed Zee tender
+
+Read [24 November priced research](priced-discovery-2026-11-24.md). **REDINGTON ₹331.30 (23 Nov secondary NSE close), WATCH_FUNDING_AND_CASH_CONVERSION.** Original signed 4 Nov H1 results report after-tax CFO −₹2,571.17cr vs +₹737.48cr and selected cash after PPE, finance and leases −₹2,965.43cr vs +₹452.03cr. Gross current debt rose to ₹5,992.40cr from ₹2,637.45cr March; net trade working capital rose ₹4,669.50cr. Original 4 Nov call p16 visually checked: analyst's +₹583cr H1 FCF reference not reconciled to statutory cash. CEO attributes ₹3,800cr to large TSG deals and says without them growth would be 35%, not the reported 91%. At 13.97x trailing attributable PAT, funding and recurring cash are the key variables. Five extra revenue-equivalent working-capital days at trailing sales require ~₹1,945cr, before financing. Reopen on credible cash bridge, supplier terms, debt access, collections and Arena economics; no forced BUY.
+
+**ZEEL ₹71.64 secondary 23 Nov close, PASS_NEW_TENDER_ENTRY.** Older signed 12 Nov ₹600cr tender at ₹91, 6.86% shares, promoters intend not to tender. 25 Nov record/ex date, holiday 24 Nov means ordinary new eligibility cutoff passed. Actual acceptance unknown. Not new approval. Both company closes are secondary; Redington original signed cash PDF parsed, screenshot too large, no new byte archive. One bounded company and one event, no full-universe scan or complete current announcement reconciliation. Preserve all prior decisions and checkpoints, frozen protocols and PR #620.
+
+
 ## 23 November evening: Dalmia Bharat open-market buyback versus cash investment
 
 New [signed primary-source capital-return review](market-review-2026-11-23/dalmia-buyback-cash-review.md): **DALBHARAT**, 23 November board approval, **₹700cr maximum open-market repurchase at prices ≤₹1,850**, with **₹525cr minimum usage** and no promoter sales. **It is not a tender and the cap premium is not an available shareholder return.** The post-announcement **23 November ₹1,565.95 BSE close** is from a dated *secondary* 16:00 report, not a freshly archived official NSE close. At the issuer's 187,565,953 shares, a full ₹700cr at cap would retire ~2.02% of shares. Open-market execution and price are not yet known.
