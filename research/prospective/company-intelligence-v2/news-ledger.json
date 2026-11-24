@@ -28663,9 +28663,109 @@
         "SNAPSHOT_CAPTURED": 8
       },
       "started_at": "2026-11-24T18:08:27.773551+00:00"
+    },
+    {
+      "auxiliary_source_ids": [
+        "pib-rss",
+        "prn-global-rss"
+      ],
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "captured_at": "2026-11-24T20:19:23.920409+00:00",
+      "coverage_critical_source_ids": [
+        "mint-companies",
+        "mint-markets",
+        "nse-announcements",
+        "prn-india-list",
+        "sebi-rss"
+      ],
+      "critical_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "prn-india-list": [
+          "BLOCKED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "critical_source_status_counts": {
+        "BLOCKED": 1,
+        "SNAPSHOT_CAPTURED": 4
+      },
+      "discovery_source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "discovery_source_status_counts": {
+        "BLOCKED": 3,
+        "SNAPSHOT_CAPTURED": 4
+      },
+      "discovery_status": "DISCOVERY_DEGRADED",
+      "document_status_counts": {},
+      "full_market_coverage": false,
+      "identity_raw_sha256": "bad854754423e5d2126e07226b5dd074d5a29a0bc994a2c120efcecc834891ba",
+      "identity_session": "2026-11-23",
+      "live_capital_allowed": false,
+      "missing_critical_source_ids": [],
+      "run_id": "f9f6eaed2db55db6ba7a99b7649df7bc108ffe3fb013ab902be914c5b06f5071",
+      "run_status": "PARTIAL_FAILURE",
+      "source_states": {
+        "mint-companies": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "mint-markets": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "nse-announcements": [
+          "SNAPSHOT_CAPTURED"
+        ],
+        "pib-rss": [
+          "BLOCKED"
+        ],
+        "prn-global-rss": [
+          "BLOCKED"
+        ],
+        "prn-india-list": [
+          "BLOCKED"
+        ],
+        "sebi-rss": [
+          "SNAPSHOT_CAPTURED"
+        ]
+      },
+      "source_status_counts": {
+        "BLOCKED": 3,
+        "SNAPSHOT_CAPTURED": 4
+      },
+      "started_at": "2026-11-24T20:19:12.853034+00:00"
     }
   ],
-  "ledger_sha256": "1295be806b129847c1fbfe94d0037be1f299406ac01a6b9d64843f36bcfa27d5",
+  "ledger_sha256": "ac69e0dfa0a08a82ff268cafb008c8b2058fa7499594113abc62b2aa6858a367",
   "live_capital_allowed": false,
   "observations": [
     {
@@ -2140768,6 +2140868,182 @@
       "source_class": "EDITORIAL_HEADLINES",
       "source_id": "mint-markets",
       "title_sha256": "d80bacffe5e5bb79015b909bfd56abf4b79faba29d588aac933bd440c437a9b3",
+      "topics": []
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "SETCO AUTOMOTIVE LIMITED has informed the Exchange about Board Meeting to be held on 27-Nov-2026 to consider and approve the Half Yearly Unaudited Financial results of the Company for the period ended September 2026 and Other business. |SUBJECT: Board Meeting Intimation",
+      "event_context_sha256": "50666a60c9f374b3c83dbe77abaaa193c5e35b187413595622bb2c2395ea13c7",
+      "first_seen_at": "2026-11-24T20:19:15.196274+00:00",
+      "item_id": "1c73c3f664d4fd22a6623f5d1ee2f7782b6da016cfa1c55ecc696c32dc2df2fe",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [
+          "SETCO"
+        ],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "853665adbca0ffbcee397f971af0b08ed7493080e8b024620a59c7aa81109a03",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Nov-2026 00:59:46",
+        "value": "2026-11-24T19:29:46+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/xbrl/PRIOR_INTIMATION_13961_WebXMLFile_20261125_005945206.xml",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "fc9feafea67df894ef1140ca2df1dfae76587ae90b4277183212af519db784f4",
+      "topics": [
+        "RESULTS_GUIDANCE"
+      ]
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "M. K. Sons Fine Jewels Limited has informed the Exchange regarding a press release dated November 24, 2026, titled \"PRESS RELEASE\". |SUBJECT: Press Release",
+      "event_context_sha256": "c2c30ea265b5a7755380f970d67f93822d97fa1ae4c759a5eb968c594cf13398",
+      "first_seen_at": "2026-11-24T20:19:15.196274+00:00",
+      "item_id": "27b85df52d8fa74b695631076844949633b1b390963a104f34288564db8b3f26",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d8dd056d164c4750379bab473a7c01aed4df24a52030d3482a2b6933c52833ba",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "25-Nov-2026 01:40:29",
+        "value": "2026-11-24T20:10:29+00:00"
+      },
+      "resource_key": "https://nsearchives.nseindia.com/corporate/MK123_25112026014000_PRESS_RELEASE_MK.pdf",
+      "source_class": "EXCHANGE_DISCLOSURE",
+      "source_id": "nse-announcements",
+      "title_sha256": "2842a888b9a55f46d113e657d50cf24bfbb11796163095670d0334992d5eb270",
+      "topics": []
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-24T20:19:22.411195+00:00",
+      "item_id": "a528ee2fc320867f96b8c5954bcf360b2766eabfe954887e20d5b44b8d928e33",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "31cc252c3254349c658548871fd12cc99a623e5fa7c34ceb1b1610ef58b3e3a5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 24 Nov 2026 23:54:27 +0530",
+        "value": "2026-11-24T18:24:27+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/news/can-amazon-s-trainium-chips-reduce-its-dependence-on-nvidia-the-decart-technology-acquisition-offers-clues-11795541315149.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "11a416e5682445f7a5fa757899931323ef15cfa9358a5565f4ac9640e1e04481",
+      "topics": [
+        "CAPITAL_TRANSACTION"
+      ]
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-24T20:19:22.411195+00:00",
+      "item_id": "b8e9dd92dbed431ae48ea91bc4195d13400d388c687a03f18abca4acca4a8bfc",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "8fad85eb03d08f88c06ed5d47af560ecf8926c638d2d0101b3672f4cb144c260",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 25 Nov 2026 00:21:33 +0530",
+        "value": "2026-11-24T18:51:33+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/hpe-shares-tumble-as-shrinking-ai-margins-overshadow-upbeat-forecast-11795546294323.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "417c572590d8859810fde1d3becd8f6cee185b9848f57ba49bcdf0bb84f6de89",
+      "topics": []
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-24T20:19:22.411195+00:00",
+      "item_id": "4ce1235cf28f42d9d164012fd63ae0390047dbbb5de89f911d65e5ed1b8d98b2",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "d7ddb19d7dbcafd4309ae783568140f7f09ab300609e0c9cdd5167783a2148c5",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 25 Nov 2026 00:07:04 +0530",
+        "value": "2026-11-24T18:37:04+00:00"
+      },
+      "resource_key": "https://www.livemint.com/companies/sanofis-41-billion-insmed-deal-shows-cost-of-a-patent-cliff-11795545425011.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-companies",
+      "title_sha256": "c6fc2b97956ae9378778571134672523aa22dfd6e2c89f6449b22c889720f54f",
+      "topics": [
+        "PRODUCT_APPROVAL"
+      ]
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-24T20:19:23.691205+00:00",
+      "item_id": "66a93ae85ddda2fb5160e81c2f7300bc120e0a405603a3205786d71cc5b49877",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "09a2107cff931ee4fa692a9f270db6fba54d3b255b5c4fad3cc0cff1bb28f9db",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Wed, 25 Nov 2026 01:30:11 +0530",
+        "value": "2026-11-24T20:00:11+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/us-yields-little-changed-as-ai-rally-fades-11795550412000.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "e8d6dc1d9a5d547eba58ceccb8fe52c7d3f6ad77693ae82381433167225ae225",
+      "topics": []
+    },
+    {
+      "capture_id": "98a2016227913ca7495771f31bc3134f0c23a7c0631f4ad94da8bc7fc8b820bc",
+      "event_context": "",
+      "event_context_sha256": null,
+      "first_seen_at": "2026-11-24T20:19:23.691205+00:00",
+      "item_id": "9855561d0c5f20544e2d594edbec765614bd1be3348056a0a981a7a02aaccfc7",
+      "mentions": {
+        "bse_codes_for_review": [],
+        "official_nse_symbols": [],
+        "panel_symbols": [],
+        "unverified_nse_symbols": []
+      },
+      "observation_id": "c19cee30710593ebd5b7fca94710b5fc25fc121e7921adce15fe0c7c6736d5e0",
+      "publication": {
+        "precision": "SECOND",
+        "raw": "Tue, 24 Nov 2026 23:42:39 +0530",
+        "value": "2026-11-24T18:12:39+00:00"
+      },
+      "resource_key": "https://www.livemint.com/market/stock-market-news/hewlett-packard-enterprise-shares-crash-16-set-for-biggest-1-day-fall-in-18-months-what-went-wrong-11795542211868.html",
+      "source_class": "EDITORIAL_HEADLINES",
+      "source_id": "mint-markets",
+      "title_sha256": "9a41eb9c49ccb194e8488f4658b9d96fcb6daac6eba5f1e5aa07ddf563c52a18",
       "topics": []
     }
   ],
