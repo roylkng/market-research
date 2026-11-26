@@ -1,6 +1,6 @@
 {
   "engine": "CC001-DECISION-CONTEXT-v1",
-  "as_of": "2026-11-08T19:12:45.445944+00:00",
+  "as_of": "2026-11-26T23:22:05.880342+00:00",
   "policy": {
     "years": 5,
     "price_return_hurdle": 0.15,
@@ -24,11 +24,11 @@
         "scope": "STANDALONE"
       },
       "context_observed_at": "2026-11-07T18:52:19.674713+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "ad0efc8bbf5d66fb45b2ee00c05547cf4a555b6cb6a551c6cb6ccfd380702070",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -107,7 +107,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AAKASH"
       },
       "reported_annual_diluted_eps": 0.35,
-      "reported_reference_pe": 22.2,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 18.0038,
@@ -115,73 +115,7 @@
         "cfo_less_specified_capex_crore": -17.5859,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.24379894307233374,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 6.764142000000001,
-            "price_consistent_with_hurdle": 3.362974036654046,
-            "price_cagr_at_observed_price": -0.027346084371096646
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 8.455177500000003,
-            "price_consistent_with_hurdle": 4.203717545817558,
-            "price_cagr_at_observed_price": 0.017045405164356486
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 8.447700187499995,
-            "price_consistent_with_hurdle": 4.199999999999999,
-            "price_cagr_at_observed_price": 0.01686545724839883
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 10.559625234374996,
-            "price_consistent_with_hurdle": 5.25,
-            "price_cagr_at_observed_price": 0.06327474176273618
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 10.450943999999996,
-            "price_consistent_with_hurdle": 5.195966218705249,
-            "price_cagr_at_observed_price": 0.06107699886789453
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 13.063679999999996,
-            "price_consistent_with_hurdle": 6.494957773381562,
-            "price_cagr_at_observed_price": 0.10950407836111609
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -283,7 +217,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review."
       ],
@@ -304,7 +240,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "1a1333a2b153ae2257e4a54413c77f56cecaea91be63453edd16d967394a47bb"
+      "decision_context_sha256": "e30f71f99f9640141e8dd3c71cf87a20a74689210fc8e83869e351037d16a8a0"
     },
     {
       "identity": {
@@ -313,11 +249,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T20:07:48.988920+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "0ff760d3545374e26a3bf08fa188b82480e4e6f8c5ee6bc72876651ab7f31e0e",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -396,7 +332,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AARTIIND"
       },
       "reported_annual_diluted_eps": 11.55,
-      "reported_reference_pe": 38.44588744588744,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 622.12,
@@ -404,73 +340,7 @@
         "cfo_less_specified_capex_crore": -422.14,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.3881920936386838,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 223.21668600000007,
-            "price_consistent_with_hurdle": 110.97814320958352,
-            "price_cagr_at_observed_price": -0.12851692659958502
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 279.02085750000015,
-            "price_consistent_with_hurdle": 138.72267901197944,
-            "price_cagr_at_observed_price": -0.08874282903872222
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 278.7741061874999,
-            "price_consistent_with_hurdle": 138.6,
-            "price_cagr_at_observed_price": -0.0889040596268389
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 348.4676327343749,
-            "price_consistent_with_hurdle": 173.25,
-            "price_cagr_at_observed_price": -0.0473220485404825
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 344.88115199999993,
-            "price_consistent_with_hurdle": 171.46688521727324,
-            "price_cagr_at_observed_price": -0.049291192654092764
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 431.1014399999999,
-            "price_consistent_with_hurdle": 214.33360652159155,
-            "price_cagr_at_observed_price": -0.005901268042242669
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -575,7 +445,9 @@
           ]
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review.",
         "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
@@ -597,7 +469,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "d33d2620fc84baab9fe9c219923eb863430f17031958c4fbfac71137f6c75827"
+      "decision_context_sha256": "86f3bcc7b2a762ee817ba434cdf27d6cf5baf7613412cc3ff8281eea693ddf05"
     },
     {
       "identity": {
@@ -606,7 +478,7 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T19:05:25.158722+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "a006a323cb9a6b95ad32b87442eed38552db238149317110eb82dbfd44a0c8ca",
       "source_review_status": "UNREVIEWED",
       "category": "EVIDENCE_BLOCKED",
@@ -736,6 +608,7 @@
       "blockers": [
         "No supported full-year financial period. Interim earnings were not annualized.",
         "Positive reported annual diluted EPS is missing.",
+        "Exchange observation is more than seven calendar days old.",
         "Historical/price retrieval has unresolved errors. Partial evidence is retained."
       ],
       "observations": [],
@@ -750,7 +623,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "7fab1282319c987d1510005c8454fb1c9dad71bad9bef92f906cafbf299754b8"
+      "decision_context_sha256": "f212b6181dfeb270a94fdfc63d98d172e1b8d08c7f01fe31d8eeee55c39dc36e"
     },
     {
       "identity": {
@@ -759,11 +632,11 @@
         "scope": "STANDALONE"
       },
       "context_observed_at": "2026-11-07T20:07:54.765150+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "cfaf1e62aa838b66fe20d6a37dba524939c76159e72c4a59a9bf255e1f88df1e",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -842,7 +715,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AIAENG"
       },
       "reported_annual_diluted_eps": 136.84,
-      "reported_reference_pe": 22.753580824320373,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 563.4301,
@@ -850,73 +723,7 @@
         "cfo_less_specified_capex_crore": 450.654,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.2499410729102085,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 2644.586260800001,
-            "price_consistent_with_hurdle": 1314.8267633592563,
-            "price_cagr_at_observed_price": -0.03212564299716891
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 3305.7328260000013,
-            "price_consistent_with_hurdle": 1643.5334541990703,
-            "price_cagr_at_observed_price": 0.012047709621006542
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 3302.809410449999,
-            "price_consistent_with_hurdle": 1642.0800000000002,
-            "price_cagr_at_observed_price": 0.01186864595750503
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 4128.511763062499,
-            "price_consistent_with_hurdle": 2052.6000000000004,
-            "price_cagr_at_observed_price": 0.05804987824014307
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 4086.0205055999995,
-            "price_consistent_with_hurdle": 2031.4743353360755,
-            "price_cagr_at_observed_price": 0.05586293491217931
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 5107.525631999999,
-            "price_consistent_with_hurdle": 2539.3429191700943,
-            "price_cagr_at_observed_price": 0.1040520468592796
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -1018,7 +825,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [],
       "annual_evidence": {
         "period_start": "2025-04-01",
@@ -1037,7 +846,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "1d100549853965c8d3998c95d179d6485e74e2c02aa928c62caa5e3de6e16d44"
+      "decision_context_sha256": "51061e3776b57c6f047f1e097ce751335765676d7049115b530faa184db1efd1"
     },
     {
       "identity": {
@@ -1046,7 +855,7 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T20:07:59.013022+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "a5b118eeaa9db925616c44dac89b41d6577e7dabfe2d5907c9fb97ba3530ce3c",
       "source_review_status": "UNREVIEWED",
       "category": "EVIDENCE_BLOCKED",
@@ -1209,6 +1018,7 @@
       ],
       "blockers": [
         "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.",
+        "Exchange observation is more than seven calendar days old.",
         "Historical/price retrieval has unresolved errors. Partial evidence is retained."
       ],
       "observations": [
@@ -1231,7 +1041,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "17639452d2482a8401752e0e339fe32d55828bdbfd74826bdb29d1396f656277"
+      "decision_context_sha256": "579372f2bb3e2b0d01d7ed6f4a7b6c71985eadcefba7d9e7aa6d0b551e162f60"
     },
     {
       "identity": {
@@ -1240,11 +1050,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T18:52:23.895587+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "ebd1f688dc6b6dc45f5b367a2c50ebb5f99bcfd05b04599fb333286a1726b822",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -1323,7 +1133,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AKUMS"
       },
       "reported_annual_diluted_eps": 16.67,
-      "reported_reference_pe": 44.088182363527295,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 284.72,
@@ -1331,73 +1141,7 @@
         "cfo_less_specified_capex_crore": 12.029,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.42673733951196713,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 322.16642040000016,
-            "price_consistent_with_hurdle": 160.17364911720847,
-            "price_cagr_at_observed_price": -0.1520612247744081
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 402.7080255000002,
-            "price_consistent_with_hurdle": 200.21706139651056,
-            "price_cagr_at_observed_price": -0.1133616784483199
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 402.35189178749994,
-            "price_consistent_with_hurdle": 200.04000000000002,
-            "price_cagr_at_observed_price": -0.113518553173245
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 502.93986473437485,
-            "price_consistent_with_hurdle": 250.05,
-            "price_cagr_at_observed_price": -0.0730599365596073
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 497.7635327999999,
-            "price_consistent_with_hurdle": 247.4764481880472,
-            "price_cagr_at_observed_price": -0.07497588157208168
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 622.2044159999998,
-            "price_consistent_with_hurdle": 309.34556023505894,
-            "price_cagr_at_observed_price": -0.03275819467089458
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -1499,7 +1243,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [],
       "annual_evidence": {
         "period_start": "2025-04-01",
@@ -1518,7 +1264,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "c994437e462affd23ab7cd7ecfadf398179dfa9c46cbe95b567a57a057d7cff5"
+      "decision_context_sha256": "062420c8c6f5cdf9e5321ea577366c776dbf86462c766c065266e84bf3bca691"
     },
     {
       "identity": {
@@ -1527,11 +1273,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T18:52:28.161474+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "5fcefd45df940b95eee06e2ae2eb548046601b365cd747cd26a767bd2d589854",
       "source_review_status": "UNREVIEWED",
-      "category": "CASH_BASIS_REVIEW",
-      "next_decisive_check": "Resolve the source cash-purchase sign convention before interpreting cash coverage or owner cash.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -1610,7 +1356,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ALANKIT"
       },
       "reported_annual_diluted_eps": 0.7,
-      "reported_reference_pe": 11.271428571428572,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "NEGATIVE_DERIVED_PURCHASES",
         "cfo_crore": null,
@@ -1618,73 +1364,7 @@
         "cfo_less_specified_capex_crore": null,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.0861139234678483,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 13.528284000000003,
-            "price_consistent_with_hurdle": 6.725948073308092,
-            "price_cagr_at_observed_price": 0.11386649788235559
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 16.910355000000006,
-            "price_consistent_with_hurdle": 8.407435091635117,
-            "price_cagr_at_observed_price": 0.16470286649211463
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 16.89540037499999,
-            "price_consistent_with_hurdle": 8.399999999999999,
-            "price_cagr_at_observed_price": 0.16449679324064426
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 21.119250468749993,
-            "price_consistent_with_hurdle": 10.5,
-            "price_cagr_at_observed_price": 0.21764390587811966
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 20.901887999999992,
-            "price_consistent_with_hurdle": 10.391932437410498,
-            "price_cagr_at_observed_price": 0.21512708859893315
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 26.127359999999992,
-            "price_consistent_with_hurdle": 12.989915546763124,
-            "price_cagr_at_observed_price": 0.2705849452641249
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -1789,7 +1469,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
       ],
@@ -1810,7 +1492,144 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "254e4277196fe39bdd9a68163410c3a6e1868feb948b1682379e6087f9bd0c42"
+      "decision_context_sha256": "e6cb4494326e5594d14c07d3f230c6d1e19e3d24998009aca04f51691131907d"
+    },
+    {
+      "identity": {
+        "symbol": "ALKYLAMINE",
+        "isin": "INE150B01039",
+        "scope": "STANDALONE"
+      },
+      "context_observed_at": "2026-11-26T23:21:58.928581+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
+      "input_context_sha256": "e6942eea890ffd994b54341a2944cfdc1547493d361607f0f1b615d351215f17",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752093_03112026065322_WEB.xml",
+        "raw_sha256": "6292bb7d4ce119c06418df200bd715e07649bac641be0ec69ebb2c524e972bf6",
+        "known_at": "2026-11-26T23:21:54.036158+00:00"
+      },
+      "reported_revenue_growth_yoy": null,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 1471.0,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-26",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-26T23:21:57.723846+00:00",
+        "identity": {
+          "symbol": "ALKYLAMINE",
+          "isin": "INE150B01039",
+          "scope": "STANDALONE"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "0790eb579c1cf37fee8aa96724f644594ef0a53ce79e6103e811ef1c1d74e737",
+        "csv_sha256": "c2ccc2b3df6fa859cb155f653846f3c34b52f3f3d0a375f08e0d115bb20bac16",
+        "source_line": 205,
+        "source_row": {
+          "TradDt": "2026-11-26",
+          "BizDt": "2026-11-26",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "4487",
+          "ISIN": "INE150B01039",
+          "TckrSymb": "ALKYLAMINE",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "ALKYL AMINES CHEM. LTD",
+          "OpnPric": "1469.90",
+          "HghPric": "1500.10",
+          "LwPric": "1456.20",
+          "ClsPric": "1471.00",
+          "LastPric": "1472.10",
+          "PrvsClsgPric": "1467.40",
+          "UndrlygPric": "",
+          "SttlmPric": "1470.55",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "38143",
+          "TtlTrfVal": "56169939.30",
+          "TtlNbOfTxsExctd": "9078",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261126_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261127_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ALKYLAMINE"
+      },
+      "reported_annual_diluted_eps": null,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "MISSING_INPUT",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752093_03112026065322_WEB.xml",
+          "raw_sha256": "6292bb7d4ce119c06418df200bd715e07649bac641be0ec69ebb2c524e972bf6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752093_03112026065322_WEB.xml",
+          "raw_sha256": "6292bb7d4ce119c06418df200bd715e07649bac641be0ec69ebb2c524e972bf6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [
+        "No supported full-year financial period. Interim earnings were not annualized.",
+        "Positive reported annual diluted EPS is missing."
+      ],
+      "observations": [],
+      "annual_evidence": null,
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "93d6f604195eede7b46b21641831dbc735cb32d37f26c74596f860aa76fa5e58"
     },
     {
       "identity": {
@@ -1819,11 +1638,11 @@
         "scope": "STANDALONE"
       },
       "context_observed_at": "2026-11-07T20:59:21.671604+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "0610a94a8c070ed03ad65fe617176642e975a06ccc3d65efc3442f32d7d0eab6",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -1902,7 +1721,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=AMANTA"
       },
       "reported_annual_diluted_eps": 4.33,
-      "reported_reference_pe": 45.09930715935335,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 41.3046,
@@ -1910,73 +1729,7 @@
         "cfo_less_specified_capex_crore": -66.7682,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.43322231870960937,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 83.68209960000004,
-            "price_consistent_with_hurdle": 41.60479308203435,
-            "price_cagr_at_observed_price": -0.15589793959975573
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 104.60262450000003,
-            "price_consistent_with_hurdle": 52.00599135254293,
-            "price_cagr_at_observed_price": -0.11737349922171669
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 104.51011946249997,
-            "price_consistent_with_hurdle": 51.96,
-            "price_cagr_at_observed_price": -0.11752966412701749
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 130.63764932812495,
-            "price_consistent_with_hurdle": 64.95,
-            "price_cagr_at_observed_price": -0.07725411282270389
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 129.29310719999998,
-            "price_consistent_with_hurdle": 64.28152493426781,
-            "price_cagr_at_observed_price": -0.07916138865427902
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 161.61638399999995,
-            "price_consistent_with_hurdle": 80.35190616783476,
-            "price_cagr_at_observed_price": -0.03713472642369109
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -2078,7 +1831,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review."
       ],
@@ -2099,7 +1854,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "b44d4130853782c5d23073cff43ad85e9c1c535dc53e725c3e8404556112f07a"
+      "decision_context_sha256": "570a01bcc6138e74bb2738383b76fd2b1d6daf8add8b333315b277a4ea346ee8"
     },
     {
       "identity": {
@@ -2108,11 +1863,11 @@
         "scope": "STANDALONE"
       },
       "context_observed_at": "2026-11-07T20:59:26.702593+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "7d81157dedc176d26eed33890b230d945f5516496688eb8d495401d382980d61",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -2191,7 +1946,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ANTELOPUS"
       },
       "reported_annual_diluted_eps": 8.06,
-      "reported_reference_pe": 110.24813895781638,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 247.7,
@@ -2199,73 +1954,7 @@
         "cfo_less_specified_capex_crore": -48.29,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.7137751529909915,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 155.76852720000005,
-            "price_consistent_with_hurdle": 77.4444878155189,
-            "price_cagr_at_observed_price": -0.29408130925285036
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 194.71065900000008,
-            "price_consistent_with_hurdle": 96.80560976939863,
-            "price_cagr_at_observed_price": -0.2618634960413331
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 194.53846717499994,
-            "price_consistent_with_hurdle": 96.72,
-            "price_cagr_at_observed_price": -0.2619940960370709
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 243.17308396874995,
-            "price_consistent_with_hurdle": 120.90000000000002,
-            "price_cagr_at_observed_price": -0.2283118367704846
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 240.67031039999995,
-            "price_consistent_with_hurdle": 119.65567920789803,
-            "price_cagr_at_observed_price": -0.22990688282129135
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 300.83788799999996,
-            "price_consistent_with_hurdle": 149.56959900987255,
-            "price_cagr_at_observed_price": -0.19476017749963614
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -2367,7 +2056,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review."
       ],
@@ -2388,7 +2079,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "07b60c67bb979b5119f0390b7e17636afb56249c4677596b1f89899ea328566c"
+      "decision_context_sha256": "73bd00ff8cd5803cd087b172e551f9e4275a864a20e5df4e1da5116ba3fd4a5f"
     },
     {
       "identity": {
@@ -2397,11 +2088,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-08T19:12:37.572638+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "5757628f424ebb9745e8f8f17c0518ebbdb28c8135f388914e2af3f5270ce1c0",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -2476,7 +2167,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ARCHIDPLY"
       },
       "reported_annual_diluted_eps": 4.02,
-      "reported_reference_pe": 23.31094527363184,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 35.1007,
@@ -2484,73 +2175,7 @@
         "cfo_less_specified_capex_crore": 32.535,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.2560055703844981,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 77.69100240000002,
-            "price_consistent_with_hurdle": 38.62615893528361,
-            "price_cagr_at_observed_price": -0.03679892767987658
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 97.11375300000003,
-            "price_consistent_with_hurdle": 48.28269866910452,
-            "price_cagr_at_observed_price": 0.007161138316248428
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 97.02787072499996,
-            "price_consistent_with_hurdle": 48.239999999999995,
-            "price_cagr_at_observed_price": 0.0069829392437652515
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 121.28483840624993,
-            "price_consistent_with_hurdle": 60.29999999999998,
-            "price_cagr_at_observed_price": 0.05294119005789599
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 120.03655679999997,
-            "price_consistent_with_hurdle": 59.67938342627173,
-            "price_cagr_at_observed_price": 0.050764806167407306
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 150.04569599999996,
-            "price_consistent_with_hurdle": 74.59922928283966,
-            "price_cagr_at_observed_price": 0.09872124179954356
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -2652,7 +2277,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [],
       "annual_evidence": {
         "period_start": "2025-04-01",
@@ -2671,7 +2298,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "db9e58d9f100c123ea07e01123ea637d5b3da1f361509bfbe0a0cb96a7a7368d"
+      "decision_context_sha256": "babb7d2b0dbb48c26ac668bb67aad19ef387c19b0a36a766b1715753af1d858e"
     },
     {
       "identity": {
@@ -2680,7 +2307,7 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T19:05:30.207789+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "85bc2be95f46d75b306f00326557205e63e6f701cee6e1ba0d86724a6dc70993",
       "source_review_status": "UNREVIEWED",
       "category": "EVIDENCE_BLOCKED",
@@ -2889,7 +2516,8 @@
         }
       ],
       "blockers": [
-        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review."
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.",
+        "Exchange observation is more than seven calendar days old."
       ],
       "observations": [
         "Reported revenue rose but owner-attributable profit fell in the matching year-ago comparison.",
@@ -2913,7 +2541,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "153b8ba39055728db05e77dbb404339d6e0b2d4a9df45385e2b3e2fdf97cccb3"
+      "decision_context_sha256": "94f87b93be62a49d13b2a96465e5ce44d7335c7912c5c2db09b1827a2499e789"
     },
     {
       "identity": {
@@ -2922,7 +2550,7 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T19:05:34.664676+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "d41f0656f4bbb1f278e74bbd17397e4411d3515fe6d60a665e3b0a6647561fa2",
       "source_review_status": "UNREVIEWED",
       "category": "EVIDENCE_BLOCKED",
@@ -3143,7 +2771,8 @@
         }
       ],
       "blockers": [
-        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review."
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.",
+        "Exchange observation is more than seven calendar days old."
       ],
       "observations": [
         "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
@@ -3165,7 +2794,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "7cb3d493f8f53ca21d194a7ad4c96c92fbc47134b067bd4e1b62b16705a3473d"
+      "decision_context_sha256": "69762ae3ae5a6930860502a4e100d913ae7d8bd166a5353763a2cdc6e193b3e9"
     },
     {
       "identity": {
@@ -3174,7 +2803,7 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-07T20:59:32.087596+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "d489ff7acdd8c706ea128f531ee0ac9333cfd320518575329dc21acac25d04af",
       "source_review_status": "UNREVIEWED",
       "category": "EVIDENCE_BLOCKED",
@@ -3392,7 +3021,8 @@
         }
       ],
       "blockers": [
-        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review."
+        "Annual owner/minority profit does not reconcile with group profit. Price/EPS sensitivity withheld pending source review.",
+        "Exchange observation is more than seven calendar days old."
       ],
       "observations": [
         "At least one source period has inconsistent or rounding-unverified profit attribution. Affected owner-growth and trailing-profit calculations are withheld."
@@ -3414,7 +3044,83 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "85ee3445ee0e0a72589353b39f2e1ae5e778fd4ab79539242bb2b93cd9ffd33c"
+      "decision_context_sha256": "d5f1c732629638b3f9415f4765bcd654b50f7e8ddba33dbd1f6b94c73a398273"
+    },
+    {
+      "identity": {
+        "symbol": "ARVEE",
+        "isin": "INE006Z01016",
+        "scope": "STANDALONE"
+      },
+      "context_observed_at": "2026-11-26T23:22:02.369296+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
+      "input_context_sha256": "71db86d864ccab5085887e07a95d090367cf8ad5f97e54588c8fa212da8f858e",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752110_03112026070058_WEB.xml",
+        "raw_sha256": "d3bf6edb28d31af098c3511cb0480a5c1446599fd10d096244b759bd12b4140e",
+        "known_at": "2026-11-26T23:21:58.930015+00:00"
+      },
+      "reported_revenue_growth_yoy": null,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": null,
+      "reported_annual_diluted_eps": null,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "MISSING_INPUT",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752110_03112026070058_WEB.xml",
+          "raw_sha256": "d3bf6edb28d31af098c3511cb0480a5c1446599fd10d096244b759bd12b4140e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1752110_03112026070058_WEB.xml",
+          "raw_sha256": "d3bf6edb28d31af098c3511cb0480a5c1446599fd10d096244b759bd12b4140e",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [
+        "No supported full-year financial period. Interim earnings were not annualized.",
+        "Positive reported annual diluted EPS is missing.",
+        "No verified dated exchange price.",
+        "Historical/price retrieval has unresolved errors. Partial evidence is retained."
+      ],
+      "observations": [],
+      "annual_evidence": null,
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "1bcd066a55b71b3541e57a361d3278da93faf24eb231704ba5fdc6c5c0e1335d"
     },
     {
       "identity": {
@@ -3423,11 +3129,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-08T19:12:40.711495+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "d9034780c5ee51db674a4c108052e38a194ffcf37bb5563c7928552caa2b7d20",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -3502,7 +3208,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ARVINDFASN"
       },
       "reported_annual_diluted_eps": 9.16,
-      "reported_reference_pe": 38.52074235807861,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 493.09,
@@ -3510,73 +3216,7 @@
         "cfo_less_specified_capex_crore": 334.79,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.38873224068852674,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 177.0272592000001,
-            "price_consistent_with_hurdle": 88.01383478786019,
-            "price_cagr_at_observed_price": -0.12885588971809947
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 221.2840740000001,
-            "price_consistent_with_hurdle": 110.01729348482523,
-            "price_cagr_at_observed_price": -0.08909726228231074
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 221.08838204999992,
-            "price_consistent_with_hurdle": 109.92,
-            "price_cagr_at_observed_price": -0.08925843015983137
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 276.3604775624999,
-            "price_consistent_with_hurdle": 137.4,
-            "price_cagr_at_observed_price": -0.04769259238605228
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 273.51613439999994,
-            "price_consistent_with_hurdle": 135.98585875240025,
-            "price_cagr_at_observed_price": -0.04966097060156316
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 341.8951679999999,
-            "price_consistent_with_hurdle": 169.9823234405003,
-            "price_cagr_at_observed_price": -0.006287922489793596
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -3678,7 +3318,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [],
       "annual_evidence": {
         "period_start": "2025-04-01",
@@ -3697,7 +3339,7 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "68896451300d3b6a60fe38c0d586a88c53168e550b5510cf973d280f49c0f4ea"
+      "decision_context_sha256": "564ec0f9fc01d1e19ca2dad4f335bccea9bfc45bed4c1c9224ed5f723ba977e6"
     },
     {
       "identity": {
@@ -3706,11 +3348,11 @@
         "scope": "CONSOLIDATED"
       },
       "context_observed_at": "2026-11-08T19:12:45.217425+00:00",
-      "evaluated_at": "2026-11-08T19:12:45.445944+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
       "input_context_sha256": "e2c8e1d14718be134bc1dba21cf32023f3c88c0087fdf5d3549c8b3f59148620",
       "source_review_status": "UNREVIEWED",
-      "category": "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE",
-      "next_decisive_check": "Require a defensible stronger per-share earnings case, a different justified exit multiple, or a lower entry price.",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
       "comparison_period": {
         "period_start": "2026-04-01",
         "period_end": "2026-09-30",
@@ -3785,7 +3427,7 @@
         "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ASIANTILES"
       },
       "reported_annual_diluted_eps": 0.7,
-      "reported_reference_pe": 64.38571428571429,
+      "reported_reference_pe": null,
       "reported_trailing_cash": {
         "status": "REPORTED_FLOW_DIAGNOSTIC",
         "cfo_crore": 119.018,
@@ -3793,73 +3435,7 @@
         "cfo_less_specified_capex_crore": -65.6152,
         "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
       },
-      "sensitivity": {
-        "required_eps_growth_at_full_reported_eps": 0.5389960038781596,
-        "rows": [
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 13.528284000000003,
-            "price_consistent_with_hurdle": 6.725948073308092,
-            "price_cagr_at_observed_price": -0.21391224591498426
-          },
-          {
-            "eps_growth_assumption": 0.1,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 16.910355000000006,
-            "price_consistent_with_hurdle": 8.407435091635117,
-            "price_cagr_at_observed_price": -0.1780355525210653
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 16.89540037499999,
-            "price_consistent_with_hurdle": 8.399999999999999,
-            "price_cagr_at_observed_price": -0.17818098436566543
-          },
-          {
-            "eps_growth_assumption": 0.15,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 21.119250468749993,
-            "price_consistent_with_hurdle": 10.5,
-            "price_cagr_at_observed_price": -0.14067353218111378
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 0.8,
-            "terminal_price": 20.901887999999992,
-            "price_consistent_with_hurdle": 10.391932437410498,
-            "price_cagr_at_observed_price": -0.1424497228163465
-          },
-          {
-            "eps_growth_assumption": 0.2,
-            "retained_reported_eps_fraction": 1.0,
-            "terminal_price": 26.127359999999992,
-            "price_consistent_with_hurdle": 12.989915546763124,
-            "price_cagr_at_observed_price": -0.10331151184116216
-          }
-        ],
-        "policy": {
-          "years": 5,
-          "price_return_hurdle": 0.15,
-          "exit_pe_assumption": 15.0,
-          "eps_growth_scenarios": [
-            0.1,
-            0.15,
-            0.2
-          ],
-          "retained_eps_fractions": [
-            0.8,
-            1.0
-          ],
-          "classification": "ILLUSTRATIVE_UNCALIBRATED_SENSITIVITIES_NOT_FORECASTS"
-        },
-        "limits": [
-          "Price-only outcomes, excluding dividends, tax and transaction costs.",
-          "Retained EPS fractions are hypothetical haircuts, not verified normalization.",
-          "EPS growth includes per-share effects. No calibrated likelihood or valuation target is implied."
-        ]
-      },
+      "sensitivity": null,
       "accounting_checks": [
         {
           "period_start": "2026-04-01",
@@ -3961,7 +3537,9 @@
           "withheld_fields": []
         }
       ],
-      "blockers": [],
+      "blockers": [
+        "Exchange observation is more than seven calendar days old."
+      ],
       "observations": [
         "Reported revenue rose but owner-attributable profit fell in the matching year-ago comparison.",
         "Reported trailing operating cash did not cover the specified cash purchases. Financing and investment returns need review."
@@ -3983,19 +3561,154 @@
         "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
         "Research triage under explicit assumptions, not an investment ranking or a forecast."
       ],
-      "decision_context_sha256": "1bf9b8031b762f7ed87758cf3f5d1b340bbdd4a8b7853d908b4f2a456cd39706"
+      "decision_context_sha256": "efb86fb1eed0758aaa7756d81a1949e841006c899ce0b57e2e3ee92fbc964b46"
+    },
+    {
+      "identity": {
+        "symbol": "ASKAUTOLTD",
+        "isin": "INE491J01022",
+        "scope": "CONSOLIDATED"
+      },
+      "context_observed_at": "2026-11-26T23:22:05.666219+00:00",
+      "evaluated_at": "2026-11-26T23:22:05.880342+00:00",
+      "input_context_sha256": "fc15c79a4bb88de62bf062e06e7f19e855f58dd4795bb6452138239de2e6ce99",
+      "source_review_status": "UNREVIEWED",
+      "category": "EVIDENCE_BLOCKED",
+      "next_decisive_check": "Resolve the listed source/accounting/basis blockers before interpreting the earnings multiple.",
+      "comparison_period": {
+        "period_start": "2026-04-01",
+        "period_end": "2026-09-30",
+        "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751815_03112026042523_WEB.xml",
+        "raw_sha256": "fe29b27c7ac8b5de97263c998f5a80e883333dd4c68bf3a5821078e86ae403b6",
+        "known_at": "2026-11-26T23:22:02.370572+00:00"
+      },
+      "reported_revenue_growth_yoy": null,
+      "reported_owner_profit_growth_yoy": null,
+      "quote": {
+        "price": 634.85,
+        "currency": "INR",
+        "quoted_at": null,
+        "session_date": "2026-11-26",
+        "timestamp_precision": "SESSION_DATE_ONLY_NO_INVENTED_INTRADAY_TIME",
+        "observed_at": "2026-11-26T23:21:57.723846+00:00",
+        "identity": {
+          "symbol": "ASKAUTOLTD",
+          "isin": "INE491J01022",
+          "scope": "CONSOLIDATED"
+        },
+        "price_type": "OFFICIAL_SESSION_CLOSE_NOT_EXECUTABLE_QUOTE",
+        "stale": false,
+        "raw_sha256": "0790eb579c1cf37fee8aa96724f644594ef0a53ce79e6103e811ef1c1d74e737",
+        "csv_sha256": "c2ccc2b3df6fa859cb155f653846f3c34b52f3f3d0a375f08e0d115bb20bac16",
+        "source_line": 346,
+        "source_row": {
+          "TradDt": "2026-11-26",
+          "BizDt": "2026-11-26",
+          "Sgmt": "CM",
+          "Src": "NSE",
+          "FinInstrmTp": "STK",
+          "FinInstrmId": "20152",
+          "ISIN": "INE491J01022",
+          "TckrSymb": "ASKAUTOLTD",
+          "SctySrs": "EQ",
+          "XpryDt": "",
+          "FininstrmActlXpryDt": "",
+          "StrkPric": "",
+          "OptnTp": "",
+          "FinInstrmNm": "ASK AUTOMOTIVE LIMITED",
+          "OpnPric": "636.80",
+          "HghPric": "645.00",
+          "LwPric": "625.60",
+          "ClsPric": "634.85",
+          "LastPric": "638.00",
+          "PrvsClsgPric": "636.80",
+          "UndrlygPric": "",
+          "SttlmPric": "634.85",
+          "OpnIntrst": "",
+          "ChngInOpnIntrst": "",
+          "TtlTradgVol": "71249",
+          "TtlTrfVal": "45139071.35",
+          "TtlNbOfTxsExctd": "7201",
+          "SsnId": "F1",
+          "NewBrdLotQty": "1",
+          "Rmks": "",
+          "Rsvd1": "",
+          "Rsvd2": "",
+          "Rsvd3": "",
+          "Rsvd4": ""
+        },
+        "live_capital_allowed": false,
+        "source_url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261126_F_0000.csv.zip",
+        "archive_probes": [
+          {
+            "url": "https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261127_F_0000.csv.zip",
+            "result": "source HTTP request failed (HTTPError)"
+          }
+        ],
+        "coverage": "MOST_RECENT_RETRIEVED_FILE_WITHIN_7_DAYS_NOT_VERIFIED_TRADING_CALENDAR",
+        "primary_quote_endpoint_error": "NSE quote_equity failed: 403 Client Error: Forbidden for url: https://www.nseindia.com/api/quote-equity?symbol=ASKAUTOLTD"
+      },
+      "reported_annual_diluted_eps": null,
+      "reported_reference_pe": null,
+      "reported_trailing_cash": {
+        "status": "MISSING_INPUT",
+        "cfo_crore": null,
+        "specified_capex_crore": null,
+        "cfo_less_specified_capex_crore": null,
+        "limits": "Reported cross-document cash diagnostic, not normalized parent-distributable free cash flow."
+      },
+      "sensitivity": null,
+      "accounting_checks": [
+        {
+          "period_start": "2026-04-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751815_03112026042523_WEB.xml",
+          "raw_sha256": "fe29b27c7ac8b5de97263c998f5a80e883333dd4c68bf3a5821078e86ae403b6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        },
+        {
+          "period_start": "2026-07-01",
+          "period_end": "2026-09-30",
+          "source_url": "https://nsearchives.nseindia.com/corporate/xbrl/INTEGRATED_FILING_INDAS_1751815_03112026042523_WEB.xml",
+          "raw_sha256": "fe29b27c7ac8b5de97263c998f5a80e883333dd4c68bf3a5821078e86ae403b6",
+          "name": "owner_plus_minority_equals_group_pat",
+          "status": "MISSING_INPUT",
+          "residual_crore": null,
+          "tolerance_crore": null,
+          "withheld_fields": []
+        }
+      ],
+      "blockers": [
+        "No supported full-year financial period. Interim earnings were not annualized.",
+        "Positive reported annual diluted EPS is missing."
+      ],
+      "observations": [],
+      "annual_evidence": null,
+      "live_capital_allowed": false,
+      "buy_approved": false,
+      "limits": [
+        "Reported earnings are not normalized owner earnings.",
+        "An empty exchange action response is not proof of no issuance, dilution or restatement.",
+        "Share-basis adjustments, fully diluted shares and cash restrictions still require review.",
+        "Reverse-hurdle scenarios omit dividends, taxes and transaction costs and assume unchanged EPS comparability.",
+        "A single year-ago comparison does not establish multi-year seasonality or sustainable growth.",
+        "Research triage under explicit assumptions, not an investment ranking or a forecast."
+      ],
+      "decision_context_sha256": "a8cdd2500f26de5fbe68ab84622d99ebdc61dd381f488e3dadfcbd98d1a0ac5f"
     }
   ],
   "counts": {
-    "context_cards": 15,
-    "issuers": 15,
+    "context_cards": 18,
+    "issuers": 18,
     "categories": {
-      "HURDLE_EXCEEDS_ILLUSTRATIVE_GROWTH_RANGE": 9,
-      "EVIDENCE_BLOCKED": 5,
-      "CASH_BASIS_REVIEW": 1
+      "EVIDENCE_BLOCKED": 18
     }
   },
   "live_capital_allowed": false,
   "validated_predictive_edge": false,
-  "report_sha256": "b56cea1875307ccd5af3116c66b83dd4e6b7fc9f81f086ab2419f6af00e4c503"
+  "report_sha256": "82e141fe112be2a20d579cd6b052797ee7e3dcfdcf90b3888b2ed87ebc43d25a"
 }
