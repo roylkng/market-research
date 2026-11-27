@@ -1,5 +1,7 @@
 # Start here for current investment research
 
+**27 November 100-company forecast expansion:** [Baseline and nested assisted challenge](research/integrated/forecast-scale-2026-11-27/README.md). Preserve original four-company forecasts and separate future return comparison.
+
 **26 November cash and capital re-evaluation:** [TCS/Infosys, bank stress and Indus Towers](research/integrated/market-reevaluation-2026-11-26.md) and [scenario register](research/integrated/market-reevaluation-2026-11-26.json). Read before older missing-cash flags. Preserve dated prior research.
 
 **25 November re-evaluation:** [Bank and large-cap IT comparison](research/integrated/market-reevaluation-2026-11-25.md) and [scenario register](research/integrated/market-reevaluation-2026-11-25.json). Conditional HDFC/ICICI candidates, TCS cash watch, HCLTech working-price pass. Preserve older decisions and source limits.
