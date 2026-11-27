@@ -28,3 +28,17 @@ Append material changes. Do not erase old dated judgments. This journal is an as
 **Boundaries:** No frozen experiment, cohort, label, outcome, source-state branch, daily budget, schedule, model endpoint, broker setting or paid service changed. The update is documentation and structured research memory, not an unattended execution system.
 
 Subsequent updates must name the prior entry or case they change, link evidence, distinguish observation from interpretation, state the decision impact and leave a concrete next check.
+
+## 2026-11-16 | Mahanadi Coalfields IPO entry: upper-band P/E does not pass legal/minority/cash gates
+
+**Trigger:** The 13 Nov original issuer/BRLM MCL red herring prospectus and 16 Nov ₹129-₹136 secondary-corroborated IPO price band make a new listed-universe candidate time-sensitive. This is an entirely secondary 10% Coal India OFS, not financing to MCL.
+
+**Source/reliability:** Read issuer RHP text hosted by Axis Capital on 16 Nov. No screenshot or raw-byte SHA obtained; screenshot service rejected 13,187,872-byte PDF. Reuters and PL Capital report the 16 Nov price band. Original issuer/exchange price-band circular is not yet admitted. Direct company share price does not yet exist. [Full dated case](mahanadi-coalfields-ipo-2026-11-16.md).
+
+**Actual new observations:** ₹136 implies ~₹90,009.74cr equity value and ~8.43x FY26 parent-attributable PAT, but H1 CFO ₹8,997.13cr reflects large working-capital changes and earlier FY26 cash includes an unusual tax refund. RHP reports ₹12,513.29cr of unprovided contingent amounts and ₹2,432.04cr delayed balances from two Andhra Pradesh government utility customers. A **CAG audit observation** reports an earlier Coal India legal estimate of **₹31,227.80cr** possible ORISED/MADA levy exposure; management disputes an enforceable obligating event. Do not double-count that estimate with the separately disclosed contingent total, treat either as a current payable, or infer dishonesty. RHP discloses zero independent directors and an August 31 SEBI exemption application with no approval verified.
+
+**Decision delta:** New IPO candidate added to market-wide screening, but low trailing P/E is **not** an underwritten margin of safety. Disposition `WAIT_FOR_PRICE_OR_EVIDENCE / RESEARCH_ONLY_NOT_BUY`, not a whole-market cash view or Coal India parent sell. Previous dated case decisions remain unchanged.
+
+**Highest-value next evidence:** Original exchange price-band notice and RHP bytes, CAG/legal outcome and overlapping contingency scopes, state utility collections, independently checked sustaining/closure capex, post-offer governance waiver/appointments, parent-vs-minority cash and first official listed closing reference. No executed entry, artificial forecast or special allotment odds.
+
+**Preservation:** No H002/H003/HG009 or other frozen cohort/calendar/outcome, production source state, automated acceptance, schedules, budgets, brokerage or paid-services modifications.
