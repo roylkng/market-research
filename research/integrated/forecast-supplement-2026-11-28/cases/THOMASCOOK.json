@@ -1,0 +1,367 @@
+{
+  "symbol": "THOMASCOOK",
+  "isin": "INE332A01027",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "target_period_end": "2026-12-31",
+  "research_date_ist": "2026-11-28",
+  "evidence_cutoff_date_ist": "2026-11-28",
+  "created_at_utc": "2026-11-27T19:46:32+00:00",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "ORIGINAL_ISSUER_PDF_CAPTURED_CRITICAL_FINANCIAL_PAGES_VISUALLY_VERIFIED",
+  "verified_pat_cr": {
+    "q1": 71.9,
+    "q2": 51.67,
+    "prior_q2": 66.44,
+    "prior_q3": 41.7
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": -17.74,
+    "prior_q3": 21.07
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://resources.thomascook.in/downloads/Financial_Results_Sept_30_2026.pdf",
+      "publication_date": "2026-11-02",
+      "document_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited standalone and consolidated results, September 2026",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn667299627search8",
+      "locator": "PDF p16 consolidated income statement, pp21–22 notes5–9. Search renderer rejected large PDF. Direct captured original was inspected.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/thomas_q2_2026.pdf",
+      "sha256": "faaa61dba66fb0d0b5d0421223b6dbeb185077d3a325430110984583c9ce1cbd",
+      "bytes": 14694352,
+      "visually_checked_pdf_pages": [
+        16,
+        21,
+        22
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://resources.thomascook.in/downloads/Audited_Financial_Results(Standalone_and_Consolidated)_for_the_quarter_and_year_ended_March_31_%202026_20260513.pdf",
+      "publication_date": "2026-05-13",
+      "document_date": "2026-05-13",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Audited March 2026 results with December 2025 comparative",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn334957911view3",
+      "locator": "PDF p19 December comparative owner PAT and exception, p26 note12 labour-code charge.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/thomas_march_2026.pdf",
+      "sha256": "f8699551ce650bf1de23805950758c071944612a733242103618f0cbed63bde5",
+      "bytes": 7843847,
+      "visually_checked_pdf_pages": [
+        19
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://resources.thomascook.in/downloads/TCIL_Q2_FY27_Earnings_Call_transcript_20261109.pdf",
+      "publication_date": "2026-11-09",
+      "document_date": "2026-11-09",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Q2 FY27 earnings call transcript, call held November3",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED",
+      "web_ref": "turn347778191view0",
+      "locator": "PDF pp6,14–15,18–19 booking scope, Sterling costs and recovery commentary.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/thomas_transcript_q2.pdf",
+      "sha256": "60118b1357e13affb18909b9713b849ce7c3b3810e4b9c43ca608faff53cf5e9",
+      "bytes": 411643,
+      "visually_checked_pdf_pages": []
+    }
+  ],
+  "probabilities": null,
+  "scenario_interpretation": "Adverse/base/favorable assumption sensitivities. No assigned probabilities and no prediction-interval coverage claim.",
+  "facts": [
+    "S1 p16 confirms owner PAT71.90/51.67/66.44 in current June, current September and prior September. S2 p19 confirms prior-December owner PAT41.70.",
+    "Prior-December PBT before exceptional items is89.74cr. Its30.10cr labour charge is separate from recurring service, finance and operating costs."
+  ],
+  "issuer_claims": [
+    "S3 pp14,18 clarifies forward India leisure/MICE December-quarter bookings are30% higher in value, and that India basket is roughly51% of the travel segment, not the entire group.",
+    "S3 pp18–19 says international recovery remains uneven. Sterling input-GST cost impact is discussed as4cr in Q2 and is not presented here as a temporary addback."
+  ],
+  "assumptions": [
+    "Base pretax changes from the prior December anchor: India+8, financial services+3, Sterling+4, internationalDMS-8, DEI-2, other income+10, cost inflation/central costs-3 and scheme cost-1 = PBT100.74.",
+    "The +10 treasury adjustment retains only part of Q2 other-income uplift from prior December40.93 to current58.87. All forward component amounts are analyst assumptions, not company guidance.",
+    "Base effective tax29%, associates0.3 and NCI3.5. Current group perimeter, including Sterling, is retained. No demerger completion or new labour past-service charge assumed."
+  ],
+  "unknowns": [
+    "Booking cancellations, visa/flight constraints and conversion of advance bookings into recognized net income.",
+    "International DMS and DEI recovery, forex/MTM gains and owner-NCI mix.",
+    "Legal-scheme completion and any change to December reported group scope."
+  ],
+  "original_forecast_action": "PRESERVED_UNCHANGED",
+  "units": "INR crore except ratios, percentages and stated operating units",
+  "normalization_basis": "Prior Q2 property sale: subtract17.74cr, the explicitly disclosed parent-company post-tax gain in S1 note7. Prior Q3 labour charge30.1cr: add21.07 assuming30%tax relief and full owner attribution. Labour amount is documented, its tax/NCI split is not. That21.07 is an analyst normalization estimate, not an issuer-reported adjusted owner PAT. Current legal-scheme charges0.20/0.84 remain because further costs may recur.",
+  "normalization_uncertainty": "Labour addback at25%tax would be22.575 instead of21.07, and minority attribution could reduce either. Reported and normalized baselines are both retained.",
+  "baseline_correction": "No current owner-PAT correction. Q1 owner71.90 exceeds group63.71 because NCI loss is8.19. The bridge must include equity associates0.21/0.08. Prior September property gain and prior December labour charge create opposite seasonality distortions.",
+  "verified_operating_inputs_cr": {
+    "q2": {
+      "revenue": 1944.15,
+      "other_income": 58.87,
+      "pbt_before_exception_and_equity_associates": 84.76,
+      "exceptional_charge": 0.84,
+      "equity_associates": 0.08,
+      "tax": 30.33,
+      "group_pat": 53.67,
+      "nci": 2
+    },
+    "q1": {
+      "revenue": 2091.89,
+      "other_income": 61.11,
+      "group_pat": 63.71,
+      "nci": -8.19
+    },
+    "prior_q3": {
+      "revenue": 2145.68,
+      "other_income": 40.93,
+      "pbt_before_exception": 89.74,
+      "exceptional_charge": 30.1,
+      "tax": 14.77,
+      "associates": 0.62,
+      "group_pat": 45.49,
+      "nci": 3.79
+    }
+  },
+  "rationale": "Use prior December pre-exception PBT as the seasonal operating anchor, then separately vary India travel, international DMS, Sterling, financial services, DEI, treasury and ongoing scheme costs. This avoids projecting a30% booking-value claim onto the entire group. Tax and minority profit convert the business-level estimate to owners.",
+  "model_formula": "owner_PAT = sum(PBT_component_amounts) * (1-tax_rate) + equity_associates_after_tax - NCI",
+  "model": {
+    "kind": "pbt_components",
+    "components": [
+      {
+        "name": "prior December PBT before exceptional and equity associates",
+        "amount_cr": 89.74
+      },
+      {
+        "name": "India leisure and MICE booking conversion improvement",
+        "amount_cr": 8
+      },
+      {
+        "name": "financial-services EBIT growth",
+        "amount_cr": 3
+      },
+      {
+        "name": "Sterling earnings from occupancy and additional resorts",
+        "amount_cr": 4
+      },
+      {
+        "name": "international DMS disruption versus prior December",
+        "amount_cr": -8
+      },
+      {
+        "name": "DEI recovery still incomplete versus prior December",
+        "amount_cr": -2
+      },
+      {
+        "name": "other income uplift versus prior December",
+        "amount_cr": 10
+      },
+      {
+        "name": "incremental central and operating costs",
+        "amount_cr": -3
+      },
+      {
+        "name": "ongoing scheme legal and professional expense",
+        "amount_cr": -1
+      }
+    ],
+    "tax_rate": 0.29,
+    "nci_cr": 3.5,
+    "associates_after_tax_cr": 0.3
+  },
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "prior December PBT before exceptional and equity associates",
+            "amount_cr": 89.74
+          },
+          {
+            "name": "India booking improvement",
+            "amount_cr": 0
+          },
+          {
+            "name": "financial services",
+            "amount_cr": 0
+          },
+          {
+            "name": "Sterling",
+            "amount_cr": 1
+          },
+          {
+            "name": "international DMS",
+            "amount_cr": -18
+          },
+          {
+            "name": "DEI",
+            "amount_cr": -6
+          },
+          {
+            "name": "other income uplift",
+            "amount_cr": 0
+          },
+          {
+            "name": "incremental costs",
+            "amount_cr": -5
+          },
+          {
+            "name": "scheme cost",
+            "amount_cr": -2
+          }
+        ],
+        "tax_rate": 0.34,
+        "nci_cr": 4,
+        "associates_after_tax_cr": 0
+      },
+      "assumption": "Bookings fail to convert and overseas recovery stalls, tax34% and NCI4.",
+      "forecast_pat_cr": 35.4284
+    },
+    "base": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "prior December PBT before exceptional and equity associates",
+            "amount_cr": 89.74
+          },
+          {
+            "name": "India leisure and MICE booking conversion improvement",
+            "amount_cr": 8
+          },
+          {
+            "name": "financial-services EBIT growth",
+            "amount_cr": 3
+          },
+          {
+            "name": "Sterling earnings from occupancy and additional resorts",
+            "amount_cr": 4
+          },
+          {
+            "name": "international DMS disruption versus prior December",
+            "amount_cr": -8
+          },
+          {
+            "name": "DEI recovery still incomplete versus prior December",
+            "amount_cr": -2
+          },
+          {
+            "name": "other income uplift versus prior December",
+            "amount_cr": 10
+          },
+          {
+            "name": "incremental central and operating costs",
+            "amount_cr": -3
+          },
+          {
+            "name": "ongoing scheme legal and professional expense",
+            "amount_cr": -1
+          }
+        ],
+        "tax_rate": 0.29,
+        "nci_cr": 3.5,
+        "associates_after_tax_cr": 0.3
+      },
+      "assumption": "Selective India and lodging recovery offsets part of overseas damage.",
+      "forecast_pat_cr": 68.3254
+    },
+    "favorable": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "prior December PBT before exceptional and equity associates",
+            "amount_cr": 89.74
+          },
+          {
+            "name": "India booking improvement",
+            "amount_cr": 15
+          },
+          {
+            "name": "financial services",
+            "amount_cr": 5
+          },
+          {
+            "name": "Sterling",
+            "amount_cr": 8
+          },
+          {
+            "name": "international DMS",
+            "amount_cr": -2
+          },
+          {
+            "name": "DEI",
+            "amount_cr": 0
+          },
+          {
+            "name": "other income uplift",
+            "amount_cr": 15
+          },
+          {
+            "name": "incremental costs",
+            "amount_cr": -1
+          },
+          {
+            "name": "scheme cost",
+            "amount_cr": -0.5
+          }
+        ],
+        "tax_rate": 0.27,
+        "nci_cr": 3,
+        "associates_after_tax_cr": 0.6
+      },
+      "assumption": "Stronger conversion, near-normal international operations and sustained other income.",
+      "forecast_pat_cr": 91.9452
+    }
+  },
+  "investment_implication": "Research hypothesis: earnings recovery can outpace weak September reported PAT, but booking growth must be converted within the correct segment and owner scope. No investment verdict inferred.",
+  "forecast_pat_cr": 68.3254,
+  "source_updated_reported_baselines_cr": {
+    "latest_quarter": 51.67,
+    "two_quarter_mean": 61.785000000000004,
+    "damped_sequential": 46.6125,
+    "seasonal_naive": 41.7,
+    "seasonal_additive": 26.930000000000007,
+    "seasonal_yoy": 32.42984647802529
+  },
+  "normalized_pat_cr": {
+    "q1": 71.9,
+    "q2": 51.67,
+    "prior_q2": 48.7,
+    "prior_q3": 62.77
+  },
+  "source_updated_normalized_baselines_cr": {
+    "latest_quarter": 51.67,
+    "two_quarter_mean": 61.785000000000004,
+    "damped_sequential": 46.6125,
+    "seasonal_naive": 62.77,
+    "seasonal_additive": 65.74,
+    "seasonal_yoy": 66.59806776180699
+  },
+  "baseline_formulas": {
+    "latest": "q2",
+    "mean": "(q1+q2)/2",
+    "damped": "q2+0.25*(q2-q1)",
+    "seasonal_naive": "prior_q3",
+    "additive": "prior_q3+q2-prior_q2",
+    "yoy": "prior_q3*q2/prior_q2, allowed only when all three are positive"
+  },
+  "reproducibility_note": "Signed original PDF bytes downloaded directly from issuer URLs, SHA256 and exact byte lengths recorded. Financial statement pages listed as visually checked were rendered locally and displayed to the analyst. Commentary pages not listed as visually checked were reviewed as extracted text. Acquisition timestamp records this review session, not original publication time.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ],
+  "normalization_estimate_flags": {
+    "q1": "NO_ADJUSTMENT",
+    "q2": "NO_ADJUSTMENT",
+    "prior_q2": "ISSUER_POST_TAX_ITEM",
+    "prior_q3": "ANALYST_TAX_AND_OR_ATTRIBUTION_ESTIMATE"
+  }
+}

@@ -263,3 +263,17 @@ Read [forecast pilot and competitor watch](forecast-pilot-2026-11-27/README.md),
 
 Read [the 100-company baseline and nested assisted challenge](forecast-scale-2026-11-27/README.md), [register](forecast-scale-2026-11-27/forecast_register.json), [CSV](forecast-scale-2026-11-27/forecasts.csv), and [evaluator](forecast-scale-2026-11-27/calculate.mjs). Recovered 196 issuers/344 scope cards from the Nov8 retained export; 130 narrow PAT-eligible, fixed ISIN hash selects 100 new names (zero overlap with initial four), 30 eligible not selected and 66 excluded with reasons. All 100 have three simple forecasts; 38 also have deterministic accounting driver, three have original-text-checked assisted forecasts (Datamatics 69.94cr, Krsnaa 21.01cr, NRAIL 30.59cr). Dec31 reported PAT at matching scope; strong seasonal/one-off comparisons for assisted cases. Data unreviewed outside targeted checks. No actual results or 100 AI forecasts claim. Preserve original four-case pilot, seven-name forward comparator, prior judgments and all frozen contracts. Expand evidence and assisted forecasts by separately dated supplemental records before quarter end, never rewrite existing baseline, score equal-coverage pairwise against first reported results. Competitive watch unchanged. No new buy/trade or proven alpha.
 
+## 2026-11-28: additive twelve-company forecast expansion
+
+**Goal:** increase prospective company-specific earnings coverage and measure incremental accuracy against simple forecasts using the same verified data.
+
+**Action:** fixed the next 12 original ISIN-hash-ranked names before source review, captured 35 source documents and issued 12 base forecasts with explicit adverse/favorable assumptions. Total company-specific coverage is 15 of the original 100, plus the separate unchanged four-company pilot. The target is first reported Dec31 PAT at matching issuer identity, scope and owner attribution. Evidence cutoff Nov28 01:23:02 IST is within the target quarter.
+
+**Evidence changes:** tiny Neuland/Kothari PAT extraction differences and Sigma NCI/prior-period-tax reconciliation are recorded separately. No original register or forecast was rewritten. New packet pins original bytes, validates source/outcome chronology and reproduces base/scenario arithmetic. Original evaluator’s permissive date handling is documented without silently changing the frozen experiment.
+
+**Interpretation:** dividend seasonality, aggregate efficiency gains, government incentives, shipment timing and minority interests matter. Thomas Cook and Kothari also demonstrate that detailed research can converge on simple estimates. No target outcomes exist. No forecast-accuracy or stock-return advantage is claimed. Primary comparison uses adjusted additive seasonality, with raw seasonality mandatory because some historical addbacks contain tax/owner assumptions. Different-cutoff comparisons are separate diagnostics.
+
+**Next evidence:** first quarterly releases and later independent quarter cohorts. Score identical available issuers using original error scales, retain missing rows, flag perimeter breaks without favorable exclusions. No live capital, main merge, schedule or frozen H/PF/HG/AE changes. All prior dated investment cases remain active.
+
+**Record:** [supplement and sources](forecast-supplement-2026-11-28/README.md), [register](forecast-supplement-2026-11-28/forecast_register.json), [independent audit](forecast-supplement-2026-11-28/audit.md).
+

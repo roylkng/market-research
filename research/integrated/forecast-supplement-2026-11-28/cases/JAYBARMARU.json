@@ -1,0 +1,248 @@
+{
+  "symbol": "JAYBARMARU",
+  "isin": "INE571B01036",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "company_name": "Jay Bharat Maruti",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "SIGNED_CURRENT_AND_PRIOR_QUARTER_TABLES_VISUALLY_REVIEWED",
+  "unit": "INR_CRORE",
+  "target_period_end": "2026-12-31",
+  "forecast_created_at_utc": "2026-11-27T19:46:43.127227Z",
+  "verified_pat_cr": {
+    "q1": 21.8466,
+    "q2": 32.011,
+    "prior_q2": 18.4277,
+    "prior_q3": 18.3674
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 0
+  },
+  "normalization_basis": "Main historical comparators use reported owner PAT without discretionary addbacks. Disclosed exceptional items without an identified owner-level after-tax effect remain reported, with separate sensitivity where material.",
+  "sources": [
+    {
+      "id": "JAYBARMARU_2026Q2",
+      "title": "Jay Bharat Maruti signed September 2026 consolidated results",
+      "url": "https://www.jbmgroup.com/wp-content/uploads/2026/11/SUBMISSION-OUTCOME.pdf",
+      "publication_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF pages 3-4, consolidated statement and tax/incentive notes, INR lakh divided by 100",
+      "sha256": "c6561c3ebbbd37879be63588f2d991f7100cd87b7f5b609767b1e69d53415df4",
+      "bytes": 29314690,
+      "evidence_file": "root/JAYBARMARU_2026Q2.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    },
+    {
+      "id": "JAYBARMARU_2025Q3",
+      "title": "Jay Bharat Maruti signed December 2025 consolidated results",
+      "url": "https://www.jbmgroup.com/wp-content/uploads/2026/02/JBML-Financial-Results-for-the-Quarter-Ended-31st-December-2025.pdf",
+      "publication_date": "2026-02-06",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF pages 3-4, including note 7 labour-code charge, INR lakh divided by 100",
+      "sha256": "3dd7eaf1b35b9862952449a97d1fd1edf9b83df922ce5fe2d0b38346476ce600",
+      "bytes": 3792985,
+      "evidence_file": "root/JAYBARMARU_2025Q3.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    }
+  ],
+  "model": {
+    "kind": "pbt_components",
+    "components": [
+      {
+        "name": "Manufacturing EBIT: assumed revenue 820cr x 2.5 percent margin",
+        "amount_cr": 20.5
+      },
+      {
+        "name": "Government incentive recognized in operating revenue",
+        "amount_cr": 29
+      },
+      {
+        "name": "Other income",
+        "amount_cr": 1
+      },
+      {
+        "name": "Finance cost",
+        "amount_cr": -12
+      }
+    ],
+    "tax_rate": 0.2517,
+    "associates_after_tax_cr": 1,
+    "nci_cr": 0,
+    "exceptional_pretax_cr": 0
+  },
+  "forecast_pat_cr": 29.809549999999998,
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Manufacturing EBIT: 760cr x 1.5 percent",
+            "amount_cr": 11.4
+          },
+          {
+            "name": "Government incentive",
+            "amount_cr": 22
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0.5
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -13
+          }
+        ],
+        "tax_rate": 0.2517,
+        "associates_after_tax_cr": 0.8,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 16.439469999999996
+    },
+    "base": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Manufacturing EBIT: assumed revenue 820cr x 2.5 percent margin",
+            "amount_cr": 20.5
+          },
+          {
+            "name": "Government incentive recognized in operating revenue",
+            "amount_cr": 29
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 1
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -12
+          }
+        ],
+        "tax_rate": 0.2517,
+        "associates_after_tax_cr": 1,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 29.809549999999998
+    },
+    "favorable": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Manufacturing EBIT: 900cr x 3.5 percent",
+            "amount_cr": 31.5
+          },
+          {
+            "name": "Government incentive",
+            "amount_cr": 34
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 2
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -11
+          }
+        ],
+        "tax_rate": 0.2517,
+        "associates_after_tax_cr": 1.2,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 43.47895
+    }
+  },
+  "scenario_interpretation": "Analyst-defined adverse, base and favorable assumptions. These are not probability bounds, calibrated prediction intervals, management guidance or price targets. Outcomes can fall outside the range.",
+  "investment_action": "RESEARCH_ONLY_NO_POSITION_OR_BUY_PROMOTION",
+  "limits": [
+    "A within-quarter fundamental forecast with no realized target-quarter outcome.",
+    "The forecast does not constitute full valuation, governance, cash-conversion or position-sizing underwriting.",
+    "Seasonal anchors use one prior year and can break when business mix changes."
+  ],
+  "rationale": "Separate manufacturing EBIT, recognized government incentives, other income and after-tax joint-venture contribution. Strong Q2 revenue does not justify extrapolating every income component at the same growth rate. The base allows modest manufacturing growth while normalizing other income.",
+  "verified_facts": [
+    {
+      "source_id": "JAYBARMARU_2026Q2",
+      "fact": "Q2 operating revenue 823.4240cr includes government incentive 29.7959cr. Q1 incentive was 34.26cr and prior Q2 incentive 35.50cr."
+    },
+    {
+      "source_id": "JAYBARMARU_2026Q2",
+      "fact": "Q2 other income 5.2561cr, finance cost 10.9974cr, own PBT before joint venture 41.6006cr, after-tax joint-venture contribution 1.1115cr, tax 10.7011cr and owner PAT 32.0110cr."
+    },
+    {
+      "source_id": "JAYBARMARU_2025Q3",
+      "fact": "Prior Q3 consolidated labour-code exceptional charge was 6.5323cr. The standalone charge of 6.4005cr is a different accounting scope."
+    },
+    {
+      "source_id": "JAYBARMARU_2026Q2",
+      "fact": "The issuer moved to the lower tax regime from April 2026. A prior March 2026 deferred-tax remeasurement is not treated as a repeating quarterly gain."
+    }
+  ],
+  "derived_facts": [
+    {
+      "label": "Q2 manufacturing EBIT excluding government incentives and other income",
+      "calculation": "41.6006 - 5.2561 + 10.9974 - 29.7959",
+      "value_cr": 17.546
+    },
+    {
+      "label": "Q2 implied manufacturing EBIT margin",
+      "calculation": "17.546 / (823.4240 - 29.7959)",
+      "value": 0.022108592173084595
+    }
+  ],
+  "assumptions": [
+    {
+      "label": "Manufacturing EBIT",
+      "base": "820cr revenue x 2.5 percent margin = 20.5cr",
+      "basis": "Revenue above Q2 ex-incentive 793.6281cr and margin moderately above derived 2.21 percent. These are judgmental assumptions, not company guidance."
+    },
+    {
+      "label": "Government incentive",
+      "base": 29,
+      "basis": "Near Q2 recognition, below Q1 and prior-year quarters. Timing and eligibility remain uncertain."
+    },
+    {
+      "label": "Other income and financing",
+      "base": "1cr other income and 12cr financing cost",
+      "basis": "Do not repeat the full Q2 other-income increase."
+    },
+    {
+      "label": "Tax and joint venture",
+      "base": "25.17 percent tax on own PBT, then 1cr JV profit",
+      "basis": "Approximation to the new tax regime. JV profit is already after tax and is not taxed twice."
+    }
+  ],
+  "normalization_sensitivities": [
+    {
+      "period": "prior_q3",
+      "pretax_disclosed_charge_cr": 6.5323,
+      "assumed_tax_rate": 0.3494,
+      "assumed_owner_allocation": 1.0,
+      "estimated_addback_cr": 4.249914380000001,
+      "classification": "ASSUMPTION_NOT_VERIFIED_OWNER_AFTER_TAX_AMOUNT",
+      "in_main_normalization": false
+    }
+  ],
+  "disconfirming_evidence_to_watch": [
+    "Government incentive recognition below 22cr or delayed recognition would undermine the downside case.",
+    "Other income remaining above 5cr would make the base conservative.",
+    "Manufacturing volume growth without margin improvement would reduce the value of the revenue increase."
+  ],
+  "main_takeaway": "Government incentive timing and tax regime are essential to interpreting the reported earnings growth.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ]
+}

@@ -1,5 +1,7 @@
 # Start here for current investment research
 
+**28 November forecast expansion:** [Twelve additional source-reviewed company forecasts](research/integrated/forecast-supplement-2026-11-28/README.md). Fixed 100-name cohort now has 15 company-specific forecasts, with 12 new cases, 35 captured source documents and zero realized target outcomes. Preserve all original forecasts and dated source corrections. Same-information comparisons distinguish updated evidence from model value. No new buy or proven edge.
+
 **27 November 100-company forecast expansion:** [Baseline and nested assisted challenge](research/integrated/forecast-scale-2026-11-27/README.md). Preserve original four-company forecasts and separate future return comparison.
 
 **26 November cash and capital re-evaluation:** [TCS/Infosys, bank stress and Indus Towers](research/integrated/market-reevaluation-2026-11-26.md) and [scenario register](research/integrated/market-reevaluation-2026-11-26.json). Read before older missing-cash flags. Preserve dated prior research.
@@ -29,3 +31,4 @@ Root [AGENTS.md](AGENTS.md) instructs future repository-working research session
 The repository's original README and all frozen experiments remain intact. This assisted layer does not modify H003, authorize live capital, certify investment alpha or silently activate a provider. Supported investment judgments should be delivered promptly while missing evidence is confined to the claims it affects.
 
 Latest market checkpoint: [23 November intraday review, dated share quotes, six entry-price sensitivities and APL transaction economics](research/integrated/market-review-2026-11-23/README.md). Preserve prior dated cases and distinguish primary index data from secondary share quotes.
+

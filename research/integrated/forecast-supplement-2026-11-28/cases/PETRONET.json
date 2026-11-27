@@ -1,0 +1,324 @@
+{
+  "symbol": "PETRONET",
+  "isin": "INE347G01014",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "target_period_end": "2026-12-31",
+  "research_date_ist": "2026-11-28",
+  "evidence_cutoff_date_ist": "2026-11-28",
+  "created_at_utc": "2026-11-27T19:46:32+00:00",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "ORIGINAL_ISSUER_PDF_CAPTURED_CRITICAL_FINANCIAL_PAGES_VISUALLY_VERIFIED",
+  "verified_pat_cr": {
+    "q1": 1137.14,
+    "q2": 1256.43,
+    "prior_q2": 830.3,
+    "prior_q3": 869.61
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 19.0372608
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.petronetlng.in/documents/d/pertonetlng/ufr30092026-pdf",
+      "publication_date": "2026-11-02",
+      "document_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited financial results, September 2026",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn334957911view0",
+      "locator": "PDF p10 consolidated statement and p13 notes3\u20134. Scanned original visually checked.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/petronet_q2_2026.pdf",
+      "sha256": "b75b9b22ec3b2ebdd04e15de65611088996ee7c88660f63cc7c5a7b533768597",
+      "bytes": 944687,
+      "visually_checked_pdf_pages": [
+        10,
+        13
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://www.petronetlng.in/documents/d/pertonetlng/ufr31122025-pdf",
+      "publication_date": "2026-02-12",
+      "document_date": "2026-02-12",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited financial results, December 2025",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn334957911view1",
+      "locator": "PDF p5 consolidated statement, p6 notes3\u20135, labour past-service charge.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/petronet_q3_2025.pdf",
+      "sha256": "257e4647f3eecf510332db3b5bddaf8d82a22ed94d9edae5d12f5543e42d467b",
+      "bytes": 720500,
+      "visually_checked_pdf_pages": [
+        5,
+        6
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://www.petronetlng.in/documents/d/pertonetlng/intimationtranscript-1-pdf",
+      "publication_date": "2026-11-09",
+      "document_date": "2026-11-09",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Post-results conference call, held November3",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn859383410view0",
+      "locator": "PDF pp6\u20137 efficiency gains, p8 depreciation, p10 current/prior gains. Printed transcript page numbers are one less than PDF pages.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/petronet_transcript_q2.pdf",
+      "sha256": "971f95a3c66d6fa9d7742d725ed4f9aa3ce2bd597f4df4c7b8e37cd8be775d4e",
+      "bytes": 565212,
+      "visually_checked_pdf_pages": [
+        6,
+        10
+      ]
+    }
+  ],
+  "probabilities": null,
+  "scenario_interpretation": "Adverse/base/favorable assumption sensitivities. No assigned probabilities and no prediction-interval coverage claim.",
+  "facts": [
+    "S1 p13 reports continuing Qatar force majeure through September, vessel-owner claims625.42cr plus applicable taxes, unprovided, and arbitration with uncertain outcome. It also discloses use-or-pay receivable provision230.72cr and Q2 waivers252.80cr.",
+    "S1/S2 reconcile all four consolidated PAT anchors after adding equity-JV profits."
+  ],
+  "issuer_claims": [
+    "S3 says total throughput231TBTU versus207 sequentially and228 prior year. Dahej capacity is now22.5MTPA versus17.5, so lower utilization percentage is not evidence of lower physical throughput.",
+    "S3 pp6\u20137,10 reports aggregate commercial/operational efficiency gains658cr in Q2,494 in Q1 and41 in prior Q2. Management explicitly no longer discloses trading and inventory gains separately. The basket composition and persistence are unresolved. Forex is separate."
+  ],
+  "assumptions": [
+    "Q2 consolidated PBT1658.24 less identified efficiency gain658 leaves1000.24. This subtraction maps holding-company gain to the consolidated bridge, with small subsidiary operating differences otherwise held constant.",
+    "Base future gains450, regas contribution+30, treasury-20 and depreciation/operating-cost-15 produce PBT1445.24. Gain450 is below both current and previous quarter, with no assigned probability.",
+    "Tax25.5%, JV profit22 and no NCI. No December vessel provision in base. Adverse recognizes the disclosed625.42cr claim amount plus weaker efficiency gains/throughput. Applicable taxes, later claims and other losses are outside this particular charge assumption, so this is not maximum exposure. It is a stress assumption, not a prediction that the claim is legally payable.",
+    "No benefit from uncommissioned petrochemicals or a presumed Kochi pipeline completion is booked."
+  ],
+  "unknowns": [
+    "Components of the aggregate efficiency basket may reverse rather than merely decline. Trading, inventory and recurring operating efficiencies are not separately quantified.",
+    "Force-majeure resolution, future freight claims, use-or-pay settlements and impairment timing.",
+    "Tax deductibility and timing of any vessel claim provision, applicable taxes on the claimed amount and later claims. Actual PAT can fall outside the sensitivity range."
+  ],
+  "original_forecast_action": "PRESERVED_UNCHANGED",
+  "units": "INR crore except ratios, percentages and stated operating units",
+  "normalization_basis": "Prior-December labour past-service charge25.44cr in S2 note5 only: assumed tax relief25.168% gives19.0372608cr PAT addback. Tax relief is an assumption. Current aggregate commercial/operational efficiency gains, use-or-pay waivers and receivable impairments are not removed from reported-PAT baselines, since they are repeated commercial/accounting exposures. They are explicit forward drivers instead.",
+  "baseline_correction": "No current owner-PAT correction. The Q2 bridge gap21.80 and Q1 gap28.87 are share of JV profit after tax. Standalone press PAT1235cr is not the target. The correct consolidated target includes JV profit and is1256.43cr.",
+  "verified_operating_inputs_cr": {
+    "q2": {
+      "revenue": 7202.22,
+      "other_income": 233.01,
+      "finance": 49.7,
+      "depreciation": 186.76,
+      "impairment": 134.66,
+      "pbt": 1658.24,
+      "tax": 423.61,
+      "jv_profit": 21.8,
+      "owner_pat": 1256.43
+    },
+    "q1": {
+      "revenue": 5557.84,
+      "pbt": 1490.84,
+      "tax": 382.57,
+      "jv_profit": 28.87
+    },
+    "prior_q3": {
+      "revenue": 11163.83,
+      "pbt": 1141,
+      "tax": 295.5,
+      "jv_profit": 24.11,
+      "labour_past_service_charge": 25.44
+    }
+  },
+  "rationale": "Forecast remaining tolling/regas earnings plus the aggregate commercial/operational efficiency basket. Its components are not separately isolated and persistence is unknown. Q2 throughput grew only1% year on year, whereas management-identified efficiency gains rose from41 to658cr. The current profit surge therefore should not be treated as a stable throughput-growth trend. The base replaces658 with450 and modestly improves regas contribution.",
+  "model_formula": "owner_PAT = sum(PBT_component_amounts) * (1-tax_rate) + equity_JV_after_tax; no NCI",
+  "model": {
+    "kind": "pbt_components",
+    "components": [
+      {
+        "name": "September consolidated PBT excluding management-identified efficiency gains",
+        "amount_cr": 1000.24
+      },
+      {
+        "name": "assumed December aggregate commercial/operational efficiency gains",
+        "amount_cr": 450
+      },
+      {
+        "name": "throughput and regas contribution change",
+        "amount_cr": 30
+      },
+      {
+        "name": "treasury income change as capex uses cash",
+        "amount_cr": -20
+      },
+      {
+        "name": "incremental depreciation and operating costs",
+        "amount_cr": -15
+      },
+      {
+        "name": "vessel arbitration provision assumed",
+        "amount_cr": 0
+      }
+    ],
+    "tax_rate": 0.255,
+    "nci_cr": 0,
+    "associates_after_tax_cr": 22
+  },
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "September consolidated PBT excluding efficiency gains",
+            "amount_cr": 1000.24
+          },
+          {
+            "name": "December efficiency gains",
+            "amount_cr": 150
+          },
+          {
+            "name": "throughput/regas change",
+            "amount_cr": -80
+          },
+          {
+            "name": "treasury change",
+            "amount_cr": -35
+          },
+          {
+            "name": "incremental depreciation/operating costs",
+            "amount_cr": -20
+          },
+          {
+            "name": "disclosed vessel claim amount recognized, before applicable taxes",
+            "amount_cr": -625.42
+          }
+        ],
+        "tax_rate": 0.255,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 15
+      },
+      "assumption": "Aggregate gain150, weaker throughput and625.42cr vessel claim charge with assumed tax relief. Applicable taxes and later claims are outside this charge assumption.",
+      "forecast_pat_cr": 305.4159
+    },
+    "base": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "September consolidated PBT excluding management-identified efficiency gains",
+            "amount_cr": 1000.24
+          },
+          {
+            "name": "assumed December aggregate commercial/operational efficiency gains",
+            "amount_cr": 450
+          },
+          {
+            "name": "throughput and regas contribution change",
+            "amount_cr": 30
+          },
+          {
+            "name": "treasury income change as capex uses cash",
+            "amount_cr": -20
+          },
+          {
+            "name": "incremental depreciation and operating costs",
+            "amount_cr": -15
+          },
+          {
+            "name": "vessel arbitration provision assumed",
+            "amount_cr": 0
+          }
+        ],
+        "tax_rate": 0.255,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 22
+      },
+      "assumption": "Gain450 and modest regas increase, no legal charge.",
+      "forecast_pat_cr": 1098.7038
+    },
+    "favorable": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "September consolidated PBT excluding efficiency gains",
+            "amount_cr": 1000.24
+          },
+          {
+            "name": "December efficiency gains",
+            "amount_cr": 650
+          },
+          {
+            "name": "throughput/regas change",
+            "amount_cr": 60
+          },
+          {
+            "name": "treasury change",
+            "amount_cr": 0
+          },
+          {
+            "name": "incremental depreciation/operating costs",
+            "amount_cr": -10
+          },
+          {
+            "name": "vessel arbitration provision assumed",
+            "amount_cr": 0
+          }
+        ],
+        "tax_rate": 0.25,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 25
+      },
+      "assumption": "Gain650 persists and regas contribution rises60, no legal charge.",
+      "forecast_pat_cr": 1300.18
+    }
+  },
+  "additional_stresses": {
+    "adverse_without_vessel_provision_pat_cr": 771.3538,
+    "base_with_full_vessel_provision_no_tax_relief_pat_cr": 473.28380000000004
+  },
+  "investment_implication": "Research hypothesis: PAT moderates as unusual commercial gains soften, even if throughput holds up. The unresolved legal exposure requires a wide sensitivity. No market-price target or portfolio action follows.",
+  "forecast_pat_cr": 1098.7038,
+  "source_updated_reported_baselines_cr": {
+    "latest_quarter": 1256.43,
+    "two_quarter_mean": 1196.785,
+    "damped_sequential": 1286.2525,
+    "seasonal_naive": 869.61,
+    "seasonal_additive": 1295.74,
+    "seasonal_yoy": 1315.914840780441
+  },
+  "normalized_pat_cr": {
+    "q1": 1137.14,
+    "q2": 1256.43,
+    "prior_q2": 830.3,
+    "prior_q3": 888.6472608
+  },
+  "source_updated_normalized_baselines_cr": {
+    "latest_quarter": 1256.43,
+    "two_quarter_mean": 1196.785,
+    "damped_sequential": 1286.2525,
+    "seasonal_naive": 888.6472608,
+    "seasonal_additive": 1314.7772608000002,
+    "seasonal_yoy": 1344.722483303558
+  },
+  "baseline_formulas": {
+    "latest": "q2",
+    "mean": "(q1+q2)/2",
+    "damped": "q2+0.25*(q2-q1)",
+    "seasonal_naive": "prior_q3",
+    "additive": "prior_q3+q2-prior_q2",
+    "yoy": "prior_q3*q2/prior_q2, allowed only when all three are positive"
+  },
+  "reproducibility_note": "Signed original PDF bytes downloaded directly from issuer URLs, SHA256 and exact byte lengths recorded. Financial statement pages listed as visually checked were rendered locally and displayed to the analyst. Commentary pages not listed as visually checked were reviewed as extracted text. Acquisition timestamp records this review session, not original publication time.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ],
+  "normalization_estimate_flags": {
+    "q1": "NO_ADJUSTMENT",
+    "q2": "NO_ADJUSTMENT",
+    "prior_q2": "NO_ADJUSTMENT",
+    "prior_q3": "ANALYST_TAX_AND_OR_ATTRIBUTION_ESTIMATE"
+  }
+}
