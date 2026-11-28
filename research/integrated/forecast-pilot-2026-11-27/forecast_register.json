@@ -1,0 +1,209 @@
+{
+  "classification": "PROSPECTIVE_ASSISTED_FUNDAMENTAL_FORECAST_PILOT_NOT_MARKET_RETURN_TEST",
+  "research_date_ist": "2026-11-27",
+  "target_period_end": "2026-12-31",
+  "unit": "INR crore",
+  "universe": "Fixed convenience sample of the four companies in the 25/26 Nov large-cap comparison (two banks, two IT). No market-wide or random sample.",
+  "source_cutoff": "Public information dated no later than 2026-11-27 IST; not an exhaustive event scan.",
+  "previous_head": "bf0f948fd3af396576509caa61b9d36cf7c84efe",
+  "primary_target": "First published reported quarterly PAT matching each scope, including exceptional items; no substitution of adjusted PAT or EPS.",
+  "baseline_definitions": {
+    "seasonal_naive": "FY26 Q3 reported PAT",
+    "latest_quarter": "FY27 Q2 reported PAT",
+    "raw_yoy_trend": "FY26 Q3 PAT * FY27 Q2 PAT / FY26 Q2 PAT",
+    "adjusted_yoy_trend": "Apply documented prior-period exceptional expense adjustments only to prior Q3 and Q2, then repeat raw formula. Use actual identified tax impact where disclosed (INFY), otherwise prior effective tax rate as a mechanical proxy. This is an evidence-informed simple baseline, not pure price-only quant."
+  },
+  "driver_definition": "Assisted analyst-chosen drivers, accounting calculator, no assumed new one-off charges. Forecast actual reported PAT, not normalized earnings. Same-period annual growth is not a multi-year expected return.",
+  "primary_metric": "Paired mean absolute forecast error divided by absolute frozen prior-year Q3 PAT, equal issuer weight. Also report signed/absolute errors, direction accuracy and pair wins/ties against each baseline. Do not cherry-pick the easiest baseline or drop missing cases.",
+  "evaluation": "First public matching original result after target period ends; preserve first-release source/date, check scope, units, restatement separately, leave missing null. Scoring code checks metadata shape, not authenticity. Report partial coverage as partial, no promotion or p-value on four firms. Later corrections must be a separate dated record; never edit forecast.",
+  "specs": [
+    {
+      "symbol": "TCS",
+      "scope": "IFRS consolidated profit attributable to shareholders",
+      "oldQ3": 10657,
+      "oldQ2": 12075,
+      "newQ2": 13884,
+      "priorQ3Pbt": 14078,
+      "priorQ3Tax": 3358,
+      "priorQ2Pbt": 16068,
+      "priorQ2Tax": 3937,
+      "priorQ3IdentifiedPretax": 3391,
+      "priorQ2IdentifiedPretax": 1135,
+      "model": "services",
+      "drivers": {
+        "revenue": 73919.88,
+        "operatingMargin": 0.24,
+        "netOtherIncome": 950,
+        "taxRate": 0.2524,
+        "nci": 55
+      },
+      "evidence": [
+        "2026-01 Q3 FY26 issuer IFRS P&L: labor codes 1651+477, restructuring 253, legal provision 1010 crore; all four sum 3391. Q2 FY26 reskilling/redeployment 1135 crore.",
+        "2026-10-08 issuer Q2 FY27: revenue 73188 crore; operating profit 17553; net other income 1085; PBT 18638; tax 4704; owner profit 13884; NCI 50.",
+        "Current quarter nominal INR revenue +1% sequential is an analyst assumption, not CC guidance. Hold margin at about latest 24%, reduce nonoperating income to 950, tax near latest and NCI 55. No new exceptional expense assumed; MHP closure effects not separately quantified."
+      ],
+      "sources": [
+        "https://www.tcs.com/content/dam/tcs/investor-relations/financial-statements/2025-26/q3/IFRS/Extracts%20from%20Consolidated,%20Unaudited%20-%20INR.pdf",
+        "https://www.tcs.com/content/dam/tcs/investor-relations/financial-statements/2026-27/q2/IFRS/Extracts%20from%20Consolidated%2C%20Unaudited%20-%20INR.pdf",
+        "https://www.tcs.com/who-we-are/newsroom/press-release/tcs-financial-results-q2-fy-2027"
+      ],
+      "sourceStatus": "Issuer PDF text; both P&L screenshot requests failed."
+    },
+    {
+      "symbol": "INFY",
+      "scope": "IFRS consolidated profit attributable to owners",
+      "oldQ3": 6654,
+      "oldQ2": 7364,
+      "newQ2": 7823,
+      "priorQ3Pbt": 9229,
+      "priorQ3Tax": 2563,
+      "priorQ2Pbt": 10229,
+      "priorQ2Tax": 2854,
+      "priorQ3IdentifiedPretax": 1289,
+      "priorQ3KnownTaxBenefit": 318,
+      "priorQ2IdentifiedPretax": 0,
+      "model": "services",
+      "drivers": {
+        "revenue": 49736.44,
+        "operatingMargin": 0.21,
+        "netOtherIncome": 750,
+        "taxRate": 0.292,
+        "nci": 15
+      },
+      "evidence": [
+        "Jan 14 2026 Q3 FY26 IFRS owner profit 6654; issuer labor-code adjustment 1289 pretax, actual tax benefit 318, adjusted owner profit 7625. Dec P&L page visually checked.",
+        "Oct 23 2026 Q2 FY27 issuer release: current/prior revenue 49244/44490; operating profit 10330/9353; net other income 733/876; PBT 11063/10229; tax 3225/2854; owner profit 7823/7364.",
+        "FY27 CC guidance 1–2%, margin 20–22%; analyst assumes 1% nominal INR sequential revenue, midpoint 21% operating margin, net other income 750, tax 29.2%, NCI 15. No new exceptional charges or acquisition uplift assumed."
+      ],
+      "sources": [
+        "https://www.infosys.com/investors/reports-filings/quarterly-results/2025-2026/q3/documents/consolifrsinr-fy26-q3-and-9m-finstatement.pdf",
+        "https://www.infosys.com/investors/reports-filings/quarterly-results/2025-2026/q3/documents/ifrs-inr-press-release.pdf",
+        "https://www.infosys.com/investors/reports-filings/quarterly-results/2026-2027/q2/documents/ifrs-inr-press-release.pdf"
+      ],
+      "sourceStatus": "Original prior-year P&L screenshot verified; latest release parsed as text."
+    },
+    {
+      "symbol": "HDFCBANK",
+      "scope": "Standalone Indian GAAP net profit",
+      "oldQ3": 18650,
+      "oldQ2": 18641.28,
+      "newQ2": 19509.96,
+      "priorQ3Pbt": 24260,
+      "priorQ3Tax": 5610,
+      "priorQ2Pbt": 24423.07,
+      "priorQ2Tax": 5781.79,
+      "priorQ3IdentifiedPretax": 800,
+      "priorQ2IdentifiedPretax": 0,
+      "model": "bank",
+      "drivers": {
+        "netInterestIncome": 35657.75540000001,
+        "nonInterestIncome": 13750,
+        "operatingExpenses": 19535.7834,
+        "provisions": 3900,
+        "treasury": 0,
+        "taxRate": 0.247
+      },
+      "evidence": [
+        "Jan 17 2026 Q3 FY26 issuer deck rounded rupees billion converted ×10 to crore; PAT 18650, PBT 24260, implicit tax 5610, NLC employee provision 800; historical rounded input intentionally frozen.",
+        "Oct 17 2026 original standalone Q2: interest earned 83426.60, interest expended 48807.42, other income 13831.02, opex 18966.78, provisions 3573.62, PBT 25909.80, tax 6399.84, net profit 19509.96 vs 18641.28.",
+        "Latest average advance AUM +4.9% sequential, deposits +5.1%, total asset NIM 3.16%, credit cost 0.44%. Assume 3% sequential NII and opex growth, noninterest 13750 (includes treasury), provisions 3900, tax 24.7%. treasury field zero avoids double counting, not a forecast of zero trading gains."
+      ],
+      "sources": [
+        "https://www.hdfc.bank.in/content/dam/hdfcbankpws/in/en/pdf/financial-results/2025-2026/quarter-3/Q3FY26-earnings-presentation.pdf",
+        "https://www.hdfc.bank.in/tamil/content/dam/hdfcbankpws/in/en/pdf/about-us/financial-results/2026-2027/quarter-2/financial-results-for-the-quarter-ended-sep-30-2026.pdf",
+        "https://www.hdfc.bank.in/malayalam/content/dam/hdfcbankpws/in/en/pdf/press-release/2026/q4-oct-dec/october/press-release-september-2026.pdf"
+      ],
+      "sourceStatus": "Prior deck income statement screenshot checked; current signed P&L and press release text, screenshots failed."
+    },
+    {
+      "symbol": "ICICIBANK",
+      "scope": "Standalone Indian GAAP profit after tax",
+      "oldQ3": 11318,
+      "oldQ2": 12359,
+      "newQ2": 14843,
+      "priorQ3Pbt": 14800,
+      "priorQ3Tax": 3482,
+      "priorQ2Pbt": 16384,
+      "priorQ2Tax": 4025,
+      "priorQ3IdentifiedPretax": 1428,
+      "priorQ2IdentifiedPretax": 0,
+      "model": "bank",
+      "drivers": {
+        "netInterestIncome": 26099.170000000002,
+        "nonInterestIncome": 8350,
+        "operatingExpenses": 13259.384999999998,
+        "provisions": 1400,
+        "treasury": 0,
+        "taxRate": 0.2475
+      },
+      "evidence": [
+        "Jan 2026 Q3 FY26 issuer release: PAT 11318; PBT 14800, tax 3482; regulatory agriculture PSL provision 1283 and labour-code opex 145. Additional PSL provision remains held until compliant renewal or repayment; no automatic reversal assumed.",
+        "Oct 2026 Q2 issuer release: NII 25339, noninterest excluding treasury 8277, opex 12811, provisions 851, treasury loss 230, PBT 19724, PAT 14843 vs 12359; NIM 4.18%, prior 4.30%.",
+        "Assume 3% sequential NII, noninterest 8350, 3.5% opex growth, provisions 1400 for agricultural seasonality and growth, zero net treasury, 24.75% tax. FCNR-linked balance-sheet growth and NIM compression constrain extrapolation."
+      ],
+      "sources": [
+        "https://www.icici.bank.in/about-us/news-room/2026/performance-review-quarter-ended-december-31-2025",
+        "https://www.icici.bank.in/about-us/news-room/2026/performance-review-quarter-ended-september-30-2026"
+      ],
+      "sourceStatus": "Original issuer HTML results."
+    }
+  ],
+  "forecasts": [
+    {
+      "symbol": "TCS",
+      "normalized_prior_Q3": 13239.150873703651,
+      "normalized_prior_Q2": 12931.900983320886,
+      "forecast_pbt": 18690.7712,
+      "forecasts": {
+        "seasonal_naive": 10657,
+        "latest_quarter": 13884,
+        "raw_yoy_trend": 12253.564223602485,
+        "adjusted_yoy_trend": 14213.870873862728,
+        "driver_based": 13918.22054912
+      }
+    },
+    {
+      "symbol": "INFY",
+      "normalized_prior_Q3": 7625,
+      "normalized_prior_Q2": 7364,
+      "forecast_pbt": 11194.6524,
+      "forecasts": {
+        "seasonal_naive": 6654,
+        "latest_quarter": 7823,
+        "raw_yoy_trend": 7068.745518739815,
+        "adjusted_yoy_trend": 8100.268196632265,
+        "driver_based": 7910.8138992
+      }
+    },
+    {
+      "symbol": "HDFCBANK",
+      "normalized_prior_Q3": 19265.00412201154,
+      "normalized_prior_Q2": 18641.28,
+      "forecast_pbt": 25971.97200000001,
+      "forecasts": {
+        "seasonal_naive": 18650,
+        "latest_quarter": 19509.96,
+        "raw_yoy_trend": 19519.086350293543,
+        "adjusted_yoy_trend": 20162.749544037764,
+        "driver_based": 19556.89491600001
+      }
+    },
+    {
+      "symbol": "ICICIBANK",
+      "normalized_prior_Q3": 12410.034054054055,
+      "normalized_prior_Q2": 12359,
+      "forecast_pbt": 19789.785,
+      "forecasts": {
+        "seasonal_naive": 11318,
+        "latest_quarter": 14843,
+        "raw_yoy_trend": 13592.772392588397,
+        "adjusted_yoy_trend": 14904.291242359765,
+        "driver_based": 14891.8132125
+      }
+    }
+  ],
+  "actuals": [],
+  "outcomes": null,
+  "probabilities": null,
+  "external_benchmark": "https://arxiv.org/abs/2610.38293"
+}

@@ -1,0 +1,47 @@
+{
+  "review_date": "2026-11-21",
+  "scope": "Bounded cross-review of company valuation logic and root synthesis, not independent re-audit of every original",
+  "material_fixes": [
+    {
+      "case": "APAR",
+      "finding": "Prior downside began at PAT above FY26 despite elevated current margins",
+      "change": "Retained prior row as lower_growth, added profit_reset from FY26 PAT with same other assumptions",
+      "status": "applied"
+    },
+    {
+      "case": "VIJAYA",
+      "finding": "Current cash coverage does not prove life-of-hub self-funding when leases add obligations",
+      "change": "Qualified funding language beside lease-liability disclosure",
+      "status": "applied"
+    },
+    {
+      "case": "combined",
+      "finding": "Price CAGR and payout-inclusive IRR are different outputs",
+      "change": "Return bases explicitly identified and no combined numerical return ranking",
+      "status": "applied"
+    },
+    {
+      "case": "CAMS",
+      "finding": "Specific renewals and platform succession matter to the growth path",
+      "change": "FY28 AMC renewals and CPO departure terms added to synthesis",
+      "status": "applied"
+    },
+    {
+      "case": "CAMS",
+      "finding": "Selected historical cash excludes acquisition/JV allocation while future growth assumes fully funded distributable cash",
+      "change": "Reverse-valuation assumption stated explicitly",
+      "status": "applied"
+    }
+  ],
+  "no_material_double_count_found": [
+    "CAMS opening treasury and annual future cash",
+    "APAR retained earnings and terminal value",
+    "CAMS/APAR scenario dilution",
+    "Vijaya signed lease cash versus dividend earmarking"
+  ],
+  "limits": [
+    "A code check does not establish future return accuracy",
+    "No claim of independent forensic accounting review",
+    "No blind historical test added"
+  ]
+}

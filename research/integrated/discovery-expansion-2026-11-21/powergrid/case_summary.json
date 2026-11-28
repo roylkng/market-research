@@ -1,0 +1,103 @@
+{
+  "company": "Power Grid Corporation of India Limited",
+  "symbol": "POWERGRID",
+  "isin": "INE752E01010",
+  "exchange": "NSE",
+  "series": "EQ",
+  "as_of": "2026-11-21",
+  "price": 269.0,
+  "price_date": "2026-11-20",
+  "decision": "CONDITIONAL",
+  "conditional_price_action": "BUY_AT_PRICE consideration at INR220 or below, subject to unchanged fundamentals. No automatic order or promised buy.",
+  "entry_condition_price": 220.0,
+  "rationale": "Growth capex is financeable within bounded scenarios. At INR269, base 5y/10y returns of 6.2%/7.3% offer limited compensation for TBCB bid returns, commissioning, funding approvals and governance uncertainty. At INR220 the same base returns become 10.9%/9.9%.",
+  "confidence": {
+    "existing_operating_business": "MEDIUM_HIGH",
+    "current_funding_reconciliation": "MEDIUM_HIGH",
+    "new_tbcb_return_estimates": "LOW_MEDIUM",
+    "price_decision": "MEDIUM",
+    "long_term_forecast": "LOW_MEDIUM"
+  },
+  "financials": {
+    "gross_debt_crore": 151207,
+    "book_equity_crore": 106748.38,
+    "cwip_crore_including_advances": 55419,
+    "share_count_actual": 9300603819,
+    "reported_ttm_eps": 17.4137833577147,
+    "normalized_opening_eps": 16.12798512001643,
+    "debt_model_scope": "Gross borrowings, static cash, excludes leases. Not mislabeled net debt."
+  },
+  "returns_at_reference_price": {
+    "adverse": {
+      "five_year": -0.040852369400704525,
+      "ten_year": 0.010936491136613324
+    },
+    "base": {
+      "five_year": 0.06189752229068135,
+      "ten_year": 0.07316023093595658
+    },
+    "upside": {
+      "five_year": 0.12126706780912089,
+      "ten_year": 0.10580647940818622
+    }
+  },
+  "base_returns_at_220": {
+    "five_year": 0.10862900178206891,
+    "ten_year": 0.09863447991209495
+  },
+  "base_funding": {
+    "peak_gross_debt_to_book": 1.6653191563691763,
+    "year5_gross_debt": 234835.03971633158,
+    "year10_gross_debt": 235958.06833239956,
+    "current_authorized_borrowing_limit_exceeded_model_year": 4,
+    "future_awards_required_by_year10_crore": 150419.0,
+    "equity_issue_assumed": false,
+    "asset_sale_assumed": false
+  },
+  "decisive_checks": [
+    {
+      "check": "FY27 actual capitalization versus original INR30000cr target and revised INR25000-30000cr range",
+      "status": "PENDING_ACTUAL_FULL_YEAR",
+      "why": "Tests conversion of spending and CWIP into earnings."
+    },
+    {
+      "check": "Humnabad cost, SPV loan terms and tariff contract",
+      "status": "UNKNOWN",
+      "why": "INR243.34cr annual charges are not profit. Hypothetical cost near INR1730cr supports assumed 13% first-year equity accounting return, but actual cost is not established."
+    },
+    {
+      "check": "Independent-director and audit-committee composition",
+      "status": "ADVERSE_EVIDENCE",
+      "why": "1 November signed results disclose two non-executive plus one executive committee pending independent-director appointments."
+    },
+    {
+      "check": "Borrowing approvals and accessible debt as balance grows",
+      "status": "FUTURE_CONDITION",
+      "why": "Current INR220000cr authorization is exceeded in base year4, adverse year3."
+    }
+  ],
+  "new_information": [
+    "Current CERC base RoE is 15.5% existing, 15.0% new cost-plus COD after April2024. Neither guarantees TBCB returns.",
+    "Issuer FY28 financing proposal explicitly uses 80:20 debt/internal resources.",
+    "H1 receivables release INR3982.38cr and net working-capital release INR2099.93cr must not be extrapolated forever.",
+    "FY22-FY26 adjusted EPS broadly flat despite capex acceleration.",
+    "Signed H1 notes confirm FY26 final INR1.25 dividend paid. Already ex-record-date INR3 interim excluded for new buyer."
+  ],
+  "source_manifest": "source_manifest.json",
+  "primary_originals_with_actual_hashes": 7,
+  "raw_originals_directory": "/workspace/scratch/2db776c8c1e9/work/expansion_20261121/powergrid/originals",
+  "note": "README.md",
+  "calculator": "calculate.py",
+  "inputs": "inputs.json",
+  "outputs": "outputs.json",
+  "verification": "verification.json",
+  "scope": "Bounded asset-cohort and financing scenarios, not fully committed project forecast, not lifetime bid IRRs, not a blind historical replay, not personalized portfolio allocation. Existing assets and new competitive projects separated. Source originals retained with hashes, selected pages visually inspected.",
+  "nonchanges": [
+    "No frozen historical protocol edits",
+    "No automation edits",
+    "No shared handoff edits",
+    "No brokerage activity",
+    "No Git commands"
+  ],
+  "visual": "decision_chart.png"
+}

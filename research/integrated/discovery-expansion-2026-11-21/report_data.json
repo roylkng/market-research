@@ -1,0 +1,493 @@
+{
+  "research_opened_date_ist": "2026-11-21",
+  "assembled_at_utc": "2026-11-21T18:38:06.973967+00:00",
+  "price_date": "2026-11-20",
+  "coverage": {
+    "new_company_screens": 10,
+    "fresh_deep_cases": 3,
+    "existing_cases_completed": 2,
+    "total_valuations": 5,
+    "official_eq_prices": 12,
+    "full_universe": false
+  },
+  "companies": [
+    {
+      "symbol": "PIXTRANS",
+      "name": "PIX Transmissions",
+      "price": 1698.7,
+      "condition_price": 1450,
+      "status": "Conditional price candidate",
+      "decision": "WATCH_AT_REFERENCE_CONDITIONAL_BUY",
+      "case_file": "industrial/PIX_TRANSMISSIONS_CASE.md",
+      "output_file": "industrial/outputs.json",
+      "scenario_keys": [
+        "downside",
+        "base",
+        "positive"
+      ],
+      "pattern": "Industrial replacement and uptime",
+      "base_assumptions": "8% revenue growth, 24.5% EBIT margin, 16× terminal NOPAT. ₹274cr of five-year capex and ₹110cr working capital are funded.",
+      "condition": "Around ₹1,450 with the business intact, or support for 10% growth and the current 26.6% core EBIT margin at today’s price.",
+      "key_fact": "H1 reported earnings include ₹23.12cr of investment valuation gains. Current manufacturing economics remain strong after normalization.",
+      "risk": "Cyclical demand, margin durability, thin trading and capital allocation. Terminal value assumes durable capital productivity.",
+      "historical": "FY22 cash after capital spending and interest was negative. Subsequent commissioning and cash recovery show why investment spending needs a funding-and-return assessment.",
+      "sources": [
+        "https://nsearchives.nseindia.com/corporate/SHYBUV_06112026173428_BM_outcome.pdf",
+        "https://www.pixtrans.com/investors/investorPDF/PIX_Annual_Report_2025-26.pdf"
+      ],
+      "isin": "INE751B01018",
+      "scenarios": [
+        {
+          "name": "Adverse",
+          "key": "downside",
+          "annualized_return": -0.0637518357882027,
+          "terminal_price": 1195.589986137774,
+          "dividends": [
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            6.0
+          ],
+          "cashflows": [
+            -1698.7,
+            6.0,
+            6.0,
+            6.0,
+            6.0,
+            1201.589986137774
+          ],
+          "return_at_condition_price": -0.03337489388415843
+        },
+        {
+          "name": "Base",
+          "key": "base",
+          "annualized_return": 0.07797876630365941,
+          "terminal_price": 2420.091853622216,
+          "dividends": [
+            9.0,
+            9.0,
+            9.0,
+            9.0,
+            9.0
+          ],
+          "cashflows": [
+            -1698.7,
+            9.0,
+            9.0,
+            9.0,
+            9.0,
+            2429.091853622216
+          ],
+          "return_at_condition_price": 0.11299511009988372
+        },
+        {
+          "name": "Favorable",
+          "key": "positive",
+          "annualized_return": 0.1607819816994539,
+          "terminal_price": 3485.577523842764,
+          "dividends": [
+            9.973417632269598,
+            12.677505353050513,
+            14.449300533654561,
+            16.1832165976931,
+            18.125202589416272
+          ],
+          "cashflows": [
+            -1698.7,
+            9.973417632269598,
+            12.677505353050513,
+            14.449300533654561,
+            16.1832165976931,
+            3503.7027264321805
+          ],
+          "return_at_condition_price": 0.1985463805087212
+        }
+      ],
+      "condition_price_change": -0.1464060752340025
+    },
+    {
+      "symbol": "POWERGRID",
+      "name": "POWERGRID",
+      "price": 269,
+      "condition_price": 220,
+      "status": "Conditional price candidate",
+      "decision": "CONDITIONAL_PRICE_AND_EXECUTION",
+      "case_file": "powergrid/README.md",
+      "output_file": "powergrid/outputs.json",
+      "scenario_keys": [
+        "adverse",
+        "base",
+        "upside"
+      ],
+      "pattern": "Electricity transmission buildout",
+      "base_assumptions": "Existing-asset cash plus funded commissioning cohorts. New TBCB assets assume 13% first-year accounting return on reference equity. This is not a bid IRR.",
+      "condition": "Around ₹220 with commissioning, project economics and debt access intact. The same base ten-year return is 9.9% at that price.",
+      "key_fact": "Funding growth is feasible in the bounded model. Base gross debt/book equity peaks near 1.67×, with future borrowing approvals required.",
+      "risk": "Competitive bids, commissioning delays, debt costs and governance. Regulated returns do not apply automatically to competitive projects.",
+      "historical": "FY22–FY26 adjusted EPS was broadly flat despite sharply higher capital spending. Physical expansion did not automatically compound earnings per share.",
+      "sources": [
+        "https://powergrid.in/sites/default/files/quarter2/OutcomeQ2Results.pdf",
+        "https://www.powergrid.in/sites/default/files/meetings-notices-file/BSENSEReg30IAR.pdf"
+      ],
+      "isin": "INE752E01010",
+      "scenarios": [
+        {
+          "name": "Adverse",
+          "key": "adverse",
+          "annualized_return": -0.040852369400704525,
+          "terminal_price": 183.38326982273122,
+          "dividends": [
+            7.663446435834855,
+            7.577338261554259,
+            7.530166315353874,
+            7.547951323224533,
+            7.6409695759473255
+          ],
+          "cashflows": [
+            -269,
+            7.663446435834855,
+            7.577338261554259,
+            7.530166315353874,
+            7.547951323224533,
+            191.02423939867856
+          ],
+          "return_at_condition_price": 0.0013081007181497961
+        },
+        {
+          "name": "Base",
+          "key": "base",
+          "annualized_return": 0.06189752229068135,
+          "terminal_price": 306.8079447939283,
+          "dividends": [
+            9.01959105457881,
+            9.421777400842426,
+            9.932674225256577,
+            10.55444074541192,
+            11.2496246424459
+          ],
+          "cashflows": [
+            -269,
+            9.01959105457881,
+            9.421777400842426,
+            9.932674225256577,
+            10.55444074541192,
+            318.0575694363742
+          ],
+          "return_at_condition_price": 0.10862900178206891
+        },
+        {
+          "name": "Favorable",
+          "key": "upside",
+          "annualized_return": 0.12126706780912089,
+          "terminal_price": 406.53355603194393,
+          "dividends": [
+            9.493435999432924,
+            10.247112704355398,
+            11.145098118663345,
+            12.136470620849819,
+            13.15255622456386
+          ],
+          "cashflows": [
+            -269,
+            9.493435999432924,
+            10.247112704355398,
+            11.145098118663345,
+            12.136470620849819,
+            419.6861122565078
+          ],
+          "return_at_condition_price": 0.1705230540468724
+        }
+      ],
+      "condition_price_change": -0.18215613382899631
+    },
+    {
+      "symbol": "NEWGEN",
+      "name": "Newgen Software",
+      "price": 413.55,
+      "condition_price": 350,
+      "status": "Price and collections watch",
+      "decision": "WATCH_PRICE_AND_COLLECTIONS",
+      "case_file": "services/newgen_case.md",
+      "output_file": "services/newgen_outputs.json",
+      "scenario_keys": [
+        "downside",
+        "base",
+        "upside"
+      ],
+      "pattern": "Enterprise process automation",
+      "base_assumptions": "10% revenue growth and 22.5% cash EBIT margin before share awards. Capital spending, leases, working capital and future dilution are funded.",
+      "condition": "₹325–350 with collection, credit-loss and delivery evidence intact. Same-season DSO and contract collections are more useful than a seasonal March comparison.",
+      "key_fact": "Trailing cash after all reported capex and lease cash is ₹208.55cr. Same-season net DSO rose from 124 to 145 days.",
+      "risk": "Collection quality, AI pricing pressure, customer mix, leadership transition and equity compensation.",
+      "historical": "Recurring revenue growth is useful, but accounting profit and cash can diverge. FY26 stock compensation included a credit, so headline margin improvement needs normalization.",
+      "sources": [
+        "https://landing.newgensoft.com/hubfs/Quarterly%20Results%20FY%202026-27%20Q2.pdf",
+        "https://landing.newgensoft.com/hubfs/Newgen%20Annual%20Report%202025-26%20v2.pdf"
+      ],
+      "isin": "INE619B01017",
+      "scenarios": [
+        {
+          "name": "Adverse",
+          "key": "downside",
+          "annualized_return": -0.07147187069702116,
+          "terminal_price": 264.70116100396865,
+          "dividends": [
+            1.0779582682475028,
+            5.375948992798259,
+            5.48419123018131,
+            5.593614113517918,
+            5.70422954809601
+          ],
+          "cashflows": [
+            -413.55,
+            1.0779582682475028,
+            5.375948992798259,
+            5.48419123018131,
+            5.593614113517918,
+            270.40539055206466
+          ],
+          "return_at_condition_price": -0.03922904994907678
+        },
+        {
+          "name": "Base",
+          "key": "base",
+          "annualized_return": 0.08253458042607587,
+          "terminal_price": 566.7685143088653,
+          "dividends": [
+            6.053962673904582,
+            7.628506240364744,
+            8.403203266537357,
+            9.251823621354234,
+            10.181364049711522
+          ],
+          "cashflows": [
+            -413.55,
+            6.053962673904582,
+            7.628506240364744,
+            8.403203266537357,
+            9.251823621354234,
+            576.9498783585768
+          ],
+          "return_at_condition_price": 0.12047908303521127
+        },
+        {
+          "name": "Favorable",
+          "key": "upside",
+          "annualized_return": 0.1888089476960867,
+          "terminal_price": 904.97506923005,
+          "dividends": [
+            8.484025962370222,
+            9.29754870812801,
+            10.760405989272343,
+            12.449338285643927,
+            14.39922021488553
+          ],
+          "cashflows": [
+            -413.55,
+            8.484025962370222,
+            9.29754870812801,
+            10.760405989272343,
+            12.449338285643927,
+            919.3742894449356
+          ],
+          "return_at_condition_price": 0.23060275471950498
+        }
+      ],
+      "condition_price_change": -0.15366944746705358
+    },
+    {
+      "symbol": "NUCLEUS",
+      "name": "Nucleus Software",
+      "price": 611.45,
+      "condition_price": 500,
+      "status": "Recovery and price watch",
+      "decision": "WATCH_RECOVERY_AND_PRICE",
+      "case_file": "services/nucleus_cash_review.md",
+      "output_file": "services/nucleus_outputs.json",
+      "scenario_keys": [
+        "downside",
+        "base",
+        "upside"
+      ],
+      "pattern": "Lending software modernization",
+      "base_assumptions": "6% growth with EBIT margins recovering through 8%, 9%, 10%, 11%, 11.5%. Includes a 1.5%-of-sales cash budget for share awards. Recovery is assumed.",
+      "condition": "₹475–500 with treasury protected, receivable collection and EBITDA stabilization near 10% supported by operating results.",
+      "key_fact": "The issuer’s ₹942.1cr treasury metric includes financial investments. Trailing cash after capex and leases was −₹35.05cr before employee-trust share purchases.",
+      "risk": "Weak core profitability, cash collection, recovery execution and access to financial assets. The headline treasury is not a verified liquidation floor.",
+      "historical": "Cash accumulated in prior years does not by itself offset a weakening current earnings engine. Cash after shareholder-claim funding is the relevant measure.",
+      "sources": [
+        "https://investor.nucleussoftware.com/media/bzmkt3tw/outcome.pdf",
+        "https://investor.nucleussoftware.com/media/v4gh0nl1/integrated-annual-report-fy-25-26.pdf"
+      ],
+      "isin": "INE096B01018",
+      "scenarios": [
+        {
+          "name": "Adverse",
+          "key": "downside",
+          "annualized_return": -0.11295035982477991,
+          "terminal_price": 315.80155544424895,
+          "dividends": [
+            0.0,
+            5.814573181029691,
+            5.887255345792562,
+            5.960846037614969,
+            6.035356613085157
+          ],
+          "cashflows": [
+            -611.45,
+            0.0,
+            5.814573181029691,
+            5.887255345792562,
+            5.960846037614969,
+            321.83691205733413
+          ],
+          "return_at_condition_price": -0.07589339785113741
+        },
+        {
+          "name": "Base",
+          "key": "base",
+          "annualized_return": 0.07771579428214215,
+          "terminal_price": 805.5612918272343,
+          "dividends": [
+            7.0906229162160574,
+            13.27165169134216,
+            15.49631237484191,
+            17.965756031926755,
+            19.860175045714108
+          ],
+          "cashflows": [
+            -611.45,
+            7.0906229162160574,
+            13.27165169134216,
+            15.49631237484191,
+            17.965756031926755,
+            825.4214668729484
+          ],
+          "return_at_condition_price": 0.12356749547593837
+        },
+        {
+          "name": "Favorable",
+          "key": "upside",
+          "annualized_return": 0.23735174791853952,
+          "terminal_price": 1564.1973093078223,
+          "dividends": [
+            20.670848384440433,
+            21.452526516861756,
+            27.31997064988328,
+            32.3734393256888,
+            38.30504017417095
+          ],
+          "cashflows": [
+            -611.45,
+            20.670848384440433,
+            21.452526516861756,
+            27.31997064988328,
+            32.3734393256888,
+            1602.5023494819932
+          ],
+          "return_at_condition_price": 0.29104923499817226
+        }
+      ],
+      "condition_price_change": -0.18227164935808327
+    },
+    {
+      "symbol": "MSTCLTD",
+      "name": "MSTC",
+      "price": 656.55,
+      "condition_price": 500,
+      "status": "Pass at current price",
+      "decision": "PASS_CURRENT_PRICE_CONDITIONAL_REOPEN",
+      "case_file": "mstc/README.md",
+      "output_file": "mstc/outputs.json",
+      "scenario_keys": [
+        "adverse",
+        "base",
+        "favorable"
+      ],
+      "pattern": "Digital auctions and platform extensions",
+      "base_assumptions": "8% revenue growth, 61% pre-working-capital cash margin, ₹30cr after-tax float income and ₹250cr usable opening treasury. All retained cash is counted.",
+      "condition": "Around ₹500 with the franchise and liability assessment intact, or materially stronger core growth at today’s price.",
+      "key_fact": "₹2,271.73cr gross bank balances reduce to ₹432.48cr after recognized financial claims, before other obligations and buffers. Older CAG comments are now incorporated.",
+      "risk": "Counterparty cash ownership, float income rights, legacy claims, accounting policy and auction cannibalization.",
+      "historical": "The earlier 50% payout table left the retained half ambiguous. The same old assumptions give 2.91% without and 5.41% with retained cash credited once.",
+      "sources": [
+        "https://nsearchives.nseindia.com/corporate/MSTCLTD_12112026174610_SE782.pdf",
+        "https://www.mstcindia.co.in/MSTC_Static_Pages/frontpage/MSTC_Annual_Report_2025-26%28English-Version%29.pdf",
+        "https://nsearchives.nseindia.com/corporate/MSTCLTD_19112026162210_SE786.pdf"
+      ],
+      "isin": "INE255X01014",
+      "scenarios": [
+        {
+          "name": "Adverse",
+          "key": "adverse",
+          "annualized_return": -0.10606626193155971,
+          "terminal_price": 331.66284040255124,
+          "dividends": [
+            3.120522989801138,
+            10.287010619288742,
+            12.274267477383303,
+            12.526850422099765,
+            12.78463108179834
+          ],
+          "cashflows": [
+            -656.55,
+            3.120522989801138,
+            10.287010619288742,
+            12.274267477383303,
+            12.526850422099765,
+            344.4474714843496
+          ],
+          "return_at_condition_price": -0.054167759024025985
+        },
+        {
+          "name": "Base",
+          "key": "base",
+          "annualized_return": 0.05053327539284724,
+          "terminal_price": 742.6139621026567,
+          "dividends": [
+            12.02653137393807,
+            16.906418824689766,
+            18.41889472244082,
+            20.05236853469144,
+            21.81642133426192
+          ],
+          "cashflows": [
+            -656.55,
+            12.02653137393807,
+            16.906418824689766,
+            18.41889472244082,
+            20.05236853469144,
+            764.4303834369186
+          ],
+          "return_at_condition_price": 0.11227336752884065
+        },
+        {
+          "name": "Favorable",
+          "key": "favorable",
+          "annualized_return": 0.17377197322772442,
+          "terminal_price": 1302.5348693221576,
+          "dividends": [
+            16.31840811735476,
+            20.70641564449779,
+            23.736443219786114,
+            27.204497553931134,
+            31.175197846532743
+          ],
+          "cashflows": [
+            -656.55,
+            16.31840811735476,
+            20.70641564449779,
+            23.736443219786114,
+            27.204497553931134,
+            1333.7100671686903
+          ],
+          "return_at_condition_price": 0.24287464539510106
+        }
+      ],
+      "condition_price_change": -0.23844337826517392
+    }
+  ],
+  "return_definition": "Five-year nominal dividend-inclusive scenario IRRs, before personal tax and trading costs. Model assumptions differ by business. No probabilities, confidence intervals or realized outcomes are asserted.",
+  "historical_claim": "Retrospective business mechanism checks only in this increment. Earlier frozen historical studies remain unchanged. Selected-cohort investment advantage remains unproven."
+}

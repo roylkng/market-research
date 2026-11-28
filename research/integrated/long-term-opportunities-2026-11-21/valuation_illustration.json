@@ -1,0 +1,41 @@
+{
+  "classification": "MATHEMATICAL_ILLUSTRATION_NOT_FORECAST",
+  "formula": "(1 + annual_eps_growth) * (exit_PE / entry_PE) ** (1 / years) - 1",
+  "EPS": "Per-share earnings growth already includes any dilution effect",
+  "excluded": [
+    "dividends",
+    "tax",
+    "trading costs",
+    "funding feasibility"
+  ],
+  "scenarios": [
+    {
+      "entry_pe": 30,
+      "exit_pe": 30,
+      "eps_growth": 0.15,
+      "years": 10,
+      "price_cagr": 0.1499999999999999
+    },
+    {
+      "entry_pe": 45,
+      "exit_pe": 30,
+      "eps_growth": 0.15,
+      "years": 10,
+      "price_cagr": 0.10430417591105057
+    },
+    {
+      "entry_pe": 60,
+      "exit_pe": 30,
+      "eps_growth": 0.15,
+      "years": 10,
+      "price_cagr": 0.07298794026732836
+    },
+    {
+      "entry_pe": 80,
+      "exit_pe": 30,
+      "eps_growth": 0.15,
+      "years": 10,
+      "price_cagr": 0.04255978114843151
+    }
+  ]
+}

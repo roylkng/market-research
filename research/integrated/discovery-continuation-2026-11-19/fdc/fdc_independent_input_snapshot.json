@@ -1,0 +1,203 @@
+{
+  "decision_date": "2026-11-19",
+  "security": {
+    "symbol": "FDC",
+    "series": "EQ",
+    "isin": "INE258B01022",
+    "price": 373.9,
+    "price_date": "2026-11-18",
+    "shares_pre": 162810084,
+    "buyback_shares": 2400000,
+    "buyback_price": 500,
+    "buyback_cost_reserve_cr": 2
+  },
+  "units": "INR crore unless per share or percentage. H1 filings in rounded INR lakh. Annual exact lakh converted to crore.",
+  "reported": {
+    "FY25": {
+      "revenue": 2108.1204,
+      "pat": 266.7881,
+      "pbt": 357.2176,
+      "other_income": 90.6608,
+      "da": 53.7322,
+      "finance_cost": 4.5096,
+      "exceptional": 0,
+      "cfo": 317.5736,
+      "capex": 96.7246,
+      "finance_cash": 0.7762,
+      "lease_cash": 10.1812,
+      "interest_income": 47.3843,
+      "investment_gain": 6.0857,
+      "fair_value_gain": 24.3009
+    },
+    "FY26": {
+      "revenue": 2170.9332,
+      "pat": 281.4216,
+      "pbt": 374.5985,
+      "other_income": 113.5183,
+      "da": 59.2429,
+      "finance_cost": 4.9857,
+      "exceptional": 20.7891,
+      "cfo": 200.4519,
+      "capex": 186.5627,
+      "finance_cash": 0.7858,
+      "lease_cash": 11.4039,
+      "interest_income": 52.3797,
+      "investment_gain": 7.4973,
+      "fair_value_gain": 11.7923
+    },
+    "H1FY26": {
+      "revenue": 1121.44,
+      "pat": 149.72,
+      "pbt": 197.86,
+      "other_income": 54.69,
+      "da": 30.11,
+      "finance_cost": 2.32,
+      "exceptional": 0,
+      "cfo": -1.94,
+      "capex": 81.44,
+      "finance_cash": 1.09,
+      "lease_cash": 6.01,
+      "interest_income": 26.22,
+      "investment_gain": 3.54,
+      "fair_value_gain": 19.05
+    },
+    "H1FY27": {
+      "revenue": 1239.83,
+      "pat": 181.55,
+      "pbt": 240.11,
+      "other_income": 63.28,
+      "da": 31.11,
+      "finance_cost": 1.67,
+      "exceptional": 0,
+      "cfo": 251.26,
+      "capex": 155.33,
+      "finance_cash": 0.99,
+      "lease_cash": 3.32,
+      "interest_income": 38.55,
+      "investment_gain": 1.33,
+      "fair_value_gain": 16.08
+    }
+  },
+  "balance_sep26": {
+    "investments_noncurrent": 629.62,
+    "investments_current": 574.85,
+    "cash": 36.21,
+    "other_bank_excluded": 11.02,
+    "borrowing": 0,
+    "lease_liability": 12.82,
+    "cwip": 163.39,
+    "equity": 2668.91,
+    "tax_assets_excluded": 67.89,
+    "current_tax_liability": 21.93
+  },
+  "tax_refund_orders_cr": [
+    37.22,
+    14.2,
+    20.71
+  ],
+  "tax_refund_cash_received_verified": false,
+  "model_common": {
+    "years": 5,
+    "normalized_tax_rate": 0.25,
+    "dividend_per_share": 5,
+    "other_financing_cash": 1,
+    "physical_da": [
+      55,
+      60,
+      65,
+      70,
+      75
+    ],
+    "lease_cash": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "operating_cash_buffer": 75,
+    "base_claim_buffer": 25,
+    "claim_buffer_is_not_expected_loss_estimate": true,
+    "refund_credit_fraction": 0.75
+  },
+  "scenarios": {
+    "downside": {
+      "revenue_growth": 0.04,
+      "margin": 0.145,
+      "total_capex": [
+        230,
+        180,
+        140,
+        120,
+        120
+      ],
+      "working_capital_use": [
+        35,
+        30,
+        30,
+        30,
+        30
+      ],
+      "portfolio_haircut": 0.1,
+      "claim_buffer": 75,
+      "treasury_return_after_tax": 0.02,
+      "terminal_core_fcf_multiple": 14
+    },
+    "working": {
+      "revenue_growth": 0.08,
+      "margin": "ttm_ebitda_margin",
+      "total_capex": [
+        200,
+        150,
+        110,
+        100,
+        110
+      ],
+      "working_capital_use": [
+        20,
+        25,
+        30,
+        35,
+        40
+      ],
+      "portfolio_haircut": 0.05,
+      "claim_buffer": 25,
+      "treasury_return_after_tax": 0.04,
+      "terminal_core_fcf_multiple": 18
+    },
+    "upside": {
+      "revenue_growth": 0.12,
+      "margin": 0.185,
+      "total_capex": [
+        190,
+        140,
+        110,
+        110,
+        120
+      ],
+      "working_capital_use": [
+        20,
+        25,
+        30,
+        35,
+        40
+      ],
+      "portfolio_haircut": 0.02,
+      "claim_buffer": 0,
+      "treasury_return_after_tax": 0.05,
+      "terminal_core_fcf_multiple": 22
+    }
+  },
+  "model_labels": [
+    "Scenarios are analyst assumptions, not guidance, probabilities or price targets.",
+    "Buyback completion is conditional. No tender entitlement or premium is credited to new purchases.",
+    "Total future capex includes maintenance and growth. No separate project reserve is subtracted from current assets.",
+    "Cash lease expense is deducted before normalized tax. Lease liability is not deducted again at terminal.",
+    "Core EBITDA excludes all other income. Treasury returns are modeled once, on retained financial assets.",
+    "Future owner cash is retained except assumed dividends, not distributed and counted again in terminal cash.",
+    "Current tax assets are excluded. Haircut refund credit includes only separately disclosed orders, not tax-asset balance again.",
+    "Operating buffer and contingent-claim buffer receive no terminal credit.",
+    "No personal hurdle rate is assumed. 8/10/12/15% are reference sensitivities.",
+    "Starting current tax liability of21.93crore is explicitly deducted, not hidden in operating or contingent buffers. Conditional extra employee-settlement stress is separate, not a base double deduction."
+  ]
+}

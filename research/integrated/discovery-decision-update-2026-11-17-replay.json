@@ -1,0 +1,38 @@
+{
+  "schema": "assisted-research-historical-reconstruction/v1",
+  "observed_on": "2026-11-17",
+  "classification": "RETROSPECTIVE_RECONSTRUCTION_NOT_BLIND_BACKTEST",
+  "supersedes": "Only research priority and specified cash interpretations in discovery-decision-board-2026-11-17.json. Earlier judgments are retained, not erased.",
+  "source_register": "historical-replay-2026-11-17.md",
+  "live_capital": false,
+  "prospective_validation": false,
+  "decision_verdicts_frozen_before_outcomes": false,
+  "method_limits": [
+    "Current shortlisted surviving companies, not a point-in-time universe",
+    "Model may already know outcomes, which were visible before final judgments",
+    "Three observations per issuer are not independent samples",
+    "Secondary raw OHLC, not original exchange-verified adjusted returns",
+    "Dividends, full corporate actions, executable fills, tax and full-path drawdown not reconciled",
+    "Separate close-to-close benchmark diagnostic, not an opening-price excess-return calculation",
+    "Rounded Nifty 500 price-index marks, not TRI",
+    "No aggregate win rate, portfolio return or alpha claim"
+  ],
+  "return_formula": "100 * (exit_close / entry_open - 1)",
+  "cost_sensitivity_formula": "100 * (exit_close * (1-c) / (entry_open * (1+c)) - 1)",
+  "cost_sensitivity_per_side": [0.0015, 0.005, 0.01],
+  "benchmark_close_marks": {"2022-11-17": 15597.25, "2023-11-17": 17601, "2024-11-18": 21899, "2025-11-18": 23825},
+  "cases": [
+    {"symbol":"GESHIP","cutoff":"2022-11-16","source_date":"2022-11-12","judgment":"BUY_CANDIDATE_RECONSTRUCTED","nav_range":[901,968],"entry_date":"2022-11-17","entry_open":603.0,"entry_close":613.9,"exit_date":"2023-11-17","exit_close":780.7,"raw_price_return_pct":29.469320066335},
+    {"symbol":"DATAMATICS","cutoff":"2022-11-16","source_date":"2022-10-28","judgment":"BUY_CANDIDATE_RECONSTRUCTED","h1_eps":14.14,"entry_date":"2022-11-17","entry_open":314.5,"entry_close":310.9,"exit_date":"2023-11-17","exit_close":612.15,"raw_price_return_pct":94.64228934817169},
+    {"symbol":"GESHIP","cutoff":"2023-11-16","source_date":"2023-10-31","judgment":"BUY_CANDIDATE_RECONSTRUCTED","nav_midpoint":1263,"entry_date":"2023-11-17","entry_open":783.5,"entry_close":780.7,"exit_date":"2024-11-18","exit_close":1067.95,"raw_price_return_pct":36.30504148053606},
+    {"symbol":"DATAMATICS","cutoff":"2023-11-16","source_date":"2023-11-02","judgment":"WATCH_EVIDENCE_AND_PRICE_RECONSTRUCTED","h1_eps":17.7,"entry_date":"2023-11-17","entry_open":594.55,"entry_close":612.15,"exit_date":"2024-11-18","exit_close":521.5,"raw_price_return_pct":-12.286603313430323},
+    {"symbol":"GESHIP","cutoff":"2024-11-16","source_date":"2024-11-11","judgment":"WATCH_PRICE_RECONSTRUCTED","nav_midpoint":1463,"entry_date":"2024-11-18","entry_open":1108.0,"entry_close":1067.95,"exit_date":"2025-11-18","exit_close":1131.3,"raw_price_return_pct":2.1028880866425848},
+    {"symbol":"DATAMATICS","cutoff":"2024-11-16","source_date":"2024-11-05","judgment":"WATCH_RECOVERY_RECONSTRUCTED","h1_eps":14.54,"entry_date":"2024-11-18","entry_open":535.25,"entry_close":521.5,"exit_date":"2025-11-18","exit_close":895.35,"raw_price_return_pct":67.27697337692666,"assessment":"Important missed recovery. Do not relabel original judgment as BUY."}
+  ],
+  "current_priority_update": [
+    {"rank":1,"symbol":"DATAMATICS","status":"UNDERWRITE_PRIORITY","buy_authorized":false,"price_reference":716.35,"price_date":"2026-11-16","price_status":"Carried prior dated observation, not independently refreshed execution quote","h1_eps":24.66,"annualized_h1_eps_not_forecast":49.32,"annualized_h1_pe_not_normalized":14.524533657745337,"h1_cfo_cr":190.41,"h1_ppe_cr":37.7,"h1_lease_principal_cr":18.04,"h1_interest_paid_cr":6.68,"h1_cash_after_selected_uses_cr":127.99,"h1_acquisition_subsidiary_nci_investment_cr":210.3,"h1_cash_after_selected_uses_and_acquisition_cr":-82.31,"new_evidence":"Issuer 4 Nov call filed 9 Nov attributes quarterly net-cash decline primarily to final TNQTech tranche. This explains cash deployment, not acquisition ROIC.","remaining_decisive_questions":["Attributable acquisition cash returns versus full consideration","Margin and customer durability","Actual dilution and effective tax"],"prior_648_illustration_is_approved_buy_level":false},
+    {"rank":2,"symbol":"GESHIP","status":"UNDERWRITE_PRIORITY","buy_authorized":false,"new_evidence":"Issuer historical price/NAV chart shows persistent discounts. Do not assume convergence to full NAV.","remaining_decisive_questions":["Normal-cycle freight cash","Independent fleet valuation by class","Replacement and maintenance cash"]}
+  ],
+  "uncomputed": {"total_return":null,"maximum_drawdown":null,"calibrated_probability":null,"source_pdf_sha256":null},
+  "process_change": "Keep a recovery queue and dated reopening triggers. Treat this seen sample as learning, not validation. Test changed rules prospectively without modifying frozen studies."
+}

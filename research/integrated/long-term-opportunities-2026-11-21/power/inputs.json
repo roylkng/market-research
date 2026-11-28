@@ -1,0 +1,54 @@
+{
+  "as_of": "2026-11-21",
+  "currency": "INR",
+  "financial_unit": "crore",
+  "scope": "APAR consolidated unless explicitly stated",
+  "price_date": "2026-11-20",
+  "price_source": "../prices/selected_prices_20261120.json",
+  "apar": {
+    "symbol": "APARINDS",
+    "isin": "INE372A01015",
+    "price": 14339.0,
+    "shares": 41875057,
+    "shares_date": "2026-10-29",
+    "shares_source": "apar_h1fy27.pdf, allotment annexure, post-allotment count",
+    "historical": [
+      {"period":"FY22","revenue":9317,"pat":257,"issuer_ebitda_post_open_forex":587,"equity":1715,"source":"apar_ar_fy26.pdf printed p153, rounded five-year table"},
+      {"period":"FY23","revenue":14336,"pat":638,"issuer_ebitda_post_open_forex":1291,"equity":2236,"source":"apar_ar_fy26.pdf printed p153, rounded five-year table"},
+      {"period":"FY24","revenue":16153,"pat":826,"issuer_ebitda_post_open_forex":1632,"equity":3876,"source":"apar_ar_fy26.pdf printed p153, rounded five-year table"},
+      {"period":"FY25","revenue":18581.21,"pat":821.30,"issuer_ebitda_post_open_forex":1681,"equity":4503.54,"cfo":1291.33,"ppe_cash_outflow":509.69,"ppe_disposal_cash":2.84,"interest_paid_financing":270.05,"lease_principal":20.0,"source":"apar_ar_fy26.pdf printed pp153,366–369"},
+      {"period":"FY26","revenue":22902.12,"pat":976.93,"issuer_ebitda_post_open_forex":2067,"equity":5393.38,"cfo":967.58,"ppe_cash_outflow":736.66,"ppe_disposal_cash":3.64,"interest_paid_financing":270.61,"lease_principal":18.17,"source":"apar_ar_fy26.pdf printed pp153,366–369"}
+    ],
+    "h1fy26": {"revenue":10819.58,"pat":514.61,"cfo":168.86,"ppe_cash_outflow":406.83,"interest_paid_financing":121.77,"lease_principal":11.97},
+    "h1fy27": {"revenue":13522.25,"pat":914.80,"cfo":-862.63,"ppe_cash_outflow":505.44,"interest_paid_financing":151.01,"lease_principal":15.39,"equity":8520.23,"cash_equivalents":1171.49,"current_investments":274.86,"other_bank_balances":99.59,"borrowings":888.35,"lease_liabilities":125.38,"inventory":5055.38,"trade_receivables_current":5244.74,"trade_payables":5655.0,"prior_year_us_tariff_refund_pretax":42.75},
+    "funding": {"fy26_supplier_finance_in_payables":5013.78,"fy25_supplier_finance_in_payables":4079.83,"fy26_suppliers_paid_by_banks":4311.55,"fy26_borrowings":840.51,"h1fy27_qip_gross":2500,"h1fy27_qip_and_esar_net_cash":2472.28,"qip_working_capital_used":1463.72,"qip_short_term_facilities_repaid":448.42,"qip_issue_costs":27.72,"qip_unutilised_sep30":560.14,"fy27_capex_management_plan":1500},
+    "operating": {"h1fy27_conductor_volume_mt":110416,"h1fy26_conductor_volume_mt":120069,"h1fy27_conductor_issuer_ebitda_per_mt":50739,"h1fy26_conductor_issuer_ebitda_per_mt":41421,"h1fy27_oil_volume_kl":257676,"h1fy26_oil_volume_kl":310148,"h1fy27_oil_issuer_ebitda_per_kl":24374,"h1fy26_oil_issuer_ebitda_per_kl":6418,"sep26_conductor_backlog":12025,"sep26_cable_backlog":3000}
+  },
+  "model": {
+    "classification": "CONDITIONAL_REVERSE_VALUATION_NOT_FULLY_FUNDED_FORECAST",
+    "payout": 0.20,
+    "annual_share_dilution": 0.003,
+    "payout_and_dilution_type": "SCENARIO_ASSUMPTION",
+    "timing": "Year-end dividends, exit at year-end after final dividend. Years start at reference close, not fiscal-year ends.",
+    "personal_tax_and_trading_costs": "Excluded. Output is gross nominal INR scenario IRR, not after-cost investment value.",
+    "funding_limit": "No additional future equity issue, acquisition financing, debt roll-forward or explicit supplier-finance/capex model. Retention identity is a diagnostic, not proof of funding.",
+    "scenarios": [
+      {"name":"profit_reset","normalised_start_pat":976.93,"pat_growth":0.08,"exit_pe":20,"starting_profit_basis":"Stress sensitivity anchored to reported FY26 PAT. This does not assert FY26 is the true sustainable normal."},
+      {"name":"lower_growth","normalised_start_pat":1200,"pat_growth":0.08,"exit_pe":20,"starting_profit_basis":"Preserves the prior downside-row assumptions under a more accurate lower-growth label. Starting profit remains above FY26 actual."},
+      {"name":"working","normalised_start_pat":1400,"pat_growth":0.15,"exit_pe":25},
+      {"name":"upside","normalised_start_pat":1800,"pat_growth":0.20,"exit_pe":30}
+    ],
+    "reverse_start_pat":1400,
+    "horizons":[5,10],
+    "required_returns":[0.08,0.10,0.12,0.15],
+    "exit_multiples":[20,25,30]
+  },
+  "powergrid": {"symbol":"POWERGRID","isin":"INE752E01010","price":269,"fy26_eps":17.13,"h1fy26_eps":7.74,"h1fy27_eps":8.03,"sep26_book_value_per_share":114.78,"fy26_announced_dividend_per_share":9.0,"dividend_status":"FY26 board declared/recommended annual rate, including final 1.25. Final-payment bank confirmation not checked. Not a forecast or a forward yield.","work_in_hand":220000,"work_in_hand_tcbb_percent":89,"sep26_debt":151207,"sep26_cwip":55419,"h1fy27_pat":7465,"h1fy26_pat":7197},
+  "gvtandd": {"symbol":"GVT&D","isin":"INE200A01026","price":4235,"fy26_reported_eps":48.16,"fy26_pat":1233.25,"fy22_revenue":3065.95,"fy22_operating_profit_before_finance":-141.0,"fy22_pat":-49.62,"fy21_pat":60.32,"sep26_order_backlog":21440,"mar26_order_backlog":21460,"h1fy27_order_intake":3580,"h1fy27_revenue_rounded":3860,"q2fy27_ebitda_margin":0.271,"cash_and_cash_pool_lending_rounded":3250},
+  "sector_plan": [
+    {"metric":"Transmission line length","unit":"lakh circuit km","baseline":5.09,"baseline_date":"2026-06-30","target":6.48,"target_year":2032,"years_for_cagr":6,"classification":"OBSERVED_BASELINE_AND_POLICY_TARGET"},
+    {"metric":"Transmission transformation capacity","unit":"GVA","baseline":1478,"baseline_date":"2026-06-30","target":2345,"target_year":2032,"years_for_cagr":6,"classification":"OBSERVED_BASELINE_AND_POLICY_TARGET"},
+    {"metric":"Inter-regional transmission capacity","unit":"GW","baseline":120,"baseline_date":"2026-06-30","target":168,"target_year":2032,"years_for_cagr":6,"classification":"OBSERVED_BASELINE_AND_POLICY_TARGET"},
+    {"metric":"Distribution transformer capacity","unit":"GVA","baseline":895,"baseline_date":"2026-03-31","target":1631,"target_year":2035,"years_for_cagr":9,"classification":"OBSERVED_BASELINE_AND_POLICY_TARGET"}
+  ]
+}

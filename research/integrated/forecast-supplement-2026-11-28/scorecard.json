@@ -1,0 +1,1135 @@
+{
+  "classification": "ADDITIVE_FUNDAMENTAL_FORECAST_COMPARISON_NOT_STOCK_RETURNS_OR_VALIDATED_SKILL",
+  "evaluation_as_of_utc": "2026-11-27T19:53:02+00:00",
+  "coverage": {
+    "original_cohort": 100,
+    "attempted": 12,
+    "source_valid": 12,
+    "assisted_forecasted": 12,
+    "abstained": 0,
+    "source_input_difference_over_original_tolerance": 0,
+    "original_cohort_actuals_observed": 0,
+    "attempted_actuals_observed": 0,
+    "assisted_actuals_observed": 0,
+    "attempted_actuals_missing": 12
+  },
+  "primary_comparison": {
+    "lhs": "assisted_driver",
+    "rhs": "normalized_seasonal_additive",
+    "available_pairs": 12,
+    "matured_pairs": 0,
+    "missing_pairs": 12,
+    "mean_lhs_scaled_abs": null,
+    "mean_rhs_scaled_abs": null,
+    "mean_paired_improvement": null,
+    "mean_lhs_signed_scaled": null,
+    "wins": null,
+    "ties": null,
+    "losses": null
+  },
+  "source_matched_comparisons": [
+    {
+      "lhs": "assisted_driver",
+      "rhs": "latest_verified_quarter",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "verified_two_quarter_mean",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "verified_damped_sequential",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "seasonal_naive",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "seasonal_additive",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "normalized_seasonal_additive",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "raw_yoy_trend",
+      "available_pairs": 11,
+      "matured_pairs": 0,
+      "missing_pairs": 11,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "normalized_yoy_trend",
+      "available_pairs": 11,
+      "matured_pairs": 0,
+      "missing_pairs": 11,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    }
+  ],
+  "different_information_cutoff_comparisons": [
+    {
+      "lhs": "assisted_driver",
+      "rhs": "frozen_latest_quarter",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "frozen_two_quarter_mean",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "frozen_damped_sequential",
+      "available_pairs": 12,
+      "matured_pairs": 0,
+      "missing_pairs": 12,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    },
+    {
+      "lhs": "assisted_driver",
+      "rhs": "frozen_accounting_driver",
+      "available_pairs": 4,
+      "matured_pairs": 0,
+      "missing_pairs": 4,
+      "mean_lhs_scaled_abs": null,
+      "mean_rhs_scaled_abs": null,
+      "mean_paired_improvement": null,
+      "mean_lhs_signed_scaled": null,
+      "wins": null,
+      "ties": null,
+      "losses": null
+    }
+  ],
+  "source_repair_diagnostic": {
+    "lhs": "latest_verified_quarter",
+    "rhs": "frozen_latest_quarter",
+    "available_pairs": 12,
+    "matured_pairs": 0,
+    "missing_pairs": 12,
+    "mean_lhs_scaled_abs": null,
+    "mean_rhs_scaled_abs": null,
+    "mean_paired_improvement": null,
+    "mean_lhs_signed_scaled": null,
+    "wins": null,
+    "ties": null,
+    "losses": null
+  },
+  "method_coverage": {
+    "frozen_latest_quarter": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "frozen_two_quarter_mean": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "frozen_damped_sequential": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "frozen_accounting_driver": {
+      "forecasted": 4,
+      "matured": 0
+    },
+    "latest_verified_quarter": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "verified_two_quarter_mean": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "verified_damped_sequential": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "seasonal_naive": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "seasonal_additive": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "normalized_seasonal_additive": {
+      "forecasted": 12,
+      "matured": 0
+    },
+    "raw_yoy_trend": {
+      "forecasted": 11,
+      "matured": 0
+    },
+    "normalized_yoy_trend": {
+      "forecasted": 11,
+      "matured": 0
+    },
+    "assisted_driver": {
+      "forecasted": 12,
+      "matured": 0
+    }
+  },
+  "rows": [
+    {
+      "symbol": "SIGMA",
+      "isin": "INE0A0S01028",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 12.575600000000001,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 12.575600000000001,
+          "verified_pat_cr": 12.5756,
+          "difference_cr": -1.7763568394002505e-15,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 6.8252,
+          "verified_pat_cr": 6.8252,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 6.8252,
+        "frozen_two_quarter_mean": 9.7004,
+        "frozen_damped_sequential": 5.387599999999999,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 6.8252,
+        "verified_two_quarter_mean": 9.7004,
+        "verified_damped_sequential": 5.3876,
+        "seasonal_naive": 6.6855,
+        "seasonal_additive": 6.8631,
+        "normalized_seasonal_additive": 6.8631,
+        "raw_yoy_trend": 6.86411255189843,
+        "normalized_yoy_trend": 6.86411255189843,
+        "assisted_driver": 6.650740000000001
+      },
+      "model_calculation": {
+        "pbt_cr": 9.001000000000001,
+        "tax_cr": 2.3402600000000002,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 0.01,
+        "owner_pat_cr": 6.650740000000001
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 7.05,
+          "tax_cr": 2.1149999999999998,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0.03,
+          "owner_pat_cr": 4.904999999999999
+        },
+        "base": {
+          "pbt_cr": 9.001000000000001,
+          "tax_cr": 2.3402600000000002,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0.01,
+          "owner_pat_cr": 6.650740000000001
+        },
+        "favorable": {
+          "pbt_cr": 10.46,
+          "tax_cr": 2.4058,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 8.054200000000002
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "HLEGLAS",
+      "isin": "INE461D01028",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 14.307,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 2.7746000000000013,
+          "verified_pat_cr": 2.7746,
+          "difference_cr": -1.3322676295501878e-15,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 14.307,
+          "verified_pat_cr": 14.307,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 14.307,
+        "frozen_two_quarter_mean": 8.5408,
+        "frozen_damped_sequential": 17.1901,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 14.307,
+        "verified_two_quarter_mean": 8.5408,
+        "verified_damped_sequential": 17.1901,
+        "seasonal_naive": 2.8325,
+        "seasonal_additive": 5.152600000000001,
+        "normalized_seasonal_additive": 5.152600000000001,
+        "raw_yoy_trend": 3.38073876481826,
+        "normalized_yoy_trend": 3.38073876481826,
+        "assisted_driver": 16.271250000000002
+      },
+      "model_calculation": {
+        "pbt_cr": 24.095000000000002,
+        "tax_cr": 6.023750000000001,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 1.8,
+        "owner_pat_cr": 16.271250000000002
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 14.45,
+          "tax_cr": 4.335,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 1.5,
+          "owner_pat_cr": 8.614999999999998
+        },
+        "base": {
+          "pbt_cr": 24.095000000000002,
+          "tax_cr": 6.023750000000001,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 1.8,
+          "owner_pat_cr": 16.271250000000002
+        },
+        "favorable": {
+          "pbt_cr": 35.0,
+          "tax_cr": 8.75,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 2.3,
+          "owner_pat_cr": 23.95
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "JAYBARMARU",
+      "isin": "INE571B01036",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 32.011,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 21.846599999999995,
+          "verified_pat_cr": 21.8466,
+          "difference_cr": 3.552713678800501e-15,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 32.011,
+          "verified_pat_cr": 32.011,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 32.011,
+        "frozen_two_quarter_mean": 26.9288,
+        "frozen_damped_sequential": 34.5521,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 32.011,
+        "verified_two_quarter_mean": 26.928800000000003,
+        "verified_damped_sequential": 34.5521,
+        "seasonal_naive": 18.3674,
+        "seasonal_additive": 31.950699999999998,
+        "normalized_seasonal_additive": 31.950699999999998,
+        "raw_yoy_trend": 31.906252077036203,
+        "normalized_yoy_trend": 31.906252077036203,
+        "assisted_driver": 29.809549999999998
+      },
+      "model_calculation": {
+        "pbt_cr": 38.5,
+        "tax_cr": 9.690449999999998,
+        "associates_after_tax_cr": 1,
+        "nci_cr": 0,
+        "owner_pat_cr": 29.809549999999998
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 20.9,
+          "tax_cr": 5.260529999999999,
+          "associates_after_tax_cr": 0.8,
+          "nci_cr": 0,
+          "owner_pat_cr": 16.439469999999996
+        },
+        "base": {
+          "pbt_cr": 38.5,
+          "tax_cr": 9.690449999999998,
+          "associates_after_tax_cr": 1,
+          "nci_cr": 0,
+          "owner_pat_cr": 29.809549999999998
+        },
+        "favorable": {
+          "pbt_cr": 56.5,
+          "tax_cr": 14.221049999999998,
+          "associates_after_tax_cr": 1.2,
+          "nci_cr": 0,
+          "owner_pat_cr": 43.47895
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "NEULANDLAB",
+      "isin": "INE794A01010",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 147.6711,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 147.6711,
+          "verified_pat_cr": 147.6731,
+          "difference_cr": 0.0020000000000095497,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 51.627,
+          "verified_pat_cr": 51.625,
+          "difference_cr": -0.0020000000000024443,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 51.627,
+        "frozen_two_quarter_mean": 99.64905,
+        "frozen_damped_sequential": 27.615975000000006,
+        "frozen_accounting_driver": 62.052745341317696,
+        "latest_verified_quarter": 51.625,
+        "verified_two_quarter_mean": 99.64905,
+        "verified_damped_sequential": 27.612975,
+        "seasonal_naive": 40.5719,
+        "seasonal_additive": -4.6569999999999965,
+        "normalized_seasonal_additive": -4.6569999999999965,
+        "raw_yoy_trend": 21.625606583730754,
+        "normalized_yoy_trend": 21.625606583730754,
+        "assisted_driver": 86.7267
+      },
+      "model_calculation": {
+        "pbt_cr": 116.1,
+        "tax_cr": 29.3733,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 0,
+        "owner_pat_cr": 86.7267
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 59.10000000000001,
+          "tax_cr": 15.366000000000003,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 43.73400000000001
+        },
+        "base": {
+          "pbt_cr": 116.1,
+          "tax_cr": 29.3733,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 86.7267
+        },
+        "favorable": {
+          "pbt_cr": 173.60000000000002,
+          "tax_cr": 43.400000000000006,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 130.20000000000002
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "TATAINVEST",
+      "isin": "INE672A01026",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 143.51,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 143.51,
+          "verified_pat_cr": 143.51,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 115.92,
+          "verified_pat_cr": 115.92,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 115.92,
+        "frozen_two_quarter_mean": 129.715,
+        "frozen_damped_sequential": 109.02250000000001,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 115.92,
+        "verified_two_quarter_mean": 129.715,
+        "verified_damped_sequential": 109.02250000000001,
+        "seasonal_naive": 75.39,
+        "seasonal_additive": 43.150000000000006,
+        "normalized_seasonal_additive": 43.150000000000006,
+        "raw_yoy_trend": 58.98494060475162,
+        "normalized_yoy_trend": 58.98494060475162,
+        "assisted_driver": 41.773399999999995
+      },
+      "model_calculation": {
+        "pbt_cr": 12.979999999999999,
+        "tax_cr": 2.2066,
+        "associates_after_tax_cr": 31,
+        "nci_cr": 0,
+        "owner_pat_cr": 41.773399999999995
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": -9.670000000000002,
+          "tax_cr": -0.0,
+          "associates_after_tax_cr": 25,
+          "nci_cr": 0,
+          "owner_pat_cr": 15.329999999999998
+        },
+        "base": {
+          "pbt_cr": 12.979999999999999,
+          "tax_cr": 2.2066,
+          "associates_after_tax_cr": 31,
+          "nci_cr": 0,
+          "owner_pat_cr": 41.773399999999995
+        },
+        "favorable": {
+          "pbt_cr": 44.4,
+          "tax_cr": 6.659999999999999,
+          "associates_after_tax_cr": 40,
+          "nci_cr": 0,
+          "owner_pat_cr": 77.74
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "DEVYANI",
+      "isin": "INE872J01023",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 14.646999999999998,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 14.646999999999998,
+          "verified_pat_cr": 14.647,
+          "difference_cr": 1.7763568394002505e-15,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": -0.242,
+          "verified_pat_cr": -0.242,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": -0.242,
+        "frozen_two_quarter_mean": 7.202499999999999,
+        "frozen_damped_sequential": -3.96425,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": -0.242,
+        "verified_two_quarter_mean": 7.202500000000001,
+        "verified_damped_sequential": -3.96425,
+        "seasonal_naive": -10.389,
+        "seasonal_additive": 11.256,
+        "normalized_seasonal_additive": 26.9025,
+        "raw_yoy_trend": null,
+        "normalized_yoy_trend": null,
+        "assisted_driver": 12.720000000000002
+      },
+      "model_calculation": {
+        "pbt_cr": 22.560000000000002,
+        "tax_cr": 5.640000000000001,
+        "associates_after_tax_cr": -0.2,
+        "nci_cr": 4,
+        "owner_pat_cr": 12.720000000000002
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": -4.449999999999996,
+          "tax_cr": -0.0,
+          "associates_after_tax_cr": -0.2,
+          "nci_cr": 4,
+          "owner_pat_cr": -8.649999999999995
+        },
+        "base": {
+          "pbt_cr": 22.560000000000002,
+          "tax_cr": 5.640000000000001,
+          "associates_after_tax_cr": -0.2,
+          "nci_cr": 4,
+          "owner_pat_cr": 12.720000000000002
+        },
+        "favorable": {
+          "pbt_cr": 38.2,
+          "tax_cr": 9.55,
+          "associates_after_tax_cr": -0.1,
+          "nci_cr": 4.5,
+          "owner_pat_cr": 24.05
+        }
+      },
+      "comparator_abstentions": {
+        "raw_yoy_trend": "Prior Q2 PAT below fixed positive denominator floor",
+        "normalized_yoy_trend": "Normalized prior Q2 below fixed positive denominator floor"
+      },
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "THOMASCOOK",
+      "isin": "INE332A01027",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 71.89999999999999,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 71.89999999999999,
+          "verified_pat_cr": 71.9,
+          "difference_cr": 1.4210854715202004e-14,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 51.67,
+          "verified_pat_cr": 51.67,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 51.67,
+        "frozen_two_quarter_mean": 61.785,
+        "frozen_damped_sequential": 46.612500000000004,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 51.67,
+        "verified_two_quarter_mean": 61.785000000000004,
+        "verified_damped_sequential": 46.6125,
+        "seasonal_naive": 41.7,
+        "seasonal_additive": 26.930000000000007,
+        "normalized_seasonal_additive": 65.74,
+        "raw_yoy_trend": 32.42984647802529,
+        "normalized_yoy_trend": 66.59806776180699,
+        "assisted_driver": 68.32539999999999
+      },
+      "model_calculation": {
+        "pbt_cr": 100.74,
+        "tax_cr": 29.214599999999997,
+        "associates_after_tax_cr": 0.3,
+        "nci_cr": 3.5,
+        "owner_pat_cr": 68.32539999999999
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 59.739999999999995,
+          "tax_cr": 20.3116,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 4,
+          "owner_pat_cr": 35.42839999999999
+        },
+        "base": {
+          "pbt_cr": 100.74,
+          "tax_cr": 29.214599999999997,
+          "associates_after_tax_cr": 0.3,
+          "nci_cr": 3.5,
+          "owner_pat_cr": 68.32539999999999
+        },
+        "favorable": {
+          "pbt_cr": 129.24,
+          "tax_cr": 34.894800000000004,
+          "associates_after_tax_cr": 0.6,
+          "nci_cr": 3,
+          "owner_pat_cr": 91.9452
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "BALAMINES",
+      "isin": "INE050E01027",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 74.9366,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 74.9366,
+          "verified_pat_cr": 74.9366,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 67.2705,
+          "verified_pat_cr": 67.2705,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 67.2705,
+        "frozen_two_quarter_mean": 71.10355,
+        "frozen_damped_sequential": 65.35397499999999,
+        "frozen_accounting_driver": 71.49882845975175,
+        "latest_verified_quarter": 67.2705,
+        "verified_two_quarter_mean": 71.10355,
+        "verified_damped_sequential": 65.35397499999999,
+        "seasonal_naive": 31.433,
+        "seasonal_additive": 64.14439999999999,
+        "normalized_seasonal_additive": 64.14439999999999,
+        "raw_yoy_trend": 61.18543673012318,
+        "normalized_yoy_trend": 61.18543673012318,
+        "assisted_driver": 67.08125000000001
+      },
+      "model_calculation": {
+        "pbt_cr": 90.775,
+        "tax_cr": 22.69375,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 1,
+        "owner_pat_cr": 67.08125000000001
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 66.7,
+          "tax_cr": 18.009,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0.5,
+          "owner_pat_cr": 48.191
+        },
+        "base": {
+          "pbt_cr": 90.775,
+          "tax_cr": 22.69375,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 1,
+          "owner_pat_cr": 67.08125000000001
+        },
+        "favorable": {
+          "pbt_cr": 112.55,
+          "tax_cr": 28.1375,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 2,
+          "owner_pat_cr": 82.4125
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "GRANULES",
+      "isin": "INE101D01020",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 181.837,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 179.96300000000002,
+          "verified_pat_cr": 179.963,
+          "difference_cr": -2.842170943040401e-14,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 181.837,
+          "verified_pat_cr": 181.837,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 181.837,
+        "frozen_two_quarter_mean": 180.9,
+        "frozen_damped_sequential": 182.3055,
+        "frozen_accounting_driver": 189.78803216910896,
+        "latest_verified_quarter": 181.837,
+        "verified_two_quarter_mean": 180.89999999999998,
+        "verified_damped_sequential": 182.3055,
+        "seasonal_naive": 150.211,
+        "seasonal_additive": 201.442,
+        "normalized_seasonal_additive": 201.442,
+        "raw_yoy_trend": 209.13218081098879,
+        "normalized_yoy_trend": 209.13218081098879,
+        "assisted_driver": 184.7134375
+      },
+      "model_calculation": {
+        "pbt_cr": 247.9375,
+        "tax_cr": 63.2240625,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 0,
+        "owner_pat_cr": 184.7134375
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 196.00000000000003,
+          "tax_cr": 50.96000000000001,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 145.04000000000002
+        },
+        "base": {
+          "pbt_cr": 247.9375,
+          "tax_cr": 63.2240625,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 184.7134375
+        },
+        "favorable": {
+          "pbt_cr": 284.0,
+          "tax_cr": 71.0,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 213.0
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "KOTHARIPET",
+      "isin": "INE720A01015",
+      "scope": "STANDALONE",
+      "target": "STANDALONE_PAT",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 19.531,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 17.0248,
+          "verified_pat_cr": 17.0247,
+          "difference_cr": -9.999999999976694e-05,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 19.531,
+          "verified_pat_cr": 19.531,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 19.531,
+        "frozen_two_quarter_mean": 18.2779,
+        "frozen_damped_sequential": 20.15755,
+        "frozen_accounting_driver": 20.67731226448842,
+        "latest_verified_quarter": 19.531,
+        "verified_two_quarter_mean": 18.27785,
+        "verified_damped_sequential": 20.157574999999998,
+        "seasonal_naive": 18.6957,
+        "seasonal_additive": 19.811099999999993,
+        "normalized_seasonal_additive": 19.811099999999993,
+        "raw_yoy_trend": 19.828065156714953,
+        "normalized_yoy_trend": 19.828065156714953,
+        "assisted_driver": 18.315
+      },
+      "model_calculation": {
+        "pbt_cr": 24.42,
+        "tax_cr": 6.105,
+        "associates_after_tax_cr": 0,
+        "nci_cr": 0,
+        "owner_pat_cr": 18.315
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 19.85,
+          "tax_cr": 5.1610000000000005,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 14.689
+        },
+        "base": {
+          "pbt_cr": 24.42,
+          "tax_cr": 6.105,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 18.315
+        },
+        "favorable": {
+          "pbt_cr": 28.62,
+          "tax_cr": 6.8688,
+          "associates_after_tax_cr": 0,
+          "nci_cr": 0,
+          "owner_pat_cr": 21.7512
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "PETRONET",
+      "isin": "INE347G01014",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 1256.43,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 1137.14,
+          "verified_pat_cr": 1137.14,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 1256.43,
+          "verified_pat_cr": 1256.43,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 1256.43,
+        "frozen_two_quarter_mean": 1196.785,
+        "frozen_damped_sequential": 1286.2525,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 1256.43,
+        "verified_two_quarter_mean": 1196.785,
+        "verified_damped_sequential": 1286.2525,
+        "seasonal_naive": 869.61,
+        "seasonal_additive": 1295.74,
+        "normalized_seasonal_additive": 1314.7772608000002,
+        "raw_yoy_trend": 1315.914840780441,
+        "normalized_yoy_trend": 1344.722483303558,
+        "assisted_driver": 1098.7038
+      },
+      "model_calculation": {
+        "pbt_cr": 1445.24,
+        "tax_cr": 368.5362,
+        "associates_after_tax_cr": 22,
+        "nci_cr": 0,
+        "owner_pat_cr": 1098.7038
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": 389.82000000000005,
+          "tax_cr": 99.40410000000001,
+          "associates_after_tax_cr": 15,
+          "nci_cr": 0,
+          "owner_pat_cr": 305.4159
+        },
+        "base": {
+          "pbt_cr": 1445.24,
+          "tax_cr": 368.5362,
+          "associates_after_tax_cr": 22,
+          "nci_cr": 0,
+          "owner_pat_cr": 1098.7038
+        },
+        "favorable": {
+          "pbt_cr": 1700.24,
+          "tax_cr": 425.06,
+          "associates_after_tax_cr": 25,
+          "nci_cr": 0,
+          "owner_pat_cr": 1300.18
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    },
+    {
+      "symbol": "AVONMORE",
+      "isin": "INE323B01024",
+      "scope": "CONSOLIDATED",
+      "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+      "status": "FORECAST",
+      "source_valid": true,
+      "original_scale_cr": 11.39,
+      "source_input_comparison": {
+        "q1": {
+          "original_pat_cr": 11.39,
+          "verified_pat_cr": 11.39,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        },
+        "q2": {
+          "original_pat_cr": 7.57,
+          "verified_pat_cr": 7.57,
+          "difference_cr": 0.0,
+          "exceeds_original_bridge_tolerance": false
+        }
+      },
+      "forecasts": {
+        "frozen_latest_quarter": 7.57,
+        "frozen_two_quarter_mean": 9.48,
+        "frozen_damped_sequential": 6.615,
+        "frozen_accounting_driver": null,
+        "latest_verified_quarter": 7.57,
+        "verified_two_quarter_mean": 9.48,
+        "verified_damped_sequential": 6.615,
+        "seasonal_naive": 9.17,
+        "seasonal_additive": 12.340000000000002,
+        "normalized_seasonal_additive": 12.340000000000002,
+        "raw_yoy_trend": 15.77656818181818,
+        "normalized_yoy_trend": 15.77656818181818,
+        "assisted_driver": 8.125
+      },
+      "model_calculation": {
+        "pbt_cr": 7.8999999999999995,
+        "tax_cr": 1.9749999999999999,
+        "associates_after_tax_cr": 6,
+        "nci_cr": 3.8,
+        "owner_pat_cr": 8.125
+      },
+      "scenario_calculations": {
+        "adverse": {
+          "pbt_cr": -2.3600000000000025,
+          "tax_cr": -0.0,
+          "associates_after_tax_cr": 4.5,
+          "nci_cr": 2,
+          "owner_pat_cr": 0.13999999999999746
+        },
+        "base": {
+          "pbt_cr": 7.8999999999999995,
+          "tax_cr": 1.9749999999999999,
+          "associates_after_tax_cr": 6,
+          "nci_cr": 3.8,
+          "owner_pat_cr": 8.125
+        },
+        "favorable": {
+          "pbt_cr": 16.450000000000003,
+          "tax_cr": 4.112500000000001,
+          "associates_after_tax_cr": 7,
+          "nci_cr": 5.5,
+          "owner_pat_cr": 13.837500000000002
+        }
+      },
+      "comparator_abstentions": {},
+      "actual": null,
+      "errors": null
+    }
+  ],
+  "limits": [
+    "First-release source review is a human/researcher assertion, not automated authentication.",
+    "Frozen and fresh-source forecasts use different information cutoffs. Their difference is not pure reasoning value.",
+    "Normalized comparators inherit explicit analyst one-off assumptions. Ranges are scenarios, not calibrated prediction intervals.",
+    "Every method comparison uses exactly the same available observed issuers and the original per-issuer scale.",
+    "One quarter and this selected acquisition universe do not establish an investment edge or independent repeated trials."
+  ],
+  "original_register_sha256_verified": "be7769872a5260c3878e6bdabc4225bf59beca7aae61647c8dca4c852c6e600a"
+}

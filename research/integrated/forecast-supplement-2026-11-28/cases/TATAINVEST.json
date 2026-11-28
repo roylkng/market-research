@@ -1,0 +1,256 @@
+{
+  "symbol": "TATAINVEST",
+  "isin": "INE672A01026",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "company_name": "Tata Investment Corporation",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "SIGNED_CURRENT_AND_PRIOR_QUARTER_TABLES_VISUALLY_REVIEWED",
+  "unit": "INR_CRORE",
+  "target_period_end": "2026-12-31",
+  "forecast_created_at_utc": "2026-11-27T19:46:43.127227Z",
+  "verified_pat_cr": {
+    "q1": 143.51,
+    "q2": 115.92,
+    "prior_q2": 148.16,
+    "prior_q3": 75.39
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 0
+  },
+  "normalization_basis": "Reported historical PAT retained. FVTPL movements are volatile ordinary business income, not automatically classified as one-time. The disclosed prior-Q3 0.09cr labour-code charge is left in reported PAT because its owner-level after-tax effect was not separately stated.",
+  "sources": [
+    {
+      "id": "TATAINVEST_2026Q2",
+      "title": "Tata Investment signed September 2026 results",
+      "url": "https://tatainvestment.com/wp-content/uploads/2026/11/SE_Int_Outcome.pdf",
+      "publication_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF page 11 consolidated results and page 14 notes, INR crore",
+      "sha256": "73c9c6be0282b78c954a1641b26bc7f4da558e3a98067a938aac6575c9ce5aba",
+      "bytes": 1332363,
+      "evidence_file": "root/TATAINVEST_2026Q2.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    },
+    {
+      "id": "TATAINVEST_2025Q3",
+      "title": "Tata Investment signed December 2025 results",
+      "url": "https://tatainvestment.com/wp-content/uploads/2026/01/TICL_Quick_results_30012026.pdf",
+      "publication_date": "2026-01-30",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF page 9 consolidated results and page 10 notes, INR crore",
+      "sha256": "aa623737798463e6ee001d7269b15f4e75a17fcee7bedb6b72f81d379b405f53",
+      "bytes": 982727,
+      "evidence_file": "root/TATAINVEST_2025Q3.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    }
+  ],
+  "model": {
+    "kind": "pbt_components",
+    "components": [
+      {
+        "name": "Dividend income",
+        "amount_cr": 14
+      },
+      {
+        "name": "Interest income",
+        "amount_cr": 8
+      },
+      {
+        "name": "Rental income",
+        "amount_cr": 3.33
+      },
+      {
+        "name": "Net fair-value gain through profit and loss",
+        "amount_cr": 0
+      },
+      {
+        "name": "Other income",
+        "amount_cr": 0.65
+      },
+      {
+        "name": "Operating expenses",
+        "amount_cr": -13
+      }
+    ],
+    "tax_rate": 0.17,
+    "associates_after_tax_cr": 31,
+    "nci_cr": 0,
+    "exceptional_pretax_cr": 0
+  },
+  "forecast_pat_cr": 41.773399999999995,
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Dividend income",
+            "amount_cr": 10
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 6
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 3.33
+          },
+          {
+            "name": "Net fair-value loss through profit and loss",
+            "amount_cr": -15
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0
+          },
+          {
+            "name": "Operating expenses",
+            "amount_cr": -14
+          }
+        ],
+        "tax_rate": 0,
+        "associates_after_tax_cr": 25,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 15.329999999999998
+    },
+    "base": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Dividend income",
+            "amount_cr": 14
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 8
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 3.33
+          },
+          {
+            "name": "Net fair-value gain through profit and loss",
+            "amount_cr": 0
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0.65
+          },
+          {
+            "name": "Operating expenses",
+            "amount_cr": -13
+          }
+        ],
+        "tax_rate": 0.17,
+        "associates_after_tax_cr": 31,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 41.773399999999995
+    },
+    "favorable": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Dividend income",
+            "amount_cr": 18
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 10
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 3.4
+          },
+          {
+            "name": "Net fair-value gain through profit and loss",
+            "amount_cr": 25
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 1
+          },
+          {
+            "name": "Operating expenses",
+            "amount_cr": -13
+          }
+        ],
+        "tax_rate": 0.15,
+        "associates_after_tax_cr": 40,
+        "nci_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 77.74
+    }
+  },
+  "scenario_interpretation": "Analyst-defined adverse, base and favorable assumptions. These are not probability bounds, calibrated prediction intervals, management guidance or price targets. Outcomes can fall outside the range.",
+  "investment_action": "RESEARCH_ONLY_NO_POSITION_OR_BUY_PROMOTION",
+  "limits": [
+    "A within-quarter fundamental forecast with no realized target-quarter outcome.",
+    "The forecast does not constitute full valuation, governance, cash-conversion or position-sizing underwriting.",
+    "Seasonal anchors use one prior year and can break when business mix changes."
+  ],
+  "rationale": "The September dividend season is a poor proxy for December. Model dividends, interest, rental income, P&L fair-value gains, expenses and after-tax associates separately. The base assumes zero net P&L fair-value gain, rather than predicting market direction.",
+  "verified_facts": [
+    {
+      "source_id": "TATAINVEST_2026Q2",
+      "fact": "Q2 dividend income 114.33cr, interest 6.98cr, net P&L fair-value loss 2.34cr, rental income 3.33cr, other income 0.65cr and expenses 13.00cr."
+    },
+    {
+      "source_id": "TATAINVEST_2026Q2",
+      "fact": "Q2 own PBT 109.95cr plus after-tax associates 26.68cr minus tax 20.71cr gives owner PAT 115.92cr."
+    },
+    {
+      "source_id": "TATAINVEST_2025Q3",
+      "fact": "Prior December dividends 13.21cr were far below prior September dividends 116.44cr. Prior December P&L fair-value gain was 33.35cr and associates 31.26cr."
+    },
+    {
+      "source_id": "TATAINVEST_2026Q2",
+      "fact": "Fair-value OCI and equity-disposal gains credited directly to retained earnings are outside the reported-PAT target."
+    }
+  ],
+  "assumptions": [
+    {
+      "label": "Dividends",
+      "base": 14,
+      "basis": "Near the prior December 13.21cr, with no assumption that September dividend income repeats."
+    },
+    {
+      "label": "P&L fair-value movement",
+      "base": 0,
+      "basis": "Neutral central assumption for an unpredictable market-dependent item. It is neither verified recurring income nor a claim that the gain cannot recur."
+    },
+    {
+      "label": "Own-profit tax and associates",
+      "base": "17 percent on own PBT, then 31cr associates",
+      "basis": "Tax is an approximation. Associates are after tax. The adverse loss case assumes no tax benefit is recognized."
+    },
+    {
+      "label": "Expenses",
+      "base": 13,
+      "basis": "Latest-quarter level, versus prior December 11.26cr."
+    }
+  ],
+  "disconfirming_evidence_to_watch": [
+    "An unusual December dividend or large P&L fair-value gain could move reported PAT well above the base.",
+    "Associate results are material and can move independently of the parent dividend calendar."
+  ],
+  "main_takeaway": "A sharp modeled sequential PAT decline can be seasonality, without implying a comparable decline in portfolio asset value.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "as_of": "2026-11-21",
+  "created_at_utc": "2026-11-21T18:38:17.999609+00:00",
+  "scope": "Six original-price screens, one full integrated company case and one compact funded treasury/recovery case. No full-market census or blind replay.",
+  "price_basis": "Original NSE EQ closing price20Nov2026, exact ISIN. Not a promised execution price.",
+  "decisions": [
+    {
+      "symbol": "NEWGEN",
+      "isin": "INE619B01017",
+      "price": 413.55,
+      "decision": "WATCH_PRICE_AND_COLLECTIONS",
+      "reconsider_price_range": [
+        325,
+        350
+      ],
+      "conditions": "Price route does not require perfect AI proof or old DSO, but requires no material deterioration in collections, credit loss, delivery or share claims. Near current quote, re-underwrite at roughly260cr TTM cash after capex/leases, same-season DSO130-135 and supported low-to-mid-teens company growth.",
+      "note": "newgen_case.md",
+      "model_inputs": "newgen_inputs.json",
+      "model_outputs": "newgen_outputs.json",
+      "calculator": "newgen_calculator.py",
+      "ttm": {
+        "revenue": 1631.8701,
+        "pat": 318.8165,
+        "pbt": 410.1157,
+        "other_income": 72.1089,
+        "finance_cost": 4.830200000000001,
+        "exceptional_expense": 43.4265,
+        "da": 37.0683,
+        "sbc": -2.9292999999999996,
+        "cfo": 250.2535,
+        "capex": 15.8322,
+        "lease_principal": 21.991099999999996,
+        "lease_interest": 3.8829000000000007,
+        "cash_residual": 208.5473,
+        "cash_residual_after_cash_share_awards": 208.5473,
+        "core_cash_ebit_before_sbc": 383.33419999999995,
+        "core_cash_ebit_margin_before_sbc": 0.23490484935044764,
+        "cash_residual_per_diluted_share": 14.40604502744862,
+        "reported_pat_per_legal_issued_share": 22.37151747426121,
+        "cfo_to_pat": 0.7849452584794074,
+        "price_to_actual_cash_residual": 28.70669911221579
+      },
+      "scenarios": {
+        "downside": {
+          "irr": -0.07147187069702116,
+          "exit_price": 264.70116100396865,
+          "cumulative_dividends_per_share": 23.235942152840998,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 802.058088,
+          "year5_funded_operating_cash": 193.09454463487302
+        },
+        "base": {
+          "irr": 0.08253458042607587,
+          "exit_price": 566.7685143088653,
+          "cumulative_dividends_per_share": 41.51885985187244,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 884.69549,
+          "year5_funded_operating_cash": 330.54872720527374
+        },
+        "upside": {
+          "irr": 0.1888089476960867,
+          "exit_price": 904.97506923005,
+          "cumulative_dividends_per_share": 55.39053916030003,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 899.69549,
+          "year5_funded_operating_cash": 471.2200586733386
+        }
+      },
+      "base_return_at_lower_range": 0.13779741126244527,
+      "base_return_at_upper_range": 0.12047908303521127
+    },
+    {
+      "symbol": "NUCLEUS",
+      "isin": "INE096B01018",
+      "price": 611.45,
+      "decision": "WATCH_RECOVERY_AND_PRICE",
+      "reconsider_price_range": [
+        475,
+        500
+      ],
+      "conditions": "Protect treasury, reverse recent receivable expansion and stabilize quarterly EBITDA around10% or better. At current quote, low-teens cash EBIT and70-80cr annual cash after capex,leases and cash share awards require evidence. Base already assumes partial recovery, not observed turnaround.",
+      "note": "nucleus_cash_review.md",
+      "model_inputs": "nucleus_inputs.json",
+      "model_outputs": "nucleus_outputs.json",
+      "calculator": "nucleus_calculator.py",
+      "ttm": {
+        "revenue": 882.9299999999998,
+        "pat": 100.36999999999998,
+        "pbt": 122.47000000000001,
+        "other_income": 63.88999999999999,
+        "finance_cost": 1.62,
+        "exceptional_expense": 12.129999999999999,
+        "da": 19.63,
+        "sbc": 4.6,
+        "cfo": -15.570000000000007,
+        "capex": 15.29,
+        "lease_principal": 3.4300000000000006,
+        "lease_interest": 0.76,
+        "share_award_cash": 8.46,
+        "cash_residual": -35.050000000000004,
+        "cash_residual_after_cash_share_awards": -43.510000000000005,
+        "core_cash_ebit_before_sbc": 76.93000000000004,
+        "core_cash_ebit_margin_before_sbc": 0.08713035008437821,
+        "cash_residual_per_diluted_share": -13.314185217828049,
+        "reported_pat_per_legal_issued_share": 38.12681227712984,
+        "cfo_to_pat": -0.15512603367540112,
+        "price_to_actual_cash_residual": null
+      },
+      "scenarios": {
+        "downside": {
+          "irr": -0.11295035982477991,
+          "exit_price": 315.80155544424895,
+          "cumulative_dividends_per_share": 23.69803117752238,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 719.5684,
+          "year5_funded_operating_cash": 15.186395999999998
+        },
+        "base": {
+          "irr": 0.07771579428214215,
+          "exit_price": 805.5612918272343,
+          "cumulative_dividends_per_share": 73.68451806004099,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 767.227,
+          "year5_funded_operating_cash": 77.29740015809423
+        },
+        "upside": {
+          "irr": 0.23735174791853952,
+          "exit_price": 1564.1973093078223,
+          "cumulative_dividends_per_share": 140.12182505104522,
+          "maximum_external_funding_gap": 0.0,
+          "opening_available_treasury": 777.227,
+          "year5_funded_operating_cash": 165.0941827230991
+        }
+      },
+      "base_return_at_lower_range": 0.13559393136546027,
+      "base_return_at_upper_range": 0.12356749547593837,
+      "important_latest_half_normalization": {
+        "cash_ebit_before_sbc_crore": 18.01,
+        "cash_ebit_before_sbc_margin": 0.04110652089562459,
+        "interpretation": "Base year-one8%cash EBIT already requires recovery from H1 recent4.1%, even before the eventual11.5%margin. No observed turnaround is claimed."
+      }
+    }
+  ],
+  "screen_names": [
+    "NEWGEN",
+    "NUCLEUS",
+    "MPSLTD",
+    "REDINGTON",
+    "EMUDHRA",
+    "INTELLECT"
+  ],
+  "source_manifest": "source_manifest.json",
+  "source_capture_count": 37,
+  "evidence_package_original_count": 24,
+  "important_method_corrections": [
+    "A nominal price decline does not establish cheap valuation.",
+    "Use same-season DSO and TTM cash, not a seasonal March-to-September improvement.",
+    "NEWGEN iXBRL groups ROU and other intangibles. Signed original separates72.60cr and2.43cr.",
+    "Nucleus broad942.1cr treasury is not accounting cash47.1cr and is not all distributable.",
+    "Exclude treasury income from operating terminal value before adding retained treasury.",
+    "Count employee awards once, through NEWGEN diluted claims or NUCLEUS funded cash share purchases."
+  ],
+  "verification": "Parent reported independent peer reproduction of all six IRRs and cash roll-forwards. This child additionally checks hash identity, funding/retention identities and IRR NPV residuals."
+}

@@ -1,0 +1,68 @@
+{
+  "scope": "Targeted numerical and source identity verification. Not an independent underwriting opinion or audit.",
+  "checks": [
+    {
+      "check": "Actual H1 cash bridge to statement cash change",
+      "result": -2541.869999999999,
+      "expected": -2541.87,
+      "pass": true
+    },
+    {
+      "check": "adverse all annual cash bridges",
+      "max_residual": 5.820766091346741e-11,
+      "pass": true
+    },
+    {
+      "check": "adverse 5-year IRR PV equals entry",
+      "pv": 269.0,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "adverse 10-year IRR PV equals entry",
+      "pv": 269.0000000000001,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "base all annual cash bridges",
+      "max_residual": 3.2741809263825417e-11,
+      "pass": true
+    },
+    {
+      "check": "base 5-year IRR PV equals entry",
+      "pv": 268.9999999999998,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "base 10-year IRR PV equals entry",
+      "pv": 268.9999999999996,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "upside all annual cash bridges",
+      "max_residual": 5.4569682106375694e-11,
+      "pass": true
+    },
+    {
+      "check": "upside 5-year IRR PV equals entry",
+      "pv": 268.99999999999983,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "upside 10-year IRR PV equals entry",
+      "pv": 268.9999999999998,
+      "expected": 269,
+      "pass": true
+    },
+    {
+      "check": "Higher maintenance adds 2000 to total cash spend without changing growth program",
+      "pass": true,
+      "scope": "Input construction reviewed. Lower returns and higher leverage confirmed."
+    }
+  ],
+  "all_pass": true
+}

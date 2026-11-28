@@ -1,0 +1,135 @@
+{
+  "as_of": "2026-11-21",
+  "facts": {
+    "price": 656.55,
+    "price_date": "2026-11-20",
+    "shares_crore": 7.04,
+    "ttm_revenue": 411.4879,
+    "ttm_pat": 261.73,
+    "ttm_pre_working_capital_cash_ex_interest": 258.0157,
+    "ttm_actual_cash_tax": 43.2655,
+    "ttm_all_ppe_capital_advance_payments": 22.0942,
+    "ttm_interest_received": 85.0923,
+    "ttm_interest_income_accrued": 87.7404,
+    "ttm_cash_interest_paid": 0.0084,
+    "september_cash_and_equivalents": 1164.8463,
+    "september_other_bank_balances": 1106.8793,
+    "september_other_current_financial_liabilities": 1563.2999,
+    "september_borrowings": 145.002,
+    "september_trade_payables": 130.9387,
+    "september_other_current_liabilities": 17.3256,
+    "september_noncurrent_financial_liabilities": 4.51,
+    "september_lease_liability": 0.2314,
+    "september_noncurrent_provisions": 16.4824,
+    "september_other_noncurrent_liabilities": 12.695,
+    "september_net_receivables": 143.3756,
+    "march_margin_deposits": 28.9974,
+    "march_emd_security_deposits": 477.5029,
+    "march_customer_deposits": 205.6782,
+    "march_accrued_borrowing_interest_already_in_liabilities": 78.8903,
+    "fy26_liability_writeback_already_removed_from_pre_wc_cash": 14.7119,
+    "fy26_total_contingent_liabilities_not_summed_into_a_loss": 559.4843
+  },
+  "common_assumptions": {
+    "years": 5,
+    "tax_rate": 0.2517,
+    "depreciation_to_sales": 0.03,
+    "treasury_interest_rate": 0.055,
+    "fixed_share_count": true
+  },
+  "scenarios": {
+    "adverse": {
+      "name": "Adverse",
+      "revenue_growth": 0,
+      "pre_wc_cash_margin": 0.55,
+      "all_core_capex_to_sales": 0.06,
+      "incremental_wc_to_sales": 0.25,
+      "aftertax_float_income_year1": 15,
+      "float_income_growth": 0,
+      "opening_usable_treasury": 150,
+      "platform_cash_spend": [
+        75,
+        25,
+        0,
+        0,
+        0
+      ],
+      "additional_unreserved_legal_cash_outflow": [
+        50,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payout": 0.5,
+      "terminal_core_cash_multiple": 12,
+      "terminal_treasury_realization": 0.75
+    },
+    "base": {
+      "name": "Base",
+      "revenue_growth": 0.08,
+      "pre_wc_cash_margin": 0.61,
+      "all_core_capex_to_sales": 0.05,
+      "incremental_wc_to_sales": 0.15,
+      "aftertax_float_income_year1": 30,
+      "float_income_growth": 0.03,
+      "opening_usable_treasury": 250,
+      "platform_cash_spend": [
+        50,
+        0,
+        0,
+        0,
+        0
+      ],
+      "additional_unreserved_legal_cash_outflow": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payout": 0.5,
+      "terminal_core_cash_multiple": 16,
+      "terminal_treasury_realization": 0.9
+    },
+    "favorable": {
+      "name": "Favorable",
+      "revenue_growth": 0.15,
+      "pre_wc_cash_margin": 0.64,
+      "all_core_capex_to_sales": 0.05,
+      "incremental_wc_to_sales": 0.1,
+      "aftertax_float_income_year1": 40,
+      "float_income_growth": 0.05,
+      "opening_usable_treasury": 350,
+      "platform_cash_spend": [
+        25,
+        0,
+        0,
+        0,
+        0
+      ],
+      "additional_unreserved_legal_cash_outflow": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "payout": 0.5,
+      "terminal_core_cash_multiple": 20,
+      "terminal_treasury_realization": 1.0
+    }
+  },
+  "limits": {
+    "status": "Bounded scenarios, not an audited distributable-cash certificate or probability-weighted forecast.",
+    "core_cash": "Pre-working-capital cash excludes recognized interest income, liability writeback and noncash JV results through the original cash-flow bridge. Actual historical cash tax is shown separately. Forecast taxes are normalized on modeled operating profit.",
+    "treasury": "Starting usable treasury is a scenario below the September cash-only residual after recognized financial claims. All recognized borrowings and other financial liabilities have already been deducted in that residual. They are not paid a second time in forecast cash. No receivables, court claims, JV equity value or restricted deposits are credited.",
+    "float": "Some issuer terms prove non-interest-bearing bidder deposits, but rights and average balance across all current contracts were not verified. 15/30/40 crore after-tax float income is an explicit recurring-income assumption. It is separate from interest on the smaller assumed shareholder-owned treasury pool. Float principal is never valued as shareholder cash.",
+    "capex": "All core cash capital spending is modeled at 5-6% of revenue, approximately the recent trailing ratio. Separate platform spending is a bounded incremental cost scenario, not a management budget. No new-platform revenue is counted.",
+    "legal": "Additional legal cash charges are stress assumptions beyond recognized claims already reserved in the opening cash bridge. The 559.48 crore disclosed contingencies are not all assumed probable and are not blindly added to recognized debt.",
+    "retention": "All retained forecast cash rolls forward, earns assumed after-tax interest and is credited once at exit, subject to the explicit treasury-realization discount. Operating terminal multiple excludes treasury interest.",
+    "dilution": "Actual 7.04 crore shares held constant. No authorized or expected new issue is assumed. Future equity funding would require revision.",
+    "entry_gap": "Opening liquidity is September 30, 2026. Entry price is November 20, 2026. The intervening cash state is not known and was not fabricated.",
+    "return": "Nominal pre-personal-tax stock returns including annual end-year distributions and exit value. No transaction costs, return probabilities or personalized portfolio hurdle are asserted."
+  }
+}

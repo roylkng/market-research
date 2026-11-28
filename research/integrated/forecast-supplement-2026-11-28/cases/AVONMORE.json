@@ -1,0 +1,376 @@
+{
+  "symbol": "AVONMORE",
+  "isin": "INE323B01024",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "company_name": "Avonmore Capital & Management Services",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "SIGNED_CURRENT_AND_PRIOR_QUARTER_TABLES_VISUALLY_REVIEWED",
+  "unit": "INR_CRORE",
+  "target_period_end": "2026-12-31",
+  "forecast_created_at_utc": "2026-11-27T19:46:43.127227Z",
+  "verified_pat_cr": {
+    "q1": 11.39,
+    "q2": 7.57,
+    "prior_q2": 4.4,
+    "prior_q3": 9.17
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 0
+  },
+  "normalization_basis": "Main historical comparators use reported owner PAT without discretionary addbacks. Disclosed exceptional items without an identified owner-level after-tax effect remain reported, with separate sensitivity where material.",
+  "sources": [
+    {
+      "id": "AVONMORE_2026Q2",
+      "title": "Avonmore signed September 2026 results",
+      "url": "https://nsearchives.nseindia.com/corporate/AVONMORECAPITAL_02112026133948_resultsacms.pdf",
+      "publication_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF pages 8-9 consolidated statement and owner allocation, INR lakh divided by 100",
+      "sha256": "a41491befdf107567d051a2df92559cf09b14e70a1e6ce91ec385956113f19c3",
+      "bytes": 3161304,
+      "evidence_file": "root/AVONMORE_2026Q2.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    },
+    {
+      "id": "AVONMORE_2025Q3",
+      "title": "Avonmore signed December 2025 results",
+      "url": "https://nsearchives.nseindia.com/corporate/AVONMORECAPITAL_13022026151526_acms_results_final.pdf",
+      "publication_date": "2026-02-13",
+      "observed_at_utc": "2026-11-27T19:46:43.127227Z",
+      "status": "ORIGINAL_ISSUER_PDF_DOWNLOADED_AND_TABLE_VISUALLY_CHECKED",
+      "locator": "PDF pages 7-8 consolidated statement and owner allocation, INR lakh divided by 100",
+      "sha256": "b533c55e7b59b2aac98595f2ccabdc36680ffeef381d0e07586dc3d347547244",
+      "bytes": 6385940,
+      "evidence_file": "root/AVONMORE_2025Q3.pdf",
+      "observation_clock_note": "Timestamp records completion of this source review. Download occurred earlier in the same session."
+    }
+  ],
+  "model": {
+    "kind": "pbt_components",
+    "components": [
+      {
+        "name": "Fee and commission revenue",
+        "amount_cr": 45
+      },
+      {
+        "name": "Interest income",
+        "amount_cr": 3.3
+      },
+      {
+        "name": "Dividend income",
+        "amount_cr": 0.04
+      },
+      {
+        "name": "Rental income",
+        "amount_cr": 0.16
+      },
+      {
+        "name": "Other operating income",
+        "amount_cr": 2.4
+      },
+      {
+        "name": "Other income",
+        "amount_cr": 0.25
+      },
+      {
+        "name": "Net P&L fair-value movement",
+        "amount_cr": 0
+      },
+      {
+        "name": "Fee and commission expenses: 42 percent of fee revenue",
+        "amount_cr": -18.9
+      },
+      {
+        "name": "Finance cost",
+        "amount_cr": -1.4
+      },
+      {
+        "name": "Impairment",
+        "amount_cr": -0.1
+      },
+      {
+        "name": "Employee costs",
+        "amount_cr": -15.2
+      },
+      {
+        "name": "Depreciation",
+        "amount_cr": -1.65
+      },
+      {
+        "name": "Other expenses",
+        "amount_cr": -6
+      }
+    ],
+    "tax_rate": 0.25,
+    "associates_after_tax_cr": 6,
+    "nci_cr": 3.8,
+    "exceptional_pretax_cr": 0
+  },
+  "forecast_pat_cr": 8.125,
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Fee and commission revenue",
+            "amount_cr": 36
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 3
+          },
+          {
+            "name": "Dividend income",
+            "amount_cr": 0
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 0.16
+          },
+          {
+            "name": "Other operating income",
+            "amount_cr": 2
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0.2
+          },
+          {
+            "name": "Net P&L fair-value movement",
+            "amount_cr": -3
+          },
+          {
+            "name": "Fee and commission expenses: 42 percent of fee revenue",
+            "amount_cr": -15.12
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -1.6
+          },
+          {
+            "name": "Impairment",
+            "amount_cr": -0.3
+          },
+          {
+            "name": "Employee costs",
+            "amount_cr": -15.5
+          },
+          {
+            "name": "Depreciation",
+            "amount_cr": -1.7
+          },
+          {
+            "name": "Other expenses",
+            "amount_cr": -6.5
+          }
+        ],
+        "tax_rate": 0,
+        "associates_after_tax_cr": 4.5,
+        "nci_cr": 2,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 0.13999999999999746
+    },
+    "base": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Fee and commission revenue",
+            "amount_cr": 45
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 3.3
+          },
+          {
+            "name": "Dividend income",
+            "amount_cr": 0.04
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 0.16
+          },
+          {
+            "name": "Other operating income",
+            "amount_cr": 2.4
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0.25
+          },
+          {
+            "name": "Net P&L fair-value movement",
+            "amount_cr": 0
+          },
+          {
+            "name": "Fee and commission expenses: 42 percent of fee revenue",
+            "amount_cr": -18.9
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -1.4
+          },
+          {
+            "name": "Impairment",
+            "amount_cr": -0.1
+          },
+          {
+            "name": "Employee costs",
+            "amount_cr": -15.2
+          },
+          {
+            "name": "Depreciation",
+            "amount_cr": -1.65
+          },
+          {
+            "name": "Other expenses",
+            "amount_cr": -6
+          }
+        ],
+        "tax_rate": 0.25,
+        "associates_after_tax_cr": 6,
+        "nci_cr": 3.8,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 8.125
+    },
+    "favorable": {
+      "model": {
+        "kind": "pbt_components",
+        "components": [
+          {
+            "name": "Fee and commission revenue",
+            "amount_cr": 55
+          },
+          {
+            "name": "Interest income",
+            "amount_cr": 3.6
+          },
+          {
+            "name": "Dividend income",
+            "amount_cr": 0.04
+          },
+          {
+            "name": "Rental income",
+            "amount_cr": 0.16
+          },
+          {
+            "name": "Other operating income",
+            "amount_cr": 3
+          },
+          {
+            "name": "Other income",
+            "amount_cr": 0.3
+          },
+          {
+            "name": "Net P&L fair-value movement",
+            "amount_cr": 3
+          },
+          {
+            "name": "Fee and commission expenses: 42 percent of fee revenue",
+            "amount_cr": -23.099999999999998
+          },
+          {
+            "name": "Finance cost",
+            "amount_cr": -1.3
+          },
+          {
+            "name": "Impairment",
+            "amount_cr": -0.1
+          },
+          {
+            "name": "Employee costs",
+            "amount_cr": -15.5
+          },
+          {
+            "name": "Depreciation",
+            "amount_cr": -1.65
+          },
+          {
+            "name": "Other expenses",
+            "amount_cr": -7
+          }
+        ],
+        "tax_rate": 0.25,
+        "associates_after_tax_cr": 7,
+        "nci_cr": 5.5,
+        "exceptional_pretax_cr": 0
+      },
+      "forecast_pat_cr": 13.837500000000002
+    }
+  },
+  "scenario_interpretation": "Analyst-defined adverse, base and favorable assumptions. These are not probability bounds, calibrated prediction intervals, management guidance or price targets. Outcomes can fall outside the range.",
+  "investment_action": "RESEARCH_ONLY_NO_POSITION_OR_BUY_PROMOTION",
+  "limits": [
+    "A within-quarter fundamental forecast with no realized target-quarter outcome.",
+    "The forecast does not constitute full valuation, governance, cash-conversion or position-sizing underwriting.",
+    "Seasonal anchors use one prior year and can break when business mix changes."
+  ],
+  "rationale": "Fee income is seasonal and variable, fair-value gains are unpredictable, and minority interests absorb a material part of group profit. The base allows fee recovery from September but does not extrapolate the Q1 fair-value gain or use group PAT as owner earnings.",
+  "verified_facts": [
+    {
+      "source_id": "AVONMORE_2026Q2",
+      "fact": "Q2 fee revenue 36.44cr, fee expense 15.34cr, employee costs 14.91cr and P&L fair-value gain 0.86cr. Q1 fair-value gain was 10.18cr."
+    },
+    {
+      "source_id": "AVONMORE_2026Q2",
+      "fact": "Q2 own PBT 5.91cr plus associates 6.27cr minus tax 1.27cr gives group PAT 10.91cr, while the owner-PAT line is 7.57cr and NCI 3.33cr. The source rounds individual lines to whole lakh."
+    },
+    {
+      "source_id": "AVONMORE_2025Q3",
+      "fact": "Prior December fee revenue was 53.07cr versus prior September 30.86cr. Prior December group PAT 15.30cr included 6.13cr NCI, leaving 9.17cr owner PAT."
+    }
+  ],
+  "assumptions": [
+    {
+      "label": "Fee revenue",
+      "base": 45,
+      "basis": "Above current Q2 but below prior Q3. One seasonal observation is a weak anchor, and no current-quarter deal pipeline was verified."
+    },
+    {
+      "label": "Fee expense",
+      "base": "42 percent of fee revenue",
+      "basis": "Near current Q2 15.34 / 36.44. Mix can move this ratio."
+    },
+    {
+      "label": "Employee and overhead expense",
+      "base": "15.2cr employees and 6cr other expense",
+      "basis": "Allow current higher payroll to persist, with seasonal overhead above current Q2 5.12cr."
+    },
+    {
+      "label": "Fair-value gain",
+      "base": 0,
+      "basis": "No directional forecast. The downside assumes a 3cr loss and favorable case a 3cr gain."
+    },
+    {
+      "label": "Associates and NCI",
+      "base": "6cr after-tax associates and 3.8cr NCI",
+      "basis": "NCI is a material explicit assumption, not a fixed group ownership percentage. Entity-level profit mix was not forecast separately."
+    },
+    {
+      "label": "Tax",
+      "base": 0.25,
+      "basis": "Applied to own PBT only. No tax benefit is recognized in the adverse loss scenario."
+    }
+  ],
+  "rounding_note": "The signed statement displays whole INR lakh. Group PAT minus separately rounded NCI can differ from reported owner PAT by 0.01-0.02cr. The owner-PAT row remains the target and source of historical inputs.",
+  "disconfirming_evidence_to_watch": [
+    "Fee income remaining near 36cr despite seasonal expectations would compress the base profit sharply.",
+    "A change in the subsidiary earnings mix can move owner PAT even with unchanged group PAT.",
+    "Fair-value movements can overwhelm the modest operating forecast."
+  ],
+  "main_takeaway": "Forecast owner earnings through the operating mix and NCI, rather than scaling headline group profit.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ]
+}

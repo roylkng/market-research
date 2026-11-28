@@ -1,0 +1,341 @@
+{
+  "asOf": "2026-11-25",
+  "priceDate": "2026-11-23",
+  "sourceStatus": "secondary dated closing prices; primary financial statement text parsed for banks and HCLTech; screenshot and original-byte capture failed; TCS complete cash statement not retrieved",
+  "status": "research_only_not_trades",
+  "horizonYears": 5,
+  "assumptions": "analyst scenarios, not probabilities or mandated return thresholds; before investor taxes and costs",
+  "cases": [
+    {
+      "symbol": "HDFCBANK",
+      "price": 817.8,
+      "accountingEquityCr": 584254.27,
+      "sharesCr": 1541.86,
+      "ttmStandalonePATCr": 76444.48,
+      "status": "CONDITIONAL_BUY_CANDIDATE_FOR_POLICY_REVIEW",
+      "scenarios": [
+        {
+          "name": "adverse",
+          "roe": 0.1,
+          "payout": 0.2,
+          "exitMultiple": 1.4,
+          "dilution": 0.005,
+          "cashflows": [
+            7.540860160303901,
+            8.103610918535537,
+            8.70835800200834,
+            9.358235464844785,
+            770.3364214285366
+          ],
+          "exit": 760.2798101827333,
+          "irr": -0.00345552800796628,
+          "priceAtReturns": {
+            "0.08": 551.9994004231627,
+            "0.1": 504.8053555181697,
+            "0.12": 462.44839836103404
+          }
+        },
+        {
+          "name": "working",
+          "roe": 0.14,
+          "payout": 0.25,
+          "exitMultiple": 2.1,
+          "dilution": 0.005,
+          "cashflows": [
+            13.196505280531825,
+            14.509590383072307,
+            15.95333071969642,
+            17.540726811208504,
+            1297.9526969211315
+          ],
+          "exit": 1278.666624158559,
+          "irr": 0.10982003744379154,
+          "priceAtReturns": {
+            "0.08": 933.5806436650514,
+            "0.1": 853.8812517558965,
+            "0.12": 782.345482995065
+          }
+        },
+        {
+          "name": "favorable",
+          "roe": 0.16,
+          "payout": 0.25,
+          "exitMultiple": 2.5,
+          "dilution": 0.005,
+          "cashflows": [
+            15.0817203206078,
+            16.807489312518147,
+            18.730734358229185,
+            20.87405222011611,
+            1651.6464005409284
+          ],
+          "exit": 1628.383775181197,
+          "irr": 0.16510197448202601,
+          "priceAtReturns": {
+            "0.08": 1182.669168923443,
+            "0.1": 1081.473546611245,
+            "0.12": 990.6511774083309
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "ICICIBANK",
+      "price": 1585.5,
+      "accountingEquityCr": 360593.47,
+      "sharesCr": 717.98,
+      "ttmStandalonePATCr": 54667.07,
+      "status": "CONDITIONAL_BUY_CANDIDATE_FOR_POLICY_REVIEW",
+      "scenarios": [
+        {
+          "name": "adverse",
+          "roe": 0.11,
+          "payout": 0.2,
+          "exitMultiple": 1.8,
+          "dilution": 0.005,
+          "cashflows": [
+            10.994161951600255,
+            11.902137515762265,
+            12.885100116566512,
+            13.94924271325808,
+            1359.3888436471232
+          ],
+          "exit": 1344.2875739237154,
+          "irr": -0.023694641879945244,
+          "priceAtReturns": {
+            "0.08": 966.0428670624751,
+            "0.1": 883.1129762122368,
+            "0.12": 808.6946201135827
+          }
+        },
+        {
+          "name": "working",
+          "roe": 0.16,
+          "payout": 0.2,
+          "exitMultiple": 2.8,
+          "dilution": 0.005,
+          "cashflows": [
+            15.991508293236734,
+            17.948677964946306,
+            20.14538183528302,
+            22.610936030048997,
+            2530.2109884944857
+          ],
+          "exit": 2504.8327438756846,
+          "irr": 0.10636092497545879,
+          "priceAtReturns": {
+            "0.08": 1784.825900825587,
+            "0.1": 1631.0124046492742,
+            "0.12": 1493.0051175863055
+          }
+        },
+        {
+          "name": "favorable",
+          "roe": 0.18,
+          "payout": 0.2,
+          "exitMultiple": 3.3,
+          "dilution": 0.005,
+          "cashflows": [
+            17.990446829891326,
+            20.47867778447331,
+            23.3110521248134,
+            26.535167791827398,
+            3197.7244671784183
+          ],
+          "exit": 3167.519261254189,
+          "irr": 0.15959627175269053,
+          "priceAtReturns": {
+            "0.08": 2248.541732921946,
+            "0.1": 2054.452600825347,
+            "0.12": 1880.3190406742679
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "TCS",
+      "price": 2460,
+      "ttmEPSSecondary": 142.64,
+      "status": "WATCH_CASH_AND_CAPITAL_ALLOCATION",
+      "modelType": "earnings and payout only",
+      "scenarios": [
+        {
+          "name": "adverse",
+          "initial": 120,
+          "growth": 0,
+          "payout": 0.65,
+          "multiple": 12,
+          "treasury": 0,
+          "cashflows": [
+            78,
+            78,
+            78,
+            78,
+            1518
+          ],
+          "exit": 1440,
+          "irr": -0.062196201949367425,
+          "priceAtReturns": {
+            "0.08": 1291.4711866206949,
+            "0.1": 1189.8080732190422,
+            "0.12": 1098.267216017693
+          }
+        },
+        {
+          "name": "working",
+          "initial": 142.64,
+          "growth": 0.06,
+          "payout": 0.75,
+          "multiple": 17,
+          "treasury": 0,
+          "cashflows": [
+            113.3988,
+            120.20272800000001,
+            127.41489168000001,
+            135.05978518080002,
+            3388.1998109023366
+          ],
+          "exit": 3245.0364386106885,
+          "irr": 0.10330788773345623,
+          "priceAtReturns": {
+            "0.08": 2714.4242364243746,
+            "0.1": 2494.2127696083944,
+            "0.12": 2296.1537109676046
+          }
+        },
+        {
+          "name": "favorable",
+          "initial": 150,
+          "growth": 0.09,
+          "payout": 0.8,
+          "multiple": 20,
+          "treasury": 0,
+          "cashflows": [
+            130.8,
+            142.57200000000003,
+            155.40348000000006,
+            169.38979320000007,
+            4800.506739288002
+          ],
+          "exit": 4615.871864700001,
+          "irr": 0.18348911203883256,
+          "priceAtReturns": {
+            "0.08": 3758.3586929576327,
+            "0.1": 3449.9266285884596,
+            "0.12": 3172.6430881073766
+          }
+        }
+      ]
+    },
+    {
+      "symbol": "HCLTECH",
+      "price": 1364.3,
+      "ttmSelectedCashCr": 14588,
+      "ttmSelectedCashAfterSeparateInvestmentTaxCr": 14254,
+      "ttmDividendsPaidCr": 16229,
+      "status": "PASS_CURRENT_PRICE_WORKING_CASE",
+      "modelType": "normalized selected cash",
+      "scenarios": [
+        {
+          "name": "adverse",
+          "initial": 40,
+          "growth": 0,
+          "payout": 1,
+          "multiple": 14,
+          "treasury": 0,
+          "cashflows": [
+            40,
+            40,
+            40,
+            40,
+            600
+          ],
+          "exit": 560,
+          "irr": -0.120679137226063,
+          "priceAtReturns": {
+            "0.08": 540.834991822025,
+            "0.1": 499.3474116894647,
+            "0.12": 461.9500872962157
+          }
+        },
+        {
+          "name": "working",
+          "initial": 50,
+          "growth": 0.06,
+          "payout": 1,
+          "multiple": 20,
+          "treasury": 50,
+          "cashflows": [
+            53,
+            56.18000000000001,
+            59.5508,
+            63.12384800000002,
+            1455.1368564800002
+          ],
+          "exit": 1388.2255776000002,
+          "irr": 0.046759551452090764,
+          "priceAtReturns": {
+            "0.08": 1181.2523206253618,
+            "0.1": 1085.9929073895846,
+            "0.12": 1000.2949414889035
+          }
+        },
+        {
+          "name": "favorable",
+          "initial": 60,
+          "growth": 0.09,
+          "payout": 1,
+          "multiple": 22,
+          "treasury": 70,
+          "cashflows": [
+            65.4,
+            71.28600000000002,
+            77.70174000000002,
+            84.69489660000004,
+            2193.3010577620007
+          ],
+          "exit": 2100.9836204680005,
+          "irr": 0.13811151838509572,
+          "priceAtReturns": {
+            "0.08": 1738.3310804246382,
+            "0.1": 1596.4622109903073,
+            "0.12": 1468.89124443879
+          }
+        }
+      ]
+    }
+  ],
+  "repricing": [
+    {
+      "symbol": "CMSINFO",
+      "price": 205.9,
+      "irr": [
+        0.10673305850135562,
+        0.12358846312487859
+      ]
+    },
+    {
+      "symbol": "RSYSTEMS",
+      "price": 238.35,
+      "irr": [
+        0.10008932834639295,
+        0.10995493630479969
+      ]
+    },
+    {
+      "symbol": "PIXTRANS",
+      "price": 1673.3,
+      "irr": [
+        0.08126193422748285
+      ]
+    },
+    {
+      "symbol": "POWERGRID",
+      "price": 264.85,
+      "irr": [
+        0.0654262192628231
+      ]
+    }
+  ],
+  "prospectiveOutcomes": null
+}

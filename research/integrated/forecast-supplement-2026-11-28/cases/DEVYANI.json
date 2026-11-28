@@ -1,0 +1,232 @@
+{
+  "symbol": "DEVYANI",
+  "isin": "INE872J01023",
+  "scope": "CONSOLIDATED",
+  "target": "PAT_ATTRIBUTABLE_TO_OWNERS",
+  "target_period_end": "2026-12-31",
+  "research_date_ist": "2026-11-28",
+  "evidence_cutoff_date_ist": "2026-11-28",
+  "created_at_utc": "2026-11-27T19:46:32+00:00",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "ORIGINAL_ISSUER_PDF_CAPTURED_CRITICAL_FINANCIAL_PAGES_VISUALLY_VERIFIED",
+  "verified_pat_cr": {
+    "q1": 14.647,
+    "q2": -0.242,
+    "prior_q2": -21.887,
+    "prior_q3": -10.389
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 15.6465
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://dil-rjcorp.com/wp-content/uploads/2026/11/financial-results.pdf",
+      "publication_date": "2026-11-02",
+      "document_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited consolidated results, September 2026",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn743848701view0",
+      "locator": "PDF p1, quarterly columns and owners/NCI rows. INR million divided by 10.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/devyani_q2_2026.pdf",
+      "sha256": "b3019d958c4d163cab6a7269e818ed2b7f8b6bcaca8e65c8cddc56a3c5d8fa18",
+      "bytes": 5729407,
+      "visually_checked_pdf_pages": [
+        1
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://dil-rjcorp.com/wp-content/uploads/2026/02/financial-resultsq3.pdf",
+      "publication_date": "2026-02-04",
+      "document_date": "2026-02-04",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited results, December 2025",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn991706896view0",
+      "locator": "PDF pp1,3, owners PAT, discontinued operations, note3 exceptional items and note4 merger.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/devyani_q3_2025.pdf",
+      "sha256": "fd8b0dd7bdadf911842b21658d53f8f98c9faf305d661ef90f1aff455d3fe2d2",
+      "bytes": 803442,
+      "visually_checked_pdf_pages": [
+        1,
+        3
+      ]
+    },
+    {
+      "id": "S3",
+      "url": "https://dil-rjcorp.com/wp-content/uploads/2026/11/investor-presentation.pdf",
+      "publication_date": "2026-11-02",
+      "document_date": "2026-11-02",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Q2 FY27 investor presentation",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED",
+      "web_ref": "turn991706896view1",
+      "locator": "PDF pp4,5,7,12,15,18, management commentary, openings and same-store sales.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/devyani_presentation_q2.pdf",
+      "sha256": "0101c9db2fd918c99f3a721ab47d7a50c524937edf68a5f9023196721d506114",
+      "bytes": 4065602,
+      "visually_checked_pdf_pages": []
+    }
+  ],
+  "probabilities": null,
+  "scenario_interpretation": "Adverse/base/favorable assumption sensitivities. No assigned probabilities and no prediction-interval coverage claim.",
+  "facts": [
+    "S1 verifies the four current comparative owner-PAT anchors jointly with S2. Units are million rupees, converted to crore by dividing by 10.",
+    "S2 documents 21.503cr group exceptional charges in prior December, including 12.213cr group labour-code charge and 9.290cr lease dispute payment."
+  ],
+  "issuer_claims": [
+    "S3 reports 70 net store additions in Q2, including 50 KFC India units, and 2325 global stores. Management retains 200–220 full-year net-addition guidance.",
+    "S3 reports KFC India same-store sales +4.4%, Costa +9.9% and Pizza Hut -1.4%. It says CCI approval for the Sapphire merger was received while remaining approvals were progressing."
+  ],
+  "assumptions": [
+    "Revenue 1595cr assumes about 5% sequential growth from holiday demand plus unit additions.",
+    "EBIT margin 4.8% explicitly includes depreciation, operating cost and FX. Other income12, finance66, tax25%, NCI4 and equity-JV loss0.2 complete the owner-PAT bridge. No new exceptional or discontinued-business charge is assumed.",
+    "Forecast uses the September group perimeter. Merger completion is not assumed before December reporting. If combination is completed and historical comparatives restated, record a scope break rather than silently claim comparable forecast skill."
+  ],
+  "unknowns": [
+    "Sapphire merger approval/completion and accounting-effective reporting perimeter.",
+    "Brand mix, local currency changes, store closure charges and exact December NCI.",
+    "Current 3.90% operating EBIT margin can deteriorate despite positive same-store sales."
+  ],
+  "original_forecast_action": "PRESERVED_UNCHANGED",
+  "units": "INR crore except ratios, percentages and stated operating units",
+  "normalization_basis": "Prior Q3 only: parent-specific labour-code charge 11.572 plus lease-dispute charge 9.290, multiplied by assumed 75% after-tax retention = +15.6465. The pretax amounts are documented in S2 note3. Tax benefit at 25% is an analyst assumption, not disclosed item-specific tax. Parent charges belong to owners. Additional group labour charge 0.641 and discontinued-business losses are left untouched because owner attribution is unresolved. Current periods have no exceptional charge in S1.",
+  "normalization_uncertainty": "Prior-Q3 adjustment would be +20.862 with no tax benefit. Primary reported-PAT baselines are retained alongside adjusted comparators.",
+  "baseline_correction": "No owner-PAT correction to the frozen register. Its 0.229cr Q2 PBT-to-PAT gap is explained by JV loss, not a bad owner-PAT input. Group Q2 PAT is +3.462 but owner PAT is -0.242 after 3.704 NCI.",
+  "verified_operating_inputs_cr": {
+    "q2": {
+      "revenue": 1519.425,
+      "other_income": 11.96,
+      "finance": 65.309,
+      "depreciation": 173.279,
+      "pbt_before_equity_jv": 5.919,
+      "share_jv_loss": -0.229,
+      "tax": 2.228,
+      "group_pat": 3.462,
+      "nci": 3.704
+    },
+    "q1": {
+      "revenue": 1580.516,
+      "finance": 70.144,
+      "other_income": 19.191,
+      "group_pat": 17.104,
+      "nci": 2.457
+    },
+    "prior_q3": {
+      "revenue": 1440.897,
+      "pretax_exceptional_charge": 21.503,
+      "continuing_group_pat": -9.987,
+      "discontinued_group_loss": -0.991
+    }
+  },
+  "rationale": "Positive KFC same-store sales and new units support a December recovery, but high depreciation, lease finance costs and NCI substantially dilute restaurant-level gains. Use an EBIT-to-owner bridge after all operating costs and depreciation. Assumed 4.8% EBIT margin is above the observed Q2 3.90% and below an aggressive margin-recovery case.",
+  "model_formula": "owner_PAT = (revenue * EBIT_margin + other_income - finance_cost + exceptional_pretax) * (1-tax_rate) + equity_JV_after_tax - NCI",
+  "model": {
+    "kind": "operating",
+    "revenue_cr": 1595,
+    "ebit_margin": 0.048,
+    "other_income_cr": 12,
+    "finance_cost_cr": 66,
+    "tax_rate": 0.25,
+    "nci_cr": 4,
+    "associates_after_tax_cr": -0.2,
+    "exceptional_pretax_cr": 0
+  },
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 1530,
+        "ebit_margin": 0.035,
+        "other_income_cr": 10,
+        "finance_cost_cr": 68,
+        "tax_rate": 0,
+        "nci_cr": 4,
+        "associates_after_tax_cr": -0.2,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Revenue1530, 3.5% EBIT, no tax credit on operating loss, high finance cost and unchanged positive NCI.",
+      "forecast_pat_cr": -8.65
+    },
+    "base": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 1595,
+        "ebit_margin": 0.048,
+        "other_income_cr": 12,
+        "finance_cost_cr": 66,
+        "tax_rate": 0.25,
+        "nci_cr": 4,
+        "associates_after_tax_cr": -0.2,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Holiday demand and new units support margin recovery to 4.8%.",
+      "forecast_pat_cr": 12.72
+    },
+    "favorable": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 1640,
+        "ebit_margin": 0.055,
+        "other_income_cr": 13,
+        "finance_cost_cr": 65,
+        "tax_rate": 0.25,
+        "nci_cr": 4.5,
+        "associates_after_tax_cr": -0.1,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Revenue1640 and 5.5% EBIT from stronger same-store sales and cost absorption.",
+      "forecast_pat_cr": 24.05
+    }
+  },
+  "investment_implication": "Research hypothesis: operating improvement can return owner PAT to profit. This is a quarterly earnings experiment, not a valuation or position-size recommendation.",
+  "forecast_pat_cr": 12.72,
+  "source_updated_reported_baselines_cr": {
+    "latest_quarter": -0.242,
+    "two_quarter_mean": 7.202500000000001,
+    "damped_sequential": -3.96425,
+    "seasonal_naive": -10.389,
+    "seasonal_additive": 11.256,
+    "seasonal_yoy": null
+  },
+  "normalized_pat_cr": {
+    "q1": 14.647,
+    "q2": -0.242,
+    "prior_q2": -21.887,
+    "prior_q3": 5.2575
+  },
+  "source_updated_normalized_baselines_cr": {
+    "latest_quarter": -0.242,
+    "two_quarter_mean": 7.202500000000001,
+    "damped_sequential": -3.96425,
+    "seasonal_naive": 5.2575,
+    "seasonal_additive": 26.9025,
+    "seasonal_yoy": null
+  },
+  "baseline_formulas": {
+    "latest": "q2",
+    "mean": "(q1+q2)/2",
+    "damped": "q2+0.25*(q2-q1)",
+    "seasonal_naive": "prior_q3",
+    "additive": "prior_q3+q2-prior_q2",
+    "yoy": "prior_q3*q2/prior_q2, allowed only when all three are positive"
+  },
+  "reproducibility_note": "Signed original PDF bytes downloaded directly from issuer URLs, SHA256 and exact byte lengths recorded. Financial statement pages listed as visually checked were rendered locally and displayed to the analyst. Commentary pages not listed as visually checked were reviewed as extracted text. Acquisition timestamp records this review session, not original publication time.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ],
+  "normalization_estimate_flags": {
+    "q1": "NO_ADJUSTMENT",
+    "q2": "NO_ADJUSTMENT",
+    "prior_q2": "NO_ADJUSTMENT",
+    "prior_q3": "ANALYST_TAX_AND_OR_ATTRIBUTION_ESTIMATE"
+  }
+}

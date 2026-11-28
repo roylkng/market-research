@@ -1,0 +1,42 @@
+{
+  "as_of": "2026-11-19",
+  "symbol": "NRAIL",
+  "isin": "INE740D01017",
+  "series": "EQ",
+  "price_date": "2026-11-18",
+  "price_inr": 618.8,
+  "shares": 17019100,
+  "shares_as_of": "2026-09-30",
+  "units": "INR crore except share counts, per-share INR, ratios and rates",
+  "cash_rows": {
+    "FY25": {"cfo":176.1069,"capex":119.6641,"nonlease_interest_cash":59.5328,"total_lease_cash":6.4060,"pat":17.6510},
+    "FY26": {"cfo":94.8655,"capex":293.5183,"nonlease_interest_cash":61.9291,"total_lease_cash":6.5110,"pat":43.6991},
+    "H1FY26": {"cfo":-29.0649,"capex":54.3502,"nonlease_interest_cash":31.4484,"total_lease_cash":3.2130,"pat":15.0746},
+    "H1FY27": {"cfo":78.0584,"capex":44.9505,"nonlease_interest_cash":30.5638,"total_lease_cash":3.4680,"pat":65.9164}
+  },
+  "balance_sep26": {"gross_borrowings":797.6712,"cash":3.6408,"current_investments":16.5096,"other_bank_balances":8.7538,"noncurrent_investments":4.1288,"lease_liabilities":29.6238,"cwip":252.1401,"inventory":303.2863,"receivables":282.9299,"equity":877.6591},
+  "balance_mar26": {"gross_borrowings":788.9119,"cash":3.4292,"current_investments":12.7004,"lease_liabilities":31.6187,"cwip":227.1623},
+  "h1fy27": {"revenue":1315.7652,"pbt":88.1229,"pnl_finance_cost":31.9905,"depreciation":36.0607,"other_income":8.8948,"inventory_cash_absorption":49.5938,"receivables_cash_absorption":36.2812,"before_working_capital_cash":155.5844,"cash_tax":0.9460,"current_tax":0.0,"deferred_tax":22.2065,"short_term_borrowing_net_raise":37.9655,"secured_term_net_repayment":25.4155,"unsecured_term_net_repayment":3.7907},
+  "source_notes": {
+    "lease": "Annual note48 confirms financing lease payment contains principal and lease interest. Deduct payment once, do not additionally deduct P&L lease interest.",
+    "growth_capex": "All-capex cash is not maintenance free cash flow. Unit VI is a growth project.",
+    "tax": "Current H1 tax is zero and P&L tax is deferred. Forward model uses 25% normalized cash tax instead of assuming perpetual zero tax.",
+    "project_budget": "Issuer total1500 and roughly250 already spent. Not decomposed for future capitalized interest. Working1250 is an explicit non-interest capex assumption, tested at1100 for possible interest/budget overlap. This is not a verified non-interest bill of quantities.",
+    "timing": "Annual MD review printed10 says Dec2029, printed11 says late2030. Rating July2026 says Dec2029. Working case allows first meaningful new-plant EBITDA only in fifth year.",
+    "capacity": "Issuer FY26 narrative gives468000TPA, ICRA around500000TPA following debottleneck. Do not infer exact utilization from a rounded denominator.",
+    "current_investments": "FY26 note9 shows equity investments. Forward model credits current portfolio at75% of Sep carrying value. No noncurrent investments or other bank balances credited.",
+    "funding": "Debt model assumes refinancing and project borrowing remain available, no contractual facility closure was verified. Borrowing authority and a credit rating are not committed project funding. No dilution is assumed only within scenarios, not guaranteed."
+  },
+  "model": {
+    "horizon_years":5,
+    "periods":"Five model years from decision, approximate operating/funding periods, not issuer fiscal guidance",
+    "tax_rate":0.25,
+    "annual_dividend_per_share":2.0,
+    "current_investment_credit":0.75,
+    "scenarios": {
+      "downside": {"old_ebitda":[270,260,265,270,275],"new_ebitda":[0,0,0,0,150],"project_capex":[75,350,450,450,50],"maintenance_capex":[40,45,50,55,65],"incremental_working_capital":[35,20,20,30,100],"lease_cash":[7,7,7,8,10],"physical_depreciation":[66,68,70,72,105],"terminal_ev_postlease_ebitda":5.5,"cash_funding_rate":0.10},
+      "working": {"old_ebitda":[285,290,295,300,305],"new_ebitda":[0,0,0,0,180],"project_capex":[50,350,450,400,0],"maintenance_capex":[35,40,45,50,65],"incremental_working_capital":[25,20,20,30,100],"lease_cash":[7,7,7,8,10],"physical_depreciation":[66,68,70,72,105],"terminal_ev_postlease_ebitda":6.0,"cash_funding_rate":0.09},
+      "upside": {"old_ebitda":[310,330,350,365,380],"new_ebitda":[0,0,0,180,300],"project_capex":[50,400,500,300,0],"maintenance_capex":[35,40,45,60,75],"incremental_working_capital":[20,20,30,110,60],"lease_cash":[7,7,7,10,13],"physical_depreciation":[66,68,70,95,130],"terminal_ev_postlease_ebitda":6.5,"cash_funding_rate":0.08}
+    }
+  }
+}

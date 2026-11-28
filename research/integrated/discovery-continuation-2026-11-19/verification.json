@@ -1,0 +1,63 @@
+{
+  "verified_at_utc": "2026-11-19T10:43:45.055240+00:00",
+  "parent_calculator_reproductions": [
+    {
+      "case": "nrail",
+      "output_file": "decision_calculations.json",
+      "sha256": "897cfda9d8cf9bf9506b46cdd8d4e908be6401b45a0287503a88036afafae968",
+      "byte_identical_reproduction": true
+    },
+    {
+      "case": "krsnaa",
+      "output_file": "krsnaa_calculations_2026-11-19.json",
+      "sha256": "7a184dbd3864a82d1ba255e461d5a2250aa8bdacff27a81da45f1a31855f245d",
+      "byte_identical_reproduction": true
+    },
+    {
+      "case": "epigral",
+      "output_file": "epigral_calculations.json",
+      "sha256": "0b5c327471b757b4eaf26a4480df889e4e276238c39eddeacfab26601ee01538",
+      "byte_identical_reproduction": true
+    },
+    {
+      "case": "fdc",
+      "output_file": "decision_calculations.json",
+      "sha256": "1d88b911dd993bdf15c5660d9eb0bf30cca3a6fd6dd13cc4a519506c674afa46",
+      "byte_identical_reproduction": true
+    },
+    {
+      "case": "petronet",
+      "output_file": "petronet_calculations_2026-11-19.json",
+      "sha256": "1ea4d8ee953c8141f2a3c5ef1c287e621d938514a1477a45d6791ff0256b35ad",
+      "byte_identical_reproduction": true
+    }
+  ],
+  "html_function_check": {
+    "javascript_executes": true,
+    "default_display": "11.17%",
+    "computed": {
+      "full": 0.12050944160523669,
+      "discount": 0.11169007485532079,
+      "six": 0.09468327483592065,
+      "at850": 0.14287120598230418
+    },
+    "comparison_tolerance": 1e-12,
+    "browser_layout_inspection": false
+  },
+  "critical_source_pages_visually_inspected_by_researchers": true,
+  "parent_additional_visual_checks": [
+    "Krsnaa receivable-ageing printed231",
+    "FDC recalls printed95",
+    "Petronet H1cash and annualfunding",
+    "Exported scenario chart"
+  ],
+  "limitations": [
+    "Arithmetic and source checks do not validate forecast assumptions or investment alpha.",
+    "HTML layout not inspected in a live browser. Static exported chart visually inspected."
+  ],
+  "upstream_main_sha": "cbb6ea0b084272a2dfff12a1bf93e796d3095b89",
+  "source_bundle_verified_unique_files": 53,
+  "independent_fdc_review": "fdc/fdc_independent_review.json",
+  "independent_epigral_review": "epigral/epigral_independent_review.json",
+  "new_research_diff_scope": "INVESTMENT_RESEARCH.md and research/integrated only. Frozen prospective/paper-fund trees equal current upstream main."
+}

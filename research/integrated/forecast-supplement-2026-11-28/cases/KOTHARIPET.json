@@ -1,0 +1,216 @@
+{
+  "symbol": "KOTHARIPET",
+  "isin": "INE720A01015",
+  "scope": "STANDALONE",
+  "target": "STANDALONE_PAT",
+  "target_period_end": "2026-12-31",
+  "research_date_ist": "2026-11-28",
+  "evidence_cutoff_date_ist": "2026-11-28",
+  "created_at_utc": "2026-11-27T19:46:32+00:00",
+  "status": "FORECAST",
+  "source_valid": true,
+  "source_review_status": "ORIGINAL_ISSUER_PDF_CAPTURED_CRITICAL_FINANCIAL_PAGES_VISUALLY_VERIFIED",
+  "verified_pat_cr": {
+    "q1": 17.0247,
+    "q2": 19.531,
+    "prior_q2": 18.4156,
+    "prior_q3": 18.6957
+  },
+  "normalization_adjustments_cr": {
+    "q1": 0,
+    "q2": 0,
+    "prior_q2": 0,
+    "prior_q3": 0
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.kotharipetrochemicals.com/wp-content/uploads/2026/08/Unaudited-Results-30.09.2026.pdf",
+      "publication_date": "2026-11-03",
+      "document_date": "2026-11-03",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited standalone results, September 2026",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn991706896view2",
+      "locator": "PDF p2 results, p4 segment/scope notes, p5 cash flow. INR lakh divided by 100.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/kothari_q2_2026.pdf",
+      "sha256": "fae52794737ca60ee34c71c658440842107b462d5e42c736b148f55bc169cf9a",
+      "bytes": 2623647,
+      "visually_checked_pdf_pages": [
+        2
+      ]
+    },
+    {
+      "id": "S2",
+      "url": "https://www.kotharipetrochemicals.com/wp-content/uploads/2026/02/Unaudited-Results-31.12.2025.pdf",
+      "publication_date": "2026-02-05",
+      "document_date": "2026-02-05",
+      "observed_at_utc": "2026-11-27T19:46:32+00:00",
+      "title": "Unaudited standalone results, December 2025",
+      "status": "ORIGINAL_ISSUER_PDF_CAPTURED_AND_TEXT_REVIEWED_CRITICAL_PAGES_VISUALLY_CHECKED",
+      "web_ref": "turn991706896view3",
+      "locator": "PDF pp2–3 results and labour-code note.",
+      "local_receipt_path": "/workspace/scratch/cf8910f564c4/consumer_energy_sources/kothari_q3_2025.pdf",
+      "sha256": "0636c4a4a3b2727d4ba1dbaf288bed23ec014942bc6d814889497d1bf8b8241f",
+      "bytes": 658050,
+      "visually_checked_pdf_pages": [
+        2
+      ]
+    }
+  ],
+  "probabilities": null,
+  "scenario_interpretation": "Adverse/base/favorable assumption sensitivities. No assigned probabilities and no prediction-interval coverage claim.",
+  "facts": [
+    "S1 note3 identifies a single manufacturing segment, Poly Iso Butylene. Note2 says no subsidiaries, associates or JVs, supporting standalone target.",
+    "Q2 operating EBIT derived as PBT+finance-other income is22.0958cr, 13.36% of sales. Prior-December analogous EBIT is23.2532cr, 17.25% of sales.",
+    "S1 cash flow identifies lease rental, interest and investment gains within non-operating income."
+  ],
+  "issuer_claims": [
+    "No quantitative forward sales-volume, price or margin guidance was verified. Financial-statement facts, rather than an invented management forecast, anchor this case."
+  ],
+  "assumptions": [
+    "Sales160cr allows a3.2% sequential decline, with the prior September-to-December revenue decline serving only as a one-year seasonality clue.",
+    "13.5% EBIT margin keeps current feedstock/conversion spread broadly stable. Other income3cr is near recent2.86–3.27. Finance0.18 and25%tax avoid extrapolating Q2 unusually low22.5%effective tax."
+  ],
+  "unknowns": [
+    "Actual sales volume and realization were not separately disclosed in reviewed statements.",
+    "Feedstock costs, inventory valuation and product mix can change spread sharply.",
+    "One year of December comparison cannot establish stable seasonality."
+  ],
+  "original_forecast_action": "PRESERVED_UNCHANGED",
+  "units": "INR crore except ratios, percentages and stated operating units",
+  "normalization_basis": "No adjustment. Prior September has a 0.2582cr exceptional expense in the signed PBT bridge but its nature was not established in reviewed notes. It is left in reported PAT. Prior December note says labour-code effect was not material. Do not invent a tax-adjusted addback.",
+  "baseline_correction": "Direct June comparative in S1 shows PAT17.0247 and tax5.4306. Frozen half-year-minus-Q2 extraction gave PAT17.0248 and tax5.4305. This 0.0001cr rounding difference affects the new mean and damped baseline only, old predictions remain unchanged.",
+  "verified_operating_inputs_cr": {
+    "q2": {
+      "revenue": 165.3654,
+      "other_income": 3.2672,
+      "materials": 107.7166,
+      "inventory_change": -4.2665,
+      "utilities": 10.7864,
+      "employee": 9.0322,
+      "finance": 0.1602,
+      "depreciation": 2.157,
+      "other_expense": 17.8439,
+      "pbt": 25.2028,
+      "tax": 5.6718
+    },
+    "q1": {
+      "revenue": 146.5037,
+      "other_income": 2.8615,
+      "pbt": 22.4553,
+      "tax": 5.4306
+    },
+    "prior_q3": {
+      "revenue": 134.835,
+      "other_income": 2.307,
+      "finance": 0.2154,
+      "pbt": 25.3448,
+      "tax": 6.6491
+    }
+  },
+  "rationale": "A poly-isobutylene producer earns from selling-price versus feedstock and conversion-cost spread. Current sales increased but EBIT margin is about13.36% versus17.25% last December. Assume December sales160cr and margin13.5%, retaining current spread rather than extrapolating last-year peak margin. Treasury/rental/investment income is separated from manufacturing profit.",
+  "model_formula": "standalone_PAT = (revenue * EBIT_margin + other_income - finance_cost) * (1-tax_rate)",
+  "model": {
+    "kind": "operating",
+    "revenue_cr": 160,
+    "ebit_margin": 0.135,
+    "other_income_cr": 3,
+    "finance_cost_cr": 0.18,
+    "tax_rate": 0.25,
+    "nci_cr": 0,
+    "associates_after_tax_cr": 0,
+    "exceptional_pretax_cr": 0
+  },
+  "scenarios": {
+    "adverse": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 150,
+        "ebit_margin": 0.115,
+        "other_income_cr": 2.8,
+        "finance_cost_cr": 0.2,
+        "tax_rate": 0.26,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Sales150, EBIT11.5%, smaller treasury income and26%tax.",
+      "forecast_pat_cr": 14.689
+    },
+    "base": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 160,
+        "ebit_margin": 0.135,
+        "other_income_cr": 3,
+        "finance_cost_cr": 0.18,
+        "tax_rate": 0.25,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Sales160 and EBIT13.5%, near current spread.",
+      "forecast_pat_cr": 18.315
+    },
+    "favorable": {
+      "model": {
+        "kind": "operating",
+        "revenue_cr": 170,
+        "ebit_margin": 0.15,
+        "other_income_cr": 3.3,
+        "finance_cost_cr": 0.18,
+        "tax_rate": 0.24,
+        "nci_cr": 0,
+        "associates_after_tax_cr": 0,
+        "exceptional_pretax_cr": 0
+      },
+      "assumption": "Sales170 and EBIT15%, partial recovery toward prior-December spread.",
+      "forecast_pat_cr": 21.7512
+    }
+  },
+  "investment_implication": "Research hypothesis: sales growth alone overstates profit improvement if raw-material spread remains below prior-year December. No security valuation or capital action follows from the PAT estimate.",
+  "forecast_pat_cr": 18.315,
+  "source_updated_reported_baselines_cr": {
+    "latest_quarter": 19.531,
+    "two_quarter_mean": 18.27785,
+    "damped_sequential": 20.157574999999998,
+    "seasonal_naive": 18.6957,
+    "seasonal_additive": 19.811099999999993,
+    "seasonal_yoy": 19.828065156714953
+  },
+  "normalized_pat_cr": {
+    "q1": 17.0247,
+    "q2": 19.531,
+    "prior_q2": 18.4156,
+    "prior_q3": 18.6957
+  },
+  "source_updated_normalized_baselines_cr": {
+    "latest_quarter": 19.531,
+    "two_quarter_mean": 18.27785,
+    "damped_sequential": 20.157574999999998,
+    "seasonal_naive": 18.6957,
+    "seasonal_additive": 19.811099999999993,
+    "seasonal_yoy": 19.828065156714953
+  },
+  "baseline_formulas": {
+    "latest": "q2",
+    "mean": "(q1+q2)/2",
+    "damped": "q2+0.25*(q2-q1)",
+    "seasonal_naive": "prior_q3",
+    "additive": "prior_q3+q2-prior_q2",
+    "yoy": "prior_q3*q2/prior_q2, allowed only when all three are positive"
+  },
+  "reproducibility_note": "Signed original PDF bytes downloaded directly from issuer URLs, SHA256 and exact byte lengths recorded. Financial statement pages listed as visually checked were rendered locally and displayed to the analyst. Commentary pages not listed as visually checked were reviewed as extracted text. Acquisition timestamp records this review session, not original publication time.",
+  "scenario_order": [
+    "adverse",
+    "base",
+    "favorable"
+  ],
+  "normalization_estimate_flags": {
+    "q1": "NO_ADJUSTMENT",
+    "q2": "NO_ADJUSTMENT",
+    "prior_q2": "NO_ADJUSTMENT",
+    "prior_q3": "NO_ADJUSTMENT"
+  }
+}

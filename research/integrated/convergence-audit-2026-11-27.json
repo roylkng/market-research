@@ -1,0 +1,802 @@
+{
+  "classification": "RESEARCH_CONVERGENCE_DIAGNOSTIC_NOT_BACKTEST_OR_TRADE",
+  "research_date": "2026-11-27",
+  "source_commit": "b6aad72363d3ca6b48adf238feb228c2f8cb9ab5",
+  "price_date": "2026-11-26",
+  "source_blobs": [
+    {
+      "path": "research/integrated/market-reevaluation-2026-11-26.json",
+      "sha": "420afcc28372a88e153a4e1e72e1c76e00fa45e0"
+    },
+    {
+      "path": "research/integrated/discovery-continuation-2026-11-20/cms/decision_calculations.json",
+      "sha": "22ea67266b29abb7d474b1d970571c8437cd9687"
+    },
+    {
+      "path": "research/integrated/discovery-continuation-2026-11-20/fresh/rsystems_model_results.json",
+      "sha": "30704b8e2bbb3bc67190574c5180bf4696789b35"
+    },
+    {
+      "path": "research/integrated/discovery-expansion-2026-11-21/report_data.json",
+      "sha": "a30878a28f7e77bacd69b73765cf6ff0c51a4902"
+    },
+    {
+      "path": "research/integrated/market-review-2026-11-23/repricing/inputs.json",
+      "sha": "83da7e7cbf6862eeedad457607400169d0169a51"
+    }
+  ],
+  "scope": "Seven previously modeled names with retrievable five-year cash paths; selected comparison, not all-market rank. Model assumptions held unchanged; different adverse scenarios not equal severity. No probabilities, risk-adjusted ranking, certified intrinsic value or user return hurdle.",
+  "method": {
+    "discount_rates": [
+      0.1,
+      0.12
+    ],
+    "headroom": "1 - entry price / present value of assumed future investor receipts. Negative indicates receipts must increase by -headroom proportion to break even. Not a calibrated margin of safety.",
+    "adverse_weight": "If working PV >= price and working PV > adverse PV, (working PV - price)/(working PV-adverse PV). Hypothetical mixture of these two paths ONLY, not estimated probability. No favorable path credit.",
+    "timing": "Original cashflow time conventions preserved. Only price at t0 replaced; not forecast roll-forward."
+  },
+  "rows": [
+    {
+      "symbol": "HDFCBANK",
+      "price": 862,
+      "scenarios": [
+        {
+          "name": "adverse",
+          "cashflows_per_share": [
+            7.540860160303901,
+            8.103610918535537,
+            8.70835800200834,
+            9.358235464844785,
+            770.3364214285366
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.014100356539852699,
+          "pv10": 504.8053555181697,
+          "pv12": 462.44839836103404,
+          "headroom10": -0.7075888569271997,
+          "headroom12": -0.8639917514149018
+        },
+        {
+          "name": "working",
+          "cashflows_per_share": [
+            13.196505280531825,
+            14.509590383072307,
+            15.95333071969642,
+            17.540726811208504,
+            1297.9526969211315
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.09786020259490436,
+          "pv10": 853.8812517558965,
+          "pv12": 782.345482995065,
+          "headroom10": -0.009508053054693821,
+          "headroom12": -0.1018150148959669
+        },
+        {
+          "name": "favorable",
+          "cashflows_per_share": [
+            15.0817203206078,
+            16.807489312518147,
+            18.730734358229185,
+            20.87405222011611,
+            1651.6464005409284
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.15252746467065126,
+          "pv10": 1081.473546611245,
+          "pv12": 990.6511774083309,
+          "headroom10": 0.20293935741558977,
+          "headroom12": 0.12986526472910342
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.nseindia.in/get-quote/equity/HDFCBANK/Hdfc-Bank-Ltd",
+      "quote_provenance": "NSE dated quote close, EQ",
+      "conditional_adverse_weight_at_10": null,
+      "conditional_adverse_weight_at_12": null
+    },
+    {
+      "symbol": "ICICIBANK",
+      "price": 1611,
+      "scenarios": [
+        {
+          "name": "adverse",
+          "cashflows_per_share": [
+            10.994161951600255,
+            11.902137515762265,
+            12.885100116566512,
+            13.94924271325808,
+            1359.3888436471232
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.026854865742324152,
+          "pv10": 883.1129762122368,
+          "pv12": 808.6946201135827,
+          "headroom10": -0.8242286586136987,
+          "headroom12": -0.9920993165179361
+        },
+        {
+          "name": "working",
+          "cashflows_per_share": [
+            15.991508293236734,
+            17.948677964946306,
+            20.14538183528302,
+            22.610936030048997,
+            2530.2109884944857
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.10277008004487176,
+          "pv10": 1631.0124046492742,
+          "pv12": 1493.0051175863055,
+          "headroom10": 0.01226992792466075,
+          "headroom12": -0.07903180037617896
+        },
+        {
+          "name": "favorable",
+          "cashflows_per_share": [
+            17.990446829891326,
+            20.47867778447331,
+            23.3110521248134,
+            26.535167791827398,
+            3197.7244671784183
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.15582992029403775,
+          "pv10": 2054.452600825347,
+          "pv12": 1880.3190406742679,
+          "headroom10": 0.21584951662900187,
+          "headroom12": 0.1432305022969358
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.nseindia.in/get-quote/equity/ICICIBANK/ICICI-Bank-Limited",
+      "quote_provenance": "NSE dated quote close, EQ",
+      "conditional_adverse_weight_at_10": 0.026758149409334644,
+      "conditional_adverse_weight_at_12": null
+    },
+    {
+      "symbol": "TCS",
+      "price": 2640.3,
+      "scenarios": [
+        {
+          "name": "adverse",
+          "cashflows_per_share": [
+            85,
+            85,
+            85,
+            85,
+            1105
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.1254256898345249,
+          "pv10": 955.556624920056,
+          "pv12": 885.1813700322964,
+          "headroom10": -1.7631015589692485,
+          "headroom12": -1.9827785461680776
+        },
+        {
+          "name": "working",
+          "cashflows_per_share": [
+            116.60000000000001,
+            123.59600000000002,
+            131.01176,
+            138.87246560000003,
+            2699.6866436480004
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.043443974276905606,
+          "pv10": 2077.7212941291887,
+          "pv12": 1916.0193664583462,
+          "headroom10": -0.2707671656734878,
+          "headroom12": -0.3780132112549812
+        },
+        {
+          "name": "favorable",
+          "cashflows_per_share": [
+            141.70000000000002,
+            154.45300000000003,
+            168.35377000000003,
+            183.50560930000006,
+            4280.443396877002
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.1445417990753658,
+          "pv10": 3166.1073460003354,
+          "pv12": 2914.9374012133676,
+          "headroom10": 0.16607375825856774,
+          "headroom12": 0.09421725526560099
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.nseindia.in/get-quote/equity/TCS/Tata-Consultancy-Services-Limited",
+      "quote_provenance": "NSE dated quote close, EQ",
+      "conditional_adverse_weight_at_10": null,
+      "conditional_adverse_weight_at_12": null
+    },
+    {
+      "symbol": "INFY",
+      "price": 1183,
+      "scenarios": [
+        {
+          "name": "adverse",
+          "cashflows_per_share": [
+            50,
+            50,
+            50,
+            50,
+            650
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.07141615466808454,
+          "pv10": 562.0921323059154,
+          "pv12": 520.6949235484096,
+          "headroom10": -1.1046371795792354,
+          "headroom12": -1.271963767071401
+        },
+        {
+          "name": "working",
+          "cashflows_per_share": [
+            65.10000000000001,
+            68.355,
+            71.77275,
+            75.36138750000002,
+            1385.2007668750002
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.07816815753687167,
+          "pv10": 1081.1710176434792,
+          "pv12": 997.5972531380455,
+          "headroom10": -0.09418397339069196,
+          "headroom12": -0.1858492956739315
+        },
+        {
+          "name": "favorable",
+          "cashflows_per_share": [
+            75.60000000000001,
+            81.64800000000001,
+            88.17984000000001,
+            95.23422720000002,
+            2117.059307520001
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.17279245348190286,
+          "pv10": 1582.0293024197304,
+          "pv12": 1457.1533333860148,
+          "headroom10": 0.252226239937156,
+          "headroom12": 0.18814309181104472
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.nseindia.in/get-quote/equity/INFY/Infosys",
+      "quote_provenance": "NSE dated quote close, EQ",
+      "conditional_adverse_weight_at_10": null,
+      "conditional_adverse_weight_at_12": null
+    },
+    {
+      "symbol": "CMSINFO",
+      "price": 206.67,
+      "scenarios": [
+        {
+          "name": "downside",
+          "cashflows_per_share": [
+            3.4021169387492107,
+            3.3684326126229807,
+            3.335081794676219,
+            3.3020611828477406,
+            129.8447718774571
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.07369110949143615,
+          "pv10": 91.2610982655008,
+          "pv12": 83.87267382723923,
+          "headroom10": -1.2646012805888716,
+          "headroom12": -1.4640921836556502
+        },
+        {
+          "name": "working",
+          "cashflows_per_share": [
+            5.59479746236641,
+            5.78964115508564,
+            5.991270449043847,
+            6.19992165871204,
+            337.05741002786465
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.1227108030383478,
+          "pv10": 227.89309997321374,
+          "pv12": 209.0708779916732,
+          "headroom10": 0.09312743552002356,
+          "headroom12": 0.011483560095676415
+        },
+        {
+          "name": "upside",
+          "cashflows_per_share": [
+            6.216441624851567,
+            6.556644897853395,
+            6.9154662604224875,
+            7.293924612982922,
+            510.38692411583315
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.21848387493302457,
+          "pv10": 338.15769036343363,
+          "pv12": 309.9422722713439,
+          "headroom10": 0.38883542829417184,
+          "headroom12": 0.33319840986689464
+        },
+        {
+          "name": "cash_capex_200_then_grows_with_sales",
+          "cashflows_per_share": [
+            5.59479746236641,
+            5.78964115508564,
+            5.991270449043847,
+            6.19992165871204,
+            311.43544270856216
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.10586736909820271,
+          "pv10": 211.98387412593402,
+          "pv12": 194.53228563835668,
+          "headroom10": 0.025067350749412243,
+          "headroom12": -0.06239434406383215
+        },
+        {
+          "name": "cash_capex_250_then_grows_with_sales",
+          "cashflows_per_share": [
+            5.59479746236641,
+            5.78964115508564,
+            5.991270449043847,
+            6.19992165871204,
+            248.10163503251073
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.05902448531290416,
+          "pv10": 172.6585624693461,
+          "pv12": 158.59498228804833,
+          "headroom10": -0.1969866831058107,
+          "headroom12": -0.3031307612534384
+        },
+        {
+          "name": "joint_credible_stress_24_5_margin_250_capex_10x_exit_25_financing",
+          "cashflows_per_share": [
+            5.59479746236641,
+            5.78964115508564,
+            5.991270449043847,
+            6.19992165871204,
+            170.89408574067306
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.012843192880829524,
+          "pv10": 124.71874881290333,
+          "pv12": 114.78534535564212,
+          "headroom10": -0.6570884647827546,
+          "headroom12": -0.8004911633943295
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.business-standard.com/markets/cms-info-systems-ltd-share-price-44662.html",
+      "quote_provenance": "Secondary post-close NSE quote corroborated Upstox/Stockexact; last-trade observations differ",
+      "conditional_adverse_weight_at_10": 0.15533037434827904,
+      "conditional_adverse_weight_at_12": 0.019176616850828988
+    },
+    {
+      "symbol": "RSYSTEMS",
+      "price": 240.2,
+      "scenarios": [
+        {
+          "name": "downside",
+          "cashflows_per_share": [
+            5.860252673856302,
+            2.7879477066739824,
+            3.0216570784635466,
+            3.253461210809173,
+            164.85859557473552
+          ],
+          "times_years": [
+            0.999315537303217,
+            2.001368925393566,
+            3.0006844626967832,
+            4,
+            4.999315537303217
+          ],
+          "irr": -0.05868723005066151,
+          "pv10": 114.49475913450743,
+          "pv12": 105.22563786695518,
+          "headroom10": -1.0979126190205366,
+          "headroom12": -1.2827136510562491
+        },
+        {
+          "name": "base",
+          "cashflows_per_share": [
+            9.094128658428069,
+            6.535021428138724,
+            7.381110512596608,
+            8.262623684325211,
+            360.5229238522952
+          ],
+          "times_years": [
+            0.999315537303217,
+            2.001368925393566,
+            3.0006844626967832,
+            4,
+            4.999315537303217
+          ],
+          "irr": 0.10814117327813155,
+          "pv10": 248.7277024511164,
+          "pv12": 228.41988448060138,
+          "headroom10": 0.034285294187495596,
+          "headroom12": -0.05157219804302571
+        },
+        {
+          "name": "upside",
+          "cashflows_per_share": [
+            9.745491570634838,
+            7.707800420553154,
+            9.072206129513637,
+            10.549226869150296,
+            549.4265762471744
+          ],
+          "times_years": [
+            0.999315537303217,
+            2.001368925393566,
+            3.0006844626967832,
+            4,
+            4.999315537303217
+          ],
+          "irr": 0.2046502408630969,
+          "pv10": 370.42320246343354,
+          "pv12": 339.7903839831275,
+          "headroom10": 0.35155249886456175,
+          "headroom12": 0.2930935914539381
+        },
+        {
+          "name": "base_year5_cash",
+          "cashflows_per_share": [
+            9.094128658428069,
+            6.535021428138724,
+            7.381110512596608,
+            8.262623684325211,
+            343.95784826415104
+          ],
+          "times_years": [
+            0.999315537303217,
+            2.001368925393566,
+            3.0006844626967832,
+            4,
+            4.999315537303217
+          ],
+          "irr": 0.0982899808275578,
+          "pv10": 238.44142278379599,
+          "pv12": 219.0196865867879,
+          "headroom10": -0.007375300799972839,
+          "headroom12": -0.0967050667603766
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://dalalchart.com/stock/RSYSTEMS",
+      "quote_provenance": "Secondary stated NSE EOD close, not 12:40 intraday 236",
+      "conditional_adverse_weight_at_10": 0.06352913256921221,
+      "conditional_adverse_weight_at_12": null
+    },
+    {
+      "symbol": "POWERGRID",
+      "price": 266.95,
+      "scenarios": [
+        {
+          "name": "adverse",
+          "cashflows_per_share": [
+            7.663446435834855,
+            7.577338261554259,
+            7.530166315353874,
+            7.547951323224533,
+            191.02423939867856
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": -0.03928728681344634,
+          "pv10": 142.65293369717554,
+          "pv12": 131.43193725425917,
+          "headroom10": -0.8713249919323984,
+          "headroom12": -1.0310892890787793
+        },
+        {
+          "name": "base",
+          "cashflows_per_share": [
+            9.01959105457881,
+            9.421777400842426,
+            9.932674225256577,
+            10.55444074541192,
+            318.0575694363742
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.06363203032311515,
+          "pv10": 228.14633814904457,
+          "pv12": 209.8160153437779,
+          "headroom10": -0.1700823347232756,
+          "headroom12": -0.27230516489701495
+        },
+        {
+          "name": "upside",
+          "cashflows_per_share": [
+            9.493435999432924,
+            10.247112704355398,
+            11.145098118663345,
+            12.136470620849819,
+            419.6861122565078
+          ],
+          "times_years": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "irr": 0.12309546395247362,
+          "pv10": 294.3539905491378,
+          "pv12": 270.43219590769763,
+          "headroom10": 0.09309875669772216,
+          "headroom12": 0.012876410280993955
+        }
+      ],
+      "price_date": "2026-11-26",
+      "quote_source": "https://www.nseindia.in/get-quote/equity/POWERGRID/Power-Grid-Corporation-of-India-Ltd",
+      "quote_provenance": "NSE dated quote close, EQ",
+      "conditional_adverse_weight_at_10": null,
+      "conditional_adverse_weight_at_12": null
+    }
+  ],
+  "prior_evidence": {
+    "HG009": {
+      "selected": -0.00696827,
+      "one_lane": 0.00662482,
+      "zero_lane": 0.00029559,
+      "observable_per_arm": 98,
+      "original_per_arm": 100,
+      "scope": "one common 20-session raw-price entry, unresolved corporate actions costs and dividends"
+    },
+    "H021_H20": [
+      {
+        "cohort": "2026-10-09",
+        "mean_price": 0.06292754,
+        "benchmark_price": 0.07079378,
+        "excess_pp": -0.786623,
+        "pr": 611
+      },
+      {
+        "cohort": "2026-10-16",
+        "mean_price": 0.03382449,
+        "benchmark_price": 0.06653376,
+        "excess_pp": -3.270927,
+        "pr": 622
+      },
+      {
+        "cohort": "2026-10-23",
+        "mean_price": 0.07738185,
+        "benchmark_price": 0.12890497,
+        "excess_pp": -5.152312,
+        "pr": 622
+      }
+    ],
+    "limitations": "overlapping names/time, raw price not economic return, no promotion."
+  },
+  "benchmark_references": [
+    "Nifty 500 TRI",
+    "Nifty500 Multifactor MQVLv 50 TRI",
+    "same-case equal-weight reference; do not infer skill across universe"
+  ],
+  "future_comparison": {
+    "classification": "SMALL_SELECTED_SET_FORWARD_DESCRIPTIVE_DIAGNOSTIC",
+    "candidate_names": [
+      "HDFCBANK",
+      "ICICIBANK",
+      "CMSINFO",
+      "RSYSTEMS"
+    ],
+    "other_reviewed_names": [
+      "INFY",
+      "TCS",
+      "POWERGRID"
+    ],
+    "choice": "Existing conditional candidates retained before future outcomes; equal-notional hypothetical measurement only, no portfolio orders or new allocation policy. Track all seven names, both groups and all-seven reference. Not a matched sector test or full market experiment.",
+    "entry": "First official regular NSE session strictly after 2026-11-27, use verified final close as research measurement mark. If entry prices/identity or action cannot be established, preserve null and flag. No assumed executable fills.",
+    "horizons_sessions": [
+      63,
+      126,
+      252,
+      756
+    ],
+    "primary_descriptive_horizon_sessions": 252,
+    "required": "Official stock close/identity and split, bonus, demerger, dividend, delisting settlement and action history; consistent close-to-close dividend-inclusive returns, matching index total return levels; report gross diagnostic and separately illustrative 25/50bp per side cost sensitivity, not actual costs. Retain missing names, no outcome-driven replacement. Sector concentration and short horizon limitations. Keep prospective results null until observed. Do not change H/PF/HG/AE contracts or existing review dates.",
+    "entry_marks": null,
+    "outcomes": null
+  },
+  "external_sources": [
+    [
+      "BlackRock systematic AI signals",
+      "https://www.blackrock.com/institutions/en-us/insights/thought-leadership/alpha-reimagined"
+    ],
+    [
+      "Two Sigma portfolio models",
+      "https://www.two-sigmas.com/businesses/investment-management/"
+    ],
+    [
+      "Capital Group research",
+      "https://www.capitalgroup.com/individual-investors/ch/en/about-us/research.html"
+    ],
+    [
+      "AQR Quality Minus Junk",
+      "https://www.aqr.com/insights/research/working-paper/quality-minus-junk"
+    ],
+    [
+      "Qlib",
+      "https://github.com/microsoft/qlib"
+    ],
+    [
+      "RD-Agent",
+      "https://github.com/microsoft/RD-Agent"
+    ],
+    [
+      "FinRobot",
+      "https://github.com/AI4Finance-Foundation/FinRobot"
+    ],
+    [
+      "AlphaSense",
+      "https://www.alpha-sense.com/solutions/generative-ai-investment-research/"
+    ],
+    [
+      "Trendlyne current constituent limitation",
+      "https://help.trendlyne.com/support/solutions/articles/84000346039-what-does-a-screener-backtest-involve-"
+    ],
+    [
+      "FINSABER",
+      "https://arxiv.org/abs/2505.07078"
+    ],
+    [
+      "Financial Statement Analysis with LLMs",
+      "https://arxiv.org/abs/2407.17866"
+    ],
+    [
+      "Dou/Fu supervised earnings direction",
+      "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6484841"
+    ],
+    [
+      "Agentic Trading evaluation survey",
+      "https://arxiv.org/abs/2605.19337"
+    ],
+    [
+      "FinSearchComp",
+      "https://proceedings.iclr.cc/paper_files/paper/2026/hash/4d42358702dff82e1436550a05ade260-Abstract-Conference.html"
+    ],
+    [
+      "NSE multifactor index",
+      "https://www.niftyindices.com/indices/equity/strategy-indices/nifty500-multifactor-mqvlv-50"
+    ],
+    [
+      "NSE September fact sheet, screenshot failed",
+      "https://niftyindices.com/Factsheet/Factsheet_nifty500MultifactorMQVLv50.pdf"
+    ],
+    [
+      "SPIVA India midyear 2026",
+      "https://www.spglobal.com/spdji/en/spiva/article/spiva-india/"
+    ]
+  ]
+}
